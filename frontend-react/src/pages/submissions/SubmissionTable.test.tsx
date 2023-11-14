@@ -2,29 +2,14 @@ import { Fixture } from "@rest-hooks/test";
 import { screen, within } from "@testing-library/react";
 
 import SubmissionsResource from "../../resources/SubmissionsResource";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 import { MemberType } from "../../utils/OrganizationUtils";
-import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import SubmissionTable from "./SubmissionTable";
 
 describe("SubmissionTable", () => {
     test("renders a placeholder", async () => {
-        mockUseSessionContext.mockReturnValue({
-            activeMembership: {
-                memberType: MemberType.SENDER,
-                parsedName: "testOrg",
-                service: "testSender",
-            },
-
-            user: {
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: true,
-                isUserTransceiver: false,
-            } as any,
-        });
         const fixtures: Fixture[] = [
             {
                 endpoint: SubmissionsResource.list(),
@@ -46,7 +31,25 @@ describe("SubmissionTable", () => {
                 ] as SubmissionsResource[],
             },
         ];
-        renderApp(<SubmissionTable />, { restHookFixtures: fixtures });
+        render(<SubmissionTable />, {
+            restHookFixtures: fixtures,
+            providers: {
+                Session: {
+                    activeMembership: {
+                        memberType: MemberType.SENDER,
+                        parsedName: "testOrg",
+                        service: "testSender",
+                    },
+
+                    user: {
+                        isUserAdmin: false,
+                        isUserReceiver: false,
+                        isUserSender: true,
+                        isUserTransceiver: false,
+                    } as any,
+                },
+            },
+        });
 
         const pagination = await screen.findByLabelText(
             /submissions pagination/i,
@@ -65,21 +68,24 @@ describe("SubmissionTable", () => {
 
     describe("when rendering as an admin", () => {
         function setup() {
-            mockUseSessionContext.mockReturnValue({
-                activeMembership: {
-                    memberType: MemberType.PRIME_ADMIN,
-                    parsedName: Organizations.PRIMEADMINS,
-                    service: "",
+            render(<SubmissionTable />, {
+                restHookFixtures: [],
+                providers: {
+                    Session: {
+                        activeMembership: {
+                            memberType: MemberType.PRIME_ADMIN,
+                            parsedName: Organizations.PRIMEADMINS,
+                            service: "",
+                        },
+                        user: {
+                            isUserAdmin: true,
+                            isUserReceiver: false,
+                            isUserSender: false,
+                            isUserTransceiver: false,
+                        } as any,
+                    },
                 },
-                user: {
-                    isUserAdmin: true,
-                    isUserReceiver: false,
-                    isUserSender: false,
-                    isUserTransceiver: false,
-                } as any,
             });
-
-            renderApp(<SubmissionTable />, { restHookFixtures: [] });
         }
 
         test("renders a warning about not being able to request submission history", async () => {

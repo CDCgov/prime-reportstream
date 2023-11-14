@@ -1,10 +1,10 @@
-import { screen, renderApp } from "../utils/CustomRenderUtils";
+import { screen } from "@testing-library/react";
 
 import Crumbs, { CrumbConfig, CrumbsProps, WithCrumbs } from "./Crumbs";
 
 describe("Crumbs", () => {
     test("no crumbs to render", () => {
-        renderApp(<Crumbs />);
+        render(<Crumbs />);
         const noCrumbs = screen.getByText("No crumbs given");
         expect(noCrumbs).toBeInTheDocument();
     });
@@ -14,7 +14,7 @@ describe("Crumbs", () => {
         const sampleProps: CrumbsProps = {
             crumbList: [sampleConfig] as CrumbConfig[],
         };
-        renderApp(<Crumbs {...sampleProps} />);
+        render(<Crumbs {...sampleProps} />);
         const testCrumb = screen.getByRole("link");
         expect(testCrumb).toHaveTextContent("TEST");
     });
@@ -25,7 +25,7 @@ describe("Crumbs", () => {
             { label: "TEST2", path: "/sample/2" },
             { label: "TEST3", path: "/sample/" },
         ];
-        renderApp(<Crumbs crumbList={sampleConfigs} />);
+        render(<Crumbs crumbList={sampleConfigs} />);
         const allCrumbs = screen.getAllByRole("link");
         expect(allCrumbs.length).toEqual(3);
     });
@@ -41,7 +41,7 @@ const TestPage = () => {
 const fakeCrumbs: CrumbConfig[] = [{ label: "Test label", path: "/test-path" }];
 describe("WithCrumbs", () => {
     test("HOC renders crumbs and page", () => {
-        renderApp(<WithCrumbs page={<TestPage />} crumbList={fakeCrumbs} />);
+        render(<WithCrumbs page={<TestPage />} crumbList={fakeCrumbs} />);
         expect(screen.getByText("Test Page")).toBeInTheDocument();
         expect(screen.getByText("Test label")).toBeInTheDocument();
     });

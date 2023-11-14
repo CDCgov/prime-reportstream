@@ -1,9 +1,9 @@
 import { act, waitFor } from "@testing-library/react";
 import range from "lodash.range";
 
-import * as AppInsightsContext from "../contexts/AppInsights";
 import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
 import { renderHook } from "../utils/CustomRenderUtils";
+import { mockAppInsights } from "../__mocks__/ApplicationInsights";
 
 import usePagination, {
     CursorExtractor,
@@ -14,22 +14,6 @@ import usePagination, {
     setSelectedPageReducer,
     processResultsReducer,
 } from "./UsePagination";
-
-const mockTrackEvent = vi.fn();
-
-const mockUseAppInsightsContext = vi.spyOn(
-    AppInsightsContext,
-    "useAppInsightsContext",
-);
-
-function mockUseAppInsightsContextImplementation(obj?: any) {
-    return mockUseAppInsightsContext.mockImplementation(() => ({
-        appInsights: {
-            trackEvent: mockTrackEvent,
-        },
-        ...obj,
-    }));
-}
 
 interface SampleRecord {
     cursor: string;
@@ -443,7 +427,6 @@ describe("usePagination", () => {
 
     test("Returns empty pagination props when there are no results", async () => {
         const mockFetchResults = vi.fn().mockResolvedValueOnce([]);
-        mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
             isCursorInclusive: false,
@@ -463,7 +446,6 @@ describe("usePagination", () => {
     test("Fetches results and updates the available slots and page of results", async () => {
         const results = createSampleRecords(40);
         const mockFetchResults = vi.fn().mockResolvedValueOnce(results);
-        mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
             isCursorInclusive: false,
@@ -492,7 +474,6 @@ describe("usePagination", () => {
             .fn()
             .mockResolvedValueOnce(results1)
             .mockResolvedValueOnce(results2);
-        mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
             isCursorInclusive: false,
@@ -549,7 +530,6 @@ describe("usePagination", () => {
             .fn()
             .mockResolvedValueOnce(createSampleRecords(11))
             .mockResolvedValueOnce(createSampleRecords(11));
-        mockUseAppInsightsContextImplementation();
         const { result, rerender } = doRenderHook({
             startCursor: "0",
             isCursorInclusive: false,
@@ -604,7 +584,6 @@ describe("usePagination", () => {
             fetchResults: mockFetchResults1,
             extractCursor,
         };
-        mockUseAppInsightsContextImplementation();
         const { result, rerender } = doRenderHook(initialProps);
 
         // Set the results and move to the second page.
@@ -638,7 +617,6 @@ describe("usePagination", () => {
             .fn()
             .mockResolvedValueOnce(createSampleRecords(11))
             .mockResolvedValueOnce(createSampleRecords(11));
-        mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
             isCursorInclusive: false,
@@ -655,13 +633,13 @@ describe("usePagination", () => {
         );
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
-        expect(mockTrackEvent).not.toBeCalled();
+        expect(mockAppInsights.trackEvent).not.toBeCalled();
 
         act(() => {
             result.current.paginationProps?.setSelectedPage(2);
         });
 
-        expect(mockTrackEvent).toBeCalledWith({
+        expect(mockAppInsights.trackEvent).toBeCalledWith({
             name: "Test Analytics Event",
             properties: {
                 tablePagination: {

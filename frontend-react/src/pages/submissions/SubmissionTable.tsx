@@ -14,7 +14,6 @@ import TableFilters, {
 import { PaginationProps } from "../../components/Table/Pagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/Session";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { FeatureName } from "../../utils/FeatureName";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
@@ -100,7 +99,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
     );
 };
 
-function SubmissionTableWithNumberedPagination() {
+function SubmissionTable() {
     const { activeMembership } = useSessionContext();
     const isAdmin = activeMembership?.parsedName === Organizations.PRIMEADMINS;
 
@@ -195,8 +194,5 @@ function SubmissionTableWithNumberedPagination() {
         />
     );
 }
-
-const SubmissionTable = () =>
-    withCatchAndSuspense(<SubmissionTableWithNumberedPagination />);
 
 export default SubmissionTable;

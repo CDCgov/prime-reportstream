@@ -1,7 +1,7 @@
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import * as useCreateOrganizationPublicKeyExports from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import { UseCreateOrganizationPublicKeyResult } from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import { RSSender } from "../../config/endpoints/settings";
@@ -11,7 +11,6 @@ import { UseOrganizationPublicKeysResult } from "../../hooks/network/Organizatio
 import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
 import { MemberType } from "../../utils/OrganizationUtils";
-import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { ManagePublicKeyPage } from "./ManagePublicKey";
 
@@ -79,32 +78,28 @@ describe("ManagePublicKey", () => {
         } as UseOrganizationPublicKeysResult);
     }
 
-    beforeEach(() => {
-        mockUseSessionContext.mockReturnValue({
-            activeMembership: {
-                memberType: MemberType.SENDER,
-                parsedName: "testOrg",
-                service: "serviceName",
-            },
-            user: {
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: true,
-                isUserTransceiver: false,
-            } as any,
-        });
-    });
-
-    afterEach(() => {
-        vi.resetAllMocks();
-    });
-
     describe("when the page is loading", () => {
         function setup() {
             mockUseOrganizationSenders({ isLoading: true });
             mockUseOrganizationPublicKeys();
 
-            renderApp(<ManagePublicKeyPage />);
+            render(<ManagePublicKeyPage />, {
+                providers: {
+                    Session: {
+                        activeMembership: {
+                            memberType: MemberType.SENDER,
+                            parsedName: "testOrg",
+                            service: "serviceName",
+                        },
+                        user: {
+                            isUserAdmin: false,
+                            isUserReceiver: false,
+                            isUserSender: true,
+                            isUserTransceiver: false,
+                        } as any,
+                    },
+                },
+            });
         }
 
         test("renders a spinner", () => {
@@ -121,7 +116,7 @@ describe("ManagePublicKey", () => {
             });
             mockUseOrganizationPublicKeys();
 
-            renderApp(<ManagePublicKeyPage />);
+            render(<ManagePublicKeyPage />);
         }
 
         test("renders the sender options", () => {
@@ -174,7 +169,7 @@ describe("ManagePublicKey", () => {
             });
             mockUseOrganizationPublicKeys();
 
-            renderApp(<ManagePublicKeyPage />);
+            render(<ManagePublicKeyPage />);
         }
 
         test("renders ManagePublicKeyUpload", () => {
@@ -198,7 +193,23 @@ describe("ManagePublicKey", () => {
                 data: mockRSApiKeysResponse,
             });
 
-            renderApp(<ManagePublicKeyPage />);
+            render(<ManagePublicKeyPage />, {
+                providers: {
+                    Session: {
+                        activeMembership: {
+                            memberType: MemberType.SENDER,
+                            parsedName: "testOrg",
+                            service: "serviceName",
+                        },
+                        user: {
+                            isUserAdmin: false,
+                            isUserReceiver: false,
+                            isUserSender: true,
+                            isUserTransceiver: false,
+                        },
+                    },
+                },
+            });
         }
 
         test.skip("shows the configured screen and allows the user to upload a new public key", async () => {
@@ -244,7 +255,7 @@ describe("ManagePublicKey", () => {
                 isSuccess: true,
             });
 
-            renderApp(<ManagePublicKeyPage />);
+            render(<ManagePublicKeyPage />);
         }
 
         test("uploads the file and shows the success screen", async () => {
@@ -281,7 +292,7 @@ describe("ManagePublicKey", () => {
                 isSuccess: false,
             });
 
-            renderApp(<ManagePublicKeyPage />);
+            render(<ManagePublicKeyPage />);
 
             expect(screen.getByTestId("file-input-input")).toBeVisible();
             expect(screen.getByText("Submit")).toBeDisabled();

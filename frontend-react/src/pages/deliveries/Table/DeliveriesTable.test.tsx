@@ -1,14 +1,14 @@
 import { screen } from "@testing-library/react";
 
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { renderApp } from "../../../utils/CustomRenderUtils";
+import { render } from "../../../utils/CustomRenderUtils";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { receiversGenerator } from "../../../__mocks__/OrganizationMockServer";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import DeliveriesTable from "./DeliveriesTable";
-import { MemberType } from "../../../utils/OrganizationUtils";
 
 const mockUsePagination = {
     currentPageResults: makeDeliveryFixtureArray(10),
@@ -70,7 +70,7 @@ describe("DeliveriesTable", () => {
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
             // Render the component
-            renderApp(<DeliveriesTable />, options);
+            render(<DeliveriesTable />, options);
         }
 
         test("if no activeService display NoServicesBanner", async () => {
@@ -103,7 +103,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 );
 
                 // Render the component
-                renderApp(<DeliveriesTable />, options);
+                render(<DeliveriesTable />, options);
             }
 
             test("renders with no error", async () => {
@@ -151,7 +151,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 );
 
                 // Render the component
-                renderApp(<DeliveriesTable />, options);
+                render(<DeliveriesTable />, options);
             }
 
             test("renders the NoServicesBanner message", async () => {
@@ -181,7 +181,7 @@ describe("DeliveriesTableWithNumbered", () => {
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
             // Render the component
-            renderApp(<DeliveriesTable />, options);
+            render(<DeliveriesTable />, options);
         }
 
         test("renders an error saying admins shouldn't fetch organization data", async () => {

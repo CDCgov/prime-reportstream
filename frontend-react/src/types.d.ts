@@ -1,5 +1,7 @@
 import type { RouteObject } from "react-router";
 
+import { RSRender, RSRenderHook } from "./utils/CustomRenderUtils";
+
 declare global {
     type RsRouteObject = Omit<RouteObject, "children" | "handle"> & {
         children?: RsRouteObject[];
@@ -15,4 +17,6 @@ declare global {
             isLoginPage?: boolean;
         };
     };
+    export const render: RSRender;
+    export const renderHook: RSRenderHook;
 }

@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import { Tile } from "./Tile";
 
@@ -11,7 +11,7 @@ describe("Feature rendering", () => {
     };
 
     function setup() {
-        renderApp(<Tile {...baseFeature} />);
+        render(<Tile {...baseFeature} />);
     }
 
     test("renders without error", () => {
@@ -49,7 +49,7 @@ describe("DeliveryMethodFeature rendering", () => {
     };
 
     function setup() {
-        renderApp(<Tile {...deliveryFeature} />);
+        render(<Tile {...deliveryFeature} />);
     }
 
     test("renders without error", () => {
@@ -70,7 +70,7 @@ describe("LiveMapFeature rendering", () => {
     };
 
     function setup() {
-        renderApp(<Tile {...liveMapFeature} />);
+        render(<Tile {...liveMapFeature} />);
     }
 
     test("renders without error", () => {

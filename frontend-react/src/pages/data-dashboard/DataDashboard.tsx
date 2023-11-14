@@ -2,7 +2,6 @@ import { Helmet } from "react-helmet-async";
 
 import { FeatureName } from "../../utils/FeatureName";
 import { USNavLink } from "../../components/USLink";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import DataDashboardTable from "../../components/DataDashboard/DataDashboardTable/DataDashboardTable";
 import HipaaNotice from "../../components/HipaaNotice";
@@ -47,7 +46,7 @@ function DataDashboardPage() {
                             <title>{FeatureName.DATA_DASHBOARD}</title>
                         </Helmet>
                         <article>
-                            {withCatchAndSuspense(<DataDashboardTable />)}
+                            <DataDashboardTable />
                             <HipaaNotice />
                         </article>
                     </section>

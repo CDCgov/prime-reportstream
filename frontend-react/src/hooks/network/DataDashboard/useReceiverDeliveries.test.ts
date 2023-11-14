@@ -3,7 +3,6 @@ import { waitFor } from "@testing-library/react";
 import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
-import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import useReceiverDeliveries from "./UseReceiverDeliveries";
 
@@ -13,52 +12,53 @@ describe("useReceiverDeliveries", () => {
     afterAll(() => dataDashboardServer.close());
 
     describe("with no Organization name", () => {
-        beforeEach(() => {
-            mockUseSessionContext.mockReturnValue({
-                authState: {
-                    accessToken: { accessToken: "TOKEN" },
-                } as any,
-                activeMembership: undefined,
-
-                user: {
-                    isUserAdmin: false,
-                    isUserReceiver: false,
-                    isUserSender: false,
-                    isUserTransceiver: false,
-                } as any,
-            });
-        });
-
         test("returns undefined", async () => {
-            const { result } = renderHook(() => useReceiverDeliveries());
+            const { result } = renderHook(() => useReceiverDeliveries(), {
+                providers: {
+                    Session: {
+                        authState: {
+                            accessToken: { accessToken: "TOKEN" },
+                        } as any,
+                        activeMembership: undefined,
+
+                        user: {
+                            isUserAdmin: false,
+                            isUserReceiver: false,
+                            isUserSender: false,
+                            isUserTransceiver: false,
+                        } as any,
+                    },
+                },
+            });
             await waitFor(() => expect(result.current.data).toEqual(undefined));
         });
     });
 
     describe("with Organization and service name", () => {
-        beforeEach(() => {
-            mockUseSessionContext.mockReturnValue({
-                authState: {
-                    accessToken: { accessToken: "TOKEN" },
-                } as any,
-                activeMembership: {
-                    memberType: MemberType.RECEIVER,
-                    parsedName: "testOrg",
-                    service: "testService",
-                },
-
-                user: {
-                    isUserAdmin: false,
-                    isUserReceiver: true,
-                    isUserSender: false,
-                    isUserTransceiver: false,
-                } as any,
-            });
-        });
-
         test("returns receiver meta and deliveries", async () => {
-            const { result } = renderHook(() =>
-                useReceiverDeliveries("testService"),
+            const { result } = renderHook(
+                () => useReceiverDeliveries("testService"),
+                {
+                    providers: {
+                        Session: {
+                            authState: {
+                                accessToken: { accessToken: "TOKEN" },
+                            } as any,
+                            activeMembership: {
+                                memberType: MemberType.RECEIVER,
+                                parsedName: "testOrg",
+                                service: "testService",
+                            },
+
+                            user: {
+                                isUserAdmin: false,
+                                isUserReceiver: true,
+                                isUserSender: false,
+                                isUserTransceiver: false,
+                            } as any,
+                        },
+                    },
+                },
             );
 
             await waitFor(() => expect(result.current.data).toHaveLength(1));

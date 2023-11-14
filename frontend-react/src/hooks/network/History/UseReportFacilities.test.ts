@@ -1,9 +1,7 @@
 import { waitFor } from "@testing-library/react";
 
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
-import { AppWrapper, renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
-import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { useReportsFacilities } from "./DeliveryHooks";
 
@@ -12,24 +10,25 @@ describe("useReportsList", () => {
     afterEach(() => deliveryServer.resetHandlers());
     afterAll(() => deliveryServer.close());
     test("useReportFacilities", async () => {
-        mockUseSessionContext.mockReturnValue({
-            authState: {
-                accessToken: { accessToken: "TOKEN" },
-            } as any,
-            activeMembership: {
-                memberType: MemberType.RECEIVER,
-                parsedName: "testOrg",
-            },
-
-            user: {
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                isUserTransceiver: false,
-            } as any,
-        });
         const { result } = renderHook(() => useReportsFacilities("123"), {
-            wrapper: AppWrapper(),
+            providers: {
+                Session: {
+                    authState: {
+                        accessToken: { accessToken: "TOKEN" },
+                    } as any,
+                    activeMembership: {
+                        memberType: MemberType.RECEIVER,
+                        parsedName: "testOrg",
+                    },
+
+                    user: {
+                        isUserAdmin: false,
+                        isUserReceiver: true,
+                        isUserSender: false,
+                        isUserTransceiver: false,
+                    } as any,
+                },
+            },
         });
         await waitFor(() => expect(result.current.data?.length).toEqual(2));
     });

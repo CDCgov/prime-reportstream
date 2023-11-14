@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
 
-import { renderApp, renderHook } from "../utils/CustomRenderUtils";
+import { render, renderHook } from "../utils/CustomRenderUtils";
 
 import { ModalConfirmDialog, ModalConfirmRef } from "./ModalConfirmDialog";
 
@@ -22,7 +22,7 @@ describe("ConfirmDialog", () => {
         });
 
         const modalRef = result.current;
-        renderApp(
+        render(
             <div>
                 <ModalConfirmDialog
                     ref={modalRef}

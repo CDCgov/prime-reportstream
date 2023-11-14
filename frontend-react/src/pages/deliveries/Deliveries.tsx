@@ -3,7 +3,6 @@ import { GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import { FeatureName } from "../../utils/FeatureName";
 
@@ -19,7 +18,7 @@ function DeliveriesPage() {
             </Helmet>
             <article className="padding-bottom-5 tablet:padding-top-6">
                 <Title preTitle={description} title={FeatureName.DAILY_DATA} />
-                {withCatchAndSuspense(<DeliveriesTable />)}
+                <DeliveriesTable />
                 <HipaaNotice />
             </article>
         </GridContainer>

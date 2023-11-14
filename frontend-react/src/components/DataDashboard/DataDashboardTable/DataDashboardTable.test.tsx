@@ -8,7 +8,7 @@ import {
 import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverDeliveries";
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
-import { renderApp } from "../../../utils/CustomRenderUtils";
+import { render } from "../../../utils/CustomRenderUtils";
 
 import DataDashboardTable from "./DataDashboardTable";
 
@@ -49,7 +49,7 @@ describe("DataDashboardTable", () => {
             );
 
             // Render the component
-            renderApp(<DataDashboardTable />);
+            render(<DataDashboardTable />);
         }
 
         test("if no active service display NoServicesBanner", async () => {
@@ -81,7 +81,7 @@ describe("DataDashboardTableWithPagination", () => {
                 );
 
                 // Render the component
-                renderApp(<DataDashboardTable />);
+                render(<DataDashboardTable />);
             }
 
             test("renders receiver services", () => {
@@ -138,7 +138,7 @@ describe("DataDashboardTableWithPagination", () => {
                 );
 
                 // Render the component
-                renderApp(<DataDashboardTable />);
+                render(<DataDashboardTable />);
             }
 
             test("renders the receiver service", () => {
@@ -180,7 +180,7 @@ describe("DataDashboardTableWithPagination", () => {
                 );
 
                 // Render the component
-                renderApp(<DataDashboardTable />);
+                render(<DataDashboardTable />);
             }
 
             test("renders the NoServicesBanner message", async () => {
@@ -213,7 +213,7 @@ describe("DataDashboardTableWithPagination", () => {
             );
 
             // Render the component
-            renderApp(<DataDashboardTable />);
+            render(<DataDashboardTable />);
         }
 
         test("renders an error saying admins shouldn't fetch organization data", async () => {

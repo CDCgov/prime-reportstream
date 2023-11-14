@@ -9,8 +9,8 @@ vi.mock("../DeliveryHooks", async (imp) => ({
 
 export const mockUseOrgDeliveries = vi.mocked(DeliveryHooks.useOrgDeliveries);
 
-export const mockUseReportDetail = vi.mocked(DeliveryHooks.useReportsDetail);
+export const mockUseReportsDetail = vi.mocked(DeliveryHooks.useReportsDetail);
 
-export const mockUseReportFacilities = vi.mocked(
+export const mockUseReportsFacilities = vi.mocked(
     DeliveryHooks.useReportsFacilities,
 );

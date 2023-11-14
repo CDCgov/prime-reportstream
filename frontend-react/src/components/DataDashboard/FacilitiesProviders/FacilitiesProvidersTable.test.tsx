@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
+import { render } from "../../../utils/CustomRenderUtils";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
 import {
     orgServer,
@@ -11,7 +11,6 @@ import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManage
 import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
 import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
 import { MemberType } from "../../../utils/OrganizationUtils";
-import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
 
@@ -73,25 +72,6 @@ describe("FacilitiesProvidersTable", () => {
                 isDisabled: false,
             } as any);
 
-            // Mock our SessionProvider's data
-            mockUseSessionContext.mockReturnValue({
-                authState: {
-                    accessToken: { accessToken: "TOKEN" },
-                } as any,
-                activeMembership: {
-                    memberType: MemberType.RECEIVER,
-                    parsedName: "testOrgNoReceivers",
-                    service: "testReceiver",
-                },
-
-                user: {
-                    isUserAdmin: false,
-                    isUserReceiver: true,
-                    isUserSender: false,
-                    isUserTransceiver: false,
-                } as any,
-            });
-
             // Mock the response from the Submitters hook
             const mockUseReceiverSubmitterCallback = {
                 data: makeRSReceiverSubmitterResponseFixture(10),
@@ -103,7 +83,27 @@ describe("FacilitiesProvidersTable", () => {
             );
 
             // Render the component
-            renderApp(<FacilitiesProvidersTable />);
+            render(<FacilitiesProvidersTable />, {
+                providers: {
+                    Session: {
+                        authState: {
+                            accessToken: { accessToken: "TOKEN" },
+                        } as any,
+                        activeMembership: {
+                            memberType: MemberType.RECEIVER,
+                            parsedName: "testOrgNoReceivers",
+                            service: "testReceiver",
+                        },
+
+                        user: {
+                            isUserAdmin: false,
+                            isUserReceiver: true,
+                            isUserSender: false,
+                            isUserTransceiver: false,
+                        } as any,
+                    },
+                },
+            });
         }
 
         test("if no active service display NoServicesBanner", async () => {
@@ -125,24 +125,6 @@ describe("FacilitiesProvidersTable", () => {
                 isDisabled: false,
             } as any);
 
-            // Mock our SessionProvider's data
-            mockUseSessionContext.mockReturnValue({
-                authState: {
-                    accessToken: { accessToken: "TOKEN" },
-                } as any,
-                activeMembership: {
-                    memberType: MemberType.RECEIVER,
-                    parsedName: "testOrgNoReceivers",
-                    service: "testReceiver",
-                },
-                user: {
-                    isUserAdmin: false,
-                    isUserReceiver: true,
-                    isUserSender: false,
-                    isUserTransceiver: false,
-                } as any,
-            });
-
             const mockUseReceiverSubmitterCallback = {
                 data: makeRSReceiverSubmitterResponseFixture(1),
                 filterManager: mockFilterManager,
@@ -153,7 +135,26 @@ describe("FacilitiesProvidersTable", () => {
             );
 
             // Render the component
-            renderApp(<FacilitiesProvidersTable />);
+            render(<FacilitiesProvidersTable />, {
+                providers: {
+                    Session: {
+                        authState: {
+                            accessToken: { accessToken: "TOKEN" },
+                        } as any,
+                        activeMembership: {
+                            memberType: MemberType.RECEIVER,
+                            parsedName: "testOrgNoReceivers",
+                            service: "testReceiver",
+                        },
+                        user: {
+                            isUserAdmin: false,
+                            isUserReceiver: true,
+                            isUserSender: false,
+                            isUserTransceiver: false,
+                        } as any,
+                    },
+                },
+            });
         }
 
         test("renders with no error", async () => {

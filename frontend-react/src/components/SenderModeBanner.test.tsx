@@ -1,13 +1,13 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../utils/CustomRenderUtils";
+import { render } from "../utils/CustomRenderUtils";
 import { MemberType } from "../utils/OrganizationUtils";
 
 import SenderModeBanner from "./SenderModeBanner";
 
 vi.mock("../hooks/UseSenderResource", async (imp) => ({
     ...(await imp()),
-    useSenderResource: vi.fn(() => ({
+    default: vi.fn(() => ({
         isLoading: false,
         data: {
             customerStatus: "testing",
@@ -17,7 +17,7 @@ vi.mock("../hooks/UseSenderResource", async (imp) => ({
 
 describe("SenderModeBanner", () => {
     test("renders when sender is testing", async () => {
-        renderApp(<SenderModeBanner />, {
+        render(<SenderModeBanner />, {
             providers: {
                 Session: {
                     activeMembership: {

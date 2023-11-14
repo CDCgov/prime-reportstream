@@ -3,9 +3,8 @@ import { GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import { MessageTracker } from "../../components/MessageTracker/MessageTracker";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 
-export function AdminMessageTracker() {
+export function AdminMessageTrackerPage() {
     return (
         <GridContainer>
             <Helmet>
@@ -18,8 +17,5 @@ export function AdminMessageTracker() {
         </GridContainer>
     );
 }
-
-export const AdminMessageTrackerPage = () =>
-    withCatchAndSuspense(<AdminMessageTracker />);
 
 export default AdminMessageTrackerPage;

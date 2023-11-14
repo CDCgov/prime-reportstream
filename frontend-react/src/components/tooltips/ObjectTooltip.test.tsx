@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import { SampleTimingObj } from "../../utils/TemporarySettingsAPITypes";
 
 import { ObjectTooltip } from "./ObjectTooltip";
@@ -11,7 +11,7 @@ const TestObjectToolTip = () => {
 
 describe("ObjectTooltip", () => {
     function setup() {
-        renderApp(<TestObjectToolTip />);
+        render(<TestObjectToolTip />);
     }
     test("Renders stringified JSON value of obj", () => {
         setup();

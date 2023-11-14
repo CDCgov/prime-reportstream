@@ -1,7 +1,5 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import MainLayout from "./MainLayout";
 
 function ErroringComponent() {
@@ -12,18 +10,19 @@ function ErroringComponent() {
 
 describe("MainLayout", () => {
     test("Renders children", () => {
-        renderApp(<MainLayout>Test</MainLayout>);
+        render(<MainLayout>Test</MainLayout>);
         expect(screen.getByRole("main")).toBeInTheDocument();
         expect(screen.getByRole("main")).toHaveTextContent("Test");
     });
 
     test("Renders error", () => {
-        renderApp(
-            <MainLayout>
+        const mockOnError = vi.fn();
+        render(
+            <MainLayout ErrorBoundary={((props: any) => props.children) as any}>
                 <ErroringComponent />
             </MainLayout>,
+            { onError: mockOnError },
         );
-        expect(screen.getByRole("main")).toBeInTheDocument();
-        expect(screen.getByRole("alert")).toBeInTheDocument();
+        expect(mockOnError).toBeCalled();
     });
 });

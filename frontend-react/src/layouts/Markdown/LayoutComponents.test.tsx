@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { useMemo, useState } from "react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import MarkdownLayoutContext from "./Context";
 import { LayoutMain, LayoutSidenav } from "./LayoutComponents";
@@ -39,7 +39,7 @@ describe("LayoutComponents", () => {
     }
 
     test("LayoutSidenav", async () => {
-        renderApp(
+        render(
             <TestComponent>
                 <LayoutSidenav>Test Sidenav</LayoutSidenav>
             </TestComponent>,
@@ -51,7 +51,7 @@ describe("LayoutComponents", () => {
     });
 
     test("LayoutMain", () => {
-        renderApp(
+        render(
             <TestComponent>
                 <LayoutMain>Test Main</LayoutMain>
             </TestComponent>,

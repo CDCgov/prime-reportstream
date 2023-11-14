@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { FeatureName } from "../../../utils/FeatureName";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
 import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
-import { withCatchAndSuspense } from "../../RSErrorBoundary";
 import HipaaNotice from "../../HipaaNotice";
 
 import styles from "./ReportDetails.module.scss";
@@ -29,9 +28,7 @@ export function ReportDetailsPage() {
             <GridContainer className="rs-max-width-100-important">
                 <article>
                     <ReportDetailsSummary report={reportDetail} />
-                    {withCatchAndSuspense(
-                        <ReportDetailsTable reportId={reportId!!} />,
-                    )}
+                    <ReportDetailsTable reportId={reportId!!} />
                     <HipaaNotice />
                 </article>
             </GridContainer>

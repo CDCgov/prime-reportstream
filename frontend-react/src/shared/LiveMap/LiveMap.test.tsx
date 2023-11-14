@@ -1,7 +1,5 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import { LiveMap } from "./LiveMap";
 
 describe("LiveMap", () => {
@@ -13,7 +11,7 @@ describe("LiveMap", () => {
     };
 
     function setup() {
-        renderApp(<LiveMap {...fakeSection} />);
+        render(<LiveMap {...fakeSection} />);
     }
 
     test("renders props", () => {

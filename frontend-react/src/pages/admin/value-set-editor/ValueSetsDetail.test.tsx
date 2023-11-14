@@ -2,7 +2,7 @@ import { screen, act, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AxiosError, AxiosResponse } from "axios";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
+import { render } from "../../../utils/CustomRenderUtils";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
 import {
     useValueSetActivation,
@@ -13,7 +13,7 @@ import {
     UseValueSetsTableResult,
 } from "../../../hooks/UseValueSets";
 
-import { ValueSetsDetailPage, ValueSetsDetailTable } from "./ValueSetsDetail";
+import ValueSetsDetailPage, { ValueSetsDetailTable } from "./ValueSetsDetail";
 
 const fakeRows = [
     {
@@ -80,7 +80,7 @@ describe("ValueSetsDetail", () => {
         mockSaveData.mockImplementation(() => ({}) as any);
         mockActivateTable.mockImplementation(() => ({}) as any);
         // only render with query provider
-        renderApp(<ValueSetsDetailPage />);
+        render(<ValueSetsDetailPage />);
         const headers = screen.getAllByRole("columnheader");
         const title = screen.getByText("ReportStream Core Values");
         const datasetActionButton = screen.getByText("Add item");
@@ -107,7 +107,7 @@ describe("ValueSetsDetail", () => {
         );
         mockSaveData.mockImplementation(() => ({}) as any);
         mockActivateTable.mockImplementation(() => ({}) as any);
-        renderApp(<ValueSetsDetailPage />);
+        render(<ValueSetsDetailPage />);
         const editButtons = screen.getAllByText("Edit");
         const rows = screen.getAllByRole("row");
 
@@ -126,6 +126,7 @@ describe("ValueSetsDetail", () => {
     });
 
     test("Handles error with table fetch", () => {
+        const mockOnError = vi.fn();
         mockUseValueSetsTable.mockImplementation(() => {
             throw new RSNetworkError(
                 new AxiosError("Test", "404", undefined, {}, {
@@ -139,14 +140,8 @@ describe("ValueSetsDetail", () => {
                     data: fakeMeta,
                 }) as UseValueSetsMetaResult,
         );
-        /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
-         * test them via the ErrorBoundary test? */
-        renderApp(<ValueSetsDetailPage />);
-        expect(
-            screen.getByText(
-                "Our apologies, there was an error loading this content.",
-            ),
-        ).toBeInTheDocument();
+        render(<ValueSetsDetailPage />, { onError: mockOnError });
+        expect(mockOnError).toBeCalled();
     });
 });
 
@@ -155,7 +150,7 @@ describe("ValueSetsDetailTable", () => {
         const mockSetAlert = vi.fn();
         mockSaveData.mockImplementation(() => ({}) as any);
         mockActivateTable.mockImplementation(() => ({}) as any);
-        renderApp(
+        render(
             <ValueSetsDetailTable
                 valueSetName={"error"}
                 setAlert={mockSetAlert}
@@ -192,7 +187,7 @@ describe("ValueSetsDetailTable", () => {
         const mockSetAlert = vi.fn();
         const fakeRowsCopy = [...fakeRows];
 
-        renderApp(
+        render(
             <ValueSetsDetailTable
                 valueSetName={"a-path"}
                 setAlert={mockSetAlert}

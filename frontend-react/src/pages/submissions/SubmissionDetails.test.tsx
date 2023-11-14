@@ -2,7 +2,7 @@ import { MatcherFunction, screen } from "@testing-library/react";
 
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../utils/FeatureName";
 
@@ -35,7 +35,7 @@ vi.mock("rest-hooks", async () => ({
 
 describe("SubmissionDetails", () => {
     function setup() {
-        renderApp(<SubmissionDetailsPage />);
+        render(<SubmissionDetailsPage />);
     }
 
     test("renders crumb nav to Submissions list", () => {
@@ -105,7 +105,7 @@ describe("SubmissionDetails", () => {
 
 describe("DetailItem", () => {
     function setup() {
-        renderApp(<DetailItem item="Test Item" content="Test Content" />);
+        render(<DetailItem item="Test Item" content="Test Content" />);
     }
 
     test("renders content", () => {
@@ -117,9 +117,7 @@ describe("DetailItem", () => {
 
 describe("DestinationItem", () => {
     function setup() {
-        renderApp(
-            <DestinationItem destinationObj={mockData.destinations[0]} />,
-        );
+        render(<DestinationItem destinationObj={mockData.destinations[0]} />);
     }
 
     test("renders content", () => {

@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import { SluggedTocEntry, TableOfContents } from "./TableOfContents";
 
@@ -22,13 +22,13 @@ describe("TableOfContents", () => {
     ];
 
     test("renders", () => {
-        renderApp(<TableOfContents items={tocItems} />);
+        render(<TableOfContents items={tocItems} />);
         expect(screen.getAllByRole("list")).toHaveLength(2);
         expect(screen.getAllByRole("listitem")).toHaveLength(2);
     });
 
     test("renders depth", () => {
-        renderApp(<TableOfContents items={tocItems} depth={2} />);
+        render(<TableOfContents items={tocItems} depth={2} />);
         expect(screen.getByRole("list")).toBeInTheDocument();
         expect(screen.getByRole("listitem")).toHaveTextContent("Section 1");
     });

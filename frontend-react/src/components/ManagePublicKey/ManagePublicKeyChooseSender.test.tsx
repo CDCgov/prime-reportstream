@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { RSSender } from "../../config/endpoints/settings";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import ManagePublicKeyChooseSender, {
     ManagePublicKeyChooseSenderProps,
@@ -43,7 +43,7 @@ describe("ManagePublicKeyChooseSender", () => {
     describe("when the sender options have been loaded", () => {
         describe("and Organizations have more than one sender", () => {
             function setup() {
-                renderApp(<ManagePublicKeyChooseSender {...DEFAULT_PROPS} />);
+                render(<ManagePublicKeyChooseSender {...DEFAULT_PROPS} />);
             }
 
             test("renders the sender options", () => {

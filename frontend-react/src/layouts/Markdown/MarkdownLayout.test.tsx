@@ -1,13 +1,13 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import MarkdownLayout from "./MarkdownLayout";
 import { LayoutMain, LayoutSidenav } from "./LayoutComponents";
 
 describe("MarkdownLayout", () => {
     test("no sidenav", () => {
-        renderApp(
+        render(
             <MarkdownLayout>
                 <>Test</>
             </MarkdownLayout>,
@@ -16,7 +16,7 @@ describe("MarkdownLayout", () => {
         expect(screen.getByRole("article")).toHaveTextContent("Test");
     });
     test("sidenav", async () => {
-        renderApp(
+        render(
             <MarkdownLayout>
                 <>
                     <LayoutSidenav>Test</LayoutSidenav>
@@ -29,7 +29,7 @@ describe("MarkdownLayout", () => {
         expect(screen.getByRole("article")).toHaveTextContent("Test");
     });
     test("main", async () => {
-        renderApp(
+        render(
             <MarkdownLayout>
                 <>
                     <LayoutMain>Test</LayoutMain>
@@ -39,7 +39,7 @@ describe("MarkdownLayout", () => {
         expect(screen.getByRole("article")).toHaveTextContent("Test");
     });
     test("sidenav + main", async () => {
-        renderApp(
+        render(
             <MarkdownLayout>
                 <>
                     <LayoutSidenav>Test</LayoutSidenav>

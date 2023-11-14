@@ -1,8 +1,7 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 
@@ -124,7 +123,6 @@ const clickFilterButton = async () => {
 };
 
 /* Sample components for test rendering */
-const mockSortUpdater = vi.spyOn(mockFilterManager, "updateSort");
 const mockAction = vi.fn();
 const SimpleLegend = () => <span>Simple Legend</span>;
 const SimpleTable = () => (
@@ -158,20 +156,20 @@ const FilteredTable = () => {
 
 describe("Table, basic tests", () => {
     test("Info renders", () => {
-        renderApp(<SimpleTable />);
+        render(<SimpleTable />);
         expect(screen.getByText("Test Action")).toBeInTheDocument();
         expect(screen.getByText("Simple Legend")).toBeInTheDocument();
         expect(screen.getByText("Simple Table")).toBeInTheDocument();
     });
 
     test("DatasetAction fires onClick", () => {
-        renderApp(<SimpleTable />);
+        render(<SimpleTable />);
         fireEvent.click(screen.getByText("Test Action"));
         expect(mockAction).toHaveBeenCalledTimes(1);
     });
 
     test("Column names render", () => {
-        renderApp(<SimpleTable />);
+        render(<SimpleTable />);
         const idHeader = screen.getByText("Id");
         const itemHeader = screen.getByText("Item");
 
@@ -180,21 +178,21 @@ describe("Table, basic tests", () => {
     });
 
     test("Row values render", () => {
-        renderApp(<SimpleTable />);
+        render(<SimpleTable />);
         expect(screen.getAllByRole("columnheader").length).toEqual(9);
         expect(screen.getAllByRole("row").length).toEqual(11); // +1 for header row
         expect(screen.getByText("Item 1")).toBeInTheDocument();
     });
 
     test("Edit button column renders and operates", () => {
-        renderApp(<SimpleTable />);
+        render(<SimpleTable />);
         expect(screen.getAllByText("Edit").length).toEqual(10);
         fireEvent.click(screen.getAllByText("Edit")[0]);
         expect(screen.getAllByRole("textbox").length).toEqual(1);
     });
 
     test("Link columns are rendered as links", () => {
-        renderApp(<SimpleTable />);
+        render(<SimpleTable />);
         const linkInCell = screen.getByText("UUID-1");
         expect(linkInCell).toContainHTML(
             '<a class="usa-link" href="/base/UUID-1">UUID-1</a>',
@@ -202,7 +200,7 @@ describe("Table, basic tests", () => {
     });
 
     test("Action columns are rendered as actions", () => {
-        renderApp(<SimpleTableWithAction />);
+        render(<SimpleTableWithAction />);
         expect(
             screen.getByText("Test Simple Table With Action"),
         ).toBeInTheDocument();
@@ -211,60 +209,60 @@ describe("Table, basic tests", () => {
     });
 
     test("Map columns use mapped value", () => {
-        renderApp(<SimpleTable />);
+        render(<SimpleTable />);
         expect(screen.getByText("Mapped Item")).toBeInTheDocument();
     });
 
     test("Transform columns use transformed value", () => {
-        renderApp(<SimpleTable />);
+        render(<SimpleTable />);
         expect(screen.getByText("Transformed Value")).toBeInTheDocument();
     });
 });
 
 describe("Sorting integration", () => {
     test("(Locally) Sorting swaps on header click", () => {
-        renderApp(<FilteredTable />);
+        render(<FilteredTable />);
         const header = screen.getByText("Locallysortedcolumn");
         // click header
         fireEvent.click(header);
         // assert calls for APPLY_LOCAL_SORT, CHANGE_COL, SWAP_ORDER
-        expect(mockSortUpdater).toHaveBeenCalledWith({
+        expect(mockFilterManager.updateSort).toHaveBeenCalledWith({
             type: SortSettingsActionType.APPLY_LOCAL_SORT,
             payload: {
                 locally: true,
             },
         });
-        expect(mockSortUpdater).toHaveBeenCalledWith({
+        expect(mockFilterManager.updateSort).toHaveBeenCalledWith({
             type: SortSettingsActionType.CHANGE_COL,
             payload: {
                 column: "locallySortedColumn",
             },
         });
-        expect(mockSortUpdater).toHaveBeenCalledWith({
+        expect(mockFilterManager.updateSort).toHaveBeenCalledWith({
             type: SortSettingsActionType.SWAP_LOCAL_ORDER,
         });
-        expect(mockSortUpdater).toHaveBeenCalledTimes(3);
+        expect(mockFilterManager.updateSort).toHaveBeenCalledTimes(3);
     });
 
     test("(Server) Sorting swaps on header click", () => {
-        renderApp(<FilteredTable />);
+        render(<FilteredTable />);
         const header = screen.getByText("Sortedcolumn");
         // click header
         fireEvent.click(header);
         // assert calls for APPLY_LOCAL_SORT, CHANGE_COL, SWAP_ORDER
-        expect(mockSortUpdater).toHaveBeenCalledWith({
+        expect(mockFilterManager.updateSort).toHaveBeenCalledWith({
             type: SortSettingsActionType.APPLY_LOCAL_SORT,
             payload: {
                 locally: false,
             },
         });
-        expect(mockSortUpdater).toHaveBeenCalledWith({
+        expect(mockFilterManager.updateSort).toHaveBeenCalledWith({
             type: SortSettingsActionType.CHANGE_COL,
             payload: {
                 column: "sortedColumn",
             },
         });
-        expect(mockSortUpdater).toHaveBeenCalledWith({
+        expect(mockFilterManager.updateSort).toHaveBeenCalledWith({
             type: SortSettingsActionType.SWAP_ORDER,
         });
     });
@@ -275,7 +273,7 @@ describe("Sorting integration", () => {
  * */
 describe("Table, filter integration tests", () => {
     function setup() {
-        renderApp(<TestTable />);
+        render(<TestTable />);
     }
     test("date range selection and clearing", async () => {
         setup();
@@ -497,7 +495,7 @@ describe("ColumnData", () => {
         const fakeRows = getSetOfRows(1);
         const fakeColumns = makeConfigs(fakeRows[0]);
         const fakeUpdate = vi.fn(() => Promise.resolve());
-        renderApp(
+        render(
             <tr>
                 <ColumnData
                     rowIndex={0}
@@ -529,7 +527,7 @@ describe("ColumnData", () => {
 
 describe("Adding New Rows", () => {
     test("When custom datasetAction method not passed, adds editable row to table on datasetAction click", async () => {
-        renderApp(<TestTable linkable={false} editable={true} />);
+        render(<TestTable linkable={false} editable={true} />);
 
         let rows = screen.getAllByRole("row");
         expect(rows).toHaveLength(3); // 2 data rows and 1 header row
@@ -542,7 +540,7 @@ describe("Adding New Rows", () => {
     });
 
     test("All fields on new editable row are editable", async () => {
-        renderApp(<TestTable linkable={false} editable={true} />);
+        render(<TestTable linkable={false} editable={true} />);
 
         const addRowButton = screen.getByText("Test Action");
         await userEvent.click(addRowButton);

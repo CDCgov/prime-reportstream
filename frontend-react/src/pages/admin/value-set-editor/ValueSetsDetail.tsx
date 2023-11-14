@@ -30,7 +30,6 @@ import {
     handleErrorWithAlert,
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import Spinner from "../../../components/Spinner";
 import { TableRowData } from "../../../components/Table/TableRows";
 import { DatasetAction } from "../../../components/Table/TableInfo";
@@ -225,7 +224,7 @@ export const ValueSetsDetailTable = ({
     );
 };
 
-const ValueSetsDetailContent = () => {
+const ValueSetsDetailPage = () => {
     const { valueSetName } = useParams<{ valueSetName: string }>();
     if (!valueSetName) throw new Error("Value set name missing");
     // TODO: when to unset?
@@ -267,7 +266,5 @@ const ValueSetsDetailContent = () => {
         </>
     );
 };
-export const ValueSetsDetailPage = () =>
-    withCatchAndSuspense(<ValueSetsDetailContent />);
 
 export default ValueSetsDetailPage;

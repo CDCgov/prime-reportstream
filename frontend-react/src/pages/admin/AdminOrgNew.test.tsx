@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import OrganizationResource from "../../resources/OrganizationResource";
@@ -50,7 +50,7 @@ describe("AdminOrgNew", () => {
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     function setup() {
-        renderApp(<AdminOrgNewPage />);
+        render(<AdminOrgNewPage />);
     }
 
     test("should go to the new created organization's page", () => {

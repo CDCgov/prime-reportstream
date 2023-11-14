@@ -4,12 +4,11 @@ import { GridContainer } from "@trussworks/react-uswds";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { FeatureName } from "../../utils/FeatureName";
 
 import SubmissionTable from "./SubmissionTable";
 
-function SubmissionHistoryContent() {
+function SubmissionHistoryPage() {
     const { data: orgDetails } = useOrganizationSettings();
     const { description } = orgDetails ?? {};
 
@@ -26,8 +25,5 @@ function SubmissionHistoryContent() {
         </GridContainer>
     );
 }
-
-const SubmissionHistoryPage = () =>
-    withCatchAndSuspense(<SubmissionHistoryContent />);
 
 export default SubmissionHistoryPage;

@@ -1,37 +1,58 @@
-/* eslint-disable no-console */
+const warn = vi.spyOn(console, "warn");
+const error = vi.spyOn(console, "error");
+const log = vi.spyOn(console, "log");
+const assert = vi.spyOn(console, "assert");
+const debug = vi.spyOn(console, "debug");
+const info = vi.spyOn(console, "info");
+const trace = vi.spyOn(console, "trace");
+
+/**
+ * Replace console with one with spies
+ */
+vi.stubGlobal("console", {
+    ...console,
+    warn,
+    error,
+    log,
+    assert,
+    debug,
+    info,
+    trace,
+});
+
 export const mockConsole = {
-    warn: vi.spyOn(console, "warn"),
-    error: vi.spyOn(console, "error"),
-    log: vi.spyOn(console, "log"),
-    assert: vi.spyOn(console, "assert"),
-    debug: vi.spyOn(console, "debug"),
-    info: vi.spyOn(console, "info"),
-    trace: vi.spyOn(console, "trace"),
+    warn,
+    error,
+    log,
+    assert,
+    debug,
+    info,
+    trace,
     mockResetAll() {
-        vi.mocked(console.assert).mockReset();
-        vi.mocked(console.debug).mockReset();
-        vi.mocked(console.error).mockReset();
-        vi.mocked(console.info).mockReset();
-        vi.mocked(console.log).mockReset();
-        vi.mocked(console.trace).mockReset();
-        vi.mocked(console.warn).mockReset();
+        assert.mockReset();
+        debug.mockReset();
+        error.mockReset();
+        info.mockReset();
+        log.mockReset();
+        trace.mockReset();
+        warn.mockReset();
     },
     mockRestoreAll() {
-        vi.mocked(console.assert).mockRestore();
-        vi.mocked(console.debug).mockRestore();
-        vi.mocked(console.error).mockRestore();
-        vi.mocked(console.info).mockRestore();
-        vi.mocked(console.log).mockRestore();
-        vi.mocked(console.trace).mockRestore();
-        vi.mocked(console.warn).mockRestore();
+        assert.mockRestore();
+        debug.mockRestore();
+        error.mockRestore();
+        info.mockRestore();
+        log.mockRestore();
+        trace.mockRestore();
+        warn.mockRestore();
     },
     mockImplementationAll() {
-        this.assert.mockReturnValue(undefined);
-        this.debug.mockReturnValue(undefined);
-        this.error.mockReturnValue(undefined);
-        this.info.mockReturnValue(undefined);
-        this.log.mockReturnValue(undefined);
-        this.trace.mockReturnValue(undefined);
-        this.warn.mockReturnValue(undefined);
+        assert.mockReturnValue(undefined);
+        debug.mockReturnValue(undefined);
+        error.mockReturnValue(undefined);
+        info.mockReturnValue(undefined);
+        log.mockReturnValue(undefined);
+        trace.mockReturnValue(undefined);
+        warn.mockReturnValue(undefined);
     },
 };

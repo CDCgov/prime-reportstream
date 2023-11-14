@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import { DisplayMeta } from "./DisplayMeta";
 
@@ -11,7 +11,7 @@ describe("DisplayMeta rendering object", () => {
             createdBy: "McTest@example.com",
             createdAt: "1/1/2000 00:00",
         };
-        renderApp(<DisplayMeta metaObj={metaobj} />);
+        render(<DisplayMeta metaObj={metaobj} />);
     }
 
     test("Check data as object rendered", () => {

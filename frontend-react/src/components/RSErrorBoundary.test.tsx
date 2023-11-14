@@ -1,14 +1,11 @@
 import { screen } from "@testing-library/react";
 import { AxiosError } from "axios";
 
-import { renderApp } from "../utils/CustomRenderUtils";
+import { render } from "../utils/CustomRenderUtils";
 import { RSNetworkError } from "../utils/RSNetworkError";
 import { mockConsole } from "../__mocks__/console";
 import { mockRsconsole } from "../utils/console/__mocks__";
-import {
-    mockUseSessionContext,
-    defaultCtx,
-} from "../contexts/Session/__mocks__";
+import { defaultCtx } from "../contexts/Session/__mocks__";
 
 import { RSErrorBoundary } from "./RSErrorBoundary";
 
@@ -23,21 +20,25 @@ describe("RSErrorBoundary", () => {
     beforeAll(() => {
         // shut up react's auto console.error
         mockConsole.error.mockImplementation(() => void 0);
-        mockUseSessionContext.mockReturnValue({
-            ...defaultCtx,
-            config: {
-                AI_CONSOLE_SEVERITY_LEVELS: { error: 0 },
-            },
-        });
     });
     afterAll(() => {
         mockConsole.error.mockRestore();
     });
     test("Catches error", () => {
-        renderApp(
+        render(
             <RSErrorBoundary>
                 <ThrowsRSError />
             </RSErrorBoundary>,
+            {
+                providers: {
+                    Session: {
+                        ...defaultCtx,
+                        config: {
+                            AI_CONSOLE_SEVERITY_LEVELS: { error: 0 },
+                        },
+                    },
+                },
+            },
         );
         expect(
             screen.getByText(
@@ -51,7 +52,7 @@ describe("RSErrorBoundary", () => {
     });
 
     test("Renders component when no error", () => {
-        renderApp(<RSErrorBoundary>Success!</RSErrorBoundary>);
+        render(<RSErrorBoundary>Success!</RSErrorBoundary>);
         expect(screen.getByText("Success!")).toBeInTheDocument();
     });
 });

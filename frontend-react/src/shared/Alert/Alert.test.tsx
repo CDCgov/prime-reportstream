@@ -1,13 +1,13 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import Alert, { getAriaRole } from "./Alert";
 import type { AlertProps } from "./Alert";
 
 describe("Alert", () => {
     test("renders with defaults (div heading wrap, div body wrap)", () => {
-        renderApp(
+        render(
             <Alert type="info" heading="Heading Test">
                 Test
             </Alert>,
@@ -33,13 +33,13 @@ describe("Alert", () => {
     ] as AlertProps["type"][])(
         "renders with aria role for type: %s",
         (type) => {
-            renderApp(<Alert type={type}>Test</Alert>);
+            render(<Alert type={type}>Test</Alert>);
             expect(screen.getByRole(getAriaRole(type))).toBeInTheDocument();
         },
     );
 
     test("renders with headingLevel", () => {
-        renderApp(
+        render(
             <Alert type="info" headingLevel="h2" heading="Heading Test">
                 Test
             </Alert>,

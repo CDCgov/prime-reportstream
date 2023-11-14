@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import { MessageReceivers } from "./MessageReceivers";
 
@@ -32,7 +32,7 @@ const MOCK_RECEIVER_DATA: ReceiverData[] = [
 
 describe("MessageReceivers component", () => {
     test("renders expected content", async () => {
-        renderApp(<MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />);
+        render(<MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />);
 
         expect(screen.getByText(/Receivers/)).toBeInTheDocument();
         expect(screen.getAllByText(/Name/)[0]).toBeInTheDocument();

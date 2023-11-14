@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import {
     SettingRevision,
     SettingRevisionParams,
@@ -77,7 +77,7 @@ describe("AdminRevHistory", () => {
         // and verify the diffs are rendering the diffs correctly
 
         // eslint-disable-next-line react/jsx-pascal-case
-        renderApp(<_exportForTesting.AdminRevHistory />);
+        render(<_exportForTesting.AdminRevHistory />);
         // useful: https://testing-library.com/docs/queries/about/
         // we expect 2x because of the right and left list layout
         // eslint-disable-next-line no-restricted-globals

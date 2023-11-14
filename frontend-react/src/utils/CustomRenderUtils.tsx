@@ -1,59 +1,77 @@
 import { ReactElement } from "react";
 import {
-    render,
+    render as renderOrig,
     RenderOptions,
     renderHook as renderHookOrig,
     RenderHookOptions,
     Queries,
     queries,
 } from "@testing-library/react";
-import {
-    createMemoryRouter,
-    Outlet,
-    RouterProvider,
-    RouteObject,
-} from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
-import { Fixture, MockResolver } from "@rest-hooks/test";
 import { CacheProvider } from "rest-hooks";
 import { PartialDeep } from "type-fest";
+import { ErrorBoundary } from "react-error-boundary";
+import { LinkProps } from "react-router-dom";
+import { Fixture, MockResolver } from "@rest-hooks/test";
 
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetch";
 import { getTestQueryClient } from "../network/QueryClients";
-import { appRoutes } from "../AppRouter";
 import { useSessionContext } from "../contexts/Session";
 import { useAppInsightsContext } from "../contexts/AppInsights";
 import { useFeatureFlags } from "../contexts/FeatureFlags";
 import { useToast } from "../contexts/Toast";
+
+const MockLinkBase = ({
+    to,
+    className,
+    state: _state,
+    ...props
+}: LinkProps) => (
+    <a
+        className={typeof className === "function" ? className({}) : className}
+        href={to}
+        {...props}
+    />
+);
+const MockLink = vi.fn(MockLinkBase);
+MockLink.displayName = "Link";
+
+vi.mock("react-router-dom", async (imp) => ({
+    ...(await imp()),
+    useMatch: vi.fn(),
+    useNavigation: vi.fn(),
+    useHref: vi.fn(),
+    useRoutes: vi.fn(),
+    useNavigate: vi.fn(),
+    useLocation: vi.fn(() => window.location),
+    useParams: vi.fn(() => ({})),
+    useMatches: vi.fn(() => []),
+    useSearchParams: vi.fn(),
+    useResolvedPath: vi.fn(),
+    useLoaderData: vi.fn(),
+    useFetcher: vi.fn(),
+    useOutlet: vi.fn(),
+    useOutletContext: vi.fn(),
+    useRouteLoaderData: vi.fn(),
+    useSubmit: vi.fn(),
+    useNavigateType: vi.fn(),
+    useInRouterContext: vi.fn(),
+    useLinkClickHandler: vi.fn(),
+    useLinkPressHandler: vi.fn(),
+    useActionData: vi.fn(),
+    Link: MockLink,
+    NavLink: vi.fn(MockLink),
+}));
 
 interface AppWrapperProps {
     children: React.ReactNode;
 }
 
 interface AppWrapperOptions {
-    initialRouteEntries?: string[];
     restHookFixtures?: Fixture[];
     providers?: AppWrapperProviderHooksOptions;
-}
-
-function TestLayout() {
-    return <Outlet />;
-}
-
-function createTestRoutes(
-    routes: RouteObject[],
-    element: React.ReactNode,
-): RouteObject[] {
-    return routes.map((r) => ({
-        ...r,
-        ErrorBoundary: undefined,
-        lazy: undefined,
-        element: r.path !== "/" ? element : <TestLayout />,
-        children: r.children
-            ? createTestRoutes(r.children, element)
-            : undefined,
-    })) as RouteObject[];
+    onError?: (...any: any[]) => void;
 }
 
 const AppWrapperProviderHooksMap = {
@@ -78,7 +96,7 @@ export type AppWrapperProviderHooksOptions = Partial<{
 }>;
 
 export const AppWrapper = ({
-    initialRouteEntries,
+    onError,
     restHookFixtures,
     providers = {},
 }: AppWrapperOptions = {}) => {
@@ -88,35 +106,26 @@ export const AppWrapper = ({
     ][]) {
         AppWrapperProviderHooksMap[k].mockReturnValue(v);
     }
-    // FUTURE_TODO: Replace children with <AppRouter /> if initialRouteEntries after mocking okta users
-    // in tests is made easier for better coverage as we'd be able to test through
-    // any custom route wrappers.
-    // FUTURE_TODO: Remove MockResolver and restHookFixtures when removing react-hooks.
     return ({ children }: AppWrapperProps) => {
-        /**
-         * Dynamically makes the supplied children the return element for all
-         * routes.
-         * FUTURE_TODO: Remove this once okta user/session mocking is easier
-         * and use <AppRouter /> instead.
-         */
-        const router = createMemoryRouter(
-            createTestRoutes(appRoutes, children),
-            {
-                initialEntries: initialRouteEntries,
-            },
-        );
         return (
             <CacheProvider>
                 <HelmetProvider>
                     <QueryClientProvider client={getTestQueryClient()}>
                         <AuthorizedFetchProvider>
-                            {restHookFixtures ? (
-                                <MockResolver fixtures={restHookFixtures}>
-                                    <RouterProvider router={router} />
-                                </MockResolver>
-                            ) : (
-                                <RouterProvider router={router} />
-                            )}
+                            <ErrorBoundary
+                                onError={(e) => onError?.(e)}
+                                fallbackRender={(props) => (
+                                    <>{props.error.toString()}</>
+                                )}
+                            >
+                                {restHookFixtures ? (
+                                    <MockResolver fixtures={restHookFixtures}>
+                                        {children}
+                                    </MockResolver>
+                                ) : (
+                                    children
+                                )}
+                            </ErrorBoundary>
                         </AuthorizedFetchProvider>
                     </QueryClientProvider>
                 </HelmetProvider>
@@ -127,20 +136,20 @@ export const AppWrapper = ({
 
 interface RenderAppOptions extends RenderOptions, AppWrapperOptions {}
 
-export const renderApp = (
+export const render = (
     ui: ReactElement,
     {
-        initialRouteEntries,
         restHookFixtures,
         providers,
+        onError,
         ...options
     }: Omit<RenderAppOptions, "wrapper"> = {},
 ) => {
-    return render(ui, {
+    return renderOrig(ui, {
         wrapper: AppWrapper({
-            initialRouteEntries,
             restHookFixtures,
             providers,
+            onError,
         }),
         ...options,
     });
@@ -155,9 +164,8 @@ export function renderHook<
 >(
     render: (initialProps: Props) => Result,
     {
-        providers,
         restHookFixtures,
-        initialRouteEntries,
+        providers,
         ...options
     }: RenderHookOptions<Props, Q, Container, BaseElement> &
         AppWrapperOptions = {},
@@ -166,10 +174,10 @@ export function renderHook<
         wrapper: AppWrapper({
             providers,
             restHookFixtures,
-            initialRouteEntries,
         }),
         ...options,
     });
 }
 
-export { screen } from "@testing-library/react";
+export type RSRender = typeof render;
+export type RSRenderHook = typeof renderHook;

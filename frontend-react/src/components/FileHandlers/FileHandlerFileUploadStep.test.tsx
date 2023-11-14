@@ -9,7 +9,7 @@ import {
 } from "../../utils/TemporarySettingsAPITypes";
 import { RSSender } from "../../config/endpoints/settings";
 import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import * as useSenderResourceExports from "../../hooks/UseSenderResource";
 import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
 import {
@@ -54,7 +54,7 @@ describe("FileHandlerFileUploadStep", () => {
                 isLoading: true,
             });
 
-            renderApp(<FileHandlerFileUploadStep {...DEFAULT_PROPS} />);
+            render(<FileHandlerFileUploadStep {...DEFAULT_PROPS} />);
         }
 
         test("renders the spinner", () => {
@@ -73,7 +73,7 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when a CSV schema is chosen", () => {
             function setup() {
-                renderApp(
+                render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
                         selectedSchemaOption={{
@@ -98,7 +98,7 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when an HL7 schema is chosen", () => {
             function setup() {
-                renderApp(
+                render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
                         selectedSchemaOption={{
@@ -126,7 +126,7 @@ describe("FileHandlerFileUploadStep", () => {
         describe("when a file is selected", () => {
             const onFileChangeSpy = vi.fn();
             async function setup() {
-                renderApp(
+                render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
                         selectedSchemaOption={{
@@ -167,7 +167,7 @@ describe("FileHandlerFileUploadStep", () => {
                     mutateAsync: () => Promise.resolve({}),
                 } as any);
 
-                renderApp(
+                render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
                         selectedSchemaOption={{
@@ -202,7 +202,7 @@ describe("FileHandlerFileUploadStep", () => {
                     mutateAsync: () => Promise.resolve(mockSendValidFile),
                 } as any);
 
-                renderApp(
+                render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
                         isValid
@@ -277,7 +277,7 @@ describe("FileHandlerFileUploadStep", () => {
                             data: mockSendFileWithErrors,
                         }),
                 } as any);
-                renderApp(
+                render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
                         isValid

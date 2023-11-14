@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
 import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
 
@@ -26,7 +26,7 @@ describe("MessageTracker component", () => {
         mockUseMessageSearch.mockImplementation(
             () => mockUseMessageSearchInitial as any,
         );
-        renderApp(<MessageTracker />);
+        render(<MessageTracker />);
     }
 
     test("should be able to edit search field", () => {

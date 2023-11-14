@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import { fakeError, fakeWarning } from "../../hooks/UseFileHandler.test";
@@ -37,7 +37,7 @@ describe("FileHandlerErrorsWarningsStep", () => {
 
     describe("when there are only errors", () => {
         function setup() {
-            renderApp(
+            render(
                 <FileHandlerErrorsWarningsStep
                     {...DEFAULT_PROPS}
                     errors={[fakeError]}
@@ -58,7 +58,7 @@ describe("FileHandlerErrorsWarningsStep", () => {
 
     describe("when there are only warnings", () => {
         function setup() {
-            renderApp(
+            render(
                 <FileHandlerErrorsWarningsStep
                     {...DEFAULT_PROPS}
                     warnings={[fakeWarning]}
@@ -79,7 +79,7 @@ describe("FileHandlerErrorsWarningsStep", () => {
 
     describe("when there are both errors and warnings", () => {
         function setup() {
-            renderApp(
+            render(
                 <FileHandlerErrorsWarningsStep
                     {...DEFAULT_PROPS}
                     errors={[fakeError]}
@@ -103,7 +103,7 @@ describe("FileHandlerErrorsWarningsStep", () => {
         const onTestAnotherFileClickSpy = vi.fn();
 
         async function setup() {
-            renderApp(
+            render(
                 <FileHandlerErrorsWarningsStep
                     {...DEFAULT_PROPS}
                     errors={[fakeError]}

@@ -1,7 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { mockUseFeatureFlags } from "../../contexts/FeatureFlags/__mocks__";
+import { render } from "../../utils/CustomRenderUtils";
 
 import { AdminDropdown } from "./DropdownNav";
 
@@ -48,15 +47,16 @@ vi.mock("../../pages/misc/FeatureFlags", async () => {
 });
 
 describe("AdminDropdownNav - value-sets", () => {
-    beforeAll(() => {
-        mockUseFeatureFlags.mockReturnValue({
-            dispatch: () => {},
-            featureFlags: [],
-            checkFlags: vi.fn((flag) => flag === "value-sets"),
-        });
-    });
     test("Admin menu expands and contracts on click and selection", () => {
-        renderApp(<AdminDropdown />);
+        render(<AdminDropdown />, {
+            providers: {
+                FeatureFlags: {
+                    dispatch: () => {},
+                    featureFlags: [],
+                    checkFlags: vi.fn((flag) => flag === "value-sets"),
+                },
+            },
+        });
         expect(screen.getByRole("button")).toHaveAttribute(
             "aria-expanded",
             "false",
@@ -74,7 +74,7 @@ describe("AdminDropdownNav - value-sets", () => {
     });
 
     test("Current admin pages", () => {
-        renderApp(<AdminDropdown />);
+        render(<AdminDropdown />);
         const settings = screen.getByText("Organization Settings");
         const featureFlags = screen.getByText("Feature Flags");
         const lastMileFailures = screen.getByText("Last Mile Failures");

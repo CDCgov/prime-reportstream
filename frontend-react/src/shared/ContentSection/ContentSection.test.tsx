@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import { ContentSection } from "./ContentSection";
 
@@ -19,7 +19,7 @@ describe("Section rendering", () => {
     };
 
     function setup() {
-        renderApp(<ContentSection {...fakeSection} />);
+        render(<ContentSection {...fakeSection} />);
     }
 
     test("Section renders props", () => {

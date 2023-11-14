@@ -24,8 +24,8 @@ export const mockFilterManager: FilterManager = {
         size: 10,
         currentPage: 1,
     },
-    updateRange: fakeDispatch<RangeSettingsAction>(),
-    updateSort: fakeDispatch<SortSettingsAction>(),
-    updatePage: fakeDispatch<PageSettingsAction>(),
-    resetAll: () => {},
+    updateRange: vi.fn(fakeDispatch<RangeSettingsAction>()),
+    updateSort: vi.fn(fakeDispatch<SortSettingsAction>()),
+    updatePage: vi.fn(fakeDispatch<PageSettingsAction>()),
+    resetAll: vi.fn(() => {}),
 };

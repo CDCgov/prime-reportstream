@@ -1,10 +1,9 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import { PERMISSIONS } from "../../utils/UsefulTypes";
 import { useFeatureFlags } from "../../contexts/FeatureFlags";
-import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { RequireGateBase } from "./RequireGate";
 
@@ -34,20 +33,10 @@ describe("RequireGate", () => {
     });
     test("Renders component when all checks pass", () => {
         mockCheckFlags = vi.fn((flag) => flag === FeatureFlagName.FOR_TEST);
-        mockUseSessionContext.mockReturnValue({
-            authState: {
-                isAuthenticated: true,
-                accessToken: {
-                    claims: {
-                        organization: ["DHPrimeAdmins"],
-                    },
-                },
-            } as any,
-        });
         mockUseFeatureFlags.mockReturnValue({
             checkFlags: mockCheckFlags,
         } as any);
-        renderApp(
+        render(
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
@@ -56,17 +45,26 @@ describe("RequireGate", () => {
             >
                 <TestElementWithProp test={"Success!"} />
             </RequireGateBase>,
+            {
+                providers: {
+                    Session: {
+                        authState: {
+                            isAuthenticated: true,
+                            accessToken: {
+                                claims: {
+                                    organization: ["DHPrimeAdmins"],
+                                },
+                            },
+                        } as any,
+                    },
+                },
+            },
         );
         expect(screen.getByText("Success!")).toBeInTheDocument();
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
     test("Redirects when user not logged in (no token, no membership)", () => {
-        mockUseSessionContext.mockReturnValue({
-            authState: {
-                isAuthenticated: false,
-            } as any,
-        });
-        renderApp(
+        render(
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
@@ -74,21 +72,20 @@ describe("RequireGate", () => {
             >
                 <TestElement />
             </RequireGateBase>,
+            {
+                providers: {
+                    Session: {
+                        authState: {
+                            isAuthenticated: false,
+                        } as any,
+                    },
+                },
+            },
         );
         expect(screen.getByText("Anonymous")).toBeInTheDocument();
     });
     test("Fails when user is unauthorized user type", () => {
-        mockUseSessionContext.mockReturnValue({
-            authState: {
-                isAuthenticated: true,
-                accessToken: {
-                    claims: {
-                        organization: ["DHSender_tx_phd"],
-                    },
-                },
-            } as any,
-        });
-        renderApp(
+        render(
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
@@ -96,16 +93,29 @@ describe("RequireGate", () => {
             >
                 <TestElement />
             </RequireGateBase>,
+            {
+                providers: {
+                    Session: {
+                        authState: {
+                            isAuthenticated: true,
+                            accessToken: {
+                                claims: {
+                                    organization: ["DHSender_tx_phd"],
+                                },
+                            },
+                        } as any,
+                    },
+                },
+            },
         );
         expect(screen.getByText("Failure")).toBeInTheDocument();
     });
     test("Fails when user lacks feature flag", () => {
         mockCheckFlags = vi.fn(() => false);
-        mockUseSessionContext.mockReturnValue({});
         mockUseFeatureFlags.mockReturnValue({
             checkFlags: mockCheckFlags,
         } as any);
-        renderApp(
+        render(
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
@@ -117,17 +127,7 @@ describe("RequireGate", () => {
         expect(screen.getByText("Failure")).toBeInTheDocument();
     });
     test("Considers all given authorized user types (affirmative)", () => {
-        mockUseSessionContext.mockReturnValue({
-            authState: {
-                isAuthenticated: true,
-                accessToken: {
-                    claims: {
-                        organization: ["DHSender_tx_phd"],
-                    },
-                },
-            } as any,
-        });
-        renderApp(
+        render(
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
@@ -135,21 +135,25 @@ describe("RequireGate", () => {
             >
                 <TestElement />
             </RequireGateBase>,
+            {
+                providers: {
+                    Session: {
+                        authState: {
+                            isAuthenticated: true,
+                            accessToken: {
+                                claims: {
+                                    organization: ["DHSender_tx_phd"],
+                                },
+                            },
+                        } as any,
+                    },
+                },
+            },
         );
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
     });
     test("Considers all given authorized user types (negative)", () => {
-        mockUseSessionContext.mockReturnValue({
-            authState: {
-                isAuthenticated: true,
-                accessToken: {
-                    claims: {
-                        organization: ["DHOther"],
-                    },
-                },
-            } as any,
-        });
-        renderApp(
+        render(
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
@@ -157,6 +161,20 @@ describe("RequireGate", () => {
             >
                 <TestElement />
             </RequireGateBase>,
+            {
+                providers: {
+                    Session: {
+                        authState: {
+                            isAuthenticated: true,
+                            accessToken: {
+                                claims: {
+                                    organization: ["DHOther"],
+                                },
+                            },
+                        } as any,
+                    },
+                },
+            },
         );
         expect(screen.getByText("Failure")).toBeInTheDocument();
     });
@@ -166,17 +184,7 @@ describe("RequireGate", () => {
      *
      * In this example, you can see what that session state would look like. */
     test("Permits admins whose active membership is not DHPrimeAdmins", () => {
-        mockUseSessionContext.mockReturnValue({
-            authState: {
-                isAuthenticated: true,
-                accessToken: {
-                    claims: {
-                        organization: ["DHSender_tx_phd", "DHPrimeAdmins"],
-                    },
-                },
-            } as any,
-        });
-        renderApp(
+        render(
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
@@ -184,6 +192,23 @@ describe("RequireGate", () => {
             >
                 <TestElement />
             </RequireGateBase>,
+            {
+                providers: {
+                    Session: {
+                        authState: {
+                            isAuthenticated: true,
+                            accessToken: {
+                                claims: {
+                                    organization: [
+                                        "DHSender_tx_phd",
+                                        "DHPrimeAdmins",
+                                    ],
+                                },
+                            },
+                        } as any,
+                    },
+                },
+            },
         );
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
     });

@@ -3,7 +3,6 @@ import { Helmet } from "react-helmet-async";
 import { FeatureName } from "../../../utils/FeatureName";
 import HipaaNotice from "../../HipaaNotice";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
-import { withCatchAndSuspense } from "../../RSErrorBoundary";
 import { HeroWrapper } from "../../../shared";
 
 import styles from "./FacilitiesProviders.module.scss";
@@ -41,7 +40,7 @@ export function FacilitiesProvidersPage() {
                             <title>{FeatureName.FACILITIES_PROVIDERS}</title>
                         </Helmet>
                         <article>
-                            {withCatchAndSuspense(<FacilitiesProvidersTable />)}
+                            <FacilitiesProvidersTable />
                             <HipaaNotice />
                         </article>
                     </section>

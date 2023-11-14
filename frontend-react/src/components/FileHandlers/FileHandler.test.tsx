@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import {
     mockSendFileWithErrors,
     mockSendFileWithWarnings,
@@ -181,7 +181,7 @@ describe("FileHandler", () => {
                 sendFile: vi.fn(),
             });
 
-            renderApp(<FileHandler />);
+            render(<FileHandler />);
         }
 
         test("renders the prompt as expected", () => {
@@ -209,7 +209,7 @@ describe("FileHandler", () => {
                 sendFile: () => Promise.resolve(mockSendValidFile),
             });
 
-            renderApp(<FileHandler />);
+            render(<FileHandler />);
         }
 
         test("allows the user to upload a file and shows the success screen", async () => {
@@ -240,7 +240,7 @@ describe("FileHandler", () => {
                 sendFile: () => Promise.resolve(mockSendFileWithWarnings),
             });
 
-            renderApp(<FileHandler />);
+            render(<FileHandler />);
         }
 
         test("allows the user to upload a file and shows the warnings screen", async () => {
@@ -278,7 +278,7 @@ describe("FileHandler", () => {
                 sendFile: () => Promise.resolve(mockSendFileWithErrors),
             });
 
-            renderApp(<FileHandler />);
+            render(<FileHandler />);
         }
 
         test("allows the user to upload and file and shows the error screen", async () => {

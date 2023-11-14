@@ -1,6 +1,6 @@
 import { screen, within } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
@@ -16,7 +16,7 @@ import {
 
 describe("RequestedChangesDisplay", () => {
     test("renders expected content", async () => {
-        renderApp(
+        render(
             <RequestedChangesDisplay
                 title={RequestLevel.WARNING}
                 heading={"THE HEADING"}
@@ -79,7 +79,7 @@ describe("RequestedChangesDisplay", () => {
         };
 
         const errors = [fakeError1, fakeError2, fakeError3, fakeError4];
-        renderApp(
+        render(
             <RequestedChangesDisplay
                 title={RequestLevel.ERROR}
                 heading={"THE HEADING"}
@@ -175,7 +175,7 @@ describe("FileQualityFilterDisplay", () => {
                 sending_at: "",
             },
         ];
-        renderApp(
+        render(
             <FileQualityFilterDisplay
                 destinations={qualityFilterMessages}
                 heading={""}
@@ -225,7 +225,7 @@ describe("ValidationErrorMessage", () => {
     let errorMessageNode: HTMLElement;
 
     function renderComponent(props: Partial<ValidationErrorMessageProps>) {
-        const view = renderApp(
+        const view = render(
             <ValidationErrorMessage {...DEFAULT_PROPS} {...props} />,
         );
 

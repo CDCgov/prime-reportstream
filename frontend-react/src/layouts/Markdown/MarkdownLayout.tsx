@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import React, { useMemo, useState } from "react";
 import * as reactUSWDS from "@trussworks/react-uswds";
 import type { TocEntry } from "remark-mdx-toc";
-import { useMatches } from "react-router";
+import { useMatches } from "react-router-dom";
 import classNames from "classnames";
 
 import { USSmartLink, USNavLink } from "../../components/USLink";

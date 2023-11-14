@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 
@@ -13,7 +13,7 @@ import TableFilters, {
 describe("Rendering", () => {
     const mockFilterClickHandler = vi.fn();
     function setup() {
-        renderApp(
+        render(
             <TableFilters
                 startDateLabel={TableFilterDateLabel.START_DATE}
                 endDateLabel={TableFilterDateLabel.END_DATE}
@@ -63,7 +63,7 @@ describe("when validating values", () => {
     let filterButtonNode: HTMLElement;
 
     function setup() {
-        renderApp(
+        render(
             <TableFilters
                 startDateLabel={TableFilterDateLabel.START_DATE}
                 endDateLabel={TableFilterDateLabel.END_DATE}

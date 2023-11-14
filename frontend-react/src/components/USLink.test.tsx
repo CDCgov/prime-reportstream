@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../utils/CustomRenderUtils";
+import { render } from "../utils/CustomRenderUtils";
 
 import {
     getHrefRoute,
@@ -81,13 +81,13 @@ describe("SafeLink", () => {
 
 describe("USLink", () => {
     test("renders without error", () => {
-        renderApp(<USLink href={"/some/url"}>My Link</USLink>);
+        render(<USLink href={"/some/url"}>My Link</USLink>);
         const link = screen.getByRole("link");
         expect(link).toHaveClass("usa-link");
         expect(link).toHaveTextContent("My Link");
     });
     test("renders with additional className values", () => {
-        renderApp(
+        render(
             <USLink href={"/some/url"} className={"my-custom-class"}>
                 My Link
             </USLink>,
@@ -99,7 +99,7 @@ describe("USLink", () => {
     /** Specialization of USLink */
     describe("USExtLink", () => {
         test("renders with external link class", () => {
-            renderApp(<USExtLink href={"/some/url"}>My Link</USExtLink>);
+            render(<USExtLink href={"/some/url"}>My Link</USExtLink>);
             const link = screen.getByRole("link");
             expect(link).toHaveClass("usa-link");
             expect(link).toHaveClass("usa-link--external");
@@ -108,7 +108,7 @@ describe("USLink", () => {
     /** Specialization of USLink */
     describe("USCrumbLink", () => {
         test("renders with breadcrumb link class", () => {
-            renderApp(<USCrumbLink href={"/some/url"}>My Link</USCrumbLink>);
+            render(<USCrumbLink href={"/some/url"}>My Link</USCrumbLink>);
             const link = screen.getByRole("link");
             expect(link).toHaveClass("usa-link");
             expect(link).toHaveClass("usa-breadcrumb__link");
@@ -118,7 +118,7 @@ describe("USLink", () => {
 /** Specialization of NavLink from react-router-dom */
 describe("USNavLink", () => {
     test("renders without error", () => {
-        renderApp(<USNavLink href={"/some/url"}>Navigation Link</USNavLink>);
+        render(<USNavLink href={"/some/url"}>Navigation Link</USNavLink>);
         const link = screen.getByRole("link");
         expect(link).toHaveClass("usa-nav__link");
     });
@@ -129,7 +129,7 @@ describe("USNavLink", () => {
 
 describe("USLinkButton", () => {
     test("boolean button styles applied", () => {
-        renderApp(
+        render(
             <USLinkButton href="#" secondary base outline inverse unstyled>
                 Test
             </USLinkButton>,
@@ -151,7 +151,7 @@ describe("USLinkButton", () => {
             const className = prefix
                 ? `usa-button--${prefix}-${value}`
                 : `usa-button--${value}`;
-            renderApp(
+            render(
                 <USLinkButton {...prop} href="#">
                     Test
                 </USLinkButton>,
@@ -164,7 +164,7 @@ describe("USLinkButton", () => {
     );
 
     test("renders USLinkButton with an icon if it has an external link is set", () => {
-        renderApp(
+        render(
             <USLinkButton href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">
                 Test
             </USLinkButton>,
@@ -206,12 +206,12 @@ describe("isExternalUrl", () => {
 
 describe("USSmartLink", () => {
     test.each(externalUrls)("'%s' returns external link", (url) => {
-        const view = renderApp(<USSmartLink href={url}>Test</USSmartLink>);
+        const view = render(<USSmartLink href={url}>Test</USSmartLink>);
         expect(view.container.children[0]).toHaveClass("usa-link--external");
     });
 
     test.each(internalUrls)("'%s' returns internal link", (url) => {
-        const view = renderApp(<USSmartLink href={url}>Test</USSmartLink>);
+        const view = render(<USSmartLink href={url}>Test</USSmartLink>);
         expect(view.container.children[0]).not.toHaveClass(
             "usa-link--external",
         );

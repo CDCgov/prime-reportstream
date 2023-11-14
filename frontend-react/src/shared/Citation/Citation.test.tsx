@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import { Citation } from "./Citation";
 
@@ -13,7 +13,7 @@ describe("Citation rendering", () => {
     };
 
     function setup() {
-        renderApp(<Citation {...fakeCitation} />);
+        render(<Citation {...fakeCitation} />);
     }
 
     test("Citation renders props", () => {

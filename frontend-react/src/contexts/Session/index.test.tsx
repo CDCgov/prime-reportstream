@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import { MemberType } from "../../utils/OrganizationUtils";
 
 import { useSessionContext } from ".";
@@ -18,7 +18,7 @@ describe("SessionContext admin hard check", () => {
         return <>passed</>;
     };
     test("admin hard check is true when user is admin member type", () => {
-        renderApp(<TestComponent />, {
+        render(<TestComponent />, {
             providers: {
                 Session: {
                     activeMembership: {
@@ -31,7 +31,7 @@ describe("SessionContext admin hard check", () => {
         expect(screen.getByText("passed")).toBeInTheDocument();
     });
     test("admin hard check is false when user is not admin member type", () => {
-        renderApp(<TestComponent />, {
+        render(<TestComponent />, {
             providers: {
                 Session: {
                     activeMembership: {

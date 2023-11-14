@@ -14,7 +14,6 @@ import {
     LookupTables,
     ValueSet,
 } from "../../../config/endpoints/lookupTables";
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -79,7 +78,7 @@ const ValueSetsIndexPage = () => {
                 <title>Value Sets | Admin</title>
             </Helmet>
             <section className="grid-container">
-                {withCatchAndSuspense(<ValueSetsTable />)}
+                <ValueSetsTable />
             </section>
         </>
     );

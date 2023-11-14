@@ -12,9 +12,14 @@ const ArticleWrapper = (props: React.PropsWithChildren) => {
     return <article className="tablet:grid-col-12" {...props} />;
 };
 
-export type MainLayoutBaseProps = React.PropsWithChildren<{}>;
+export interface MainLayoutBaseProps extends React.PropsWithChildren {
+    ErrorBoundary?: typeof RSErrorBoundary;
+}
 
-export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
+export const MainLayoutBase = ({
+    children,
+    ErrorBoundary = RSErrorBoundary,
+}: MainLayoutBaseProps) => {
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
     const { isContentPage, isFullWidth, isLoginPage } = handle;
@@ -40,12 +45,12 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
             <ReportStreamHeader blueVariant={isFullWidth} />
             <main className="padding-top-5" id="main-content">
                 <InnerWrapper className={innerWrapperClassnames}>
-                    <RSErrorBoundary>
+                    <ErrorBoundary>
                         {children}
                         <Suspense fallback={suspenseFallback}>
                             <Outlet />
                         </Suspense>
-                    </RSErrorBoundary>
+                    </ErrorBoundary>
                 </InnerWrapper>
             </main>
             <ToastContainer limit={4} />

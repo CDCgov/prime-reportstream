@@ -1,6 +1,6 @@
 import { screen, within } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import { QualityFilters } from "./QualityFilters";
 
@@ -38,7 +38,7 @@ describe("QualityFilters component", () => {
                 },
             },
         ];
-        renderApp(<QualityFilters qualityFilters={qualityFilters} />);
+        render(<QualityFilters qualityFilters={qualityFilters} />);
 
         expect(screen.getByText(/Quality Filters:/)).toBeInTheDocument();
 

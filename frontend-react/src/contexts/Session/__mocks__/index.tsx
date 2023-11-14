@@ -7,7 +7,16 @@ export const defaultCtx = {
     authState: {
         isAuthenticated: false,
     },
-    config: {},
+    config: {
+        AI_CONSOLE_SEVERITY_LEVELS: {
+            assert: 0,
+            debug: 0,
+            error: 0,
+            info: 0,
+            trace: 0,
+            warn: 0,
+        },
+    },
     logout: vi.fn(),
     oktaAuth: {},
     setActiveMembership: vi.fn(),

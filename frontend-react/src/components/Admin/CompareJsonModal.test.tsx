@@ -1,8 +1,7 @@
 import { useRef } from "react";
 import { fireEvent, screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { mockUseSessionContext } from "../contexts/Session/__mocks__";
+import { render } from "../../utils/CustomRenderUtils";
 
 import {
     ConfirmSaveSettingModal,
@@ -35,19 +34,12 @@ describe("ConfirmSaveSettingModal", () => {
     }
 
     function renderComponent(props: Partial<CompareSettingsModalProps> = {}) {
-        renderApp(<TestWrapper {...props} />);
+        render(<TestWrapper {...props} />);
 
         textareaNode = screen.getByTestId("EditableCompare__textarea");
         saveButtonNode = screen.getByText("Save");
         checkSyntaxButtonNode = screen.getByText("Check syntax");
     }
-
-    beforeAll(() => {
-        mockUseSessionContext();
-    });
-    afterEach(() => {
-        vi.clearAllMocks();
-    });
 
     describe("on initial mount", () => {
         describe("when the updated JSON is valid", () => {

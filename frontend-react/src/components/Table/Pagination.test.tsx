@@ -1,6 +1,6 @@
 import { fireEvent, screen, within } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import Pagination, {
     PaginationProps,
@@ -58,7 +58,7 @@ describe("Pagination", () => {
                 currentPageNum,
                 setSelectedPage: vi.fn(),
             };
-            renderApp(<Pagination {...props} />);
+            render(<Pagination {...props} />);
 
             const list = screen.getByRole("list");
             const { getAllByRole } = within(list);
@@ -76,7 +76,7 @@ describe("Pagination", () => {
             currentPageNum: 2,
             setSelectedPage: mockSetSelectedPage,
         };
-        renderApp(<Pagination {...props} />);
+        render(<Pagination {...props} />);
 
         fireEvent.click(screen.getByText("Previous"));
         expect(mockSetSelectedPage).toHaveBeenLastCalledWith(1);
@@ -100,7 +100,7 @@ describe("Pagination", () => {
             currentPageNum: 7,
             setSelectedPage: vi.fn(),
         };
-        const { asFragment } = renderApp(<Pagination {...props} />);
+        const { asFragment } = render(<Pagination {...props} />);
         expect(asFragment()).toMatchSnapshot();
     });
 
@@ -110,7 +110,7 @@ describe("Pagination", () => {
             currentPageNum: 2,
             setSelectedPage: vi.fn(),
         };
-        const { asFragment } = renderApp(<Pagination {...props} />);
+        const { asFragment } = render(<Pagination {...props} />);
         expect(asFragment()).toMatchSnapshot();
     });
 });

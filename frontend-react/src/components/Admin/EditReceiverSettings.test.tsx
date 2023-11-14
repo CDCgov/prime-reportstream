@@ -2,7 +2,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import { rest } from "msw";
 
 import config from "../../config";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 
 import { EditReceiverSettingsPage } from "./EditReceiverSettings";
@@ -87,7 +87,7 @@ vi.mock("react-router-dom", async () => ({
 
 describe("EditReceiverSettings", () => {
     function setup() {
-        renderApp(<EditReceiverSettingsPage />);
+        render(<EditReceiverSettingsPage />);
     }
 
     beforeAll(() => {

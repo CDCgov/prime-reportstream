@@ -1,6 +1,10 @@
 import * as MessageTrackerHooks from "../MessageTrackerHooks";
 
-export const mockUseMessageDetails = vi.spyOn(
-    MessageTrackerHooks,
-    "useMessageDetails",
+vi.mock("../MessageTrackerHooks", async (imp) => ({
+    ...(await imp()),
+    useMessageDetails: vi.fn(),
+}));
+
+export const mockUseMessageDetails = vi.mocked(
+    MessageTrackerHooks.useMessageDetails,
 );

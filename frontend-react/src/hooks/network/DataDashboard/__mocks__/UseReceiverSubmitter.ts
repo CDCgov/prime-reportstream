@@ -1,6 +1,8 @@
 import * as UseReceiverSubmitter from "../UseReceiverSubmitters";
 
-export const mockUseReceiverSubmitter = vi.spyOn(
-    UseReceiverSubmitter,
-    "default",
-);
+vi.mock("../UseReceiverSubmitters", async (imp) => ({
+    ...(await imp()),
+    default: vi.fn(),
+}));
+
+export const mockUseReceiverSubmitter = vi.mocked(UseReceiverSubmitter.default);

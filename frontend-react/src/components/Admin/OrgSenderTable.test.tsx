@@ -1,7 +1,6 @@
 import { screen } from "@testing-library/react";
 
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
-import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { OrgSenderTable } from "./OrgSenderTable";
 
@@ -163,7 +162,7 @@ vi.mock("rest-hooks", async () => ({
 
 describe("OrgReceiverTable", () => {
     function setup() {
-        renderApp(<OrgSenderTable orgname={"test"} key={"test"} />);
+        render(<OrgSenderTable orgname={"test"} key={"test"} />);
     }
     beforeAll(() => settingsServer.listen());
     afterEach(() => settingsServer.resetHandlers());

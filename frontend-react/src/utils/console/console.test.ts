@@ -7,7 +7,7 @@ import {
 import { mockConsole } from "../../__mocks__/console";
 import { mockAppInsights } from "../../__mocks__/ApplicationInsights";
 
-import { ConsoleLevel, RSConsole } from "./index";
+import { ConsoleLevel, RSConsole } from ".";
 
 const message = "hello there";
 const obj = { hello: "there" };
@@ -32,13 +32,10 @@ const consoleSeverityLevels: Record<ConsoleLevel, SeverityLevel> = {
 };
 
 describe("RSConsole", () => {
-    beforeAll(() => {
-        mockConsole.mockImplementationAll();
-    });
-    afterAll(() => {
-        mockConsole.mockRestoreAll();
-    });
     describe("when calling info", () => {
+        beforeEach(() => {
+            mockConsole.info.mockReturnValue(undefined);
+        });
         test("calls console.info and trackTrace with the correct message and severity level", () => {
             const rsconsole = new RSConsole({
                 ai: mockAppInsights as any,
@@ -64,6 +61,9 @@ describe("RSConsole", () => {
 
     describe("when calling assert", () => {
         describe("when assertion fails", () => {
+            beforeEach(() => {
+                mockConsole.assert.mockReturnValue(undefined);
+            });
             test("calls console.assert and trackTrace with the correct message and severity level", () => {
                 const rsconsole = new RSConsole({
                     ai: mockAppInsights as any,
@@ -91,6 +91,9 @@ describe("RSConsole", () => {
         });
 
         describe("when assertion passes", () => {
+            beforeEach(() => {
+                mockConsole.assert.mockReturnValue(undefined);
+            });
             test("only calls console.assert", () => {
                 const rsconsole = new RSConsole({
                     ai: mockAppInsights as any,
@@ -106,6 +109,9 @@ describe("RSConsole", () => {
     });
 
     describe("when calling debug", () => {
+        beforeEach(() => {
+            mockConsole.debug.mockReturnValue(undefined);
+        });
         test("calls console.debug and trackTrace with the correct message and severity level", () => {
             const rsconsole = new RSConsole({
                 ai: mockAppInsights as any,
@@ -125,10 +131,14 @@ describe("RSConsole", () => {
                     args: [obj],
                 },
             });
+            expect(mockConsole.debug).toBeCalled();
         });
     });
 
     describe("when calling error", () => {
+        beforeEach(() => {
+            mockConsole.error.mockReturnValue(undefined);
+        });
         test("calls console.error and trackException with the correct message and severity level", () => {
             const rsconsole = new RSConsole({
                 ai: mockAppInsights as any,
@@ -149,10 +159,14 @@ describe("RSConsole", () => {
                     args: [obj],
                 },
             });
+            expect(mockConsole.error).toBeCalled();
         });
     });
 
     describe("when calling trace", () => {
+        beforeEach(() => {
+            mockConsole.trace.mockReturnValue(undefined);
+        });
         test("calls console.trace and trackTrace with the correct message and severity level", () => {
             const rsconsole = new RSConsole({
                 ai: mockAppInsights as any,
@@ -171,10 +185,14 @@ describe("RSConsole", () => {
                     args: [obj],
                 },
             });
+            expect(mockConsole.trace).toBeCalled();
         });
     });
 
     describe("when calling warn", () => {
+        beforeEach(() => {
+            mockConsole.warn.mockReturnValue(undefined);
+        });
         test("calls console.warn and trackTrace with the correct message and severity level", () => {
             const rsconsole = new RSConsole({
                 ai: mockAppInsights as any,
@@ -193,10 +211,14 @@ describe("RSConsole", () => {
                     args: [obj],
                 },
             });
+            expect(mockConsole.warn).toBeCalled();
         });
     });
 
     describe("when calling dev", () => {
+        beforeEach(() => {
+            mockConsole.log.mockReturnValue(undefined);
+        });
         test("does not call console if non-dev env", () => {
             const rsconsole = new RSConsole({
                 ai: mockAppInsights as any,

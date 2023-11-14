@@ -1,13 +1,12 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
+import { render } from "../../../utils/CustomRenderUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 import {
     AccessTokenWithRSClaims,
     MemberType,
 } from "../../../utils/OrganizationUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
 
@@ -29,45 +28,12 @@ const DEFAULT_RSDELIVERY = {
     fileType: FileType.CSV,
 };
 
-beforeEach(() => {
-    // Mock our SessionProvider's data
-    mockUseSessionContext.mockReturnValue({
-        //@ts-ignore
-        oktaAuth: {
-            getUser: mockGetUser.mockResolvedValue({
-                email: "test@test.org",
-            }),
-        },
-        authState: {
-            isAuthenticated: true,
-            accessToken: {
-                accessToken: "TOKEN",
-                claims: {
-                    organization: ["Test-Org"],
-                },
-            } as AccessTokenWithRSClaims,
-        },
-        activeMembership: {
-            memberType: MemberType.RECEIVER,
-            parsedName: "testOrg",
-            service: "testReceiverService",
-        },
-
-        user: {
-            isUserAdmin: false,
-            isUserReceiver: true,
-            isUserSender: false,
-            isUserTransceiver: false,
-        } as any,
-    });
-});
-
 describe("ReportDetailsSummary", () => {
     test("renders expected content", () => {
         const expectedExpireDate = formatDateWithoutSeconds(
             futureDate.toString(),
         );
-        renderApp(<ReportDetailsSummary report={DEFAULT_RSDELIVERY} />);
+        render(<ReportDetailsSummary report={DEFAULT_RSDELIVERY} />);
 
         expect(screen.getByText(/Download as/)).toBeVisible();
         expect(screen.queryByText("CSV")).toBeVisible();
@@ -83,10 +49,43 @@ describe("ReportDetailsSummary", () => {
     });
 
     test("Does not display the download button if the date has expired", () => {
-        renderApp(
+        render(
             <ReportDetailsSummary
                 report={{ ...DEFAULT_RSDELIVERY, expires: pastDate.toString() }}
             />,
+            {
+                providers: {
+                    Session: {
+                        //@ts-ignore
+                        oktaAuth: {
+                            getUser: mockGetUser.mockResolvedValue({
+                                email: "test@test.org",
+                            }),
+                        },
+                        authState: {
+                            isAuthenticated: true,
+                            accessToken: {
+                                accessToken: "TOKEN",
+                                claims: {
+                                    organization: ["Test-Org"],
+                                },
+                            } as AccessTokenWithRSClaims,
+                        },
+                        activeMembership: {
+                            memberType: MemberType.RECEIVER,
+                            parsedName: "testOrg",
+                            service: "testReceiverService",
+                        },
+
+                        user: {
+                            isUserAdmin: false,
+                            isUserReceiver: true,
+                            isUserSender: false,
+                            isUserTransceiver: false,
+                        } as any,
+                    },
+                },
+            },
         );
 
         expect(screen.queryByText(/Download as/)).not.toBeInTheDocument();

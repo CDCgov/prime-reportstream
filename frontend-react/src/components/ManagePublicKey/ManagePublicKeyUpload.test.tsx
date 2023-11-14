@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import ManagePublicKeyUpload, {
     ManagePublicKeyUploadProps,
@@ -22,9 +22,7 @@ describe("ManagePublicKeyUpload", () => {
     });
 
     function doRender(props: Partial<ManagePublicKeyUploadProps> = {}) {
-        return renderApp(
-            <ManagePublicKeyUpload {...DEFAULT_PROPS} {...props} />,
-        );
+        return render(<ManagePublicKeyUpload {...DEFAULT_PROPS} {...props} />);
     }
 
     describe("default state", () => {

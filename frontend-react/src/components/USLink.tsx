@@ -7,18 +7,20 @@ import { IEventTelemetry } from "@microsoft/applicationinsights-web";
 
 import { useAppInsightsContext } from "../contexts/AppInsights";
 
-/** React.PropsWithChildren has known issues with generic extension in React 18,
- * so rather than using it here, we are using our own definition of child types.
- * One less headache when updating to React 18 in the future! */
-interface CustomLinkProps {
-    children: React.ReactNode;
+interface LinkPropsBase extends React.PropsWithChildren {
     className?: string;
     activeClassName?: string;
     state?: any;
 }
-type USLinkProps = AnchorHTMLAttributes<{}> &
-    Omit<CustomLinkProps, "activeClassName">;
-type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
+
+interface USLinkProps
+    extends Omit<LinkPropsBase, "activeClassName">,
+        AnchorHTMLAttributes<{}> {}
+interface USNavLinkProps
+    extends Omit<LinkPropsBase, "className">,
+        Pick<AnchorHTMLAttributes<{}>, "href"> {
+    className?: string | ((isActive: boolean) => string);
+}
 
 /**
  * Stateless function to get route href from href that could be
@@ -99,7 +101,7 @@ export const USLink = ({ children, className, ...props }: USLinkProps) => {
 
 export interface USLinkButtonProps
     extends USLinkProps,
-        Omit<ButtonProps, "type"> {}
+        Omit<ButtonProps, "type" | "children"> {}
 
 export const USLinkButton = ({
     className,
@@ -194,17 +196,21 @@ export const USNavLink = ({
 
     return (
         <NavLink
-            to={href || ""}
+            to={href ?? ""}
             className={({ isActive: isPathnameActive }) => {
                 // Without this, all hash links would be considered active for a path
                 const isActive =
                     isPathnameActive && (hash === "" || currentHash === hash);
 
-                return classnames("usa-nav__link", {
-                    "usa-current": isActive,
-                    [activeClassName as any]: isActive, // `as any` because string may be undefined
-                    [className as any]: !isActive, // `as any` because string may be undefined
-                });
+                return classnames(
+                    "usa-nav__link",
+                    isActive && "usa-current",
+                    isActive && activeClassName,
+                    !isActive &&
+                        (typeof className === "function"
+                            ? className(isActive)
+                            : className),
+                );
             }}
             {...props}
         >

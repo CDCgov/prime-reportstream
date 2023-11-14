@@ -1,7 +1,6 @@
 import { screen, within } from "@testing-library/react";
 import { AxiosError, AxiosResponse } from "axios";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
 import {
@@ -52,7 +51,7 @@ describe("ValueSetsIndex tests", () => {
                     data: {},
                 }) as UseValueSetsMetaResult,
         );
-        renderApp(<ValueSetsIndexPage />);
+        render(<ValueSetsIndexPage />);
         const headers = screen.getAllByRole("columnheader");
         const title = screen.getByText("ReportStream Value Sets");
         const rows = screen.getAllByRole("row");
@@ -77,7 +76,7 @@ describe("ValueSetsIndex tests", () => {
                 }) as UseValueSetsMetaResult,
         );
 
-        renderApp(<ValueSetsIndexPage />);
+        render(<ValueSetsIndexPage />);
         const rows = screen.getAllByRole("row");
         expect(rows.length).toBe(3); // +1 for header
 
@@ -94,6 +93,7 @@ describe("ValueSetsIndex tests", () => {
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
     test("Error in query will render error UI instead of table", () => {
+        const mockOnError = vi.fn();
         mockUseValueSetsMeta = vi.fn(
             () =>
                 ({
@@ -107,9 +107,7 @@ describe("ValueSetsIndex tests", () => {
                 } as AxiosResponse),
             );
         });
-        renderApp(<ValueSetsIndexPage />);
-        expect(
-            screen.getByText("Unexpected Application Error!"),
-        ).toBeInTheDocument();
+        render(<ValueSetsIndexPage />, { onError: mockOnError });
+        expect(mockOnError).toBeCalled();
     });
 });

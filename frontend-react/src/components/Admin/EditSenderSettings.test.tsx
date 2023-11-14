@@ -1,13 +1,12 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { rest } from "msw";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import config from "../../config";
 import { mockCtx } from "../../contexts/Toast/__mocks__";
-import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { EditSenderSettingsPage } from "./EditSenderSettings";
 
@@ -73,12 +72,11 @@ const testProcessingType = "sync";
 
 describe("EditSenderSettings", () => {
     function setup() {
-        renderApp(<EditSenderSettingsPage />);
+        render(<EditSenderSettingsPage />);
         nameField = screen.getByTestId("name");
         editJsonAndSaveButton = screen.getByTestId("submit");
     }
     beforeAll(() => {
-        mockUseSessionContext();
         settingsServer.listen();
         settingsServer.use(
             rest.get(

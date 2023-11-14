@@ -2,7 +2,7 @@ import path from "path";
 
 import testMdUrl from "../../content/markdown-test.md?url";
 import testMd from "../../content/markdown-test.md?raw";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import { MarkdownDirectory } from "./MarkdownDirectory";
 import MarkdownPage from "./MarkdownPage";
@@ -18,6 +18,6 @@ describe("DirectoryAsPage", () => {
         vi.spyOn(global, "fetch").mockImplementation(async () =>
             Promise.resolve(new Response(testMd, { status: 200 })),
         );
-        renderApp(<MarkdownPage directory={testDir} />);
+        render(<MarkdownPage directory={testDir} />);
     });
 });

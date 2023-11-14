@@ -56,10 +56,10 @@ export function MessageDetailsPage() {
     const submittedDate = messageDetails?.submittedDate
         ? new Date(messageDetails.submittedDate)
         : undefined;
-    const warnings = messageDetails?.warnings || [];
-    const errors = messageDetails?.errors || [];
+    const warnings = messageDetails?.warnings ?? [];
+    const errors = messageDetails?.errors ?? [];
 
-    const fileUrl = messageDetails?.fileUrl || "";
+    const fileUrl = messageDetails?.fileUrl ?? "";
     const { folderLocation, sendingOrg, fileName } = parseFileLocation(fileUrl);
 
     return (

@@ -1,7 +1,6 @@
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
-import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { useOrgDeliveries } from "./DeliveryHooks";
 
@@ -10,24 +9,26 @@ describe("useReportsList", () => {
     afterEach(() => deliveryServer.resetHandlers());
     afterAll(() => deliveryServer.close());
     test("returns expected data", async () => {
-        mockUseSessionContext.mockReturnValue({
-            authState: {
-                accessToken: { accessToken: "TOKEN" },
-            } as any,
-            activeMembership: {
-                memberType: MemberType.RECEIVER,
-                parsedName: "testOrg",
+        const { result } = renderHook(() => useOrgDeliveries("testService"), {
+            providers: {
+                Session: {
+                    authState: {
+                        accessToken: { accessToken: "TOKEN" },
+                    } as any,
+                    activeMembership: {
+                        memberType: MemberType.RECEIVER,
+                        parsedName: "testOrg",
+                    },
+
+                    user: {
+                        isUserAdmin: false,
+                        isUserReceiver: true,
+                        isUserSender: false,
+                        isUserTransceiver: false,
+                    } as any,
+                },
             },
-
-            user: {
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                isUserTransceiver: false,
-            } as any,
         });
-
-        const { result } = renderHook(() => useOrgDeliveries("testService"));
         const fetchResults = await result.current.fetchResults(" ", 10);
         expect(fetchResults).toHaveLength(3);
         expect(result.current.filterManager.pageSettings.currentPage).toEqual(

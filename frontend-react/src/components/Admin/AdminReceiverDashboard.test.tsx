@@ -4,7 +4,7 @@ import { Suspense } from "react";
 
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 
@@ -235,7 +235,7 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("sortStatusData and MainRender tests", async () => {
-        const { baseElement } = renderApp(
+        const { baseElement } = render(
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="message" />}
             >
@@ -297,7 +297,7 @@ describe("AdminReceiverDashboard tests", () => {
     test("ModalInfoRender", async () => {
         const data = _exportForTesting.sortStatusData(mockData); // sorts
         const subData = data[0];
-        renderApp(
+        render(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[subData]} />,
         );
@@ -308,7 +308,7 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("ModalInfoRender empty", async () => {
-        renderApp(
+        render(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[]} />,
         );
@@ -316,7 +316,7 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("DateRangePickingAtomic", async () => {
-        renderApp(
+        render(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.DateRangePickingAtomic
                 defaultStartDate="2022-07-11T00:00:00.000Z"

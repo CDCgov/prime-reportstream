@@ -4,7 +4,7 @@ import {
     FeatureFlagActionType,
     useFeatureFlags,
 } from "../../contexts/FeatureFlags";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { render } from "../../utils/CustomRenderUtils";
 
 import { FeatureFlagsPage } from "./FeatureFlags";
 
@@ -29,7 +29,7 @@ describe("FeatureFlags", () => {
             checkFlags: vi.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
         });
-        renderApp(<FeatureFlagsPage />);
+        render(<FeatureFlagsPage />);
 
         const featureFlagAlerts = screen.getAllByTestId("alert");
         expect(featureFlagAlerts).toHaveLength(3);
@@ -49,7 +49,7 @@ describe("FeatureFlags", () => {
             checkFlags: vi.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
         });
-        renderApp(<FeatureFlagsPage />);
+        render(<FeatureFlagsPage />);
 
         const featureFlagDeleteButtons = screen.getAllByRole("button");
         expect(featureFlagDeleteButtons).toHaveLength(3); // 1 add button + 2 delete buttons
@@ -67,7 +67,7 @@ describe("FeatureFlags", () => {
             checkFlags: vi.fn(),
             featureFlags: ["flag-1"],
         });
-        renderApp(<FeatureFlagsPage />);
+        render(<FeatureFlagsPage />);
 
         const addButton = screen.getAllByRole("button")[0];
         const textInput = screen.getByRole("textbox");
@@ -86,7 +86,7 @@ describe("FeatureFlags", () => {
             checkFlags: vi.fn(() => true),
             featureFlags: ["flag-1"],
         });
-        renderApp(<FeatureFlagsPage />);
+        render(<FeatureFlagsPage />);
 
         const addButton = screen.getAllByRole("button")[0];
         const textInput = screen.getByRole("textbox");

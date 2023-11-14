@@ -6,7 +6,6 @@ import {
 } from "../../../__mocks__/MessageTrackerMockServer";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
-import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { useMessageSearch, useMessageDetails } from "./MessageTrackerHooks";
 
@@ -16,24 +15,26 @@ afterAll(() => messageTrackerServer.close());
 
 describe("useMessageSearch", () => {
     test("returns expected data values when fetching messages", async () => {
-        mockUseSessionContext.mockReturnValue({
-            authState: {
-                accessToken: { accessToken: "TOKEN" },
-            } as any,
-            activeMembership: {
-                memberType: MemberType.RECEIVER,
-                parsedName: "testOrg",
+        const { result } = renderHook(() => useMessageSearch(), {
+            providers: {
+                Session: {
+                    authState: {
+                        accessToken: { accessToken: "TOKEN" },
+                    } as any,
+                    activeMembership: {
+                        memberType: MemberType.RECEIVER,
+                        parsedName: "testOrg",
+                    },
+
+                    user: {
+                        isUserAdmin: false,
+                        isUserReceiver: true,
+                        isUserSender: false,
+                        isUserTransceiver: false,
+                    } as any,
+                },
             },
-
-            user: {
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                isUserTransceiver: false,
-            } as any,
         });
-
-        const { result } = renderHook(() => useMessageSearch());
         let messages;
         await act(async () => {
             messages = await result.current.mutateAsync("alaska1");
@@ -53,24 +54,26 @@ describe("useMessageSearch", () => {
 
 describe("useMessageDetails", () => {
     test("returns expected data values when fetching message details", async () => {
-        mockUseSessionContext.mockReturnValue({
-            authState: {
-                accessToken: { accessToken: "TOKEN" },
-            } as any,
-            activeMembership: {
-                memberType: MemberType.RECEIVER,
-                parsedName: "testOrg",
+        const { result } = renderHook(() => useMessageDetails("11"), {
+            providers: {
+                Session: {
+                    authState: {
+                        accessToken: { accessToken: "TOKEN" },
+                    } as any,
+                    activeMembership: {
+                        memberType: MemberType.RECEIVER,
+                        parsedName: "testOrg",
+                    },
+
+                    user: {
+                        isUserAdmin: false,
+                        isUserReceiver: true,
+                        isUserSender: false,
+                        isUserTransceiver: false,
+                    } as any,
+                },
             },
-
-            user: {
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                isUserTransceiver: false,
-            } as any,
         });
-
-        const { result } = renderHook(() => useMessageDetails("11"));
         await waitFor(() =>
             expect(result.current.messageDetails?.id).toEqual(11),
         );
