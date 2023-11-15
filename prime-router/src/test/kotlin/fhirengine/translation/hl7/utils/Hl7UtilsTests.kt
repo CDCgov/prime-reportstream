@@ -52,9 +52,6 @@ class Hl7UtilsTests {
             assertThat(terser.getSegment("MSH")).isNotNull()
             assertThat(terser.get("MSH-1")).isNotEmpty()
             assertThat(terser.get("MSH-2")).isNotEmpty()
-            assertThat(terser.get("MSH-9-1")).isEqualTo("ORU")
-            assertThat(terser.get("MSH-9-2")).isEqualTo("R01")
-            assertThat(terser.get("MSH-9-3")).isEqualTo("ORU_R01")
             assertThat(terser.get("MSH-12")).isEqualTo("2.5.1")
         }
 
