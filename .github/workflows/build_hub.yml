@@ -4,11 +4,9 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - "prime-router/**"
-      - ".github/workflows/build_hub.yml"
-      - ".github/actions/build-backend/action.yml"
-
+  push:
+    branches:
+      - master
 env:
   # These are for CI and not credentials of any system
   DB_USER: prime
@@ -22,7 +20,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # This is v4.1.1
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
