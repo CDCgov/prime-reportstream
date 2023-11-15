@@ -139,14 +139,69 @@ effectiveDateTime:
     dateTimeIn: OBR.7
     start: OBR.7
     end: OBR.8
-
-effectivePeriod:
-  valueOf: datatype/Period
-  condition: $start NOT_NULL && $end NOT_NULL
-  expressionType: resource
+_effectiveDateTime:
+  expressionType: nested
+  condition: $start NOT_NULL && $end NULL
   vars:
+    dateTimeIn: OBR.7
     start: OBR.7
     end: OBR.8
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
+
+effectivePeriod:
+  condition: $startDate NOT_NULL && $endDate NOT_NULL
+  vars:
+    startDate: OBR.7
+    endDate: OBR.8
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(startDate,ZONEID)"
+      expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $startDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $startDate
+              expressionType: HL7Spec
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $endDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
 
 issued:
   type: STRING
@@ -357,3 +412,18 @@ extension_7:
       type: STRING
       valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
       expressionType: JEXL
+    _valueDateTime:
+      expressionType: nested
+      expressionsMap:
+        extension_1:
+          condition: $dateTimeIn NOT_NULL
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $dateTimeIn
+              expressionType: HL7Spec
