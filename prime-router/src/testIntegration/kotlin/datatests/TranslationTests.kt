@@ -65,7 +65,7 @@ class TranslationTests {
     /**
      * The settings
      */
-    private val settings = FileSettings("./settings")
+    private val settings = FileSettings("./src/testIntegration/resources/settings")
 
     /**
      * The translator
@@ -188,10 +188,18 @@ class TranslationTests {
                     val expectedSchema = it[ConfigColumns.OUTPUT_SCHEMA.colName]
                     val sender = it[ConfigColumns.SENDER.colName].trimToNull()
                     val receiver = it[ConfigColumns.RECEIVER.colName].trimToNull()
-                    val senderTransform = it[ConfigColumns.SENDER_TRANSFORM.colName].trimToNull()
+                    var senderTransform = it[ConfigColumns.SENDER_TRANSFORM.colName].trimToNull()
                     val conditionFilter = it[ConfigColumns.RECEIVER_CONDITION_FILTER.colName].trimToNull()
                     val ignoreFields = it[ConfigColumns.IGNORE_FIELDS.colName].let { colNames ->
                         colNames?.split(",") ?: emptyList()
+                    }
+
+                    if (senderTransform.isNullOrEmpty() && !sender.isNullOrEmpty()) {
+                        val senderSettings = settings.senders.firstOrNull { potentialSender ->
+                            potentialSender.organizationName.plus(".").plus(potentialSender.name)
+                                .lowercase() == sender.lowercase()
+                        }
+                        senderTransform = senderSettings?.schemaName
                     }
 
                     val shouldPass = !it[ConfigColumns.RESULT.colName].isNullOrBlank() &&
