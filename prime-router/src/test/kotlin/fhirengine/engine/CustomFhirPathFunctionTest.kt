@@ -1,11 +1,10 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.isSuccess
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.metadata.LivdLookup
@@ -73,26 +72,26 @@ class CustomFhirPathFunctionTest {
 
     @Test
     fun `test execute function`() {
-        assertThat {
+        assertFailure {
             CustomFhirPathFunctions()
                 .executeFunction(null, "dummy", null)
-        }.isFailure()
+        }
 
         val focus: MutableList<Base> = mutableListOf(Observation())
-        assertThat {
+        assertFailure {
             CustomFhirPathFunctions()
                 .executeFunction(focus, "dummy", null)
-        }.isFailure()
+        }
 
         // Just checking we can access all the functions.
         // Individual function results are tested on their own unit tests.
         CustomFhirPathFunctions.CustomFhirPathFunctionNames.values().forEach {
             if (it == CustomFhirPathFunctions.CustomFhirPathFunctionNames.LivdTableLookup) {
                 // With bad inputs this will cause an error, but still verifies access to the function
-                assertThat {
+                assertThat(
                     CustomFhirPathFunctions()
                         .executeFunction(focus, it.name, null)
-                }.isSuccess()
+                ).isNotNull()
             }
         }
     }
@@ -100,20 +99,20 @@ class CustomFhirPathFunctionTest {
     @Test
     fun `test livd lookup function`() {
         // Look up fails if focus element is not an Observation
-        assertThat {
+        assertFailure {
             CustomFhirPathFunctions().livdTableLookup(
                 mutableListOf(Device()), mutableListOf(mutableListOf(StringType("1"))), UnitTestUtils.simpleMetadata
             )
-        }.isFailure()
+        }
 
         // look up fails if more than one Observation
-        assertThat {
+        assertFailure {
             CustomFhirPathFunctions().livdTableLookup(
                 mutableListOf(Observation(), Observation()),
                 mutableListOf(mutableListOf(StringType("1"))),
                 UnitTestUtils.simpleMetadata
             )
-        }.isFailure()
+        }
 
         // Test getting loinc code from device id
         var observation = Observation()

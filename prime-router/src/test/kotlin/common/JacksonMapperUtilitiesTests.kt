@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.endsWith
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
-import assertk.assertions.isSuccess
+import assertk.assertions.isNotNull
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonToken
 import java.time.OffsetDateTime
@@ -24,7 +24,7 @@ class JacksonMapperUtilitiesTests {
             val jsonValue = jsonParser.text
             assertThat(jsonValue).isNotEmpty()
             assertThat(jsonValue).endsWith("Z")
-            assertThat { JacksonMapperUtilities.timestampFormatter.parse(jsonValue) }.isSuccess()
+            assertThat(JacksonMapperUtilities.timestampFormatter.parse(jsonValue)).isNotNull()
         }
 
         var estTimestamp = JsonTestClass(OffsetDateTime.now(ZoneOffset.of("-0500")))

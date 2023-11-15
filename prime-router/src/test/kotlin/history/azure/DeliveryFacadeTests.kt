@@ -1,12 +1,11 @@
 package gov.cdc.prime.router.history.azure
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
-import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import com.google.common.net.HttpHeaders
 import gov.cdc.prime.router.ReportId
@@ -90,7 +89,7 @@ class DeliveryFacadeTests {
         assertThat(deliveries.last().reportId).isEqualTo(delivery2.reportId)
 
         // Unhappy path: "Invalid organization."
-        assertThat {
+        assertFailure {
             facade.findDeliveries(
                 "",
                 "elr",
@@ -101,10 +100,10 @@ class DeliveryFacadeTests {
                 null,
                 10
             )
-        }.isFailure().hasMessage("Invalid organization.")
+        }.hasMessage("Invalid organization.")
 
         // Unhappy path: "pageSize must be a positive integer."
-        assertThat {
+        assertFailure {
             facade.findDeliveries(
                 "ca-dph",
                 "elr",
@@ -115,10 +114,10 @@ class DeliveryFacadeTests {
                 null,
                 -10
             )
-        }.isFailure().hasMessage("pageSize must be a positive integer.")
+        }.hasMessage("pageSize must be a positive integer.")
 
         // Unhappy path: "End date must be after start date."
-        assertThat {
+        assertFailure {
             facade.findDeliveries(
                 "ca-dph",
                 "elr",
@@ -129,10 +128,10 @@ class DeliveryFacadeTests {
                 OffsetDateTime.now().minusDays(1),
                 10
             )
-        }.isFailure().hasMessage("End date must be after start date.")
+        }.hasMessage("End date must be after start date.")
 
         // Happy Path: date window coverage for since
-        assertThat {
+        assertThat(
             facade.findDeliveries(
                 "ca-dph",
                 "elr",
@@ -143,10 +142,10 @@ class DeliveryFacadeTests {
                 null,
                 10
             )
-        }.isSuccess()
+        ).isNotNull()
 
         // Happy Path: date window coverage for until
-        assertThat {
+        assertThat(
             facade.findDeliveries(
                 "ca-dph",
                 null,
@@ -157,10 +156,10 @@ class DeliveryFacadeTests {
                 null,
                 10
             )
-        }.isSuccess()
+        ).isNotNull()
 
         // Happy Path: date window coverage for both
-        assertThat {
+        assertThat(
             facade.findDeliveries(
                 "ca-dph",
                 "elr",
@@ -171,7 +170,7 @@ class DeliveryFacadeTests {
                 OffsetDateTime.now(),
                 10
             )
-        }.isSuccess()
+        ).isNotNull()
     }
 
     @Test

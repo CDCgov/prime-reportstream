@@ -1,13 +1,12 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import assertk.assertions.messageContains
 import gov.cdc.prime.router.azure.BlobAccess
@@ -57,7 +56,7 @@ class ConfigSchemaReaderTests {
               required: true
               schema: ORU_R01/header.yml
         """.trimIndent()
-        assertThat { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }.isFailure()
+        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }
 
         // Badly formatted YAML - First condition has incorrect identation
         yaml = """
@@ -72,19 +71,19 @@ class ConfigSchemaReaderTests {
               required: true
               schema: ORU_R01/header.yml
         """.trimIndent()
-        assertThat { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }.isFailure()
+        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }
         yaml = """
             name ORU-R01-Base
         """.trimIndent()
-        assertThat { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }.isFailure()
+        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }
         yaml = """
             name: [ORU-R01-Base,other]
         """.trimIndent()
-        assertThat { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }.isFailure()
+        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }
 
         // Empty file
         yaml = ""
-        assertThat { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }.isFailure()
+        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }
     }
 
     @Test
@@ -118,58 +117,58 @@ class ConfigSchemaReaderTests {
         }
 
         // This is a bad schema.
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "ORU_R01_incomplete",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02"
             )
-        }.isFailure()
+        }
 
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "ORU_R01_bad",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-03"
             )
-        }.isFailure()
+        }
     }
 
     @Test
     fun `test read converter vs fhir transform`() {
         // This is a valid fhir transform schema
-        assertThat {
+        assertThat(
             ConfigSchemaReader.readSchemaTreeRelative(
                 "sample_schema",
                 "src/test/resources/fhir_sender_transforms",
                 schemaClass = FhirTransformSchema::class.java,
             )
-        }.isSuccess()
+        ).isNotNull()
 
         // This is an invalid hl7v2 schema
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "sample_schema",
                 "src/test/resources/fhir_sender_transforms",
                 schemaClass = ConverterSchema::class.java,
             )
-        }.isFailure()
+        }
 
         // This is a valid hl7v2 schema
-        assertThat {
+        assertThat(
             ConfigSchemaReader.readSchemaTreeRelative(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
                 schemaClass = ConverterSchema::class.java,
             )
-        }.isSuccess()
+        ).isNotNull()
 
         // This is an invalid fhir transform schema
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
                 schemaClass = FhirTransformSchema::class.java,
             )
-        }.isFailure()
+        }
     }
 
     @Test
@@ -182,13 +181,13 @@ class ConfigSchemaReaderTests {
             ).isValid()
         ).isTrue()
 
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.fromFile(
                 "ORU_R01_incomplete",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02",
                 schemaClass = ConverterSchema::class.java,
             )
-        }.isFailure()
+        }
 
         assertThat(
             converterSchemaFromFile(
@@ -197,23 +196,23 @@ class ConfigSchemaReaderTests {
             ).isValid()
         ).isTrue()
 
-        assertThat {
+        assertFailure {
             converterSchemaFromFile(
                 "ORU_R01_incomplete",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02"
             )
-        }.isFailure()
+        }
     }
 
     @Test
     fun `test read from file with extends`() {
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.fromFile(
                 "ORU_R01_circular",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06",
                 schemaClass = ConverterSchema::class.java,
             )
-        }.isFailure().messageContains("Schema circular dependency")
+        }.messageContains("Schema circular dependency")
 
         val schema = ConfigSchemaReader.fromFile(
             "ORU_R01_extends",
@@ -251,21 +250,21 @@ class ConfigSchemaReaderTests {
         }
 
         // This is a bad schema.
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "invalid_schema",
                 "src/test/resources/fhir_sender_transforms",
                 schemaClass = FhirTransformSchema::class.java,
             )
-        }.isFailure()
+        }
 
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "incomplete_schema",
                 "src/test/resources/fhir_sender_transforms",
                 schemaClass = FhirTransformSchema::class.java,
             )
-        }.isFailure()
+        }
     }
 
     @Test
@@ -278,13 +277,13 @@ class ConfigSchemaReaderTests {
             ).isValid()
         ).isTrue()
 
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.fromFile(
                 "incomplete_schema",
                 "src/test/resources/fhir_sender_transforms",
                 schemaClass = FhirTransformSchema::class.java,
             )
-        }.isFailure()
+        }
 
         assertThat(
             fhirTransformSchemaFromFile(
@@ -293,37 +292,37 @@ class ConfigSchemaReaderTests {
             ).isValid()
         ).isTrue()
 
-        assertThat {
+        assertFailure {
             fhirTransformSchemaFromFile(
                 "invalid_value_set",
                 "src/test/resources/fhir_sender_transforms",
             )
-        }.isFailure()
+        }
 
-        assertThat {
+        assertFailure {
             fhirTransformSchemaFromFile(
                 "incomplete_schema",
                 "src/test/resources/fhir_sender_transforms",
             )
-        }.isFailure()
+        }
 
-        assertThat {
+        assertFailure {
             fhirTransformSchemaFromFile(
                 "no_schema_nor_value",
                 "src/test/resources/fhir_sender_transforms",
             )
-        }.isFailure()
+        }
     }
 
     @Test
     fun `test read FHIR Transform from file with extends`() {
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.fromFile(
                 "circular_schema",
                 "src/test/resources/fhir_sender_transforms",
                 schemaClass = FhirTransformSchema::class.java,
             )
-        }.isFailure().messageContains("Schema circular dependency")
+        }.messageContains("Schema circular dependency")
 
         assertThat(
             ConfigSchemaReader.fromFile(
@@ -336,13 +335,13 @@ class ConfigSchemaReaderTests {
 
     @Test
     fun `test extends schema with URI`() {
-        assertThat {
+        assertThat(
             ConfigSchemaReader.fromFile(
                 "classpath:/fhirengine/translation/hl7/schema/schema-read-test-07/ORU_R01.yml",
                 null,
                 schemaClass = ConverterSchema::class.java,
             )
-        }.isSuccess()
+        ).isNotNull()
     }
 
     @Test
@@ -377,22 +376,22 @@ class ConfigSchemaReaderTests {
 
     @Test
     fun `test simple circular reference exception when loading schema`() {
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-04"
             )
-        }.isFailure()
+        }
     }
 
     @Test
     fun `test deep circular reference exception when loading schema`() {
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-05"
             )
-        }.isFailure()
+        }
     }
 
     @Test
@@ -401,9 +400,9 @@ class ConfigSchemaReaderTests {
             "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07",
             "ORU_R01.yml"
         )
-        assertThat {
+        assertThat(
             ConfigSchemaReader.readSchemaTreeUri(file.toURI())
-        }.isSuccess()
+        ).isNotNull()
     }
 
     @Test
@@ -413,7 +412,7 @@ class ConfigSchemaReaderTests {
             "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07",
             "ORU_R01.yml"
         ).readBytes()
-        assertThat {
+        assertThat(
             ConfigSchemaReader.readSchemaTreeUri(
                 URI(
                     """
@@ -421,7 +420,7 @@ class ConfigSchemaReaderTests {
                     """.trimIndent()
                 )
             )
-        }.isSuccess()
+        ).isNotNull()
     }
 
     @Test
@@ -430,11 +429,11 @@ class ConfigSchemaReaderTests {
             "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-08",
             "ORU_R01_circular.yml"
         )
-        assertThat {
+        assertFailure {
             ConfigSchemaReader.fromFile(
                 file.toURI().toString(),
                 schemaClass = ConverterSchema::class.java,
             )
-        }.isFailure().messageContains("Schema circular dependency")
+        }.messageContains("Schema circular dependency")
     }
 }

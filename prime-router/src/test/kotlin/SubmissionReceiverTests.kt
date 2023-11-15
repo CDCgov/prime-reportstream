@@ -1,9 +1,9 @@
 package gov.cdc.prime.router
 
+import assertk.assertFailure
 import assertk.assertThat
-import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
-import assertk.assertions.isSuccess
+import assertk.assertions.isNotNull
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -1156,7 +1156,7 @@ class SubmissionReceiverTests {
         every { queueMock.sendMessage(elrConvertQueueName, any()) } returns Unit
 
         // act / assert
-        assertThat {
+        assertFailure {
             receiver.validateAndMoveToProcessing(
                 sender,
                 hl7_record_bad_type,
@@ -1169,7 +1169,7 @@ class SubmissionReceiverTests {
                 "test.csv",
                 metadata = metadata
             )
-        }.isFailure()
+        }
 
         verify(exactly = 0) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
@@ -1220,7 +1220,7 @@ class SubmissionReceiverTests {
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
 
         // act / assert
-        assertThat {
+        assertFailure {
             receiver.validateAndRoute(
                 sender,
                 hl7_record_bad_type,
@@ -1228,7 +1228,7 @@ class SubmissionReceiverTests {
                 emptyList(),
                 true
             )
-        }.isFailure()
+        }
 
         verify(exactly = 0) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
@@ -1279,7 +1279,7 @@ class SubmissionReceiverTests {
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
 
         // act / assert
-        assertThat {
+        assertThat(
             receiver.validateAndRoute(
                 sender,
                 hl7_record,
@@ -1287,7 +1287,7 @@ class SubmissionReceiverTests {
                 emptyList(),
                 false
             )
-        }.isSuccess()
+        ).isNotNull()
 
         verify(exactly = 0) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
@@ -1335,7 +1335,7 @@ class SubmissionReceiverTests {
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
 
         // act / assert
-        assertThat {
+        assertThat(
             receiver.validateAndRoute(
                 sender,
                 hl7_record_bad_type,
@@ -1343,7 +1343,7 @@ class SubmissionReceiverTests {
                 emptyList(),
                 false
             )
-        }.isSuccess()
+        ).isNotNull()
 
         verify(exactly = 0) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())

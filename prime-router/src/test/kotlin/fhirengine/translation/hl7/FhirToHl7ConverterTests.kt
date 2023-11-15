@@ -1,15 +1,14 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasClass
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNull
-import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.v251.message.OML_O21
@@ -203,7 +202,7 @@ class FhirToHl7ConverterTests {
         val customContext = CustomContext(Bundle(), Bundle())
 
         // Required element
-        assertThat { converter.setHl7Value(element, "", customContext) }.isFailure()
+        assertFailure { converter.setHl7Value(element, "", customContext) }
             .hasClass(RequiredElementException::class.java)
 
         // Test the value is set for all specified HL7 fields
@@ -218,27 +217,27 @@ class FhirToHl7ConverterTests {
 
         // Not strict errors
         every { mockTerser.set(any(), any()) } throws HL7Exception("some text")
-        assertThat { converter.setHl7Value(element, fieldValue, customContext) }.isSuccess()
+        assertThat(converter.setHl7Value(element, fieldValue, customContext)).isEqualTo(Unit)
 
         clearAllMocks()
 
         every { mockTerser.set(any(), any()) } throws IllegalArgumentException("some text")
-        assertThat { converter.setHl7Value(element, fieldValue, customContext) }.isSuccess()
+        assertThat(converter.setHl7Value(element, fieldValue, customContext)).isEqualTo(Unit)
 
         clearAllMocks()
 
         // Strict errors
         converter = FhirToHl7Converter(mockSchema, true, mockTerser)
         every { mockTerser.set(element.hl7Spec[0], any()) } throws HL7Exception("some text")
-        assertThat { converter.setHl7Value(element, fieldValue, customContext) }.isFailure()
+        assertFailure { converter.setHl7Value(element, fieldValue, customContext) }
             .hasClass(HL7ConversionException::class.java)
 
         every { mockTerser.set(element.hl7Spec[0], any()) } throws IllegalArgumentException("some text")
-        assertThat { converter.setHl7Value(element, fieldValue, customContext) }.isFailure()
+        assertFailure { converter.setHl7Value(element, fieldValue, customContext) }
             .hasClass(SchemaException::class.java)
 
         every { mockTerser.set(element.hl7Spec[0], any()) } throws Exception("some text")
-        assertThat { converter.setHl7Value(element, fieldValue, customContext) }.isFailure()
+        assertFailure { converter.setHl7Value(element, fieldValue, customContext) }
             .hasClass(HL7ConversionException::class.java)
     }
 
@@ -261,7 +260,7 @@ class FhirToHl7ConverterTests {
             condition = conditionFalse,
             value = listOf(pathNoValue)
         )
-        assertThat { converter.processElement(element, bundle, bundle, customContext) }.isSuccess()
+        assertThat(converter.processElement(element, bundle, bundle, customContext)).isEqualTo(Unit)
 
         // Condition is false and was required
         element = ConverterSchemaElement(
@@ -270,7 +269,7 @@ class FhirToHl7ConverterTests {
             condition = conditionFalse,
             value = listOf(pathNoValue)
         )
-        assertThat { converter.processElement(element, bundle, bundle, customContext) }.isFailure()
+        assertFailure { converter.processElement(element, bundle, bundle, customContext) }
             .hasClass(RequiredElementException::class.java)
 
         // Illegal states
@@ -279,14 +278,14 @@ class FhirToHl7ConverterTests {
             condition = conditionTrue,
             value = listOf(pathNoValue)
         )
-        assertThat { converter.processElement(element, bundle, bundle, customContext) }.isFailure()
+        assertFailure { converter.processElement(element, bundle, bundle, customContext) }
             .hasClass(java.lang.IllegalStateException::class.java)
         element = ConverterSchemaElement(
             "name",
             condition = conditionTrue,
             value = listOf(pathWithValue)
         )
-        assertThat { converter.processElement(element, bundle, bundle, customContext) }.isFailure()
+        assertFailure { converter.processElement(element, bundle, bundle, customContext) }
             .hasClass(java.lang.IllegalStateException::class.java)
 
         // Process a value
@@ -318,7 +317,7 @@ class FhirToHl7ConverterTests {
             resource = pathNoValue,
             required = true
         )
-        assertThat { converter.processElement(element, bundle, bundle, customContext) }.isFailure()
+        assertFailure { converter.processElement(element, bundle, bundle, customContext) }
             .hasClass(RequiredElementException::class.java)
     }
 
@@ -414,15 +413,15 @@ class FhirToHl7ConverterTests {
         )
         schema =
             ConverterSchema(elements = mutableListOf(element))
-        assertThat { FhirToHl7Converter(schema).convert(bundle) }.isFailure()
+        assertFailure { FhirToHl7Converter(schema).convert(bundle) }
 
         // Use a file based schema which will fail as we do not have enough data in the bundle
-        assertThat {
+        assertFailure {
             FhirToHl7Converter(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
             ).convert(bundle)
-        }.isFailure()
+        }
     }
 
     @Test
@@ -801,7 +800,7 @@ class FhirToHl7ConverterTests {
 
             // Assert that a new element that would be "part" of an existing schema cannot
             // reference a constant from the nested schema
-            assertThat { FhirToHl7Converter(extendedSchema).convert(bundle) }.isFailure()
+            assertFailure { FhirToHl7Converter(extendedSchema).convert(bundle) }
         }
 
         @Test
