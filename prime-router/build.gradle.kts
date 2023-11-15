@@ -905,6 +905,9 @@ dependencies {
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.14")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
+    // pin com.squareup.okio:okio@3.4.0
+    runtimeOnly("com.squareup.okio:okio:3.4.0")
+    // runtimeOnly("com.squareup.okio:okio-jvm:3.4.0")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
