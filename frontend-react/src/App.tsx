@@ -85,7 +85,7 @@ export interface AppBaseProps extends Omit<AppProps, "oktaAuth" | "config"> {}
 const AppBase = ({ Layout }: AppBaseProps) => {
     const location = useLocation();
     const { appInsights, setTelemetryCustomProperty } = useAppInsightsContext();
-    const { oktaAuth, authState, config } = useSessionContext();
+    const { oktaAuth, authState } = useSessionContext();
     const { email } = authState.idToken?.claims ?? {};
     const { logout, activeMembership } = useSessionContext();
     const sessionStartTime = useRef<number>(new Date().getTime());
@@ -179,10 +179,7 @@ const AppBase = ({ Layout }: AppBaseProps) => {
                         <CacheProvider>
                             <ToastProvider>
                                 <ScrollRestoration />
-                                <DAPScript
-                                    env={config.APP_ENV}
-                                    pathname={location.pathname}
-                                />
+                                <DAPScript pathname={location.pathname} />
                                 <Suspense>
                                     <Layout />
                                 </Suspense>

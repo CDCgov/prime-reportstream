@@ -16,14 +16,6 @@
       "resource" : {
         "resourceType" : "MessageHeader",
         "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
@@ -37,7 +29,7 @@
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+          "display" : "ORU^R01^ORU_R01"
         },
         "sender" : {
           "reference" : "Organization/1699373584230005000.0594486c-0928-42a4-a36e-1da1121e5274"
@@ -49,14 +41,6 @@
       "resource" : {
         "resourceType" : "Organization",
         "id" : "1699373584230005000.0594486c-0928-42a4-a36e-1da1121e5274",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "address" : [
           {
             "country" : "USA"
@@ -69,15 +53,15 @@
       "resource" : {
         "resourceType" : "Provenance",
         "id" : "1699373584547512000.f4294095-6fd4-4b60-b923-4bedf7c4eff9",
-        "meta" : {
+        "recorded" : "2023-05-01T10:25:31-04:00",
+        "_recorded" : {
           "extension" : [
             {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230501102531-0400"
             }
           ]
         },
-        "recorded" : "2023-05-01T10:25:31-04:00",
         "activity" : {
           "coding" : [
             {
@@ -125,30 +109,14 @@
       "fullUrl" : "Device/1699373584549807000.3741060f-3cca-4fc9-a5a3-74668fcc0d5a",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1699373584549807000.3741060f-3cca-4fc9-a5a3-74668fcc0d5a",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+        "id" : "1699373584549807000.3741060f-3cca-4fc9-a5a3-74668fcc0d5a"
       }
     },
     {
       "fullUrl" : "Patient/1699373584564242000.b0993a34-2f9a-4969-ad2f-537be28daff0",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1699373584564242000.b0993a34-2f9a-4969-ad2f-537be28daff0",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+        "id" : "1699373584564242000.b0993a34-2f9a-4969-ad2f-537be28daff0"
       }
     },
     {
@@ -156,14 +124,6 @@
       "resource" : {
         "resourceType" : "Encounter",
         "id" : "1699373584568293000.2f8f5d0d-cdce-485d-815d-b45c981b3b79",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "identifier" : [
           {
             "type" : {
@@ -200,14 +160,6 @@
       "resource" : {
         "resourceType" : "Location",
         "id" : "1699373584573773000.01bfc027-b419-45a7-a36a-8cc7a36530a3",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/dld2-effective-date",

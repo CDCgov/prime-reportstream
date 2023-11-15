@@ -24,7 +24,7 @@ const Content = () => (
                 target="_blank"
                 rel="noreferrer noopener"
             >
-                Connect now
+                Connect with us
             </a>
         </div>
     </header>
