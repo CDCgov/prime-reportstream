@@ -10,11 +10,6 @@ Since ReportStream takes on the burden of identifying the appropriate destinatio
 ## Assumptions
 1.) The Council of State and Territorial Epidemiologist (CSTE) ValueSets that make up the Reportable Conditions Trigger Codes (RCTC) will be sufficient to capture a majority of codes sent to ReportStream. If this turns out to be false, we can modify the design to include additional data sources.
 
-## Criteria
-
-5.) Must be able to determine if an observation is an AOE
-6.) Must be able to log event to Action Log if mapping not found
-
 ## Out of Scope
 The below items are not covered in this proposal.
 
@@ -33,7 +28,7 @@ Criteria:
 1.) Must be able to map LOINC and SNOMED codes from observations to a SNOMED code representing a reportable condition.<br>
 2.) Table must have the ability to be updated without a PR <br>
 3.) Mapping must account for all 160 conditions available in the CSTE [Report Content Knowledge Management System](https://www.rckms.org/conditions-available-in-rckms/) that relate to ELR.<br>
-4.) Must be able to add ad-hoc mappings as needed for local codes/LDTs or other non-standard codes
+4.) Must be able to add ad-hoc mappings as needed for local codes/LDTs or other non-standard codes including LOINC codes for AOE questions
 
 The observation mapping table will be used to map LOINC/SNOMED codes to their relevant reportable conditions in the UP. The initial table is made up of values that are contained in valuesets maintained by the Council of State and Territorial Epidemiologists (CSTE) on the National Library of Medicines' [Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/). The valuesets are compiled and mapped to conditions by CSTE and published in the Reportable Conditions Trigger Codes (RCTC) documents used by the CSTE/AIMS product Reportable Condition Knowledge Management System (RCKMS) project.
 The RCTC is available to be downloaded from AIMS at https://ersd.aimsplatform.org/#/home. A login is required (registration is free).
@@ -58,8 +53,21 @@ The Observation Mapping table will be made up of CSTE ValueSets and contain the 
 
 The column names are taken directly from the [RCTC spreadsheet](https://docs.google.com/spreadsheets/d/1rO_p145xXO1AD76vx8vBqXgoQUnLqfc8/edit#gid=739612351) with the exception of "Value Source" and "Created At" which are additional columns added for administrative purposes that will be used when updating the table. Both LOINC and SNOMED codes are combined in this table and can be identified by column "Code System".
 The RCTC does a fairly good job of keeping up to date with LOINC and SNOMED codes and is regularly updated. It is anticipated that despite this there will be a requirement to map codes that are not present in the condition mapping table. These will have to be mapped manually after review by RS personnel in order to ensure that the proper condition code is mapped to the LOINC or SNOMED code. These codes can be submitted to CSTE valueset reviewers to be included in future releases. If a column is not applicable it can be left blank unless it is the "Code", "Code System", "Condition Name", "Condition Code"  "Value Source" columns.
+It is possible that an observation may not contain information intended to convey the results of a diagnostic test but instead represent additional important information regarding the testing sample of patient. Information of this type is referred to as "Ask at Order Entry" (AOE) questions commonly referred to by the abbreviation AOE only. The specific information being asked is identified in the observation with a LOINC code in OBX-3 (HL7-V2) or Observation.Code.Coding.Code (FHIR). We need to be able to identify these observations as AOEs in the same manner as we would identify which reportable condition the observation represents so that they can be filtered out if requested by STLTs and also to eliminate them as being unmapped observations. The LOINC codes for the base table come from two lists on LOINC.org.
+1.) [LOINC terms for SARS-CoV-2 AOE questions](https://loinc.org/sars-cov-2-and-covid-19/)<br>
+2.) [Public health laboratory ask at order entry panel](https://loinc.org/81959-9)<br>
 
-Uploading the table to remote environments can utilize the lookuptables CLI command (./prime lookuptables create)
+The Condition Code System for any mappings added ad-hoc (included the AOEs) should be labled as "ReportStream" since they do not come from any standardized ValueSet.
+
+Example Table:
+
+| Member OID                     | Name                                                                             | Code    | Descriptor                                              | Code System| Version  | Status | Condition Name                            | Condition Code | Condition Code System | Condition Code System Version | Value Source | Created At |    
+|--------------------------------|----------------------------------------------------------------------------------|---------|---------------------------------------------------------|------------|----------|--------|-------------------------------------------|----------------|-----------------------|-------------------------------|--------------|------------|
+| 2.16.840.1.113762.1.4.1146.239 | Chlamydia trachomatis Infection (Tests for Chlamydia trachomatis Nucleic Acid)   | 16601-7 | Chlamydia trachomatis rRNA [Presence] in Urine by Probe | LOINC      | 2.74     | Active | Chlamydia trachomatis infection (disorder)| 240589008      | SNOMEDCT              | 2023-03                       | RCTC         | 20231020   | 
+|                                | SARS-CoV-2 AOE questions                                                         | 97155-6 | SARS coronavirus 2 (COVID-19) immunization status       | LOINC      | 2.70     | Active | Ask at order entry question               | AOE            | ReportStream          | 1.0                           | LOINC.org    | 20231020   |
+
+
+Uploading the table to remote environments can utilize the lookuptables CLI command (./prime lookuptables create). Creating a new table with the same name will automatically create a new version of that table with that name and activate it if the -a parameter is used.
 
 Example
 
@@ -128,90 +136,38 @@ test code,test description,coding system, mapped?
 123456, LDT Flu Test, ACME LABS, N
 ```
 
-### Mapping LOINC/SNOMED codes in received message/bundle to condition code
-
-1.) Criteria
-2.)
-
-The condition information will be most useful and easy to work with if it exists in the FHIR bundle itself. Making use of the fact that FHIR allows for metadata about a resource to include tags that include a code and display value we can provide a tag to each observation resource in a FHIR bundle that describes the condition associated with that observation
+### Manually Updating Observation Tables
+There may occur situations where we have to update the table manually such as when adding ad-hoc values that do not belong to a published value set. This can be accomplished with the same lookuptables CLI command used to create the tables above. (./prime lookuptables get). This will allow Engagement to extract the current table and add values as needed.
 
 Example:
-```json
-        {
-            "fullUrl": "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
-            "resource": {
-                "resourceType": "Observation",
-                "id": "d683b42a-bf50-45e8-9fce-6c0531994f09",
-                "status": "final",
-                "code": {
-                    "coding": [
-                        {
-                            "system": "http://loinc.org",
-                            "code": "80382-5"
-                        }
-                    ],
-                    "text": "Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay"
-                },
-                "subject": {
-                    "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
-                },
-                "performer": [
-                    {
-                        "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
-                    }
-                ],
-                "valueCodeableConcept": {
-                    "coding": [
-                        {
-                            "system": "http://snomed.info/sct",
-                            "code": "260373001",
-                            "display": "Detected"
-                        }
-                    ]
-                },
-                "meta": {
-                    "tag": [
-                          {
-                              "code": "541000000000000",
-                              "display": "Infection caused by novel Influenza A virus variant (disorder)"
-                         }
-                    ]
-                }
-            }
-        }
+
+```
+./prime lookuptables get -o 'file-path-location' -n observation-mapping -v 2 -e staging
+```
+options:
+```
+-e, --env <name>        Connect to <name> environment. Choose between [local|test|staging|prod]
+-o, --output-file PATH  Output CSV file with the table data to specified file location
+-n, --name TEXT         The name of the table to perform the operation on
+-v, --version           The version of the table to get
+-h, --help              Show this message and exit
 ```
 
-In order to account for both HL7 and FHIR input from senders, the lookup should occur after conversion of the incoming HL7 V2 message into a FHIR bundle. Since the sender transforms are used after conversion from HL7 to FHIR, adding the below elements to the default sender transform will add the condition tag to the observation resource.
+The output CSV file can then have the necessary values added and the new table uploaded following the steps from Creating Observation Mapping Table section above. 
 
-```yaml
-  - name: test-condition
-    resource: 'Bundle.entry.resource.ofType(Observation)'
-    condition: '%resource.code.coding.exists()'
-    bundleProperty: '%resource.meta.tag.code'
-    value: ['%resource.code.coding.code']
-    valueSet:
-      lookupTable:
-        tableName: Condition-Mapping
-        keyColumn: code
-        valueColumn: condition_code
-```
-This element will check against the RCTC values loaded into the Observation-Mapping tables.
+### Mapping LOINC/SNOMED codes in received message/bundle to condition code
 
-Not all reportable conditions can be identified from order and result LOINC codes. In the case of bacterial cultures the condition is identified by the found organism which is populated in the result field/resource (OBX-5 or Bundle.entry.resource.ofType(Observation).value.valueCodeableConcept). In order to correctly tag these messages, an additional element will need to be added to the transform like below to check the result code.
+Criteria
 
-```yaml
-- name: result-condition
-  resource: 'Bundle.entry.resource.ofType(Observation)'
-  condition: '%resource.code.coding.exists() and %resource.meta.tag.code.not.exists()'
-  bundleProperty: '%resource.meta.tag.code'
-  value: ['%resource.valueCodeableConcept.coding.code']
-  valueSet:
-    lookupTable:
-      tableName: Condition-Mapping
-      keyColumn: code
-      valueColumn: condition_code
-```
-This element should be placed after the above elements as we only want to check the mapping for a result value if we have failed to find a match in the test ordered and test performed locations. 
+1.) Mapping solution must work whether the input data is an HL7 V2 message or a FHIR bundle. <br>
+2.) Must be able to compare LOINC or SNOMED codes from both Observation.code.coding.code (LOINC) and Observation.ValueCodeableConcept.coding.code (SNOMED) to values in "code" column of the Observation Mapping table and return value(s) from "condition code" column.<br>
+3.) Values from "Condition Code" column must be appended to FHIR bundle as an element so they can be used in FHIRpath condition filter logic. <br>
+4.) Must be able to return multiple values from observation-mapping table if LOINC/SNOMED code maps to multiple condition codes <br>
+
+Information regarding which reportable condition(s) an HL7 V2 message or FHIR Diagnostic Report is representing is not stored in a single element but instead can be extrapolated from either a LOINC code identifying what test was performed (OBX-3 HL7 V2 or Observation.Code.Coding.Code) or in the case of microbacterial cultures a SNOMED code identifying what organism was found (OBX-5 HL7 V2 or Observation.ValueCodeableConcept.Coding.Code).
+![img.png](HL7-condition-information.png)![img_1.png](fhir-condition-information.png)
+
+
 
 ### Filtering for condition
 
