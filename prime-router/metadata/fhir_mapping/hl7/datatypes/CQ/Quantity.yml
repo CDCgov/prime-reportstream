@@ -1,0 +1,4 @@
+value:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: CQ.1
