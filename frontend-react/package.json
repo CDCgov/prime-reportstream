@@ -154,7 +154,7 @@
         "@types/sanitize-html": "^2.9.2",
         "@typescript-eslint/eslint-plugin": "^6.8.0",
         "@typescript-eslint/parser": "^6.8.0",
-        "@vitejs/plugin-react": "^4.1.0",
+        "@vitejs/plugin-react": "^4.1.1",
         "autoprefixer": "^10.4.16",
         "babel-jest": "^29.7.0",
         "bfj": "8.0.0",
