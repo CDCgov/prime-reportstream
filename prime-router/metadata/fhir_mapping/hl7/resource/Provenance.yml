@@ -16,6 +16,23 @@ recorded:
   expressionType: JEXL
   vars:
     dateTimeIn: MSH.7
+_recorded:
+  expressionType: nested
+  condition: $msh7 NOT_NULL
+  vars:
+    msh7: MSH.7
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $msh7
+          expressionType: HL7Spec
 
 agent_1:
   #  condition: $orgName NOT_NULL

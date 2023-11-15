@@ -32,7 +32,7 @@
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+          "display" : "ORU^R01^ORU_R01"
         },
         "destination" : [
           {
@@ -13047,8 +13047,17 @@
               }
             ],
             "name" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
+                  "valueString" : "GENARO"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
+                  "valueString" : "L"
+                }
+              ],
               "use" : "official",
-              "text" : "GENARO SURYAN",
               "family" : "SURYAN",
               "given" : [
                 "GENARO"

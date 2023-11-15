@@ -55,12 +55,12 @@ class BlobAccessTests {
     @Nested
     class BlobAccessIntegrationTests {
         val azuriteContainer1 =
-            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite:3.25.1"))
+            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
                 .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
                 .withExposedPorts(10000, 10001, 10002)
 
         val azuriteContainer2 =
-            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite:3.25.1"))
+            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
                 .withEnv("AZURITE_ACCOUNTS", "devstoreaccount2:keydevstoreaccount2")
                 .withExposedPorts(10000, 10001, 10002)
 
@@ -498,7 +498,7 @@ class BlobAccessTests {
             assertThat(
                 result.blobUrl.contains(
                     when (it?.name) {
-                        null -> "none"
+                        null -> "other"
                         "SEND" -> "ready"
                         "CONVERT" -> "other"
                         else -> it.name.lowercase()

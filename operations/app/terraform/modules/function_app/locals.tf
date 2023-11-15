@@ -70,12 +70,11 @@ locals {
   sticky_slot_implicit_settings_names = tolist([
     "AzureWebJobsStorage",
     "OKTA_authKey",
-    "fn_OKTA_clientId",
+    "OKTA_ClientId",
     "OKTA_scope",
     "PartnerStorage",
     "POSTGRES_URL",
-    "POSTGRES_REPLICA_URL",
-    "OKTA_ClientId"
+    "POSTGRES_REPLICA_URL"
   ])
 
   # Any setting not in the common list is therefore unique

@@ -13,19 +13,25 @@ elements:
     schema: ../../common/organization-identifier
 
   - name: observation-request-date-time
-    condition: '%resource.effective.exists() and %resource.effective.is(dateTime)'
-    value: [ '%resource.effective' ]
-    hl7Spec: [ '%{fieldPath}-7' ]
+    condition: '%context.effective.exists() and %context.effective.is(dateTime)'
+    resource: '%resource.effective'
+    constants:
+      dtmFieldPath: '%{fieldPath}-7'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: observation-request-date-time-start
-    condition: '%resource.effective.exists() and  %resource.effective.is(Period)'
-    value: [ '%resource.effective.start' ]
-    hl7Spec: [ '%{fieldPath}-7' ]
+    condition: '%context.effective.exists() and %context.effective.is(Period)'
+    resource: '%resource.effective.start'
+    constants:
+      dtmFieldPath: '%{fieldPath}-7'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: observation-date-time-end
-    condition: '%resource.effective.exists() and %resource.effective.is(Period)'
-    value: [ '%resource.effective.end' ]
-    hl7Spec: [ '%{fieldPath}-8' ]
+    condition: '%context.effective.exists() and %context.effective.is(Period)'
+    resource: '%resource.effective.end'
+    constants:
+      dtmFieldPath: '%{fieldPath}-8'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: collector-identifier
     resource: '%service.extension(%`rsext-collector-identifier`).value.resolve()'
@@ -80,8 +86,10 @@ elements:
     hl7Spec: [ '%{fieldPath}-21' ]
 
   - name: results-reported-at
-    value: [ '%resource.issued' ]
-    hl7Spec: [ '%{fieldPath}-22' ]
+    resource: '%resource.issued'
+    constants:
+      dtmFieldPath: '%{fieldPath}-22'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: diagnostic-serv-sect-id
     value: [ '%resource.category.coding.code' ]
@@ -142,23 +150,6 @@ elements:
     schema: ../../common/datatype/ce-coded-element
     resourceIndex: reasonIndex
 
-  - name: result-interpreter
-    resource: '%resource.resultsInterpreter.resolve()'
-    constants:
-      cnnFieldPath: '%{fieldPath}-32-1'
-    schema: ../../common/datatype/cnn-composite-number-name
-
-  - name: technician
-    resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "SPRF").practitioner.resolve()'
-    constants:
-      cnnFieldPath: '%{fieldPath}-34-1'
-    schema: ../../common/datatype/cnn-composite-number-name
-
-  - name: transcriptionist
-    resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "TRANS").practitioner.resolve()'
-    constants:
-      cnnFieldPath: '%{fieldPath}-35-1'
-    schema: ../../common/datatype/cnn-composite-number-name
 
   - name: collectors-comment
     condition: >
