@@ -14,6 +14,7 @@ class MSHToMessageHeaderTests {
 
     @Test
     fun `test uses MSH24 when MSH3 is not valued`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-msh24-valued-msh3-not-valued").passed)
     }
 
     @Test
@@ -56,19 +57,30 @@ class MSHToMessageHeaderTests {
         assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-handles-multiple-msh18").passed)
     }
 
-    @Test
-    fun `test all MSH valued`() {
-    }
-
-    @Test
-    fun `test all MSH and SFT valued`() {
-    }
 
     @Test
     fun `test MSH17 valued and MSH4 not valued`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-msh17-valued-msh4-not-valued").passed)
     }
 
     @Test
     fun `test language prefers MSH191 over MSH194`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-prefers-MSH191").passed)
+    }
+
+    @Test
+    fun `test language uses MSH194 when MSH191 is not valued`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-uses-MSH194").passed)
+    }
+
+
+    @Test
+    fun `test all MSH valued`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-everything-valued").passed)
+    }
+
+    @Test
+    fun `test all MSH and SFT valued`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-everything-valued-SFT-valued").passed)
     }
 }

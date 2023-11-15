@@ -159,7 +159,7 @@ extension_messageHeader:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: msh-14-sequence-number
+          value: msh-14-continuation-pointer
         valueString:
           type: STRING
           expressionType: HL7Spec

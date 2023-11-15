@@ -68,6 +68,14 @@ elements:
     value: [ '"2.5.1"' ]
     hl7Spec: [ MSH-12 ]
 
+  - name: continuation-pointer
+    value: [ '%resource.extension(%`rsext-msh-13-sequence-number`).value' ]
+    hl7Spec: [ MSH-13 ]
+
+  - name: continuation-pointer
+    value: [ '%resource.extension(%`rsext-msh-14-continuation-pointer`).value' ]
+    hl7Spec: [ MSH-14 ]
+
   - name: accept-acknowledgement-type
     value: [ '%resource.extension(%`rsext-accept-acknowledgement-type`).value' ]
     hl7Spec: [ MSH-15 ]
