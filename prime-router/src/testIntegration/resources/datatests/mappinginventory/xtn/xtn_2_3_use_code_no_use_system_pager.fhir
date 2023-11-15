@@ -98,6 +98,16 @@
           "code" : "R01",
           "display" : "ORU^R01^ORU_R01"
         },
+        "source" : {
+          "_endpoint" : {
+            "extension" : [
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode" : "unknown"
+              }
+            ]
+          }
+        },
         "destination" : [
           {
             "target" : {
