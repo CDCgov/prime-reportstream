@@ -1,6 +1,5 @@
 import { screen } from "@testing-library/react";
 
-import { render } from "../../../utils/CustomRenderUtils";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
 import {
     orgServer,

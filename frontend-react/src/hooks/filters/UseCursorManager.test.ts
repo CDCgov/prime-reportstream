@@ -1,7 +1,5 @@
 import { act } from "@testing-library/react";
 
-import { renderHook } from "../../utils/CustomRenderUtils";
-
 import useCursorManager, { CursorActionType } from "./UseCursorManager";
 
 describe("Cursors", () => {

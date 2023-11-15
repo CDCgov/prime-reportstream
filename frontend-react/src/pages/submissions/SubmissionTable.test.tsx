@@ -2,7 +2,6 @@ import { Fixture } from "@rest-hooks/test";
 import { screen, within } from "@testing-library/react";
 
 import SubmissionsResource from "../../resources/SubmissionsResource";
-import { render } from "../../utils/CustomRenderUtils";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 import { MemberType } from "../../utils/OrganizationUtils";
 

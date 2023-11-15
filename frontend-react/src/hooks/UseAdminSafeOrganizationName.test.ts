@@ -1,5 +1,3 @@
-import { renderHook } from "../utils/CustomRenderUtils";
-
 import {
     Organizations,
     useAdminSafeOrganizationName,

@@ -1,7 +1,7 @@
 import { AccessToken } from "@okta/okta-auth-js";
 
 import { mockAccessToken } from "./TestUtils";
-import { AccessTokenWithRSClaims } from "./OrganizationUtils";
+import { AccessTokenWithRSClaims } from "../OrganizationUtils";
 
 test("mockToken", () => {
     const emptyAccessToken: AccessToken = mockAccessToken(); // Returns all default values

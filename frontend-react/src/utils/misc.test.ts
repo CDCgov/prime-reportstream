@@ -13,7 +13,7 @@ import {
     isValidServiceName,
     parseFileLocation,
 } from "./misc";
-import { mockEvent } from "./TestUtils";
+import { mockEvent } from "./Test/TestUtils";
 
 test("splitOn test", () => {
     const r1 = splitOn("foo", 1);

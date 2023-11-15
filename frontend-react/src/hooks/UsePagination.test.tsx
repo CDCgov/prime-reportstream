@@ -2,7 +2,6 @@ import { act, waitFor } from "@testing-library/react";
 import range from "lodash.range";
 
 import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
-import { renderHook } from "../utils/CustomRenderUtils";
 import { mockAppInsights } from "../__mocks__/ApplicationInsights";
 
 import usePagination, {

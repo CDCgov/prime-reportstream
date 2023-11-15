@@ -5,7 +5,7 @@ import {
     MemberType,
     membershipsFromToken,
 } from "./OrganizationUtils";
-import { mockAccessToken } from "./TestUtils";
+import { mockAccessToken } from "./Test/TestUtils";
 
 let mockGetSessionMembershipState = vi.fn();
 let mockGetOrganizationOverride = vi.fn();

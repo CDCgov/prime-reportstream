@@ -1,6 +1,5 @@
 import { screen } from "@testing-library/react";
 
-import { render } from "../../../utils/CustomRenderUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 import {
     AccessTokenWithRSClaims,

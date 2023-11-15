@@ -1,8 +1,6 @@
 import { useRef } from "react";
 import { fireEvent, screen } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
-
 import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,

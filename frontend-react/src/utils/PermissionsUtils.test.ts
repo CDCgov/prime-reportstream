@@ -1,6 +1,6 @@
 import { getUserPermissions, permissionCheck } from "./PermissionsUtils";
 import { AccessTokenWithRSClaims } from "./OrganizationUtils";
-import { mockAccessToken } from "./TestUtils";
+import { mockAccessToken } from "./Test/TestUtils";
 import { PERMISSIONS } from "./UsefulTypes";
 
 const senderToken = mockAccessToken({

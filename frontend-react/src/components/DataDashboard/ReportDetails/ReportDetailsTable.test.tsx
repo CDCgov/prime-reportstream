@@ -1,7 +1,6 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { render } from "../../../utils/CustomRenderUtils";
 import { mockUseReportsFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import { mockAppInsights } from "../../../__mocks__/ApplicationInsights";

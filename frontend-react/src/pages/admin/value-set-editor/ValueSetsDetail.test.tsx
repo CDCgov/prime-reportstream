@@ -2,7 +2,6 @@ import { screen, act, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AxiosError, AxiosResponse } from "axios";
 
-import { render } from "../../../utils/CustomRenderUtils";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
 import {
     useValueSetActivation,

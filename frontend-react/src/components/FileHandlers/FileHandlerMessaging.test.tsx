@@ -1,6 +1,5 @@
 import { screen, within } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";

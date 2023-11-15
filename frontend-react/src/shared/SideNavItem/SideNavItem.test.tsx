@@ -1,7 +1,6 @@
 import { screen } from "@testing-library/react";
 import { useLocation } from "react-router-dom";
 
-import { render } from "../../utils/CustomRenderUtils";
 import { USNavLink } from "../../components/USLink";
 
 import SideNavItem from "./SideNavItem";

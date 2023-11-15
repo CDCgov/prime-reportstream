@@ -1,7 +1,6 @@
 import { screen } from "@testing-library/react";
 import { AxiosError } from "axios";
 
-import { render } from "../utils/CustomRenderUtils";
 import { RSNetworkError } from "../utils/RSNetworkError";
 import { mockConsole } from "../__mocks__/console";
 import { mockRsconsole } from "../utils/console/__mocks__";

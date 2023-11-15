@@ -1,6 +1,5 @@
 import { screen } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
 import site from "../../content/site.json";
 
 import { NoServicesBanner } from "./NoServicesAlert";

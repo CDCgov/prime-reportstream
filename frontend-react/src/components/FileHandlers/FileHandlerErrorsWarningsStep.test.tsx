@@ -1,7 +1,6 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { render } from "../../utils/CustomRenderUtils";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import { fakeError, fakeWarning } from "../../hooks/UseFileHandler.test";

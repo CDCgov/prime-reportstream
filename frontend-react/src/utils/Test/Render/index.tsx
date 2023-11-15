@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import React, { ReactElement } from "react";
 import {
     render as renderOrig,
     RenderOptions,
@@ -11,58 +11,19 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { CacheProvider } from "rest-hooks";
 import { PartialDeep } from "type-fest";
-import { ErrorBoundary } from "react-error-boundary";
-import { LinkProps } from "react-router-dom";
+import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import { Fixture, MockResolver } from "@rest-hooks/test";
 
-import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetch";
-import { getTestQueryClient } from "../network/QueryClients";
-import { useSessionContext } from "../contexts/Session";
-import { useAppInsightsContext } from "../contexts/AppInsights";
-import { useFeatureFlags } from "../contexts/FeatureFlags";
-import { useToast } from "../contexts/Toast";
+import { AuthorizedFetchProvider } from "../../../contexts/AuthorizedFetch";
+import { getTestQueryClient } from "../../../network/QueryClients";
+import { useSessionContext } from "../../../contexts/Session";
+import { useAppInsightsContext } from "../../../contexts/AppInsights";
+import { useFeatureFlags } from "../../../contexts/FeatureFlags";
+import { useToast } from "../../../contexts/Toast";
 
-const MockLinkBase = ({
-    to,
-    className,
-    state: _state,
-    ...props
-}: LinkProps) => (
-    <a
-        className={typeof className === "function" ? className({}) : className}
-        href={to}
-        {...props}
-    />
-);
-const MockLink = vi.fn(MockLinkBase);
-MockLink.displayName = "Link";
-
-vi.mock("react-router-dom", async (imp) => ({
-    ...(await imp()),
-    useMatch: vi.fn(),
-    useNavigation: vi.fn(),
-    useHref: vi.fn(),
-    useRoutes: vi.fn(),
-    useNavigate: vi.fn(),
-    useLocation: vi.fn(() => window.location),
-    useParams: vi.fn(() => ({})),
-    useMatches: vi.fn(() => []),
-    useSearchParams: vi.fn(),
-    useResolvedPath: vi.fn(),
-    useLoaderData: vi.fn(),
-    useFetcher: vi.fn(),
-    useOutlet: vi.fn(),
-    useOutletContext: vi.fn(),
-    useRouteLoaderData: vi.fn(),
-    useSubmit: vi.fn(),
-    useNavigateType: vi.fn(),
-    useInRouterContext: vi.fn(),
-    useLinkClickHandler: vi.fn(),
-    useLinkPressHandler: vi.fn(),
-    useActionData: vi.fn(),
-    Link: MockLink,
-    NavLink: vi.fn(MockLink),
-}));
+function TestError({ error }: FallbackProps) {
+    return <>{error.toString()}</>;
+}
 
 interface AppWrapperProps {
     children: React.ReactNode;
@@ -114,9 +75,7 @@ export const AppWrapper = ({
                         <AuthorizedFetchProvider>
                             <ErrorBoundary
                                 onError={(e) => onError?.(e)}
-                                fallbackRender={(props) => (
-                                    <>{props.error.toString()}</>
-                                )}
+                                FallbackComponent={TestError}
                             >
                                 {restHookFixtures ? (
                                     <MockResolver fixtures={restHookFixtures}>
@@ -142,15 +101,18 @@ export const render = (
         restHookFixtures,
         providers,
         onError,
+        wrapper: _wrapper,
         ...options
-    }: Omit<RenderAppOptions, "wrapper"> = {},
+    }: RenderAppOptions = {},
 ) => {
     return renderOrig(ui, {
-        wrapper: AppWrapper({
-            restHookFixtures,
-            providers,
-            onError,
-        }),
+        wrapper:
+            _wrapper ??
+            AppWrapper({
+                restHookFixtures,
+                providers,
+                onError,
+            }),
         ...options,
     });
 };
@@ -166,15 +128,20 @@ export function renderHook<
     {
         restHookFixtures,
         providers,
+        onError,
+        wrapper: _wrapper,
         ...options
     }: RenderHookOptions<Props, Q, Container, BaseElement> &
         AppWrapperOptions = {},
 ) {
     return renderHookOrig<Result, Props, Q, Container, BaseElement>(render, {
-        wrapper: AppWrapper({
-            providers,
-            restHookFixtures,
-        }),
+        wrapper:
+            _wrapper ??
+            AppWrapper({
+                providers,
+                restHookFixtures,
+                onError,
+            }),
         ...options,
     });
 }

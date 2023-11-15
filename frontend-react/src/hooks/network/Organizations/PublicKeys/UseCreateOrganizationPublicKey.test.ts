@@ -2,7 +2,6 @@ import {
     dummyPublicKey,
     orgServer,
 } from "../../../../__mocks__/OrganizationMockServer";
-import { renderHook } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../../utils/OrganizationUtils";
 
 import useCreateOrganizationPublicKey from "./UseCreateOrganizationPublicKey";

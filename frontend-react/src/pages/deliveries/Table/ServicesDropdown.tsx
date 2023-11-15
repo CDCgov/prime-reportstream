@@ -25,6 +25,7 @@ function ServicesDropdown(props: Props) {
     return (
         <select
             className="usa-select"
+            title="services-dropdown"
             id="services-dropdown"
             name="services-dropdown"
             defaultValue={props.active}

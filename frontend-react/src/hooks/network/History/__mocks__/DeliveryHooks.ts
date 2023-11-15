@@ -1,7 +1,7 @@
 import * as DeliveryHooks from "../DeliveryHooks";
 
 vi.mock("../DeliveryHooks", async (imp) => ({
-    ...(await imp()),
+    ...(await imp<typeof import("../DeliveryHooks")>()),
     useOrgDeliveries: vi.fn(),
     useReportsDetail: vi.fn(),
     useReportsFacilities: vi.fn(),

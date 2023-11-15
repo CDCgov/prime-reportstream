@@ -1,7 +1,5 @@
 import { screen } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
-
 import MarkdownLayout from "./MarkdownLayout";
 import { LayoutMain, LayoutSidenav } from "./LayoutComponents";
 

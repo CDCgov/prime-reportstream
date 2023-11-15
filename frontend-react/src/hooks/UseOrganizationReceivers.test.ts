@@ -1,6 +1,5 @@
 import { waitFor } from "@testing-library/react";
 
-import { renderHook } from "../utils/CustomRenderUtils";
 import { dummyReceivers, orgServer } from "../__mocks__/OrganizationMockServer";
 import { MemberType } from "../utils/OrganizationUtils";
 

@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
 
-import { render, renderHook } from "../utils/CustomRenderUtils";
+import { render, renderHook } from "../utils/Test/Render";
 
 import { ModalConfirmDialog, ModalConfirmRef } from "./ModalConfirmDialog";
 

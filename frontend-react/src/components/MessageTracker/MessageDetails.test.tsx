@@ -2,7 +2,6 @@ import { screen } from "@testing-library/react";
 
 import { mockUseMessageDetails } from "../../hooks/network/MessageTracker/__mocks__/MessageTrackerHooks";
 import { RSMessageDetail } from "../../config/endpoints/messageTracker";
-import { render } from "../../utils/CustomRenderUtils";
 
 import { MessageDetailsPage } from "./MessageDetails";
 

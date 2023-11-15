@@ -1,7 +1,7 @@
 import { act } from "@testing-library/react";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
-import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../utils/Test/Render";
 
 import { useValueSetActivation } from "./UseValueSets";
 

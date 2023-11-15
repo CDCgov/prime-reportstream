@@ -1,7 +1,5 @@
 import { screen } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
-
 import Alert, { getAriaRole } from "./Alert";
 import type { AlertProps } from "./Alert";
 

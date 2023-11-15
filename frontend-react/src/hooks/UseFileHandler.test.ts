@@ -5,7 +5,6 @@ import { Destination } from "../resources/ActionDetailsResource";
 import { ErrorCode, ResponseError } from "../config/endpoints/waters";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
 import { FileType } from "../utils/TemporarySettingsAPITypes";
-import { renderHook } from "../utils/CustomRenderUtils";
 
 import useFileHandler, {
     INITIAL_STATE,

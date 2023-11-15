@@ -1,7 +1,6 @@
 import { screen } from "@testing-library/react";
 
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { render } from "../../../utils/CustomRenderUtils";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { receiversGenerator } from "../../../__mocks__/OrganizationMockServer";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
@@ -10,17 +9,11 @@ import { MemberType } from "../../../utils/OrganizationUtils";
 
 import DeliveriesTable from "./DeliveriesTable";
 
-const mockUsePagination = {
-    currentPageResults: makeDeliveryFixtureArray(10),
-    paginationProps: { currentPageNum: 1, slots: [1, 2, 3, 4] },
-    isLoading: false,
-};
-
 const mockReceivers = receiversGenerator(5);
 const mockActiveReceiver = mockReceivers[0];
 
 vi.mock("../../../hooks/UsePagination", async (imp) => ({
-    ...(await imp()),
+    ...(await imp<typeof import("../../../hooks/UsePagination")>()),
     default: vi.fn(() => ({
         currentPageResults: makeDeliveryFixtureArray(10),
         paginationProps: { currentPageNum: 1, slots: [1, 2, 3, 4] },

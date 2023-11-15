@@ -1,7 +1,6 @@
 import { waitFor } from "@testing-library/react";
 
 import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer";
-import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
 import useReceiverSubmitters from "./UseReceiverSubmitters";

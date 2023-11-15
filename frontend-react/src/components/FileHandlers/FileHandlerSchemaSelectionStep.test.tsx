@@ -1,7 +1,6 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { render } from "../../utils/CustomRenderUtils";
 import * as UseSenderSchemaOptionsExports from "../../senders/hooks/UseSenderSchemaOptions";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";

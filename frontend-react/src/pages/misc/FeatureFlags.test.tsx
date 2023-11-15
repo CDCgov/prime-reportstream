@@ -4,7 +4,6 @@ import {
     FeatureFlagActionType,
     useFeatureFlags,
 } from "../../contexts/FeatureFlags";
-import { render } from "../../utils/CustomRenderUtils";
 
 import { FeatureFlagsPage } from "./FeatureFlags";
 

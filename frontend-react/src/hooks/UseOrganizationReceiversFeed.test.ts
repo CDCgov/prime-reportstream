@@ -1,6 +1,5 @@
 import { act, waitFor } from "@testing-library/react";
 
-import { renderHook } from "../utils/CustomRenderUtils";
 import {
     dummyActiveReceiver,
     dummyReceivers,

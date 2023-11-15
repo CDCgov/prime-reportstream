@@ -1,6 +1,6 @@
 import type { RouteObject } from "react-router";
 
-import { RSRender, RSRenderHook } from "./utils/CustomRenderUtils";
+import { RSRender, RSRenderHook } from "./utils/Test/Render";
 
 declare global {
     type RsRouteObject = Omit<RouteObject, "children" | "handle"> & {

@@ -1,6 +1,5 @@
 import { screen } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import { PERMISSIONS } from "../../utils/UsefulTypes";
 import { useFeatureFlags } from "../../contexts/FeatureFlags";

@@ -4,7 +4,6 @@ import {
     messageTrackerServer,
     MOCK_MESSAGE_SENDER_DATA,
 } from "../../../__mocks__/MessageTrackerMockServer";
-import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
 import { useMessageSearch, useMessageDetails } from "./MessageTrackerHooks";

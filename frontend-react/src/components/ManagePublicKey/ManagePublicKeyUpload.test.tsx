@@ -1,7 +1,5 @@
 import { screen } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
-
 import ManagePublicKeyUpload, {
     ManagePublicKeyUploadProps,
 } from "./ManagePublicKeyUpload";

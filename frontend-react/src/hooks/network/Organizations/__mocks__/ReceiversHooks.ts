@@ -6,11 +6,11 @@ export const mockUseOrganizationReceivers = vi.spyOn(
     "useOrganizationReceivers",
 );
 vi.mock("../../../UseOrganizationReceivers", async (imp) => ({
-    ...(await imp()),
+    ...(await imp<typeof import("../../../UseOrganizationReceivers")>()),
     UseOrganizationReceivers: vi.fn(),
 }));
 vi.mock("../../../UseOrganizationReceiversFeed", async (imp) => ({
-    ...(await imp()),
+    ...(await imp<typeof import("../../../UseOrganizationReceiversFeed")>()),
     useOrganizationReceiversFeed: vi.fn(),
 }));
 

@@ -1,7 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
-import { render } from "../../utils/CustomRenderUtils";
 
 import { MessageReceivers } from "./MessageReceivers";
 

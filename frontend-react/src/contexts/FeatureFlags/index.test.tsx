@@ -1,4 +1,3 @@
-import { render } from "../../utils/CustomRenderUtils";
 import {
     mockGetSavedFeatureFlags,
     mockStoreFeatureFlags,
@@ -23,6 +22,8 @@ vi.mock("../../config", async () => {
     };
 });
 
+vi.unmock("./");
+
 const providerValueMonitor = vi.fn();
 
 const DummyFeatureFlagConsumer = () => {
@@ -38,7 +39,7 @@ const FeatureFlagProviderTestRenderer = () => {
     );
 };
 
-describe.skip("featureFlagReducer", () => {
+describe("featureFlagReducer", () => {
     test("adds feature flag correctly", () => {
         const result = featureFlagReducer(
             { featureFlags: [] },

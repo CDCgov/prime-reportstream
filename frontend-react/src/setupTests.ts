@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { TextEncoder } from "util";
 
 import "whatwg-fetch";
-import { render, renderHook } from "./utils/CustomRenderUtils";
+import { render, renderHook } from "./utils/Test/Render";
 
 global.TextEncoder = TextEncoder;
 vi.stubGlobal("scrollTo", vi.fn());
