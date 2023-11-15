@@ -160,12 +160,20 @@ The output CSV file can then have the necessary values added and the new table u
 Criteria
 
 1.) Mapping solution must work whether the input data is an HL7 V2 message or a FHIR bundle. <br>
-2.) Must be able to compare LOINC or SNOMED codes from both Observation.code.coding.code (LOINC) and Observation.ValueCodeableConcept.coding.code (SNOMED) to values in "code" column of the Observation Mapping table and return value(s) from "condition code" column.<br>
+2.) Must be able to compare LOINC or SNOMED codes from both OBX-3-1/Observation.code.coding.code (LOINC) and OBX-5-1/Observation.ValueCodeableConcept.coding.code (SNOMED) to values in "code" column of the Observation Mapping table and return value(s) from "condition code" column.<br>
 3.) Values from "Condition Code" column must be appended to FHIR bundle as an element so they can be used in FHIRpath condition filter logic. <br>
 4.) Must be able to return multiple values from observation-mapping table if LOINC/SNOMED code maps to multiple condition codes <br>
 
 Information regarding which reportable condition(s) an HL7 V2 message or FHIR Diagnostic Report is representing is not stored in a single element but instead can be extrapolated from either a LOINC code identifying what test was performed (OBX-3 HL7 V2 or Observation.Code.Coding.Code) or in the case of microbacterial cultures a SNOMED code identifying what organism was found (OBX-5 HL7 V2 or Observation.ValueCodeableConcept.Coding.Code).
-![img.png](HL7-condition-information.png)![img_1.png](fhir-condition-information.png)
+![HK7](HL7-condition-information.png)![FHIR](fhir-condition-information.png)
+
+Reportable condition information is needed to determine whether a particular diagnostic report will qualify to route to a particular receiver. This can be accomplished using the condition filter if condition information is stored in a defined element in a FHIR resource that can be accessed via a FHIRPath expression. The FHIR US Core Implementation guide does not currently define an element on the observation resource that stores reportable condition information so ReportStream will have to create our own extension for the Observation resource that can store the coded value from the Observation-Mapping table representing the condition information. The extension will need to repeat for every matching value found in the table for the LOINC/SNOMED code in the observation resource.  
+
+The condition information will need to be appended to the FHIR bundle prior to the Universal Pipeline's Route step as the condition information will be used to determine whether a particular diagnostic report will qualify to route to a particular receiver. In the Convert step of the pipeline we currently utilize functions called FHIR Bundle Helpers to modify existing FHIR bundles. In order to map the code to condition  
+
+
+
+
 
 
 
@@ -203,31 +211,6 @@ Example output: [prime-reportstream/prime-router/docs/design/proposals/0023-cond
 
 This approach will prune any observations that do not match the listed conditions in the filter during the translation step (FHIRTranslator.kt).
 
-### Condition filter logic #2 
-
-The second way to write the condition logic will pass the entire bundle if a match is found for one observation.
-
-Example input: [prime-reportstream/prime-router/docs/design/proposals/0023-condition-to-code-mapping/exampleinput.fhir]()
-
-```yaml
-    - name: TEST-RECEIVER
-      externalName: TEST
-      organizationName: TEST
-      topic: full-elr
-      customerStatus: active
-      jurisdictionalFilter:
-        - "(%performerState.exists() and %performerState = 'TEST') or (%patientState.exists() and %patientState = 'TEST')"
-      qualityFilter: []
-      conditionFilter:
-          - "bundle.entry.ofType(Observation).where(meta.tag.code in (398102009' |'13906002' |'409498004' |'40610006' |'21061004' |'75702008' |'359761005' |'414015000' |'840539006' |'416925005' |'83436008')).exists()"
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-```
-Example output: [prime-reportstream/prime-router/docs/design/proposals/0023-condition-to-code-mapping/exampleoutput2.hl7]()
-
-This will potentially pass along results for conditions that are not desired by the receiver in the event the message/bundle represents a multiplex test where the receiver only desires some of the test results (e.g. if NY wanted to receive FLU A and FLU B results but not covid results and ReportStream received a messages where all three were represented, all three would be sent). This is likely an edge case that will not be commonly encountered and the risk of missing results by going with option #1 is much higher.
 
 ## Monitoring Mapping
 
