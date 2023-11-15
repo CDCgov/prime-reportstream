@@ -13,6 +13,7 @@ import java.io.IOException
 import java.time.OffsetDateTime
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class LookupTableCommandsTest {
     /**
@@ -41,8 +42,8 @@ class LookupTableCommandsTest {
 
     @Test
     fun `test lookuptable list invalid response body`() {
-        assertFailsWith<IOException>(
-            message = "Invalid response body found.",
+        val exception = assertFailsWith<IOException>(
+            message = "Expected IOException does not happen",
             block = {
                 getMockUtil(
                     "/api/lookuptables/list",
@@ -51,12 +52,13 @@ class LookupTableCommandsTest {
                 ).fetchList()
             }
         )
+        assertTrue(exception.message.toString().contains("Invalid response body found"))
     }
 
     @Test
     fun `test lookuptable list error response`() {
         val body = """{"error": {"code": 404,"message": "Something wrong when processing request."}}"""
-        assertFailsWith<IOException>(
+        val exception = assertFailsWith<IOException>(
             message = "Error response: status code: ${HttpStatusCode.NotFound}, body: $body",
             block = {
                 getMockUtil(
@@ -66,6 +68,7 @@ class LookupTableCommandsTest {
                 ).fetchList()
             }
         )
+        assertTrue(exception.message.toString().contains("Something wrong when processing request"))
     }
 
     @Test
@@ -155,96 +158,9 @@ class LookupTableCommandsTest {
     }
 
     @Test
-    fun `get error from response test`() {
-//        val response = apiMock.posts("fakeUrl")
-//        println(response)
-//        assertThat(LookupTableEndpointUtilities.getResponseError(response)).isEqualTo("")
-
-//        val mockResult = mockk<Result.Success<FuelJson>>()
-//        val mockResultFailure = mockk<Result.Failure<FuelError>>()
-//        val mockGenericErrorMessage = "Some dummy message"
-//
-//        // No response from the API
-//        every { mockResultFailure.error.response.body().isEmpty() } returns true
-//        every { mockResultFailure.error.toString() } returns mockGenericErrorMessage
-//        assertThat(LookupTableEndpointUtilities.getErrorFromResponse(mockResultFailure))
-//            .isEqualTo(mockGenericErrorMessage)
-//
-//        // The response from the API is just a string, not JSON
-//        every { mockResultFailure.error.response.body().isEmpty() } returns false
-//        every { mockResultFailure.error.response.body().asString(HttpUtilities.jsonMediaType) } returns "not Json"
-//        every { mockResultFailure.error.toString() } returns mockGenericErrorMessage
-//        assertThat(LookupTableEndpointUtilities.getErrorFromResponse(mockResultFailure))
-//            .isEqualTo(mockGenericErrorMessage)
-//
-//        // Response is JSON, but has no error field
-//        every { mockResultFailure.error.response.body().asString(HttpUtilities.jsonMediaType) } returns
-//            """{"dummy": "dummy"}"""
-//        assertThat(LookupTableEndpointUtilities.getErrorFromResponse(mockResultFailure))
-//            .isEqualTo(mockGenericErrorMessage)
-//
-//        // A response with an error
-//        every { mockResultFailure.error.response.body().asString(HttpUtilities.jsonMediaType) } returns
-//            """{"error": "some error"}"""
-//        assertThat(LookupTableEndpointUtilities.getErrorFromResponse(mockResultFailure))
-//            .isEqualTo("some error")
-    }
-
-    @Test
-    fun `check common errors from response test`() {
-//        val mockResult = mockk<Result.Success<FuelJson>>()
-//        val mockResultFailure = mockk<Result.Failure<FuelError>>()
-//        val mockResponse = mockk<Response>()
-//
-//        // API Not found
-//        every { mockResponse.statusCode } returns HttpStatus.SC_NOT_FOUND
-//        every { mockResultFailure.error.response.body().isEmpty() } returns false
-//        every { mockResultFailure.error.response.body().asString(HttpUtilities.jsonMediaType) } returns "not Json"
-//        assertFailsWith<IOException>(
-//            block = {
-//                LookupTableEndpointUtilities.checkResponse(call.response)
-//            }
-//        )
-
-//        // API Not found with unexpected JSON response
-//        every { mockResultFailure.error.response.body().asString(HttpUtilities.jsonMediaType) } returns
-//            """{"dummy": "dummy"}"""
-//        assertFailsWith<IOException>(
-//            block = {
-//                LookupTableEndpointUtilities.checkCommonErrorsFromResponse(mockResultFailure, mockResponse)
-//            }
-//        )
-//
-//        // Table not found
-//        every { mockResultFailure.error.response.body().asString(HttpUtilities.jsonMediaType) } returns
-//            """{"error": "some error"}"""
-//        assertFailsWith<LookupTableEndpointUtilities.Companion.TableNotFoundException>(
-//            block = {
-//                LookupTableEndpointUtilities.checkCommonErrorsFromResponse(mockResultFailure, mockResponse)
-//            }
-//        )
-
-//        // Nome other error
-//        every { mockResponse.statusCode } returns HttpStatus.SC_BAD_REQUEST
-//        assertFailsWith<IOException>(
-//            block = {
-//                LookupTableEndpointUtilities.checkCommonErrorsFromResponse(mockResultFailure, mockResponse)
-//            }
-//        )
-//
-//        // Good response, but no body returned
-//        every { mockResponse.statusCode } returns HttpStatus.SC_OK
-//        every { mockResult.get().content.isBlank() } returns true
-//        assertFailsWith<IOException>(
-//            block = {
-//                LookupTableEndpointUtilities.checkCommonErrorsFromResponse(mockResultFailure, mockResponse)
-//            }
-//        )
-    }
-
-    @Test
     fun `get table info from response create table conflict`() {
-        assertFailsWith<LookupTableEndpointUtilities.Companion.TableConflictException>(
+        val exception = assertFailsWith<LookupTableEndpointUtilities.Companion.TableConflictException>(
+            message = "Expect TableConflictException does not thrown.",
             block = {
                 val respBody = """{"error": "New Lookup Table Table is identical to existing table version 1."}"""
                 getMockUtil(
@@ -254,10 +170,68 @@ class LookupTableCommandsTest {
                 ).createTable("race", listOf(mapOf()), true)
             }
         )
+        assertTrue(
+            exception.message.toString().contains(
+            "New Lookup Table Table is identical to existing table version 1"
+            )
+        )
+    }
+
+    @Test
+    fun `get table info from response create table end point not found`() {
+        val exception = assertFailsWith<IOException>(
+            message = "Expected 404 with empty response body not happening",
+            block = {
+                getMockUtil(
+                    "${LookupTableEndpointUtilities.endpointRoot}/race",
+                    HttpStatusCode.NotFound,
+                    body = ""
+                ).createTable("race", listOf(mapOf()), true)
+            }
+        )
+        assertTrue(exception.message.toString().contains("Response status: 404, NOT FOUND, endpoint not found"))
     }
 
     @Test
     fun `get table info from response fetch table`() {
+        val body = """[ {
+            "code" : "Y",
+            "name" : "yesno",
+            "display" : "YES",
+            "version" : ""
+        }, {
+            "code" : "Y",
+            "name" : "yesno",
+            "display" : "Y",
+            "version" : ""
+        }, {
+            "code" : "N",
+            "name" : "yesno",
+            "display" : "NO",
+            "version" : ""
+        }]"""
+        val table = getMockUtil(
+                "${LookupTableEndpointUtilities.endpointRoot}/yesno/1/content",
+                HttpStatusCode.OK,
+                body = body
+            ).fetchTableContent("yesno", 1)
+
+        assertThat(table.size).isEqualTo(3)
+    }
+
+    @Test
+    fun `get table info from response fetch table malformed body`() {
+        val exception = assertFailsWith<IOException>(
+            block = {
+                val body = """"Just a bad json string"""
+                getMockUtil(
+                    "${LookupTableEndpointUtilities.endpointRoot}/yesno/1/content",
+                    HttpStatusCode.OK,
+                    body = body
+                ).fetchTableContent("yesno", 1)
+            }
+        )
+        assertTrue(exception.message.toString().contains("Unexpected end-of-input: was expecting closing quote"))
     }
 
     @Test

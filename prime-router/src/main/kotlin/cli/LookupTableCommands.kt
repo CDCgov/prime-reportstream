@@ -119,10 +119,7 @@ class LookupTableEndpointUtilities(
             httpClient = apiClient
         )
 
-        println("URL: $url")
-        println("status: ${response.status.value}")
-        println("body: $respStr")
-        checkResponse(Pair(response, respStr))
+        checkResponseForCommonErrors(Pair(response, respStr))
 
         try {
             return mapper.readValue(respStr)
@@ -206,7 +203,7 @@ class LookupTableEndpointUtilities(
          * @throws IOException if there is a server or API error
          */
         internal fun getTableInfoResponse(pair: Pair<HttpResponse, String>): LookupTableVersion {
-            checkResponse(pair)
+            checkResponseForCommonErrors(pair)
             try {
                 val info = mapper.readValue<LookupTableVersion>(pair.second)
                 if (info.tableName.isNullOrBlank() || info.tableVersion < 1 || info.createdBy.isNullOrBlank() ||
@@ -226,7 +223,7 @@ class LookupTableEndpointUtilities(
          * @throws TableNotFoundException if the table and/or version is not found
          * @throws IOException if there is a server or API error
          */
-        internal fun checkResponse(pair: Pair<HttpResponse, String>) {
+        internal fun checkResponseForCommonErrors(pair: Pair<HttpResponse, String>) {
             when {
                 // resource not found
                 pair.first.status == HttpStatusCode.NotFound -> {
