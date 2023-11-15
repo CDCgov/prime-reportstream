@@ -2,18 +2,18 @@ locals {
   environment = "prod"
   address_id  = 7
   init = {
-    environment          = local.environment
-    location             = "eastus"
-    is_metabase_env      = true
-    resource_group_name  = "prime-data-hub-${local.environment}"
-    resource_prefix      = "pdh${local.environment}"
-    okta_redirect_url    = "https://prime.cdc.gov/download"
-    okta_base_url        = "hhs-prime.okta.com"
-    OKTA_scope           = "simple_report_dev"
-    RS_okta_base_url     = "reportstream.okta.com"
-    RS_okta_redirect_url = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
-    RS_OKTA_scope        = "reportstream_prod"
-    storage_queue_name   = ["process"]
+    environment           = local.environment
+    location              = "eastus"
+    is_metabase_env       = true
+    resource_group_name   = "prime-data-hub-${local.environment}"
+    resource_prefix       = "pdh${local.environment}"
+    okta_redirect_url     = "https://prime.cdc.gov/download"
+    okta_base_url         = "hhs-prime.okta.com"
+    OKTA_scope            = "simple_report_dev"
+    RS_okta_base_url      = "reportstream.okta.com"
+    RS_okta_redirect_url  = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
+    RS_OKTA_scope         = "reportstream_prod"
+    storage_queue_name    = ["process"]
     sftp_container_module = false
 
   }
