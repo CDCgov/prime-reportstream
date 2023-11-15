@@ -500,3 +500,6 @@
 # CWE Quantity
 - id: "cwe-quantity"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-quantity"
+# Entity identifier
+- id: "entity-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier"

@@ -3,6 +3,7 @@ constants:
   serviceRequest: 'Bundle.entry.resource.ofType(ServiceRequest)'
   diagnosticReport: 'Bundle.entry.resource.ofType(DiagnosticReport)'
   patient: 'Bundle.entry.resource.ofType(Patient)'
+  specimen: 'Bundle.entry.resource.ofType(Specimen)'
 elements:
 
   # Order Filler identifier - this was being populated in CA receiver transforms
@@ -239,3 +240,122 @@ elements:
     resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom.where(system = "phone")'
     resourceIndex: telecomIndex
     schema: datatypes/simple-report-telecom
+
+#    [ {
+#      "extension": [ {
+#        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+#        "extension": [ {
+#          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+#          "valueString": "f34b0f57-1601-4480-ae8a-d4006e50f38d"
+#        }, {
+#          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+#          "valueString": "Other CSV"
+#        }, {
+#          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+#          "valueString": "22D2222222"
+#        }, {
+#          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+#          "valueString": "CLIA2"
+#        } ]
+#      }, {
+#        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+#        "valueString": "specimen-id-placer"
+#      }, {
+#        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+#        "valueString": "CSV"
+#      }, {
+#        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+#        "valueString": "11D1111111"
+#      }, {
+#        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+#        "valueString": "CLIA"
+#      } ],
+#      "type": {
+#        "coding": [ {
+#          "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+#          "code": "PGN"
+#        } ]
+#      },
+#      "value": "adb4a5cc-50ec-4f1e-95d7-0c1f77cacee1"
+#    }, {
+#      "extension": [ {
+#        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+#        "valueString": "specimen-id-filler"
+#      }, {
+#        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+#        "extension": [ {
+#          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+#          "valueString": "adb4a5cc-50ec-4f1e-95d7-0c1f77cacee1"
+#        }, {
+#          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+#          "valueString": "CSV"
+#        }, {
+#          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+#          "valueString": "11D1111111"
+#        }, {
+#          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+#          "valueString": "CLIA"
+#        } ]
+#      }, {
+#        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+#        "valueString": "Other CSV"
+#      }, {
+#        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+#        "valueString": "22D2222222"
+#      }, {
+#        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+#        "valueString": "CLIA2"
+#      } ],
+#      "type": {
+#        "coding": [ {
+#          "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+#          "code": "FGN"
+#        } ]
+#      },
+#      "value": "f34b0f57-1601-4480-ae8a-d4006e50f38d"
+#    } ],
+
+  # populate specimen identifiers
+  - name: sr-specimen-placer-assigned-identifier-value
+    bundleProperty: '%specimen.identifier[0].value'
+    value: [ '%diagnosticReport.id' ]
+
+  - name: sr-specimen-placer-assigned-identifier-type-coding-code
+    bundleProperty: '%specimen.identifier[0].type.coding[0].code'
+    value: [ '"PGN"' ]
+
+  - name: sr-specimen-placer-assigned-identifier-type-coding-system
+    bundleProperty: '%specimen.identifier[0].type.coding[0].system'
+    value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
+
+  - name: sr-specimen-placer-assigned-identifier-namespace-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-specimen-placer-assigned-identifier-universal-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].value' ]
+
+  - name: sr-specimen-placer-assigned-identifier-universal-id-type
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].type.coding[0].code' ]
+
+  - name: sr-specimen-placer-assigned-identifier-hl7-use
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
+    value: [ '"specimen-id-placer"' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-value
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier").value[x]'
+    value: [ '%diagnosticReport.id' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-namespace-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-universal-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].value' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-universal-id-type
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].type.coding[0].code' ]

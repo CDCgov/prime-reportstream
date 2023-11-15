@@ -3,39 +3,21 @@ elements:
     value: [ '"1"' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-1' ]
 
-  - name: specimen-identifier-placer
-    resource: '%resource.identifier.where(type.empty())'
+  - name: specimen-identifier
+    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-placer")'
     condition: '%resource.exists()'
     constants:
-      entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
-    schema: datatype/ei-entity-identifier
-    resourceIndex: entityIdIndex
+      spmFieldPath: '%{hl7SpecimenFieldPath}-2'
+    schema: ../datatypes/identifier-placerAssignedIdentifier/EIP
 
-  - name: specimen-identifier-filler
-    resource: '%resource.identifier.where(type.coding.code = "FGN")'
-    condition: '%resource.exists()'
+  - name: specimen-identifier-backup
+    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-filler")'
+    condition: >
+      %resource.identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-placer").exists().not() and
+      %resource.exists()
     constants:
-      entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
-    schema: datatype/ei-entity-identifier
-    resourceIndex: entityIdIndex
-
-  #  If there's only one identifier and system is empty get identifier from performer org
-  - name: specimen-organization-identifier
-    condition: '%specimen.identifier.count() = 1 and %specimen.identifier.system.empty()'
-    resource: '%performerOrganization'
-    constants:
-      organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
-      identifier: '%specimen.identifier[0].value'
-    schema: organization-identifier
-
-  #  If there's only one identifier and system is empty get identifier from performer org
-  - name: specimen-organization-identifier-2
-    condition: '%specimen.identifier.count() = 1 and %specimen.identifier.system.empty()'
-    resource: '%performerOrganization'
-    constants:
-      organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
-      identifier: '%specimen.identifier[0].value'
-    schema: organization-identifier
+      spmFieldPath: '%{hl7SpecimenFieldPath}-2'
+    schema: ../datatypes/identifier-fillerAssignedIdentifier/EIP
 
   - name: specimen-type
     resource: '%resource.type'
