@@ -39,41 +39,11 @@
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/application-acknowledgement-type",
-            "valueIdentifier" : {
-              "type" : {
-                "coding" : [
-                  {
-                    "extension" : [
-                      {
-                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                        "valueString" : "identifier"
-                      }
-                    ],
-                    "system" : "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition",
-                    "code" : "AL"
-                  }
-                ]
-              }
-            }
+            "valueString" : "AL"
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/accept-acknowledgement-type",
-            "valueIdentifier" : {
-              "type" : {
-                "coding" : [
-                  {
-                    "extension" : [
-                      {
-                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                        "valueString" : "identifier"
-                      }
-                    ],
-                    "system" : "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition",
-                    "code" : "AL"
-                  }
-                ]
-              }
-            }
+            "valueString" : "AL"
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
@@ -107,9 +77,21 @@
         },
         "destination" : [
           {
-            "target" : {
-              "reference" : "Device/1695669259193474000.cf2cec89-fc2d-4f49-a4e1-56eb69f0d846"
-            },
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString" : "natus.health.state.mn.us"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString" : "DNS"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "MSH.5"
+              }
+            ],
+            "name" : "NATUS",
             "endpoint" : "urn:dns:natus.health.state.mn.us",
             "receiver" : {
               "reference" : "Organization/urn-oid-2.16.840.1.114222.4.1.10080"
@@ -126,6 +108,22 @@
               "valueReference" : {
                 "reference" : "Organization/1695669259213507000.4b999e35-7d47-48a1-ac6e-88f144e21093"
               }
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+              "valueString" : "Epic"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+              "valueString" : "1.2.840.114350.1.13.145.2.7.2.695071"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+              "valueString" : "ISO"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+              "valueString" : "MSH.3"
             }
           ],
           "name" : "Epic",
@@ -134,35 +132,33 @@
       }
     },
     {
-      "fullUrl" : "Device/1695669259193474000.cf2cec89-fc2d-4f49-a4e1-56eb69f0d846",
+      "fullUrl" : "Organization/urn-oid-2.16.840.1.114222.4.1.10080",
       "resource" : {
-        "resourceType" : "Device",
-        "id" : "1695669259193474000.cf2cec89-fc2d-4f49-a4e1-56eb69f0d846",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ],
-          "tag" : [
-            {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-              "code" : "P"
-            }
-          ]
-        },
+        "resourceType" : "Organization",
+        "id" : "urn-oid-2.16.840.1.114222.4.1.10080",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+            "valueString" : "MSH.6"
+          }
+        ],
         "identifier" : [
           {
-            "value" : "NATUS"
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
+                "valueBoolean" : true
+              }
+            ],
+            "value" : "MN Public Health Lab"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id",
+                "valueBoolean" : true
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -173,47 +169,12 @@
                     }
                   ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0301",
-                  "code" : "DNS"
+                  "code" : "ISO"
                 }
               ]
             },
-            "value" : "urn:dns:natus.health.state.mn.us"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Organization/urn-oid-2.16.840.1.114222.4.1.10080",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "urn-oid-2.16.840.1.114222.4.1.10080",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ],
-          "tag" : [
-            {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-              "code" : "P"
-            }
-          ]
-        },
-        "identifier" : [
-          {
-            "value" : "MN Public Health Lab"
-          },
-          {
-            "system" : "urn:id:ISO",
-            "value" : "urn:oid:2.16.840.1.114222.4.1.10080"
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.10080"
           }
         ],
         "name" : "MN Public Health Lab"

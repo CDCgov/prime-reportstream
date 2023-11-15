@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1700015010284021000.19f762a9-6f5b-4084-a975-cf11e8dab922",
+  "id" : "1700054887742648000.bd5acc77-3300-46c4-ac7c-bc586d2afe74",
   "meta" : {
-    "lastUpdated" : "2023-11-14T21:23:30.298-05:00"
+    "lastUpdated" : "2023-11-15T08:28:07.755-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -24,6 +24,23 @@
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
             "valueString" : "20230501102531-0400"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-25-hd-extension",
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "valueString" : "Sending App"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString" : "Sending App Universal"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString" : "ISO"
+              }
+            ]
           }
         ],
         "eventCoding" : {
@@ -64,10 +81,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1700015010654818000.b140607e-f983-41c1-a711-482ec4b5ab39",
+      "fullUrl" : "Provenance/1700054888105844000.97ca2049-4068-471b-a5d5-b0d530bc4153",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1700015010654818000.b140607e-f983-41c1-a711-482ec4b5ab39",
+        "id" : "1700054888105844000.97ca2049-4068-471b-a5d5-b0d530bc4153",
         "recorded" : "2023-05-01T10:25:31-04:00",
         "activity" : {
           "coding" : [
@@ -106,17 +123,17 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1700015010657437000.759ff46a-2e03-4be8-a8d8-3da6872a1643"
+              "reference" : "Device/1700054888108068000.4b9d1a77-c37e-4d8e-9230-2e6ece7414ce"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1700015010657437000.759ff46a-2e03-4be8-a8d8-3da6872a1643",
+      "fullUrl" : "Device/1700054888108068000.4b9d1a77-c37e-4d8e-9230-2e6ece7414ce",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1700015010657437000.759ff46a-2e03-4be8-a8d8-3da6872a1643"
+        "id" : "1700054888108068000.4b9d1a77-c37e-4d8e-9230-2e6ece7414ce"
       }
     }
   ]

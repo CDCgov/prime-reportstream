@@ -514,3 +514,5 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-20-alternate-character-set-handling-scheme"
 - id: "msh-24-hd-extension"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-24-hd-extension"
+- id: "msh-25-hd-extension"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-25-hd-extension"

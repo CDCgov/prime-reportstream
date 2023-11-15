@@ -144,9 +144,8 @@ elements:
       hl7HDField: 'MSH-25'
 
   - name: receiving-network-address-duplicates-receiving-application
-    condition: '%context.destination.where(extension(%`rsext-hl7-use`).value = "MSH.25").exists().not()'
-    resource: '%resource.destination.where(extension(%`rsext-hl7-use`).value = "MSH.5")'
-    schema: Destination/HD
+    resource: '%resource.extension(%`rsext-msh-25-hd-extension`)'
+    schema: ../../datatypes/extensionHD/HD
     constants:
       hl7HDField: 'MSH-25'
 

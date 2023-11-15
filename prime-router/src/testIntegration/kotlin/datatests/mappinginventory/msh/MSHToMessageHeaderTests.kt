@@ -57,7 +57,6 @@ class MSHToMessageHeaderTests {
         assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-handles-multiple-msh18").passed)
     }
 
-
     @Test
     fun `test MSH17 valued and MSH4 not valued`() {
         assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-msh17-valued-msh4-not-valued").passed)
@@ -72,7 +71,6 @@ class MSHToMessageHeaderTests {
     fun `test language uses MSH194 when MSH191 is not valued`() {
         assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-uses-MSH194").passed)
     }
-
 
     @Test
     fun `test all MSH valued`() {

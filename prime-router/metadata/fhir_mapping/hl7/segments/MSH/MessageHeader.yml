@@ -221,6 +221,15 @@ extension_messageHeader:
       expressionType: resource
       valueOf: datatypes/HD/ExtensionHD
       specs: MSH.24
+    - vars:
+        msh5: STRING_ALL, MSH.5
+        msh25: STRING_ALL, MSH.25
+      constants:
+        extensionUrl: msh-25-hd-extension
+      condition: $msh5 EQUALS $msh25
+      expressionType: resource
+      valueOf: datatypes/HD/ExtensionHD
+      specs: MSH.25
 
 # TODO there is a bug in the library where if these are included in
 # expressions array above only one value is generated

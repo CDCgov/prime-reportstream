@@ -69,6 +69,22 @@
             {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id",
               "valueString" : "20210810"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+              "valueString" : "CDC PRIME - Atlanta"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+              "valueString" : "2.16.840.1.114222.4.1.237821"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+              "valueString" : "ISO"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+              "valueString" : "MSH.3"
             }
           ],
           "name" : "MEDITECH",
@@ -198,6 +214,10 @@
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+            "valueString" : "MEDITECH"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon10-organization-identifier",
             "valueString" : "MEDITECH"
           },
           {
