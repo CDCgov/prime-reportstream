@@ -12,7 +12,7 @@ locals {
     OKTA_scope           = "simple_report_dev"
     RS_okta_redirect_url = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
     RS_okta_base_url     = "reportstream.oktapreview.com"
-    RS_OKTA_scope        = "simple_report_dev"
+    RS_OKTA_scope        = "reportstream_dev"
     storage_queue_name   = ["process", "batch", "batch-poison", "elr-fhir-convert", "process-poison", "send", "send-poison", "elr-fhir-convert", "elr-fhir-convert-poison", "elr-fhir-route", "elr-fhir-translate", "elr-fhir-translate-poison", "process-elr"]
     sftp_container_module = true
   }
