@@ -307,7 +307,7 @@ meta:
           specs: PV2.22
         - condition: $pv222 EQUALS N
           constants:
-            code: String, false
+            code: false
           expressionType: resource
           valueOf: datatypes/ID/Coding
           specs: PV2.22
