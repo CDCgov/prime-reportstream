@@ -433,7 +433,7 @@ abstract class GenericLookupTableCommand(
     /**
      * The lookup table utility.
      */
-    internal val tableUtil get() = LookupTableEndpointUtilities(environment, httpClient = httpClient)
+    val tableUtil get() = LookupTableEndpointUtilities(environment, httpClient = httpClient)
 }
 
 /**

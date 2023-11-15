@@ -5,75 +5,100 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.http.ContentType
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.headersOf
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
 import org.jooq.JSONB
+import java.io.IOException
 import java.time.OffsetDateTime
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
-
-class ApiMockEngine {
-    fun get() = client.engine
-    fun client() = client
-
-    private val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
-    private val client = HttpClient(MockEngine) {
-        install(ContentNegotiation) {
-            json(
-                Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                }
-            )
-        }
-        engine {
-            addHandler { request ->
-                when {
-                    (request.url.encodedPath == "/fakeUrl") ->
-                        respond(SyntheticResponse(), HttpStatusCode.OK, responseHeaders)
-                    else -> {
-                        error("Unhandled ${request.url.encodedPath}")
-                    }
-                }
-            }
-        }
-    }
-}
-
-object SyntheticResponse {
-    operator fun invoke(): String =
-        "..." // This contains the mock JSON response for the specific resource.
-}
 
 class LookupTableCommandsTest {
     /**
      * Mapper to convert objects to JSON.
      */
     private val mapper = JacksonMapperUtilities.defaultMapper
-    private val apiMockEngine = ApiMockEngine()
-    private val getTableCmdMock = LookupTableGetCommand(apiMockEngine.client())
 
-    @Test
-    fun `test posts`() {
-        try {
-            getTableCmdMock.run()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-//        println(result)
-//        assertThat(LookupTableEndpointUtilities.getResponseError(response)).isEqualTo("")
+    /**
+     * Helper
+     */
+    private fun getMockUtil(
+        url: String,
+                            status: HttpStatusCode,
+                            body: String,
+    ): LookupTableEndpointUtilities {
+        return LookupTableEndpointUtilities(
+            Environment.LOCAL,
+            null,
+            ApiMockEngine(
+                url,
+                status,
+                body
+            ).client()
+        )
     }
 
     @Test
+    fun `test lookuptable list invalid response body`() {
+        assertFailsWith<IOException>(
+            message = "Invalid response body found.",
+            block = {
+                getMockUtil(
+                    "/api/lookuptables/list",
+                    HttpStatusCode.OK,
+                    """{"error": {"code": 999,"message": "Mock internal server error."}}"""
+                ).fetchList()
+            }
+        )
+    }
+
+    @Test
+    fun `test lookuptable list error response`() {
+        val body = """{"error": {"code": 404,"message": "Something wrong when processing request."}}"""
+        // note here a ClientRequestException thrown instead of IOException
+        // due to the expectSuccess flag of the mock engine got override
+        assertFailsWith<ClientRequestException>(
+            message = "Error response: status code: ${HttpStatusCode.NotFound}, body: $body",
+            block = {
+                getMockUtil(
+                    "/api/lookuptables/list",
+                    HttpStatusCode.NotFound,
+                    """{"error": {"code": 404,"message": "Something wrong when processing request."}}"""
+                ).fetchList()
+            }
+        )
+    }
+
+    @Test
+    fun `test lookuptable list OK`() {
+        val tables = """[{
+        "lookupTableVersionId" : 6,
+        "tableName" : "ethnicity",
+        "tableVersion" : 1,
+        "isActive" : true,
+        "createdBy" : "local@test.com",
+        "createdAt" : "2023-11-13T15:38:50.495Z",
+        "tableSha256Checksum" : "67a9db3bb62a79b4a9d22126f58eebb15dd99a2a2a81bdf4ff740fa884fd5635"
+        }, {
+            "lookupTableVersionId" : 9,
+            "tableName" : "fhirpath_filter_shorthand",
+            "tableVersion" : 1,
+            "isActive" : true,
+            "createdBy" : "local@test.com",
+            "createdAt" : "2023-11-13T15:38:50.598Z",
+            "tableSha256Checksum" : "4295f38f1e9bdb233d5086bdae3cf92024815883db3f0a96066580c4ba74fcde"
+        }]"""
+        val listOfTables = getMockUtil(
+                    "/api/lookuptables/list",
+                    HttpStatusCode.OK,
+                    body = tables
+                ).fetchList()
+        assertThat { listOfTables.isNotEmpty() && listOfTables.size == 2 }
+    }
+
+        @Test
     fun `test rows to table`() {
         val colNames = listOf("a", "b")
         val data = mapOf(colNames[0] to "value1", colNames[1] to "value2")

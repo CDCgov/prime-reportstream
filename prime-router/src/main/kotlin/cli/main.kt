@@ -267,32 +267,34 @@ class CompareCsvFiles : CliktCommand(
     }
 }
 
-fun main(args: Array<String>) = RouterCli()
-    .completionOption()
-    .subcommands(
-        ProcessData(),
-        ListSchemas(),
-        LivdTableUpdate(),
-        GenerateDocs(),
-        CredentialsCli(),
-        CompareCsvFiles(),
-        TestReportStream(),
-        LoginCommand(),
-        LogoutCommand(),
-        OrganizationSettings(),
-        SenderSettings(),
-        ReceiverSettings(),
-        MultipleSettings(),
-        LookupTableCommands().subcommands(
-            LookupTableListCommand(), LookupTableGetCommand(), LookupTableCreateCommand(),
-            LookupTableActivateCommand(), LookupTableDiffCommand(), LookupTableLoadAllCommand(),
-            LookupTableCompareMappingCommand()
-        ),
-        ConvertFileCommands(),
-        SenderFilesCommand(),
-        ProcessFhirCommands(),
-        FhirPathCommand(),
-        ConvertValuesetsYamlToCSV(),
-        ProcessHl7Commands()
-    )
-    .main(args)
+fun main(args: Array<String>) {
+    RouterCli()
+        .completionOption()
+        .subcommands(
+            ProcessData(),
+            ListSchemas(),
+            LivdTableUpdate(),
+            GenerateDocs(),
+            CredentialsCli(),
+            CompareCsvFiles(),
+            TestReportStream(),
+            LoginCommand(),
+            LogoutCommand(),
+            OrganizationSettings(),
+            SenderSettings(),
+            ReceiverSettings(),
+            MultipleSettings(),
+            LookupTableCommands().subcommands(
+                LookupTableListCommand(), LookupTableGetCommand(), LookupTableCreateCommand(),
+                LookupTableActivateCommand(), LookupTableDiffCommand(), LookupTableLoadAllCommand(),
+                LookupTableCompareMappingCommand()
+            ),
+            ConvertFileCommands(),
+            SenderFilesCommand(),
+            ProcessFhirCommands(),
+            FhirPathCommand(),
+            ConvertValuesetsYamlToCSV(),
+            ProcessHl7Commands()
+        )
+        .main(args)
+}
