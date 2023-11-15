@@ -71,6 +71,7 @@ elements:
     value: [ '%resource.where(system.exists()).value.getIdType()' ]
     hl7Spec: [ MSH-6-3 ]
 
+  # This element is needed to enforce that one of the two message times is present in the FHIR bundle
   - name: message-date-time
     value:
       - Bundle.entry.resource.ofType(Provenance).recorded
@@ -78,26 +79,35 @@ elements:
     required: true
     hl7Spec: [ MSH-7 ]
 
+  # This element follows the usual date mapping for dates/dateTimes, overwriting the result from the previous element
+  - name: message-date-time
+    resource: 'Bundle.entry.resource.ofType(Provenance).recorded'
+    condition: '%resource.exists()'
+    constants:
+      dtmFieldPath: 'MSH-7'
+    schema: ../../datatypes/dateTime/DTMorDT
+
   - name: security
     value: [ '%resource.meta.security.code' ]
     hl7Spec: [ MSH-8-1 ]
+
+  - name: message-event-coding
+    schema: ../../datatypes/coding/MSG
+    condition: '%resource.is(Coding)'
+    resource: '%resource.event'
+    constants:
+      hl7MSGField: MSH-9
 
   - name: message-control-id
     value: [ 'Bundle.identifier.value' ]
     required: true
     hl7Spec: [ MSH-10 ]
 
-  - name: processing-id
-    resource: '%resource.meta.tag.where(system = "http://terminology.hl7.org/CodeSystem/v2-0103")'
-    condition: '%resource.exists()'
-    value: [ '%resource.code' ]
-    hl7Spec: [ MSH-11-1 ]
-
-  - name: processing-mode
-    resource: '%resource.meta.tag.where(system = "http://terminology.hl7.org/CodeSystem/v2-0207")'
-    condition: '%resource.exists()'
-    value: [ '%resource.code' ]
-    hl7Spec: [ MSH-11-2 ]
+  - name: message-processing
+    schema: ../../datatypes/meta/PT
+    resource: '%resource.meta'
+    constants:
+      hl7PTField: MSH-11
 
   - name: version-id
     value: [ '"2.5.1"' ]
