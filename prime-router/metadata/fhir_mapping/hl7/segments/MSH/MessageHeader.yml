@@ -72,6 +72,12 @@ destination:
       valueOf: segments/MSH/datatypes/HD/Destination
       expressionType: resource
       specs: MSH.25
+    - constants:
+        messageHeaderDestinationField: 'MSH.25'
+      condition: $msh25 NOT_NULL && $msh5 NULL
+      valueOf: segments/MSH/datatypes/HD/Destination
+      expressionType: resource
+      specs: MSH.25
     - expressionType: nested
       condition: $msh6 NOT_NULL && $msh5 NULL && $msh25 NULL
       constants:
