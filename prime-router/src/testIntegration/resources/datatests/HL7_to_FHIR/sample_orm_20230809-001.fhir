@@ -356,6 +356,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "authoredOn" : "2023-05-06T05:29:13-05:00",
+        "_authoredOn" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506052913-0500"
+            }
+          ]
+        },
         "requester" : {
           "reference" : "PractitionerRole/1700056857850087000.b43a9faa-0586-470b-8a40-36facbd41ea1"
         }
@@ -586,6 +594,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueQuantity" : {
           "extension" : [
             {
@@ -667,6 +683,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueQuantity" : {
           "extension" : [
             {
@@ -730,6 +754,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -796,6 +828,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -862,6 +902,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -928,6 +976,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -994,6 +1050,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -1060,6 +1124,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -1126,6 +1198,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -1190,6 +1270,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueString" : "Daniel Davis/218-555-1000"
       }
     },
@@ -1242,6 +1330,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueString" : "DAVIS, DANIEL, MD"
       }
     },
@@ -1294,6 +1390,14 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueString" : "Lakeridge Health Revere"
       }
     },
@@ -1333,7 +1437,15 @@
           "reference" : "Patient/1700056857824770000.27f0a360-ed16-4e65-b9d5-96baf46c9f9a"
         },
         "collection" : {
-          "collectedDateTime" : "2023-05-06T05:00:00Z"
+          "collectedDateTime" : "2023-05-06T05:00:00Z",
+          "_collectedDateTime" : {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "20230506050000"
+              }
+            ]
+          }
         }
       }
     },

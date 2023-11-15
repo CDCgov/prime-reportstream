@@ -68,6 +68,14 @@
         "resourceType" : "Provenance",
         "id" : "1698785794643239000.0f4c6090-427e-4c0a-8a49-87f50234f9e8",
         "recorded" : "2023-05-01T10:25:31-04:00",
+        "_recorded" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230501102531-0400"
+            }
+          ]
+        },
         "activity" : {
           "coding" : [
             {

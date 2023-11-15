@@ -102,6 +102,23 @@ effectiveDateTime:
   expressionType: JEXL
   vars:
     dateTimeIn: OBX.14
+_effectiveDateTime:
+  expressionType: nested
+  condition: $dateTimeIn NOT_NULL
+  vars:
+    dateTimeIn: OBX.14
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
 
 issued:
   type: STRING
@@ -109,6 +126,23 @@ issued:
   expressionType: JEXL
   vars:
     dateTimeIn: OBX.19
+_issued:
+  expressionType: nested
+  condition: $obx19 NOT_NULL
+  vars:
+    obx19: OBX.19
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $obx19
+          expressionType: HL7Spec
 
 valueString:
   condition: $obx2 EQUALS ST
@@ -191,6 +225,25 @@ valueDateTime:
   vars:
     dateTimeIn: OBX.5
     obx2: STRING, OBX.2
+_valueDateTime:
+  expressionType: nested
+  condition: $obx2 EQUALS DT || $obx2 EQUALS DTM
+  vars:
+    dateTimeIn: OBX.5
+    obx2: STRING, OBX.2
+  expressionsMap:
+    extension_1:
+      condition: $dateTimeIn NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
 
 valueTime:
   condition: $obx2 EQUALS TM

@@ -897,6 +897,7 @@ class WorkflowEngine(
                 -> Tables.TASK.ERRORED_AT
 
                 Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
+                Event.EventAction.OTHER -> error("Internal Error: OTHER currentAction")
             }
         }
         db.updateTask(
