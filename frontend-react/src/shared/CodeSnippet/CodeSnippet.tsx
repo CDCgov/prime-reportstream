@@ -19,7 +19,7 @@ export const CodeSnippet = ({ children, copyString }: CodeSnippetProps) => {
         ({ children }: React.PropsWithChildren) => (
             <Tooltip
                 className="fixed-tooltip"
-                position="top"
+                position="left"
                 label={isCopied ? "Copied" : "Copy to clipboard"}
                 onClick={() => {
                     navigator.clipboard.writeText(copyString);

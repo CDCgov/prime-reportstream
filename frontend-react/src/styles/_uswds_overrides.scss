@@ -465,8 +465,3 @@ figure {
         @include u-margin-top(2);
     }
 }
-
-// Allow overflow so that tooltips do not get clipped
-.usa-accordion__content {
-    overflow: visible;
-}
