@@ -29,10 +29,54 @@ extension_2:
       expressionType: HL7Spec
       valueOf: CX.3
 
-assigner:
+# Checking if HD is an Organization or a System by looking at the ID type.
+# If ID type is null or ID type is not ISO or UUID, treat as organization.
+# Otherwise, treat as system.
+assigner_1:
+  vars:
+    cx43: String, CX.4.3
+  condition: cx43 NULL
   valueOf: datatypes/HD/Organization
   expressionType: reference
   specs: CX.4
+
+assigner_2:
+  vars:
+    cx43: String, CX.4.3
+  condition: $cx43 NOT_NULL && $cx43 NOT_EQUALS ISO && $cx43 NOT_EQUALS UUID
+  valueOf: datatypes/HD/Organization
+  expressionType: reference
+  specs: CX.4
+
+system:
+  vars:
+    cx41: String, CX.4.1
+    cx43: String, CX.4.3
+  expressionType: nested
+  condition: $cx43 EQUALS ISO || cx43 EQUALS UUID
+  expressions:
+    - condition: $cx41 NOT_NULL
+      expressionType: HL7Spec
+      type: STRING
+      valueOf: CX.4.1
+    - condition: $cx41 NULL && cx43 EQUALS ISO
+      expressionType: HL7Spec
+      type: STRING
+      constants:
+        prefix: "urn:oid:"
+      vars:
+        uri: String, CX.4.2
+        join: $prefix + $uri
+      valueOf: $join
+    - condition: $cx41 NULL && cx43 EQUALS UUID
+      expressionType: HL7Spec
+      type: STRING
+      constants:
+        prefix: "urn:uuid:"
+      vars:
+        uri: String, CX.4.2
+        join: $prefix + $uri
+      valueOf: $join
 
 extension_system:
   generateList: true

@@ -5,7 +5,12 @@ import org.junit.jupiter.api.Test
 
 class CxToIdentifierTests {
     @Test
-    fun `test correctly handles CX datatype`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier").passed)
+    fun `test correctly handles CX datatype for organization`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-organization").passed)
+    }
+
+    @Test
+    fun `test correctly handles CX datatype for system `() {
+        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-system").passed)
     }
 }
