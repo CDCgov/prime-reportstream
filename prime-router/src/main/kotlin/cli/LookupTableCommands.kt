@@ -93,11 +93,13 @@ class LookupTableEndpointUtilities(
      * @throws IOException if there is a server or API error
      */
     fun activateTable(tableName: String, version: Int): LookupTableVersion {
+        val url = environment.formUrl("$endpointRoot/$tableName/$version/activate").toString()
         return getTableInfoResponse(
             CommandUtilities.putWithStringResponse(
-            url = environment.formUrl("$endpointRoot/$tableName/$version/activate").toString(),
-            tkn = BearerTokens(accessToken, refreshToken = ""),
-            tmo = requestTimeoutMillis.toLong()
+                url = url,
+                tkn = BearerTokens(accessToken, refreshToken = ""),
+                tmo = requestTimeoutMillis.toLong(),
+                httpClient = apiClient
             )
         )
     }
@@ -109,19 +111,27 @@ class LookupTableEndpointUtilities(
      * @throws IOException if there is a server or API error
      */
     fun fetchTableContent(tableName: String, version: Int): List<Map<String, String>> {
+        val url = environment.formUrl("$endpointRoot/$tableName/$version/content").toString()
         val (response, respStr) = CommandUtilities.getWithStringResponse(
-            url = environment.formUrl("$endpointRoot/$tableName/$version/content").toString(),
+            url = url,
             tkn = BearerTokens(accessToken, refreshToken = ""),
             tmo = requestTimeoutMillis.toLong(),
             httpClient = apiClient
         )
 
+        println("URL: $url")
+        println("status: ${response.status.value}")
+        println("body: $respStr")
         checkResponse(Pair(response, respStr))
 
         try {
             return mapper.readValue(respStr)
         } catch (e: MismatchedInputException) {
-            throw IOException("Invalid response body found.")
+            throw IOException(
+                "Invalid response body found, " +
+                    "response status: ${response.status.value}" +
+                    ", body: $respStr"
+            )
         }
     }
 
@@ -132,9 +142,10 @@ class LookupTableEndpointUtilities(
      * @throws IOException if there is a server or API error
      */
     fun fetchTableInfo(tableName: String, version: Int): LookupTableVersion {
+        val url = environment.formUrl("$endpointRoot/$tableName/$version/info").toString()
         return getTableInfoResponse(
             CommandUtilities.getWithStringResponse(
-                url = environment.formUrl("$endpointRoot/$tableName/$version/info").toString(),
+                url = url,
                 tkn = BearerTokens(accessToken, refreshToken = ""),
                 tmo = requestTimeoutMillis.toLong(),
                 httpClient = apiClient
@@ -150,17 +161,20 @@ class LookupTableEndpointUtilities(
      */
     fun createTable(tableName: String, tableData: List<Map<String, String>>, forceTableToCreate: Boolean):
         LookupTableVersion {
+        val url = environment
+            .formUrl(
+                "$endpointRoot/$tableName?table&forceTableToCreate=$forceTableToCreate"
+            ).toString()
+
         return getTableInfoResponse(
             CommandUtilities.postWithStringResponse(
-            url = environment
-                .formUrl(
-                    "$endpointRoot/$tableName?table&forceTableToCreate=$forceTableToCreate"
-                ).toString(),
-            tkn = BearerTokens(accessToken, refreshToken = ""),
-            tmo = requestTimeoutMillis.toLong(),
-            expSuccess = false, // need to let 409 conflict come back to caller
-            jsonPayload = mapper.writeValueAsString(tableData)
-        )
+                url = url,
+                tkn = BearerTokens(accessToken, refreshToken = ""),
+                tmo = requestTimeoutMillis.toLong(),
+                expSuccess = false, // need to let 409 conflict come back to caller
+                jsonPayload = mapper.writeValueAsString(tableData),
+                httpClient = apiClient
+            )
         )
     }
 

@@ -96,16 +96,11 @@ class CommandUtilities {
          * @return true is the API is available, false otherwise
          */
         private fun isEndpointAvailable(url: URL, accessToken: String): Boolean {
-            val client = CommandUtilities.createDefaultHttpClient(
-                BearerTokens(accessToken, refreshToken = "")
-            )
             return runBlocking {
-                val response =
-                    client.head(url.toString()) {
-                        timeout {
-                            requestTimeoutMillis = requestTimeoutMillis
-                        }
-                    }
+                val response = CommandUtilities.head(
+                    url.toString(),
+                    tkn = BearerTokens(accessToken, refreshToken = "")
+                )
                 response.status == HttpStatusCode.OK
             }
         }
@@ -180,7 +175,7 @@ class CommandUtilities {
             tkn: BearerTokens? = null,
             hdr: Map<String, String>? = null,
             acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = true,
+            expSuccess: Boolean = false,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
@@ -208,7 +203,7 @@ class CommandUtilities {
             tkn: BearerTokens? = null,
             hdr: Map<String, String>? = null,
             acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = true,
+            expSuccess: Boolean = false,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
@@ -218,12 +213,15 @@ class CommandUtilities {
                     timeout {
                         requestTimeoutMillis = tmo
                     }
+
                     expectSuccess = expSuccess
+
                     url {
                         queryParameters?.forEach {
                             parameter(it.key, it.value.toString())
                         }
                     }
+
                     hdr?.let {
                         headers {
                             hdr.forEach {
@@ -231,6 +229,7 @@ class CommandUtilities {
                             }
                         }
                     }
+
                     accept(acceptedCt)
                 }
             }
@@ -245,6 +244,7 @@ class CommandUtilities {
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             jsonPayload: String? = null,
+            httpClient: HttpClient? = null,
         ): Pair<HttpResponse, String> {
             val response = put(
                 url = url,
@@ -254,7 +254,8 @@ class CommandUtilities {
                 expSuccess = expSuccess,
                 tmo = tmo,
                 queryParameters = queryParameters,
-                jsonPayload = jsonPayload
+                jsonPayload = jsonPayload,
+                httpClient = httpClient
             )
 
             val respStr = runBlocking {
@@ -273,9 +274,10 @@ class CommandUtilities {
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             jsonPayload: String? = null,
+            httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                createDefaultHttpClient(tkn).put(url) {
+                (httpClient ?: createDefaultHttpClient(tkn)).put(url) {
                     timeout {
                         requestTimeoutMillis = tmo
                     }
@@ -310,6 +312,7 @@ class CommandUtilities {
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             jsonPayload: String,
+            httpClient: HttpClient? = null,
         ): Pair<HttpResponse, String> {
             val response = post(
                 url = url,
@@ -319,8 +322,10 @@ class CommandUtilities {
                 expSuccess = expSuccess,
                 tmo = tmo,
                 queryParameters = queryParameters,
-                jsonPayload = jsonPayload
+                jsonPayload = jsonPayload,
+                httpClient = httpClient
             )
+
             val respStr = runBlocking {
                 response.body<String>()
             }
@@ -332,17 +337,20 @@ class CommandUtilities {
             tkn: BearerTokens? = null,
             hdr: Map<String, String>? = null,
             acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = true,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            expSuccess: Boolean = false,
+            tmo: Long? = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             jsonPayload: String,
+            httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                createDefaultHttpClient(tkn).post(url) {
+                (httpClient ?: createDefaultHttpClient(tkn)).post(url) {
                     timeout {
                         requestTimeoutMillis = tmo
                     }
+
                     expectSuccess = expSuccess
+
                     url {
                         queryParameters?.forEach {
                             parameter(it.key, it.value.toString())
@@ -370,6 +378,7 @@ class CommandUtilities {
             expSuccess: Boolean = true,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             formParams: Map<String, String>? = null,
+            httpClient: HttpClient? = null,
         ): T {
             return runBlocking {
                 submitForm(
@@ -380,6 +389,7 @@ class CommandUtilities {
                     expSuccess = expSuccess,
                     tmo = tmo,
                     formParams = formParams,
+                    httpClient = httpClient,
                 ).body()
             }
         }
@@ -392,20 +402,23 @@ class CommandUtilities {
             expSuccess: Boolean = true,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             formParams: Map<String, String>? = null,
+            httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                createDefaultHttpClient(tkn).submitForm(
-                    url,
-                    formParameters = Parameters.build {
-                        formParams?.forEach { param ->
-                            append(param.key, param.value)
+                    (httpClient ?: createDefaultHttpClient(tkn)).submitForm(
+                        url,
+                        formParameters = Parameters.build {
+                            formParams?.forEach { param ->
+                                append(param.key, param.value)
+                            }
                         }
-                    }
-                ) {
+                    ) {
                     timeout {
                         requestTimeoutMillis = tmo
                     }
+
                     expectSuccess = expSuccess
+
                     hdr?.let {
                         headers {
                             hdr.forEach {
@@ -413,6 +426,7 @@ class CommandUtilities {
                             }
                         }
                     }
+
                     accept(acceptedCt)
                 }
             }
@@ -426,6 +440,7 @@ class CommandUtilities {
             expSuccess: Boolean = true,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
+            httpClient: HttpClient? = null,
         ): Pair<HttpResponse, String> {
             val response = head(
                 url = url,
@@ -434,7 +449,8 @@ class CommandUtilities {
                 acceptedCt = acceptedCt,
                 expSuccess = expSuccess,
                 tmo = tmo,
-                queryParameters = queryParameters
+                queryParameters = queryParameters,
+                httpClient = httpClient
             )
             val respStr = runBlocking {
                 response.body<String>()
@@ -450,9 +466,10 @@ class CommandUtilities {
             expSuccess: Boolean = true,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
+            httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                createDefaultHttpClient(tkn).head(url) {
+                (httpClient ?: createDefaultHttpClient(tkn)).head(url) {
                     timeout {
                         requestTimeoutMillis = tmo
                     }
@@ -482,6 +499,7 @@ class CommandUtilities {
             expSuccess: Boolean,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
+            httpClient: HttpClient? = null,
         ): Pair<HttpResponse, String> {
             val response = delete(
                 url = url,
@@ -490,7 +508,8 @@ class CommandUtilities {
                 acceptedCt = acceptedCt,
                 expSuccess = expSuccess,
                 tmo = tmo,
-                queryParameters = queryParameters
+                queryParameters = queryParameters,
+                httpClient = httpClient
             )
             val respStr = runBlocking {
                 response.body<String>()
@@ -503,12 +522,13 @@ class CommandUtilities {
             tkn: BearerTokens? = null,
             hdr: Map<String, String>? = null,
             acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean,
+            expSuccess: Boolean = false,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
+            httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                createDefaultHttpClient(tkn).delete(url) {
+                (httpClient ?: createDefaultHttpClient(tkn)).delete(url) {
                     timeout {
                         requestTimeoutMillis = tmo
                     }
@@ -546,6 +566,7 @@ class CommandUtilities {
                         }
                     }
                 }
+                expectSuccess = false
                 // install contentNegotiation to handle json response
                 install(ContentNegotiation) {
                     json(

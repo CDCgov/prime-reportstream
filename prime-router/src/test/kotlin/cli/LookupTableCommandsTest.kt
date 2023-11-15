@@ -7,7 +7,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.HttpStatusCode
 import org.jooq.JSONB
 import java.io.IOException
@@ -57,9 +56,7 @@ class LookupTableCommandsTest {
     @Test
     fun `test lookuptable list error response`() {
         val body = """{"error": {"code": 404,"message": "Something wrong when processing request."}}"""
-        // note here a ClientRequestException thrown instead of IOException
-        // due to the expectSuccess flag of the mock engine got override
-        assertFailsWith<ClientRequestException>(
+        assertFailsWith<IOException>(
             message = "Error response: status code: ${HttpStatusCode.NotFound}, body: $body",
             block = {
                 getMockUtil(
@@ -246,29 +243,25 @@ class LookupTableCommandsTest {
     }
 
     @Test
-    fun `get table info from response test`() {
-//        val mockResult = mockk<Result<FuelJson, FuelError>>()
-//        val mockResponse = mockk<Response>()
-//
-//        // Empty content
-//        every { mockResponse.statusCode } returns HttpStatus.SC_OK
-//        every { mockResult.get().content } returns ""
-//
-//        // Not a JSON array
-//        every { mockResult.get().content } returns """{}"""
-//        assertFailsWith<IOException>(
-//            block = {
-//                LookupTableEndpointUtilities.checkResponse(call.response)
-//            }
-//        )
+    fun `get table info from response create table conflict`() {
+        assertFailsWith<LookupTableEndpointUtilities.Companion.TableConflictException>(
+            block = {
+                val respBody = """{"error": "New Lookup Table Table is identical to existing table version 1."}"""
+                getMockUtil(
+                    "${LookupTableEndpointUtilities.endpointRoot}/race",
+                    HttpStatusCode.Conflict,
+                    body = respBody
+                ).createTable("race", listOf(mapOf()), true)
+            }
+        )
+    }
 
-        // Good data
-//        every { mockResult.get().content } returns
-//            """{"tableName": "name", "tableVersion": 1, "isActive": true,
-//                        "createdBy": "developer", "createdAt": "2018-12-30T06:00:00Z"}
-//            """
-//        val info = LookupTableEndpointUtilities.getTableInfoResponse(call.response)
-//        assertThat(info.tableName).isEqualTo("name")
+    @Test
+    fun `get table info from response fetch table`() {
+    }
+
+    @Test
+    fun `get table info from response activate table`() {
     }
 
     @Test
