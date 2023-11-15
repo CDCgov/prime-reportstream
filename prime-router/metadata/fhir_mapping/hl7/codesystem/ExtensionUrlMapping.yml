@@ -443,8 +443,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn7-degree"
 - id: "xcn8-source-table"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn8-source-table"
-- id: "xcn9-assigning-authority"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn9-assigning-authority"
 - id: "xcn10-name-type-code"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code"
 - id: "xcn15-name-representation-code"

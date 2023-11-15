@@ -5,7 +5,7 @@ elements:
     hl7Spec: [ '%{hl7XCNField}-1' ]
 
   - name: xcn-family-name
-    resource: '%resource.family'
+    resource: '%resource.name.family'
     constants:
       hl7fnField: '%{hl7XCNField}-2'
     schema: ../../datatypes/HumanName/FN
@@ -37,13 +37,13 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: xcn-assigning-authority
-    resource: '%resource.identifier.extension(%`rsext-assigning-authority`)'
+    resource: '%resource.extension(%`rsext-assigning-authority`)'
     constants:
       hl7HDField: '%{hl7XCNField}-9'
     schema: ../../datatypes/extensionAssigningAuthority/HD
 
   - name: xcn-name-type-code
-    value: [ '%resource.extension(%`rsext-xcn10-name-type-code.value' ]
+    value: [ '%resource.extension(%`rsext-xcn10-name-type-code`).value' ]
     hl7Spec: [ '%{hl7XCNField}-10' ]
 
   - name: xcn-check-digit
@@ -54,6 +54,10 @@ elements:
     value: [ '%resource.identifier.extension(%`rsext-check-digit-scheme`).value' ]
     hl7Spec: [ '%{hl7XCNField}-12' ]
 
+  - name: xcn-identifier-type-code
+    value: [ '%resource.identifier.type.coding.code' ]
+    hl7Spec: [ '%{hl7XCNField}-13' ]
+
   - name: xcn-assigning-facility
     resource: '%resource.identifier.extension(%`rsext-assigning-facility`).value.resolve()'
     constants:
@@ -61,7 +65,7 @@ elements:
     schema: ../Location/HD
 
   - name: xcn-name-representation-code
-    value: [ '%resource.extension(%`rsext-xcn15-name-representation-code.value' ]
+    value: [ '%resource.extension(%`rsext-xcn15-name-representation-code`).value' ]
     hl7Spec: [ '%{hl7XCNField}-15' ]
 
   - name: xcn-name-context
@@ -79,7 +83,7 @@ elements:
     hl7Spec: [ '%{hl7XCNField}-17-2' ]
 
   - name: xcn-name-assembly-order
-    value: [ '%resource.extension(%`ext-humanname-assembly-order`).value' ]
+    value: [ '%resource.name.extension(%`ext-humanname-assembly-order`).value' ]
     hl7Spec: [ '%{hl7XCNField}-18' ]
 
   - name: xcn-effective-date
