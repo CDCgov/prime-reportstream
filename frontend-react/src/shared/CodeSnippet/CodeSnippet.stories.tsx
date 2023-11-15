@@ -25,11 +25,15 @@ const blockText = `{
 
 export const Default: ComponentStory<typeof CodeSnippet> = () => (
     <p>
-        <CodeSnippet>
+        <CodeSnippet
+            copyString={`This is a code snippet to copy with highlighted kid healthy-labs`}
+        >
             This is a code snippet to copy with highlighted kid healthy-labs
         </CodeSnippet>
 
-        <CodeSnippet>./healthy-labs-nonPII-data.csv</CodeSnippet>
-        <CodeSnippet>{blockText}</CodeSnippet>
+        <CodeSnippet copyString={`./healthy-labs-nonPII-data.csv`}>
+            ./healthy-labs-nonPII-data.csv
+        </CodeSnippet>
+        <CodeSnippet copyString={blockText}>{blockText}</CodeSnippet>
     </p>
 );
