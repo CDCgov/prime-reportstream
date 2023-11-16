@@ -26,12 +26,12 @@ HL7 data not translated to FHIR or information on where a particular piece of a 
 ## Differences from the inventory
 
 The v2-FHIR inventory is more of a rough target then an official spec and does contain inconsistencies, contradictions, errors and decisions
-that the ReportStream does not think match the reality of the data the application receives. The following captures where the ReportStream
+that ReportStream does not think match the reality of the data the application receives. The following captures where the ReportStream
 implementation differs from what is in the spreadsheets.
 
 ### MSH/SFT -> MessageHeader
 
--   MSH.24 vs MSH.3: The inventory prefers MSH.24 over MSH.3, but the ReportStream prefers MSH.3 as from experience it has better information
+-   MSH.24 vs MSH.3: The inventory prefers MSH.24 over MSH.3, but ReportStream prefers MSH.3 as from experience it has better information
 -   MSH.25 vs MSH.5: The inventory prefers MSH.25 over MSH.5, but the ReportStream prefers MSH.5 as from experience it has better information
 -   MSH.23 vs MSH.6: The inventory prefers MSH.23 over MSH.6, but the ReportStream prefers MSH.5 as from experience it has better information
 -   The inventory specifies two different, contradicting mappings for MessageHeader.source and the team opted to use [HD[MessageHeader.source.endpoint]](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0) as it is more specific
