@@ -8,4 +8,9 @@ class IDToEncounterTests {
     fun `test hl7 ID type to FHIR Encounter`() {
         assert(verifyHL7ToFHIRToHL7Mapping("id/ID-to-Encounter").passed)
     }
+
+    @Test
+    fun `test hl7 ID type to FHIR Encounter with value F`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("id/ID-to-Encounter-pv2-22-F").passed)
+    }
 }

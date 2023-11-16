@@ -298,23 +298,19 @@ meta:
       vars:
         pv222: String, PV2.22
       expressionType: nested
-      expressions:
-        - condition: $pv222 EQUALS Y
-          constants:
-            code: true
-          expressionType: resource
-          valueOf: datatypes/ID/Coding
-          specs: PV2.22
-        - condition: $pv222 EQUALS N
-          constants:
-            code: false
-          expressionType: resource
-          valueOf: datatypes/ID/Coding
-          specs: PV2.22
-        - condition: $pv222 NOT_EQUALS Y && $pv222 NOT_EQUALS N
-          expressionType: resource
-          valueOf: datatypes/ID/Coding
-          specs: PV2.22
+      expressionsMap:
+        code:
+          expressionType: nested
+          expressions:
+            - condition: $pv222 EQUALS Y
+              type: STRING
+              value: true
+            - condition: $pv222 EQUALS N
+              type: STRING
+              value: true
+            - condition: $pv222 NOT_EQUALS Y && $pv222 NOT_EQUALS N
+              type: STRING
+              valueOf: $pv222
 
 serviceProvider:
   condition: $orgIdValue NOT_NULL
