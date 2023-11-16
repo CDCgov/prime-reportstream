@@ -142,6 +142,18 @@ extension_3-xon10OrganizationIdentifier:
       type: STRING
       valueOf: XON.10
 
+extension_hl7Use:
+  generateList: true
+  expressionType: nested
+  condition: $xonOrganizationHL7Use NOT_NULL
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: hl7-use
+    valueString:
+      type: STRING
+      valueOf: $xonOrganizationHL7Use
+
 contact:
   expressionType: nested
   expressionsMap:
