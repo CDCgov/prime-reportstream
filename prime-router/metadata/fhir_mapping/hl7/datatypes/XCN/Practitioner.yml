@@ -10,6 +10,7 @@ identifier:
   vars:
     xcnhd1: String, XCN.9.1
     xcnhd3: String, XCN.9.3
+    xcn9: STRING_ALL, XCN.9
     xcn11: String, XCN.11
     xcn12: String, XCN.12
     xcn13: String, XCN.13
@@ -22,12 +23,12 @@ identifier:
     # If ID type is null or ID type is not ISO or UUID, treat as organization.
     # Otherwise, treat as system.
     assigner_1:
-      condition: $xcnhd3 NULL
+      condition: $xcn9 NOT_NULL && $xcnhd3 NULL
       valueOf: datatypes/HD/Organization
       expressionType: reference
       specs: XCN.9
     assigner_2:
-      condition: $xcnhd3 NOT_NULL && $xcnhd3 NOT_EQUALS ISO && $xcnhd3 NOT_EQUALS UUID
+      condition: $xcn9 NOT_NULL && $xcnhd3 NOT_NULL && $xcnhd3 NOT_EQUALS ISO && $xcnhd3 NOT_EQUALS UUID
       valueOf: datatypes/HD/Organization
       expressionType: reference
       specs: XCN.9
