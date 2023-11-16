@@ -1,6 +1,8 @@
 ---
 #
-# This file runs in environments (ie. your desktop) where the 'localhost' host name resolves
+# This file is used for TranslationTests. This can be used to mimic settings from staging/prod without impacting
+# developers' local instance settings. Changes to these organization settings may affect the passing/failing of those
+# tests.
 #
 - name: simple_report
   description: PRIME's POC testing app
