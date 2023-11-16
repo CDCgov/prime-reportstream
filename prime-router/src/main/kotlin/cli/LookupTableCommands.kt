@@ -96,6 +96,23 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
     }
 
     /**
+     * Finds the active version of the specified [tableName].
+     * @return the active version of the table
+     * @throws TableNotFoundException if the table is not found
+     * @throws IOException if there is a server or API error
+     */
+    fun findActiveVersion(tableName: String): Int {
+        val tableList = try {
+            this.fetchList()
+        } catch (e: IOException) {
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+        }
+        val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
+        if (activeVersion == 0) throw PrintMessage("Could not find lookup table: $tableName", true)
+        return activeVersion
+    }
+
+    /**
      * Fetches the table content from the API given [tableName] and [version].
      * @return the table content
      * @throws TableNotFoundException if the table and/or version is not found
@@ -545,8 +562,8 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
         private const val SENDER_COMPENDIUM_MAPPED_KEY = "mapped?"
         private const val SENDER_COMPENDIUM_MAPPED_TRUE = "Y"
         private const val SENDER_COMPENDIUM_MAPPED_FALSE = "N"
-        private const val OBX_MAPPING_CODE_KEY = "Code"
-        private const val OBX_MAPPING_CODESYSTEM_KEY = "Code System"
+        const val OBX_MAPPING_CODE_KEY = "Code"
+        const val OBX_MAPPING_CODESYSTEM_KEY = "Code System"
 
         fun compareMappings(
             inputData: List<Map<String, String>>,
@@ -567,17 +584,6 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
         }
     }
 
-    private fun findActiveVersion(tableName: String): Int {
-        val tableList = try {
-            tableUtil.fetchList()
-        } catch (e: IOException) {
-            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
-        }
-        val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
-        if (activeVersion == 0) throw PrintMessage("Could not find lookup table: $tableName", true)
-        return activeVersion
-    }
-
     override fun run() {
         // Read the input file.
         val inputData = csvReader().readAllWithHeader(inputFile)
@@ -590,7 +596,7 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
             if (it !in inputData[0].keys) throw PrintMessage("Supplied compendium is missing column: $it")
         }
 
-        val loadTableVersion: Int = tableVersion ?: findActiveVersion(tableName)
+        val loadTableVersion: Int = tableVersion ?: tableUtil.findActiveVersion(tableName)
 
         // Verify the table/version exists
         try {
@@ -612,11 +618,8 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
         }
 
         // Check loaded table for needed columns
-        if (OBX_MAPPING_CODE_KEY !in tableData[0].keys) {
-            throw PrintMessage("Loaded table $tableName missing code column: $OBX_MAPPING_CODE_KEY", true)
-        }
-        if (OBX_MAPPING_CODESYSTEM_KEY !in tableData[0].keys) {
-            echo("Warning: Loaded table missing codesystem column: $OBX_MAPPING_CODESYSTEM_KEY")
+        arrayOf(OBX_MAPPING_CODE_KEY, OBX_MAPPING_CODESYSTEM_KEY).forEach {
+            if (it !in tableData[0].keys) throw PrintMessage("Loaded table $tableName missing column: $it")
         }
 
         // Create lookup table of codes
@@ -633,6 +636,172 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
             )
         }
         echo(LookupTableCommands.rowsToPrintableTable(outputData, outputData[0].keys.toList()))
+    }
+}
+
+/**
+ * Print out a lookup table.
+ */
+class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
+    name = "update-mapping",
+    help = "Compares a sender compendium against an observation mapping lookup table, outputting an annotated CSV"
+) {
+    /**
+     * Optional output file to save the annotated table to.
+     */
+    private val outputFile by option("-o", "--output-file", help = "Specify file to save annotated table data as CSV")
+        .file(false, canBeDir = false)
+
+    /**
+     * Table name option.
+     */
+    private val tableName by option("-n", "--name", help = "The name of the table to perform the comparison on")
+        .required()
+
+    /**
+     * OID of valueset to update.
+     */
+    private val oid by option("-i", "--oid", help = "OID of valueset to update (all valuesets by default)")
+
+    /**
+     * Activate a created table in one shot.
+     */
+    private val activate by option("-a", "--activate", help = "Activate the table upon creation")
+        .flag(default = false)
+
+    /**
+     * Silent running.  No table contents or diff output or confirmation if true.
+     */
+    private val silent by option("-s", "--silent", help = "Do not generate diff or ask for confirmation").flag()
+
+    /**
+     * The input file to get the table data from.
+     */
+    private val inputFile by option(
+        "-i", "--input-file",
+        help = "Input CSV file with table data to be updated"
+    ).file(true, canBeDir = false, mustBeReadable = true)
+
+    /**
+     * Table version option.
+     */
+    private val tableVersion by option("-v", "--version", help = "The version of the table to get").int()
+
+    companion object {
+        private const val SENDER_COMPENDIUM_CODE_KEY = "test code"
+        private const val SENDER_COMPENDIUM_CODESYSTEM_KEY = "coding system"
+        private const val SENDER_COMPENDIUM_MAPPED_KEY = "mapped?"
+        private const val SENDER_COMPENDIUM_MAPPED_TRUE = "Y"
+        private const val SENDER_COMPENDIUM_MAPPED_FALSE = "N"
+
+        private const val OBX_MAPPING_CODE_KEY = "Code"
+        private const val OBX_MAPPING_CODESYSTEM_KEY = "Code System"
+        private const val OBX_MAPPING_OID_KEY = "Member OID"
+        private const val OBX_MAPPING_NAME_KEY = "Name"
+        private const val OBX_MAPPING_DESCRIPTOR_KEY = "Descriptor"
+        private const val OBX_MAPPING_VERSION_KEY = "Version"
+
+        private const val OBX_MAPPING_CONDITION_STATUS_KEY = "Status"
+        private const val OBX_MAPPING_CONDITION_NAME_KEY = "condition_name"
+        private const val OBX_MAPPING_CONDITION_CODE_KEY = "condition_code"
+        private const val OBX_MAPPING_CONDITION_CODE_SYSTEM_KEY = "Condition Code System"
+        private const val OBX_MAPPING_CONDITION_CODE_SYSTEM_VERSION_KEY = "Condition Code System Version"
+        private const val OBX_MAPPING_CONDITION_VALUE_SOURCE_KEY = "Condition Code System Version"
+
+        private val OBX_MAPPING_CONDITION_KEYS = listOf(
+            OBX_MAPPING_CONDITION_STATUS_KEY, OBX_MAPPING_CONDITION_NAME_KEY, OBX_MAPPING_CONDITION_CODE_KEY,
+            OBX_MAPPING_CONDITION_CODE_SYSTEM_KEY, OBX_MAPPING_CONDITION_CODE_SYSTEM_VERSION_KEY,
+            OBX_MAPPING_CONDITION_VALUE_SOURCE_KEY
+        )
+
+        fun fetchLatestTestData(oids: List<String>): List<Map<String, String>> {
+            //            val data : List<Map<String, String>> = listOf(mapOf("foo" to "bar"))
+            //            return data
+            return listOf(mapOf("foo" to "bar"))
+        }
+
+        fun updateMappings(
+            inputData: Map<String, List<Map<String, String>>>,
+            updateData: List<Map<String, String>>,
+        ): List<Map<String, String>> {
+            val outputData: MutableList<Map<String, String>> = mutableListOf()
+            updateData.forEach { update ->
+                // fetch the condition data from existing table
+                val conditionData = inputData[update[OBX_MAPPING_OID_KEY]]!![0].filterKeys {
+                    it !in OBX_MAPPING_CONDITION_KEYS
+                }
+
+                // TODO: figure out this data structure and build appropriate output row
+                // for each snomed code in this update
+                update.forEach {
+                    outputData.add(update + conditionData)
+                }
+            }
+            return outputData + inputData["NO_OID"]!!
+        }
+    }
+
+    override fun run() {
+        // Read the input file.
+        val tableData = if (inputFile != null) {
+            val inputData = csvReader().readAllWithHeader(inputFile!!)
+            if (inputData.isEmpty()) {
+                throw PrintMessage("Input file ${inputFile!!.absolutePath} has no data.", true)
+            }
+            arrayOf(SENDER_COMPENDIUM_CODE_KEY, SENDER_COMPENDIUM_CODESYSTEM_KEY).forEach {
+                if (it !in inputData[0].keys) throw PrintMessage("Supplied compendium is missing column: $it")
+            }
+            inputData
+        } else {
+            val loadTableVersion: Int = tableVersion ?: tableUtil.findActiveVersion(tableName)
+
+            // Verify the table/version exists
+            try {
+                tableUtil.fetchTableInfo(tableName, loadTableVersion)
+            } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
+                throw PrintMessage("The table $tableName version $loadTableVersion was not found.", true)
+            } catch (e: IOException) {
+                throw PrintMessage(
+                    "Error fetching table version for $tableName version $loadTableVersion: ${e.message}",
+                    true
+                )
+            }
+
+            // Load the active or specified version of the table
+            val tableData = try {
+                tableUtil.fetchTableContent(tableName, loadTableVersion)
+            } catch (e: Exception) {
+                throw PrintMessage("Error fetching table content for table $tableName: ${e.message}", true)
+            }
+            tableData
+        }
+
+        // Check loaded table for needed columns
+//        arrayOf(OBX_MAPPING_CODE_KEY, OBX_MAPPING_CODESYSTEM_KEY).forEach {
+//            if (it !in tableData[0].keys) throw PrintMessage("Loaded table $tableName missing column: $it")
+//        }
+
+        // Create lookup table of codes
+        val tableMap = tableData.groupBy { it.getOrDefault(OBX_MAPPING_OID_KEY, "NO_OID") }
+
+        // Fetch the updated data
+        val updateData = fetchLatestTestData(tableMap.keys.filter { it != "NO_OID" })
+
+        // Update the data
+        val outputData = updateMappings(tableMap, updateData)
+
+        // Save an output file
+        if (outputFile != null) {
+            saveTableAsCSV(outputFile!!, outputData)
+            echo(
+                "Saved ${outputData.size} rows to ${outputFile!!.absolutePath} "
+            )
+        }
+
+        // TODO: Save updated mapping csv
+
+        tableUtil.createTable(tableName, outputData, true)
+//        echo(LookupTableCommands.rowsToPrintableTable(outputData, outputData[0].keys.toList()))
     }
 }
 
