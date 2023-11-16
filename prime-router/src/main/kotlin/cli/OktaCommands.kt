@@ -26,16 +26,16 @@ import java.time.LocalDateTime
 import kotlin.random.Random
 
 /**
- * Implements a PKCE OAUTH2 authorization workflow with the HHS-PRIME Okta account. A browser is launched
+ * Implements a PKCE OAUTH2 authorization workflow with the ReportStream Okta account. A browser is launched
  * for the user to enter credentials. A local server is setup to handle the Oauth2 redirect and to capture
  * the authorization code.
  *
  * Based on Okta article https://developer.okta.com/blog/2018/12/13/oauth-2-for-native-and-mobile-apps
  */
-private const val oktaProdBaseUrl = "https://hhs-prime.okta.com"
-const val oktaPreviewBaseUrl = "https://hhs-prime.oktapreview.com"
-private const val oktaProdClientId = "0oa6kt4j3tOFz5SH84h6"
-private const val oktaPreviewClientId = "0oa2fs6vp3W5MTzjh1d7"
+private const val oktaProdBaseUrl = "https://reportstream.okta.com"
+const val oktaPreviewBaseUrl = "https://reportstream.oktapreview.com"
+private const val oktaProdClientId = "0oa376pah9o4G2HVJ4h7"
+private const val oktaPreviewClientId = "0oa8uvan2i07YXJLk1d7"
 private const val oktaAuthorizePath = "/oauth2/default/v1/authorize" // Default authorization server
 private const val oktaTokenPath = "/oauth2/default/v1/token"
 private const val oktaUserInfoPath = "/oauth2/default/v1/userinfo"
@@ -51,7 +51,7 @@ private const val localTokenFileName = "accessToken.json"
  */
 class LoginCommand : OktaCommand(
     name = "login",
-    help = "Login to the HHS-PRIME authorization service"
+    help = "Login to the ReportStream authorization service"
 ) {
     private var redirectResult: String? = null
     private var server: HttpServer? = null
@@ -174,7 +174,7 @@ class LoginCommand : OktaCommand(
  */
 class LogoutCommand : OktaCommand(
     name = "logout",
-    help = "Logout of the HHS-PRIME authorization service"
+    help = "Logout of the ReportStream authorization service"
 ) {
     override fun run() {
         deleteAccessTokenFile()
