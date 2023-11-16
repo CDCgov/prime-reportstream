@@ -17,9 +17,11 @@ import com.github.ajalt.clikt.parameters.types.int
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
@@ -151,7 +153,17 @@ class ProcessFhirCommands : CliktCommand(
                     receiverSchema!!.name.split(".")[0], receiverSchema!!.parent,
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
-                        null,
+                        config = HL7TranslationConfig(
+                            Hl7Configuration(
+                                receivingApplicationOID = null,
+                                receivingFacilityOID = null,
+                                messageProfileId = null,
+                                receivingApplicationName = null,
+                                receivingFacilityName = null,
+                                receivingOrganization = null,
+                            ),
+                            null
+                        ),
                         translationFunctions = CustomTranslationFunctions()
                     )
                 ).convert(bundle)

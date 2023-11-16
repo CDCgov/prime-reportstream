@@ -3,12 +3,11 @@ elements:
     value: [ '%orderIndex + 1' ]
     hl7Spec: [ '%{fieldPath}-1' ]
 
-  - name: placer-order
-    resource: '%resource.identifier.where(type.coding.code = "PLAC")'
-    condition: '%resource.exists()'
+  - name: placer-order-number
+    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "placer-order-number")'
     constants:
-      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-2'
-    schema: ./datatype/ei-entity-identifier
+      eiFieldPath: '%{fieldPath}(%{entityIdIndex})-2'
+    schema: ../datatypes/identifier-extension/EI
     resourceIndex: entityIdIndex
 
   - name: filler-order
