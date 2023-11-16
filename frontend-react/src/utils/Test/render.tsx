@@ -1,6 +1,5 @@
 import React, { ReactElement } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { HelmetProvider } from "react-helmet-async";
 import { CacheProvider } from "rest-hooks";
 import { PartialDeep } from "type-fest";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
@@ -23,6 +22,17 @@ import { useToast } from "../../contexts/Toast";
 
 function TestError({ error }: FallbackProps) {
     return <>{error.toString()}</>;
+}
+
+function ConditionalWrapper({
+    children,
+    Wrapper,
+    isEnabled,
+}: React.PropsWithChildren<{
+    Wrapper: React.ComponentType<React.PropsWithChildren>;
+    isEnabled?: boolean;
+}>) {
+    return isEnabled ? <Wrapper>{children}</Wrapper> : children;
 }
 
 interface AppWrapperProps {
@@ -54,41 +64,68 @@ type AppWrapperProviderHooksOptions = Partial<{
     [k in keyof AppWrapperProviderHooks]: ReturnType<
         AppWrapperProviderHooks[k]
     >;
-}>;
+}> & {
+    QueryClient?: boolean;
+};
 
 export const AppWrapper = ({
     onError,
     restHookFixtures,
-    providers = {},
+    providers: { QueryClient, ...hookOptions } = {},
 }: AppWrapperOptions = {}) => {
-    for (const [k, v] of Object.entries(providers) as [
+    for (const [k, v] of Object.entries(hookOptions) as [
         keyof AppWrapperProviderHooks,
         any,
     ][]) {
         AppWrapperProviderHooksMap[k].mockReturnValue(v);
     }
+    const isQueryClientEnabled = !!QueryClient;
+    const isMockResolverEnabled = !!restHookFixtures;
+    const isAuthorizedFetchEnabled =
+        isMockResolverEnabled || isQueryClientEnabled;
+
     return ({ children }: AppWrapperProps) => {
         return (
-            <CacheProvider>
-                <HelmetProvider>
-                    <QueryClientProvider client={getTestQueryClient()}>
-                        <AuthorizedFetchProvider>
-                            <ErrorBoundary
-                                onError={(e) => onError?.(e)}
-                                FallbackComponent={TestError}
-                            >
-                                {restHookFixtures ? (
-                                    <MockResolver fixtures={restHookFixtures}>
+            <ConditionalWrapper
+                isEnabled={isMockResolverEnabled}
+                Wrapper={({ children }) => (
+                    <CacheProvider>{children}</CacheProvider>
+                )}
+            >
+                <ConditionalWrapper
+                    Wrapper={({ children }) => (
+                        <QueryClientProvider client={getTestQueryClient()}>
+                            {children}
+                        </QueryClientProvider>
+                    )}
+                    isEnabled={isQueryClientEnabled}
+                >
+                    <ConditionalWrapper
+                        isEnabled={isAuthorizedFetchEnabled}
+                        Wrapper={({ children }) => (
+                            <AuthorizedFetchProvider>
+                                {children}
+                            </AuthorizedFetchProvider>
+                        )}
+                    >
+                        <ErrorBoundary
+                            onError={(e) => onError?.(e)}
+                            FallbackComponent={TestError}
+                        >
+                            <ConditionalWrapper
+                                isEnabled={isMockResolverEnabled}
+                                Wrapper={({ children }) => (
+                                    <MockResolver fixtures={restHookFixtures!!}>
                                         {children}
                                     </MockResolver>
-                                ) : (
-                                    children
                                 )}
-                            </ErrorBoundary>
-                        </AuthorizedFetchProvider>
-                    </QueryClientProvider>
-                </HelmetProvider>
-            </CacheProvider>
+                            >
+                                {children}
+                            </ConditionalWrapper>
+                        </ErrorBoundary>
+                    </ConditionalWrapper>
+                </ConditionalWrapper>
+            </ConditionalWrapper>
         );
     };
 };

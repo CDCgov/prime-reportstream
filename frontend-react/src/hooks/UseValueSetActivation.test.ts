@@ -9,7 +9,9 @@ describe("useValueSetActivation", () => {
     afterAll(() => lookupTableServer.close());
 
     const renderWithAppWrapper = () =>
-        renderHook(() => useValueSetActivation());
+        renderHook(() => useValueSetActivation(), {
+            providers: { QueryClient: true },
+        });
 
     test("returns trigger and loading indicator", () => {
         const { result } = renderWithAppWrapper();

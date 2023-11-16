@@ -4,7 +4,6 @@ import userEvent from "@testing-library/user-event";
 import {
     mockSendFileWithErrors,
     mockSendFileWithWarnings,
-    mockSendValidFile,
 } from "../../__mocks__/validation";
 import * as useFileHandlerExports from "../../hooks/UseFileHandler";
 import { FileHandlerState, INITIAL_STATE } from "../../hooks/UseFileHandler";
@@ -87,7 +86,7 @@ export const WARNING_CSV_FILE_SELECTED = {
 };
 
 vi.mock("../../hooks/UseOrganizationSettings", async () => ({
-    useOrganizationSettings: () => {
+    useOrganizationSettings: vi.fn(() => {
         return {
             data: {
                 description: "wow, cool organization",
@@ -100,7 +99,11 @@ vi.mock("../../hooks/UseOrganizationSettings", async () => ({
             },
             isLoading: false,
         };
-    },
+    }),
+}));
+
+vi.mock("../../hooks/UseSenderResource", () => ({
+    default: vi.fn(() => ({})),
 }));
 
 export async function chooseSchema(schemaName: string) {
@@ -176,9 +179,9 @@ describe("FileHandler", () => {
                 data: STANDARD_SCHEMA_OPTIONS,
             });
             mockUseWatersUploader({
-                isWorking: false,
-                uploaderError: null,
-                sendFile: vi.fn(),
+                isPending: false,
+                error: null,
+                mutateAsync: vi.fn(),
             });
 
             render(<FileHandler />);
@@ -203,11 +206,7 @@ describe("FileHandler", () => {
                 isLoading: false,
                 data: STANDARD_SCHEMA_OPTIONS,
             });
-            mockUseWatersUploader({
-                isWorking: false,
-                uploaderError: null,
-                sendFile: () => Promise.resolve(mockSendValidFile),
-            });
+            mockUseWatersUploader();
 
             render(<FileHandler />);
         }
@@ -235,9 +234,11 @@ describe("FileHandler", () => {
                 data: STANDARD_SCHEMA_OPTIONS,
             });
             mockUseWatersUploader({
-                isWorking: false,
-                uploaderError: null,
-                sendFile: () => Promise.resolve(mockSendFileWithWarnings),
+                isPending: false,
+                error: null,
+                mutateAsync: vi
+                    .fn()
+                    .mockResolvedValue(mockSendFileWithWarnings),
             });
 
             render(<FileHandler />);
@@ -273,9 +274,9 @@ describe("FileHandler", () => {
                 data: STANDARD_SCHEMA_OPTIONS,
             });
             mockUseWatersUploader({
-                isWorking: false,
-                uploaderError: null,
-                sendFile: () => Promise.resolve(mockSendFileWithErrors),
+                isPending: false,
+                error: null,
+                mutateAsync: vi.fn().mockResolvedValue(mockSendFileWithErrors),
             });
 
             render(<FileHandler />);

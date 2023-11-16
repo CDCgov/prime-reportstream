@@ -15,6 +15,7 @@ describe("useSenderResource", () => {
     test("returns undefined if no sender available on membership", () => {
         const { result } = renderHook(() => useSenderResource(), {
             providers: {
+                QueryClient: true,
                 Session: {
                     authState: {
                         accessToken: { accessToken: "TOKEN" },
@@ -34,6 +35,7 @@ describe("useSenderResource", () => {
     test("returns correct sender match", async () => {
         const { result } = renderHook(() => useSenderResource(), {
             providers: {
+                QueryClient: true,
                 Session: {
                     authState: {
                         accessToken: { accessToken: "TOKEN" },

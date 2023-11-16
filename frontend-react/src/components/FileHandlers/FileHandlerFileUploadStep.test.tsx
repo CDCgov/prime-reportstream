@@ -25,6 +25,10 @@ import FileHandlerFileUploadStep, {
     getClientHeader,
 } from "./FileHandlerFileUploadStep";
 
+vi.mock("../../hooks/UseOrganizationSettings", async () => ({
+    useOrganizationSettings: vi.fn(() => ({})),
+}));
+
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
         ...INITIAL_STATE,
@@ -47,12 +51,23 @@ describe("FileHandlerFileUploadStep", () => {
         } as UseSenderResourceHookResult);
     }
 
+    function mockUseWatersUploader(
+        result: Partial<useWatersUploaderExports.UseWatersUploaderResult> = {},
+    ) {
+        vi.spyOn(useWatersUploaderExports, "useWatersUploader").mockReturnValue(
+            {
+                ...result,
+            } as any,
+        );
+    }
+
     describe("when the Sender details are still loading", () => {
         function setup() {
             mockUseSenderResource({
                 isInitialLoading: true,
                 isLoading: true,
             });
+            mockUseWatersUploader();
 
             render(<FileHandlerFileUploadStep {...DEFAULT_PROPS} />);
         }
@@ -64,15 +79,13 @@ describe("FileHandlerFileUploadStep", () => {
     });
 
     describe("when the Sender details have been loaded", () => {
-        beforeEach(() => {
-            mockUseSenderResource({
-                isInitialLoading: false,
-                isLoading: false,
-            });
-        });
-
         describe("when a CSV schema is chosen", () => {
             function setup() {
+                mockUseSenderResource({
+                    isInitialLoading: false,
+                    isLoading: false,
+                });
+                mockUseWatersUploader();
                 render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -98,6 +111,11 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when an HL7 schema is chosen", () => {
             function setup() {
+                mockUseSenderResource({
+                    isInitialLoading: false,
+                    isLoading: false,
+                });
+                mockUseWatersUploader();
                 render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -126,6 +144,11 @@ describe("FileHandlerFileUploadStep", () => {
         describe("when a file is selected", () => {
             const onFileChangeSpy = vi.fn();
             async function setup() {
+                mockUseSenderResource({
+                    isInitialLoading: false,
+                    isLoading: false,
+                });
+                mockUseWatersUploader();
                 render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -158,14 +181,12 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when a file is being submitted", () => {
             function setup() {
-                vi.spyOn(
-                    useWatersUploaderExports,
-                    "useWatersUploader",
-                ).mockReturnValue({
-                    isPending: true,
-                    error: null,
-                    mutateAsync: () => Promise.resolve({}),
-                } as any);
+                mockUseSenderResource({
+                    isInitialLoading: false,
+                    isLoading: false,
+                });
+
+                mockUseWatersUploader({ isPending: true });
 
                 render(
                     <FileHandlerFileUploadStep
@@ -193,14 +214,13 @@ describe("FileHandlerFileUploadStep", () => {
             const onFileSubmitSuccessSpy = vi.fn();
             const onNextStepClickSpy = vi.fn();
             async function setup() {
-                vi.spyOn(
-                    useWatersUploaderExports,
-                    "useWatersUploader",
-                ).mockReturnValue({
-                    isPending: false,
-                    error: null,
-                    mutateAsync: () => Promise.resolve(mockSendValidFile),
-                } as any);
+                mockUseSenderResource({
+                    isInitialLoading: false,
+                    isLoading: false,
+                });
+                mockUseWatersUploader({
+                    mutateAsync: vi.fn().mockResolvedValue(mockSendValidFile),
+                });
 
                 render(
                     <FileHandlerFileUploadStep
@@ -228,10 +248,6 @@ describe("FileHandlerFileUploadStep", () => {
                     await new Promise((res) => setTimeout(res, 100));
                 });
             }
-
-            afterEach(() => {
-                vi.restoreAllMocks();
-            });
 
             test("it calls onFileSubmitSuccess with the response", async () => {
                 await setup();
@@ -266,10 +282,12 @@ describe("FileHandlerFileUploadStep", () => {
         describe("when an invalid file is submitted", () => {
             const onFileSubmitErrorSpy = vi.fn();
             async function setup() {
-                vi.spyOn(
-                    useWatersUploaderExports,
-                    "useWatersUploader",
-                ).mockReturnValue({
+                mockUseSenderResource({
+                    isInitialLoading: false,
+                    isLoading: false,
+                });
+
+                mockUseWatersUploader({
                     isPending: false,
                     error: null,
                     mutateAsync: () =>
@@ -302,10 +320,6 @@ describe("FileHandlerFileUploadStep", () => {
                     await new Promise((res) => setTimeout(res, 100));
                 });
             }
-
-            afterEach(() => {
-                vi.restoreAllMocks();
-            });
 
             test("it calls onFileSubmitErrorSpy with the response", async () => {
                 await setup();

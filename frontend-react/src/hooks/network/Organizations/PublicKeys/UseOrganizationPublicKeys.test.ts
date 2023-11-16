@@ -16,7 +16,9 @@ describe("useOrganizationPublicKeys", () => {
 
     describe("with no Organization name", () => {
         test("returns undefined", () => {
-            const { result } = renderHook(() => useOrganizationPublicKeys());
+            const { result } = renderHook(() => useOrganizationPublicKeys(), {
+                providers: { QueryClient: true },
+            });
             expect(result.current.data).toEqual(undefined);
         });
     });
@@ -25,6 +27,7 @@ describe("useOrganizationPublicKeys", () => {
         test("returns organization public keys", async () => {
             const { result } = renderHook(() => useOrganizationPublicKeys(), {
                 providers: {
+                    QueryClient: true,
                     Session: {
                         activeMembership: {
                             memberType: MemberType.SENDER,

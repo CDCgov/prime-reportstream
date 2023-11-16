@@ -13,7 +13,10 @@ describe("useCreateOrganizationPublicKey", () => {
     afterAll(() => orgServer.close());
 
     const renderWithAppWrapper = (options: any) =>
-        renderHook(() => useCreateOrganizationPublicKey(), options);
+        renderHook(() => useCreateOrganizationPublicKey(), {
+            ...options,
+            providers: { QueryClient: true, ...options.providers },
+        });
 
     describe("when authorized, 200", () => {
         test("posts to /public-keys API and returns response", async () => {

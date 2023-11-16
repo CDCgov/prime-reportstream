@@ -11,6 +11,7 @@ describe("useReportsList", () => {
     test("returns expected data", async () => {
         const { result } = renderHook(() => useOrgDeliveries("testService"), {
             providers: {
+                QueryClient: true,
                 Session: {
                     authState: {
                         accessToken: { accessToken: "TOKEN" },

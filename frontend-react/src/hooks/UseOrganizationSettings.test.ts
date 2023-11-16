@@ -17,6 +17,7 @@ describe("useOrganizationSettings", () => {
         test("returns undefined", async () => {
             const { result } = renderHook(() => useOrganizationSettings(), {
                 providers: {
+                    QueryClient: true,
                     Session: {
                         authState: {
                             accessToken: { accessToken: "TOKEN" },
@@ -41,6 +42,7 @@ describe("useOrganizationSettings", () => {
         test("returns correct organization settings", async () => {
             const { result } = renderHook(() => useOrganizationSettings(), {
                 providers: {
+                    QueryClient: true,
                     Session: {
                         authState: {
                             accessToken: { accessToken: "TOKEN" },
@@ -70,6 +72,7 @@ describe("useOrganizationSettings", () => {
         test("is disabled", async () => {
             const { result } = renderHook(() => useOrganizationSettings(), {
                 providers: {
+                    QueryClient: true,
                     Session: {
                         authState: {
                             accessToken: { accessToken: "TOKEN" },

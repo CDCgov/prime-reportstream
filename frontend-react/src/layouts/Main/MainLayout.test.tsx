@@ -5,6 +5,8 @@ import silenceVirtualConsole from "../../utils/Test/silenceVirtualConsole";
 
 import MainLayout from "./MainLayout";
 
+vi.mock("../../components/header/ReportStreamHeader");
+
 function ErroringComponent() {
     throw new Error("MainLayout Error Test");
     // eslint-disable-next-line no-unreachable

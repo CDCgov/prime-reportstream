@@ -15,6 +15,7 @@ describe("useReceiverDeliveries", () => {
         test("returns undefined", async () => {
             const { result } = renderHook(() => useReceiverDeliveries(), {
                 providers: {
+                    QueryClient: true,
                     Session: {
                         authState: {
                             accessToken: { accessToken: "TOKEN" },
@@ -40,6 +41,7 @@ describe("useReceiverDeliveries", () => {
                 () => useReceiverDeliveries("testService"),
                 {
                     providers: {
+                        QueryClient: true,
                         Session: {
                             authState: {
                                 accessToken: { accessToken: "TOKEN" },

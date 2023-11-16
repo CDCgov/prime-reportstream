@@ -16,6 +16,7 @@ describe("useOrganizationSenders", () => {
         test("returns undefined", () => {
             const { result } = renderHook(() => useOrganizationSenders(), {
                 providers: {
+                    QueryClient: true,
                     Session: {
                         authState: {
                             accessToken: { accessToken: "TOKEN" },
@@ -39,6 +40,7 @@ describe("useOrganizationSenders", () => {
         test("returns correct organization settings", async () => {
             const { result } = renderHook(() => useOrganizationSenders(), {
                 providers: {
+                    QueryClient: true,
                     Session: {
                         authState: {
                             accessToken: { accessToken: "TOKEN" },

@@ -1,3 +1,5 @@
+import { mockAccessToken } from "../__mocks__/Okta";
+
 import {
     AccessTokenWithRSClaims,
     getOktaGroups,
@@ -5,7 +7,6 @@ import {
     MemberType,
     membershipsFromToken,
 } from "./OrganizationUtils";
-import { mockAccessToken } from "./Test/TestUtils";
 
 let mockGetSessionMembershipState = vi.fn();
 let mockGetOrganizationOverride = vi.fn();

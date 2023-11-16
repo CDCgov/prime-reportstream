@@ -15,7 +15,10 @@ describe("useValueSetUpdate", () => {
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 
-    const renderWithAppWrapper = () => renderHook(() => useValueSetUpdate());
+    const renderWithAppWrapper = () =>
+        renderHook(() => useValueSetUpdate(), {
+            providers: { QueryClient: true },
+        });
 
     test("returns trigger and loading indicator", async () => {
         const { result } = renderWithAppWrapper();

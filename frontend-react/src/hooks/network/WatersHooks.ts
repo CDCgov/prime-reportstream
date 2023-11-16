@@ -22,11 +22,7 @@ export type UseWatersUploaderSendFileMutation = UseMutateAsyncFunction<
     WatersPostArgs
 >;
 
-export type UseWatersUploaderResult = {
-    sendFile: UseWatersUploaderSendFileMutation;
-    isWorking: boolean;
-    uploaderError: RSNetworkError<WatersResponse> | null;
-};
+export type UseWatersUploaderResult = ReturnType<typeof useWatersUploader>;
 
 export const FORMAT_TO_CONTENT_TYPE = {
     [FileType.CSV]: ContentType.CSV,

@@ -8,7 +8,9 @@ import { useValueSetsTable } from "./UseValueSets";
 
 describe("useValueSetsTable", () => {
     const renderWithAppWrapper = (tableName: LookupTables) =>
-        renderHook(() => useValueSetsTable<ValueSet[]>(tableName));
+        renderHook(() => useValueSetsTable<ValueSet[]>(tableName), {
+            providers: { QueryClient: true },
+        });
 
     beforeAll(() => lookupTableServer.listen());
     afterEach(() => lookupTableServer.resetHandlers());

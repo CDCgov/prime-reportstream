@@ -1,4 +1,4 @@
-import { act, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
 import {
     messageTrackerServer,
@@ -17,6 +17,7 @@ describe("useMessageSearch", () => {
     test("returns expected data values when fetching messages", async () => {
         const { result } = renderHook(() => useMessageSearch(), {
             providers: {
+                QueryClient: true,
                 Session: {
                     authState: {
                         accessToken: { accessToken: "TOKEN" },
@@ -36,7 +37,7 @@ describe("useMessageSearch", () => {
             },
         });
         let messages;
-        await act(async () => {
+        await waitFor(async () => {
             messages = await result.current.mutateAsync("alaska1");
             expect(messages.length).toEqual(3);
             expect(messages[0].reportId).toEqual(
@@ -56,6 +57,7 @@ describe("useMessageDetails", () => {
     test("returns expected data values when fetching message details", async () => {
         const { result } = renderHook(() => useMessageDetails("11"), {
             providers: {
+                QueryClient: true,
                 Session: {
                     authState: {
                         accessToken: { accessToken: "TOKEN" },

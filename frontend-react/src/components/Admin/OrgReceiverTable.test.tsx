@@ -1,6 +1,5 @@
 import { screen } from "@testing-library/react";
 
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { render } from "../../utils/Test/render";
 
 import { OrgReceiverTable } from "./OrgReceiverTable";
@@ -92,13 +91,15 @@ vi.mock("rest-hooks", async () => ({
     },
 }));
 
+vi.mock("../../network/api/CheckSettingCmd", async (imp) => ({
+    ...(await imp<typeof import("../../network/api/CheckSettingCmd")>()),
+    useCheckSettingsCmd: vi.fn(() => ({})),
+}));
+
 describe("OrgReceiverTable", () => {
     function setup() {
         render(<OrgReceiverTable orgname={"test"} key={"test"} />);
     }
-    beforeAll(() => settingsServer.listen());
-    afterEach(() => settingsServer.resetHandlers());
-    afterAll(() => settingsServer.close());
 
     test("renders correctly", () => {
         setup();

@@ -15,7 +15,9 @@ describe("useWatersUploader", () => {
     afterEach(() => watersServer.resetHandlers());
     afterAll(() => watersServer.close());
     const renderHookWithAppWrapper = () =>
-        renderHook(() => useWatersUploader(mockCallbackFn));
+        renderHook(() => useWatersUploader(mockCallbackFn), {
+            providers: { QueryClient: true },
+        });
     test("has default state", () => {
         const { result } = renderHookWithAppWrapper();
         expect(result.current.isPending).toEqual(false);
@@ -23,7 +25,9 @@ describe("useWatersUploader", () => {
         expect(result.current.error).toBeNull();
     });
     test("posts to /api/validate when validateOnly param is true", async () => {
-        const { result } = renderHook(() => useWatersUploader(mockCallbackFn));
+        const { result } = renderHook(() => useWatersUploader(mockCallbackFn), {
+            providers: { QueryClient: true },
+        });
         let response;
         await waitFor(async () => {
             const post = result.current.mutateAsync({

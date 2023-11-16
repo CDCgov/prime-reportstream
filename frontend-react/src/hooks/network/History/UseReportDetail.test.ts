@@ -13,6 +13,7 @@ describe("useReportsList", () => {
     test("useReportDetail", async () => {
         const { result } = renderHook(() => useReportsDetail("123"), {
             providers: {
+                QueryClient: true,
                 Session: {
                     authState: {
                         accessToken: { accessToken: "TOKEN" },

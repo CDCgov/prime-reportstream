@@ -1,6 +1,7 @@
+import { mockAccessToken } from "../__mocks__/Okta";
+
 import { getUserPermissions, permissionCheck } from "./PermissionsUtils";
 import { AccessTokenWithRSClaims } from "./OrganizationUtils";
-import { mockAccessToken } from "./Test/TestUtils";
 import { PERMISSIONS } from "./UsefulTypes";
 
 const senderToken = mockAccessToken({

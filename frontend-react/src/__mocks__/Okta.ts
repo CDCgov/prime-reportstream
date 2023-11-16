@@ -11,9 +11,3 @@ export const mockAccessToken = (mock?: Partial<AccessToken>): AccessToken => {
         tokenType: mock?.tokenType || "",
     };
 };
-
-export const mockEvent = (mock?: Partial<any>) => {
-    return {
-        response: mock?.response || null,
-    };
-};

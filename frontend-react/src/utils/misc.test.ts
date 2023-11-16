@@ -1,3 +1,4 @@
+import { mockEvent } from "../__mocks__/Api";
 import OrgSettingsBaseResource from "../resources/OrgSettingsBaseResource";
 
 import {
@@ -13,7 +14,6 @@ import {
     isValidServiceName,
     parseFileLocation,
 } from "./misc";
-import { mockEvent } from "./Test/TestUtils";
 
 test("splitOn test", () => {
     const r1 = splitOn("foo", 1);

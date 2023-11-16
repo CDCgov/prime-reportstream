@@ -16,6 +16,7 @@ describe("useOrganizationReceivers", () => {
     test("returns undefined if no active membership parsed name", () => {
         const { result } = renderHook(() => useOrganizationReceivers(), {
             providers: {
+                QueryClient: true,
                 Session: {
                     authState: {
                         accessToken: { accessToken: "TOKEN" },
@@ -37,6 +38,7 @@ describe("useOrganizationReceivers", () => {
     test("returns correct organization receiver services", async () => {
         const { result } = renderHook(() => useOrganizationReceivers(), {
             providers: {
+                QueryClient: true,
                 Session: {
                     authState: {
                         accessToken: { accessToken: "TOKEN" },
@@ -65,6 +67,7 @@ describe("useOrganizationReceivers", () => {
     test("is disabled and returns undefined", () => {
         const { result } = renderHook(() => useOrganizationReceivers(), {
             providers: {
+                QueryClient: true,
                 Session: {
                     authState: {
                         accessToken: { accessToken: "TOKEN" },

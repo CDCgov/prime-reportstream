@@ -47,7 +47,7 @@ async function chooseFile(file: File) {
 
 describe("ManagePublicKey", () => {
     function mockUseCreateOrganizationPublicKey(
-        result: Partial<UseCreateOrganizationPublicKeyResult>,
+        result?: Partial<UseCreateOrganizationPublicKeyResult>,
     ) {
         vi.spyOn(
             useCreateOrganizationPublicKeyExports,
@@ -82,6 +82,7 @@ describe("ManagePublicKey", () => {
         function setup() {
             mockUseOrganizationSenders({ isLoading: true });
             mockUseOrganizationPublicKeys();
+            mockUseCreateOrganizationPublicKey();
 
             render(<ManagePublicKeyPage />, {
                 providers: {
@@ -115,6 +116,7 @@ describe("ManagePublicKey", () => {
                 data: DEFAULT_SENDERS,
             });
             mockUseOrganizationPublicKeys();
+            mockUseCreateOrganizationPublicKey();
 
             render(<ManagePublicKeyPage />);
         }
@@ -168,6 +170,7 @@ describe("ManagePublicKey", () => {
                 data: DEFAULT_SENDERS.slice(0, 1),
             });
             mockUseOrganizationPublicKeys();
+            mockUseCreateOrganizationPublicKey();
 
             render(<ManagePublicKeyPage />);
         }
@@ -188,10 +191,10 @@ describe("ManagePublicKey", () => {
                 isLoading: false,
                 data: DEFAULT_SENDERS.slice(0, 1),
             });
-
             mockUseOrganizationPublicKeys({
                 data: mockRSApiKeysResponse,
             });
+            mockUseCreateOrganizationPublicKey();
 
             render(<ManagePublicKeyPage />, {
                 providers: {
@@ -249,7 +252,6 @@ describe("ManagePublicKey", () => {
                 isLoading: false,
                 data: DEFAULT_SENDERS.slice(1),
             });
-
             mockUseCreateOrganizationPublicKey({
                 isPending: false,
                 isSuccess: true,
@@ -286,7 +288,6 @@ describe("ManagePublicKey", () => {
                 isLoading: false,
                 data: DEFAULT_SENDERS.slice(0, 1),
             });
-
             mockUseCreateOrganizationPublicKey({
                 isPending: false,
                 isSuccess: false,

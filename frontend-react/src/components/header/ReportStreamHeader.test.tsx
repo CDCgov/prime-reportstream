@@ -4,6 +4,14 @@ import { render } from "../../utils/Test/render";
 
 import ReportStreamHeader from "./ReportStreamHeader";
 
+vi.mock("../hooks/UseSenderResource");
+vi.mock("../../hooks/UseOrganizationSettings", async (imp) => ({
+    ...(await imp<typeof import("../../hooks/UseOrganizationSettings")>()),
+    useOrganizationSettings__: vi.fn(() => ({
+        data: {},
+    })),
+}));
+
 describe("SignInOrUser", () => {
     // Every set of users should have access to the following Navbar items
     afterEach(() => {

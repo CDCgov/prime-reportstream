@@ -8,6 +8,7 @@ vi.stubGlobal("scrollTo", vi.fn());
 
 vi.mock("@okta/okta-react");
 vi.mock("react-router-dom");
+vi.mock("react-helmet-async");
 vi.mock("./contexts/Session");
 vi.mock("./contexts/AppInsights");
 vi.mock("./contexts/FeatureFlags");

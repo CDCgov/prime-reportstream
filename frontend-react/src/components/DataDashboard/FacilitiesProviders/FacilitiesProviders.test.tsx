@@ -4,6 +4,8 @@ import { render } from "../../../utils/Test/render";
 
 import { FacilitiesProvidersPage } from "./FacilitiesProviders";
 
+vi.mock("./FacilitiesProvidersTable");
+
 describe("FacilitiesProviders", () => {
     test("Breadcrumb displays with link", async () => {
         render(<FacilitiesProvidersPage />);
