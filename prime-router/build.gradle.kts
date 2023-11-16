@@ -15,7 +15,7 @@ Properties to control the execution and output using the Gradle -P arguments:
   forcetest - Force the running of the test regardless of changes
   showtests - Verbose output of the unit tests
   E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
- */
+  */
 
 import io.swagger.v3.plugins.gradle.tasks.ResolveTask
 import org.apache.commons.io.FileUtils
