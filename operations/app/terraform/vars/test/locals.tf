@@ -2,13 +2,19 @@ locals {
   environment = "test"
   address_id  = 5
   init = {
-    environment         = local.environment
-    location            = "eastus"
-    is_metabase_env     = true
-    resource_group_name = "prime-data-hub-${local.environment}"
-    resource_prefix     = "pdh${local.environment}"
-    okta_redirect_url   = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
-    okta_base_url       = "hhs-prime.oktapreview.com"
+    environment           = local.environment
+    location              = "eastus"
+    is_metabase_env       = true
+    resource_group_name   = "prime-data-hub-${local.environment}"
+    resource_prefix       = "pdh${local.environment}"
+    okta_redirect_url     = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
+    okta_base_url         = "hhs-prime.oktapreview.com"
+    OKTA_scope            = "simple_report_dev"
+    RS_okta_base_url      = "reportstream.oktapreview.com"
+    RS_okta_redirect_url  = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
+    RS_OKTA_scope         = "reportstream_dev"
+    storage_queue_name    = ["process"]
+    sftp_container_module = true
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-app-config"
@@ -28,7 +34,7 @@ locals {
     delete_pii_storage_after_days = 30
   }
   database = {
-    db_sku_name         = "GP_Gen5_16"
+    db_sku_name         = "GP_Gen5_8"
     db_version          = "11"
     db_storage_mb       = 5120
     db_auto_grow        = true
@@ -50,7 +56,7 @@ locals {
     use_cdc_managed_vnet        = true
     dns_vnet                    = "East-vnet"
     dns_ip                      = "168.63.129.16"
-    terraform_caller_ip_address = ["162.224.209.174", "24.163.118.70", "75.191.122.59"]
+    terraform_caller_ip_address = jsondecode(data.azurerm_key_vault_secret.caller_ip_addresses.value)
     config = {
       "East-vnet" = {
         "address_space"           = "172.17.${local.address_id}.0/25"

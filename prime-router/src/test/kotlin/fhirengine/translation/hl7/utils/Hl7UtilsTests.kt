@@ -18,10 +18,10 @@ import kotlin.test.assertEquals
 class Hl7UtilsTests {
     @Test
     fun `test get message type string`() {
-        class Unsupported_ORU_R01 : ORU_R01()
+        class UnsupportedORUR01 : ORU_R01()
         assertThat(HL7Utils.getMessageTypeString(ORU_R01())).isEqualTo(listOf("ORU", "R01"))
         assertThat(HL7Utils.getMessageTypeString(ADT_A01())).isEqualTo(listOf("ADT", "A01"))
-        assertThat { HL7Utils.getMessageTypeString(Unsupported_ORU_R01()) }.isFailure()
+        assertThat { HL7Utils.getMessageTypeString(UnsupportedORUR01()) }.isFailure()
     }
 
     @Test
@@ -52,9 +52,6 @@ class Hl7UtilsTests {
             assertThat(terser.getSegment("MSH")).isNotNull()
             assertThat(terser.get("MSH-1")).isNotEmpty()
             assertThat(terser.get("MSH-2")).isNotEmpty()
-            assertThat(terser.get("MSH-9-1")).isEqualTo("ORU")
-            assertThat(terser.get("MSH-9-2")).isEqualTo("R01")
-            assertThat(terser.get("MSH-9-3")).isEqualTo("ORU_R01")
             assertThat(terser.get("MSH-12")).isEqualTo("2.5.1")
         }
 

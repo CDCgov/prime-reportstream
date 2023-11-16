@@ -68,7 +68,9 @@ enum class Options {
     SendImmediately,
 
     @OptionDeprecated
-    SkipInvalidItems;
+    SkipInvalidItems,
+
+    ;
 
     class InvalidOptionException(message: String) : Exception(message)
 
@@ -131,7 +133,7 @@ data class ReportStreamFilterResult(
     val filterName: String,
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
-    val filterType: ReportStreamFilterType?
+    val filterType: ReportStreamFilterType?,
 ) : ActionLogDetail {
     override val scope = ActionLogScope.translation
     override val errorCode = ErrorCode.UNKNOWN
@@ -159,14 +161,15 @@ class Report : Logging {
     enum class Format(
         val ext: String,
         val mimeType: String,
-        val isSingleItemFormat: Boolean = false
+        val isSingleItemFormat: Boolean = false,
     ) {
         INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
         HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        FHIR("fhir", "application/fhir+ndjson");
+        FHIR("fhir", "application/fhir+ndjson"),
+        ;
 
         companion object {
             // Default to CSV if weird or unknown
@@ -303,7 +306,7 @@ class Report : Logging {
         BLANK,
         SHUFFLE,
         PASSTHROUGH,
-        FAKE
+        FAKE,
     }
 
     // Generic
@@ -316,7 +319,7 @@ class Report : Logging {
         itemLineage: List<ItemLineage>? = null,
         id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise, null.
         metadata: Metadata,
-        itemCountBeforeQualFilter: Int? = null
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = id ?: UUID.randomUUID()
         this.schema = schema
@@ -340,7 +343,7 @@ class Report : Logging {
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata? = null,
-        itemCountBeforeQualFilter: Int? = null
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -363,7 +366,7 @@ class Report : Logging {
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata,
-        itemCountBeforeQualFilter: Int? = null
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -420,7 +423,7 @@ class Report : Logging {
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata? = null,
-        itemCountBeforeQualFilter: Int? = null
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -543,7 +546,7 @@ class Report : Logging {
         doLogging: Boolean,
         trackingElement: String?,
         reverseTheFilter: Boolean = false,
-        reportStreamFilterType: ReportStreamFilterType
+        reportStreamFilterType: ReportStreamFilterType,
     ): Report {
         val filteredRows = mutableListOf<ReportStreamFilterResult>()
         val combinedSelection = Selection.withRange(0, table.rowCount())
@@ -669,7 +672,7 @@ class Report : Logging {
         synthesizeStrategies: Map<String, SynthesizeStrategy> = emptyMap(),
         targetState: String? = null,
         targetCounty: String? = null,
-        metadata: Metadata
+        metadata: Metadata,
     ): Report {
         fun safeSetStringInRow(row: Row, columnName: String, value: String) {
             if (row.columnNames().contains(columnName)) {
@@ -824,7 +827,7 @@ class Report : Logging {
 
                     it.orderingProviderName =
                         row.getStringOrNull("ordering_provider_first_name") +
-                        " " + row.getStringOrNull("ordering_provider_last_name")
+                            " " + row.getStringOrNull("ordering_provider_last_name")
                     it.orderingProviderId = row.getStringOrNull("ordering_provider_id")
                     it.orderingProviderCity = row.getStringOrNull("ordering_provider_city")
                     it.orderingProviderState = row.getStringOrNull("ordering_provider_state")
@@ -966,13 +969,13 @@ class Report : Logging {
 
     fun getDeidentifiedCovidResults(): List<CovidResultMetadata> {
         return try {
-            table.mapIndexed() { idx, row ->
+            table.mapIndexed { idx, row ->
                 CovidResultMetadata().also {
                     it.messageId = row.getStringOrNull("message_id")
                     it.previousMessageId = row.getStringOrNull("previous_message_id")
                     it.orderingProviderName =
                         row.getStringOrNull("ordering_provider_first_name") +
-                        " " + row.getStringOrNull("ordering_provider_last_name")
+                            " " + row.getStringOrNull("ordering_provider_last_name")
                     it.orderingProviderId = row.getStringOrNull("ordering_provider_id")
                     it.orderingProviderState = row.getStringOrNull("ordering_provider_state")
                     it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code")
@@ -1131,7 +1134,7 @@ class Report : Logging {
     private fun buildColumnPass2(
         mapping: Translator.Mapping,
         toElement: Element,
-        pass1Columns: List<StringColumn?>
+        pass1Columns: List<StringColumn?>,
     ): StringColumn {
         val toSchema = mapping.toSchema
         val fromSchema = mapping.fromSchema
@@ -1244,7 +1247,7 @@ class Report : Logging {
      * @returns a [StringColumn] of the deidentified values
      */
     private fun buildDeidentifiedPatientDobColumn(nullValuePlaceholder: String = ""): StringColumn {
-        table.forEachIndexed() { idx, row ->
+        table.forEachIndexed { idx, row ->
             val patientDob = row.getStringOrNull(patient_dob_column_name)
             if (patientDob == null) {
                 setString(idx, patient_dob_column_name, nullValuePlaceholder)
@@ -1265,7 +1268,7 @@ class Report : Logging {
         element: Element,
         targetState: String?,
         targetCounty: String?,
-        metadata: Metadata
+        metadata: Metadata,
     ): StringColumn {
         val fakeDataService = FakeDataService()
         return StringColumn.create(
@@ -1396,7 +1399,7 @@ class Report : Logging {
             parentReport: Report,
             parentRowNum: Int,
             childReport: Report,
-            childRowNum: Int
+            childRowNum: Int,
         ): ItemLineage {
             // get the item hash to store for deduplication purposes. If a hash has already been generated
             //  for a row, use that hash to represent the row itself, since translations will result in different
@@ -1454,7 +1457,7 @@ class Report : Logging {
          */
         fun createItemLineagesFromDb(
             prevHeader: WorkflowEngine.Header,
-            newChildReportId: ReportId
+            newChildReportId: ReportId,
         ): List<ItemLineage>? {
             if (prevHeader.itemLineages == null) return null
             val newLineages = mutableMapOf<Int, ItemLineage>()
@@ -1506,7 +1509,7 @@ class Report : Logging {
             fileFormat: Format?,
             createdDateTime: OffsetDateTime,
             translationConfig: TranslatorConfiguration? = null,
-            metadata: Metadata
+            metadata: Metadata,
         ): String {
             return formFilename(
                 id,
@@ -1526,7 +1529,7 @@ class Report : Logging {
             createdDateTime: OffsetDateTime,
             nameFormat: String = "standard",
             translationConfig: TranslatorConfiguration? = null,
-            metadata: Metadata
+            metadata: Metadata,
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
@@ -1549,12 +1552,14 @@ class Report : Logging {
          */
         fun formExternalFilename(
             header: WorkflowEngine.Header,
-            metadata: Metadata? = null
+            metadata: Metadata? = null,
         ): String {
             // extract the filename from the blob url.
             val filename = if (header.reportFile.bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl)
-            } else ""
+            } else {
+                ""
+            }
             return if (filename.isNotEmpty()) {
                 filename
             } else {
@@ -1579,12 +1584,14 @@ class Report : Logging {
             schemaName: String,
             format: Format,
             createdAt: OffsetDateTime,
-            metadata: Metadata? = null
+            metadata: Metadata? = null,
         ): String {
             // extract the filename from the blob url.
             val filename = if (bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
-            } else ""
+            } else {
+                ""
+            }
             return filename.ifEmpty {
                 // todo: extend this to use the APHL naming convention
                 formFilename(
@@ -1652,8 +1659,11 @@ class Report : Logging {
             val sources = emptyList<Source>()
             val reportFormat = when (receiver.format) {
                 Report.Format.HL7, Report.Format.HL7_BATCH -> {
-                    if (sourceReportIds.size > 1) Report.Format.HL7_BATCH
-                    else Report.Format.HL7
+                    if (sourceReportIds.size > 1) {
+                        Report.Format.HL7_BATCH
+                    } else {
+                        Report.Format.HL7
+                    }
                 }
                 Report.Format.FHIR -> Report.Format.FHIR
                 else -> throw IllegalStateException("Unsupported receiver format ${receiver.format}")

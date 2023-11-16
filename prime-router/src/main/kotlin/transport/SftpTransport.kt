@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.transport
 
 import com.google.common.base.Preconditions
+import com.hierynomus.sshj.key.KeyAlgorithms
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -48,8 +49,9 @@ class SftpTransport : ITransport, Logging {
         val sftpTransportType = transportType as SFTPTransportType
 
         return try {
-            if (header.content == null)
+            if (header.content == null) {
                 error("No content to sftp for report ${header.reportFile.reportId}")
+            }
             val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
             val sshClient = connect(receiver)
 
@@ -96,12 +98,18 @@ class SftpTransport : ITransport, Logging {
             // Override the SFTP host and port only if provided and in the local environment.
             val host: String = if (Environment.isLocal() &&
                 !System.getenv("SFTP_HOST_OVERRIDE").isNullOrBlank()
-            )
-                System.getenv("SFTP_HOST_OVERRIDE") else sftpTransportInfo.host
+            ) {
+                System.getenv("SFTP_HOST_OVERRIDE")
+            } else {
+                sftpTransportInfo.host
+            }
             val port: String = if (Environment.isLocal() &&
                 !System.getenv("SFTP_PORT_OVERRIDE").isNullOrBlank()
-            )
-                System.getenv("SFTP_PORT_OVERRIDE") else sftpTransportInfo.port
+            ) {
+                System.getenv("SFTP_PORT_OVERRIDE")
+            } else {
+                sftpTransportInfo.port
+            }
             return connect(host, port, credential ?: lookupCredentials(receiver))
         }
 
@@ -180,7 +188,7 @@ class SftpTransport : ITransport, Logging {
             sshClient: SSHClient,
             path: String,
             fileName: String,
-            contents: ByteArray
+            contents: ByteArray,
         ) {
             try {
                 try {
@@ -306,6 +314,29 @@ class SftpTransport : ITransport, Logging {
         // allow us to mock SSHClient because there is no dependency injection in this class
         fun createDefaultSSHClient(): SSHClient {
             val sshConfig = DefaultConfig()
+
+            // Started from version 0.33.0, SSHJ doesn't try to determine RSA-SHA2-* support on fly.
+            // Instead, it looks only config.getKeyAlgorithms(), which may or may not contain ssh-rsa
+            // and rsa-sha2-* in any order.  The default config stops working with old servers like
+            // Apache SSHD that doesn't rsa-sha2-* signatures.  To make it works with old servers,
+            // we need to include the KeyAlgorithms.SSHRSA at the top of the list or have higher
+            // priority than other as below.
+            sshConfig.keyAlgorithms = listOf(
+                KeyAlgorithms.SSHRSA(),
+                KeyAlgorithms.EdDSA25519CertV01(),
+                KeyAlgorithms.EdDSA25519(),
+                KeyAlgorithms.ECDSASHANistp521CertV01(),
+                KeyAlgorithms.ECDSASHANistp521(),
+                KeyAlgorithms.ECDSASHANistp384CertV01(),
+                KeyAlgorithms.ECDSASHANistp384(),
+                KeyAlgorithms.ECDSASHANistp256CertV01(),
+                KeyAlgorithms.ECDSASHANistp256(),
+                KeyAlgorithms.RSASHA512(),
+                KeyAlgorithms.RSASHA256(),
+                KeyAlgorithms.SSHRSACertV01(),
+                KeyAlgorithms.SSHDSSCertV01(),
+                KeyAlgorithms.SSHDSA()
+            )
             return SSHClient(sshConfig)
         }
     }

@@ -10,7 +10,7 @@ elements:
       Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     required: true
-    schema: ../common/message-header
+    schema: ../resources/MessageHeader/MSH
 
   - name: software-segment
     condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
@@ -28,7 +28,7 @@ elements:
   - name: patient-note
     resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value.text.split(''\n'')'
     condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists()'
-    schema: base/note
+    schema: ../common/note
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '/PATIENT_RESULT/PATIENT'
@@ -54,4 +54,12 @@ elements:
     condition: '%resource.count() > 0'
     required: true
     schema: base/order-observation
+    resourceIndex: orderIndex
+
+  - name: participation-request
+    resource: 'Bundle.entry.resource.ofType(Device)'
+    condition: 'Bundle.entry.resource.ofType(Device).udiCarrier.exists()'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT/PATIENT_OBSERVATION'
+    schema: ../resources/Device/PRT
     resourceIndex: orderIndex

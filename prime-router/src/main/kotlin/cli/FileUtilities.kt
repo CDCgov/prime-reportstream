@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.cli
 
+import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
@@ -23,7 +24,7 @@ object FileUtilities {
         targetCounties: String? = null,
         directory: String = ".",
         format: Report.Format = Report.Format.CSV,
-        locale: Locale? = null
+        locale: Locale? = null,
     ): File {
         val report = createFakeCovidReport(
             metadata,
@@ -42,7 +43,7 @@ object FileUtilities {
         count: Int,
         targetStates: String? = null,
         targetCounties: String? = null,
-        locale: Locale? = null
+        locale: Locale? = null,
     ): Report {
         return FakeReport(metadata, locale).build(
             metadata.findSchema(schemaName)
@@ -60,7 +61,7 @@ object FileUtilities {
         settings: SettingsProvider,
         outputDir: String?,
         outputFileName: String?,
-        echo: (message: Any?) -> Unit
+        echo: (message: Any?) -> Unit,
     ) {
         if (outputDir == null && outputFileName == null) return
 
@@ -88,7 +89,7 @@ object FileUtilities {
         metadata: Metadata,
         outputDir: String?,
         outputFileName: String?,
-        settings: SettingsProvider
+        settings: SettingsProvider,
     ): File {
         val outputFile = if (outputFileName != null) {
             File(outputFileName)
@@ -145,5 +146,21 @@ object FileUtilities {
     fun isInternalFile(file: File): Boolean {
         return file.extension.equals("INTERNAL", ignoreCase = true) ||
             file.nameWithoutExtension.endsWith("INTERNAL", ignoreCase = true)
+    }
+
+    /**
+     * Save the passed in table as a CSV to the provided output file
+     */
+    fun saveTableAsCSV(outputFile: File, tableRows: List<Map<String, String>>) {
+        val colNames = tableRows[0].keys.toList()
+        val rows = mutableListOf(colNames)
+        tableRows.forEach { row ->
+            rows.add(
+                colNames.map { colName ->
+                    row[colName] ?: ""
+                }
+            )
+        }
+        csvWriter().writeAll(rows, outputFile.outputStream())
     }
 }

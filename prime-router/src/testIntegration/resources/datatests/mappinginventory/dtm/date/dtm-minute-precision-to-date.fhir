@@ -1,0 +1,117 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1698961272684681000.40995433-f5b3-4ffa-9e12-73fafe09800c",
+  "meta" : {
+    "lastUpdated" : "2023-11-02T17:41:12.697-04:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "20230816123358"
+  },
+  "type" : "message",
+  "timestamp" : "2023-08-16T13:33:58.000-04:00",
+  "entry" : [
+    {
+      "fullUrl" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435",
+      "resource" : {
+        "resourceType" : "MessageHeader",
+        "id" : "bb504ecd-c2ab-3be3-91d8-6065e2bce435",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+            "valueString" : "^~\\&#"
+          }
+        ],
+        "eventCoding" : {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code" : "R01",
+          "display" : "ORU^R01^ORU_R01"
+        }
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1698961273789724000.4f775503-df15-4ac3-a73b-77b74efef868",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1698961273789724000.4f775503-df15-4ac3-a73b-77b74efef868",
+        "recorded" : "2023-08-16T12:33:58-05:00",
+        "_recorded" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230816123358-0500"
+            }
+          ]
+        },
+        "activity" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                  "valueString" : "identifier"
+                }
+              ],
+              "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+              "code" : "R01",
+              "display" : "ORU_R01"
+            }
+          ]
+        },
+        "agent" : [
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                      "valueString" : "identifier"
+                    }
+                  ],
+                  "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code" : "author"
+                }
+              ]
+            }
+          }
+        ],
+        "entity" : [
+          {
+            "role" : "source",
+            "what" : {
+              "reference" : "Device/1698961273791920000.ce8a8b18-a952-48a5-b7ab-f202a633f693"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Device/1698961273791920000.ce8a8b18-a952-48a5-b7ab-f202a633f693",
+      "resource" : {
+        "resourceType" : "Device",
+        "id" : "1698961273791920000.ce8a8b18-a952-48a5-b7ab-f202a633f693"
+      }
+    },
+    {
+      "fullUrl" : "Patient/1698961273806990000.fe434e0a-bcff-4241-a6fb-aaf19358948a",
+      "resource" : {
+        "resourceType" : "Patient",
+        "id" : "1698961273806990000.fe434e0a-bcff-4241-a6fb-aaf19358948a",
+        "birthDate" : "1970-10-31",
+        "_birthDate" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "197010310304"
+            },
+            {
+              "url" : "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
+              "valueDateTime" : "1970-10-31T03:04:00Z"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -17,6 +17,8 @@ const config = {
     IS_PREVIEW: envVars.OKTA_URL?.match(/oktapreview.com/) !== null,
     API_ROOT: `${envVars.RS_API_URL}/api`,
     RS_DOMAIN: "reportstream.cdc.gov",
-};
+} as const;
+
+export type AppConfig = typeof config;
 
 export default config;

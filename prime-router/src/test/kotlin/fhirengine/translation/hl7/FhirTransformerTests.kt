@@ -1,11 +1,9 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import assertk.assertThat
-import assertk.assertions.hasClass
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
-import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -123,113 +121,60 @@ class FhirTransformerTests {
     fun `test transform with nested schemas`() {
         val bundle = Bundle()
         bundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
 
-        // check for dupes in various scenarios:
-        // root -> A -> C
-        //      -> B
         val elemB =
             FhirTransformSchemaElement("elementB", value = listOf("'654321'"), bundleProperty = "%resource.id")
         val elemC =
             FhirTransformSchemaElement(
                 "elementC",
-                value = listOf("'654321'"),
-                bundleProperty = "%resource.id"
+                value = listOf("'fedcba'"),
+                bundleProperty = "Bundle.entry.resource.ofType(Patient).id"
             )
 
-        val childSchema = FhirTransformSchema(elements = mutableListOf(elemC))
-        val elemA = FhirTransformSchemaElement("elementA", schema = "elementC", schemaRef = childSchema)
+        val childSchema = FhirTransformSchema(elements = mutableListOf(elemB, elemC))
+        val elemA = FhirTransformSchemaElement("elementA", schema = "schema", schemaRef = childSchema)
 
-        val rootSchema =
-            FhirTransformSchema(elements = mutableListOf(elemA, elemB))
-
-        // nobody sharing the same name
-        assertThat(FhirTransformer(rootSchema).transform(bundle).isEmpty).isFalse()
+        val rootSchema = FhirTransformSchema(elements = mutableListOf(elemA))
 
         val newBundle = FhirTransformer(rootSchema).transform(bundle)
         assertThat(newBundle.id).isEqualTo("654321")
-        assertThat(bundle.id).isEqualTo("654321")
-
-        // B/C sharing the same name
-        elemC.name = "elementB"
-        assertThat { FhirTransformer(rootSchema).transform(bundle) }.isFailure()
-            .hasClass(SchemaException::class.java)
-
-        // A/B sharing the same name
-        elemC.name = "elementC"
-        elemA.name = "elementB"
-        assertThat { FhirTransformer(rootSchema).transform(bundle) }.isFailure()
-            .hasClass(SchemaException::class.java)
-
-        // A/C sharing the same name
-        elemA.name = "elementC"
-        assertThat { FhirTransformer(rootSchema).transform(bundle) }.isFailure()
-            .hasClass(SchemaException::class.java)
+        assertThat(newBundle.entry[0].resource.id).isEqualTo("fedcba")
     }
 
     @Test
-    fun `test check for duplicates only checks one nested schema deep`() {
-        // check for dupes in various scenarios:
-        // root -> A -> C -> D
-        //           -> B -> D
-        val schemaD = FhirTransformSchema(
-            elements = mutableListOf(
-                FhirTransformSchemaElement(
-                    "elementD",
-                    value = listOf("'654321'"),
-                    bundleProperty = "%resource.id"
-                )
-            )
-        )
-
-        val schemaB = FhirTransformSchema(
-            elements = mutableListOf(
-                FhirTransformSchemaElement(
-                    "elementB",
-                    schema = "elementD",
-                    schemaRef = schemaD
-                )
-            )
-        )
-
-        val schemaC = FhirTransformSchema(
-            elements = mutableListOf(
-                FhirTransformSchemaElement(
-                    "elementB",
-                    schema = "elementD",
-                    schemaRef = schemaD
-                )
-            )
-        )
-
-        val schemaA = FhirTransformSchema(
-            elements = mutableListOf(
-                FhirTransformSchemaElement(
-                    "elementA-1",
-                    schema = "elementB",
-                    schemaRef = schemaB
-                ),
-                FhirTransformSchemaElement(
-                    "elementA-2",
-                    schema = "elementC",
-                    schemaRef = schemaC
-                )
-            )
-        )
-        val rootSchema = FhirTransformSchema(
-            elements = mutableListOf(
-                FhirTransformSchemaElement(
-                    "element-A",
-                    schema = "elementA",
-                    schemaRef = schemaA
-                )
-            )
-        )
+    fun `test transform with nested schemas and override duplicate elements`() {
         val bundle = Bundle()
         bundle.id = "abc123"
-        // This asserts that
-        // https://github.com/CDCgov/prime-reportstream/blob/e60a3d59d630d6eff690b98b8d49784ccf1fcdf1/prime-router/src/main/kotlin/fhirengine/translation/hl7/schema/ConfigSchema.kt#L52
-        // only checks for duplicates nested twice
-        assertThat(FhirTransformer(rootSchema).transform(bundle).isEmpty).isFalse()
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
+
+        // root: A -> child: B
+        //       B           B
+        val elemB1 =
+            FhirTransformSchemaElement("elementB", value = listOf("'654321'"), bundleProperty = "%resource.id")
+        val elemB2 =
+            FhirTransformSchemaElement(
+                "elementB",
+                value = listOf("'fedcba'"),
+                bundleProperty = "Bundle.entry.resource.ofType(Patient).id"
+            )
+
+        val childSchema = FhirTransformSchema(elements = mutableListOf(elemB1, elemB2))
+        val elemA = FhirTransformSchemaElement("elementA", schema = "schemaB2", schemaRef = childSchema)
+
+        val rootSchema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        val elemBOverride = FhirTransformSchemaElement("elementB", value = listOf("'overrideVal'"))
+        val overrideSchema = FhirTransformSchema(elements = mutableListOf(elemBOverride))
+        rootSchema.override(overrideSchema)
+
+        val newBundle = FhirTransformer(rootSchema).transform(bundle)
+        assertThat(newBundle.id).isEqualTo("overrideVal")
+        assertThat(newBundle.entry[0].resource.id).isEqualTo("overrideVal")
     }
 
     @Test
@@ -623,7 +568,6 @@ class FhirTransformerTests {
 
     @Test
     fun `test split bundleProperty`() {
-
         val transformer = FhirTransformer(FhirTransformSchema())
 
         assertThat(transformer.splitBundlePropertyPath("")).isEmpty()

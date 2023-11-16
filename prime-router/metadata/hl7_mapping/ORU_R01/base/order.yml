@@ -54,14 +54,18 @@ elements:
     hl7Spec: [ '%{hl7Order}-6' ]
 
   - name: order-transaction-time
-    condition: "%resource.extension(%`rsext-business-event`).exists()"
-    value: [ "%resource.extension(%`rsext-business-event`).value" ]
-    hl7Spec: [ '%{hl7Order}-9' ]
+    condition: "%context.extension(%`rsext-business-event`).exists()"
+    resource: "%resource.extension(%`rsext-business-event`).value"
+    constants:
+      dtmFieldPath: '%{hl7Order}-9'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: order-entered-by
-    condition: false
-    value: [ '' ] # Don't have data yet
-    hl7Spec: [ '%{hl7Order}-10' ]
+    resource: '%service.extension(%`rsext-entered-by`).value.resolve()'
+    constants:
+      hl7XCNField: '%{hl7Order}-10'
+    schema: ../../common/datatype/xcn-contact
+    resourceIndex: contactIndex
 
   - name: order-ordering-provider
     resource: '%service.requester.resolve().practitioner.resolve()'
@@ -69,6 +73,12 @@ elements:
       hl7XCNField: '%{hl7Order}-12'
     schema: ../../common/datatype/xcn-contact
     resourceIndex: contactIndex
+
+  - name: order-enterers-location
+    resource: '%service.extension(%`rsext-enterers-location`).value.resolve()'
+    constants:
+      hl7PLField: '%{hl7Order}-13'
+    schema: ../../common/datatype/pl-location
 
   - name: order-callback-phone-number
     resource: '%service.requester.resolve().practitioner.resolve().telecom'
@@ -103,7 +113,7 @@ elements:
 
   - name: ordering-facility-phone
     resource: '%service.requester.resolve().organization.resolve().contact[0].telecom'
-    schema: ../../common/datatype/xtn-telecom
+    schema: ../../datatypes/contactPoint/XTN
     constants:
       hl7TelecomField: '%{hl7Order}-23'
     resourceIndex: telecomIndex
@@ -112,7 +122,7 @@ elements:
   - name: ordering-facility-phone-telecom
     condition: '%service.requester.resolve().organization.resolve().contact.empty()'
     resource: '%service.requester.resolve().organization.resolve().telecom.where(system = "phone")'
-    schema: ../../common/datatype/xtn-telecom
+    schema: ../../datatypes/contactPoint/XTN
     constants:
       hl7TelecomField: '%{hl7Order}-23'
     resourceIndex: telecomIndex

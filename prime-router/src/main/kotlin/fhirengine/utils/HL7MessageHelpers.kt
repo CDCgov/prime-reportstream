@@ -38,8 +38,12 @@ object HL7MessageHelpers : Logging {
             if (messages.isEmpty()) {
                 logger.warn("Unable to extract batch header values from HL7: ${hl7RawMsgs[0].take(80)} ...")
                 null
-            } else Terser(messages[0])
-        } else null
+            } else {
+                Terser(messages[0])
+            }
+        } else {
+            null
+        }
         val time = DTM(null)
         time.setValue(Date())
         // The extraction of these values mimics how the COVID HL7 serializer works

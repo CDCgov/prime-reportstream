@@ -151,6 +151,10 @@ module "function_app" {
   ai_connection_string              = module.application_insights.connection_string
   okta_base_url                     = local.init.okta_base_url
   okta_redirect_url                 = local.init.okta_redirect_url
+  OKTA_scope                        = local.init.OKTA_scope
+  RS_okta_base_url                  = local.init.RS_okta_base_url
+  RS_okta_redirect_url              = local.init.RS_okta_redirect_url
+  RS_OKTA_scope                     = local.init.RS_OKTA_scope
   terraform_caller_ip_address       = local.network.terraform_caller_ip_address
   use_cdc_managed_vnet              = local.network.use_cdc_managed_vnet
   primary_access_key                = module.storage.sa_primary_access_key
@@ -173,6 +177,10 @@ module "function_app" {
   is_temp_env                       = local.is_temp_env
   function_runtime_version          = local.app.function_runtime_version
   storage_account                   = module.storage.storage_account_id
+  OKTA_clientId                     = data.azurerm_key_vault_secret.OKTA_clientId.value
+  OKTA_authKey                      = data.azurerm_key_vault_secret.OKTA_authKey.value
+  RS_OKTA_clientId                  = data.azurerm_key_vault_secret.RS_OKTA_clientId.value
+  RS_OKTA_authKey                   = data.azurerm_key_vault_secret.RS_OKTA_authKey.value
 }
 
 module "front_door" {
@@ -199,7 +207,7 @@ module "front_door" {
 } */
 
 module "sftp_container" {
-  count = local.init.environment != "prod" ? 1 : 0
+  count = local.init.sftp_container_module == true ? 1 : 0
 
   source                = "../../modules/sftp_container"
   environment           = local.init.environment
@@ -227,6 +235,7 @@ module "metabase" {
   postgres_server_name   = module.database.postgres_server_name
   postgres_user          = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass          = data.azurerm_key_vault_secret.postgres_pass.value
+  sendgrid_password      = data.azurerm_key_vault_secret.sendgrid_password.value
   subnets                = module.network.subnets
 }
 

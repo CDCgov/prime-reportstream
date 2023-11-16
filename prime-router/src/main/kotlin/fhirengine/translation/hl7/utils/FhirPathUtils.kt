@@ -1,11 +1,14 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DT
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import org.apache.logging.log4j.kotlin.Logging
-import org.hl7.fhir.r4.context.SimpleWorkerContext
+import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
@@ -26,10 +29,13 @@ import java.time.format.DateTimeParseException
  * Utilities to handle FHIR Path parsing.
  */
 object FhirPathUtils : Logging {
+
+    private val fhirContext = FhirContext.forR4()
+
     /**
      * The FHIR path engine.
      */
-    val pathEngine = FHIRPathEngine(SimpleWorkerContext())
+    val pathEngine = FHIRPathEngine(HapiWorkerContext(fhirContext, fhirContext.validationSupport))
 
     /**
      * The HL7 time format. We are converting from a FHIR TimeType which does not include a time zone.
@@ -47,8 +53,11 @@ object FhirPathUtils : Logging {
      * @throws Exception if the path is invalid
      */
     fun parsePath(fhirPath: String?): ExpressionNode? {
-        return if (fhirPath.isNullOrBlank()) null
-        else pathEngine.parse(fhirPath)
+        return if (fhirPath.isNullOrBlank()) {
+            null
+        } else {
+            pathEngine.parse(fhirPath)
+        }
     }
 
     /**
@@ -60,13 +69,16 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expression: String
+        expression: String,
     ): List<Base> {
         val retVal = try {
             pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
-            if (expressionNode == null) emptyList()
-            else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+            if (expressionNode == null) {
+                emptyList()
+            } else {
+                pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+            }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
             logger.error(
@@ -81,8 +93,9 @@ object FhirPathUtils : Logging {
     }
 
     /**
-     * Gets a boolean result from the given [expression] using [bundle] and starting from a specific [focusResource].
-     * [focusResource] can be the same as [bundle] when starting from the root.
+     * Gets a boolean result from the given [expression] using [rootResource], [contextResource] (which in most cases is
+     * the resource the schema is being evaluated against) and starting from a specific [focusResource].
+     * [focusResource] can be the same as [rootResource] when starting from the root.
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
      * Note that if the [expression] does not evaluate to a boolean then the result is false.
      * @return true if the expression evaluates to true, otherwise false
@@ -91,16 +104,26 @@ object FhirPathUtils : Logging {
     fun evaluateCondition(
         appContext: CustomContext?,
         focusResource: Base,
-        bundle: Bundle,
-        expression: String
+        contextResource: Base,
+        rootResource: Bundle,
+        expression: String,
     ): Boolean {
         val retVal = try {
             pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
-            val value = if (expressionNode == null) emptyList()
-            else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
-            if (value.size == 1 && value[0].isBooleanPrimitive) (value[0] as BooleanType).value
-            else {
+            val value = if (expressionNode == null) {
+                emptyList()
+            } else {
+                pathEngine.evaluate(appContext, focusResource, rootResource, contextResource, expressionNode)
+            }
+            if (value.size == 1 && value[0].isBooleanPrimitive) {
+                (value[0] as BooleanType).value
+            } else if (value.isEmpty()) {
+                // The FHIR utilities that test for booleans only return one if the resource exists
+                // if the resource does not exist, they return []
+                // for the purposes of the evaluating a schema condition that is the same as being false
+                false
+            } else {
                 throw SchemaException("FHIR Path expression did not evaluate to a boolean type: $expression")
             }
         } catch (e: Exception) {
@@ -131,12 +154,17 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expression: String
+        expression: String,
+        element: ConverterSchemaElement? = null,
+        constantSubstitutor: ConstantSubstitutor? = null,
     ): String {
         pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
         val expressionNode = parsePath(expression)
-        val evaluated = if (expressionNode == null) emptyList()
-        else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+        val evaluated = if (expressionNode == null) {
+            emptyList()
+        } else {
+            pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+        }
         return when {
             // If we couldn't evaluate the path we should return an empty string
             evaluated.isEmpty() -> ""
@@ -153,15 +181,29 @@ object FhirPathUtils : Logging {
                 logger.error(msg)
                 throw SchemaException(msg)
             }
+
             // InstantType and DateTimeType are both subclasses of BaseDateTime and can use the same helper
             evaluated[0] is InstantType || evaluated[0] is DateTimeType -> {
                 // There are two translation functions to handle datetime formatting.
                 // If there is a custom translation function, we will call to the function.
                 // Otherwise, we use our old HL7TranslationFunctions to handle the dataTime formatting.
-                appContext?.translationFunctions?.convertDateTimeToHL7(
-                    evaluated[0] as BaseDateTimeType, appContext
-                ) ?: Hl7TranslationFunctions().convertDateTimeToHL7(evaluated[0] as BaseDateTimeType, appContext)
+                if (appContext?.config is HL7TranslationConfig && appContext.translationFunctions != null) {
+                    appContext.translationFunctions.convertDateTimeToHL7(
+                        evaluated[0] as BaseDateTimeType,
+                        appContext,
+                        element,
+                        constantSubstitutor
+                    )
+                } else {
+                    Hl7TranslationFunctions().convertDateTimeToHL7(
+                        evaluated[0] as BaseDateTimeType,
+                        appContext,
+                        element,
+                        constantSubstitutor
+                    )
+                }
             }
+
             evaluated[0] is DateType -> convertDateToHL7(evaluated[0] as DateType)
 
             evaluated[0] is TimeType -> convertTimeToHL7(evaluated[0] as TimeType)

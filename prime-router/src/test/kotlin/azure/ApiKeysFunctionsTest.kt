@@ -224,6 +224,7 @@ class ApiKeysFunctionsTest {
             assertThat(updatedOrg?.keys?.map { key -> key.scope }).isEqualTo(listOf(defaultReportScope))
             assertThat(updatedOrg?.keys?.get(0)?.keys?.get(0)?.toRSAPublicKey()).isEqualTo(jwk2.toRSAPublicKey())
         }
+
         @Test
         fun `Test delete a key returns a 404 if the org does not exist`() {
             settings.organizationStore.put(

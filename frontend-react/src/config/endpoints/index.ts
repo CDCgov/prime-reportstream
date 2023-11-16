@@ -19,7 +19,7 @@ export enum HTTPMethods {
 export interface EndpointConfig {
     path: string;
     method: Method;
-    queryKey?: string;
+    queryKey: string;
 }
 
 export interface AxiosOptionsWithSegments extends AxiosRequestConfig {
@@ -34,12 +34,12 @@ export class RSEndpoint {
     path: string;
     method: Method;
     // optionally used for identifying this endpoint's usage in useQuery hooks
-    queryKey?: string;
+    queryKey: string;
 
     constructor(params: EndpointConfig) {
         this.path = params.path;
         this.method = params.method;
-        this.queryKey = params.queryKey || undefined;
+        this.queryKey = params.queryKey;
     }
 
     get url(): string {

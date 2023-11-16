@@ -6,13 +6,9 @@ import { Helmet } from "react-helmet-async";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
-import {
-    MembershipActionType,
-    MemberType,
-    MembershipSettings,
-} from "../../hooks/UseOktaMemberships";
 import { USNavLink } from "../USLink";
 import { Table } from "../../shared/Table/Table";
+import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(
@@ -21,7 +17,7 @@ export function OrgsTable() {
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
-    const { activeMembership, dispatch } = useSessionContext();
+    const { activeMembership, setActiveMembership } = useSessionContext();
     const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
@@ -36,10 +32,7 @@ export function OrgsTable() {
         ) {
             payload.service = service || "default";
         }
-        dispatch({
-            type: MembershipActionType.ADMIN_OVERRIDE,
-            payload,
-        });
+        setActiveMembership(payload);
     };
 
     const handleEditOrgClick = (orgName: string) => {

@@ -28,7 +28,7 @@ class FHIRFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionLogger: ActionLogger = ActionLogger(),
     private val databaseAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-    private val queueAccess: QueueAccess = QueueAccess
+    private val queueAccess: QueueAccess = QueueAccess,
 ) : Logging {
 
     /**
@@ -40,7 +40,7 @@ class FHIRFunctions(
         @QueueTrigger(name = "message", queueName = elrConvertQueueName)
         message: String,
         // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1
+        @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
         doConvert(message, dequeueCount, FHIRConverter())
     }
@@ -55,7 +55,7 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIREngine,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.convert)
+        actionHistory: ActionHistory = ActionHistory(TaskAction.convert),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
@@ -75,7 +75,7 @@ class FHIRFunctions(
         @QueueTrigger(name = "message", queueName = elrRoutingQueueName)
         message: String,
         // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1
+        @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
         doRoute(message, dequeueCount, FHIRRouter())
     }
@@ -90,7 +90,7 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIRRouter,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.route)
+        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
@@ -110,7 +110,7 @@ class FHIRFunctions(
         @QueueTrigger(name = "message", queueName = elrTranslationQueueName)
         message: String,
         // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1
+        @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
         doTranslate(message, dequeueCount, FHIRTranslator())
     }
@@ -125,7 +125,7 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIRTranslator,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.translate)
+        actionHistory: ActionHistory = ActionHistory(TaskAction.translate),
     ) {
         runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
     }

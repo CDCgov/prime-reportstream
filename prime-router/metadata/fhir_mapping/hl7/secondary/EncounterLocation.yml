@@ -17,6 +17,7 @@ status_2:
     patientClassPlanned: P
 
 location:
+  generateList: true
   valueOf: resource/Location
   expressionType: reference
   specs: PV1.3
@@ -27,3 +28,24 @@ location:
     facility: String, PL.4
   constants:
     locationJoinChar: ","
+
+location_all:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        location:
+          expressionType: reference
+          valueOf: datatypes/PL/Location
+          specs: PV1.6
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7-use
+            valueString:
+              type: STRING
+              value: 'prior-patient-location'

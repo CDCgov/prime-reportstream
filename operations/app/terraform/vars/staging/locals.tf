@@ -2,13 +2,19 @@ locals {
   environment = "staging"
   address_id  = 6
   init = {
-    environment         = local.environment
-    location            = "eastus"
-    is_metabase_env     = true
-    resource_group_name = "prime-data-hub-${local.environment}"
-    resource_prefix     = "pdh${local.environment}"
-    okta_redirect_url   = "https://${local.environment}.prime.cdc.gov/download"
-    okta_base_url       = "hhs-prime.oktapreview.com"
+    environment           = local.environment
+    location              = "eastus"
+    is_metabase_env       = true
+    resource_group_name   = "prime-data-hub-${local.environment}"
+    resource_prefix       = "pdh${local.environment}"
+    okta_redirect_url     = "https://${local.environment}.prime.cdc.gov/download"
+    okta_base_url         = "hhs-prime.oktapreview.com"
+    OKTA_scope            = "simple_report_dev"
+    RS_okta_redirect_url  = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
+    RS_okta_base_url      = "reportstream.oktapreview.com"
+    RS_OKTA_scope         = "reportstream_dev"
+    storage_queue_name    = ["process", "batch", "batch-poison", "elr-fhir-convert", "process-poison", "send", "send-poison", "elr-fhir-convert", "elr-fhir-convert-poison", "elr-fhir-route", "elr-fhir-translate", "elr-fhir-translate-poison", "process-elr"]
+    sftp_container_module = true
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"
@@ -52,7 +58,7 @@ locals {
     use_cdc_managed_vnet        = true
     dns_vnet                    = "East-vnet"
     dns_ip                      = "172.17.0.135"
-    terraform_caller_ip_address = ["162.224.209.174", "24.163.118.70", "75.191.122.59"]
+    terraform_caller_ip_address = jsondecode(data.azurerm_key_vault_secret.caller_ip_addresses.value)
     config = {
       "East-vnet" = {
         "address_space"           = "172.17.${local.address_id}.0/25"
@@ -84,9 +90,9 @@ locals {
         "address_space"           = "172.17.${local.address_id}.128/25"
         "dns_servers"             = ["172.17.0.135"]
         "location"                = "West Us"
-        "subnets"                 = ["public", "private", "container"]
+        "subnets"                 = ["public", "private", "container", "endpoint"]
         "nsg_prefix"              = "westus-"
-        "network_security_groups" = ["private", "public", "container"]
+        "network_security_groups" = ["private", "public", "container", "endpoint"]
         "subnet_cidrs" = [
           {
             name     = "public"

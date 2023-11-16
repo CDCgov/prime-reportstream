@@ -27,11 +27,12 @@ const DropdownComponentHelper = () => {
 };
 
 describe("Render DropdownComponent", () => {
-    beforeEach(() => {
+    function setup() {
         renderApp(<DropdownComponentHelper />);
-    });
+    }
 
     test("Check data as object rendered", () => {
+        setup();
         expect(screen.getByLabelText(/Processing Type/)).toBeInTheDocument();
         expect(screen.getByText(ProcessingType.SYNC)).toBeInTheDocument();
         expect(screen.getByText(ProcessingType.ASYNC)).toBeInTheDocument();
@@ -40,6 +41,7 @@ describe("Render DropdownComponent", () => {
     });
 
     test("test savefunc", () => {
+        setup();
         fireEvent.change(screen.getByRole("combobox"), {
             target: { value: ProcessingType.SYNC },
         });

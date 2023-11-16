@@ -2,8 +2,8 @@ import { screen } from "@testing-library/react";
 
 import { orgServer } from "../__mocks__/OrganizationMockServer";
 import { renderApp } from "../utils/CustomRenderUtils";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
-import { MemberType } from "../hooks/UseOktaMemberships";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { MemberType } from "../utils/OrganizationUtils";
 
 import SenderModeBanner from "./SenderModeBanner";
 
@@ -15,21 +15,22 @@ describe("SenderModeBanner", () => {
     afterAll(() => orgServer.close());
 
     test("renders when sender is testing", async () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+        mockSessionContentReturnValue({
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
                 service: "testSender",
             },
-            dispatch: () => {},
-            initialized: true,
-            isUserAdmin: false,
-            isUserReceiver: false,
-            isUserSender: true,
-            environment: "test",
+
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: true,
+                isUserTransceiver: false,
+            } as any,
         });
         renderApp(<SenderModeBanner />);
         const text = await screen.findByText("Learn more about onboarding.");

@@ -25,9 +25,9 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
@@ -149,7 +149,7 @@ class TranslationTests {
         val sender: String? = null,
         val senderTransform: String?,
         val receiver: String? = null,
-        val conditionFiler: String? = null
+        val conditionFiler: String? = null,
     )
 
     /**
@@ -159,9 +159,12 @@ class TranslationTests {
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
         val config = readTestConfig("$testDataDir/$testConfigFile")
-        return config.map {
+
+        val map1 = config.map {
             DynamicTest.dynamicTest("Test ${it.inputFile}, ${it.expectedSchema} schema", FileConversionTest(it))
         }
+
+        return map1
     }
 
     /**
@@ -227,12 +230,15 @@ class TranslationTests {
             File(filename).extension.uppercase() == "INTERNAL" || filename.uppercase().endsWith("INTERNAL.CSV") -> {
                 Report.Format.INTERNAL
             }
+
             File(filename).extension.uppercase() == "HL7" -> {
                 Report.Format.HL7
             }
+
             File(filename).extension.uppercase() == "FHIR" -> {
                 Report.Format.FHIR
             }
+
             else -> {
                 Report.Format.CSV
             }
@@ -244,6 +250,10 @@ class TranslationTests {
      */
     inner class FileConversionTest(private val config: TestConfig) : Executable {
         override fun execute() {
+            runTest()
+        }
+
+        fun runTest(): CompareData.Result {
             val result = CompareData.Result()
             // First read in the data
             val inputFile = "$testDataDir/${config.inputFile}"
@@ -316,7 +326,9 @@ class TranslationTests {
                             val actualStream = if (inputReport != null) {
                                 val translatedReport = translateReport(inputReport, inputSchema, expectedSchema)
                                 outputReport(translatedReport, config.expectedFormat)
-                            } else fail("Error reading input report.")
+                            } else {
+                                fail("Error reading input report.")
+                            }
                             result.merge(
                                 CompareData().compare(
                                     expectedStream,
@@ -339,22 +351,28 @@ class TranslationTests {
                         result.warnings.joinToString(System.lineSeparator(), "WARNINGS:${System.lineSeparator()}")
                 )
                 // Print the errors and warnings after the test completed successfully.
-                if (result.errors.isNotEmpty()) println(
-                    result.errors
-                        .joinToString(System.lineSeparator(), "ERRORS:${System.lineSeparator()}")
+                if (result.errors.isNotEmpty()) {
+                    println(
+                        result.errors
+                            .joinToString(System.lineSeparator(), "ERRORS:${System.lineSeparator()}")
 
-                )
-                if (result.warnings.isNotEmpty()) println(
-                    result.warnings
-                        .joinToString(
-                            System.lineSeparator(), "WARNINGS:${System.lineSeparator()}"
-                        )
-                )
+                    )
+                }
+                if (result.warnings.isNotEmpty()) {
+                    println(
+                        result.warnings
+                            .joinToString(
+                                System.lineSeparator(), "WARNINGS:${System.lineSeparator()}"
+                            )
+                    )
+                }
             } else if (inputStream == null) {
                 fail("The file ${config.inputFile} was not found.")
             } else {
                 fail("The file ${config.expectedFile} was not found.")
             }
+
+            return result
         }
 
         /**
@@ -380,11 +398,21 @@ class TranslationTests {
             val receiver = settings.receivers.firstOrNull {
                 it.organizationName.plus(".").plus(it.name).lowercase() == receiverName?.lowercase()
             }
-            val maybeConfig = receiver?.let {
-                val maybeHl7Config = it.translation as? Hl7Configuration
-                if (maybeHl7Config != null) {
-                    HL7TranslationConfig(maybeHl7Config, receiver)
-                } else null
+            val translationConfig = if (receiver?.translation is Hl7Configuration) {
+                val hl7Config = receiver.translation as Hl7Configuration
+                HL7TranslationConfig(hl7Config, receiver)
+            } else {
+                HL7TranslationConfig(
+                    Hl7Configuration(
+                        receivingApplicationOID = null,
+                        receivingFacilityOID = null,
+                        messageProfileId = null,
+                        receivingApplicationName = null,
+                        receivingFacilityName = null,
+                        receivingOrganization = null,
+                    ),
+                    null
+                )
             }
 
             if (!config.conditionFiler.isNullOrBlank()) {
@@ -396,8 +424,7 @@ class TranslationTests {
                     val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
                     fhirBundle = FHIRTranslator().pruneBundleForReceiver(fhirBundle, endpoint)
                 } else {
-                    fhirBundle = FHIRBundleHelpers.filterObservations(
-                        fhirBundle,
+                    fhirBundle = fhirBundle.filterObservations(
                         listOf(config.conditionFiler),
                         emptyMap<String, String>().toMutableMap()
                     )
@@ -409,7 +436,7 @@ class TranslationTests {
                 FilenameUtils.getPath(schema),
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
-                    config = maybeConfig,
+                    config = translationConfig,
                     translationFunctions = CustomTranslationFunctions()
                 )
             ).convert(fhirBundle)
@@ -432,7 +459,7 @@ class TranslationTests {
             schema: Schema,
             format: Report.Format,
             result: CompareData.Result,
-            senderName: String? = null
+            senderName: String? = null,
         ): Report? {
             // if we have a sender name we want to work off of, we will look it up by organization name here.
             // NOTE: if you pass in a sender name that does not match anything that exists, you will get a null
@@ -459,6 +486,7 @@ class TranslationTests {
                         result.passed = !readResult.actionLogs.hasErrors()
                         readResult.report
                     }
+
                     Report.Format.INTERNAL -> {
                         CsvSerializer(metadata).readInternal(
                             schema.name,
@@ -466,6 +494,7 @@ class TranslationTests {
                             listOf(TestSource)
                         )
                     }
+
                     Report.Format.CSV -> {
                         val readResult = CsvSerializer(metadata).readExternal(
                             schema.name,
@@ -478,6 +507,7 @@ class TranslationTests {
                         result.passed = !readResult.actionLogs.hasErrors()
                         readResult.report
                     }
+
                     else -> {
                         result.passed = false
                         val actionLogger = ActionLogger()
@@ -509,10 +539,7 @@ class TranslationTests {
          * Outputs a [report] to the specified [format].
          * @return the report output
          */
-        private fun outputReport(
-            report: Report,
-            format: Report.Format
-        ): InputStream {
+        private fun outputReport(report: Report, format: Report.Format): InputStream {
             val outputStream = ByteArrayOutputStream()
             when (format) {
                 Report.Format.HL7_BATCH -> Hl7Serializer(metadata, settings).writeBatch(report, outputStream)

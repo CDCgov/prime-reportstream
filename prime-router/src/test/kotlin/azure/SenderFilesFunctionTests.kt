@@ -33,7 +33,7 @@ class SenderFilesFunctionTests {
 
     private fun buildSenderFilesFunction(
         mockDbAccess: DatabaseAccess? = null,
-        mockBlobAccess: BlobAccess? = null
+        mockBlobAccess: BlobAccess? = null,
     ): SenderFilesFunction {
         val dbAccess = mockDbAccess ?: mockk()
         val blobAccess = mockBlobAccess ?: mockk()
@@ -194,7 +194,7 @@ class SenderFilesFunctionTests {
         every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns listOf(
             SenderItems(senderReportId, 0, receiverReportId, 0)
         )
-        every { BlobAccess.Companion.downloadBlob(any()) } returns body.toByteArray()
+        every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns body.toByteArray()
         every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
         val result = senderFileFunctions.processRequest(functionParams)
@@ -218,7 +218,7 @@ class SenderFilesFunctionTests {
             SenderItems(senderReportId, 0, receiverReportId, 0)
         )
         every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
-        every { BlobAccess.Companion.downloadBlob(any()) } throws IOException("File not found")
+        every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } throws IOException("File not found")
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
         assertThat { senderFileFunctions.processRequest(functionParams) }
             .isFailure()
@@ -241,7 +241,7 @@ class SenderFilesFunctionTests {
         every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns listOf(
             SenderItems(senderReportId, 0, null, 0)
         )
-        every { BlobAccess.Companion.downloadBlob(any()) } returns body.toByteArray()
+        every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns body.toByteArray()
         every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
         val result = senderFileFunctions.processRequest(functionParams)
@@ -262,7 +262,7 @@ class SenderFilesFunctionTests {
         val mockBlobAccess = mockk<BlobAccess>()
         every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns emptyList()
         every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
-        every { BlobAccess.Companion.downloadBlob(any()) } throws IOException("File not found")
+        every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } throws IOException("File not found")
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
         assertThat { senderFileFunctions.processRequest(functionParams) }
             .isFailure()

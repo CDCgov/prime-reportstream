@@ -10,8 +10,11 @@ const TestObjectToolTip = () => {
 };
 
 describe("ObjectTooltip", () => {
-    beforeEach(() => renderApp(<TestObjectToolTip />));
+    function setup() {
+        renderApp(<TestObjectToolTip />);
+    }
     test("Renders stringified JSON value of obj", () => {
+        setup();
         const element = screen.getByText(/00:00/);
         expect(element).toBeInTheDocument();
     });

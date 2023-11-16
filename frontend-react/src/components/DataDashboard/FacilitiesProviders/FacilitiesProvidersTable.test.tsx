@@ -2,8 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import {
     orgServer,
     receiversGenerator,
@@ -12,6 +11,7 @@ import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organiz
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
 import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
 
@@ -63,32 +63,33 @@ describe("FacilitiesProvidersTable", () => {
     afterAll(() => orgServer.close());
 
     describe("useOrganizationReceiversFeed without data", () => {
-        beforeEach(() => {
+        function setup() {
             // Mock our receiverServices feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
-                loadingServices: false,
-                services: [],
+                isLoading: false,
+                data: [],
                 setActiveService: () => {},
                 isDisabled: false,
-            });
+            } as any);
 
             // Mock our SessionProvider's data
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
 
             // Mock the response from the Submitters hook
@@ -98,35 +99,48 @@ describe("FacilitiesProvidersTable", () => {
                 isLoading: false,
             };
             mockUseReceiverSubmitter.mockReturnValue(
-                mockUseReceiverSubmitterCallback,
+                mockUseReceiverSubmitterCallback as any,
             );
 
             // Render the component
             renderApp(<FacilitiesProvidersTable />);
-        });
+        }
 
-        test("if no activeService display NoServicesBanner", async () => {
-            const heading = await screen.findByText(
-                /Active Services unavailable/i,
-            );
+        test("if no active service display NoServicesBanner", async () => {
+            setup();
+            const heading = await screen.findByText(/No available data/i);
             expect(heading).toBeInTheDocument();
-            const message = await screen.findByText(
-                /No valid receiver found for your organization/i,
-            );
-            expect(message).toBeInTheDocument();
         });
     });
 });
 
 describe("FacilitiesProvidersTable", () => {
     describe("with receiver services and data", () => {
-        beforeEach(() => {
+        function setup() {
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: mockActiveReceiver,
-                loadingServices: false,
-                services: mockReceivers,
+                isLoading: false,
+                data: mockReceivers,
                 setActiveService: () => {},
                 isDisabled: false,
+            } as any);
+
+            // Mock our SessionProvider's data
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
+                activeMembership: {
+                    memberType: MemberType.RECEIVER,
+                    parsedName: "testOrgNoReceivers",
+                    service: "testReceiver",
+                },
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
 
             const mockUseReceiverSubmitterCallback = {
@@ -135,14 +149,15 @@ describe("FacilitiesProvidersTable", () => {
                 isLoading: false,
             };
             mockUseReceiverSubmitter.mockReturnValue(
-                mockUseReceiverSubmitterCallback,
+                mockUseReceiverSubmitterCallback as any,
             );
 
             // Render the component
             renderApp(<FacilitiesProvidersTable />);
-        });
+        }
 
         test("renders with no error", async () => {
+            setup();
             // Column headers render
             expect(screen.getByText("Name")).toBeInTheDocument();
             expect(screen.getByText("Location")).toBeInTheDocument();
@@ -153,6 +168,7 @@ describe("FacilitiesProvidersTable", () => {
         });
 
         test("renders Facility type column with transformed name", async () => {
+            setup();
             expect(screen.getAllByText("SUBMITTER")[0]).toBeInTheDocument();
         });
     });

@@ -6,7 +6,6 @@ hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
 constants:
   simpleReportClia: '"CDPH000085"'
-  outOfStateSimpleReportClia: '"CDPH000075"'
   simpleReportName: '"Simple Report"'
   timezone: '"PST8PDT"'
 extends: ../../../ORU_R01/ORU_R01-base
@@ -53,24 +52,39 @@ elements:
     condition: true
     resource: 'Bundle'
     value: [ '%simpleReportName' ]
+    hl7Spec: [ MSH-4-1 ]
 
   - name: sending-facility-universal-id
     condition: true
     resource: 'Bundle'
     value: [ '%simpleReportClia' ]
-
-  # If state where the test was requested or performed is not in CA
-  # set to Simple Report's CLIA out of sate
-  - name: sending-facility-universal-id-out-of-state
-    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.where(state != "CA").exists() 
-      or Bundle.entry.resource.ofType(Observation).performer.resolve().address.where(state != "CA").exists()'
-    value: [ '%outOfStateSimpleReportClia' ]
     hl7Spec: [ MSH-4-2 ]
 
   - name: sending-facility-universal-id-type
     condition: true
     resource: 'Bundle'
     value: [ '"CLIA"' ]
+    hl7Spec: [ MSH-4-3 ]
+
+  - name: message-character-set
+    value: [ '%resource.extension(%`rsext-character-set`).value', '"UNICODE UTF-8"' ]
+
+  # The SR FHIR sends a value in event.display that does not align with HL7 -> FHIR
+  # inventory, so it is overridden here
+  - name: message-event-coding
+    condition: false
+
+  - name: message-event-code-code
+    value: [ '"ORU"' ]
+    hl7Spec: [ MSH-9-1 ]
+
+  - name: message-event-code-trigger-event
+    value: [ '"R01"' ]
+    hl7Spec: [ MSH-9-2 ]
+
+  - name: message-event-code-message-structure
+    value: [ '"ORU_R01"' ]
+    hl7Spec: [ MSH-9-3 ]
 
   - name: message_profile_id
     value: [ '"PHLabReport-NoAck"' ]
@@ -90,11 +104,24 @@ elements:
 
   # SFT-1-2
   - name: software-vendor-name-type
-    condition: false
+    condition: true
+    value: [ '' ]
+    hl7Spec: [ SFT-1-2 ]
+
 
   # SFT-1-6
-  - name: software-vendor-assigning-authority
-    condition: false
+  - name: software-vendor-assigning-authority-1
+    condition: true
+    value: [ '' ]
+    hl7Spec: [ SFT-1-6-1 ]
+  - name: software-vendor-assigning-authority-2
+    condition: true
+    value: [ '' ]
+    hl7Spec: [ SFT-1-6-2 ]
+  - name: software-vendor-assigning-authority-3
+    condition: true
+    value: [ '' ]
+    hl7Spec: [ SFT-1-6-3 ]
 
   # SFT-3
   - name: software-name
@@ -113,7 +140,14 @@ elements:
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve()'
 
-  # OBX CWE-CE
+  # OBX-2
+  - name: result-value-type-ce
+    condition: '%resource is CodeableConcept'
+
+  - name: result-value-type-cwe
+    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
+
+  # OBX-3
   - name: observation-identifier-code
     condition: false
 
@@ -137,9 +171,66 @@ elements:
   - name: patient-assigning-authority
     value: [ '%patientOrganization.name.substring(0,20)' ]
 
+  # PID-10-2 gets either display or text
+  - name: patient-race-display
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
+    value:
+      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].display'
+      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text'
+    hl7Spec: [ '%{hl7PIDField}-10-2' ]
+
+  # PID-10-3 for default value
+  - name: patient-race-coding-system
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
+    value: [ '"HL70005"' ]
+    hl7Spec: [ '%{hl7PIDField}-10-3' ]
+
+  # PID-22 use coded element mapping
+  - name: patient-ethnicity
+    constants:
+      ceFieldPath: '%{hl7PIDField}-22'
+    schema: ../../../common/datatype/ce-coded-element
+
   - name: ca-patient
     resource: 'Bundle.entry.resource.ofType(Patient)'
     condition: '%resource.count() = 1'
     constants:
       hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
     schema: ca-patient
+
+  # NTE
+  - name: note-source
+    value: [ '%noteDetails.extension(%`rsext-note-source`).value.coding.code', '"L"' ]
+
+  # Simple report puts the code in a different spot than what we generate in HL7 -> FHIR conversion
+  - name: xon-organization-name-type
+    value: [ '%resource.value.coding[0].code' ]
+
+  # Simple report sends a different format that what we generate in the HL7 -> FHIR conversion
+  # See https://github.com/CDCgov/prime-reportstream/blob/829a2e297785864d65813d7f248e9b2de9a5b0d2/prime-router/src/testIntegration/resources/datatests/FHIR_to_FHIR/sample_AOE_1_20230220-0001.fhir#L1133
+  # vs
+  # https://github.com/CDCgov/prime-reportstream/blob/829a2e297785864d65813d7f248e9b2de9a5b0d2/prime-router/src/testIntegration/resources/datatests/FHIR_to_HL7/sample_RADx_MARS_20230406-0002.fhir#L1170
+  - name: xon-assigning-authority
+    resource: '%resource'
+
+  - name: designator-namespace-id-from-name
+    condition: >
+      %resource.is(Organization).not() and
+      %resource.system.exists().not() and 
+      %resource.extension(%`namespaceExtName`).exists().not() and 
+      %resource.value.exists().not() and 
+      %resource.name.exists()
+
+  # override xpn-person-name.use to set a default
+  - name: use
+    value: [ '%resource.use', '"official"' ]
+
+  # OBX-10
+  - name: order-entered-by
+    condition: false
+
+  # XTN
+  - name: xtn-use-code-from-system
+    condition: '%resource.system = "email"'
+    value: [ '"NET"' ]
+    hl7Spec: [ '%{hl7TelecomPath}-2' ]

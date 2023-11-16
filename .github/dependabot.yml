@@ -5,108 +5,103 @@
 
 version: 2
 updates:
-  # Maintain dependencies for GitHub Actions Workflows
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/operations"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/prime-router"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/.environment/docker/docker-compose"
+    schedule:
+      interval: "weekly"
+
+  # GitHub Actions workflows
   - package-ecosystem: "github-actions"
-    # Workflow files stored in the
-    # default location of `.github/workflows`
+    # Workflow files stored in `.github/workflows`
     directory: "/"
     schedule:
       interval: "daily"
-
-  # Maintain dependencies for GitHub Actions custom actions
+  # GitHub local actions
   # These entries need to be updated for every new action created
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/Start-AzFunction"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/Start-PostgresDB"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/Stop-AzFunction"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/Stop-PostgresDB"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/notifications"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/build-backend"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/build-frontend"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/build-vars"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/db-backup"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/db-query"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/db-restore"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/demo-env"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/deploy-backend"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/deploy-frontend"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/mount-share"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/runner-ip"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/sonarcloud"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/vpn-azure"
     schedule:
       interval: "daily"
 
-  # FRONTEND
-  # All packages weekly
+  # Frontend
   - package-ecosystem: "npm"
     directory: "/frontend-react"
     open-pull-requests-limit: 100
@@ -117,6 +112,9 @@ updates:
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
     groups:
+      types-lodash:
+        patterns:
+          - "@types/lodash*"
       babel:
         patterns:
           - "@babel*"
@@ -179,12 +177,8 @@ updates:
         patterns:
           - "*react-query*"
 
-  # OPERATIONS
-  - package-ecosystem: "docker"
-    directory: "/operations"
-    schedule:
-      interval: "weekly"
-
+  # IAC
+  # hashicorp/azurerm >= 3.0.0 has breaking changes
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/app_service_plan"
     schedule:
@@ -294,13 +288,7 @@ updates:
     schedule:
       interval: "weekly"
 
-  # ROUTER
-  - package-ecosystem: "docker"
-    directory: "/prime-router"
-    schedule:
-      interval: "weekly"
-
-  # All packages weekly
+  # Backend
   - package-ecosystem: "gradle"
     directory: "/prime-router"
     open-pull-requests-limit: 100
@@ -311,12 +299,21 @@ updates:
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
     groups:
+      hapifhir:
+        patterns:
+          - "ca.uhn.hapi.fhir:hapi-fhir*"
+      azurestorage:
+        patterns:
+          - "com.azure:azure-storage*"
+      azurecore:
+        patterns:
+          - "com.azure:azure-core*"
       bouncycastle:
         patterns:
           - "org.bouncycastle:bc*"
       testcontainers:
         patterns:
-          - "org.testcontainers:*"
+          - "org.testcontainers*"
       log4j:
         patterns:
           - "org.apache.logging.log4j:log4j*"

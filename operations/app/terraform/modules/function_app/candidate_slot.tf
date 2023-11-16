@@ -1,10 +1,3 @@
-locals {
-  slots = {
-    active : azurerm_function_app.function_app
-    candidate : azurerm_function_app_slot.candidate
-  }
-}
-
 resource "azurerm_function_app_slot" "candidate" {
   function_app_name          = azurerm_function_app.function_app.name
   name                       = "candidate"
@@ -58,11 +51,7 @@ resource "azurerm_function_app_slot" "candidate" {
     }
   }
 
-  app_settings = merge(local.all_app_settings, {
-    "POSTGRES_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
-    # HHS Protect Storage Account
-    "PartnerStorage" = var.primary_connection_string
-  })
+  app_settings = local.candidate_slot_settings
 
   identity {
     type = "SystemAssigned"
@@ -77,15 +66,7 @@ resource "azurerm_function_app_slot" "candidate" {
       # Allows Docker versioning via GitHub Actions
       site_config[0].linux_fx_version,
       storage_account_access_key,
-      tags,
-      app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
-      app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
-      app_settings["DOCKER_REGISTRY_SERVER_PASSWORD"],
-      app_settings["POSTGRES_PASSWORD"],
-      app_settings["POSTGRES_USER"],
-      app_settings["PartnerStorage"],
-      app_settings["AzureWebJobs.send.Disabled"],
-      app_settings["AzureWebJobs.emailScheduleEngine.Disabled"]
+      tags
     ]
   }
 }

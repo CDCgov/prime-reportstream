@@ -4,10 +4,11 @@ import React, {
     SetStateAction,
     useMemo,
     useEffect,
+    ReactNode,
+    useCallback,
 } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
-import { ReactNode } from "react-markdown/lib/react-markdown";
 
 import Table, {
     ColumnConfig,
@@ -29,8 +30,6 @@ import {
     handleErrorWithAlert,
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../../components/AuthElement";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import Spinner from "../../../components/Spinner";
 import { TableRowData } from "../../../components/Table/TableRows";
@@ -140,8 +139,9 @@ export const ValueSetsDetailTable = ({
     error?: Error;
     Legend?: ReactNode; //  not using this yet, but may want to some day
 }) => {
-    const { saveData, isSaving } = useValueSetUpdate();
-    const { activateTable, isActivating } = useValueSetActivation();
+    const { mutateAsync: saveData, isPending: isSaving } = useValueSetUpdate();
+    const { mutateAsync: activateTable, isPending: isActivating } =
+        useValueSetActivation();
     useEffect(() => {
         if (error) {
             handleErrorWithAlert({
@@ -168,6 +168,36 @@ export const ValueSetsDetailTable = ({
     const datasetActionItem: DatasetAction = {
         label: "Add item",
     };
+
+    const editCallback = useCallback(
+        async (row: any) => {
+            try {
+                const dataToSave = prepareRowsForSave(
+                    row,
+                    valueSetsWithIds,
+                    valueSetName,
+                );
+                const saveResponse = await saveData({
+                    data: dataToSave,
+                    tableName: valueSetName,
+                });
+                await activateTable({
+                    tableVersion: saveResponse.tableVersion,
+                    tableName: valueSetName,
+                });
+            } catch (e: any) {
+                handleErrorWithAlert({
+                    logMessage: "Error occurred saving value set",
+                    error: e,
+                    setAlert,
+                });
+                return;
+            }
+            setAlert({ type: "success", message: "Value Saved" });
+        },
+        [activateTable, saveData, setAlert, valueSetName, valueSetsWithIds],
+    );
+
     /* Mutations do not support Suspense */
     if (isSaving || isActivating) return <Spinner />;
     return (
@@ -179,45 +209,23 @@ export const ValueSetsDetailTable = ({
             datasetAction={datasetActionItem}
             config={tableConfig}
             enableEditableRows
-            editableCallback={async (row) => {
-                try {
-                    const dataToSave = prepareRowsForSave(
-                        row,
-                        valueSetsWithIds,
-                        valueSetName,
-                    );
-                    const saveResponse = await saveData({
-                        data: dataToSave,
-                        tableName: valueSetName,
-                    });
-                    await activateTable({
-                        tableVersion: saveResponse.tableVersion,
-                        tableName: valueSetName,
-                    });
-                } catch (e: any) {
-                    handleErrorWithAlert({
-                        logMessage: "Error occurred saving value set",
-                        error: e,
-                        setAlert,
-                    });
-                    return;
-                }
-                setAlert({ type: "success", message: "Value Saved" });
-            }}
+            editableCallback={editCallback}
         />
     );
 };
 
 const ValueSetsDetailContent = () => {
     const { valueSetName } = useParams<{ valueSetName: string }>();
+    if (!valueSetName) throw new Error("Value set name missing");
     // TODO: when to unset?
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
 
-    const { valueSetArray } = useValueSetsTable<ValueSetRow[]>(valueSetName!!);
-    const { valueSetMeta } = useValueSetsMeta(valueSetName);
+    const { data: valueSetArray } =
+        useValueSetsTable<ValueSetRow[]>(valueSetName);
+    const { data: valueSetMeta } = useValueSetsMeta(valueSetName);
 
     const readableName = useMemo(
-        () => toHumanReadable(valueSetName!!),
+        () => toHumanReadable(valueSetName),
         [valueSetName],
     );
 
@@ -240,19 +248,15 @@ const ValueSetsDetailContent = () => {
                     />
                 )}
                 <ValueSetsDetailTable
-                    valueSetName={valueSetName!!}
+                    valueSetName={valueSetName}
                     setAlert={setAlert}
-                    valueSetData={valueSetArray || []}
+                    valueSetData={valueSetArray ?? []}
                 />
             </section>
         </>
     );
 };
-export const ValueSetsDetail = () =>
+export const ValueSetsDetailPage = () =>
     withCatchAndSuspense(<ValueSetsDetailContent />);
-export const ValueSetsDetailWithAuth = () => (
-    <AuthElement
-        element={<ValueSetsDetail />}
-        requiredUserType={MemberType.PRIME_ADMIN}
-    />
-);
+
+export default ValueSetsDetailPage;

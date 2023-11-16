@@ -36,7 +36,8 @@ object CustomFHIRFunctions : FhirPathFunctions {
         GetIdType,
         HasPhoneNumberExtension,
         ChangeTimezone,
-        ConvertDateToAge;
+        ConvertDateToAge,
+        ;
 
         companion object {
             /**
@@ -60,7 +61,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
      */
     override fun resolveFunction(
         functionName: String?,
-        additionalFunctions: FhirPathFunctions?
+        additionalFunctions: FhirPathFunctions?,
     ): FHIRPathEngine.IEvaluationContext.FunctionDetails? {
         return when (CustomFHIRFunctionNames.get(functionName)) {
             CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
@@ -135,7 +136,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
         focus: MutableList<Base>?,
         functionName: String?,
         parameters: MutableList<MutableList<Base>>?,
-        additionalFunctions: FhirPathFunctions?
+        additionalFunctions: FhirPathFunctions?,
     ): MutableList<Base> {
         check(focus != null)
         return (
@@ -257,7 +258,9 @@ object CustomFHIRFunctions : FhirPathFunctions {
             val stringToSplit = focus.first().primitiveValue()
 
             stringToSplit.split(delimiter).map { StringType(it) }.toMutableList()
-        } else mutableListOf()
+        } else {
+            mutableListOf()
+        }
     }
 
     /**
@@ -267,13 +270,17 @@ object CustomFHIRFunctions : FhirPathFunctions {
     enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
         ICD10("http://hl7.org/fhir/sid/icd-10-cm", "I10"),
         LOINC("http://loinc.org", "LN"),
+        LOCAL("https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL", "L"),
         SNOMED_CLINICAL("http://snomed.info/sct", "SCT"),
         HL70189("http://terminology.hl7.org/CodeSystem/v2-0189", "HL70189"),
+        HL70005("http://terminology.hl7.org/CodeSystem/v3-Race", "HL70005"),
         HL70006("http://terminology.hl7.org/CodeSystem/v2-0006", "HL70006"),
         HL70136("http://terminology.hl7.org/ValueSet/v2-0136", "HL70136"),
         HL70078("http://terminology.hl7.org/CodeSystem/v2-0078", "HL70078"),
+        HL70131("http://terminology.hl7.org/CodeSystem/v2-0131", "HL70131"),
         UCUM("http://unitsofmeasure.org", "UCUM"),
-        NONE("", "");
+        NONE("", ""),
+        ;
 
         companion object {
             /**
@@ -391,7 +398,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
      */
     fun changeTimezone(
         focus: MutableList<Base>,
-        parameters: MutableList<MutableList<Base>>?
+        parameters: MutableList<MutableList<Base>>?,
     ): MutableList<Base> {
         if (focus.size != 1) {
             throw SchemaException("Must call changeTimezone on a single element")
@@ -420,6 +427,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
             TemporalPrecisionEnum.YEAR, TemporalPrecisionEnum.MONTH, TemporalPrecisionEnum.DAY, null -> mutableListOf(
                 inputDate
             )
+
             TemporalPrecisionEnum.MINUTE, TemporalPrecisionEnum.SECOND, TemporalPrecisionEnum.MILLI -> mutableListOf(
                 DateTimeType(inputDate.value, inputDate.precision, timezonePassed)
             )

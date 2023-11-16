@@ -1,0 +1,129 @@
+name: SonarCloud
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "prime-router/**"
+      - "frontend-react/**"
+
+env:
+  # These are for CI and not credentials of any system
+  DB_USER: prime
+  DB_PASSWORD: changeIT!
+
+jobs:
+  sonarcloud:
+    if: github.actor != 'dependabot[bot]'
+    name: "SonarCloud/CodeQL scan"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["java-kotlin"]
+
+    steps:
+      - name: Increase swapfile
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 15G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          sudo swapon --show
+
+      - name: "Check out everything"
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          fetch-depth: 0
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@ab304d8562e2f137165e1d930e6d22d431189074
+        
+      - name: "Get changed files with yaml"
+        id: changed-files-yaml
+        uses: tj-actions/changed-files@25ef3926d147cd02fc7e931c1ef50772bbb0d25d
+        with:
+          files_yaml: |
+            frontend:
+              - 'frontend-react/**'
+            backend:
+              - 'prime-router/**'
+
+      - name: Set up JDK 17
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "gradle"
+
+      - name: Gradle Validation
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
+
+      - name: Spin up build containers
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        working-directory: prime-router
+        run: docker-compose -f docker-compose.postgres.yml up -d
+
+      - name: Initialize CodeQL
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: github/codeql-action/init@df32e399139a3050671466d7d9b3cbacc1cfd034
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Build Prime Router Package
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        working-directory: prime-router
+        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar
+
+      - name: Perform Java CodeQL Analysis
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: github/codeql-action/analyze@df32e399139a3050671466d7d9b3cbacc1cfd034
+
+      - name: Use Node.js with yarn
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65
+        with:
+          node-version-file: "frontend-react/package.json"
+
+      - name: Yarn
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        run: yarn install
+        working-directory: frontend-react
+
+      - name: Frontend Coverage
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        run: yarn jest --coverage --silent --maxWorkers=100%
+        working-directory: frontend-react
+
+      - name: Run SonarCloud Scan master or full
+        if: ( steps.changed-files-yaml.outputs.frontend_any_changed == 'true' && steps.changed-files-yaml.outputs.backend_any_changed == 'true' ) || steps.branch-name.outputs.is_default == 'true'
+        uses: ./.github/actions/sonarcloud
+        with:
+          scan-level: default
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Run SonarCloud Scan frontened
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' && steps.changed-files-yaml.outputs.backend_any_changed == 'false' && steps.branch-name.outputs.is_default == 'false'
+        uses: ./.github/actions/sonarcloud
+        with:
+          scan-level: frontend
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Run SonarCloud Scan backend
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'false' && steps.changed-files-yaml.outputs.backend_any_changed == 'true' && steps.branch-name.outputs.is_default == 'false'
+        uses: ./.github/actions/sonarcloud
+        with:
+          scan-level: backend
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}

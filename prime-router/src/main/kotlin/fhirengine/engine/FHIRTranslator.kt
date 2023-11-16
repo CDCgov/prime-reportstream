@@ -25,9 +25,9 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.deleteResource
+import gov.cdc.prime.router.fhirengine.utils.getResourceReferences
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
@@ -58,7 +58,7 @@ class FHIRTranslator(
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         logger.trace("Translating FHIR file for receivers.")
         // pull fhir document and parse FHIR document
@@ -121,7 +121,7 @@ class FHIRTranslator(
      */
     internal fun getByteArrayFromBundle(
         receiver: Receiver,
-        bundle: Bundle
+        bundle: Bundle,
     ) = when (receiver.format) {
         Report.Format.FHIR -> {
             if (receiver.schemaName.isNotEmpty()) {
@@ -130,10 +130,12 @@ class FHIRTranslator(
             }
             FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
         }
+
         Report.Format.HL7, Report.Format.HL7_BATCH -> {
             val hl7Message = getHL7MessageFromBundle(bundle, receiver)
             hl7Message.encodePreserveEncodingChars().toByteArray()
         }
+
         else -> {
             error("Receiver format ${receiver.format} not supported.")
         }
@@ -221,8 +223,9 @@ class FHIRTranslator(
     internal fun Bundle.removeUnwantedProvenanceEndpoints(receiverEndpoint: Endpoint): Bundle {
         val provenance = this.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         provenance.target.map { it.resource }.filterIsInstance<Endpoint>().forEach {
-            if (it != receiverEndpoint)
+            if (it != receiverEndpoint) {
                 this.deleteResource(it)
+            }
         }
         return this
     }

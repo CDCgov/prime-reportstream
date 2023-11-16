@@ -2,20 +2,17 @@ import React, { useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 
 import Spinner from "../Spinner";
-import { AuthElement } from "../AuthElement";
-import { withCatchAndSuspense } from "../RSErrorBoundary";
 import { USLink } from "../USLink";
 import { showError } from "../AlertNotifications";
 import { ApiKey } from "../../config/endpoints/settings";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
 import Alert from "../../shared/Alert/Alert";
 import { FeatureName } from "../../utils/FeatureName";
-import { trackAppInsightEvent } from "../../utils/Analytics";
+import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
 
 import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
@@ -26,7 +23,8 @@ import ManagePublicKeyConfigured from "./ManagePublicKeyConfigured";
 export const CONTENT_TYPE = "application/x-x509-ca-cert";
 export const FORMAT = "PEM";
 
-export function ManagePublicKey() {
+export function ManagePublicKeyPage() {
+    const { appInsights } = useAppInsightsContext();
     const [hasPublicKey, setHasPublicKey] = useState(false);
     const [uploadNewPublicKey, setUploadNewPublicKey] = useState(false);
     const [sender, setSender] = useState("");
@@ -42,7 +40,7 @@ export function ManagePublicKey() {
     const {
         mutateAsync,
         isSuccess,
-        isLoading: isUploading,
+        isPending: isUploading,
     } = useCreateOrganizationPublicKey();
 
     const featureEvent = `${FeatureName.PUBLIC_KEY}`;
@@ -76,13 +74,16 @@ export function ManagePublicKey() {
                 sender: sender,
             });
         } catch (e: any) {
-            trackAppInsightEvent(featureEvent, {
-                fileUpload: {
-                    status: `Error: ${e.toString()}`,
-                    fileName: file?.name,
-                    fileType: file?.type,
-                    fileSize: file?.size,
-                    sender: sender,
+            appInsights?.trackEvent({
+                name: featureEvent,
+                properties: {
+                    fileUpload: {
+                        status: `Error: ${e.toString()}`,
+                        fileName: file?.name,
+                        fileType: file?.type,
+                        fileSize: file?.size,
+                        sender: sender,
+                    },
                 },
             });
             showError(`Uploading public key failed. ${e.toString()}`);
@@ -145,13 +146,16 @@ export function ManagePublicKey() {
     const hasUploadError = fileSubmitted && !isUploading && !isSuccess;
 
     if (isSuccess) {
-        trackAppInsightEvent(featureEvent, {
-            fileUpload: {
-                status: "Success",
-                fileName: file?.name,
-                fileType: file?.type,
-                fileSize: file?.size,
-                sender: sender,
+        appInsights?.trackEvent({
+            name: featureEvent,
+            properties: {
+                fileUpload: {
+                    status: "Success",
+                    fileName: file?.name,
+                    fileType: file?.type,
+                    fileSize: file?.size,
+                    sender: sender,
+                },
             },
         });
     }
@@ -171,8 +175,8 @@ export function ManagePublicKey() {
                     </p>
                     <Alert type="tip" className="margin-bottom-6">
                         <span className="padding-left-1">
-                            Learn more about
-                            <USLink href="/resources/api/getting-started#set-up-authentication">
+                            Learn more about{" "}
+                            <USLink href="/developer-resources/api/getting-started#set-up-authentication">
                                 generating your public key
                             </USLink>{" "}
                             and setting up authentication.
@@ -208,9 +212,4 @@ export function ManagePublicKey() {
     );
 }
 
-export const ManagePublicKeyWithAuth = () => (
-    <AuthElement
-        element={withCatchAndSuspense(<ManagePublicKey />)}
-        requiredUserType={MemberType.SENDER}
-    />
-);
+export default ManagePublicKeyPage;
