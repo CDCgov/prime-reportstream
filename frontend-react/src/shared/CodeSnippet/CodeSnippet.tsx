@@ -16,7 +16,7 @@ export const CodeSnippet = ({ children, copyString }: CodeSnippetProps) => {
      * causes it to remount (thus forcing tooltip position recalculation).
      */
     const CopyTooltip = useCallback(
-        ({ children }: React.PropsWithChildren) => (
+        () => (
             <Tooltip
                 className="fixed-tooltip"
                 position="left"
@@ -26,7 +26,7 @@ export const CodeSnippet = ({ children, copyString }: CodeSnippetProps) => {
                     setIsCopied(true);
                 }}
             >
-                {children}
+                <Icon.ContentCopy className="position" />
             </Tooltip>
         ),
         [isCopied, copyString],
@@ -44,9 +44,7 @@ export const CodeSnippet = ({ children, copyString }: CodeSnippetProps) => {
     return (
         <pre className={classnames(styles.CodeSnippet, "grid-row")}>
             <code className="tablet:grid-col code_snippet">{children}</code>
-            <CopyTooltip>
-                <Icon.ContentCopy className="position" />
-            </CopyTooltip>
+            <CopyTooltip></CopyTooltip>
         </pre>
     );
 };
