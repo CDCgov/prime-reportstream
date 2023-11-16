@@ -93,4 +93,9 @@ resources:
       - PATIENT_RESULT.PATIENT.VISIT.PV1
       # NOTE:  PID and PV1 are passed because they are used by the created Service Request
 
+  - resourceName: Device
+    segment: .PRT
+    group: PATIENT_RESULT.PATIENT.PATIENT_OBSERVATION
+    resourcePath: segments/PRT/Device
+
 # TODO Add more segments as we develop them

@@ -9886,8 +9886,25 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "placer-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123.1"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -9898,7 +9915,6 @@
                 }
               ]
             },
-            "system" : "urn:id:M12776123.1",
             "value" : "09339017"
           },
           {
@@ -10565,8 +10581,25 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "placer-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123.2"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -10577,7 +10610,6 @@
                 }
               ]
             },
-            "system" : "urn:id:M12776123.2",
             "value" : "09339017"
           },
           {
@@ -11264,8 +11296,25 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "placer-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123.3"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -11276,7 +11325,6 @@
                 }
               ]
             },
-            "system" : "urn:id:M12776123.3",
             "value" : "09339017"
           },
           {
