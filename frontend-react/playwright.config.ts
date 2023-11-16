@@ -77,10 +77,11 @@ export default defineConfig<TestOptions>({
         // },
     ],
 
-    /* Run your local dev server before starting the tests */
+    /* Run the local dev server and start the tests */
     webServer: {
         command: "yarn run preview",
         url: "http://localhost:4173",
+        timeout: 1000 * 180,
         // reuseExistingServer: !process.env.CI,
     },
 });

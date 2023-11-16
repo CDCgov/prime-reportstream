@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
 
-
 test.describe("Homepage", () => {
     test.beforeEach(async ({ page }) => {
         await page.goto("/");
@@ -12,10 +11,15 @@ test.describe("Homepage", () => {
     test("has About link", async ({ page }) => {
         await page
             .getByTestId("header")
-            .getByRole("link", { name: "About" })
+            .getByTestId("navDropDownButton")
             .click();
 
-        await expect(page).toHaveURL(/product\/overview/);
+        await expect(page.getByText("About ReportStream")).toBeTruthy();
+        await expect(page.getByText("Our network")).toBeTruthy();
+        await expect(page.getByText("News")).toBeTruthy();
+        await expect(page.getByText("Case studies")).toBeTruthy();
+        await expect(page.getByText("Security")).toBeTruthy();
+        await expect(page.getByText("Release notes")).toBeTruthy();
     });
 
     test("has Getting Started link", async ({ page }) => {
