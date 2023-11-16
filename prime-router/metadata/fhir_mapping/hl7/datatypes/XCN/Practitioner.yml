@@ -9,6 +9,7 @@ identifier:
   expressionType: nested
   vars:
     xcnhd1: String, XCN.9.1
+    xcnhd2: String, XCN.9.2
     xcnhd3: String, XCN.9.3
     xcn9: STRING_ALL, XCN.9
     xcn11: String, XCN.11
@@ -46,8 +47,7 @@ identifier:
           constants:
             prefix: "urn:oid:"
           vars:
-            uri: String, XCN.9.2
-            join: $prefix + $uri
+            join: $prefix + $xcnhd2
           valueOf: $join
         - condition: $xcnhd1 NULL && $xcnhd3 EQUALS UUID
           expressionType: HL7Spec
@@ -55,8 +55,7 @@ identifier:
           constants:
             prefix: "urn:uuid:"
           vars:
-            uri: String, XCN.9.2
-            join: $prefix + $uri
+            join: $prefix + $xcnhd2
           valueOf: $join
     type:
       condition: $xcn13 NOT_NULL
