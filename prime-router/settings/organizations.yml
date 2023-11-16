@@ -104,19 +104,19 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/original-pipeline-transforms
       format: HL7
     - name: dev-simple-report      # Use this to test full-elr
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/original-pipeline-transforms
       format: FHIR
     - name: ignore-etor-ti      # Use this to test etor-ti
       organizationName: ignore
       topic: etor-ti
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/original-pipeline-transforms
       format: HL7
     - name: ignore-elr-elims      # Use this to test elr-elims
       organizationName: ignore
