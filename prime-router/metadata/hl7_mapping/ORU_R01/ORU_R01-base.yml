@@ -61,5 +61,5 @@ elements:
     condition: 'Bundle.entry.resource.ofType(Device).udiCarrier.exists()'
     constants:
       hl7SegmentGroup: '/PATIENT_RESULT/PATIENT/PATIENT_OBSERVATION'
-    schema: ../common/participation-information
+    schema: ../resources/Device/PRT
     resourceIndex: orderIndex

@@ -15,5 +15,5 @@ elements:
     resource: '%resource.udiCarrier.where(extension(%`rsext-hl7-use`).value = "device-udi-carrier")'
     constants:
       eiFieldPath: '%{hl7PRTFieldPath}(%{entityIdIndex})-10'
-    schema: ../datatypes/device-udiCarrier/EI
+    schema: ../../datatypes/device-udiCarrier/EI
     resourceIndex: entityIdIndex
