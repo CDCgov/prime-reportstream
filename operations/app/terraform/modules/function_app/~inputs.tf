@@ -35,6 +35,11 @@ variable "okta_redirect_url" {
   description = "Okta Redirect URL"
 }
 
+variable "RS_okta_redirect_url" {
+  type        = string
+  description = "Okta Redirect URL"
+}
+
 variable "terraform_caller_ip_address" {
   type        = list(string)
   description = "The IP address of the Terraform script caller. This IP will have already been whitelisted; it's inclusion is to prevent its removal during terraform apply calls."
@@ -79,6 +84,10 @@ variable "okta_base_url" {}
 variable "OKTA_authKey" {}
 variable "OKTA_clientId" {}
 variable "OKTA_scope" {}
+variable "RS_okta_base_url" {}
+variable "RS_OKTA_authKey" {}
+variable "RS_OKTA_clientId" {}
+variable "RS_OKTA_scope" {}
 
 variable "subnets" {
   description = "A set of all available subnet combinations"
