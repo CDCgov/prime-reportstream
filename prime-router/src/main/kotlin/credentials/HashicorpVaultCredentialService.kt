@@ -2,6 +2,7 @@ package gov.cdc.prime.router.credentials
 
 import gov.cdc.prime.router.cli.CommandUtilities
 import io.ktor.client.HttpClient
+import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.json.JSONObject
 
@@ -11,13 +12,18 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
     private val VAULT_TOKEN: String by lazy { System.getenv("VAULT_TOKEN") ?: "" }
 
     override fun fetchCredential(connectionId: String, httpClient: HttpClient?): Credential? {
-        val (_, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = CommandUtilities.getWithStringResponse(
             url = "$VAULT_API_ADDR/v1/secret/$connectionId",
             hdr = mapOf("X-Vault-Token" to VAULT_TOKEN),
             httpClient = httpClient
         )
-        val credentialJson = JSONObject(respStr).getJSONObject("data").toString()
-        return Credential.fromJSON(credentialJson)
+
+        return if (response.status == HttpStatusCode.OK) {
+            val credentialJson = JSONObject(respStr).getJSONObject("data").toString()
+            Credential.fromJSON(credentialJson)
+        } else {
+            null
+        }
     }
 
     override fun saveCredential(connectionId: String, credential: Credential, httpClient: HttpClient?) {

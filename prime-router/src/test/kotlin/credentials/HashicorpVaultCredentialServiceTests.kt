@@ -3,10 +3,14 @@ package gov.cdc.prime.router.credentials
 // import net.wussmann.kenneth.mockfuel.MockFuelClient
 // import net.wussmann.kenneth.mockfuel.MockFuelStore
 // import net.wussmann.kenneth.mockfuel.data.MockResponse
+import com.sendgrid.Method
 import gov.cdc.prime.router.cli.ApiMockEngine
 import io.ktor.client.HttpClient
+import io.ktor.client.request.HttpRequestData
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 internal class HashicorpVaultCredentialServiceTests {
@@ -17,33 +21,15 @@ internal class HashicorpVaultCredentialServiceTests {
         url: String,
         status: HttpStatusCode,
         body: String,
+        f: ((request: HttpRequestData) -> Unit)? = null,
     ): HttpClient {
         return ApiMockEngine(
                 url,
                 status,
-                body
+                body,
+                f = f
             ).client()
     }
-
-//    private val mockFuelStore = MockFuelStore()
-//    private val credentialService = spyk(HashicorpVaultCredentialService, recordPrivateCalls = true)
-
-//    @BeforeTest
-//    fun setUp() {
-//        every { credentialService getProperty "VAULT_API_ADDR" } returns VAULT_API_ADDR
-//        every { credentialService getProperty "VAULT_TOKEN" } returns VAULT_TOKEN
-//        every { credentialService getProperty "manager" } returns credentialService.initVaultApi(
-//            FuelManager().apply {
-//                client = MockFuelClient(mockFuelStore)
-//            }
-//        )
-//    }
-
-//    @AfterTest
-//    fun tearDown() {
-//        unmockkObject(credentialService)
-//        mockFuelStore.reset()
-//    }
 
     @Test
     fun `uses Vault api to fetch a credential`() {
@@ -60,34 +46,25 @@ internal class HashicorpVaultCredentialServiceTests {
         assertTrue(creds is UserPassCredential)
         assertTrue(creds.user == "user")
         assertTrue(creds.pass == "pass")
-//        mockFuelStore.verifyRequest {
-//            assertMethod(Method.GET)
-//            assertPath("/v1/secret/$CONNECTION_ID")
-//            assertHeader("X-Vault-Token", VAULT_TOKEN)
-//        }
     }
 
     @Test
     fun `uses Vault api to fetch a missing credential`() {
-//        val creds: Credential? = HashicorpVaultCredentialService.fetchCredential(
-//            CONNECTION_ID,
-//            "HashicorpVaultCredentialServiceTests",
-//            CredentialRequestReason.AUTOMATED_TEST,
-//            httpClient = getMockClient(
-//                url = "/v1/secret/$CONNECTION_ID",
-//                HttpStatusCode.BadRequest,
-//                body = """{"data":{"@type":"UserPass","user":"user","pass":"pass"}}"""
-//            )
-//        )
-//        println("================ $creds")
-//        assertTrue(creds == null)
-
-//        mockFuelStore.verifyRequest {
-//            assertMethod(Method.GET)
-//            assertPath("/v1/secret/$CONNECTION_ID")
-//            assertHeader("X-Vault-Token", VAULT_TOKEN)
-//        }
-//        assertThat(credential).isNull()
+        val creds: Credential? = HashicorpVaultCredentialService.fetchCredential(
+            CONNECTION_ID,
+            "HashicorpVaultCredentialServiceTests",
+            CredentialRequestReason.AUTOMATED_TEST,
+            httpClient = getMockClient(
+                url = "/v1/secret/$CONNECTION_ID",
+                HttpStatusCode.BadRequest,
+                body = """{"data":{"@type":"UserPass","user":"user","pass":"pass"}}"""
+            ) {
+                assertTrue(it.headers.contains("X-Vault-Token"))
+                assertEquals(it.method.value, Method.GET.toString())
+                assertEquals(it.url.encodedPath, "/v1/secret/$CONNECTION_ID")
+            }
+        )
+        assertNull(creds, "Expect null return for the fetch credential...")
     }
 
     @Test
@@ -100,23 +77,12 @@ internal class HashicorpVaultCredentialServiceTests {
                 url = "/v1/secret/$CONNECTION_ID",
                 HttpStatusCode.NoContent,
                 body = ""
-            )
+            ) {
+                assertTrue(it.headers.contains("X-Vault-Token"))
+                assertEquals(it.method.value, Method.POST.toString())
+                assertEquals(it.url.encodedPath, "/v1/secret/$CONNECTION_ID")
+            }
         )
-//        mockFuelStore.on(Method.POST, "/v1/secret/$CONNECTION_ID") {
-//            MockResponse(204)
-//        }
-
-//        credentialService.saveCredential(
-//            CONNECTION_ID, VALID_CREDENTIAL, "HashicorpVaultCredentialServiceTests"
-//        )
-
-//        mockFuelStore.verifyRequest {
-//            assertMethod(Method.POST)
-//            assertPath("/v1/secret/$CONNECTION_ID")
-//            assertHeader("X-Vault-Token", VAULT_TOKEN)
-//            assertHeader("Content-Type", "application/json")
-//            assertBody("""{"@type":"UserPass","user":"user1","pass":"pass1"}""")
-//        }
     }
 
     companion object {
