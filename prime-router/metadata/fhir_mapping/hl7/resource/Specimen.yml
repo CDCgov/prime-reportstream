@@ -14,8 +14,6 @@ identifier_1:
     spm21: SPM.2.1
     eip2: SPM.2.2
   constants:
-    system: "http://terminology.hl7.org/CodeSystem/v2-0203"
-    code: "PGN"
     hl7Use: "specimen-id-placer"
 
 identifier_2:
@@ -28,8 +26,6 @@ identifier_2:
     spm22: SPM.2.2
     eip1: SPM.2.1
   constants:
-    system: "http://terminology.hl7.org/CodeSystem/v2-0203"
-    code: "FGN"
     hl7Use: "specimen-id-filler"
 
 status:

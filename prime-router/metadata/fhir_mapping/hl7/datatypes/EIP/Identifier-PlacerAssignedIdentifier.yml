@@ -4,7 +4,6 @@ value:
   expressionType: HL7Spec
 
 type:
-  condition: $code NOT_NULL && $system NOT_NULL
   expressionType: nested
   expressionsMap:
     coding:
@@ -15,10 +14,10 @@ type:
           expressionsMap:
             code:
               type: STRING
-              valueOf: $code
+              valueOf: "PGN"
             system:
               type: STRING
-              valueOf: $system
+              valueOf: "http://terminology.hl7.org/CodeSystem/v2-0203"
 
 extension_1:
   generateList: true
