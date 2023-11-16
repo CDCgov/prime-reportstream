@@ -44,7 +44,7 @@
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "MSH.25"
+                "valueString" : "receiving-network-address"
               }
             ],
             "name" : "Receiving Network",
@@ -104,7 +104,7 @@
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-            "valueString" : "MSH.23"
+            "valueString" : "receiving-responsible-organization"
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon3-id-number",

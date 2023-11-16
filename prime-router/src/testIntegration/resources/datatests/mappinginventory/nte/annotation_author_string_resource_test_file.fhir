@@ -81,7 +81,7 @@
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "MSH.5"
+                "valueString" : "receiving-application"
               }
             ],
             "name" : "ReportStream",
@@ -110,7 +110,7 @@
             },
             {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-              "valueString" : "MSH.3"
+              "valueString" : "sending-application"
             }
           ],
           "name" : "RS.CDC.Stag",
@@ -126,7 +126,7 @@
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-            "valueString" : "MSH.6"
+            "valueString" : "receiving-facility"
           }
         ],
         "identifier" : [

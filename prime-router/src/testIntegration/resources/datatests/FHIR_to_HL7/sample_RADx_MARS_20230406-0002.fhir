@@ -47,7 +47,7 @@
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "MSH.5"
+                "valueString" : "receiving-application"
               }
             ],
             "name" : "DCEED.ELR",
@@ -90,7 +90,7 @@
             },
             {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-              "valueString" : "MSH.3"
+              "valueString" : "sending-application"
             }
           ],
           "name" : "MEDITECH",
@@ -140,7 +140,7 @@
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-            "valueString" : "MSH.6"
+            "valueString" : "receiving-facility"
           }
         ],
         "identifier" : [

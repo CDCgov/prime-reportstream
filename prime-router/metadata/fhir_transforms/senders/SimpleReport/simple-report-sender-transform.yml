@@ -28,7 +28,7 @@ elements:
     condition: true
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
-    value: [ '"MSH.3"' ]
+    value: [ '"sending-application"' ]
 
   # Order Filler identifier - this was being populated in CA receiver transforms
   #                           should've been a sender transform in the first place since

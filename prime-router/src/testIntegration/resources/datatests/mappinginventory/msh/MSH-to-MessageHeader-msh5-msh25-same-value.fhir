@@ -61,7 +61,7 @@
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "MSH.5"
+                "valueString" : "receiving-application"
               }
             ],
             "name" : "Sending App",

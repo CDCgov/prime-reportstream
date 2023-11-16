@@ -47,13 +47,13 @@ receiver:
       specs: $msh6
       valueOf: datatypes/HD/Organization
       constants:
-        hdOrganizationHL7Use: MSH.6
+        hdOrganizationHL7Use: receiving-facility
     - condition: $msh6 NULL && $msh23 NOT_NULL
       expressionType: reference
       specs: $msh23
       valueOf: datatypes/XON/Organization
       constants:
-        xonOrganizationHL7Use: MSH.23
+        xonOrganizationHL7Use: receiving-responsible-organization
 
 
 extension:

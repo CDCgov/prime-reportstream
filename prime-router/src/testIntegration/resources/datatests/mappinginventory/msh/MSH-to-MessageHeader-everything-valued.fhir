@@ -152,7 +152,7 @@
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "MSH.5"
+                "valueString" : "receiving-application"
               }
             ],
             "name" : "Receiving Application",
@@ -173,7 +173,7 @@
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "MSH.25"
+                "valueString" : "receiving-network-address"
               }
             ],
             "name" : "Receiving Network",
@@ -207,7 +207,7 @@
             },
             {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-              "valueString" : "MSH.3"
+              "valueString" : "sending-application"
             }
           ],
           "endpoint" : "urn:oid:2.1.3.1"
@@ -225,7 +225,7 @@
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-            "valueString" : "MSH.6"
+            "valueString" : "receiving-facility"
           }
         ],
         "identifier" : [
@@ -273,7 +273,7 @@
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-            "valueString" : "MSH.6"
+            "valueString" : "receiving-facility"
           }
         ],
         "identifier" : [
@@ -411,7 +411,7 @@
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-            "valueString" : "MSH.23"
+            "valueString" : "receiving-responsible-organization"
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon3-id-number",

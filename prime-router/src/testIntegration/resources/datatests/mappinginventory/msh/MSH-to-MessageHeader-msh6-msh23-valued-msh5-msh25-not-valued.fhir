@@ -63,7 +63,7 @@
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-            "valueString" : "MSH.6"
+            "valueString" : "receiving-facility"
           }
         ],
         "identifier" : [
@@ -201,7 +201,7 @@
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-            "valueString" : "MSH.23"
+            "valueString" : "receiving-responsible-organization"
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon3-id-number",
