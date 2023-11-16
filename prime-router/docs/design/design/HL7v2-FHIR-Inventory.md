@@ -7,7 +7,7 @@ inventory does not specify how to map from FHIR to HL7.
 
 ## Translating from FHIR to HL7
 
-In many cases, the FHIR bundle created from strictly following the inventory does not have enough information to
+In many cases, the FHIR bundle created by strictly following the inventory does not have enough information to
 deterministically
 create an HL7 message. A few examples on when this can occur:
 
