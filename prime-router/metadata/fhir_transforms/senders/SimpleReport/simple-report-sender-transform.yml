@@ -98,21 +98,33 @@ elements:
   # Order Observation Request placer identifier - this was being populated in CA receiver transforms
   #                                               should've been a sender transform in the first place since
   #                                               this is needed for NY too
-  - name: sr-observation-request-identifier-placer
-    bundleProperty: '%diagnosticReport.identifier[1].type.coding.code'
-    value: [ '"PLAC"' ]
-
   - name: sr-observation-request-identifier-placer-value
     bundleProperty: '%diagnosticReport.identifier[1].value'
     value: [ '%diagnosticReport.identifier[0].value' ]
 
-  - name: sr-observation-request-identifier-placer-system
-    bundleProperty: '%diagnosticReport.identifier[1].system'
+  - name: sr-observation-request-identifier-placer-hl7-use
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
+    value: [ '"placer-order-number"' ]
+
+  - name: sr-observation-request-identifier-placer-namespace-id
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
 
-  - name: sr-observation-request-identifier-placer-id
-    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+  - name: sr-observation-request-identifier-placer-universal-id
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
+
+  - name: sr-observation-request-identifier-placer-universal-id-type
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.type.coding[0].code' ]
+
+  - name: sr-observation-request-identifier-placer-type-coding-code
+    bundleProperty: '%diagnosticReport.identifier[1].type.coding[0].code'
+    value: [ '"PLAC"' ]
+
+  - name: sr-observation-request-identifier-placer-type-coding-system
+    bundleProperty: '%diagnosticReport.identifier[1].type.coding[0].system'
+    value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
 
   # SR sends AOEs under ServiceRequest.supportingInfo, but our FHIR to HL7 mappings map Observations
   # under supportingInfo to SPM OBX segments. To be able to exclude this Observations from being map under SPM we need

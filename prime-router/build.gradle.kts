@@ -801,10 +801,10 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.45.0")
     implementation("com.azure:azure-core-http-netty:1.13.10")
-    implementation("com.azure:azure-storage-blob:12.24.1") {
+    implementation("com.azure:azure-storage-blob:12.25.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.19.1") {
+    implementation("com.azure:azure-storage-queue:12.20.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.7.1") {
@@ -890,9 +890,9 @@ dependencies {
     implementation("commons-io:commons-io: 2.15.0")
     implementation("com.anyascii:anyascii:0.3.2")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
-    implementation("org.jsoup:jsoup:1.16.1")
+    implementation("org.jsoup:jsoup:1.16.2")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
-    implementation("io.swagger:swagger-annotations:1.6.11")
+    implementation("io.swagger:swagger-annotations:1.6.12")
     implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.15")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
