@@ -1,7 +1,8 @@
+import { render } from "../../utils/Test/render";
 import {
-    mockGetSavedFeatureFlags,
-    mockStoreFeatureFlags,
-} from "../../utils/__mocks__/SessionStorageTools";
+    getSavedFeatureFlags,
+    storeFeatureFlags,
+} from "../../utils/SessionStorageTools";
 
 import {
     featureFlagReducer,
@@ -21,8 +22,11 @@ vi.mock("../../config", async () => {
         },
     };
 });
-
+vi.mock("../../utils/SessionStorageTools");
 vi.unmock("./");
+
+const mockGetSavedFeatureFlags = vi.mocked(getSavedFeatureFlags);
+const mockStoreFeatureFlags = vi.mocked(storeFeatureFlags);
 
 const providerValueMonitor = vi.fn();
 
@@ -81,7 +85,7 @@ describe("featureFlagReducer", () => {
     });
 });
 
-describe.skip("FeatureFlagProvider", () => {
+describe("FeatureFlagProvider", () => {
     const mockSavedFlags = ["flag-1", "flag-2"];
     function setup() {
         mockGetSavedFeatureFlags.mockReturnValue(mockSavedFlags);

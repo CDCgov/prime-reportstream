@@ -1,5 +1,7 @@
 import { screen, within } from "@testing-library/react";
 
+import { render } from "../../utils/Test/render";
+
 import { QualityFilters } from "./QualityFilters";
 
 describe("QualityFilters component", () => {

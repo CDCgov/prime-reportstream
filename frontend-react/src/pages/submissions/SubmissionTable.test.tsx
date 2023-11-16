@@ -4,6 +4,7 @@ import { screen, within } from "@testing-library/react";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 import { MemberType } from "../../utils/OrganizationUtils";
+import { render } from "../../utils/Test/render";
 
 import SubmissionTable from "./SubmissionTable";
 

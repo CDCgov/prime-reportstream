@@ -12,7 +12,7 @@ export function RSErrorBoundary(props: React.PropsWithChildren) {
             fallback={<ErrorPage type="message" />}
             onError={(exception, info) => {
                 if (!isRSNetworkError(exception)) {
-                    console.warn(
+                    rsconsole.dev(
                         "Please work to migrate all non RSError throws to use an RSError object.",
                     );
                 }

@@ -1,5 +1,7 @@
 import { screen } from "@testing-library/react";
 
+import { render } from "../utils/Test/render";
+
 import Title from "./Title";
 
 describe("Title component", () => {

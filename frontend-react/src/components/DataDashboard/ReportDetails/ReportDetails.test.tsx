@@ -5,6 +5,7 @@ import {
     mockUseReportsFacilities,
 } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
+import { render } from "../../../utils/Test/render";
 
 import { ReportDetailsPage } from "./ReportDetails";
 

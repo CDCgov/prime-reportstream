@@ -10,6 +10,7 @@ import { UseOrganizationPublicKeysResult } from "../../hooks/network/Organizatio
 import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
 import { MemberType } from "../../utils/OrganizationUtils";
+import { render } from "../../utils/Test/render";
 
 import { ManagePublicKeyPage } from "./ManagePublicKey";
 
@@ -182,7 +183,7 @@ describe("ManagePublicKey", () => {
     });
 
     describe("when the senders public key has already been configured", () => {
-        function setup() {
+        async function setup() {
             mockUseOrganizationSenders({
                 isLoading: false,
                 data: DEFAULT_SENDERS.slice(0, 1),
@@ -209,13 +210,16 @@ describe("ManagePublicKey", () => {
                     },
                 },
             });
+            await waitFor(() =>
+                expect(
+                    screen.getByText("Your public key is already configured."),
+                ).toBeVisible(),
+            );
         }
 
+        // TODO: remove skip when functionality reenabled
         test.skip("shows the configured screen and allows the user to upload a new public key", async () => {
-            setup();
-            expect(
-                screen.getByText("Your public key is already configured."),
-            ).toBeVisible();
+            await setup();
 
             await waitFor(async () => {
                 await userEvent.click(
@@ -229,10 +233,7 @@ describe("ManagePublicKey", () => {
         });
 
         test("shows the configured screen and displays a message to the user", async () => {
-            setup();
-            expect(
-                screen.getByText(/Your public key is already configured./),
-            ).toBeVisible();
+            await setup();
             expect(screen.getByText("Contact ReportStream")).toBeVisible();
             expect(
                 screen.getByText(/to upload a new public key./),

@@ -6,6 +6,7 @@ import {
     MemberType,
 } from "../../../utils/OrganizationUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
+import { render } from "../../../utils/Test/render";
 
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
 

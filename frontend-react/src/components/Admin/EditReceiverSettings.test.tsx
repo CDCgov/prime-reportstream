@@ -3,6 +3,7 @@ import { rest } from "msw";
 
 import config from "../../config";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
+import { render } from "../../utils/Test/render";
 
 import { EditReceiverSettingsPage } from "./EditReceiverSettings";
 

@@ -6,6 +6,7 @@ import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import config from "../../config";
 import { mockCtx } from "../../contexts/Toast/__mocks__";
+import { render } from "../../utils/Test/render";
 
 import { EditSenderSettingsPage } from "./EditSenderSettings";
 

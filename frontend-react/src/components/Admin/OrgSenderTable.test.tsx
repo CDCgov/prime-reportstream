@@ -1,6 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
+import { render } from "../../utils/Test/render";
 
 import { OrgSenderTable } from "./OrgSenderTable";
 

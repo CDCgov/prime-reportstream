@@ -1,6 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { RSSender } from "../../config/endpoints/settings";
+import { render } from "../../utils/Test/render";
 
 import ManagePublicKeyChooseSender, {
     ManagePublicKeyChooseSenderProps,

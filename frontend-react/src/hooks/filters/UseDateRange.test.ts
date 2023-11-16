@@ -1,4 +1,4 @@
-import { act } from "@testing-library/react";
+import { renderHook, waitFor } from "../../utils/Test/render";
 
 import useDateRange, {
     getEndOfDay,
@@ -14,9 +14,9 @@ describe("UseDateRange", () => {
         });
     });
 
-    test("dispatch can update From", () => {
+    test("dispatch can update From", async () => {
         const { result } = renderHook(() => useDateRange());
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: RangeSettingsActionType.UPDATE_FROM,
                 payload: {
@@ -30,9 +30,9 @@ describe("UseDateRange", () => {
         });
     });
 
-    test("dispatch can update To", () => {
+    test("dispatch can update To", async () => {
         const { result } = renderHook(() => useDateRange());
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: RangeSettingsActionType.UPDATE_TO,
                 payload: {
@@ -46,9 +46,9 @@ describe("UseDateRange", () => {
         });
     });
 
-    test("dispatch can reset range", () => {
+    test("dispatch can reset range", async () => {
         const { result } = renderHook(() => useDateRange());
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: RangeSettingsActionType.UPDATE_TO,
                 payload: {
@@ -56,7 +56,7 @@ describe("UseDateRange", () => {
                 },
             }),
         );
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: RangeSettingsActionType.RESET,
             }),
@@ -67,9 +67,9 @@ describe("UseDateRange", () => {
         });
     });
 
-    test("reset backdoor for manual update", () => {
+    test("reset backdoor for manual update", async () => {
         const { result } = renderHook(() => useDateRange());
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: RangeSettingsActionType.RESET,
                 payload: {

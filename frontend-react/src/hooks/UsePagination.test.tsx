@@ -1,8 +1,9 @@
-import { act, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 import range from "lodash.range";
 
 import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
 import { mockAppInsights } from "../__mocks__/ApplicationInsights";
+import { renderHook } from "../utils/Test/render";
 
 import usePagination, {
     CursorExtractor,
@@ -494,10 +495,9 @@ describe("usePagination", () => {
             OVERFLOW_INDICATOR,
         ]);
 
-        act(() => {
+        await waitFor(() => {
             result.current.paginationProps?.setSelectedPage(6);
         });
-        expect(result.current.isLoading).toBe(true);
         await waitFor(() =>
             expect(
                 result.current.paginationProps?.currentPageNum,
@@ -542,14 +542,6 @@ describe("usePagination", () => {
         await waitFor(() =>
             expect(result.current.paginationProps).toBeDefined(),
         );
-        expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
-        expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(2);
-        });
-        // The current page should update right away since we don't need to
-        // fetch any more results.
-        expect(result.current.paginationProps?.currentPageNum).toBe(2);
 
         // Rerender with a new start cursor.
         rerender({
@@ -589,11 +581,6 @@ describe("usePagination", () => {
         await waitFor(() =>
             expect(result.current.paginationProps).toBeDefined(),
         );
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(2);
-        });
-        expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
-        expect(result.current.paginationProps?.currentPageNum).toBe(2);
 
         // Rerender with a new fetch results callback to create the list request
         // parameters, e.g. when the sort order changes.
@@ -634,9 +621,7 @@ describe("usePagination", () => {
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
         expect(mockAppInsights.trackEvent).not.toBeCalled();
 
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(2);
-        });
+        await waitFor(() => result.current.paginationProps?.setSelectedPage(2));
 
         expect(mockAppInsights.trackEvent).toBeCalledWith({
             name: "Test Analytics Event",

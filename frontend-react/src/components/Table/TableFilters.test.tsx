@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 
 import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
+import { render } from "../../utils/Test/render";
 
 import TableFilters, {
     TableFilterDateLabel,
@@ -41,7 +42,7 @@ describe("Rendering", () => {
         expect(datePickers).toHaveLength(2);
     });
 
-    test.only("Clicking on filter invokes the onFilterClick handler", async () => {
+    test("Clicking on filter invokes the onFilterClick handler", async () => {
         setup();
         await userEvent.click(screen.getByText("Filter"));
 

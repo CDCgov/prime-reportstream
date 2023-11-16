@@ -1,7 +1,5 @@
-import { act } from "@testing-library/react";
-
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
-import { AppWrapper, renderHook } from "../utils/Test/Render";
+import { renderHook, waitFor } from "../utils/Test/render";
 
 import { useValueSetActivation } from "./UseValueSets";
 
@@ -11,9 +9,7 @@ describe("useValueSetActivation", () => {
     afterAll(() => lookupTableServer.close());
 
     const renderWithAppWrapper = () =>
-        renderHook(() => useValueSetActivation(), {
-            wrapper: AppWrapper(),
-        });
+        renderHook(() => useValueSetActivation());
 
     test("returns trigger and loading indicator", () => {
         const { result } = renderWithAppWrapper();
@@ -29,7 +25,7 @@ describe("useValueSetActivation", () => {
         expect(isPending).toEqual(false);
 
         let activateResult;
-        await act(async () => {
+        await waitFor(async () => {
             const activationPromise = mutateAsync({
                 tableVersion: 1,
                 tableName: "any",

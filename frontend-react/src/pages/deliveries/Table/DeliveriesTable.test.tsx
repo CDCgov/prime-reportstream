@@ -6,6 +6,7 @@ import { receiversGenerator } from "../../../__mocks__/OrganizationMockServer";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { MemberType } from "../../../utils/OrganizationUtils";
+import { render } from "../../../utils/Test/render";
 
 import DeliveriesTable from "./DeliveriesTable";
 

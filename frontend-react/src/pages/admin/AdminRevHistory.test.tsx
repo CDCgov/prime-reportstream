@@ -5,6 +5,7 @@ import {
     SettingRevision,
     SettingRevisionParams,
 } from "../../network/api/Organizations/SettingRevisions";
+import { render } from "../../utils/Test/render";
 
 import { _exportForTesting } from "./AdminRevHistory";
 

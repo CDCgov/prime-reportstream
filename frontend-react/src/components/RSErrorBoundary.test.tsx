@@ -2,13 +2,18 @@ import { screen } from "@testing-library/react";
 import { AxiosError } from "axios";
 
 import { RSNetworkError } from "../utils/RSNetworkError";
-import { mockConsole } from "../__mocks__/console";
 import { mockRsconsole } from "../utils/console/__mocks__";
 import { defaultCtx } from "../contexts/Session/__mocks__";
+import { render } from "../utils/Test/render";
+import silenceVirtualConsole, {
+    restoreVirtualConsole,
+} from "../utils/Test/silenceVirtualConsole";
 
 import { RSErrorBoundary } from "./RSErrorBoundary";
 
-const rsError = new RSNetworkError(new AxiosError("rsnetwork error test"));
+const rsError = new RSNetworkError(
+    new AxiosError("RSErrorBoundary error test"),
+);
 
 // Dummy components for testing
 const ThrowsRSError = (): JSX.Element => {
@@ -16,12 +21,11 @@ const ThrowsRSError = (): JSX.Element => {
 };
 
 describe("RSErrorBoundary", () => {
-    beforeAll(() => {
-        // shut up react's auto console.error
-        mockConsole.error.mockImplementation(() => void 0);
+    beforeEach(() => {
+        silenceVirtualConsole();
     });
-    afterAll(() => {
-        mockConsole.error.mockRestore();
+    afterEach(() => {
+        restoreVirtualConsole();
     });
     test("Catches error", () => {
         render(

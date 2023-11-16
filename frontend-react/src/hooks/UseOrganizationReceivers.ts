@@ -29,7 +29,7 @@ export const useOrganizationReceivers = () => {
         ...useQuery({
             queryKey: [receivers.queryKey, activeMembership],
             queryFn: memoizedDataFetch,
-            enabled: !isAdmin,
+            enabled: !isAdmin && !!parsedName,
         }),
         isDisabled: isAdmin,
     };

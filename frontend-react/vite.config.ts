@@ -90,13 +90,12 @@ export default defineConfig(async ({ mode }) => {
             globals: true,
             environment: "jsdom",
             setupFiles: ["src/setupTests.ts"],
-            //clearMocks: true,
             restoreMocks: true,
             coverage: {
                 // lcov added for sonar
                 reporter: ["text", "html", "clover", "json", "lcov"],
             },
-            //reporters: ["default"],
+            reporters: ["default"],
             experimentalVmThreads: true, // makes tests faster
         },
     };

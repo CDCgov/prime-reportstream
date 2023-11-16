@@ -1,4 +1,4 @@
-import { act } from "@testing-library/react";
+import { renderHook, waitFor } from "../../utils/Test/render";
 
 import useCursorManager, { CursorActionType } from "./UseCursorManager";
 
@@ -25,9 +25,9 @@ describe("Cursors", () => {
         });
     });
 
-    test("dispatch successfully adds next cursor", () => {
+    test("dispatch successfully adds next cursor", async () => {
         const { result } = renderHook(() => useCursorManager("one"));
-        act(() => {
+        await waitFor(() => {
             result.current.update({
                 type: CursorActionType.ADD_NEXT,
                 payload: "two",
@@ -40,9 +40,9 @@ describe("Cursors", () => {
         });
     });
 
-    test("dispatch successfully pages up", () => {
+    test("dispatch successfully pages up", async () => {
         const { result } = renderHook(() => useCursorManager("one"));
-        act(() => {
+        await waitFor(() => {
             result.current.update({
                 type: CursorActionType.ADD_NEXT,
                 payload: "two",
@@ -61,9 +61,9 @@ describe("Cursors", () => {
         });
     });
 
-    test("dispatch successfully pages down", () => {
+    test("dispatch successfully pages down", async () => {
         const { result } = renderHook(() => useCursorManager("one"));
-        act(() => {
+        await waitFor(() => {
             result.current.update({
                 type: CursorActionType.ADD_NEXT,
                 payload: "two",
@@ -88,9 +88,9 @@ describe("Cursors", () => {
         });
     });
 
-    test("dispatch successfully resets", () => {
+    test("dispatch successfully resets", async () => {
         const { result } = renderHook(() => useCursorManager("one"));
-        act(() => {
+        await waitFor(() => {
             result.current.update({
                 type: CursorActionType.ADD_NEXT,
                 payload: "two",
@@ -101,7 +101,7 @@ describe("Cursors", () => {
             next: "two",
             history: [],
         });
-        act(() => {
+        await waitFor(() => {
             result.current.update({
                 type: CursorActionType.RESET,
                 payload: "one",

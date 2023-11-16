@@ -2,15 +2,13 @@ import { waitFor } from "@testing-library/react";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables, ValueSet } from "../config/endpoints/lookupTables";
-import { AppWrapper, renderHook } from "../utils/Test/Render";
+import { renderHook } from "../utils/Test/render";
 
 import { useValueSetsTable } from "./UseValueSets";
 
 describe("useValueSetsTable", () => {
     const renderWithAppWrapper = (tableName: LookupTables) =>
-        renderHook(() => useValueSetsTable<ValueSet[]>(tableName), {
-            wrapper: AppWrapper(),
-        });
+        renderHook(() => useValueSetsTable<ValueSet[]>(tableName));
 
     beforeAll(() => lookupTableServer.listen());
     afterEach(() => lookupTableServer.resetHandlers());

@@ -3,6 +3,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import OrganizationResource from "../../resources/OrganizationResource";
+import { render } from "../../utils/Test/render";
 
 import { AdminOrgNewPage } from "./AdminOrgNew";
 

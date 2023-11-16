@@ -1,4 +1,4 @@
-import { screen, act, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AxiosError, AxiosResponse } from "axios";
 
@@ -11,6 +11,8 @@ import {
     UseValueSetsMetaResult,
     UseValueSetsTableResult,
 } from "../../../hooks/UseValueSets";
+import { render } from "../../../utils/Test/render";
+import silenceVirtualConsole from "../../../utils/Test/silenceVirtualConsole";
 
 import ValueSetsDetailPage, { ValueSetsDetailTable } from "./ValueSetsDetail";
 
@@ -38,7 +40,9 @@ const fakeMeta = {
     createdAt: "today",
     tableSha256Checksum: "sha",
 };
-const mockError = new RSNetworkError(new AxiosError("test-error"));
+const mockError = new RSNetworkError(
+    new AxiosError("ValueSetsDetail Test Error"),
+);
 
 vi.mock("../../../hooks/UseValueSets", async () => ({
     ...(await vi.importActual<typeof import("../../../hooks/UseValueSets")>(
@@ -125,12 +129,19 @@ describe("ValueSetsDetail", () => {
     });
 
     test("Handles error with table fetch", () => {
+        const restore = silenceVirtualConsole();
         const mockOnError = vi.fn();
         mockUseValueSetsTable.mockImplementation(() => {
             throw new RSNetworkError(
-                new AxiosError("Test", "404", undefined, {}, {
-                    status: 404,
-                } as AxiosResponse),
+                new AxiosError(
+                    "ValueSetsDetailPage Error Test",
+                    "404",
+                    undefined,
+                    {},
+                    {
+                        status: 404,
+                    } as AxiosResponse,
+                ),
             );
         });
         mockUseValueSetsMeta.mockImplementation(
@@ -141,11 +152,13 @@ describe("ValueSetsDetail", () => {
         );
         render(<ValueSetsDetailPage />, { onError: mockOnError });
         expect(mockOnError).toBeCalled();
+        restore();
     });
 });
 
 describe("ValueSetsDetailTable", () => {
     test("Handles fetch related errors", () => {
+        const restore = silenceVirtualConsole();
         const mockSetAlert = vi.fn();
         mockSaveData.mockImplementation(() => ({}) as any);
         mockActivateTable.mockImplementation(() => ({}) as any);
@@ -160,8 +173,9 @@ describe("ValueSetsDetailTable", () => {
         expect(mockSetAlert).toHaveBeenCalled();
         expect(mockSetAlert).toHaveBeenCalledWith({
             type: "error",
-            message: "unknown-error: test-error",
+            message: "unknown-error: ValueSetsDetail Test Error",
         });
+        restore();
     });
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
         const mockSaveDataMutate = vi.fn();
@@ -213,10 +227,7 @@ describe("ValueSetsDetailTable", () => {
             expect(firstInput).toHaveValue(initialValue + newValue);
         });
 
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-            await userEvent.click(saveButton);
-        });
+        await userEvent.click(saveButton);
         fakeRowsCopy.shift();
 
         expect(mockSaveDataMutate).toHaveBeenCalled();

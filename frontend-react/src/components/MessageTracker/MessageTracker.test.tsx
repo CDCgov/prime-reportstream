@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 
 import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
 import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
+import { render } from "../../utils/Test/render";
 
 import { MessageTracker } from "./MessageTracker";
 

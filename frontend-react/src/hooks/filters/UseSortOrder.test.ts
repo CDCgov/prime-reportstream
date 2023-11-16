@@ -1,9 +1,9 @@
-import { act } from "@testing-library/react";
+import { renderHook, waitFor } from "../../utils/Test/render";
 
 import useSortOrder, { SortSettingsActionType } from "./UseSortOrder";
 
 describe("UseSortOrder", () => {
-    test("renders with default values", () => {
+    test("renders with default values", async () => {
         const { result } = renderHook(() => useSortOrder());
         expect(result.current.settings).toEqual({
             column: "",
@@ -13,9 +13,9 @@ describe("UseSortOrder", () => {
         });
     });
 
-    test("dispatch changes column", () => {
+    test("dispatch changes column", async () => {
         const { result } = renderHook(() => useSortOrder());
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: SortSettingsActionType.CHANGE_COL,
                 payload: {
@@ -31,9 +31,9 @@ describe("UseSortOrder", () => {
         });
     });
 
-    test("dispatch swaps order (non-locally)", () => {
+    test("dispatch swaps order (non-locally)", async () => {
         const { result } = renderHook(() => useSortOrder());
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: SortSettingsActionType.SWAP_ORDER,
             }),
@@ -46,9 +46,9 @@ describe("UseSortOrder", () => {
         });
     });
 
-    test("dispatch sets and unsets locally sort", () => {
+    test("dispatch sets and unsets locally sort", async () => {
         const { result } = renderHook(() => useSortOrder());
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: SortSettingsActionType.APPLY_LOCAL_SORT,
                 payload: {
@@ -64,9 +64,9 @@ describe("UseSortOrder", () => {
         });
     });
 
-    test("dispatch swaps order (non-locally)", () => {
+    test("dispatch swaps order (non-locally)", async () => {
         const { result } = renderHook(() => useSortOrder());
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: SortSettingsActionType.SWAP_LOCAL_ORDER,
             }),
@@ -79,9 +79,9 @@ describe("UseSortOrder", () => {
         });
     });
 
-    test("dispatch resets settings", () => {
+    test("dispatch resets settings", async () => {
         const { result } = renderHook(() => useSortOrder());
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: SortSettingsActionType.CHANGE_COL,
                 payload: {
@@ -89,12 +89,12 @@ describe("UseSortOrder", () => {
                 },
             }),
         );
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: SortSettingsActionType.SWAP_ORDER,
             }),
         );
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: SortSettingsActionType.APPLY_LOCAL_SORT,
                 payload: {
@@ -108,7 +108,7 @@ describe("UseSortOrder", () => {
             locally: true,
             localOrder: "DESC",
         });
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: SortSettingsActionType.RESET,
             }),
@@ -121,9 +121,9 @@ describe("UseSortOrder", () => {
         });
     });
 
-    test("dispatch has workaround for manual settings change", () => {
+    test("dispatch has workaround for manual settings change", async () => {
         const { result } = renderHook(() => useSortOrder());
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: SortSettingsActionType.RESET,
                 payload: {

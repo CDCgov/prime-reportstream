@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import { fakeError, fakeWarning } from "../../hooks/UseFileHandler.test";
+import { render } from "../../utils/Test/render";
 
 import type { RequestLevel } from "./FileHandlerMessaging";
 import FileHandlerErrorsWarningsStep, {

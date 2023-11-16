@@ -1,25 +1,25 @@
 import React, { ReactElement } from "react";
-import {
-    render as renderOrig,
-    RenderOptions,
-    renderHook as renderHookOrig,
-    RenderHookOptions,
-    Queries,
-    queries,
-} from "@testing-library/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { CacheProvider } from "rest-hooks";
 import { PartialDeep } from "type-fest";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import { Fixture, MockResolver } from "@rest-hooks/test";
+import {
+    RenderHookOptions,
+    RenderOptions,
+    Queries,
+    queries,
+    render as _render,
+    renderHook as _renderHook,
+} from "@testing-library/react";
 
-import { AuthorizedFetchProvider } from "../../../contexts/AuthorizedFetch";
-import { getTestQueryClient } from "../../../network/QueryClients";
-import { useSessionContext } from "../../../contexts/Session";
-import { useAppInsightsContext } from "../../../contexts/AppInsights";
-import { useFeatureFlags } from "../../../contexts/FeatureFlags";
-import { useToast } from "../../../contexts/Toast";
+import { AuthorizedFetchProvider } from "../../contexts/AuthorizedFetch";
+import { getTestQueryClient } from "../../network/QueryClients";
+import { useSessionContext } from "../../contexts/Session";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { useFeatureFlags } from "../../contexts/FeatureFlags";
+import { useToast } from "../../contexts/Toast";
 
 function TestError({ error }: FallbackProps) {
     return <>{error.toString()}</>;
@@ -49,8 +49,8 @@ const AppWrapperProviderHooksMap = {
         ),
     Toast: vi.mocked<() => PartialDeep<ReturnType<typeof useToast>>>(useToast),
 } as const;
-export type AppWrapperProviderHooks = typeof AppWrapperProviderHooksMap;
-export type AppWrapperProviderHooksOptions = Partial<{
+type AppWrapperProviderHooks = typeof AppWrapperProviderHooksMap;
+type AppWrapperProviderHooksOptions = Partial<{
     [k in keyof AppWrapperProviderHooks]: ReturnType<
         AppWrapperProviderHooks[k]
     >;
@@ -95,7 +95,7 @@ export const AppWrapper = ({
 
 interface RenderAppOptions extends RenderOptions, AppWrapperOptions {}
 
-export const render = (
+export function render(
     ui: ReactElement,
     {
         restHookFixtures,
@@ -104,8 +104,8 @@ export const render = (
         wrapper: _wrapper,
         ...options
     }: RenderAppOptions = {},
-) => {
-    return renderOrig(ui, {
+) {
+    return _render(ui, {
         wrapper:
             _wrapper ??
             AppWrapper({
@@ -115,7 +115,7 @@ export const render = (
             }),
         ...options,
     });
-};
+}
 
 export function renderHook<
     Result,
@@ -134,7 +134,7 @@ export function renderHook<
     }: RenderHookOptions<Props, Q, Container, BaseElement> &
         AppWrapperOptions = {},
 ) {
-    return renderHookOrig<Result, Props, Q, Container, BaseElement>(render, {
+    return _renderHook<Result, Props, Q, Container, BaseElement>(render, {
         wrapper:
             _wrapper ??
             AppWrapper({
@@ -148,3 +148,5 @@ export function renderHook<
 
 export type RSRender = typeof render;
 export type RSRenderHook = typeof renderHook;
+
+export { screen, act, waitFor } from "@testing-library/react";

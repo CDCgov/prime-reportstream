@@ -7,6 +7,8 @@ import {
     UseValueSetsMetaResult,
     UseValueSetsTableResult,
 } from "../../../hooks/UseValueSets";
+import { render } from "../../../utils/Test/render";
+import silenceVirtualConsole from "../../../utils/Test/silenceVirtualConsole";
 
 import ValueSetsIndexPage from "./ValueSetsIndex";
 
@@ -93,6 +95,7 @@ describe("ValueSetsIndex tests", () => {
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
     test("Error in query will render error UI instead of table", () => {
+        const restore = silenceVirtualConsole();
         const mockOnError = vi.fn();
         mockUseValueSetsMeta = vi.fn(
             () =>
@@ -102,12 +105,19 @@ describe("ValueSetsIndex tests", () => {
         );
         mockUseValueSetsTable = vi.fn(() => {
             throw new RSNetworkError(
-                new AxiosError("Test", "404", undefined, {}, {
-                    status: 404,
-                } as AxiosResponse),
+                new AxiosError(
+                    "ValueSetsIndex Error Test",
+                    "404",
+                    undefined,
+                    {},
+                    {
+                        status: 404,
+                    } as AxiosResponse,
+                ),
             );
         });
         render(<ValueSetsIndexPage />, { onError: mockOnError });
         expect(mockOnError).toBeCalled();
+        restore();
     });
 });

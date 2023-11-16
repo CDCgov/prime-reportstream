@@ -4,6 +4,7 @@ import {
     GENERIC_ERROR_PAGE_CONFIG,
     GENERIC_ERROR_STRING,
 } from "../../content/error/ErrorMessages";
+import { render } from "../../utils/Test/render";
 
 import { ErrorPage } from "./ErrorPage";
 

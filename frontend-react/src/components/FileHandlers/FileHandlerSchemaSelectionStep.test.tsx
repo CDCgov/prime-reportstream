@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import * as UseSenderSchemaOptionsExports from "../../senders/hooks/UseSenderSchemaOptions";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
+import { render } from "../../utils/Test/render";
 
 import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
 

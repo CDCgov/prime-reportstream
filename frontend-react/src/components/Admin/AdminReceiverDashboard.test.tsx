@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
+import { render } from "../../utils/Test/render";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 

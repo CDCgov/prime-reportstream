@@ -4,6 +4,7 @@ import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../utils/FeatureName";
+import { render } from "../../utils/Test/render";
 
 import SubmissionDetailsPage, { DestinationItem } from "./SubmissionDetails";
 

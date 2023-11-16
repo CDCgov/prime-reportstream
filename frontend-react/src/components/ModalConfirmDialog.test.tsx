@@ -1,9 +1,8 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { useRef } from "react";
-import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
 
-import { render, renderHook } from "../utils/Test/Render";
+import { render, renderHook } from "../utils/Test/render";
 
 import { ModalConfirmDialog, ModalConfirmRef } from "./ModalConfirmDialog";
 
@@ -34,7 +33,7 @@ describe("ConfirmDialog", () => {
 
         // should NOT be visible before we call showModal()
         expect(screen.queryByText(/TestTitle/)).not.toBeInTheDocument();
-        act(() => {
+        await waitFor(() => {
             // @ts-ignore
             modalRef?.current?.showModal({
                 title: "TestTitle",
@@ -47,10 +46,7 @@ describe("ConfirmDialog", () => {
         expect(screen.getByText(/TestTitle/)).toBeVisible();
 
         // click the cancel button and make sure it goes away and our callback was called.
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-            await userEvent.click(screen.getByTestId(`${id}-closebtn`));
-        });
+        await userEvent.click(screen.getByTestId(`${id}-closebtn`));
         expect(callbackCount).toBe(1);
     });
 });

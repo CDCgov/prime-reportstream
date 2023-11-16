@@ -3,6 +3,7 @@ import { screen } from "@testing-library/react";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import { PERMISSIONS } from "../../utils/UsefulTypes";
 import { useFeatureFlags } from "../../contexts/FeatureFlags";
+import { render } from "../../utils/Test/render";
 
 import { RequireGateBase } from "./RequireGate";
 

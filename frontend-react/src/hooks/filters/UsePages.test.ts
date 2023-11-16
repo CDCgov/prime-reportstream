@@ -1,4 +1,4 @@
-import { act } from "@testing-library/react";
+import { renderHook, waitFor } from "../../utils/Test/render";
 
 import usePages, { PageSettingsActionType } from "./UsePages";
 
@@ -11,25 +11,25 @@ describe("UsePages", () => {
         const { result } = renderHook(() => usePages());
         expect(result.current.settings.size).toEqual(10);
     });
-    test("dispatch increments and decrements currentPage", () => {
+    test("dispatch increments and decrements currentPage", async () => {
         const { result } = renderHook(() => usePages());
-        act(() => {
+        await waitFor(() => {
             result.current.update({ type: PageSettingsActionType.INC_PAGE });
             result.current.update({ type: PageSettingsActionType.INC_PAGE });
         });
         expect(result.current.settings.currentPage).toEqual(3);
-        act(() =>
+        await waitFor(() =>
             result.current.update({ type: PageSettingsActionType.DEC_PAGE }),
         );
         expect(result.current.settings.currentPage).toEqual(2);
-        act(() =>
+        await waitFor(() =>
             result.current.update({ type: PageSettingsActionType.RESET }),
         );
         expect(result.current.settings.currentPage).toEqual(1);
     });
-    test("dispatch updates size", () => {
+    test("dispatch updates size", async () => {
         const { result } = renderHook(() => usePages());
-        act(() =>
+        await waitFor(() =>
             result.current.update({
                 type: PageSettingsActionType.SET_SIZE,
                 payload: {

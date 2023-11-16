@@ -1,7 +1,5 @@
-import { act } from "@testing-library/react";
-
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
-import { AppWrapper, renderHook } from "../utils/Test/Render";
+import { renderHook, waitFor } from "../utils/Test/render";
 
 import { useValueSetUpdate } from "./UseValueSets";
 
@@ -17,10 +15,7 @@ describe("useValueSetUpdate", () => {
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 
-    const renderWithAppWrapper = () =>
-        renderHook(() => useValueSetUpdate(), {
-            wrapper: AppWrapper(),
-        });
+    const renderWithAppWrapper = () => renderHook(() => useValueSetUpdate());
 
     test("returns trigger and loading indicator", async () => {
         const { result } = renderWithAppWrapper();
@@ -36,7 +31,7 @@ describe("useValueSetUpdate", () => {
         expect(isPending).toEqual(false);
 
         let saveResult;
-        await act(async () => {
+        await waitFor(async () => {
             const savePromise = mutateAsync({
                 data: [
                     {

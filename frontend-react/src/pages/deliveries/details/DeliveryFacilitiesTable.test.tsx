@@ -1,4 +1,5 @@
 import { mockUseReportsFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { render } from "../../../utils/Test/render";
 
 import DeliveryFacilitiesTable from "./DeliveryFacilitiesTable";
 

@@ -8,6 +8,7 @@ import {
 import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverDeliveries";
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import { render } from "../../../utils/Test/render";
 
 import DataDashboardTable from "./DataDashboardTable";
 

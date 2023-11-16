@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { mockUseReportsFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import { mockAppInsights } from "../../../__mocks__/ApplicationInsights";
+import { render } from "../../../utils/Test/render";
 
 import ReportDetailsTable from "./ReportDetailsTable";
 

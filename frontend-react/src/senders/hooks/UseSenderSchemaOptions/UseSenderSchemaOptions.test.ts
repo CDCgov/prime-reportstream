@@ -3,6 +3,7 @@ import * as useSenderResourceExports from "../../../hooks/UseSenderResource";
 import { UseSenderResourceHookResult } from "../../../hooks/UseSenderResource";
 import { RSSender } from "../../../config/endpoints/settings";
 import { dummySender } from "../../../__mocks__/OrganizationMockServer";
+import { renderHook } from "../../../utils/Test/render";
 
 import useSenderSchemaOptions, {
     STANDARD_SCHEMA_OPTIONS,

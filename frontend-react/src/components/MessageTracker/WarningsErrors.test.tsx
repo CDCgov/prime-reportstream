@@ -1,5 +1,7 @@
 import { screen, within } from "@testing-library/react";
 
+import { render } from "../../utils/Test/render";
+
 import { WarningsErrors } from "./WarningsErrors";
 
 describe("WarningsErrors component", () => {

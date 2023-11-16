@@ -1,6 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { SampleTimingObj } from "../../utils/TemporarySettingsAPITypes";
+import { render } from "../../utils/Test/render";
 
 import { ObjectTooltip } from "./ObjectTooltip";
 

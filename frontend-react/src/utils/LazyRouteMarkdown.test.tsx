@@ -2,6 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import React, { Suspense } from "react";
 
 import { lazyRouteMarkdown } from "./LazyRouteMarkdown";
+import { render } from "./Test/render";
 
 describe("lazyRouteMarkdown", () => {
     test("renders", async () => {

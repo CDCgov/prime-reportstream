@@ -10,6 +10,7 @@ import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManage
 import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
 import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
 import { MemberType } from "../../../utils/OrganizationUtils";
+import { render } from "../../../utils/Test/render";
 
 import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
 

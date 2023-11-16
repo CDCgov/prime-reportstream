@@ -1,9 +1,12 @@
 import { screen } from "@testing-library/react";
 
+import { render } from "../../utils/Test/render";
+import silenceVirtualConsole from "../../utils/Test/silenceVirtualConsole";
+
 import MainLayout from "./MainLayout";
 
 function ErroringComponent() {
-    throw new Error("Test");
+    throw new Error("MainLayout Error Test");
     // eslint-disable-next-line no-unreachable
     return <></>;
 }
@@ -16,6 +19,7 @@ describe("MainLayout", () => {
     });
 
     test("Renders error", () => {
+        const restore = silenceVirtualConsole();
         const mockOnError = vi.fn();
         render(
             <MainLayout ErrorBoundary={((props: any) => props.children) as any}>
@@ -24,5 +28,6 @@ describe("MainLayout", () => {
             { onError: mockOnError },
         );
         expect(mockOnError).toBeCalled();
+        restore();
     });
 });

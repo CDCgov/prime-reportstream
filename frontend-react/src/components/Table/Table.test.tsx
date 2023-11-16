@@ -1,9 +1,9 @@
 import { fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { act } from "react-dom/test-utils";
 
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
+import { render } from "../../utils/Test/render";
 
 import { TestTable } from "./TestTable";
 import Table, { ColumnConfig, TableConfig } from "./Table";
@@ -327,15 +327,17 @@ describe("TableRows", () => {
         const fakeRowSetter = vi.fn();
 
         const { rerender } = render(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={undefined}
-            />,
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={undefined}
+                />
+            </table>,
         );
 
         // click the edit button
@@ -350,15 +352,17 @@ describe("TableRows", () => {
         // as we've confirmed that the state setter has been called with 0,
         // we can rerender with that state value passed in to check the next step
         rerender(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={0}
-            />,
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={0}
+                />
+            </table>,
         );
 
         // click save
@@ -377,15 +381,17 @@ describe("TableRows", () => {
         const fakeRowSetter = vi.fn();
 
         const { rerender } = render(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={undefined}
-            />,
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={undefined}
+                />
+            </table>,
         );
 
         // click the edit button
@@ -400,15 +406,17 @@ describe("TableRows", () => {
         // as we've confirmed that the state setter has been called with 0,
         // we can rerender with that state value passed in to check the next step
         rerender(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={0}
-            />,
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={0}
+                />
+            </table>,
         );
 
         // click second edit button
@@ -429,15 +437,17 @@ describe("TableRows", () => {
         const fakeRowSetter = vi.fn();
 
         const { rerender } = render(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={undefined}
-            />,
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={undefined}
+                />
+            </table>,
         );
 
         // click the edit button
@@ -452,22 +462,23 @@ describe("TableRows", () => {
         // as we've confirmed that the state setter has been called with 0,
         // we can rerender with that state value passed in to check the next step
         rerender(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={0}
-            />,
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={0}
+                />
+            </table>,
         );
 
         // update value
         // this assumes that an input is being rendered by `ColumnData`
-        const firstInput = screen.getByLabelText(
-            "editableColumn-0",
-        ) as HTMLInputElement;
+        const firstInput =
+            screen.getByLabelText<HTMLInputElement>("editableColumn-0");
         const initialValue = firstInput.value;
         await userEvent.click(firstInput);
         await userEvent.keyboard("fakeItem");
@@ -475,10 +486,7 @@ describe("TableRows", () => {
         // click save
         const saveButton = screen.getByText("Save");
         expect(saveButton).toBeInTheDocument();
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-            await userEvent.click(saveButton);
-        });
+        await userEvent.click(saveButton);
 
         // expect onSave to have been called
         expect(fakeSave).toHaveBeenCalledTimes(1);
@@ -496,22 +504,25 @@ describe("ColumnData", () => {
         const fakeColumns = makeConfigs(fakeRows[0]);
         const fakeUpdate = vi.fn(() => Promise.resolve());
         render(
-            <tr>
-                <ColumnData
-                    rowIndex={0}
-                    colIndex={7} // this is the editable column
-                    rowData={fakeRows}
-                    columnConfig={fakeColumns[7]} // this is the editable column
-                    editing={true}
-                    setUpdatedRow={fakeUpdate}
-                />
-            </tr>,
+            <table>
+                <tbody>
+                    <tr>
+                        <ColumnData
+                            rowIndex={0}
+                            colIndex={7} // this is the editable column
+                            rowData={fakeRows}
+                            columnConfig={fakeColumns[7]} // this is the editable column
+                            editing={true}
+                            setUpdatedRow={fakeUpdate}
+                        />
+                    </tr>
+                </tbody>
+            </table>,
         );
 
         // update value
-        const firstInput = screen.getByLabelText(
-            "editableColumn-0",
-        ) as HTMLInputElement;
+        const firstInput =
+            screen.getByLabelText<HTMLInputElement>("editableColumn-0");
         const initialValue = firstInput.value;
         await userEvent.click(firstInput);
         await userEvent.keyboard("fakeItem");

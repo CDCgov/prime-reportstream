@@ -2,6 +2,7 @@ import { waitFor } from "@testing-library/react";
 
 import { dummyReceivers, orgServer } from "../__mocks__/OrganizationMockServer";
 import { MemberType } from "../utils/OrganizationUtils";
+import { renderHook } from "../utils/Test/render";
 
 import { useOrganizationReceivers } from "./UseOrganizationReceivers";
 import { Organizations } from "./UseAdminSafeOrganizationName";
@@ -30,6 +31,7 @@ describe("useOrganizationReceivers", () => {
                 },
             },
         });
+        expect(result.current.error).toBeNull();
         expect(result.current.data).toEqual(undefined);
     });
     test("returns correct organization receiver services", async () => {
@@ -79,6 +81,7 @@ describe("useOrganizationReceivers", () => {
                 },
             },
         });
+        expect(result.current.error).toBeNull();
         expect(result.current.data).toEqual(undefined);
         expect(result.current.isLoading).toEqual(false);
         expect(result.current.isDisabled).toEqual(true);

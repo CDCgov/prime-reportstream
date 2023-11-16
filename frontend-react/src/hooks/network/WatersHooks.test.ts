@@ -1,11 +1,10 @@
-import { act } from "@testing-library/react";
-
 import {
     watersServer,
     WatersTestHeaderValue,
 } from "../../__mocks__/WatersMockServer";
 import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
 import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
+import { renderHook, waitFor } from "../../utils/Test/render";
 
 import { useWatersUploader } from "./WatersHooks";
 
@@ -26,7 +25,7 @@ describe("useWatersUploader", () => {
     test("posts to /api/validate when validateOnly param is true", async () => {
         const { result } = renderHook(() => useWatersUploader(mockCallbackFn));
         let response;
-        await act(async () => {
+        await waitFor(async () => {
             const post = result.current.mutateAsync({
                 contentType: ContentType.CSV,
                 fileContent: "",

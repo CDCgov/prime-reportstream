@@ -19,6 +19,7 @@ import {
 import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
 import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
 import { mockAppInsights } from "../../__mocks__/ApplicationInsights";
+import { render } from "../../utils/Test/render";
 
 import FileHandlerFileUploadStep, {
     getClientHeader,

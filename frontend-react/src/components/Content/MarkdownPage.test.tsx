@@ -2,6 +2,7 @@ import path from "path";
 
 import testMdUrl from "../../content/markdown-test.md?url";
 import testMd from "../../content/markdown-test.md?raw";
+import { render } from "../../utils/Test/render";
 
 import { MarkdownDirectory } from "./MarkdownDirectory";
 import MarkdownPage from "./MarkdownPage";
