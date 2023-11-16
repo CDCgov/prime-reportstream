@@ -3,14 +3,32 @@ package gov.cdc.prime.router.credentials
 // import net.wussmann.kenneth.mockfuel.MockFuelClient
 // import net.wussmann.kenneth.mockfuel.MockFuelStore
 // import net.wussmann.kenneth.mockfuel.data.MockResponse
+import gov.cdc.prime.router.cli.ApiMockEngine
+import io.ktor.client.HttpClient
+import io.ktor.http.HttpStatusCode
 import io.mockk.every
 import io.mockk.spyk
 import io.mockk.unmockkObject
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 internal class HashicorpVaultCredentialServiceTests {
+    /**
+     * Helper
+     */
+    private fun getMockClient(
+        url: String,
+        status: HttpStatusCode,
+        body: String,
+    ): HttpClient {
+        return ApiMockEngine(
+                url,
+                status,
+                body
+            ).client()
+    }
 
 //    private val mockFuelStore = MockFuelStore()
     private val credentialService = spyk(HashicorpVaultCredentialService, recordPrivateCalls = true)
@@ -34,6 +52,19 @@ internal class HashicorpVaultCredentialServiceTests {
 
     @Test
     fun `uses Vault api to fetch a credential`() {
+        val creds: Credential? = HashicorpVaultCredentialService.fetchCredential(
+            CONNECTION_ID,
+            "HashicorpVaultCredentialServiceTests",
+            CredentialRequestReason.AUTOMATED_TEST,
+            httpClient = getMockClient(
+                url = "/v1/secret/$CONNECTION_ID",
+                HttpStatusCode.OK,
+                body = """{"data":{"@type":"UserPass","user":"user","pass":"pass"}}"""
+            )
+        )
+        assertTrue(creds is UserPassCredential)
+        assertTrue(creds.user == "user")
+        assertTrue(creds.pass == "pass")
 //        mockFuelStore.on(Method.GET, "/v1/secret/$CONNECTION_ID") {
 //            MockResponse(200, """{"data":{"@type":"UserPass","user":"user","pass":"pass"}}""".toByteArray())
 //        }
