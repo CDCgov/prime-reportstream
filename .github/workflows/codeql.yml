@@ -44,14 +44,14 @@ jobs:
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
     - name: "Get changed files with yaml"
-        id: changed-files-yaml
-        uses: tj-actions/changed-files@25ef3926d147cd02fc7e931c1ef50772bbb0d25d
-        with:
-          files_yaml: |
-            frontend:
-              - 'frontend-react/**'
-            python:
-              - 'prime-router/src/scripts**'
+      id: changed-files-yaml
+      uses: tj-actions/changed-files@25ef3926d147cd02fc7e931c1ef50772bbb0d25d
+      with:
+        files_yaml: |
+          frontend:
+            - 'frontend-react/**'
+          python:
+            - 'prime-router/src/scripts**'
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
