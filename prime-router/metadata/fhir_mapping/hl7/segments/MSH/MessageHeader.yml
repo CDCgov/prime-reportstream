@@ -240,7 +240,7 @@ extension_1:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: source-message-profile-id
+      value: msh21-source-message-profile-id
     valueIdentifier:
       generateList: true
       valueOf: datatype/Identifier_SystemID

@@ -113,7 +113,7 @@ elements:
     hl7Spec: [ MSH-20 ]
 
   - name: message-profile-identifier
-    resource: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id").value'
+    resource: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id").value'
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: 'MSH-21(%{entityIdIndex})'

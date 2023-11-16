@@ -38,7 +38,7 @@
             "valueString" : "AL"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id",
             "valueIdentifier" : {
               "extension" : [
                 {
@@ -50,7 +50,7 @@
             }
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id",
             "valueIdentifier" : {
               "extension" : [
                 {
@@ -62,7 +62,7 @@
             }
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id",
             "valueIdentifier" : {
               "extension" : [
                 {

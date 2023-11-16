@@ -58,8 +58,8 @@
 - id: "character-set-list"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set-list"
 # source message profile ID
-- id: "source-message-profile-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id"
+- id: "msh21-source-message-profile-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id"
 # message accept acknowledgement type
 - id: "msh-15-accept-acknowledgement-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-15-accept-acknowledgement-type"
