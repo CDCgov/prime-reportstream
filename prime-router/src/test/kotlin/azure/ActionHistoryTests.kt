@@ -29,6 +29,8 @@ import io.mockk.verify
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
+import kotlin.test.assertContains
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
 class ActionHistoryTests {
@@ -281,7 +283,7 @@ class ActionHistoryTests {
                 )
             )
         mockkObject(BlobAccess.Companion)
-        every { BlobAccess.uploadBody(any(), any(), any(), any()) } returns BlobAccess.BlobInfo(
+        every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } returns BlobAccess.BlobInfo(
             Report.Format.HL7,
             "http://blobUrl",
             "".toByteArray()
@@ -464,5 +466,48 @@ class ActionHistoryTests {
         actionHistory.nullifyReportIdsForNonTrackedReports()
 
         assertThat { actionHistory.actionLogs.all { it.reportId == null } }
+    }
+
+    @Test
+    fun `test trackSentReportSameFilenameDifferentReceiver`() {
+        val uuid = UUID.randomUUID()
+        val uuid2 = UUID.randomUUID()
+        val org =
+            DeepOrganization(
+                name = "myOrg",
+                description = "blah blah",
+                jurisdiction = Organization.Jurisdiction.FEDERAL,
+                receivers = listOf(
+                    Receiver(
+                        "myService", "myOrg", Topic.TEST, CustomerStatus.INACTIVE, "schema1",
+                        format = Report.Format.CSV
+                    ),
+                    Receiver(
+                        "myServiceToo", "myOrg", Topic.TEST, CustomerStatus.INACTIVE, "schema1",
+                        format = Report.Format.CSV
+                    )
+                )
+            )
+        mockkObject(BlobAccess.Companion)
+        val blobUrls = mutableListOf<String>()
+        every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
+        every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
+        every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
+        val header = mockk<WorkflowEngine.Header>()
+        val inReportFile = mockk<ReportFile>()
+        every { header.reportFile } returns inReportFile
+        every { header.content } returns "".toByteArray()
+        every { inReportFile.itemCount } returns 15
+        val actionHistory1 = ActionHistory(TaskAction.receive)
+        actionHistory1.action
+        actionHistory1.trackSentReport(org.receivers[0], uuid, "filename1", "params1", "result1", header)
+        assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
+        val actionHistory2 = ActionHistory(TaskAction.receive)
+        actionHistory2.action
+        actionHistory2.trackSentReport(org.receivers[1], uuid2, "filename1", "params1", "result1", header)
+        assertThat(actionHistory2.reportsOut[uuid2]).isNotNull()
+        assertNotEquals(blobUrls[0], blobUrls[1])
+        assertContains(blobUrls[0], org.receivers[0].fullName)
+        assertContains(blobUrls[1], org.receivers[1].fullName)
     }
 }

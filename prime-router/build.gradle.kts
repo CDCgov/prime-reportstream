@@ -61,7 +61,7 @@ val javaVersion = when (appJvmTarget) {
     "21" -> JavaVersion.VERSION_21
     else -> JavaVersion.VERSION_17
 }
-val ktorVersion = "2.3.2"
+val ktorVersion = "2.3.6"
 val kotlinVersion by System.getProperties()
 val jacksonVersion = "2.15.3"
 jacoco.toolVersion = "0.8.10"
@@ -582,7 +582,7 @@ tasks.azureFunctionsRun {
         "VAULT_API_ADDR" to "http://localhost:8200",
         "SFTP_HOST_OVERRIDE" to "localhost",
         "SFTP_PORT_OVERRIDE" to "2222",
-        "OKTA_baseUrl" to "hhs-prime.oktapreview.com"
+        "RS_OKTA_baseUrl" to "reportstream.oktapreview.com"
     )
 
     // Load the vault variables
@@ -801,10 +801,10 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.45.0")
     implementation("com.azure:azure-core-http-netty:1.13.10")
-    implementation("com.azure:azure-storage-blob:12.24.1") {
+    implementation("com.azure:azure-storage-blob:12.25.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.19.1") {
+    implementation("com.azure:azure-storage-queue:12.20.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.7.1") {
@@ -841,7 +841,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.24")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.25")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -890,9 +890,9 @@ dependencies {
     implementation("commons-io:commons-io: 2.15.0")
     implementation("com.anyascii:anyascii:0.3.2")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
-    implementation("org.jsoup:jsoup:1.16.1")
+    implementation("org.jsoup:jsoup:1.16.2")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
-    implementation("io.swagger:swagger-annotations:1.6.11")
+    implementation("io.swagger:swagger-annotations:1.6.12")
     implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.15")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")

@@ -71,10 +71,6 @@
               }
             },
             {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date",
-              "valueDateTime" : "2021-07-26"
-            },
-            {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id",
               "valueString" : "0.1-SNAPSHOT"
             }
@@ -415,8 +411,6 @@
         "subject" : {
           "reference" : "Patient/1667861767929699000.7dbebb1e-6497-4383-8c2f-de00717cbb44"
         },
-        "effectiveDateTime" : "2021-08-02T00:00:00-05:00",
-        "issued" : "2021-08-02T00:00:00-05:00",
         "performer" : [
           {
             "reference" : "Organization/1667861767948602000.25043715-a246-4abb-8f4b-7277ebc17027"
@@ -636,8 +630,6 @@
         "subject" : {
           "reference" : "Patient/1667861767929699000.7dbebb1e-6497-4383-8c2f-de00717cbb44"
         },
-        "effectiveDateTime" : "2021-08-02T00:00:00-05:00",
-        "issued" : "2021-08-02T00:00:00-05:00",
         "performer" : [
           {
             "reference" : "Organization/1667861767970948000.74f6a304-5bbc-40b0-8f3f-a423d1bc3fb8"
@@ -836,8 +828,6 @@
         "subject" : {
           "reference" : "Patient/1667861767929699000.7dbebb1e-6497-4383-8c2f-de00717cbb44"
         },
-        "effectiveDateTime" : "2021-08-02T00:00:00-05:00",
-        "issued" : "2021-08-02T00:00:00-05:00",
         "performer" : [
           {
             "reference" : "Organization/1667861767990271000.886996f6-051c-43d8-9948-1d36422f8aaf"
@@ -1036,8 +1026,6 @@
         "subject" : {
           "reference" : "Patient/1667861767929699000.7dbebb1e-6497-4383-8c2f-de00717cbb44"
         },
-        "effectiveDateTime" : "2021-08-02T00:00:00-05:00",
-        "issued" : "2021-08-02T00:00:00-05:00",
         "performer" : [
           {
             "reference" : "Organization/1667861768011635000.50bfb375-e966-457d-a925-b890d4647c55"
@@ -1236,8 +1224,6 @@
         "subject" : {
           "reference" : "Patient/1667861767929699000.7dbebb1e-6497-4383-8c2f-de00717cbb44"
         },
-        "effectiveDateTime" : "2021-08-02T00:00:00-05:00",
-        "issued" : "2021-08-02T00:00:00-05:00",
         "performer" : [
           {
             "reference" : "Organization/1667861768027523000.4ddd1587-c0f5-43c2-b5a1-57d2557d8004"
@@ -1435,9 +1421,7 @@
           ],
           "text" : "Swab of internal nose"
         },
-        "receivedTime" : "2021-08-02T00:00:06-05:00",
         "collection" : {
-          "collectedDateTime" : "2021-08-02T00:00:00-05:00",
           "bodySite" : {
             "coding" : [
               {
@@ -1518,20 +1502,35 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueOid" : "urn:oid:05D2222542"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "placer-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "Winchester House"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "05D2222542"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
               "coding" : [
                 {
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                  "code" : "PLAC",
-                  "display" : "Placer Identifier"
+                  "code" : "PLAC"
                 }
               ]
             },
-            "system" : "Winchester House",
             "value" : "1234d1d1-95fe-462c-8ac6-46728dba581c"
           }
         ],
@@ -1553,11 +1552,6 @@
         "subject" : {
           "reference" : "Patient/1667861767929699000.7dbebb1e-6497-4383-8c2f-de00717cbb44"
         },
-        "effectivePeriod" : {
-          "start" : "2021-08-02T00:00:00-05:00",
-          "end" : "2021-08-02T00:00:00-05:00"
-        },
-        "issued" : "2021-08-02T00:00:00-05:00",
         "specimen" : [
           {
             "reference" : "Specimen/1667861768049080000.f2ae4be6-3cf0-4615-b994-aea8a34fb21c"

@@ -427,7 +427,7 @@ export const ReportStreamHeader = ({
                                                 }
                                                 outline
                                             >
-                                                Connect now
+                                                Contact us
                                             </USLinkButton>
                                         </>
                                     )}
