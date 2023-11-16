@@ -50,19 +50,20 @@ internal class HashicorpVaultCredentialServiceTests {
 
     @Test
     fun `uses Vault api to fetch a missing credential`() {
-        val creds: Credential? = HashicorpVaultCredentialService.fetchCredential(
-            CONNECTION_ID,
-            "HashicorpVaultCredentialServiceTests",
-            CredentialRequestReason.AUTOMATED_TEST,
+        val creds = HashicorpVaultCredentialService.fetchCredential(
+            connectionId = CONNECTION_ID,
             httpClient = getMockClient(
                 url = "/v1/secret/$CONNECTION_ID",
                 HttpStatusCode.BadRequest,
                 body = """{"data":{"@type":"UserPass","user":"user","pass":"pass"}}"""
             ) {
                 assertTrue(it.headers.contains("X-Vault-Token"))
+                assertEquals(it.headers.get("X-Vault-Token"), VAULT_TOKEN)
                 assertEquals(it.method.value, Method.GET.toString())
                 assertEquals(it.url.encodedPath, "/v1/secret/$CONNECTION_ID")
-            }
+            },
+            vaultAddr = VAULT_API_ADDR,
+            vaultToken = VAULT_TOKEN
         )
         assertNull(creds, "Expect null return for the fetch credential...")
     }
@@ -72,13 +73,15 @@ internal class HashicorpVaultCredentialServiceTests {
         HashicorpVaultCredentialService.saveCredential(
             CONNECTION_ID,
             VALID_CREDENTIAL,
-            "HashicorpVaultCredentialServiceTests",
+            vaultAddr = VAULT_API_ADDR,
+            vaultToken = VAULT_TOKEN,
             httpClient = getMockClient(
                 url = "/v1/secret/$CONNECTION_ID",
                 HttpStatusCode.NoContent,
                 body = ""
             ) {
                 assertTrue(it.headers.contains("X-Vault-Token"))
+                assertEquals(it.headers["X-Vault-Token"], VAULT_TOKEN)
                 assertEquals(it.method.value, Method.POST.toString())
                 assertEquals(it.url.encodedPath, "/v1/secret/$CONNECTION_ID")
             }

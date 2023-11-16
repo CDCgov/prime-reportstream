@@ -11,30 +11,61 @@ abstract class CredentialService() : Logging {
 
     /* Methods to implement in subclasses */
 
-    protected abstract fun fetchCredential(connectionId: String, httpClient: HttpClient? = null): Credential?
-    protected abstract fun saveCredential(connectionId: String, credential: Credential, httpClient: HttpClient? = null)
+    abstract fun fetchCredential(
+        connectionId: String,
+        httpClient: HttpClient? = null,
+        vaultAddr: String? = null,
+        vaultToken: String? = null,
+    ): Credential?
+    abstract fun saveCredential(
+        connectionId: String,
+        credential: Credential,
+        httpClient: HttpClient? = null,
+        vaultAddr: String? = null,
+        vaultToken: String? = null,
+    )
 
     /* Base implementation for credentialService with validations */
 
     fun fetchCredential(
         connectionId: String,
-                        callerId: String,
-                        reason: CredentialRequestReason,
-                        httpClient: HttpClient? = null,
+        callerId: String,
+        reason: CredentialRequestReason,
+        httpClient: HttpClient? = null,
+        vaultAddr: String? = null,
+        vaultToken: String? = null,
     ): Credential? {
         require(URL_SAFE_KEY_PATTERN.matches(connectionId)) {
             "connectionId must match: ${URL_SAFE_KEY_PATTERN.pattern}"
         }
         logger.info { "CREDENTIAL REQUEST: $callerId requested connectionId($connectionId) credential for $reason" }
-        return fetchCredential(connectionId, httpClient = httpClient)
+        return fetchCredential(
+            connectionId,
+            httpClient = httpClient,
+            vaultAddr = vaultAddr,
+            vaultToken = vaultToken
+        )
     }
 
-    fun saveCredential(connectionId: String, credential: Credential, callerId: String, httpClient: HttpClient? = null) {
+    fun saveCredential(
+        connectionId: String,
+        credential: Credential,
+        callerId: String,
+        httpClient: HttpClient? = null,
+        vaultAddr: String? = null,
+        vaultToken: String? = null,
+    ) {
         require(URL_SAFE_KEY_PATTERN.matches(connectionId)) {
             "connectionId must match: ${URL_SAFE_KEY_PATTERN.pattern}"
         }
         logger.info { "CREDENTIAL UPDATE: $callerId updating connectionId($connectionId) credential..." }
-        saveCredential(connectionId, credential, httpClient = httpClient)
+        saveCredential(
+            connectionId,
+            credential,
+            httpClient = httpClient,
+            vaultAddr = vaultAddr,
+            vaultToken = vaultToken
+        )
         logger.info { "CREDENTIAL UPDATE: $callerId updated connectionId($connectionId) credential successfully." }
     }
 }

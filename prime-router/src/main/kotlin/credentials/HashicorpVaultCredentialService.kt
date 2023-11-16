@@ -11,10 +11,15 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
     private val VAULT_API_ADDR: String by lazy { System.getenv("VAULT_API_ADDR") ?: "http://127.0.0.1:8200" }
     private val VAULT_TOKEN: String by lazy { System.getenv("VAULT_TOKEN") ?: "" }
 
-    override fun fetchCredential(connectionId: String, httpClient: HttpClient?): Credential? {
+    override fun fetchCredential(
+        connectionId: String,
+        httpClient: HttpClient?,
+        vaultAddr: String?,
+        vaultToken: String?,
+    ): Credential? {
         val (response, respStr) = CommandUtilities.getWithStringResponse(
-            url = "$VAULT_API_ADDR/v1/secret/$connectionId",
-            hdr = mapOf("X-Vault-Token" to VAULT_TOKEN),
+            url = "${vaultAddr ?: VAULT_API_ADDR}/v1/secret/$connectionId",
+            hdr = mapOf("X-Vault-Token" to (vaultToken ?: VAULT_TOKEN)),
             httpClient = httpClient
         )
 
@@ -26,10 +31,16 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
         }
     }
 
-    override fun saveCredential(connectionId: String, credential: Credential, httpClient: HttpClient?) {
+    override fun saveCredential(
+        connectionId: String,
+        credential: Credential,
+        httpClient: HttpClient?,
+        vaultAddr: String?,
+        vaultToken: String?,
+    ) {
         val (response, respStr) = CommandUtilities.postWithStringResponse(
-            url = "$VAULT_API_ADDR/v1/secret/$connectionId",
-            hdr = mapOf("X-Vault-Token" to VAULT_TOKEN),
+            url = "${vaultAddr ?: VAULT_API_ADDR}/v1/secret/$connectionId",
+            hdr = mapOf("X-Vault-Token" to (vaultToken ?: VAULT_TOKEN)),
             jsonPayload = credential.toJSON(),
             httpClient = httpClient
         )

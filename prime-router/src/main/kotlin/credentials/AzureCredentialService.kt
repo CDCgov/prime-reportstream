@@ -25,13 +25,24 @@ internal object AzureCredentialService : CredentialService() {
             .buildClient()
     }
 
-    override fun fetchCredential(connectionId: String, httpClient: HttpClient?): Credential? {
+    override fun fetchCredential(
+        connectionId: String,
+        httpClient: HttpClient?,
+        vaultAddr: String?,
+        vaultToken: String?,
+    ): Credential? {
         return secretClient.getSecret("$connectionId")?.let {
             return Credential.fromJSON(it.value)
         }
     }
 
-    override fun saveCredential(connectionId: String, credential: Credential, httpClient: HttpClient?) {
+    override fun saveCredential(
+        connectionId: String,
+        credential: Credential,
+        httpClient: HttpClient?,
+        vaultAddr: String?,
+        vaultToken: String?,
+    ) {
         secretClient.setSecret("$connectionId", credential.toJSON())
             ?: throw Exception("Failed to save credentials for: $connectionId")
     }
