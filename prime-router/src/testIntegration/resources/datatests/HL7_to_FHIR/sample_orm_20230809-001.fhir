@@ -30,11 +30,11 @@
             "valueString" : "20230506052916-0500"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/accept-acknowledgement-type",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-15-accept-acknowledgement-type",
             "valueString" : "AL"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/application-acknowledgement-type",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-16-application-acknowledgement-type",
             "valueString" : "AL"
           },
           {

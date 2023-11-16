@@ -86,11 +86,11 @@ elements:
     hl7Spec: [ MSH-14 ]
 
   - name: accept-acknowledgement-type
-    value: [ '%resource.extension(%`rsext-accept-acknowledgement-type`).value' ]
+    value: [ '%resource.extension(%`rsext-msh-15-accept-acknowledgement-type`).value' ]
     hl7Spec: [ MSH-15 ]
 
   - name: app-acknowledgement-type
-    value: [ '%resource.extension(%`rsext-application-acknowledgement-type`).value' ]
+    value: [ '%resource.extension(%`rsext-msh-16-application-acknowledgement-type`).value' ]
     hl7Spec: [ MSH-16 ]
 
   - name: country-code

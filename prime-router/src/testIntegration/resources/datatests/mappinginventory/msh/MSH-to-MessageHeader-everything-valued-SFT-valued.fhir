@@ -48,11 +48,11 @@
             "valueString" : "abc"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/accept-acknowledgement-type",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-15-accept-acknowledgement-type",
             "valueString" : "ACCEPT"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/application-acknowledgement-type",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-16-application-acknowledgement-type",
             "valueString" : "ACKNOLWEDGE"
           },
           {

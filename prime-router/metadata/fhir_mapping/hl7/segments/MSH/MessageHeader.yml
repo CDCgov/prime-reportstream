@@ -171,7 +171,7 @@ extension_messageHeader:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: accept-acknowledgement-type
+          value: msh-15-accept-acknowledgement-type
         valueString:
           valueOf: MSH.15
           expressionType: HL7Spec
@@ -183,7 +183,7 @@ extension_messageHeader:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: application-acknowledgement-type
+          value: msh-16-application-acknowledgement-type
         valueString:
           type: STRING
           valueOf: MSH.16
