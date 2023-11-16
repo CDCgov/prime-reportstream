@@ -1,15 +1,22 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {
+    ReactNode,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import { Icon, Tooltip } from "@trussworks/react-uswds";
 import classnames from "classnames";
 
 import styles from "./CodeSnippet.module.scss";
 
 interface CodeSnippetProps extends React.PropsWithChildren {
-    copyString: string;
+    children?: ReactNode;
 }
 
-export const CodeSnippet = ({ children, copyString }: CodeSnippetProps) => {
+export const CodeSnippet = ({ children }: CodeSnippetProps) => {
     const [isCopied, setIsCopied] = useState(false);
+    const containerRef = useRef<HTMLElement>(null);
 
     /**
      * Cached component that renders tooltip so that changing isCopied status
@@ -22,14 +29,18 @@ export const CodeSnippet = ({ children, copyString }: CodeSnippetProps) => {
                 position="left"
                 label={isCopied ? "Copied" : "Copy to clipboard"}
                 onClick={() => {
-                    navigator.clipboard.writeText(copyString);
+                    if (containerRef.current?.textContent)
+                        navigator.clipboard.writeText(
+                            containerRef.current.textContent,
+                        );
+
                     setIsCopied(true);
                 }}
             >
                 <Icon.ContentCopy className="position" />
             </Tooltip>
         ),
-        [isCopied, copyString],
+        [isCopied],
     );
 
     useEffect(() => {
@@ -43,7 +54,9 @@ export const CodeSnippet = ({ children, copyString }: CodeSnippetProps) => {
 
     return (
         <pre className={classnames(styles.CodeSnippet, "grid-row")}>
-            <code className="tablet:grid-col code_snippet">{children}</code>
+            <code ref={containerRef} className="tablet:grid-col code_snippet">
+                {children}
+            </code>
             <CopyTooltip></CopyTooltip>
         </pre>
     );
