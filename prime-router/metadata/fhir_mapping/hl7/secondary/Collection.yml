@@ -6,14 +6,68 @@ collectedDateTime:
   vars:
     dateTimeIn: SPM.17.1 | OBR.7
     end: SPM.17.2 | OBR.8
+_collectedDateTime:
+  condition: $dateTimeIn NOT_NULL && $end NULL
+  expressionType: nested
+  vars:
+    dateTimeIn: SPM.17.1 | OBR.7
+    end: SPM.17.2 | OBR.8
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
 
 collectedPeriod:
-  condition: $end NOT_NULL
-  valueOf: datatype/Period
-  expressionType: resource
+  condition: $endDate NOT_NULL
   vars:
-    start: SPM.17.1 | OBR.7
-    end: SPM.17.2 | OBR.8
+    startDate: SPM.17.1 | OBR.7
+    endDate: SPM.17.2 | OBR.8
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(startDate,ZONEID)"
+      expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $startDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $startDate
+              expressionType: HL7Spec
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $endDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
 
 quantity:
   condition: $value NOT_NULL || $unit NOT_NULL
