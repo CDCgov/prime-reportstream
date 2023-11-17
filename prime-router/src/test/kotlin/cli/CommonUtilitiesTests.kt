@@ -3,12 +3,12 @@ package gov.cdc.prime.router.cli
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.github.doyaaaaaken.kotlincsv.client.CsvWriter
-import com.sendgrid.Method
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.DiffRow
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.diffJson
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import gov.cdc.prime.router.transport.TokenInfo
 import io.ktor.client.plugins.ServerResponseException
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.JsonConvertException
 import io.mockk.Runs
@@ -42,7 +42,7 @@ class CommonUtilitiesTests {
             HttpStatusCode.OK,
             body = sampleRespBodyJson
         ) {
-            assertEquals(it.method.value, Method.GET.toString())
+            assertEquals(it.method.value, HttpMethod.Get.value)
             assertEquals(it.url.encodedPath, "/fakeEndpoint/get_001")
         }.client()
 
@@ -59,7 +59,7 @@ class CommonUtilitiesTests {
             HttpStatusCode.BadRequest,
             body = sampleRespBodyJson
         ) {
-            assertEquals(it.method.value, Method.GET.toString())
+            assertEquals(it.method.value, HttpMethod.Get.value)
             assertEquals(it.url.encodedPath, "/fakeEndpoint/get_002")
         }.client()
 
@@ -79,7 +79,7 @@ class CommonUtilitiesTests {
             HttpStatusCode.OK,
             body = sampleRespBodyJson
         ) {
-            assertEquals(it.method.value, Method.PUT.toString())
+            assertEquals(it.method.value, HttpMethod.Put.value)
             assertEquals(it.url.encodedPath, "/fakeEndpoint/put_001")
         }.client()
 
@@ -97,7 +97,7 @@ class CommonUtilitiesTests {
             HttpStatusCode.BadRequest,
             body = sampleRespBodyJson
         ) {
-            assertEquals(it.method.value, Method.PUT.toString())
+            assertEquals(it.method.value, HttpMethod.Put.value)
             assertEquals(it.url.encodedPath, "/fakeEndpoint/put_002")
         }.client()
 
@@ -119,7 +119,7 @@ class CommonUtilitiesTests {
             HttpStatusCode.OK,
             body = sampleRespBodyJson
         ) {
-            assertEquals(it.method.value, Method.POST.toString())
+            assertEquals(it.method.value, HttpMethod.Post.value)
             assertEquals(it.url.encodedPath, fakeUrlPath)
         }.client()
 
@@ -139,7 +139,7 @@ class CommonUtilitiesTests {
             HttpStatusCode.BadRequest,
             body = sampleRespBodyJson
         ) {
-            assertEquals(it.method.value, Method.POST.toString())
+            assertEquals(it.method.value, HttpMethod.Post.value)
             assertEquals(it.url.encodedPath, fakeUrlPath2)
         }.client()
 
@@ -161,7 +161,7 @@ class CommonUtilitiesTests {
             HttpStatusCode.BadGateway,
             body = "does not matter"
         ) {
-            assertEquals(it.method.value, Method.POST.toString())
+            assertEquals(it.method.value, HttpMethod.Post.value)
             assertEquals(it.url.encodedPath, fakeUrlPath)
         }.client()
 
@@ -186,7 +186,7 @@ class CommonUtilitiesTests {
             HttpStatusCode.OK,
             body = "does not matter"
         ) {
-            assertEquals(it.method.value, Method.DELETE.toString())
+            assertEquals(it.method.value, HttpMethod.Delete.value)
             assertEquals(it.url.encodedPath, fakeUrlPath)
         }.client()
 
@@ -209,7 +209,7 @@ class CommonUtilitiesTests {
                  "refresh_token": "RjY2NjM5NzA2OWJjuE7c", 
                  "token_type": "Bearer", "expires_in": 3600}"""
         ) {
-            assertEquals(it.method.value, Method.POST.toString())
+            assertEquals(it.method.value, HttpMethod.Post.value)
             assertEquals(it.url.encodedPath, fakeUrlPath)
         }.client()
 
@@ -238,7 +238,7 @@ class CommonUtilitiesTests {
                  "refresh_token": "RjY2NjM5NzA2OWJjuE7c", 
                  "token_type"::::"Bearer", "expires_in": 3600}"""
         ) {
-            assertEquals(it.method.value, Method.POST.toString())
+            assertEquals(it.method.value, HttpMethod.Post.value)
             assertEquals(it.url.encodedPath, fakeUrlPath)
         }.client()
 
