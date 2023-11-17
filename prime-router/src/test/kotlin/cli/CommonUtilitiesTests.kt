@@ -7,8 +7,10 @@ import com.sendgrid.Method
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.DiffRow
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.diffJson
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
+import gov.cdc.prime.router.transport.TokenInfo
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.JsonConvertException
 import io.mockk.Runs
 import io.mockk.clearConstructorMockk
 import io.mockk.every
@@ -51,7 +53,6 @@ class CommonUtilitiesTests {
 
         assertNotNull(result, "Expect a pair of response and response body as json string.")
         assertEquals(result.first.status, HttpStatusCode.OK, "Expect a OK response status.")
-        assertNotNull(result, "Expect a pair of response and response body as json string.")
 
         val clientWithMockEngine2 = ApiMockEngine(
             "/fakeEndpoint/get_002",
@@ -69,7 +70,6 @@ class CommonUtilitiesTests {
 
         assertNotNull(result2, "Expect a pair of response and response body as json string.")
         assertEquals(result2.first.status, HttpStatusCode.BadRequest, "Expect a Bad Request response status.")
-        assertNotNull(result2, "Expect a pair of response and response body as json string.")
     }
 
     @Test
@@ -91,7 +91,6 @@ class CommonUtilitiesTests {
 
         assertNotNull(result, "Expect a pair of response and response body as json string.")
         assertEquals(result.first.status, HttpStatusCode.OK, "Expect a OK response status.")
-        assertNotNull(result, "Expect a pair of response and response body as json string.")
 
         val clientWithMockEngine2 = ApiMockEngine(
             "/fakeEndpoint/put_002",
@@ -110,7 +109,6 @@ class CommonUtilitiesTests {
 
         assertNotNull(result2, "Expect a pair of response and response body as json string.")
         assertEquals(result2.first.status, HttpStatusCode.BadRequest, "Expect a Bad Request response status.")
-        assertNotNull(result2, "Expect a pair of response and response body as json string.")
     }
 
     @Test
@@ -133,7 +131,7 @@ class CommonUtilitiesTests {
 
         assertNotNull(result, "Expect a pair of response and response body as json string.")
         assertEquals(result.first.status, HttpStatusCode.OK, "Expect a OK response status.")
-        assertNotNull(result, "Expect a pair of response and response body as json string.")
+        assertEquals(result.second, sampleRespBodyJson, "Expect a given payload in response.")
 
         val fakeUrlPath2 = "/fakeEndpoint/post_002"
         val clientWithMockEngine2 = ApiMockEngine(
@@ -153,7 +151,6 @@ class CommonUtilitiesTests {
 
         assertNotNull(result2, "Expect a pair of response and response body as json string.")
         assertEquals(result2.first.status, HttpStatusCode.BadRequest, "Expect a Bad Request response status.")
-        assertNotNull(result2, "Expect a pair of response and response body as json string.")
     }
 
     @Test
@@ -176,6 +173,88 @@ class CommonUtilitiesTests {
                     expSuccess = true,
                     httpClient = clientWithMockEngine,
                     jsonPayload = """{"lookupTableVersionId" ---- 6}"""
+                )
+            }
+        )
+    }
+
+    @Test
+    fun `test delete wrappers response OK`() {
+        val fakeUrlPath = "/fakeEndpoint/delete_resource"
+        val clientWithMockEngine = ApiMockEngine(
+            fakeUrlPath,
+            HttpStatusCode.OK,
+            body = "does not matter"
+        ) {
+            assertEquals(it.method.value, Method.DELETE.toString())
+            assertEquals(it.url.encodedPath, fakeUrlPath)
+        }.client()
+
+        val result = CommandUtilities.deleteWithStringResponse(
+                url = "fakeEndpoint/delete_resource",
+                expSuccess = true,
+                httpClient = clientWithMockEngine,
+            )
+        assertNotNull(result, "Expect a pair of response and response body as json string.")
+        assertEquals(result.first.status, HttpStatusCode.OK, "Expect a OK Request response status.")
+    }
+
+    @Test
+    fun `test submitForm wrappers response OK`() {
+        val fakeUrlPath = "/fakeEndpoint/submit_form"
+        val clientWithMockEngine = ApiMockEngine(
+            fakeUrlPath,
+            HttpStatusCode.OK,
+            body = """{"access_token": "AYjcyMzY3ZDhiNmJkNTY",
+                 "refresh_token": "RjY2NjM5NzA2OWJjuE7c", 
+                 "token_type": "Bearer", "expires_in": 3600}"""
+        ) {
+            assertEquals(it.method.value, Method.POST.toString())
+            assertEquals(it.url.encodedPath, fakeUrlPath)
+        }.client()
+
+        val result = CommandUtilities.submitFormT<TokenInfo>(
+            url = "fakeEndpoint/submit_form",
+            expSuccess = true,
+            formParams = mapOf(
+                Pair("grant_type", "authorization_code"),
+                Pair("redirect_uri", "fake-redirect-001"),
+                Pair("client_id", "437ry35rfy4f5fh4"),
+                Pair("code", "code001"),
+                Pair("code_verifier", "754753977397")
+            ),
+            httpClient = clientWithMockEngine,
+        )
+        assertNotNull(result, "Expect a object if type <T> - TokenInfo.")
+    }
+
+    @Test
+    fun `test submitForm wrappers malformed json response`() {
+        val fakeUrlPath = "/fakeEndpoint/submit_form"
+        val clientWithMockEngine = ApiMockEngine(
+            fakeUrlPath,
+            HttpStatusCode.OK,
+            body = """{"access_token": "AYjcyMzY3ZDhiNmJkNTY",
+                 "refresh_token": "RjY2NjM5NzA2OWJjuE7c", 
+                 "token_type"::::"Bearer", "expires_in": 3600}"""
+        ) {
+            assertEquals(it.method.value, Method.POST.toString())
+            assertEquals(it.url.encodedPath, fakeUrlPath)
+        }.client()
+
+        assertFailsWith<JsonConvertException>(
+            block = {
+                CommandUtilities.submitFormT<TokenInfo>(
+                    url = "fakeEndpoint/submit_form",
+                    expSuccess = true,
+                    formParams = mapOf(
+                        Pair("grant_type", "authorization_code"),
+                        Pair("redirect_uri", "fake-redirect-001"),
+                        Pair("client_id", "437ry35rfy4f5fh4"),
+                        Pair("code", "code001"),
+                        Pair("code_verifier", "754753977397")
+                    ),
+                    httpClient = clientWithMockEngine,
                 )
             }
         )
