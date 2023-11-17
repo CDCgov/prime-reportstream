@@ -70,17 +70,22 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
     );
 };
 
-// Main component.
-export function MessageTracker() {
+export interface MessageTrackerBaseProps {
+    search: (value: string) => Promise<MessageListResource[]>;
+    isPending: boolean;
+}
+
+export function MessageTrackerBase({
+    search,
+    isPending,
+}: MessageTrackerBaseProps) {
     const [searchFilter, setSearchFilter] = useState("");
     const [messagesData, setMessagesData] = useState<MessageListResource[]>([]);
     const [hasSearched, setHasSearched] = useState(false);
-    const { mutateAsync: search, isPending } = useMessageSearch();
 
     const searchMessageId = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const senderResponse: MessageListResource[] =
-            await search(searchFilter);
+        const senderResponse = await search(searchFilter);
 
         setHasSearched(true);
 
@@ -155,5 +160,16 @@ export function MessageTracker() {
                 hasSearched={hasSearched}
             ></MessageTrackerTableContent>
         </section>
+    );
+}
+
+export function MessageTracker(props: React.PropsWithChildren) {
+    const { mutateAsync, isPending } = useMessageSearch();
+    return (
+        <MessageTrackerBase
+            search={mutateAsync}
+            isPending={isPending}
+            {...props}
+        />
     );
 }

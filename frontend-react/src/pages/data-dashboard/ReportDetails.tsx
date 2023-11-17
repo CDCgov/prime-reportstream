@@ -1,14 +1,14 @@
 import { GridContainer } from "@trussworks/react-uswds";
 import { useParams } from "react-router-dom";
 
-import { FeatureName } from "../../../utils/FeatureName";
-import Crumbs, { CrumbsProps } from "../../Crumbs";
-import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
-import HipaaNotice from "../../HipaaNotice";
+import { FeatureName } from "../../utils/FeatureName";
+import Crumbs, { CrumbsProps } from "../../components/Crumbs";
+import { useReportsDetail } from "../../hooks/network/History/DeliveryHooks";
+import HipaaNotice from "../../components/HipaaNotice";
+import { ReportDetailsSummary } from "../../components/DataDashboard/ReportDetails/ReportDetailsSummary";
+import ReportDetailsTable from "../../components/DataDashboard/ReportDetails/ReportDetailsTable";
 
 import styles from "./ReportDetails.module.scss";
-import { ReportDetailsSummary } from "./ReportDetailsSummary";
-import ReportDetailsTable from "./ReportDetailsTable";
 
 export function ReportDetailsPage() {
     const crumbProps: CrumbsProps = {

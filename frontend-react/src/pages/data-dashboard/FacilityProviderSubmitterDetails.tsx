@@ -1,14 +1,15 @@
 import { GridContainer } from "@trussworks/react-uswds";
-import React from "react";
+import React, { useCallback } from "react";
 
-import Crumbs, { CrumbsProps } from "../../Crumbs";
-import { FeatureName } from "../../../utils/FeatureName";
-import HipaaNotice from "../../HipaaNotice";
-import { SenderType } from "../../../utils/DataDashboardUtils";
+import Crumbs, { CrumbsProps } from "../../components/Crumbs";
+import { FeatureName } from "../../utils/FeatureName";
+import HipaaNotice from "../../components/HipaaNotice";
+import { SenderType } from "../../utils/DataDashboardUtils";
+import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
+import { FacilityProviderSubmitterSummary } from "../../components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterSummary";
+import FacilityProviderSubmitterTable from "../../components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterTable";
 
 import styles from "./FacilityProviderSubmitterDetails.module.scss";
-import { FacilityProviderSubmitterSummary } from "./FacilityProviderSubmitterSummary";
-import FacilityProviderSubmitterTable from "./FacilityProviderSubmitterTable";
 
 export type FacilityProviderSubmitterDetailsProps = React.PropsWithChildren<{
     senderType: SenderType;
@@ -17,6 +18,19 @@ export type FacilityProviderSubmitterDetailsProps = React.PropsWithChildren<{
 function FacilityProviderSubmitterDetailsPage(
     props: FacilityProviderSubmitterDetailsProps,
 ) {
+    const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
+    const { appInsights } = useAppInsightsContext();
+    const filterClickHandler = useCallback(
+        (from: string, to: string) => {
+            appInsights?.trackEvent({
+                name: featureEvent,
+                properties: {
+                    tableFilter: { startRange: from, endRange: to },
+                },
+            });
+        },
+        [appInsights, featureEvent],
+    );
     // TODO: get from params once API is complete.
     // const { senderId } = useParams();
     const senderTypeId = "1234";
@@ -56,6 +70,7 @@ function FacilityProviderSubmitterDetailsPage(
                     <FacilityProviderSubmitterTable
                         senderTypeId={senderTypeId}
                         senderTypeName={summaryDetails.senderTypeName}
+                        onFilterClick={filterClickHandler}
                     />
                     <HipaaNotice />
                 </article>

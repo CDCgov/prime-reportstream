@@ -8,7 +8,7 @@ export const defaultCtx = {
     featureFlags: [],
 } satisfies PartialDeep<FeatureFlagCtx>;
 
-const FeatureFlagModule = await vi.importActual("../");
+const FeatureFlagModule = await vi.importActual<typeof import("../")>("../");
 
 module.exports = {
     ...FeatureFlagModule,

@@ -1,32 +1,18 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 
 import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
-import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
 import { render } from "../../utils/Test/render";
 
-import { MessageTracker } from "./MessageTracker";
+import { MessageTrackerBase } from "./MessageTracker";
 
-const mockUseMessageSearchInitial = {
-    mutateAsync: () => Promise.resolve(MOCK_MESSAGE_SENDER_DATA),
-    isLoading: false,
-    error: null,
+const mockPropsInitial = {
+    search: vi.fn(() => Promise.resolve(MOCK_MESSAGE_SENDER_DATA)),
+    isPending: false,
 };
 
-vi.mock("../../hooks/network/MessageTracker/MessageTrackerHooks", async () => ({
-    ...(await vi.importActual<
-        typeof import("../../hooks/network/MessageTracker/MessageTrackerHooks")
-    >("../../hooks/network/MessageTracker/MessageTrackerHooks")),
-    useMessageSearch: vi.fn(),
-}));
-
-const mockUseMessageSearch = vi.mocked(useMessageSearch);
-
-describe("MessageTracker component", () => {
+describe("MessageTrackerBase component", () => {
     function setup() {
-        mockUseMessageSearch.mockImplementation(
-            () => mockUseMessageSearchInitial as any,
-        );
-        render(<MessageTracker />);
+        render(<MessageTrackerBase {...mockPropsInitial} />);
     }
 
     test("should be able to edit search field", () => {

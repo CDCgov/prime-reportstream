@@ -18,6 +18,7 @@ import {
     UseWatersUploaderSendFileMutation,
 } from "../../hooks/network/WatersHooks";
 import { render } from "../../utils/Test/render";
+import { mockAppInsights } from "../../__mocks__/ApplicationInsights";
 
 import FileHandler from "./FileHandler";
 
@@ -224,6 +225,23 @@ describe("FileHandler", () => {
                 );
             });
         });
+
+        test("it calls trackAppInsightEvent with event data", async () => {
+            await setup();
+            expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                name: "File Validator",
+                properties: {
+                    fileValidator: {
+                        errorCount: 0,
+                        fileType: undefined,
+                        overallStatus: "Valid",
+                        schema: "whatever",
+                        sender: undefined,
+                        warningCount: 0,
+                    },
+                },
+            });
+        });
     });
 
     describe("when a CSV file with warnings is being submitted", () => {
@@ -317,6 +335,21 @@ describe("FileHandler", () => {
 
                 // Step 2: file upload
                 expect(screen.getByText("Drag file here or")).toBeVisible();
+            });
+        });
+        test("it calls trackAppInsightEvent with event data", async () => {
+            await setup();
+            expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                name: "File Validator",
+                properties: {
+                    fileValidator: {
+                        errorCount: 2,
+                        fileType: undefined,
+                        schema: "whatever",
+                        sender: undefined,
+                        warningCount: 0,
+                    },
+                },
             });
         });
     });

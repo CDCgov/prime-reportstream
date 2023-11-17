@@ -1,8 +1,8 @@
 import { Button, Grid } from "@trussworks/react-uswds";
 
 import site from "../../content/site.json";
-import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { USExtLink } from "../USLink";
+import Alert from "../../shared/Alert/Alert";
 
 type ManagePublicKeyUploadCompleteProps = {
     onTryAgain: () => void;
@@ -16,7 +16,7 @@ export default function ManagePublicKeyUploadError({
     return (
         <div>
             <div className="margin-bottom-4">
-                <StaticAlert type={[StaticAlertType.Error]} heading={heading} />
+                <Alert type="error" heading={heading} />
             </div>
             <div className="margin-bottom-4">
                 Check that you uploaded an accepted file type and that your file

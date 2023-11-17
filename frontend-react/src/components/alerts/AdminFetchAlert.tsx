@@ -1,11 +1,9 @@
-import { StaticAlert, StaticAlertType } from "../StaticAlert";
+import Alert from "../../shared/Alert/Alert";
 
 export default function AdminFetchAlert() {
     return (
-        <StaticAlert
-            type={StaticAlertType.Error}
-            heading="Cannot fetch Organization data as admin"
-            message="Please try again as an Organization"
-        />
+        <Alert type="error" heading="Cannot fetch Organization data as admin">
+            {"Please try again as an Organization"}
+        </Alert>
     );
 }

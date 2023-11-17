@@ -1,9 +1,11 @@
 import { Dispatch, SetStateAction } from "react";
 
+import { AlertProps } from "../shared";
+
 import { RSConsole } from "./console";
 
 export interface ReportStreamAlert {
-    type: string;
+    type: AlertProps["type"];
     message: string;
 }
 

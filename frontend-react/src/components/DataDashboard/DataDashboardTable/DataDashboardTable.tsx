@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useCallback } from "react";
 
 import { FeatureName } from "../../../utils/FeatureName";
 import { RSReceiver } from "../../../config/endpoints/settings";
@@ -23,30 +23,30 @@ import {
     EventName,
     useAppInsightsContext,
 } from "../../../contexts/AppInsights";
+import { RSReceiverDeliveryResponse } from "../../../config/endpoints/dataDashboard";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
+
+export interface DashboardFilterAndTableProps {
+    receiverServices: RSReceiver[];
+    activeService: RSReceiver;
+    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+    onFilterClick: (from: string, to: string) => void;
+    results: RSReceiverDeliveryResponse;
+    filterManager: FilterManager;
+    isLoading?: boolean;
+}
 
 function DashboardFilterAndTable({
     receiverServices,
     activeService,
     setActiveService,
-}: {
-    receiverServices: RSReceiver[];
-    activeService: RSReceiver;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
-}) {
-    const { appInsights } = useAppInsightsContext();
-    const featureEvent = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_FILTER}`;
-
+    filterManager,
+    onFilterClick,
+    results,
+}: DashboardFilterAndTableProps) {
     const handleSetActive = (name: string) => {
         setActiveService(receiverServices.find((item) => item.name === name));
     };
-
-    const {
-        data: results,
-        filterManager,
-        isLoading,
-    } = useReceiverDeliveries(activeService.name);
-
-    if (isLoading || !results) return <Spinner />;
 
     const onColumnCustomSort = (columnID: string) => {
         filterManager?.updateSort({
@@ -59,7 +59,7 @@ function DashboardFilterAndTable({
             type: SortSettingsActionType.SWAP_ORDER,
         });
     };
-    const data = results?.data.map((dataRow) => [
+    const data = results.data.map((dataRow) => [
         {
             columnKey: DeliveriesAttr.CREATED_AT,
             columnHeader: "Date sent to you",
@@ -135,13 +135,7 @@ function DashboardFilterAndTable({
                         filterManager?.updatePage({
                             type: PageSettingsActionType.RESET,
                         });
-
-                        appInsights?.trackEvent({
-                            name: featureEvent,
-                            properties: {
-                                tableFilter: { startRange: from, endRange: to },
-                            },
-                        });
+                        onFilterClick(from, to);
                     }}
                 />
             </div>
@@ -163,15 +157,32 @@ function DashboardFilterAndTable({
 }
 
 export default function DataDashboardTable() {
+    const featureEvent = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_FILTER}`;
+    const { appInsights } = useAppInsightsContext();
     const {
-        isLoading,
+        isLoading: isFeedLoading,
         isDisabled,
         data: services,
         activeService,
         setActiveService,
     } = useOrganizationReceiversFeed();
-
-    if (isLoading) return <Spinner />;
+    const {
+        data: results,
+        filterManager,
+        isLoading: isDeliveriesLoading,
+    } = useReceiverDeliveries(activeService?.name);
+    const isLoading = isFeedLoading || isDeliveriesLoading;
+    const filterClickHandler = useCallback(
+        (from: string, to: string) => {
+            appInsights?.trackEvent({
+                name: featureEvent,
+                properties: {
+                    tableFilter: { startRange: from, endRange: to },
+                },
+            });
+        },
+        [appInsights, featureEvent],
+    );
 
     if (isDisabled) {
         return <AdminFetchAlert />;
@@ -188,13 +199,18 @@ export default function DataDashboardTable() {
             </div>
         );
 
+    if (isLoading || !results || !services) return <Spinner />;
+
     return (
         <>
             {activeService && (
                 <DashboardFilterAndTable
-                    receiverServices={services!!}
+                    receiverServices={services}
                     activeService={activeService}
                     setActiveService={setActiveService}
+                    results={results}
+                    filterManager={filterManager}
+                    onFilterClick={filterClickHandler}
                 />
             )}
         </>

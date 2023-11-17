@@ -77,20 +77,24 @@ export const validateFileType = (
     const uploadFileExtension = fileNameArray[fileNameArray.length - 1];
 
     if (uploadFileExtension.toUpperCase() !== fileExt) {
-        return `The file extension must be of type .'${fileExt.toLowerCase()}'`;
+        throw new Error(
+            `The file extension must be of type .'${fileExt.toLowerCase()}'`,
+        );
     }
 
     if (file.type !== mimeType) {
-        return `The file MIME type must be of type .'${mimeType}'`;
+        throw new Error(`The file MIME type must be of type .'${mimeType}'`);
     }
 
-    return;
+    return true;
 };
 
 export const validateFileSize = (file: File) => {
     if (file.size > PAYLOAD_MAX_BYTES) {
-        return `The file '${file.name}' is too large. The maximum file size is ${PAYLOAD_MAX_KBYTES}k`;
+        throw new Error(
+            `The file '${file.name}' is too large. The maximum file size is ${PAYLOAD_MAX_KBYTES}k`,
+        );
     }
 
-    return;
+    return true;
 };

@@ -5,8 +5,8 @@ import useSenderSchemaOptions, {
     SchemaOption,
 } from "../../senders/hooks/UseSenderSchemaOptions";
 import Spinner from "../Spinner";
+import { FileHandlerStepProps } from "../../pages/file-handler/FileHandler";
 
-import { FileHandlerStepProps } from "./FileHandler";
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 
 export interface FileHandlerSchemaSelectionStepProps
@@ -14,25 +14,20 @@ export interface FileHandlerSchemaSelectionStepProps
     onSchemaChange: (schemaOption: SchemaOption) => void;
 }
 
-export default function FileHandlerSchemaSelectionStep({
+export interface FileHandlerSchemaSelectionStepBaseProps
+    extends FileHandlerSchemaSelectionStepProps {
+    schemas: SchemaOption[];
+}
+
+export function FileHandlerSchemaSelectionStepBase({
     fileType,
     isValid,
     selectedSchemaOption,
     onSchemaChange,
     onNextStepClick,
-}: FileHandlerSchemaSelectionStepProps) {
-    const { data: schemaOptions, isLoading } = useSenderSchemaOptions();
+    schemas,
+}: FileHandlerSchemaSelectionStepBaseProps) {
     const fileInputRef = useRef<FileInputRef>(null);
-
-    if (isLoading) {
-        return (
-            <div>
-                <Spinner />
-
-                <div className="text-center">Loading...</div>
-            </div>
-        );
-    }
 
     return (
         <div>
@@ -46,7 +41,7 @@ export default function FileHandlerSchemaSelectionStep({
                     name="upload-schema-select"
                     value={selectedSchemaOption.value}
                     onChange={(e) => {
-                        const option = schemaOptions.find(
+                        const option = schemas.find(
                             ({ value }: SchemaOption) =>
                                 value === e.target.value,
                         )!;
@@ -61,7 +56,7 @@ export default function FileHandlerSchemaSelectionStep({
                     <option value="" disabled>
                         - Select -
                     </option>
-                    {schemaOptions.map(({ title, value }, index) => (
+                    {schemas.map(({ title, value }, index) => (
                         <option key={index} value={value}>
                             {title}
                         </option>
@@ -79,4 +74,20 @@ export default function FileHandlerSchemaSelectionStep({
             </Button>
         </div>
     );
+}
+
+export default function FileHandlerSchemaSelectionStep(
+    props: FileHandlerSchemaSelectionStepProps,
+) {
+    const { data: schemas, isLoading } = useSenderSchemaOptions();
+    if (isLoading) {
+        return (
+            <div>
+                <Spinner />
+
+                <div className="text-center">Loading...</div>
+            </div>
+        );
+    }
+    return <FileHandlerSchemaSelectionStepBase {...props} schemas={schemas} />;
 }

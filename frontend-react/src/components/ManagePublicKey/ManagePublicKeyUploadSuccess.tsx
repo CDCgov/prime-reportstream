@@ -1,4 +1,4 @@
-import { StaticAlert, StaticAlertType } from "../StaticAlert";
+import Alert from "../../shared/Alert/Alert";
 import { USLink } from "../USLink";
 
 export default function ManagePublicKeyUploadSuccess() {
@@ -7,10 +7,7 @@ export default function ManagePublicKeyUploadSuccess() {
     return (
         <div>
             <div className="margin-bottom-4">
-                <StaticAlert
-                    type={[StaticAlertType.Success]}
-                    heading={heading}
-                />
+                <Alert type="success" heading={heading} />
             </div>
             <div className="margin-bottom-4">
                 You can now submit data to ReportStream.

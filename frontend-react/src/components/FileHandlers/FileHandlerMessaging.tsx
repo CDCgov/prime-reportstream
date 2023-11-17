@@ -2,13 +2,13 @@ import { ReactNode } from "react";
 import { Button, Icon } from "@trussworks/react-uswds";
 import { renderToString } from "react-dom/server";
 
-import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { USExtLink } from "../USLink";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { saveToCsv } from "../../utils/FileUtils";
 import { removeHTMLFromString } from "../../utils/misc";
+import Alert from "../../shared/Alert/Alert";
 
 const HL7_PRODUCT_MATRIX_URL =
     "https://www.hl7.org/implement/standards/product_brief.cfm";
@@ -51,10 +51,7 @@ export const RequestedChangesDisplay = ({
     schemaColumnHeader,
     file,
 }: RequestedChangesDisplayProps) => {
-    const alertType =
-        title === RequestLevel.WARNING
-            ? StaticAlertType.Warning
-            : StaticAlertType.Error;
+    const alertType = title === RequestLevel.WARNING ? "warning" : "error";
 
     const showTable =
         data &&
@@ -87,7 +84,9 @@ export const RequestedChangesDisplay = ({
 
     return (
         <div>
-            <StaticAlert type={alertType} heading={heading} message={message} />
+            <Alert type={alertType} heading={heading}>
+                {message}
+            </Alert>
 
             {showTable && (
                 <div className="padding-y-4">
@@ -311,11 +310,9 @@ export const FileQualityFilterDisplay = ({
     }
     return (
         <>
-            <StaticAlert
-                type={StaticAlertType.Warning}
-                heading={heading}
-                message={message}
-            />
+            <Alert type="warning" heading={heading}>
+                {message}
+            </Alert>
 
             <div className="padding-y-4">
                 <div className="display-flex flex-justify flex-align-center">

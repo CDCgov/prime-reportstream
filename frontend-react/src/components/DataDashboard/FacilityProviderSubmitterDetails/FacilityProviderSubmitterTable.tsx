@@ -3,14 +3,9 @@ import TableFilters from "../../Table/TableFilters";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
-import { FeatureName } from "../../../utils/FeatureName";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { USLink } from "../../USLink";
 import { SenderTypeDetailResource } from "../../../config/endpoints/dataDashboard";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
 
 import styles from "./FacilityProviderSubmitterTable.module.scss";
 
@@ -21,17 +16,21 @@ const filterManagerDefaults: FilterManagerDefaults = {
     },
 };
 
-interface FacilityProviderSubmitterTableProps {
+interface FacilityProviderSubmitterTableSharedProps {
     senderTypeId: string;
     senderTypeName: string;
 }
 
-function FacilityProviderSubmitterTable(
-    props: FacilityProviderSubmitterTableProps,
-) {
-    const { appInsights } = useAppInsightsContext();
-    const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
-    // const { senderTypeId }: FacilityProviderSubmitterTableProps = props;
+interface FacilityProviderSubmitterTableBaseProps
+    extends FacilityProviderSubmitterTableSharedProps {
+    onFilterClick: (from: string, to: string) => void;
+}
+
+function FacilityProviderSubmitterTable({
+    onFilterClick,
+    senderTypeId: _senderTypeId,
+    senderTypeName,
+}: FacilityProviderSubmitterTableBaseProps) {
     const data: SenderTypeDetailResource[] = [
         {
             reportId: "fd34d590-eb8f-412f-9562-0975f2c413e3",
@@ -96,7 +95,7 @@ function FacilityProviderSubmitterTable(
     return (
         <div className={styles.FacilityProviderSubmitterTable}>
             <section id="facilities">
-                <h2>Your available reports including {props.senderTypeName}</h2>
+                <h2>Your available reports including {senderTypeName}</h2>
                 <TableFilters
                     startDateLabel="From: (mm/dd/yyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
@@ -107,14 +106,7 @@ function FacilityProviderSubmitterTable(
                     }: {
                         from: string;
                         to: string;
-                    }) =>
-                        appInsights?.trackEvent({
-                            name: featureEvent,
-                            properties: {
-                                tableFilter: { startRange: from, endRange: to },
-                            },
-                        })
-                    }
+                    }) => onFilterClick(from, to)}
                 />
                 <Table
                     striped

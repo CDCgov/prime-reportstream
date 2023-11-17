@@ -11,13 +11,13 @@ import classnames from "classnames";
 
 import { OverallStatus } from "../../config/endpoints/waters";
 import { ErrorType } from "../../hooks/UseFileHandler";
+import { FileHandlerStepProps } from "../../pages/file-handler/FileHandler";
 
 import {
     FileQualityFilterDisplay,
     RequestedChangesDisplay,
     RequestLevel,
 } from "./FileHandlerMessaging";
-import { FileHandlerStepProps } from "./FileHandler";
 
 const SERVER_ERROR_MESSAGING = {
     heading: OverallStatus.ERROR,

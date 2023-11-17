@@ -122,7 +122,7 @@ const LogoutCallback = React.lazy(
 );
 const Login = React.lazy(() => import("./pages/Login"));
 const FileHandler = React.lazy(
-    () => import("./components/FileHandlers/FileHandler"),
+    () => import("./pages/file-handler/FileHandler"),
 );
 const ErrorNoPage = React.lazy(
     () => import("./pages/error/legacy-content/ErrorNoPage"),
@@ -170,28 +170,22 @@ const AdminRevHistoryPage = React.lazy(
     () => import("./pages/admin/AdminRevHistory"),
 );
 const MessageDetailsPage = React.lazy(
-    () => import("./components/MessageTracker/MessageDetails"),
+    () => import("./pages/message-details/MessageDetails"),
 );
 const ManagePublicKeyPage = React.lazy(
-    () => import("./components/ManagePublicKey/ManagePublicKey"),
+    () => import("./pages/manage-public-key/ManagePublicKey"),
 );
 const DataDashboardPage = React.lazy(
     () => import("./pages/data-dashboard/DataDashboard"),
 );
 const ReportDetailsPage = React.lazy(
-    () => import("./components/DataDashboard/ReportDetails/ReportDetails"),
+    () => import("./pages/data-dashboard/ReportDetails"),
 );
 const FacilitiesProvidersPage = React.lazy(
-    () =>
-        import(
-            "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders"
-        ),
+    () => import("./pages/data-dashboard/FacilitiesProviders"),
 );
 const FacilityProviderSubmitterDetailsPage = React.lazy(
-    () =>
-        import(
-            "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails"
-        ),
+    () => import("./pages/data-dashboard/FacilityProviderSubmitterDetails"),
 );
 const NewSettingPage = React.lazy(
     () => import("./components/Admin/NewSetting"),
@@ -609,7 +603,11 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/message-details/:id",
-                element: <MessageDetailsPage />,
+                element: (
+                    <RequireGate>
+                        <MessageDetailsPage />
+                    </RequireGate>
+                ),
             },
             /* Handles any undefined route */
             {

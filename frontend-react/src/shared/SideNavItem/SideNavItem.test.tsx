@@ -6,6 +6,8 @@ import { render } from "../../utils/Test/render";
 
 import SideNavItem from "./SideNavItem";
 
+const mockedUseLocation = vi.mocked(useLocation);
+
 describe("SideNavItem", () => {
     test("custom component", () => {
         render(
@@ -25,10 +27,10 @@ describe("SideNavItem", () => {
 
     describe("with items", () => {
         test("renders", () => {
-            vi.mocked(useLocation).mockReturnValue({
+            mockedUseLocation.mockReturnValue({
                 ...window.location,
                 pathname: "/foo/bar",
-            });
+            } satisfies Partial<ReturnType<typeof useLocation>> as any);
             render(
                 <SideNavItem
                     href="/foo"
@@ -45,10 +47,10 @@ describe("SideNavItem", () => {
         });
 
         test("active route", () => {
-            vi.mocked(useLocation).mockReturnValue({
+            mockedUseLocation.mockReturnValue({
                 ...window.location,
                 pathname: "/foo/bar",
-            });
+            } satisfies Partial<ReturnType<typeof useLocation>> as any);
             render(
                 <SideNavItem
                     href="/foo"

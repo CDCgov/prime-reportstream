@@ -1,16 +1,14 @@
 import { USExtLink, USLink } from "../USLink";
 import site from "../../content/site.json";
-import { StaticAlert, StaticAlertType } from "../StaticAlert";
+import Alert from "../../shared/Alert/Alert";
 
 export default function FileHandlerSuccessStep() {
     return (
         <div>
             <div className="margin-bottom-4">
-                <StaticAlert
-                    type={[StaticAlertType.Success]}
-                    heading="File validated"
-                    message="Your file is correctly formatted for ReportStream."
-                />
+                <Alert type="success" heading="File validated">
+                    <>Your file is correctly formatted for ReportStream.</>
+                </Alert>
             </div>
             <p className="font-size-18 margin-bottom-4">
                 To continue your onboarding, email{" "}

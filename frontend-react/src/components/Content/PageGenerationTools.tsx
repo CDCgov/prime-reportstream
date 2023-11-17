@@ -1,6 +1,6 @@
 /* Uniformly supplying resourcesCrumb */
 
-import { CrumbConfig, WithCrumbs } from "../Crumbs";
+import Crumbs, { CrumbConfig } from "../Crumbs";
 
 import { ContentDirectory } from "./MarkdownDirectory";
 
@@ -8,12 +8,14 @@ export const contentContainer = (
     Content: () => JSX.Element,
     crumbs: CrumbConfig[],
 ) => {
-    const wrappedElement = (
-        <div className="rs-documentation usa-prose">
-            <Content />
-        </div>
+    return (
+        <>
+            <Crumbs crumbList={crumbs}></Crumbs>
+            <div className="rs-documentation usa-prose">
+                <Content />
+            </div>
+        </>
     );
-    return renderWithCrumbs(wrappedElement, crumbs);
 };
 
 /** Generates crumbs array to make crumbs from `directory` back from `pageLabel`
@@ -25,15 +27,6 @@ export const crumbsFromHere = (
     dirPath: string,
     pageLabel: string,
 ): CrumbConfig[] => [{ label: directory, path: dirPath }, { label: pageLabel }];
-
-/** Renders a given element with breadcrumbs
- * @todo make private method of ContentDirectoryTools
- * @param element {JSX.Element} The element to be rendered
- * @param crumbs {CrumbConfig[]} A list of crumbs to render */
-export const renderWithCrumbs =
-    (element: JSX.Element, crumbs: CrumbConfig[]) => () => (
-        <WithCrumbs page={element} crumbList={crumbs} />
-    );
 
 export interface SlugParams {
     key: string;

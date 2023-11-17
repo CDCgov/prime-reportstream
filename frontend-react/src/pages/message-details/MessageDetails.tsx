@@ -2,13 +2,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button, Accordion, GridContainer } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
 
-import { DetailItem } from "../DetailItem/DetailItem";
+import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { useMessageDetails } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
 import { WarningError } from "../../config/endpoints/messageTracker";
 import { parseFileLocation } from "../../utils/misc";
-
-import { WarningsErrors } from "./WarningsErrors";
-import { MessageReceivers } from "./MessageReceivers";
+import { WarningsErrors } from "../../components/MessageTracker/WarningsErrors";
+import { MessageReceivers } from "../../components/MessageTracker/MessageReceivers";
 
 type MessageDetailsProps = {
     id: string | undefined;

@@ -25,7 +25,6 @@ import {
     LookupTable,
     ValueSetRow,
 } from "../../../config/endpoints/lookupTables";
-import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import {
     handleErrorWithAlert,
     ReportStreamAlert,
@@ -34,6 +33,7 @@ import Spinner from "../../../components/Spinner";
 import { TableRowData } from "../../../components/Table/TableRows";
 import { DatasetAction } from "../../../components/Table/TableInfo";
 import { useSessionContext } from "../../../contexts/Session";
+import { Alert } from "../../../shared";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -251,11 +251,9 @@ const ValueSetsDetailPage = () => {
                 />
                 {/* ONLY handles success messaging now */}
                 {alert && (
-                    <StaticAlert
-                        type={alert.type as StaticAlertType}
-                        heading={alert.type.toUpperCase()}
-                        message={alert.message}
-                    />
+                    <Alert type={alert.type} heading={alert.type.toUpperCase()}>
+                        {alert.message}
+                    </Alert>
                 )}
                 <ValueSetsDetailTable
                     valueSetName={valueSetName}

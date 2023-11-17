@@ -3,10 +3,16 @@ import { ErrorBoundary } from "react-error-boundary";
 import { isRSNetworkError } from "../utils/RSNetworkError";
 import { ErrorPage } from "../pages/error/ErrorPage";
 import { useSessionContext } from "../contexts/Session";
+import { RSConsole } from "../utils/console";
 
-/** Wrap components with this error boundary to catch errors thrown */
-export function RSErrorBoundary(props: React.PropsWithChildren) {
-    const { rsconsole, config } = useSessionContext();
+export interface RSErrorBoundaryBaseProps extends React.PropsWithChildren {
+    rsconsole: RSConsole;
+}
+
+export function RSErrorBoundaryBase({
+    rsconsole,
+    children,
+}: RSErrorBoundaryBaseProps) {
     return (
         <ErrorBoundary
             fallback={<ErrorPage type="message" />}
@@ -18,17 +24,18 @@ export function RSErrorBoundary(props: React.PropsWithChildren) {
                 }
                 // React will always console.error all errors, regardless of boundary,
                 // so just emit the telemetry.
-                rsconsole._error(
-                    {
-                        args: [exception, info.componentStack],
-                        location: window.location.href,
-                    },
-                    config.AI_CONSOLE_SEVERITY_LEVELS.error,
-                );
+                rsconsole.aiError(exception, info.componentStack);
             }}
-            {...props}
-        />
+        >
+            {children}
+        </ErrorBoundary>
     );
+}
+
+/** Wrap components with this error boundary to catch errors thrown */
+export function RSErrorBoundary(props: React.PropsWithChildren) {
+    const { rsconsole } = useSessionContext();
+    return <RSErrorBoundaryBase rsconsole={rsconsole} {...props} />;
 }
 
 export default RSErrorBoundary;

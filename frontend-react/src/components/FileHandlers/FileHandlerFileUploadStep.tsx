@@ -8,21 +8,13 @@ import {
     FileInputRef,
 } from "@trussworks/react-uswds";
 
-import { parseCsvForError } from "../../utils/FileUtils";
-import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import useSenderResource from "../../hooks/UseSenderResource";
-import { showToast } from "../../contexts/Toast";
 import { RSSender } from "../../config/endpoints/settings";
 import Spinner from "../Spinner";
-import { useSessionContext } from "../../contexts/Session";
-import { WatersResponse } from "../../config/endpoints/waters";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
-import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
 import { MembershipSettings } from "../../utils/OrganizationUtils";
+import { FileHandlerStepProps } from "../../pages/file-handler/FileHandler";
 
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
-import { FileHandlerStepProps } from "./FileHandler";
 
 export const UPLOAD_PROMPT_DESCRIPTIONS = {
     [FileType.CSV]: {
@@ -63,140 +55,38 @@ export function getClientHeader(
     return "";
 }
 
-export interface FileHandlerFileUploadStepProps extends FileHandlerStepProps {
-    onFileChange: (file: File, fileContent: string) => void;
-    onFileSubmitError: () => void;
-    onFileSubmitSuccess: (response: WatersResponse) => void;
+export interface FileHandlerFileUploadStepProps
+    extends Pick<FileHandlerStepProps, "isValid" | "selectedSchemaOption"> {
+    onFileChange: ((e: React.ChangeEvent<HTMLInputElement>) => void) &
+        React.ChangeEventHandler<HTMLInputElement>;
+    onBack: React.MouseEventHandler<HTMLButtonElement>;
+    isSubmitting?: boolean;
+    onSubmit: ((event: React.FormEvent<HTMLFormElement>) => void) &
+        React.FormEventHandler<HTMLFormElement>;
 }
 
 const BASE_ACCEPT_VALUE = [".csv", ".hl7"].join(",");
 
 export default function FileHandlerFileUploadStep({
-    contentType,
-    file,
-    fileContent,
-    fileType,
     isValid,
     onFileChange,
-    onFileSubmitError,
-    onFileSubmitSuccess,
-    onNextStepClick,
-    onPrevStepClick,
+    onBack,
     selectedSchemaOption,
+    isSubmitting,
+    onSubmit,
 }: FileHandlerFileUploadStepProps) {
-    const { appInsights } = useAppInsightsContext();
-    const { data: organization } = useOrganizationSettings();
-    const { data: senderDetail, isLoading: senderIsLoading } =
-        useSenderResource();
-    const { activeMembership } = useSessionContext();
     const fileInputRef = useRef<FileInputRef>(null);
     const { format } = selectedSchemaOption;
     const accept = selectedSchemaOption
         ? `.${format.toLowerCase()}`
         : BASE_ACCEPT_VALUE;
 
-    const { mutateAsync: sendFile, isPending: isUploading } =
-        useWatersUploader();
-
-    async function handleFileChange(
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) {
-        // TODO: consolidate with upcoming FileUtils generic function
-        if (!event?.target?.files?.length) {
-            onFileSubmitError();
-            return;
-        }
-        const selectedFile = event.target.files.item(0)!!;
-
-        const selectedFileContent = await selectedFile.text();
-
-        if (selectedFile.type === "csv" || selectedFile.type === "text/csv") {
-            const localCsvError = parseCsvForError(
-                selectedFile.name,
-                selectedFileContent,
-            );
-            if (localCsvError) {
-                showToast(localCsvError, "error");
-                return;
-            }
-        }
-
-        onFileChange(selectedFile, selectedFileContent);
-    }
-
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-
-        if (fileContent.length === 0) {
-            showToast("No file contents to validate", "error");
-            return;
-        }
-
-        let eventData;
-        try {
-            const response = await sendFile({
-                contentType,
-                fileContent,
-                fileName: file?.name!!,
-                client: getClientHeader(
-                    selectedSchemaOption.value,
-                    activeMembership,
-                    senderDetail,
-                ),
-                schema: selectedSchemaOption.value,
-                format: selectedSchemaOption.format,
-            });
-
-            onFileSubmitSuccess(response);
-
-            if (onNextStepClick) {
-                onNextStepClick();
-            }
-
-            eventData = {
-                warningCount: response?.warnings?.length,
-                errorCount: response?.errors?.length,
-                overallStatus: response?.overallStatus,
-            };
-        } catch (e: any) {
-            // TODO: update this when we're still sending 200s back on validation warnings/errors
-            if (e.data) {
-                eventData = {
-                    warningCount: e.data.warningCount,
-                    errorCount: e.data.errorCount,
-                };
-            }
-
-            showToast("File validation error. Please try again.", "error");
-
-            onFileSubmitError();
-        }
-
-        if (eventData) {
-            appInsights?.trackEvent({
-                name: EventName.FILE_VALIDATOR,
-                properties: {
-                    fileValidator: {
-                        schema: selectedSchemaOption?.value,
-                        fileType: fileType,
-                        sender: organization?.name,
-                        ...eventData,
-                    },
-                },
-            });
-        }
-    }
-
     return (
         <div>
             <FileHandlerPiiWarning />
 
             {(() => {
-                if (senderIsLoading) {
-                    return <Spinner />;
-                }
-
-                if (isUploading) {
+                if (isSubmitting) {
                     return (
                         <div className="padding-y-4 text-center">
                             {/* HACK: need to remove grid-container from Spinner */}
@@ -221,7 +111,7 @@ export default function FileHandlerFileUploadStep({
                 return (
                     <Form
                         name="fileValidation"
-                        onSubmit={handleSubmit}
+                        onSubmit={onSubmit}
                         className="rs-full-width-form"
                     >
                         <FormGroup className="margin-top-0">
@@ -242,7 +132,7 @@ export default function FileHandlerFileUploadStep({
                                 name="upload-csv-input"
                                 aria-describedby="upload-csv-input-label"
                                 data-testid="upload-csv-input"
-                                onChange={handleFileChange}
+                                onChange={onFileChange}
                                 required
                                 ref={fileInputRef}
                                 accept={accept}
@@ -254,7 +144,7 @@ export default function FileHandlerFileUploadStep({
                             <Button
                                 className="usa-button usa-button--outline"
                                 type={"button"}
-                                onClick={onPrevStepClick}
+                                onClick={onBack}
                             >
                                 Back
                             </Button>

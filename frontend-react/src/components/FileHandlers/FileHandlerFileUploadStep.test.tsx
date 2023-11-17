@@ -1,91 +1,30 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import {
     CustomerStatus,
     FileType,
     Format,
 } from "../../utils/TemporarySettingsAPITypes";
 import { RSSender } from "../../config/endpoints/settings";
-import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
-import * as useSenderResourceExports from "../../hooks/UseSenderResource";
-import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
-import {
-    fakeFile,
-    mockSendFileWithErrors,
-    mockSendValidFile,
-} from "../../__mocks__/validation";
-import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
+import { fakeFile, mockSendValidFile } from "../../__mocks__/validation";
 import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
-import { mockAppInsights } from "../../__mocks__/ApplicationInsights";
 import { render } from "../../utils/Test/render";
 
 import FileHandlerFileUploadStep, {
     getClientHeader,
 } from "./FileHandlerFileUploadStep";
 
-vi.mock("../../hooks/UseOrganizationSettings", async () => ({
-    useOrganizationSettings: vi.fn(() => ({})),
-}));
-
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
-        ...INITIAL_STATE,
         onFileChange: vi.fn(),
-        onFileSubmitError: vi.fn(),
-        onFileSubmitSuccess: vi.fn(),
-        onPrevStepClick: vi.fn(),
-        onNextStepClick: vi.fn(),
+        onBack: vi.fn(),
+        onSubmit: vi.fn(),
     };
-    const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
-
-    function mockUseSenderResource(
-        result: Partial<UseSenderResourceHookResult> = {},
-    ) {
-        vi.spyOn(useSenderResourceExports, "default").mockReturnValue({
-            isInitialLoading: false,
-            isLoading: false,
-            data: DEFAULT_SENDERS,
-            ...result,
-        } as UseSenderResourceHookResult);
-    }
-
-    function mockUseWatersUploader(
-        result: Partial<useWatersUploaderExports.UseWatersUploaderResult> = {},
-    ) {
-        vi.spyOn(useWatersUploaderExports, "useWatersUploader").mockReturnValue(
-            {
-                ...result,
-            } as any,
-        );
-    }
-
-    describe("when the Sender details are still loading", () => {
-        function setup() {
-            mockUseSenderResource({
-                isInitialLoading: true,
-                isLoading: true,
-            });
-            mockUseWatersUploader();
-
-            render(<FileHandlerFileUploadStep {...DEFAULT_PROPS} />);
-        }
-
-        test("renders the spinner", () => {
-            setup();
-            expect(screen.getByTestId("rs-spinner")).toBeVisible();
-        });
-    });
 
     describe("when the Sender details have been loaded", () => {
         describe("when a CSV schema is chosen", () => {
             function setup() {
-                mockUseSenderResource({
-                    isInitialLoading: false,
-                    isLoading: false,
-                });
-                mockUseWatersUploader();
                 render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -111,11 +50,6 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when an HL7 schema is chosen", () => {
             function setup() {
-                mockUseSenderResource({
-                    isInitialLoading: false,
-                    isLoading: false,
-                });
-                mockUseWatersUploader();
                 render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -144,11 +78,6 @@ describe("FileHandlerFileUploadStep", () => {
         describe("when a file is selected", () => {
             const onFileChangeSpy = vi.fn();
             async function setup() {
-                mockUseSenderResource({
-                    isInitialLoading: false,
-                    isLoading: false,
-                });
-                mockUseWatersUploader();
                 render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -181,13 +110,6 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when a file is being submitted", () => {
             function setup() {
-                mockUseSenderResource({
-                    isInitialLoading: false,
-                    isLoading: false,
-                });
-
-                mockUseWatersUploader({ isPending: true });
-
                 render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -196,6 +118,7 @@ describe("FileHandlerFileUploadStep", () => {
                             title: "whatever",
                             value: "whatever",
                         }}
+                        isSubmitting={true}
                     />,
                 );
             }
@@ -210,18 +133,8 @@ describe("FileHandlerFileUploadStep", () => {
             });
         });
 
-        describe("when a valid file is submitted", () => {
-            const onFileSubmitSuccessSpy = vi.fn();
-            const onNextStepClickSpy = vi.fn();
+        describe("when a file is submitted", () => {
             async function setup() {
-                mockUseSenderResource({
-                    isInitialLoading: false,
-                    isLoading: false,
-                });
-                mockUseWatersUploader({
-                    mutateAsync: vi.fn().mockResolvedValue(mockSendValidFile),
-                });
-
                 render(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -231,9 +144,6 @@ describe("FileHandlerFileUploadStep", () => {
                             title: "whatever",
                             value: "whatever",
                         }}
-                        fileContent="whatever"
-                        onFileSubmitSuccess={onFileSubmitSuccessSpy}
-                        onNextStepClick={onNextStepClickSpy}
                     />,
                 );
 
@@ -249,97 +159,11 @@ describe("FileHandlerFileUploadStep", () => {
                 });
             }
 
-            test("it calls onFileSubmitSuccess with the response", async () => {
+            test("it calls onSubmit", async () => {
                 await setup();
-                expect(onFileSubmitSuccessSpy).toHaveBeenCalledWith(
+                expect(DEFAULT_PROPS.onSubmit).toHaveBeenCalledWith(
                     mockSendValidFile,
                 );
-            });
-
-            test("it calls onNextStepClick", async () => {
-                await setup();
-                expect(onNextStepClickSpy).toHaveBeenCalled();
-            });
-
-            test("it calls trackAppInsightEvent with event data", async () => {
-                await setup();
-                expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
-                    name: "File Validator",
-                    properties: {
-                        fileValidator: {
-                            errorCount: 0,
-                            fileType: undefined,
-                            overallStatus: "Valid",
-                            schema: "whatever",
-                            sender: undefined,
-                            warningCount: 0,
-                        },
-                    },
-                });
-            });
-        });
-
-        describe("when an invalid file is submitted", () => {
-            const onFileSubmitErrorSpy = vi.fn();
-            async function setup() {
-                mockUseSenderResource({
-                    isInitialLoading: false,
-                    isLoading: false,
-                });
-
-                mockUseWatersUploader({
-                    isPending: false,
-                    error: null,
-                    mutateAsync: () =>
-                        Promise.reject({
-                            data: mockSendFileWithErrors,
-                        }),
-                } as any);
-                render(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        isValid
-                        selectedSchemaOption={{
-                            format: FileType.CSV,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                        fileContent="whatever"
-                        onFileSubmitError={onFileSubmitErrorSpy}
-                    />,
-                );
-
-                await waitFor(async () => {
-                    await userEvent.upload(
-                        screen.getByTestId("file-input-input"),
-                        fakeFile,
-                    );
-                    await userEvent.click(screen.getByText("Submit"));
-                    // eslint-disable-next-line testing-library/no-wait-for-side-effects
-                    fireEvent.submit(screen.getByTestId("form"));
-                    await new Promise((res) => setTimeout(res, 100));
-                });
-            }
-
-            test("it calls onFileSubmitErrorSpy with the response", async () => {
-                await setup();
-                expect(onFileSubmitErrorSpy).toHaveBeenCalled();
-            });
-
-            test("it calls trackAppInsightEvent with event data", async () => {
-                await setup();
-                expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
-                    name: "File Validator",
-                    properties: {
-                        fileValidator: {
-                            errorCount: 2,
-                            fileType: undefined,
-                            schema: "whatever",
-                            sender: undefined,
-                            warningCount: 0,
-                        },
-                    },
-                });
             });
         });
     });

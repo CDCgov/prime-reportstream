@@ -6,7 +6,7 @@ import { render } from "../utils/Test/render";
 import SenderModeBanner from "./SenderModeBanner";
 
 vi.mock("../hooks/UseSenderResource", async (imp) => ({
-    ...(await imp()),
+    ...(await imp<typeof import("../hooks/UseSenderResource")>()),
     default: vi.fn(() => ({
         isLoading: false,
         data: {

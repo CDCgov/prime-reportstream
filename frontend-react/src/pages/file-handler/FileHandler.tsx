@@ -1,22 +1,27 @@
 import { useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 
-import { showToast } from "../../contexts/Toast";
 import useFileHandler, {
     FileHandlerActionType,
     FileHandlerState,
 } from "../../hooks/UseFileHandler";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import site from "../../content/site.json";
-import { USExtLink, USLink } from "../USLink";
+import { USExtLink, USLink } from "../../components/USLink";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
-import { WatersResponse } from "../../config/endpoints/waters";
 import Alert from "../../shared/Alert/Alert";
-
-import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
-import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
-import FileHandlerErrorsWarningsStep from "./FileHandlerErrorsWarningsStep";
-import FileHandlerSuccessStep from "./FileHandlerSuccessStep";
+import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
+import useSenderResource from "../../hooks/UseSenderResource";
+import { useWatersUploader } from "../../hooks/network/WatersHooks";
+import { useToast } from "../../contexts/Toast";
+import FileHandlerFileUploadStep, {
+    getClientHeader,
+} from "../../components/FileHandlers/FileHandlerFileUploadStep";
+import FileHandlerSchemaSelectionStep from "../../components/FileHandlers/FileHandlerSchemaSelectionStep";
+import FileHandlerErrorsWarningsStep from "../../components/FileHandlers/FileHandlerErrorsWarningsStep";
+import FileHandlerSuccessStep from "../../components/FileHandlers/FileHandlerSuccessStep";
+import { parseCsvForError } from "../../utils/FileUtils";
 
 export interface FileHandlerStepProps extends FileHandlerState {
     isValid?: boolean;
@@ -53,6 +58,13 @@ function mapStateToOrderedSteps(state: FileHandlerState) {
 }
 
 export default function FileHandler() {
+    const { toast } = useToast();
+    const { appInsights } = useAppInsightsContext();
+    const { data: organization } = useOrganizationSettings();
+    const { data: sender } = useSenderResource();
+    const { activeMembership } = useSessionContext();
+    const { mutateAsync: sendFile, isPending: isSubmitting } =
+        useWatersUploader();
     const { state, dispatch } = useFileHandler();
     const { fileName, localError } = state;
     const orderedSteps = mapStateToOrderedSteps(state).filter(
@@ -67,11 +79,9 @@ export default function FileHandler() {
 
     useEffect(() => {
         if (localError) {
-            showToast(localError, "error");
+            toast(localError, "error");
         }
-    }, [localError]);
-
-    const { data: organization } = useOrganizationSettings();
+    }, [localError, toast]);
 
     function decrementStepIndex() {
         if (currentStepIndex === 0) {
@@ -96,7 +106,22 @@ export default function FileHandler() {
         });
     }
 
-    function handleFileChange(file: File, fileContent: string) {
+    async function handleFileChange(ev: React.ChangeEvent<HTMLInputElement>) {
+        // TODO: consolidate with upcoming FileUtils generic function
+        if (!ev?.target?.files?.length) {
+            return;
+        }
+        const file = ev.target.files.item(0)!!;
+
+        const fileContent = await file.text();
+
+        if (file.type === "csv" || file.type === "text/csv") {
+            const localCsvError = parseCsvForError(file.name, fileContent);
+            if (localCsvError) {
+                toast(localCsvError, "error");
+                return;
+            }
+        }
         dispatch({
             type: FileHandlerActionType.FILE_SELECTED,
             payload: { file, fileContent },
@@ -118,11 +143,76 @@ export default function FileHandler() {
         window.scrollTo(0, 0);
     }
 
-    function handleFileSubmitSuccess(response: WatersResponse) {
-        dispatch({
-            type: FileHandlerActionType.REQUEST_COMPLETE,
-            payload: { response },
-        });
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+        const {
+            fileContent,
+            contentType,
+            file,
+            selectedSchemaOption,
+            fileType,
+        } = state;
+
+        if (fileContent.length === 0) {
+            toast("No file contents to validate", "error");
+            return;
+        }
+
+        let eventData;
+        try {
+            const response = await sendFile({
+                contentType,
+                fileContent,
+                fileName: file?.name!!,
+                client: getClientHeader(
+                    selectedSchemaOption.value,
+                    activeMembership,
+                    sender,
+                ),
+                schema: selectedSchemaOption.value,
+                format: selectedSchemaOption.format,
+            });
+
+            dispatch({
+                type: FileHandlerActionType.REQUEST_COMPLETE,
+                payload: { response },
+            });
+
+            incrementStepIndex();
+
+            eventData = {
+                warningCount: response?.warnings?.length,
+                errorCount: response?.errors?.length,
+                overallStatus: response?.overallStatus,
+            };
+        } catch (e: any) {
+            // TODO: update this when we're still sending 200s back on validation warnings/errors
+            if (e.data) {
+                eventData = {
+                    warningCount: e.data.warningCount,
+                    errorCount: e.data.errorCount,
+                };
+            }
+
+            toast("File validation error. Please try again.", "error");
+
+            handleResetToFileSelection();
+        }
+
+        if (eventData) {
+            appInsights?.trackEvent({
+                name: EventName.FILE_VALIDATOR,
+                properties: {
+                    fileValidator: {
+                        schema: selectedSchemaOption?.value,
+                        fileType: fileType,
+                        sender: organization?.name,
+                        ...eventData,
+                    },
+                },
+            });
+        }
     }
 
     const commonStepProps = {
@@ -169,14 +259,14 @@ export default function FileHandler() {
                             case FileHandlerFileUploadStep:
                                 return (
                                     <FileHandlerFileUploadStep
-                                        {...commonStepProps}
+                                        onSubmit={handleSubmit}
+                                        isSubmitting={isSubmitting}
                                         onFileChange={handleFileChange}
-                                        onFileSubmitError={
-                                            handleResetToFileSelection
+                                        onBack={decrementStepIndex}
+                                        selectedSchemaOption={
+                                            state.selectedSchemaOption
                                         }
-                                        onFileSubmitSuccess={
-                                            handleFileSubmitSuccess
-                                        }
+                                        isValid={isValid}
                                     />
                                 );
                             case FileHandlerErrorsWarningsStep:

@@ -104,8 +104,12 @@ export class RSConsole {
             );
     }
 
-    trackConsoleEvent(consoleLevel: ConsoleLevel, ...args: any[]) {
+    emit(consoleLevel: ConsoleLevel, ...args: any[]) {
         console[consoleLevel](...args);
+        this.track(consoleLevel, ...args);
+    }
+
+    track(consoleLevel: ConsoleLevel, ...args: any[]) {
         const severityLevel = this.getSeverityLevel(consoleLevel);
         if (!this.isReportable(consoleLevel)) return;
 
@@ -137,22 +141,25 @@ export class RSConsole {
     }
 
     warn(...args: [message: string, ...optionalParams: any[]]) {
-        return this.trackConsoleEvent("warn", ...args);
+        return this.emit("warn", ...args);
     }
     error(...args: [error: Error, ...optionalParams: any[]]) {
-        return this.trackConsoleEvent("error", ...args);
+        return this.emit("error", ...args);
+    }
+    aiError(...args: [error: Error, ...optionalParams: any[]]) {
+        return this.emit("error", ...args);
     }
     debug(...args: [message: string, ...optionalParams: any[]]) {
-        return this.trackConsoleEvent("debug", ...args);
+        return this.emit("debug", ...args);
     }
     assert(...args: [value: any, message: string, ...optionalParams: any[]]) {
-        return this.trackConsoleEvent("assert", ...args);
+        return this.emit("assert", ...args);
     }
     info(...args: [message: string, ...optionalParams: any[]]) {
-        return this.trackConsoleEvent("info", ...args);
+        return this.emit("info", ...args);
     }
     trace(...args: [message: string, ...optionalParams: any[]]) {
-        return this.trackConsoleEvent("trace", ...args);
+        return this.emit("trace", ...args);
     }
     dev(...data: any[]): void;
     dev(message?: any, ...optionalParams: any[]): void;

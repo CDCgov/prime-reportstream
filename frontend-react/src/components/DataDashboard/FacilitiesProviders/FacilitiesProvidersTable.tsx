@@ -3,66 +3,57 @@ import { Dispatch, SetStateAction } from "react";
 import TableFilters from "../../Table/TableFilters";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
-import Spinner from "../../Spinner";
-import { NoServicesBanner } from "../../alerts/NoServicesAlert";
-import { FeatureName } from "../../../utils/FeatureName";
 import { Table } from "../../../shared/Table/Table";
-import useReceiverSubmitters, {
-    DeliveriesAttr,
-} from "../../../hooks/network/DataDashboard/UseReceiverSubmitters";
+import { DeliveriesAttr } from "../../../hooks/network/DataDashboard/UseReceiverSubmitters";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import Pagination from "../../Table/Pagination";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { getSlots } from "../../../hooks/UsePagination";
 import {
-    CustomerStatusType,
     transformFacilityTypeClass,
     transformFacilityTypeLabel,
 } from "../../../utils/DataDashboardUtils";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
-import AdminFetchAlert from "../../alerts/AdminFetchAlert";
+import { RSSubmitter } from "../../../config/endpoints/dataDashboard";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 
-function FacilitiesProvidersFilterAndTable({
-    receiverServices,
-    activeService,
-    setActiveService,
-}: {
+export interface FacilitiesProvidersTableProps {
     receiverServices: RSReceiver[];
     activeService: RSReceiver;
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
-}) {
-    const { appInsights } = useAppInsightsContext();
-    const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
+    onFilterClick: (from: string, to: string) => void;
+    filterManager: FilterManager;
+    submitters: RSSubmitter[];
+    submittersTotal: number;
+    pagesTotal: number;
+}
 
+export default function FacilitiesProvidersTable({
+    receiverServices,
+    activeService,
+    setActiveService,
+    filterManager,
+    onFilterClick,
+    submitters,
+    submittersTotal,
+    pagesTotal,
+}: FacilitiesProvidersTableProps) {
     const handleSetActive = (name: string) => {
         setActiveService(receiverServices.find((item) => item.name === name));
     };
 
-    const {
-        data: results,
-        filterManager,
-        isLoading,
-    } = useReceiverSubmitters(activeService.name);
-
-    if (isLoading || !results) return <Spinner />;
-
     const onColumnCustomSort = (columnID: string) => {
-        filterManager?.updateSort({
+        filterManager.updateSort({
             type: SortSettingsActionType.CHANGE_COL,
             payload: {
                 column: columnID,
             },
         });
-        filterManager?.updateSort({
+        filterManager.updateSort({
             type: SortSettingsActionType.SWAP_ORDER,
         });
     };
-    const data = results?.data.map((dataRow) => [
+    const data = submitters.map((dataRow) => [
         {
             columnKey: DeliveriesAttr.NAME,
             columnHeader: "Name",
@@ -115,7 +106,7 @@ function FacilitiesProvidersFilterAndTable({
         <div>
             <section id="facilities-providers">
                 <div className="text-bold font-sans-md">
-                    Showing all results ({results?.meta.totalFilteredCount})
+                    Showing all results ({submittersTotal})
                 </div>
                 <div className="display-flex flex-row">
                     <ReceiverServices
@@ -137,16 +128,7 @@ function FacilitiesProvidersFilterAndTable({
                             filterManager?.updatePage({
                                 type: PageSettingsActionType.RESET,
                             });
-
-                            appInsights?.trackEvent({
-                                name: featureEvent,
-                                properties: {
-                                    tableFilter: {
-                                        startRange: from,
-                                        endRange: to,
-                                    },
-                                },
-                            });
+                            onFilterClick(from, to);
                         }}
                     />
                 </div>
@@ -160,50 +142,10 @@ function FacilitiesProvidersFilterAndTable({
                                 payload: { page: pageNum },
                             });
                         }}
-                        slots={getSlots(
-                            currentPageNum,
-                            results?.meta.totalPages,
-                        )}
+                        slots={getSlots(currentPageNum, pagesTotal)}
                     />
                 )}
             </section>
         </div>
-    );
-}
-
-export default function FacilitiesProvidersTable() {
-    const {
-        isLoading,
-        data: services,
-        activeService,
-        setActiveService,
-        isDisabled,
-    } = useOrganizationReceiversFeed();
-
-    if (isLoading) return <Spinner />;
-
-    if (isDisabled) return <AdminFetchAlert />;
-
-    if (
-        !isLoading &&
-        (!activeService ||
-            activeService?.customerStatus === CustomerStatusType.INACTIVE)
-    )
-        return (
-            <div className="usa-section margin-bottom-10">
-                <NoServicesBanner />
-            </div>
-        );
-
-    return (
-        <>
-            {activeService && (
-                <FacilitiesProvidersFilterAndTable
-                    receiverServices={services!!}
-                    activeService={activeService}
-                    setActiveService={setActiveService}
-                />
-            )}
-        </>
     );
 }

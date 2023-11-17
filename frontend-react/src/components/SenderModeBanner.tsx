@@ -1,9 +1,7 @@
 import { ReactElement } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
-import { useSessionContext } from "../contexts/Session";
 import useSenderResource from "../hooks/UseSenderResource";
-import { MemberType } from "../utils/OrganizationUtils";
 
 import { USLink } from "./USLink";
 
@@ -11,9 +9,17 @@ const isNotActive = (val: string | undefined): boolean => {
     return val === "testing" || val === "inactive";
 };
 
-const BannerContent = () => {
-    const { data: sender, isLoading } = useSenderResource();
-    if (!isLoading && isNotActive(sender?.customerStatus)) {
+export interface SenderModeBannerBaseProps extends React.PropsWithChildren {
+    isLoading?: boolean;
+    customerStatus?: string;
+}
+
+function SenderModeBannerBase({
+    children,
+    customerStatus,
+    isLoading,
+}: SenderModeBannerBaseProps) {
+    if (!isLoading && isNotActive(customerStatus)) {
         return (
             <section>
                 <header className="usa-banner__header bg-yellow">
@@ -27,6 +33,7 @@ const BannerContent = () => {
                             <USLink href="/getting-started/testing-facilities/overview">
                                 Learn more about onboarding.
                             </USLink>
+                            {children}
                         </div>
                     </div>
                 </header>
@@ -35,15 +42,19 @@ const BannerContent = () => {
     }
 
     return null;
-};
+}
 
-const SenderModeBanner = (): ReactElement | null => {
-    const { activeMembership } = useSessionContext();
-
-    if (activeMembership?.memberType === MemberType.SENDER) {
-        return <BannerContent />;
-    }
-    return null;
+const SenderModeBanner = (
+    props: React.PropsWithChildren,
+): ReactElement | null => {
+    const { data, isLoading } = useSenderResource();
+    return (
+        <SenderModeBannerBase
+            isLoading={isLoading}
+            customerStatus={data?.customerStatus}
+            {...props}
+        />
+    );
 };
 
 export default SenderModeBanner;
