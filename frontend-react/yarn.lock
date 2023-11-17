@@ -15478,7 +15478,7 @@ __metadata:
     react-idle-timer: ^5.7.2
     react-loader-spinner: ^5.4.5
     react-markdown: ^9.0.0
-    react-query-kit: ^2.0.8
+    react-query-kit: ^2.0.9
     react-router: ^6.17.0
     react-router-dom: ^6.17.0
     react-scroll-sync: ^0.11.0
@@ -15605,15 +15605,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-query-kit@npm:^2.0.8":
-  version: 2.0.8
-  resolution: "react-query-kit@npm:2.0.8"
+"react-query-kit@npm:^2.0.9":
+  version: 2.0.9
+  resolution: "react-query-kit@npm:2.0.9"
   peerDependencies:
     "@tanstack/react-query": ^4 || ^5
   peerDependenciesMeta:
     "@tanstack/react-query":
       optional: true
-  checksum: 24cf99a47aa5bd965bf8ee3a2f999f4678ebd382fce6a33f9b2dba39364c1fc700caf7ed10aa80f6dbfc5f9d7489ee77ae14f8ad81be75a4ebb802d92c8f855e
+  checksum: 44db7c0a85f3194e12da30ea620137f220a99c84f27e92b5db4486cd022c75b249a16b80f2b4f8ebc4455c9b58942896614e5b9a1c31645cd83d7b72168f49ae
   languageName: node
   linkType: hard
 
