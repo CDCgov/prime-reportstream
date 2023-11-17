@@ -1,8 +1,10 @@
 package gov.cdc.prime.router.transport
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.GAENTransportType
 import gov.cdc.prime.router.Metadata
@@ -39,7 +41,6 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
     private val metadata = Metadata.getInstance()
     private val settings = FileSettings(FileSettings.defaultSettingsDirectory)
 
-//    private val gaenTransport = spyk<GAENTransport>()
     private val transportType = GAENTransportType("http://localhost:3000/")
     private val successJson = """
         {"padding":"-",
@@ -99,11 +100,6 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
         )
     }
 
-//    private fun setupTransport() {
-//        every { gaenTransport.lookupCredentials(any()) }
-//            .returns(UserApiKeyCredential("rick", "xzy"))
-//    }
-
     @BeforeEach
     fun setup() {
         mockkObject(BlobAccess)
@@ -121,25 +117,20 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `test send happy path`() {
         val header = makeHeader()
-//        setupTransport()
-        println(header)
 
-        // Set up a OK ENVC API response
-//        val client = mockk<Client>()
-//        every { client.executeRequest(any()).statusCode } returns 200
-//        every { client.executeRequest(any()).responseMessage } returns "OK"
-//        every { client.executeRequest(any()).data } returns successJson.toByteArray()
-//        FuelManager.instance.client = client
-//
         val actionHistory = ActionHistory(TaskAction.send)
+
         val transObj = getMockUtil(
             "/",
             HttpStatusCode.OK,
             body = successJson
         )
+
         val transMock = spyk(transObj)
+
         every { transMock.lookupCredentials(any()) }
             .returns(UserApiKeyCredential("rick", "xzy"))
+
         val retryItems = transMock.send(
                 transportType,
                 header,
@@ -156,61 +147,92 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `test send and retry`() {
         val header = makeHeader()
-//        setupTransport()
-        println(header)
-        // Set up a OK ENVC API response
-//        val client = mockk<Client>()
-//        every { client.executeRequest(any()).statusCode } returns 429
-//        every { client.executeRequest(any()).responseMessage } returns "Too Many Requests"
-//        every { client.executeRequest(any()).data } returns maintenanceJson.toByteArray()
-//        FuelManager.instance.client = client
-//
-//        val actionHistory = ActionHistory(TaskAction.send)
-//        val retryItems = gaenTransport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
-//
-//        assertThat(RetryToken.isAllItems(retryItems)).isTrue()
-//        assertThat(actionHistory.action.actionName).isEqualTo(TaskAction.send_warning)
+
+        val actionHistory = ActionHistory(TaskAction.send)
+
+        val transObj = getMockUtil(
+            "/",
+            HttpStatusCode.TooManyRequests,
+            body = maintenanceJson
+        )
+
+        val transMock = spyk(transObj)
+
+        every { transMock.lookupCredentials(any()) }
+            .returns(UserApiKeyCredential("rick", "xzy"))
+
+        val retryItems = transMock.send(
+            transportType,
+            header,
+            UUID.randomUUID(),
+            retryItems = null,
+            context,
+            actionHistory
+        )
+
+        assertThat(RetryToken.isAllItems(retryItems)).isTrue()
+        assertThat(actionHistory.action.actionName).isEqualTo(TaskAction.send_warning)
     }
 
     @Test
     fun `test send and 400 error handling`() {
         val header = makeHeader()
-//        setupTransport()
-        println(header)
 
-        // Set up a OK ENVC API response
-//        val client = mockk<Client>()
-//        every { client.executeRequest(any()).statusCode } returns 400
-//        every { client.executeRequest(any()).responseMessage } returns "Bad Request"
-//        every { client.executeRequest(any()).data } returns errorJson.toByteArray()
-//        FuelManager.instance.client = client
+        val actionHistory = ActionHistory(TaskAction.send)
 
-//        val actionHistory = ActionHistory(TaskAction.send)
-//        val retryItems = gaenTransport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
-//
-//        assertThat(retryItems).isNull()
-//        assertThat(actionHistory.action.actionName).isEqualTo(TaskAction.send)
-//        assertThat(actionHistory.action.actionResult).contains("""Successful exposure""")
+        val transObj = getMockUtil(
+            "/",
+            HttpStatusCode.BadRequest,
+            body = errorJson
+        )
+
+        val transMock = spyk(transObj)
+
+        every { transMock.lookupCredentials(any()) }
+            .returns(UserApiKeyCredential("rick", "xzy"))
+
+        val retryItems = transMock.send(
+            transportType,
+            header,
+            UUID.randomUUID(),
+            retryItems = null,
+            context,
+            actionHistory
+        )
+
+        assertThat(retryItems).isNull()
+        assertThat(actionHistory.action.actionName).isEqualTo(TaskAction.send)
+        assertThat(actionHistory.action.actionResult).contains("""Successful exposure""")
     }
 
     @Test
     fun `test send and 409 error handling`() {
         val header = makeHeader()
-//        setupTransport()
-        println(header)
 
-        // Set up a OK ENVC API response
-//        val client = mockk<Client>()
-//        every { client.executeRequest(any()).statusCode } returns 409
-//        every { client.executeRequest(any()).responseMessage } returns "The UUID has already been used for an issued"
-//        every { client.executeRequest(any()).data } returns errorJson.toByteArray()
-//        FuelManager.instance.client = client
-//
-//        val actionHistory = ActionHistory(TaskAction.send)
-//        val retryItems = gaenTransport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
-//
-//        assertThat(retryItems).isNull()
-//        assertThat(actionHistory.action.actionName).isEqualTo(TaskAction.send)
-//        assertThat(actionHistory.action.actionResult).contains("""Successful exposure""")
+        val actionHistory = ActionHistory(TaskAction.send)
+
+        val transObj = getMockUtil(
+            "/",
+            HttpStatusCode.Conflict,
+            body = errorJson
+        )
+
+        val transMock = spyk(transObj)
+
+        every { transMock.lookupCredentials(any()) }
+            .returns(UserApiKeyCredential("rick", "xzy"))
+
+        val retryItems = transMock.send(
+            transportType,
+            header,
+            UUID.randomUUID(),
+            retryItems = null,
+            context,
+            actionHistory
+        )
+
+        assertThat(retryItems).isNull()
+        assertThat(actionHistory.action.actionName).isEqualTo(TaskAction.send)
+        assertThat(actionHistory.action.actionResult).contains("""Successful exposure""")
     }
 }
