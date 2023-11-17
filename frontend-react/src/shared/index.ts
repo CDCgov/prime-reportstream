@@ -11,3 +11,4 @@ export * from "./ReleaseNote/ReleaseNote";
 export * from "./SideNavItem/SideNavItem";
 export * from "./Table/Table";
 export * from "./Tile/Tile";
+export * from "./CodeSnippet/CodeSnippet";

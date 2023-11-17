@@ -582,7 +582,7 @@ tasks.azureFunctionsRun {
         "VAULT_API_ADDR" to "http://localhost:8200",
         "SFTP_HOST_OVERRIDE" to "localhost",
         "SFTP_PORT_OVERRIDE" to "2222",
-        "OKTA_baseUrl" to "hhs-prime.oktapreview.com"
+        "RS_OKTA_baseUrl" to "reportstream.oktapreview.com"
     )
 
     // Load the vault variables
@@ -835,7 +835,7 @@ dependencies {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.4")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.5")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.8.5")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")

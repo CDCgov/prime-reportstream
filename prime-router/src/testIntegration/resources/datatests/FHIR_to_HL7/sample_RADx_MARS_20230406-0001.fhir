@@ -49,6 +49,14 @@
               "valueReference" : {
                 "reference" : "Organization/07640c5d-87cd-488b-9343-a226c5166539"
               }
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+              "valueString" : "https://simplereport.gov"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+              "valueString" : "sending-application"
             }
           ],
           "software" : "PRIME SimpleReport",
