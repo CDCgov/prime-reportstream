@@ -24,3 +24,12 @@ tag:
           expressionType: HL7Spec
         system:
           value: "http://terminology.hl7.org/CodeSystem/v2-0207"
+
+# Currently used to capture MSH.8
+security:
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    code:
+      type: STRING
+      valueOf: $metaSecurity
