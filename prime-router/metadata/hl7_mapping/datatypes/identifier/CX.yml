@@ -47,17 +47,13 @@ elements:
     schema: ../dateTime/DTMorDT
 
   - name: assigning-jurisdiction
-    value: [ '%resource.extension(%`rsext-assigning-jurisdiction`).value' ]
-    hl7Spec: [ '%{cxFieldPath}-9' ]
+    resource: '%resource.extension(%`rsext-assigning-jurisdiction`).value'
+    schema: ../codeableConcept/CWE
+    constants:
+      cweFieldPath: '%{cxFieldPath}-9'
 
   - name: assigning-agency-or-department
-    value: [ '%resource.extension(%`rsext-assigning-agency-or-department`).value' ]
-    hl7Spec: [ '%{cxFieldPath}-10' ]
-
-  - name: security-check
-    value: [ '%resource.extension(%`rsext-security-check`).value' ]
-    hl7Spec: [ '%{cxFieldPath}-11' ]
-
-  - name: security-check-scheme
-    value: [ '%resource.extension(%`rsext-security-check-scheme`).value' ]
-    hl7Spec: [ '%{cxFieldPath}-12' ]
+    resource: '%resource.extension(%`rsext-assigning-agency-or-department`).value'
+    schema: ../codeableConcept/CWE
+    constants:
+      cweFieldPath: '%{cxFieldPath}-10'

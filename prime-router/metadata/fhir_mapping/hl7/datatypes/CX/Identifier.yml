@@ -97,7 +97,6 @@ type:
   vars:
     code: $code
     system: $system
-    text: $text
 
 extension_assigningFacility:
   generateList: true
@@ -163,10 +162,10 @@ extension_4:
     url:
       type: SYSTEM_URL
       value: assigning-jurisdiction
-    valueString:
-      type: STRING
-      expressionType: HL7Spec
-      valueOf: CX.9
+    valueCodeableConcept:
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: CX.9
 
 extension_5:
   generateList: true
@@ -175,10 +174,10 @@ extension_5:
     url:
       type: SYSTEM_URL
       value: assigning-agency-or-department
-    valueString:
-      type: STRING
-      expressionType: HL7Spec
-      valueOf: CX.10
+    valueCodeableConcept:
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: CX.10
 
 extension_6:
   generateList: true
