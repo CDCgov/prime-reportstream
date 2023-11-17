@@ -35,12 +35,16 @@ elements:
       hl7HDField: '%{cxFieldPath}-6'
 
   - name: effective-date
-    value: [ '%resource.period.start' ]
-    hl7Spec: [ '%{cxFieldPath}-7' ]
+    resource: '%resource.period.start'
+    constants:
+      dtmFieldPath: '%{cxFieldPath}-7'
+    schema: ../dateTime/DTMorDT
 
   - name: expiration-date
-    value: [ '%resource.period.end' ]
-    hl7Spec: [ '%{cxFieldPath}-8' ]
+    resource: '%resource.period.end'
+    constants:
+      dtmFieldPath: '%{cxFieldPath}-8'
+    schema: ../dateTime/DTMorDT
 
   - name: assigning-jurisdiction
     value: [ '%resource.extension(%`rsext-assigning-jurisdiction`).value' ]
