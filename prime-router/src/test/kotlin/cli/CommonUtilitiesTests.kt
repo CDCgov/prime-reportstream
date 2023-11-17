@@ -7,6 +7,7 @@ import com.sendgrid.Method
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.DiffRow
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.diffJson
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
+import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpStatusCode
 import io.mockk.Runs
 import io.mockk.clearConstructorMockk
@@ -18,6 +19,7 @@ import java.io.File
 import java.io.OutputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
 class CommonUtilitiesTests {
@@ -109,6 +111,74 @@ class CommonUtilitiesTests {
         assertNotNull(result2, "Expect a pair of response and response body as json string.")
         assertEquals(result2.first.status, HttpStatusCode.BadRequest, "Expect a Bad Request response status.")
         assertNotNull(result2, "Expect a pair of response and response body as json string.")
+    }
+
+    @Test
+    fun `test post wrappers`() {
+        val fakeUrlPath = "/fakeEndpoint/post_001"
+        val clientWithMockEngine = ApiMockEngine(
+            fakeUrlPath,
+            HttpStatusCode.OK,
+            body = sampleRespBodyJson
+        ) {
+            assertEquals(it.method.value, Method.POST.toString())
+            assertEquals(it.url.encodedPath, fakeUrlPath)
+        }.client()
+
+        val result = CommandUtilities.postWithStringResponse(
+            url = "fakeEndpoint/post_001",
+            httpClient = clientWithMockEngine,
+            jsonPayload = sampleRespBodyJson
+        )
+
+        assertNotNull(result, "Expect a pair of response and response body as json string.")
+        assertEquals(result.first.status, HttpStatusCode.OK, "Expect a OK response status.")
+        assertNotNull(result, "Expect a pair of response and response body as json string.")
+
+        val fakeUrlPath2 = "/fakeEndpoint/post_002"
+        val clientWithMockEngine2 = ApiMockEngine(
+            fakeUrlPath2,
+            HttpStatusCode.BadRequest,
+            body = sampleRespBodyJson
+        ) {
+            assertEquals(it.method.value, Method.POST.toString())
+            assertEquals(it.url.encodedPath, fakeUrlPath2)
+        }.client()
+
+        val result2 = CommandUtilities.postWithStringResponse(
+            url = fakeUrlPath2,
+            httpClient = clientWithMockEngine2,
+            jsonPayload = sampleRespBodyJson
+        )
+
+        assertNotNull(result2, "Expect a pair of response and response body as json string.")
+        assertEquals(result2.first.status, HttpStatusCode.BadRequest, "Expect a Bad Request response status.")
+        assertNotNull(result2, "Expect a pair of response and response body as json string.")
+    }
+
+    @Test
+    fun `test post wrappers on 5XX code`() {
+        val fakeUrlPath = "/fakeEndpoint/post_bad_payload"
+        val clientWithMockEngine = ApiMockEngine(
+            fakeUrlPath,
+            HttpStatusCode.BadGateway,
+            body = "does not matter"
+        ) {
+            assertEquals(it.method.value, Method.POST.toString())
+            assertEquals(it.url.encodedPath, fakeUrlPath)
+        }.client()
+
+        // when expect success set to true
+        assertFailsWith<ServerResponseException>(
+            block = {
+                CommandUtilities.postWithStringResponse(
+                    url = "fakeEndpoint/post_bad_payload",
+                    expSuccess = true,
+                    httpClient = clientWithMockEngine,
+                    jsonPayload = """{"lookupTableVersionId" ---- 6}"""
+                )
+            }
+        )
     }
 
     @Test
