@@ -174,4 +174,4 @@ extension_8:
       type: SYSTEM_URL
       value: identifier-index-name
     valueString:
-      value: "cx"
+      value: "alternate-placer-identifier"

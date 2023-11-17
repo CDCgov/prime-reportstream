@@ -43,7 +43,7 @@ elements:
     schema: ../resources/PractitionerRole/NDL
 
   - name: alternate-placer-order-number
-    resource: '%service.identifier.where(extension(%`rsext-identifier-index-name`).value = "cx" )'
+    resource: '%service.identifier.where(extension(%`rsext-identifier-index-name`).value = "alternate-placer-identifier" )'
     constants:
       cxFieldPath: '%{fieldPath}-53'
     schema: ../datatypes/identifier/CX
