@@ -19,6 +19,7 @@ import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
+import io.ktor.client.HttpClient
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import org.apache.commons.codec.digest.HmacAlgorithms
@@ -40,7 +41,7 @@ import java.io.ByteArrayInputStream
  * See [Google API for Exposure Notification](https://https://developers.google.com/android/exposure-notifications/exposure-notifications-api) for details on GAEN.
  * See [Issue API](https://https://github.com/google/exposure-notifications-verification-server/blob/main/docs/api.md#apiissue) for the details on the issue API ReportStream calls.
  */
-class GAENTransport : ITransport, Logging {
+class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
     /**
      * Information helpful for the sending, logging and recording history all bundled together
      * to avoid long parameter lists in functions
@@ -231,7 +232,8 @@ class GAENTransport : ITransport, Logging {
             url = params.gaenTransportInfo.apiUrl.toString(),
             hdr = mapOf(Pair(API_KEY, params.credential.apiKey.toString())),
             jsonPayload = payload,
-            acceptedCt = ContentType.Application.Json
+            acceptedCt = ContentType.Application.Json,
+            httpClient = httpClient
         )
 
         if (response.status == HttpStatusCode.OK) {
@@ -270,7 +272,8 @@ class GAENTransport : ITransport, Logging {
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel,
             "GAENTransport",
-            CredentialRequestReason.GAEN_NOTIFICATION
+            CredentialRequestReason.GAEN_NOTIFICATION,
+            httpClient
         ) as? UserApiKeyCredential?
             ?: error("Unable to find GAEN credentials for $receiverFullName using $credentialLabel")
     }
