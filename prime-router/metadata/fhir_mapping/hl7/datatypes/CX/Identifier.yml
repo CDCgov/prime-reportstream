@@ -186,30 +186,6 @@ extension_6:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: security-check
-    valueString:
-      type: STRING
-      expressionType: HL7Spec
-      valueOf: CX.11
-
-extension_7:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: security-check-scheme
-    valueString:
-      type: STRING
-      expressionType: HL7Spec
-      valueOf: CX.12
-
-extension_8:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
       value: identifier-index-name
     valueString:
       value: "alternate-placer-identifier"
