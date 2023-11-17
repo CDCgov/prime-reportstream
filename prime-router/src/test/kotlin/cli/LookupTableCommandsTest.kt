@@ -221,4 +221,65 @@ class LookupTableCommandsTest {
         val output = LookupTableCompareMappingCommand.compareMappings(compendium, tableMap)
         assertThat(output).isEqualTo(expectedOutput)
     }
+
+    @Test
+    fun `update observation mapping table`() {
+        val conditionData = mapOf(
+            "condition_name" to "Acute poliomyelitis (disorder)",
+            "condition_code" to "398102009",
+            "Condition Code System" to "SNOMEDCT",
+            "Condition Code System Version" to "2023-03",
+            "Value Source" to "RCTC",
+            "Created At" to "10/24/23"
+        )
+        val tableData = mapOf(
+            "2.16.840.1.113762.1.4.1146.828" to listOf(
+                mapOf(
+                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
+                    "Code" to "16362001",
+                    "Descriptor" to "Human poliovirus 3 (organism)",
+                    "Code System" to "SNOMEDCT",
+                    "Version" to "2023-03",
+                    "Status" to "Active",
+                ) + conditionData,
+                mapOf(
+                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
+                    "Code" to "16362002",
+                    "Descriptor" to "Human poliovirus 3 (organism)",
+                    "Code System" to "SNOMEDCT",
+                    "Version" to "2023-03",
+                    "Status" to "Active",
+                ) + conditionData
+            )
+        )
+
+        val updateData = mapOf(
+            "2.16.840.1.113762.1.4.1146.828" to listOf(
+                mapOf(
+                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results) 2",
+                    "Code" to "16362002",
+                    "Descriptor" to "Human poliovirus over 9000 (organism)",
+                    "Code System" to "SNOMEDCT",
+                    "Version" to "2023-03",
+                    "Status" to "Active"
+                ),
+                mapOf(
+                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results) 2",
+                    "Code" to "16362003",
+                    "Descriptor" to "Human poliovirus 3 (organism)",
+                    "Code System" to "SNOMEDCT",
+                    "Version" to "2023-03",
+                    "Status" to "Active"
+                )
+            )
+        )
+
+        val output = LookupTableUpdateMappingCommand.updateMappings(tableData, updateData)
+        val expectedOutput = updateData.flatMap { it.value.map { condition -> condition + conditionData } }
+        assertThat(output).isEqualTo(expectedOutput)
+    }
 }

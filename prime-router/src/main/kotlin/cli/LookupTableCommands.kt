@@ -688,6 +688,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
     private val tableVersion by option("-v", "--version", help = "The version of the table to get").int()
 
     companion object {
+        // TODO: refactor constants
         private const val SENDER_COMPENDIUM_CODE_KEY = "test code"
         private const val SENDER_COMPENDIUM_CODESYSTEM_KEY = "coding system"
         private const val SENDER_COMPENDIUM_MAPPED_KEY = "mapped?"
@@ -706,38 +707,39 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
         private const val OBX_MAPPING_CONDITION_CODE_KEY = "condition_code"
         private const val OBX_MAPPING_CONDITION_CODE_SYSTEM_KEY = "Condition Code System"
         private const val OBX_MAPPING_CONDITION_CODE_SYSTEM_VERSION_KEY = "Condition Code System Version"
-        private const val OBX_MAPPING_CONDITION_VALUE_SOURCE_KEY = "Condition Code System Version"
+        private const val OBX_MAPPING_CONDITION_VALUE_SOURCE_KEY = "Value Source"
+        private const val OBX_MAPPING_CONDITION_CREATED_AT = "Created At"
 
         private val OBX_MAPPING_CONDITION_KEYS = listOf(
             OBX_MAPPING_CONDITION_STATUS_KEY, OBX_MAPPING_CONDITION_NAME_KEY, OBX_MAPPING_CONDITION_CODE_KEY,
             OBX_MAPPING_CONDITION_CODE_SYSTEM_KEY, OBX_MAPPING_CONDITION_CODE_SYSTEM_VERSION_KEY,
-            OBX_MAPPING_CONDITION_VALUE_SOURCE_KEY
+            OBX_MAPPING_CONDITION_VALUE_SOURCE_KEY, OBX_MAPPING_CONDITION_CREATED_AT
         )
 
-        fun fetchLatestTestData(oids: List<String>): List<Map<String, String>> {
+        fun fetchLatestTestData(oids: List<String>): Map<String, List<Map<String, String>>> {
             //            val data : List<Map<String, String>> = listOf(mapOf("foo" to "bar"))
             //            return data
-            return listOf(mapOf("foo" to "bar"))
+            print(oids)
+            return mapOf("buzz" to listOf(mapOf("foo" to "bar")))
         }
 
         fun updateMappings(
             inputData: Map<String, List<Map<String, String>>>,
-            updateData: List<Map<String, String>>,
+            updateData: Map<String, List<Map<String, String>>>,
         ): List<Map<String, String>> {
             val outputData: MutableList<Map<String, String>> = mutableListOf()
             updateData.forEach { update ->
                 // fetch the condition data from existing table
-                val conditionData = inputData[update[OBX_MAPPING_OID_KEY]]!![0].filterKeys {
-                    it !in OBX_MAPPING_CONDITION_KEYS
+                val conditionData = inputData[update.key]!![0].filterKeys {
+                    it in OBX_MAPPING_CONDITION_KEYS
                 }
 
-                // TODO: figure out this data structure and build appropriate output row
                 // for each snomed code in this update
-                update.forEach {
-                    outputData.add(update + conditionData)
+                update.value.forEach {
+                    outputData.add(it + conditionData)
                 }
             }
-            return outputData + inputData["NO_OID"]!!
+            return outputData + inputData.getOrDefault("NO_OID", emptyList())
         }
     }
 
@@ -776,7 +778,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
             tableData
         }
 
-        // Check loaded table for needed columns
+        // TODO: Check loaded table for needed columns
 //        arrayOf(OBX_MAPPING_CODE_KEY, OBX_MAPPING_CODESYSTEM_KEY).forEach {
 //            if (it !in tableData[0].keys) throw PrintMessage("Loaded table $tableName missing column: $it")
 //        }
@@ -797,11 +799,23 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                 "Saved ${outputData.size} rows to ${outputFile!!.absolutePath} "
             )
         }
+        if ((
+            !silent && confirm(
+                    "Continue to create a new version of observation-mapping.csv with ${outputData.size} rows?"
+                ) == true
+            ) || silent
+        ) {
+            // TODO: Save updated mapping csv
+        }
 
-        // TODO: Save updated mapping csv
-
-        tableUtil.createTable(tableName, outputData, true)
-//        echo(LookupTableCommands.rowsToPrintableTable(outputData, outputData[0].keys.toList()))
+        if ((
+                !silent && confirm("Continue to create a new version of $tableName with ${outputData.size} rows?")
+                    == true
+                ) || silent
+        ) {
+            tableUtil.createTable(tableName, outputData, true)
+    //        echo(LookupTableCommands.rowsToPrintableTable(outputData, outputData[0].keys.toList()))
+        }
     }
 }
 
