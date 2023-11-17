@@ -15,6 +15,7 @@ identifier_1:
     eip2: SPM.2.2
   constants:
     hl7Use: "specimen-id-placer"
+    backupExtension: "filler-assigned-identifier"
 
 identifier_2:
   condition: $spm22 NOT_NULL
@@ -27,6 +28,7 @@ identifier_2:
     eip1: SPM.2.1
   constants:
     hl7Use: "specimen-id-filler"
+    backupExtension: "placer-assigned-identifier"
 
 status:
   type: SPECIMEN_STATUS

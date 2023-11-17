@@ -52,53 +52,14 @@ extension_1:
           valueOf: EIP.1.4
 
 extension_2-filler-assigned-identifier:
+  vars:
+    eip1: STRING_ALL, EIP.2
+    extensionUrl: $backupExtension
   condition: $eip2 NOT_NULL
   generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      valueOf: filler-assigned-identifier
-    extension_url:
-      generateList: true
-      expressionType: nested
-      expressions:
-        - expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: entity-identifier
-            valueString:
-              expressionType: HL7Spec
-              type: STRING
-              valueOf: EIP.2.1
-        - expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: namespace-id
-            valueString:
-              expressionType: HL7Spec
-              type: STRING
-              valueOf: EIP.2.2
-        - expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: universal-id
-            valueString:
-              expressionType: HL7Spec
-              type: STRING
-              valueOf: EIP.2.3
-        - expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: universal-id-type
-            valueString:
-              expressionType: HL7Spec
-              type: STRING
-              valueOf: EIP.2.4
+  expressionType: resource
+  valueOf: datatypes/EIP/EI/ExtensionEI
+  specs: EIP.2
 
 extension_3-hl7-use:
   generateList: true

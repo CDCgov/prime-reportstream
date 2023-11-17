@@ -16,18 +16,8 @@ elements:
     value: [ '%resource.extension(%`rsext-universal-id-type`).value' ]
     hl7Spec: [ '%{spmFieldPath}-1-4' ]
 
-  - name: eip-filler-entity-identifier
-    value: [ '%resource.extension(%`rsext-filler-assigned-identifier`).extension(%`rsext-entity-identifier`).value'  ]
-    hl7Spec: [ '%{spmFieldPath}-2-1' ]
-
-  - name: eip-filler-namespace-id
-    value: [ '%resource.extension(%`rsext-filler-assigned-identifier`).extension(%`rsext-namespace-id`).value' ]
-    hl7Spec: [ '%{spmFieldPath}-2-2' ]
-
-  - name: eip-filler-universal-id
-    value: [ '%resource.extension(%`rsext-filler-assigned-identifier`).extension(%`rsext-universal-id`).value' ]
-    hl7Spec: [ '%{spmFieldPath}-2-3' ]
-
-  - name: eip-filler-universal-id
-    value: [ '%resource.extension(%`rsext-filler-assigned-identifier`).extension(%`rsext-universal-id-type`).value' ]
-    hl7Spec: [ '%{spmFieldPath}-2-4' ]
+  - name: eip-filler-identifier-backup
+    resource: '%resource.extension(%`rsext-filler-assigned-identifier`)'
+    schema: ../../datatypes/extensionEI/EI
+    constants:
+      hl7EIField: '%{spmFieldPath}-2'

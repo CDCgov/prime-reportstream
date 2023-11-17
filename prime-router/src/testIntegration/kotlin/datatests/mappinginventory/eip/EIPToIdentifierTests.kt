@@ -6,12 +6,17 @@ import org.junit.jupiter.api.Test
 class EIPToIdentifierTests {
 
     @Test
-    fun `verify HL7 to FHIR to HL7 from Placer Assigned Identifier`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("eip/EIP-to-Identifier-PlacerAssignedIdentifier").passed)
+    fun `verify HL7 to FHIR to HL7 from both Placer Assigned Identifier and Filler Assigned Identifier`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("eip/EIP-to-Identifier-Both").passed)
     }
 
     @Test
-    fun `verify HL7 to FHIR to HL7 from Filler Assigned Identifier`() {
+    fun `verify HL7 to FHIR to HL7 from only Placer Assigned Identifier`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("eip/EIP-to-Identifier-FillerAssignedIdentifier").passed)
+    }
+
+    @Test
+    fun `verify HL7 to FHIR to HL7 from only Filler Assigned Identifier`() {
         assert(verifyHL7ToFHIRToHL7Mapping("eip/EIP-to-Identifier-FillerAssignedIdentifier").passed)
     }
 }

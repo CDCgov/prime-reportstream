@@ -1,21 +1,5 @@
 elements:
 
-  - name: eip-placer-entity-identifier-backup
-    value: [ '%resource.extension(%`rsext-placer-assigned-identifier`).extension(%`rsext-entity-identifier`).value' ]
-    hl7Spec: [ '%{spmFieldPath}-1-1' ]
-
-  - name: eip-placer-namespace-id-backup
-    value: [ '%resource.extension(%`rsext-placer-assigned-identifier`).extension(%`rsext-namespace-id`).value' ]
-    hl7Spec: [ '%{spmFieldPath}-1-2' ]
-
-  - name: eip-placer-universal-id-backup
-    value: [ '%resource.extension(%`rsext-placer-assigned-identifier`).extension(%`rsext-universal-id`).value' ]
-    hl7Spec: [ '%{spmFieldPath}-1-3' ]
-
-  - name: eip-placer-universal-id-backup
-    value: [ '%resource.extension(%`rsext-placer-assigned-identifier`).extension(%`rsext-universal-id-type`).value' ]
-    hl7Spec: [ '%{spmFieldPath}-1-4' ]
-
   - name: eip-filler-entity-identifier-backup
     value: [ '%resource.value' ]
     hl7Spec: [ '%{spmFieldPath}-2-1' ]
@@ -31,3 +15,9 @@ elements:
   - name: eip-filler-universal-id-backup
     value: [ '%resource.extension(%`rsext-universal-id-type`).value' ]
     hl7Spec: [ '%{spmFieldPath}-2-4' ]
+
+  - name: eip-placer-identifier-backup
+    resource: '%resource.extension(%`rsext-placer-assigned-identifier`)'
+    schema: ../../datatypes/extensionEI/EI
+    constants:
+      hl7EIField: '%{spmFieldPath}-1'
