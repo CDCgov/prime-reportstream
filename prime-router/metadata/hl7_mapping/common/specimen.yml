@@ -7,7 +7,7 @@ elements:
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-placer")'
     condition: '%resource.exists()'
     constants:
-      spmFieldPath: '%{hl7SpecimenFieldPath}-2'
+      eipFieldPath: '%{hl7SpecimenFieldPath}-2'
     schema: ../datatypes/identifier-placerAssignedIdentifier/EIP
 
   - name: specimen-identifier-backup
@@ -16,7 +16,7 @@ elements:
       %resource.identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-placer").exists().not() and
       %resource.exists()
     constants:
-      spmFieldPath: '%{hl7SpecimenFieldPath}-2'
+      eipFieldPath: '%{hl7SpecimenFieldPath}-2'
     schema: ../datatypes/identifier-fillerAssignedIdentifier/EIP
 
   - name: specimen-type
