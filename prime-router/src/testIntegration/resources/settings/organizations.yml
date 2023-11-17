@@ -1,6 +1,8 @@
 ---
 #
-# This file runs in environments (ie. your desktop) where the 'localhost' host name resolves
+# This file is used for TranslationTests. This can be used to mimic settings from staging/prod without impacting
+# developers' local instance settings. Changes to these organization settings may affect the passing/failing of those
+# tests.
 #
 - name: simple_report
   description: PRIME's POC testing app
@@ -71,3 +73,324 @@
         initialTime: 00:00
         timeZone: EASTERN
 
+- name: ignore
+  description: FOR TESTING ONLY
+  jurisdiction: FEDERAL
+  filters:
+    - topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
+    - topic: monkeypox
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
+    - topic: full-elr
+      jurisdictionalFilter:
+        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
+      qualityFilter:
+        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+  senders:
+    - name: ignore-lifepoint
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      schemaName: hl7/lifepoint-covid-19
+      format: HL7
+    - name: ignore-monkeypox
+      organizationName: ignore
+      topic: monkeypox
+      customerStatus: inactive
+      schemaName: monkeypox
+      format: HL7
+
+- name: test
+  description: FOR DEVELOPMENT PURPOSES ONLY
+  jurisdiction: FEDERAL
+  senders:
+    - name: dev-elims
+      organizationName: test
+      topic: full-elr
+      customerStatus: active
+      schemaName: metadata/fhir_transforms/senders/CDC-ELIMS/elims-sender-transform
+      format: HL7
+  receivers:
+    - name: DEV_FULL_ELR
+      externalName: Ignore FULL_ELR Development
+      organizationName: test
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() and %patientState = 'CA')" ]
+      qualityFilter:
+        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+        # Flu B Test Performed LOINCs 85478-6, 76080-1, 92141-1, 80383-3, 82170-2
+        # Flu A Test Performed LOINCs 85477-8, 76078-5, 77026-3, 77028-9, 77027-1, 92142-9, 80382-5, 82166-0, 82167-8, 82169-4, 82168-6, 92809-3, 92808-5
+        # Special Snowflake LOINC - 95423-0 (Snomed CT code determines if it was the flu A or flu B result)
+        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+        # Every order has at least an order-test-date (ORC-15), specimen_collection_date_time (SPM-17-1, OBR-7, OBR-8, OBX-14) or test-result-date (OBX-19)
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty() and specimen.resolve().collection.collected.empty() and effective.empty() and issued.empty() and result.resolve().effective.empty()).count() = 0"
+        # Patient has at least a street address(PID-11-1), postal code (PID-11-5),phone(PID-13) or email(PID-13-4)
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+        # Message id is not empty (MSH-10)
+        - "Bundle.identifier.value.empty().not()"
+        # Equipment model (OBX-17-2) and test result (OBX-5) are not empty
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty() or value.coding.code.empty()).count() = 0"
+        #  Specimen type (SPM-4) is not empty
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        # Patient's last name (PID-5-1), first name (PID-5-2) and date of birth (PID-7)are not empty
+        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty() or birthDate.empty()).count() = 0"
+        # Ordering provider (OBR-16-1) exists
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.value.getIdType() = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.value.getIdType() = 'CLIA'"
+      conditionFilter:
+        # Accept all conditions except Covid results in the LIVD look up table
+        # Covid flows through the Covid pipeline
+        - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        type: "HL7"
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+        convertPositiveDateTimeOffsetToNegative: false
+        useHighPrecisionHeaderDateTimeFormat: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
+- name: "elims"
+  description: "Test settings for ELIMS"
+  jurisdiction: "FEDERAL"
+  senders:
+    - !<full-elr>
+      name: "default-sender"
+      organizationName: "elims"
+      format: "HL7"
+      customerStatus: "testing"
+      schemaName: "metadata/fhir_transforms/senders/default-sender-transform"
+      processingType: "sync"
+      allowDuplicates: true
+      topic: "elr-elims"
+  receivers:
+    - name: "default-receiver"
+      organizationName: "elims"
+      topic: "elr-elims"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        suppressQstForAoe: false
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        truncateHDNamespaceIds: false
+        usePid14ForPatientEmail: false
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        nameFormat: "standard"
+        convertPositiveDateTimeOffsetToNegative: false
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: [ ]
+          customLengthHl7Fields: { }
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).source.software = 'STARLIMS'"
+      qualityFilter:
+        - "true"
+      routingFilter:
+        - "true"
+      processingModeFilter:
+        - "true"
+      reverseTheQualityFilter: false
+      conditionFilter: [ ]
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: "ELIMS ELR Loopback Receiver"
+      timeZone: null
+      dateTimeFormat: "OFFSET"
+
+- name: "ca-test"
+  description: "Test CA settings"
+  jurisdiction: "STATE"
+  stateCode: "CA"
+  receivers:
+    - name: "default-receiver"
+      organizationName: "ca-test"
+      topic: "full-elr"
+      customerStatus: "testing"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+        suppressQstForAoe: false
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        truncateHDNamespaceIds: true
+        usePid14ForPatientEmail: false
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        nameFormat: "STANDARD"
+        convertPositiveDateTimeOffsetToNegative: false
+        convertDateTimesToReceiverLocalTime: true
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists()\
+      \ and %patientState = 'CA')"
+      qualityFilter:
+        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty()\
+      \ or value.coding.code.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty()\
+      \ and specimen.resolve().collection.collected.empty() and effective.empty()\
+      \ and issued.empty() and result.resolve().effective.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty()\
+      \ and telecom.where(system = 'phone').value.empty() and telecom.where(system\
+      \ = 'email').value.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty()\
+      \ or birthDate.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.value.getIdType()\
+      \ = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.value.getIdType()\
+      \ = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count()\
+      \ = 0"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.identifier.value.empty().not()"
+      routingFilter: [ ]
+      processingModeFilter:
+        - "%processingId = 'P'"
+      reverseTheQualityFilter: false
+      conditionFilter:
+        - "%resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3'\
+      \ | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' |\
+      \ '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3'\
+      \ | '92808-5' | '95423-0')).exists()"
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "06:30"
+        timeZone: "PACIFIC"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: ""
+      timeZone: "PACIFIC"
+      dateTimeFormat: "OFFSET"
+    - name: "alt-receiver"
+      organizationName: "ca-test"
+      topic: "full-elr"
+      customerStatus: "testing"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+        suppressQstForAoe: false
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        truncateHDNamespaceIds: true
+        usePid14ForPatientEmail: false
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        nameFormat: "STANDARD"
+        convertPositiveDateTimeOffsetToNegative: false
+        convertDateTimesToReceiverLocalTime: true
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists()\
+      \ and %patientState = 'CA')"
+      qualityFilter:
+        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty()\
+      \ or value.coding.code.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty()\
+      \ and specimen.resolve().collection.collected.empty() and effective.empty()\
+      \ and issued.empty() and result.resolve().effective.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty()\
+      \ and telecom.where(system = 'phone').value.empty() and telecom.where(system\
+      \ = 'email').value.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty()\
+      \ or birthDate.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.value.getIdType()\
+      \ = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.value.getIdType()\
+      \ = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count()\
+      \ = 0"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.identifier.value.empty().not()"
+      routingFilter: [ ]
+      processingModeFilter:
+        - "%processingId = 'T'"
+      reverseTheQualityFilter: false
+      conditionFilter:
+        - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "06:30"
+        timeZone: "PACIFIC"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: ""
+      timeZone: "PACIFIC"
+      dateTimeFormat: "OFFSET"
