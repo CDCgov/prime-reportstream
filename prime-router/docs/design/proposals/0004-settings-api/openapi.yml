@@ -779,8 +779,8 @@ components:
       type: oauth2
       flows:
         authorizationCode:
-          authorizationUrl: https://hhs-prime.okta.com/oauth/authorize
-          tokenUrl: https://hhs-prime.okta.com/oauth/token
+          authorizationUrl: https://reportstream.okta.com/oauth/authorize
+          tokenUrl: https://reportstream.okta.com/oauth/token
           scopes:
             read: Grants read access
             write: Grants write access

@@ -65,9 +65,11 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
   - name: observation-value-dateTime
-    condition: '%resource.value.exists() and %resource.value is dateTime'
-    value: [ '%resource.value' ]
-    hl7Spec: [ '%{hl7OBXField}-5' ]
+    condition: '%context.value.exists() and %context.value is dateTime'
+    resource: '%resource.value'
+    constants:
+      dtmFieldPath: '%{hl7OBXField}-5'
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: observation-value-cwe
     resource: '%resource.value'
@@ -141,8 +143,10 @@ elements:
 
 
   - name: observation-date-time
-    value: [ '%resource.effective' ]
-    hl7Spec: [ '%{hl7OBXField}-14' ]
+    resource: '%resource.effective'
+    constants:
+      dtmFieldPath: '%{hl7OBXField}-14'
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: observation-producer-id
     resource: '%resource.extension(%`rsext-producer-id`).value'
@@ -186,8 +190,10 @@ elements:
       entityIdFieldPath: '%{hl7OBXField}-18'
 
   - name: analysis-date-time
-    value: [ '%resource.issued' ]
-    hl7Spec: [ '%{hl7OBXField}-19' ]
+    resource: '%resource.issued'
+    constants:
+      dtmFieldPath: '%{hl7OBXField}-19'
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: performing-organization-name-pracrole
     condition: >

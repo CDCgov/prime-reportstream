@@ -18,31 +18,37 @@ elements:
     condition: true
     resource: 'Bundle'
     value: [ '"CDPH CA REDIE"' ]
+    hl7Spec: [ "MSH-5-1" ]
 
   - name: receiving-application-universal-id
     condition: true
     resource: 'Bundle'
     value: [ '"2.16.840.1.114222.4.3.3.10.1.1"' ]
+    hl7Spec: [ "MSH-5-2" ]
 
   - name: receiving-application-universal-id-type
     condition: true
     resource: 'Bundle'
     value: [ '"ISO"' ]
+    hl7Spec: [ "MSH-5-3" ]
 
   - name: receiving-facility-namespace-id
     condition: true
     resource: 'Bundle'
     value: [ '"CDPH_CID"' ]
+    hl7Spec: [ "MSH-6-1" ]
 
   - name: receiving-facility-universal-id
     condition: true
     resource: 'Bundle'
     value: [ '"2.16.840.1.114222.4.1.214104"' ]
+    hl7Spec: [ "MSH-6-2" ]
 
   - name: receiving-facility-universal-id-type
     condition: true
     resource: 'Bundle'
     value: [ '"ISO"' ]
+    hl7Spec: [ "MSH-6-3" ]
 
 
   #####################################
@@ -66,8 +72,29 @@ elements:
     value: [ '"CLIA"' ]
     hl7Spec: [ MSH-4-3 ]
 
-  - name: message-character-set
+  - name: ca-message-character-set
     value: [ '%resource.extension(%`rsext-character-set`).value', '"UNICODE UTF-8"' ]
+    hl7Spec: [ MSH-18 ]
+
+  - name: message-character-set
+    condition: false
+
+  # The SR FHIR sends a value in event.display that does not align with HL7 -> FHIR
+  # inventory, so it is overridden here
+  - name: message-event-coding
+    condition: false
+
+  - name: message-event-code-code
+    value: [ '"ORU"' ]
+    hl7Spec: [ MSH-9-1 ]
+
+  - name: message-event-code-trigger-event
+    value: [ '"R01"' ]
+    hl7Spec: [ MSH-9-2 ]
+
+  - name: message-event-code-message-structure
+    value: [ '"ORU_R01"' ]
+    hl7Spec: [ MSH-9-3 ]
 
   - name: message_profile_id
     value: [ '"PHLabReport-NoAck"' ]
