@@ -6,13 +6,13 @@ import com.github.doyaaaaaken.kotlincsv.client.CsvWriter
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.DiffRow
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.diffJson
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
-import io.mockk.Runs
 import io.mockk.clearConstructorMockk
 import io.mockk.every
 import io.mockk.just
+import io.mockk.mockk
 import io.mockk.mockkConstructor
+import io.mockk.runs
 import io.mockk.verify
-import java.io.File
 import java.io.OutputStream
 import kotlin.test.Test
 
@@ -119,10 +119,10 @@ class CommonUtilitiesTests {
             listOf("x", "y", "z"),
             listOf("xx", "yy", "zz")
         )
-        val someFile = File("/dev/null")
+        val outputStream = mockk<OutputStream>()
         mockkConstructor(CsvWriter::class)
-        every { anyConstructed<CsvWriter>().writeAll(any(), any<OutputStream>()) } just Runs
-        saveTableAsCSV(someFile, table)
+        every { anyConstructed<CsvWriter>().writeAll(any(), any<OutputStream>()) } just runs
+        saveTableAsCSV(outputStream, table)
         verify(exactly = 1) { anyConstructed<CsvWriter>().writeAll(expectedCSVRows, any<OutputStream>()) }
         clearConstructorMockk(CsvWriter::class)
     }

@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
@@ -576,7 +576,7 @@ class FhirTranslatorTests {
         byteBody = engine.getByteArrayFromBundle(fhirReceiver, fhirBundle)
         assertThat(byteBody).isNotEmpty()
 
-        assertThat { engine.getByteArrayFromBundle(csvReceiver, fhirBundle) }.isFailure()
+        assertFailure { engine.getByteArrayFromBundle(csvReceiver, fhirBundle) }
     }
 
     @Test
@@ -595,6 +595,6 @@ class FhirTranslatorTests {
         assertThat(strBody).isNotEmpty()
         assertThat(strBody.contains("MSH|^~\\&#")).isTrue()
 
-        assertThat { hl7Message.encode() }.isFailure()
+        assertFailure { hl7Message.encode() }
     }
 }
