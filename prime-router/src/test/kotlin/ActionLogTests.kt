@@ -42,7 +42,7 @@ class ActionLogTests {
         val trackingId = "tracking"
         assertFailure { logger.error(InvalidEquipmentMessage("some mapping")) }
         val itemLogger = logger.getItemLogger(index, trackingId)
-        assertThat(itemLogger.error(InvalidEquipmentMessage("some mapping"))).isEqualTo(Unit)
+        assertThat(itemLogger.error(InvalidEquipmentMessage("some mapping")))
         assertThat(logger.errors.size).isEqualTo(2)
         assertThat(logger.errors[1].index).isEqualTo(index)
         assertThat(logger.errors[1].trackingId).isEqualTo(trackingId)

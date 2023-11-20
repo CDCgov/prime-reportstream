@@ -97,7 +97,7 @@ class FhirPathUtilsTests {
 
         // Bad extension names throw an out of bound exception (a bug in the library)
         path = "Bundle.extension('blah').value"
-        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isNotNull()
+        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path))
         assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
 
         // Empty string

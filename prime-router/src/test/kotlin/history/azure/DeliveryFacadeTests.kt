@@ -142,7 +142,7 @@ class DeliveryFacadeTests {
                 null,
                 10
             )
-        ).isNotNull()
+        )
 
         // Happy Path: date window coverage for until
         assertThat(
@@ -156,7 +156,7 @@ class DeliveryFacadeTests {
                 null,
                 10
             )
-        ).isNotNull()
+        )
 
         // Happy Path: date window coverage for both
         assertThat(
@@ -170,7 +170,7 @@ class DeliveryFacadeTests {
                 OffsetDateTime.now(),
                 10
             )
-        ).isNotNull()
+        )
     }
 
     @Test

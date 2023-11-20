@@ -217,12 +217,12 @@ class FhirToHl7ConverterTests {
 
         // Not strict errors
         every { mockTerser.set(any(), any()) } throws HL7Exception("some text")
-        assertThat(converter.setHl7Value(element, fieldValue, customContext)).isEqualTo(Unit)
+        assertThat(converter.setHl7Value(element, fieldValue, customContext))
 
         clearAllMocks()
 
         every { mockTerser.set(any(), any()) } throws IllegalArgumentException("some text")
-        assertThat(converter.setHl7Value(element, fieldValue, customContext)).isEqualTo(Unit)
+        assertThat(converter.setHl7Value(element, fieldValue, customContext))
 
         clearAllMocks()
 
@@ -260,7 +260,7 @@ class FhirToHl7ConverterTests {
             condition = conditionFalse,
             value = listOf(pathNoValue)
         )
-        assertThat(converter.processElement(element, bundle, bundle, customContext)).isEqualTo(Unit)
+        assertThat(converter.processElement(element, bundle, bundle, customContext))
 
         // Condition is false and was required
         element = ConverterSchemaElement(

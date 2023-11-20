@@ -91,7 +91,7 @@ class CustomFhirPathFunctionTest {
                 assertThat(
                     CustomFhirPathFunctions()
                         .executeFunction(focus, it.name, null)
-                ).isNotNull()
+                )
             }
         }
     }

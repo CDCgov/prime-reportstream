@@ -3,7 +3,6 @@ package gov.cdc.prime.router
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isInstanceOf
-import assertk.assertions.isNotNull
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -1287,7 +1286,7 @@ class SubmissionReceiverTests {
                 emptyList(),
                 false
             )
-        ).isNotNull()
+        )
 
         verify(exactly = 0) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
@@ -1343,7 +1342,7 @@ class SubmissionReceiverTests {
                 emptyList(),
                 false
             )
-        ).isNotNull()
+        )
 
         verify(exactly = 0) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())

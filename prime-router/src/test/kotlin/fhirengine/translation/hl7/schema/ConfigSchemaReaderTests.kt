@@ -141,7 +141,7 @@ class ConfigSchemaReaderTests {
                 "src/test/resources/fhir_sender_transforms",
                 schemaClass = FhirTransformSchema::class.java,
             )
-        ).isNotNull()
+        )
 
         // This is an invalid hl7v2 schema
         assertFailure {
@@ -159,7 +159,7 @@ class ConfigSchemaReaderTests {
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
                 schemaClass = ConverterSchema::class.java,
             )
-        ).isNotNull()
+        )
 
         // This is an invalid fhir transform schema
         assertFailure {
@@ -341,7 +341,7 @@ class ConfigSchemaReaderTests {
                 null,
                 schemaClass = ConverterSchema::class.java,
             )
-        ).isNotNull()
+        )
     }
 
     @Test
@@ -402,7 +402,7 @@ class ConfigSchemaReaderTests {
         )
         assertThat(
             ConfigSchemaReader.readSchemaTreeUri(file.toURI())
-        ).isNotNull()
+        )
     }
 
     @Test
@@ -420,7 +420,7 @@ class ConfigSchemaReaderTests {
                     """.trimIndent()
                 )
             )
-        ).isNotNull()
+        )
     }
 
     @Test

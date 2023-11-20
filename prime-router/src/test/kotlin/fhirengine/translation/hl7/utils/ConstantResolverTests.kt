@@ -168,7 +168,7 @@ class ConstantResolverTests {
                 "livdTableLookup",
                 null
             )
-        ).isNotNull()
+        )
     }
 
     @Test

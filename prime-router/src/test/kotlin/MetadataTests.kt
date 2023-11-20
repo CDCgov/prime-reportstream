@@ -388,7 +388,7 @@ class MetadataTests {
     @Test
     fun `test schema validation`() {
         var schema = Schema("name", Topic.TEST, listOf(Element("a", type = Element.Type.TEXT)))
-        assertThat(Metadata(schema).validateSchemas()).isEqualTo(Unit)
+        assertThat(Metadata(schema).validateSchemas())
 
         schema = Schema("name", Topic.TEST, listOf(Element("a")))
         assertFailure { Metadata(schema).validateSchemas() }

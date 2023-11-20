@@ -141,7 +141,7 @@ class FileNameTemplateIntegrationTests {
         val actualLast6 = actual.takeLast(6)
         // assert
         assertThat(actualLast6.length).isEqualTo(6)
-        assertThat(actualLast6.toInt()).isNotNull()
+        assertThat(actualLast6.toInt())
     }
 
     @Test
