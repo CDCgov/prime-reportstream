@@ -15,7 +15,7 @@ elements:
   - name: software-segment
     condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    schema: ../common/software
+    schema: ../resources/MessageHeader/SFT
 
   - name: patient-information
     resource: 'Bundle.entry.resource.ofType(Patient)'
@@ -54,4 +54,12 @@ elements:
     condition: '%resource.count() > 0'
     required: true
     schema: base/order-observation
+    resourceIndex: orderIndex
+
+  - name: participation-request
+    resource: 'Bundle.entry.resource.ofType(Device)'
+    condition: 'Bundle.entry.resource.ofType(Device).udiCarrier.exists()'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT/PATIENT_OBSERVATION'
+    schema: ../resources/Device/PRT
     resourceIndex: orderIndex
