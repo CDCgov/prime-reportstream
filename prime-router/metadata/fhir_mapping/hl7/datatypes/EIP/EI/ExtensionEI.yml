@@ -2,7 +2,7 @@ url:
   type: SYSTEM_URL
   valueOf: $extensionUrl
 
-extension_url:
+extension:
   generateList: true
   expressionType: nested
   expressions:
