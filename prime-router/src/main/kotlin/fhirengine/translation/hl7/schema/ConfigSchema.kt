@@ -161,6 +161,10 @@ abstract class ConfigSchemaElement(
 ) {
     private var validationErrors: MutableSet<String> = mutableSetOf()
 
+    override fun toString(): String {
+        return "${if (schema != null) "$schema-" else ""}$name"
+    }
+
     /**
      * Add an error [msg] to the list of errors.
      */
@@ -229,4 +233,19 @@ abstract class ConfigSchemaElement(
         if (overwritingElement.debug) this.debug = overwritingElement.debug
         if (overwritingElement.constants.isNotEmpty()) this.constants = overwritingElement.constants
     }
+}
+
+class ConfigSchemaElementProcessingException(
+    val schema: ConfigSchema<*>,
+    val element: ConfigSchemaElement,
+    private val originalException: Exception,
+) :
+    Exception() {
+
+    override val message: String =
+        """Error encountered while applying: $element in ${schema.name} to FHIR bundle. 
+            |Error was: ${originalException.message}
+""".trimMargin()
+
+    override val cause: Throwable = originalException
 }

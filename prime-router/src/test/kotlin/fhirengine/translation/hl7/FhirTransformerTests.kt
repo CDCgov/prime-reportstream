@@ -9,6 +9,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
@@ -37,6 +38,7 @@ import org.hl7.fhir.r4.model.StringType
 import java.io.File
 import java.text.SimpleDateFormat
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class FhirTransformerTests {
 
@@ -246,6 +248,34 @@ class FhirTransformerTests {
                 CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.name.text"
             )
         assertThat(newValue[0].primitiveValue()).isEqualTo("First Last")
+    }
+
+    @Test
+    fun `test transform schema error`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
+
+        val elemA = FhirTransformSchemaElement(
+            "elementA",
+            value = listOf("'2.9'"),
+            bundleProperty = "Bundle.entry.resource.ofType(Patient)" +
+                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group\")" +
+                ".value.coding.version"
+        )
+
+        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
+        schema.name = "ErrorSchema"
+
+        val ex = assertFailsWith<ConfigSchemaElementProcessingException> {
+            FhirTransformer(schema).transform(bundle)
+        }
+        assertThat(ex.message).isEqualTo(
+            "Error encountered while applying: elementA in ErrorSchema to FHIR bundle. " +
+                "\nError was: Attempt to add child with unknown name value"
+        )
     }
 
     @Test

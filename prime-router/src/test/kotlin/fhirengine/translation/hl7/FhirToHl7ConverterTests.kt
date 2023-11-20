@@ -19,6 +19,7 @@ import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
@@ -42,6 +43,7 @@ import org.junit.jupiter.api.Nested
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class FhirToHl7ConverterTests {
     @Test
@@ -417,12 +419,16 @@ class FhirToHl7ConverterTests {
         assertThat { FhirToHl7Converter(schema).convert(bundle) }.isFailure()
 
         // Use a file based schema which will fail as we do not have enough data in the bundle
-        assertThat {
+        val missingDataEx = assertFailsWith<ConfigSchemaElementProcessingException> {
             FhirToHl7Converter(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
             ).convert(bundle)
-        }.isFailure()
+        }
+        assertThat(missingDataEx.message).isEqualTo(
+            "Error encountered while applying: ORU_R01/header-message-headers in ORU_R01 to FHIR bundle. \n" +
+                "Error was: Required element message-headers conditional was false or value was empty."
+        )
     }
 
     @Test
