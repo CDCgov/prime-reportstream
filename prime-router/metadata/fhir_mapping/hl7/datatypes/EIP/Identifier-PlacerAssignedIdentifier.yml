@@ -53,7 +53,7 @@ extension_1:
 
 extension_2-filler-assigned-identifier:
   vars:
-    eip1: STRING_ALL, EIP.2
+    eip2: STRING_ALL, EIP.2
     extensionUrl: $backupExtension
   condition: $eip2 NOT_NULL
   generateList: true

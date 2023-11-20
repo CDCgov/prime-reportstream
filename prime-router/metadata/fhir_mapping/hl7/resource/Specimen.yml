@@ -12,7 +12,6 @@ identifier_1:
   specs: SPM.2
   vars:
     spm21: SPM.2.1
-    eip2: SPM.2.2
   constants:
     hl7Use: "specimen-id-placer"
     backupExtension: "filler-assigned-identifier"
@@ -25,7 +24,6 @@ identifier_2:
   specs: SPM.2
   vars:
     spm22: SPM.2.2
-    eip1: SPM.2.1
   constants:
     hl7Use: "specimen-id-filler"
     backupExtension: "placer-assigned-identifier"
