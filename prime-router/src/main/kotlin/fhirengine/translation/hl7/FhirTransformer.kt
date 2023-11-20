@@ -203,7 +203,7 @@ class FhirTransformer(
                         (childResource as Extension).url = matchResult.groupValues[1]
                     }
                 }
-                else -> childResource = childResource.addChild(childName.replace("""[\[0-9\]]""".toRegex(), ""))
+                else -> childResource = childResource.addChild(childName.replace("""\[[0-9]+\]""".toRegex(), ""))
             }
         }
         // Finally set the value

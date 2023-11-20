@@ -67,3 +67,17 @@ address:
   generateList: true
   vars:
     country: $organizationCountry
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      condition: $hdOrganizationHL7Use NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7-use
+        valueString:
+          type: STRING
+          valueOf: $hdOrganizationHL7Use

@@ -7,31 +7,43 @@ elements:
   - name: sending-application-namespace-id-no-endpoint
     condition: true
     value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+    hl7Spec: [ MSH-3-1 ]
 
   - name: sending-application-universal-id-no-endpoint
     condition: true
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ MSH-3-2 ]
 
-  ######################################################
+  ######################### #############################
   # Source: ReportStream CO Requirements from settings #
   ######################################################
   - name: receiving-application-namespace-id
     value: [ '''CO-ELR''' ]
+    hl7Spec: [ MSH-5-1 ]
 
   - name: receiving-application-universal-id
     condition: false
+    value: [ '' ]
+    hl7Spec: [ MSH-5-2 ]
 
   - name: receiving-application-universal-id-type
     condition: false
+    value: [ '' ]
+    hl7Spec: [ MSH-5-3 ]
 
   - name: receiving-facility-namespace-id
     value: [ '''CO''' ]
+    hl7Spec: [ MSH-6-1 ]
 
   - name: receiving-facility-universal-id
     condition: false
+    value: [ '' ]
+    hl7Spec: [ MSH-6-2 ]
 
   - name: receiving-facility-universal-id-type
     condition: false
+    value: [ '' ]
+    hl7Spec: [ MSH-6-3 ]
 
   # Reporting facility name: CO requested to keep original MSH-4 from HCA.  ReportStream hard codes it to
   # CDC PRIME^11D2030855^CLIA
