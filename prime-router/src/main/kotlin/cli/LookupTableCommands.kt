@@ -64,7 +64,7 @@ class LookupTableEndpointUtilities(
      * @return if [listInactive] is false then only a list of active tables is returned, otherwise all tables are listed
      * @throws IOException if there is a server or API error
      */
-    fun fetchList(listInactive: Boolean = false): List<LookupTableVersion> {
+    fun fetchList(listInactive: Boolean = false, httpClient: HttpClient? = null): List<LookupTableVersion> {
         val (response, respStr) = CommandUtilities.getWithStringResponse(
             url = environment.formUrl("$endpointRoot/list").toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
@@ -72,7 +72,7 @@ class LookupTableEndpointUtilities(
             queryParameters = mapOf(
                 Pair(LookupTableFunctions.showInactiveParamName, listInactive.toString())
             ),
-            httpClient = apiClient
+            httpClient = httpClient ?: apiClient
         )
 
         return if (response.status == HttpStatusCode.OK) {
@@ -820,7 +820,7 @@ class LookupTableListCommand(httpClient: HttpClient? = null) : GenericLookupTabl
 
     override fun run() {
         val data = try {
-            tableUtil.fetchList(showInactive)
+            tableUtil.fetchList(showInactive, httpClient)
         } catch (e: IOException) {
             throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
         }
