@@ -21,8 +21,12 @@ elements:
     value: [ '"ORU_R01"' ]
     hl7Spec: [ MSH-9-3 ]
 
-  - name: message-character-set
+  - name: ak-message-character-set
     value: [ '%resource.extension(%`rsext-character-set`).value', '"UNICODE UTF-8"' ]
+    hl7Spec: [ MSH-18 ]
+
+  - name: message-character-set
+    condition: false
 
   - name: message_profile_id
     value: [ '"PHLabReport-NoAck"' ]
