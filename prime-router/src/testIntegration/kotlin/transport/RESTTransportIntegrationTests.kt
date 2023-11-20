@@ -189,11 +189,15 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
     """
 
     private val nbsRestTransportTypeLive = RESTTransportType(
-        "dataingestion.datateam-cdc-nbs.eqsandbox.com/api/reports",
-        "dataingestion.datateam-cdc-nbs.eqsandbox.com/token",
+        "https://dataingestion.test.nbspreview.com/api/reports",
+        "https://dataingestion.test.nbspreview.com/token",
         headers = mapOf(
-            "Host" to "dataingestion.datateam-cdc-nbs.eqsandbox.com",
-            "msgType" to "HL7"
+            "Host" to "dataingestion.test.nbspreview.com",
+            "Content-Type" to "text/plain",
+            "msgType" to "HL7",
+            "validationActive" to "true",
+            "senderLabName" to "CDC PRIME REPORTSTREAM",
+            "sourceLabName" to  "CDC PRIME REPORTSTREAM"
         )
     )
 
@@ -567,4 +571,5 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         assertThat(retryItems).isNull()
     }
+
 }
