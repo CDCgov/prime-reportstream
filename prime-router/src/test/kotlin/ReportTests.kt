@@ -1,9 +1,9 @@
 package gov.cdc.prime.router
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasClass
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
@@ -869,7 +869,7 @@ class ReportTests {
         val mockMetadata = mockk<Metadata>()
 
         // No message body
-        assertThat {
+        assertFailure {
             Report.generateReportAndUploadBlob(
                 Event.EventAction.BATCH,
                 "".toByteArray(),
@@ -879,10 +879,10 @@ class ReportTests {
                 mockActionHistory,
                 topic = Topic.FULL_ELR,
             )
-        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+        }.hasClass(java.lang.IllegalStateException::class.java)
 
         // No report ID
-        assertThat {
+        assertFailure {
             Report.generateReportAndUploadBlob(
                 Event.EventAction.BATCH,
                 UUID.randomUUID().toString().toByteArray(),
@@ -892,10 +892,10 @@ class ReportTests {
                 mockActionHistory,
                 topic = Topic.FULL_ELR,
             )
-        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+        }.hasClass(java.lang.IllegalStateException::class.java)
 
         // Invalid receiver type
-        assertThat {
+        assertFailure {
             Report.generateReportAndUploadBlob(
                 Event.EventAction.BATCH,
                 UUID.randomUUID().toString().toByteArray(),
@@ -905,7 +905,7 @@ class ReportTests {
                 mockActionHistory,
                 topic = Topic.FULL_ELR,
             )
-        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+        }.hasClass(java.lang.IllegalStateException::class.java)
     }
 
     @Test

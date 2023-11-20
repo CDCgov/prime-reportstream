@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.history
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -495,7 +495,7 @@ class SubmissionHistoryTests {
 
         reports = listOf(inputReport, inputReport).toMutableList()
 
-        assertThat {
+        assertFailure {
             DetailedSubmissionHistory(
                 1,
                 TaskAction.receive,
@@ -504,7 +504,7 @@ class SubmissionHistoryTests {
                 reports,
                 emptyList()
             )
-        }.isFailure()
+        }
     }
 
     // Status calculation tests

@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
@@ -21,15 +21,15 @@ class Hl7UtilsTests {
         class UnsupportedORUR01 : ORU_R01()
         assertThat(HL7Utils.getMessageTypeString(ORU_R01())).isEqualTo(listOf("ORU", "R01"))
         assertThat(HL7Utils.getMessageTypeString(ADT_A01())).isEqualTo(listOf("ADT", "A01"))
-        assertThat { HL7Utils.getMessageTypeString(UnsupportedORUR01()) }.isFailure()
+        assertFailure { HL7Utils.getMessageTypeString(UnsupportedORUR01()) }
     }
 
     @Test
     fun `test get message object`() {
         assertThat(HL7Utils.getMessage("ca.uhn.hl7v2.model.v251.message.ORU_R01")).isInstanceOf(ORU_R01::class.java)
         assertThat(HL7Utils.getMessage("ca.uhn.hl7v2.model.v251.message.ADT_A01")).isInstanceOf(ADT_A01::class.java)
-        assertThat { HL7Utils.getMessage("java.lang.String") }.isFailure()
-        assertThat { HL7Utils.getMessage("") }.isFailure()
+        assertFailure { HL7Utils.getMessage("java.lang.String") }
+        assertFailure { HL7Utils.getMessage("") }
     }
 
     @Test
@@ -55,7 +55,7 @@ class Hl7UtilsTests {
             assertThat(terser.get("MSH-12")).isEqualTo("2.5.1")
         }
 
-        assertThat { HL7Utils.getMessageInstance("java.lang.String") }.isFailure()
+        assertFailure { HL7Utils.getMessageInstance("java.lang.String") }
     }
 
     @Test
