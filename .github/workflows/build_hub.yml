@@ -4,11 +4,9 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - "prime-router/**"
-      - ".github/workflows/build_hub.yml"
-      - ".github/actions/build-backend/action.yml"
-
+  push:
+    branches:
+      - master
 env:
   # These are for CI and not credentials of any system
   DB_USER: prime
@@ -76,7 +74,7 @@ jobs:
 
       - name: Add Schema doc diff as PR comment if there are changes
         if: ${{ steps.check_changes.outcome == 'failure' }}
-        uses: peter-evans/create-or-update-comment@c6c9a1a66007646a28c153e2a8580a5bad27bcfa
+        uses: peter-evans/create-or-update-comment@23ff15729ef2fc348714a3bb66d2f655ca9066f2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.number }}

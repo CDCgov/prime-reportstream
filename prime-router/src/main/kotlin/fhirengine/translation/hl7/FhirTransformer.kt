@@ -45,10 +45,6 @@ class FhirTransformer(
      * @return the transformed bundle
      */
     fun transform(bundle: Bundle): Bundle {
-        val dupes = schemaRef.duplicateElements
-        if (dupes.isNotEmpty()) { // value is the number of matches
-            throw SchemaException("Schema ${schemaRef.name} has multiple elements with the same name: ${dupes.keys}")
-        }
         transformWithSchema(schemaRef, bundle = bundle, focusResource = bundle)
         return bundle
     }
@@ -207,7 +203,7 @@ class FhirTransformer(
                         (childResource as Extension).url = matchResult.groupValues[1]
                     }
                 }
-                else -> childResource = childResource.addChild(childName)
+                else -> childResource = childResource.addChild(childName.replace("""\[[0-9]+\]""".toRegex(), ""))
             }
         }
         // Finally set the value

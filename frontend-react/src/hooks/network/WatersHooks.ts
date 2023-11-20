@@ -37,7 +37,7 @@ export const FORMAT_TO_CONTENT_TYPE = {
 export const useWatersUploader = (
     callback?: (data?: WatersResponse) => void,
 ) => {
-    const { authorizedFetch } = useAuthorizedFetch<WatersResponse>();
+    const authorizedFetch = useAuthorizedFetch<WatersResponse>();
 
     const mutationFunction = ({
         fileContent,
@@ -59,18 +59,14 @@ export const useWatersUploader = (
             },
         });
     };
-    const mutation = useMutation<
+    return useMutation<
         WatersResponse,
         RSNetworkError<WatersResponse>,
         WatersPostArgs
-    >(mutationFunction, {
+    >({
+        mutationFn: mutationFunction,
         onSuccess: (data) => callback?.(data),
         // pass response data we stored in RSNetworkError on throw
         onError: (error) => callback?.(error.data),
     });
-    return {
-        sendFile: mutation.mutateAsync,
-        isWorking: mutation.isLoading,
-        uploaderError: mutation.error,
-    };
 };

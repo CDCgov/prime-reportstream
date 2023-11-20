@@ -51,7 +51,7 @@ describe("AdminDropdownNav - value-sets", () => {
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
             featureFlags: [],
-            checkFlag: jest.fn((flag) => flag === "value-sets"),
+            checkFlags: jest.fn((flag) => flag === "value-sets"),
         });
     });
     test("Admin menu expands and contracts on click and selection", () => {

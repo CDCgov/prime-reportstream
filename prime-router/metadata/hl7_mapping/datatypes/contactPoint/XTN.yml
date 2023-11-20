@@ -1,0 +1,60 @@
+constants:
+  hl7TelecomPath: '%{hl7TelecomField}(%{telecomIndex})'
+
+elements:
+
+  - name: xtn-telephone-number-from-extension
+    value: [ '%resource.extension(%`rsext-xtn1-telephone-number`).value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-1' ]
+
+  - name: xtn-telecom-use-code-from-extension
+    value: [ '%resource.extension(%`rsext-xtn2-telecom-use-code`).value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-2' ]
+
+  - name: xtn-telecom-equipment-type
+    value: [ '%resource.extension(%`rsext-xtn3-telecom-equipment-type`).value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-3' ]
+
+  - name: xtn-communication-address
+    value: [ '%resource.extension(%`rsext-xtn4-communication-address`).value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-4' ]
+
+  - name: xtn-country-code-from-extension-contactpoint-country
+    value: [ '%resource.extension(%`ext-contactpoint-country`).value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-5' ]
+
+  - name: xtn-area-code-from-extension-contactpoint-area
+    value: [ '%resource.extension(%`ext-contactpoint-area`).value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-6' ]
+
+  - name: xtn-local-number-from-extension-local-number
+    value: [ '%resource.extension(%`rsext-xtn7-local-number`).value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-7' ]
+
+  - name: xtn-extension-from-extension-contactpoint-extension
+    value: [ '%resource.extension(%`ext-contactpoint-extension`).value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-8' ]
+
+  - name: xtn-any-text-from-extension-any-text
+    value: [ '%resource.extension(%`rsext-xtn9-any-text`).value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-9' ]
+
+  - name: xtn-unformatted-telephone-number-from-extension-unformatted-telephone-number
+    value: [ '%deidentifiedValue','%resource.extension(%`rsext-xtn12-unformatted-telephone-number`).value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-12' ]
+
+  - name: xtn-effective-start-date
+    resource: '%resource.period.start'
+    constants:
+      dtmFieldPath: '%{hl7TelecomPath}-13'
+    schema: ../dateTime/DTMorDT
+
+  - name: xtn-expiration-date
+    resource: '%resource.period.end'
+    constants:
+      dtmFieldPath: '%{hl7TelecomPath}-14'
+    schema: ../dateTime/DTMorDT
+
+  - name: xtn-preference-order
+    value: [ '%resource.rank' ]
+    hl7Spec: [ '%{hl7TelecomPath}-18' ]

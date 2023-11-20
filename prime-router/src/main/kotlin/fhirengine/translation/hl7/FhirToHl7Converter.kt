@@ -87,10 +87,6 @@ class FhirToHl7Converter(
         val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)
 
         terser = Terser(message)
-        val dupes = schemaRef.duplicateElements
-        if (dupes.isNotEmpty()) { // value is the number of matches
-            throw SchemaException("Schema ${schemaRef.name} has multiple elements with the same name: ${dupes.keys}")
-        }
         processSchema(schemaRef, bundle, bundle)
         return message
     }
@@ -177,7 +173,13 @@ class FhirToHl7Converter(
 
                     // A value
                     !element.value.isNullOrEmpty() && element.hl7Spec.isNotEmpty() -> {
-                        val value = getValueAsString(element, bundle, focusResource, elementContext)
+                        val value = getValueAsString(
+                            element,
+                            bundle,
+                            focusResource,
+                            elementContext,
+                            constantSubstitutor
+                        )
                         setHl7Value(element, value, context)
                         debugMsg += "condition: true, resourceType: ${focusResource.fhirType()}, " +
                             "value: $value, hl7Spec: ${element.hl7Spec}"

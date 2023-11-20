@@ -11,6 +11,7 @@ const testEndpoint = new RSEndpoint({
 const dynamicEndpoint = new RSEndpoint({
     path: "/:something/:anything",
     method: "GET",
+    queryKey: "anything",
 });
 
 describe("RSEndpoint", () => {

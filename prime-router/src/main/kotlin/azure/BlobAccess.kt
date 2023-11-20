@@ -6,8 +6,11 @@ import com.azure.storage.blob.BlobClientBuilder
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobErrorCode
+import com.azure.storage.blob.models.BlobItem
+import com.azure.storage.blob.models.BlobListDetails
 import com.azure.storage.blob.models.BlobStorageException
 import com.azure.storage.blob.models.DownloadRetryOptions
+import com.azure.storage.blob.models.ListBlobsOptions
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.Environment
@@ -19,9 +22,11 @@ import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.security.MessageDigest
+import java.time.Duration
 
 const val defaultBlobContainerName = "reports"
 const val defaultBlobDownloadRetryCount = 5
+const val listBlobTimeoutSeconds: Long = 30
 
 /**
  * Accessor for Azure blob storage.
@@ -129,7 +134,7 @@ class BlobAccess() : Logging {
             blobBytes: ByteArray,
             reportName: String,
             subfolderName: String? = null,
-            action: Event.EventAction = Event.EventAction.NONE,
+            action: Event.EventAction = Event.EventAction.OTHER,
         ): BlobInfo {
             val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
             val blobName = when (action) {
@@ -186,6 +191,90 @@ class BlobAccess() : Logging {
         /** Checks if a blob actually exists in the blobstore */
         fun exists(blobUrl: String, blobConnInfo: BlobContainerMetadata = defaultBlobMetadata): Boolean {
             return getBlobClient(blobUrl, blobConnInfo).exists()
+        }
+
+        /**
+         * Copies all blobs prefixed with the [directory] value from the soure to destination
+         *
+         * @param directory - the prefix (or directory) containing the blobs to be copied
+         * @param source - the source account to copy from
+         * @param destination - the destination to copy to
+         */
+        fun copyDir(directory: String, source: BlobContainerMetadata, destination: BlobContainerMetadata) {
+            val sourceContainer = getBlobContainer(source)
+            val destinationContainer = getBlobContainer(destination)
+            val blobsToCopy = listBlobs(directory, source)
+            blobsToCopy.forEach { blob ->
+                val sourceBlobClient = sourceContainer.getBlobClient(blob.currentBlobItem.name)
+                val destinationBlobClient = destinationContainer.getBlobClient(blob.currentBlobItem.name)
+                // Azurite does not support copying between instances of azurite
+                // https://github.com/Azure/Azurite/issues/767
+                // which would be the correct way to implement this functionality rather than
+                // downloading the content and uploading.  That solution would be:
+                //  val expiryTime = OffsetDateTime.now().plusDays(1)
+                //  val sasPermission = BlobSasPermission()
+                //    .setReadPermission(true)
+                //  val sasSignatureValues = BlobServiceSasSignatureValues(expiryTime, sasPermission)
+                //    .setStartTime(OffsetDateTime.now())
+                //  val sasToken = fromBlobClient.generateSas(sasSignatureValues)
+                //  toBlobClient.copyFromUrl("${fromBlobClient.blobUrl}?$sasToken")
+                val data = sourceBlobClient.downloadContent()
+                destinationBlobClient.upload(data, true)
+            }
+        }
+
+        /**
+         * Data class for returning the current version of a blob
+         * and optionally its past versions
+         */
+        data class BlobItemAndPreviousVersions(
+            val currentBlobItem: BlobItem,
+            val previousBlobItemVersions: List<BlobItem>?,
+        )
+
+        /**
+         * Fetches all the blobs prefixed with [directory].  Azure stores blobs in a flat
+         * structure (i.e. no actual folders).
+         *
+         * If the following blobs were stored
+         * foo/item.txt
+         * foo/baz/item2.txt
+         * bar/item3.txt
+         *
+         * using "foo" as the directory would return foo/item.txt and foo/baz/item2.txt
+         *
+         * @param directory - the prefix to filter the blobs by
+         * @param blobConnInfo - metadata of which azure storage account to read from
+         * @param includeVersion - whether to return the past versions of the blobs
+         * @returns the list of current blob items with optionally the previous versions
+         */
+        fun listBlobs(
+            directory: String,
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
+            includeVersion: Boolean = false,
+        ): List<BlobItemAndPreviousVersions> {
+            val options = ListBlobsOptions().setPrefix(directory).setDetails(
+                BlobListDetails().setRetrieveVersions(includeVersion)
+            )
+            val blobContainer = getBlobContainer(blobConnInfo)
+            val results = blobContainer.listBlobs(options, Duration.ofSeconds(listBlobTimeoutSeconds))
+            return if (!includeVersion) {
+                results.map { BlobItemAndPreviousVersions(it, null) }
+            } else {
+                val grouped = results.groupBy { it.name }
+                grouped.values.mapNotNull { blobs ->
+                    // If there is no current version that means the blob has been soft-deleted and we
+                    // will not include it in the results
+                    val current = blobs.find { it.isCurrentVersion } ?: return@mapNotNull null
+                    // Blob version IDs are the timestamps of when the version is created
+                    // so perform a sort previousBlobItemVersions such that first item is the most
+                    // recent previous version
+                    val previousVersions = blobs
+                        .filter { !it.isCurrentVersion }
+                        .sortedByDescending { it.versionId }
+                    BlobItemAndPreviousVersions(current, previousVersions)
+                }
+            }
         }
 
         /**

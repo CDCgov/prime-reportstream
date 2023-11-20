@@ -135,7 +135,7 @@ export default function FileHandler() {
 
     return (
         <GridContainer>
-            <article className="usa-section">
+            <article>
                 <h1 className="margin-y-4">ReportStream File Validator</h1>
 
                 {organization?.description && (
@@ -198,7 +198,7 @@ export default function FileHandler() {
                 {StepComponent !== FileHandlerSuccessStep && (
                     <Alert headingLevel="h3" type="tip">
                         Reference{" "}
-                        <USLink href="/resources/api/documentation/data-model">
+                        <USLink href="/developer-resources/api/documentation/data-model">
                             the data model
                         </USLink>{" "}
                         for the information needed to validate your file

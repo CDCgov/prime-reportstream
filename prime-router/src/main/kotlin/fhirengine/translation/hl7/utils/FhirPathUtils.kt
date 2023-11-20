@@ -3,8 +3,10 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DT
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
 import org.hl7.fhir.r4.model.Base
@@ -153,6 +155,8 @@ object FhirPathUtils : Logging {
         focusResource: Base,
         bundle: Bundle,
         expression: String,
+        element: ConverterSchemaElement? = null,
+        constantSubstitutor: ConstantSubstitutor? = null,
     ): String {
         pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
         val expressionNode = parsePath(expression)
@@ -177,15 +181,29 @@ object FhirPathUtils : Logging {
                 logger.error(msg)
                 throw SchemaException(msg)
             }
+
             // InstantType and DateTimeType are both subclasses of BaseDateTime and can use the same helper
             evaluated[0] is InstantType || evaluated[0] is DateTimeType -> {
                 // There are two translation functions to handle datetime formatting.
                 // If there is a custom translation function, we will call to the function.
                 // Otherwise, we use our old HL7TranslationFunctions to handle the dataTime formatting.
-                appContext?.translationFunctions?.convertDateTimeToHL7(
-                    evaluated[0] as BaseDateTimeType, appContext
-                ) ?: Hl7TranslationFunctions().convertDateTimeToHL7(evaluated[0] as BaseDateTimeType, appContext)
+                if (appContext?.config is HL7TranslationConfig && appContext.translationFunctions != null) {
+                    appContext.translationFunctions.convertDateTimeToHL7(
+                        evaluated[0] as BaseDateTimeType,
+                        appContext,
+                        element,
+                        constantSubstitutor
+                    )
+                } else {
+                    Hl7TranslationFunctions().convertDateTimeToHL7(
+                        evaluated[0] as BaseDateTimeType,
+                        appContext,
+                        element,
+                        constantSubstitutor
+                    )
+                }
             }
+
             evaluated[0] is DateType -> convertDateToHL7(evaluated[0] as DateType)
 
             evaluated[0] is TimeType -> convertTimeToHL7(evaluated[0] as TimeType)

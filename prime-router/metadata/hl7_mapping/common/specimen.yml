@@ -83,34 +83,45 @@ elements:
     hl7Spec: [ '%{hl7SpecimenFieldPath}-11' ]
 
   - name: specimen-description
-    value: [ '%resource.note.text' ]
+    resource: '%resource.note.where(extension(%`rsext-hl7v2Name`).exists().not())'
+    value: [ '%resource.text' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-14' ]
 
   - name: specimen-collection-time
-    condition: '%resource.collection.collected.exists() and %resource.collection.collected is dateTime'
-    value: [ '%resource.collection.collected' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+    condition: '%context.collection.collected.exists() and %context.collection.collected is dateTime'
+    resource: '%resource.collection.collected'
+    constants:
+      dtmFieldPath: '%{hl7SpecimenFieldPath}-17-1'
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: specimen-observation-date-time-start
-    condition: '%resource.collection.collected.exists() and %resource.collection.collected is Period'
-    value: [ '%resource.collection.collected.start' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+    condition: '%context.collection.collected.exists() and %context.collection.collected is Period'
+    resource: '%resource.collection.collected.start'
+    constants:
+      dtmFieldPath: '%{hl7SpecimenFieldPath}-17-1'
+    schema: ../datatypes/dateTime/DTMorDT
 
   # Alternative to getting specimen collection time from DiagnosticReport instead
   - name: specimen-collection-time-diagnostic
-    condition: '%resource.collection.collected.exists().not()'
-    value: [ '%diagnostic.effective' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+    condition: '%context.collection.collected.exists().not()'
+    resource: '%diagnostic.effective'
+    constants:
+      dtmFieldPath: '%{hl7SpecimenFieldPath}-17-1'
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: specimen-observation-date-time-end
-    condition: '%resource.collection.collected.exists() and %resource.collection.collected is Period'
-    value: [ '%resource.collection.collected.end' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-2' ]
+    condition: '%context.collection.collected.exists() and %context.collection.collected is Period'
+    resource: '%resource.collection.collected.end'
+    constants:
+      dtmFieldPath: '%{hl7SpecimenFieldPath}-17-2'
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: specimen-received-time
-    condition: '%resource.receivedTime.exists() and %resource.receivedTime is dateTime'
-    value: [ '%resource.receivedTime' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
+    condition: '%context.receivedTime.exists() and %context.receivedTime is dateTime'
+    resource: '%resource.receivedTime'
+    constants:
+      dtmFieldPath: '%{hl7SpecimenFieldPath}-18'
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: specimen-reject-reason
     value: [ '""' ]
@@ -136,7 +147,7 @@ elements:
     schema: datatype/ce-coded-with-exceptions
 
   - name: specimen-observation-result-with-aoe
-    resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)'
+    resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id and (meta.exists().not() or meta.tag.code != "AOE"))'
     schema: observation-result
     resourceIndex: specimenObservationIndex
     constants:

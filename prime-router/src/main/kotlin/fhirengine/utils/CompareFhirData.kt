@@ -1,10 +1,14 @@
 package gov.cdc.prime.router.fhirengine.utils
 
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.flipkart.zjsonpatch.JsonDiff
 import gov.cdc.prime.router.cli.tests.CompareData
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
+import org.hl7.fhir.r4.model.PrimitiveType
 import org.hl7.fhir.r4.model.Property
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.Resource
@@ -21,6 +25,10 @@ class CompareFhirData(
     private val skippedProperties: List<String> = defaultSkippedProperties,
     private val dynamicProperties: List<String> = defaultDynamicProperties,
 ) : Logging {
+
+    // set of visited resources used during comparisons to avoid repeats (and maybe circular references?)
+    private val visitedResources = mutableSetOf<String>()
+
     /**
      * Compare the data in the [actual] report to the data in the [expected] report.  This
      * comparison steps through all the resources in the FHIR bundle and compares all the values in the
@@ -39,11 +47,44 @@ class CompareFhirData(
     ): CompareData.Result {
         val expectedJson = expected.bufferedReader().readText()
         val actualJson = actual.bufferedReader().readText()
+
+        logJsonDiff(expectedJson, actualJson)
+
         val expectedBundle = FhirTranscoder.decode(expectedJson)
         val actualBundle = FhirTranscoder.decode(actualJson)
 
         compareBundle(actualBundle, expectedBundle, result)
         return result
+    }
+
+    /**
+     * Log JSON diff between the expected JSON and actual JSON
+     *
+     * @see https://datatracker.ietf.org/doc/html/rfc6902
+     */
+    private fun logJsonDiff(expectedJson: String, actualJson: String) {
+        val mapper = jacksonObjectMapper()
+        val expectedParsedJson = mapper.readTree(expectedJson)
+        val actualParsedJson = mapper.readTree(actualJson)
+
+        val patches = JsonDiff.asJson(expectedParsedJson, actualParsedJson) as ArrayNode
+
+        // remove all diffs that are expected
+        val filtered = listOf("/id", "/fullUrl", "/lastUpdated", "/timestamp", "/reference")
+        val filteredList = patches.filter { patch ->
+            !filtered.any { filteredField ->
+                patch.at("/path").asText().endsWith(filteredField)
+            }
+        }
+
+        // pretty print array of diff objects if there are any
+        val array = mapper.createArrayNode().addAll(filteredList)
+        if (filteredList.isNotEmpty()) {
+            logger.info(
+                "JSON diff. Make the following changes to the expected JSON " +
+                "for it to match the actual JSON:\n${array.toPrettyString()}"
+            )
+        }
     }
 
     /**
@@ -53,13 +94,9 @@ class CompareFhirData(
         result.passed = true
         val resourcesToCompare = mutableMapOf<Resource, List<Base>>(expectedBundle to listOf(actualBundle))
 
-        // Only use entries we want.
-        val entriesToCompare = expectedBundle.entry.filter {
-            comparedBundleEntries.contains(it.resource.fhirType())
-        }
-
         // Make a map of resources that can be compared.
-        entriesToCompare.forEach { expectedEntry ->
+        // Use all entries even though there will be some repeated comparisons to ensure we do not miss any orphans
+        expectedBundle.entry.forEach { expectedEntry ->
             val matchingActualEntries = actualBundle.entry.filter {
                 it.resource.fhirType() == expectedEntry.resource.fhirType()
             }.map { it.resource }
@@ -71,28 +108,24 @@ class CompareFhirData(
             resourcesToCompare[expectedEntry.resource] = matchingActualEntries
         }
 
-        // Compare all the resources.
-        resourcesToCompare.keys.forEach { expectedResource ->
-            resourcesToCompare[expectedResource]?.let {
-                if (resourcesToCompare[expectedResource]!!.isNotEmpty()) {
-                    val resourceResult = compareResource(
-                        expectedResource, resourcesToCompare[expectedResource]!!,
-                        getFhirIdPath("", expectedResource),
-                        getFhirTypePath("", expectedResource)
-                    )
-                    result.merge(resourceResult)
-                } else {
-                    val msg = "There were no actual resources to compare to ${expectedResource.id}"
-                    logger.error(msg)
-                    result.errors.add(msg)
-                    result.passed = false
-                }
-            }
+        // Compare all the resources
+        resourcesToCompare.forEach { (expectedResource, actualResources) ->
+            val resourceResult = compareResource(
+                expectedResource,
+                actualResources,
+                getFhirIdPath("", expectedResource),
+                getFhirTypePath("", expectedResource)
+            )
+            result.merge(resourceResult)
         }
+
         logger.info("FINAL RESULT: FHIR bundles are ${if (result.passed) "IDENTICAL" else "DIFFERENT"}")
         result.errors.forEach {
             logger.error(it)
         }
+
+        // clear visited resources set in case we decided to run the same comparison again
+        visitedResources.clear()
     }
 
     /**
@@ -106,6 +139,15 @@ class CompareFhirData(
         parentIdPath: String,
         parentTypePath: String,
     ): CompareData.Result {
+        // early return if we've already checked this resource
+        val maybeResourcesId = generateResourcesId(actualResources)
+        if (visitedResources.contains(maybeResourcesId)) {
+            return CompareData.Result(true)
+        }
+
+        // add resources id to Set to avoid repeat resource comparisons
+        maybeResourcesId?.also { visitedResources.add(it) }
+
         var result = CompareData.Result(true)
         result.passed = false
         var actualIdPath = ""
@@ -156,9 +198,18 @@ class CompareFhirData(
         }
         // Only compare properties we need
         filterResourceProperties(expectedProperty).forEach { expectedChild ->
-            val actualChild = actualProperty.getChildByName(expectedChild.name)
-            // Properties with no expected values are ignored
-            if (expectedChild.values.isNotEmpty() && actualChild != null) {
+            val actualChild: Property? = actualProperty.getChildByName(expectedChild.name)
+            if (actualChild != null && expectedChild.values.size != actualChild.values.size) {
+                val differentChildSizesError = createDifferentChildSizesError(
+                    expectedChild,
+                    actualChild,
+                    expectedIdPath,
+                    actualIdPath,
+                    parentTypePath
+                )
+                result.merge(differentChildSizesError)
+            } else if (expectedChild.values.isNotEmpty() && actualChild != null) {
+                // Properties with no expected values are ignored
                 val actualValues = actualChild.values
                 val expectedValues = expectedChild.values
                 expectedValues.forEach { expectedValue ->
@@ -223,9 +274,17 @@ class CompareFhirData(
                 expectedPrimitive.equalsDeep(it)
             }
         }
-
         if (!primitiveResult.passed) {
-            val msg = "FAILED: Property $primitiveIdPath $primitiveTypePath did not match"
+            val msg = if (expectedPrimitive is PrimitiveType<*>) {
+                val actualPrimitivesValues = actualPrimitive
+                    .filterIsInstance<PrimitiveType<*>>()
+                    .joinToString { it.asStringValue() }
+                "FAILED: Property $primitiveIdPath $primitiveTypePath did not match. " +
+                    "expected=${expectedPrimitive.asStringValue()}, actuals=$actualPrimitivesValues"
+            } else {
+                "FAILED: Property $primitiveIdPath $primitiveTypePath did not match."
+            }
+
             primitiveResult.errors.add(msg)
         } else {
             logger.trace("MATCH: Property $primitiveIdPath $primitiveTypePath matches")
@@ -273,6 +332,40 @@ class CompareFhirData(
         }
     }
 
+    /**
+     * There can be many reasons that the expected and actual child values differ.
+     *
+     * This function creates a more human-readable error for each case
+     */
+    private fun createDifferentChildSizesError(
+        expectedChild: Property,
+        actualChild: Property,
+        expectedIdPath: String,
+        actualIdPath: String,
+        parentTypePath: String,
+    ): CompareData.Result {
+        val failure = CompareData.Result(passed = false)
+
+        val propertyTypePath = "$parentTypePath.${expectedChild.name}"
+
+        val errorMsg = if (actualChild.values.isEmpty() && expectedChild.values.isNotEmpty()) {
+            "Expected property at $expectedIdPath $propertyTypePath is missing"
+        } else if (actualChild.values.isNotEmpty() && expectedChild.values.isEmpty()) {
+            "Property at $actualIdPath $propertyTypePath is not expected to be present"
+        } else if (actualChild.values.size > expectedChild.values.size) {
+            "Extra properties found at $actualIdPath $propertyTypePath. " +
+                "actual=${actualChild.values.size}, expected=${expectedChild.values.size}"
+        } else if (actualChild.values.size < expectedChild.values.size) {
+            "Fewer properties found at $actualIdPath $propertyTypePath. " +
+                "actual=${actualChild.values.size}, expected=${expectedChild.values.size}"
+        } else {
+            throw IllegalArgumentException("Expected child size and actual child size cannot be equal")
+        }
+
+        failure.errors.add(errorMsg)
+        return failure
+    }
+
     companion object {
         /**
          * The list of properties that will not be tested.
@@ -285,16 +378,6 @@ class CompareFhirData(
         private val defaultDynamicProperties = listOf(
             "Bundle.timestamp",
             "Bundle.meta.lastUpdated",
-        )
-
-        /**
-         * The list of bundle entries to test.  Do not include entries that are referenced in other resources listed
-         * here (e.g. Organization is part of MessageHeader and Provenance). If you add a resource that already referenced
-         * it will not break anything just generate more output.
-         * WARNING: Don't include any resources that are referenced or the comparison will be slower.
-         */
-        private val comparedBundleEntries = listOf(
-            "MessageHeader", "Provenance", "DiagnosticReport"
         )
 
         /**
@@ -325,6 +408,16 @@ class CompareFhirData(
                     }
                 else -> parentIdPath
             }
+        }
+
+        /**
+         * comma delimited list of IDs
+         */
+        internal fun generateResourcesId(resources: List<Base>): String? {
+            return resources
+                .mapNotNull { it.idBase }
+                .joinToString()
+                .ifEmpty { null }
         }
     }
 }

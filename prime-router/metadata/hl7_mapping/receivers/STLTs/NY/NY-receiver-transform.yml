@@ -7,24 +7,54 @@ elements:
     condition: true
     resource: 'Bundle'
     value: [ '"CDC PRIME REPORTSTREAM"' ]
+    hl7Spec: [ MSH-4-1 ]
 
   # MSH 4-2
   - name: sending-facility-universal-id
     resource: 'Bundle'
     condition: true
     value: [ '"10DRPTSTRM"' ]
+    hl7Spec: [ MSH-4-2 ]
+
+  - name: sending-facility-universal-id-type
+    resource: 'Bundle'
+    condition: true
+    value: [ '"CLIA"' ]
+    hl7Spec: [ MSH-4-3 ]
+
+
+  - name: ca-message-character-set
+    value: [ '%resource.extension(%`rsext-character-set`).value', '"UNICODE UTF-8"' ]
+    hl7Spec: [ MSH-18 ]
+
+  - name: message-character-set
+    condition: false
 
   # MSH-5
   - name: receiving-application-namespace-id
     condition: true
     resource: 'Bundle'
     value: [ '"ECLRS"' ]
+    hl7Spec: [ MSH-5-1 ]
 
   # MSH-6
   - name: receiving-facility-namespace-id
     condition: true
     resource: 'Bundle'
     value: [ '"NYSDOH"' ]
+    hl7Spec: [ MSH-6-1 ]
+
+  - name: message-event-code-code
+    value: [ '"ORU"' ]
+    hl7Spec: [ MSH-9-1 ]
+
+  - name: message-event-code-trigger-event
+    value: [ '"R01"' ]
+    hl7Spec: [ MSH-9-2 ]
+
+  - name: message-event-code-message-structure
+    value: [ '"ORU_R01"' ]
+    hl7Spec: [ MSH-9-3 ]
 
   - name: message_profile_id
     value: [ '"PHLabReport-NoAck"' ]
@@ -54,18 +84,12 @@ elements:
     value: [ '"0.2-SNAPSHOT"' ]
     hl7Spec: [ SFT-4 ]
 
-  # OBX-2 - To populate this field with CWE, an Observation needs to have one of these values set:
-  #         Observation.coding[0].version, Observation.coding[1].version, or Observation.text
-  #         However, SimpleReport is not sending us any of those values and NY expects this to be CWE
-  - name: result-value-type-cwe
-    condition: true
+  - name: observation-result-with-aoe
+    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
+    resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not()) | %service.supportingInfo.resolve().where(meta.tag.code = "AOE")'
 
-  # The ORU_R01 mappings look for Observations under ServiceRequest.supportInfo to map OBX segments under SPM.
-  # However, SimpleReport sends AOE questions under ServiceRequest.supportInfo and we need to suppress those
-  # from being mapped to OBX segments under SPM for NY.
-  - name: specimen-observation-result-with-aoe
-    condition: false
-
-
-
-
+  # XTN
+  - name: xtn-use-code-from-system
+    condition: '%resource.system = "email"'
+    value: [ '"NET"' ]
+    hl7Spec: [ '%{hl7TelecomPath}-2' ]

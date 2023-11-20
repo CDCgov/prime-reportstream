@@ -10,7 +10,7 @@ interface FacilitiesTableProps {
 
 function DeliveryFacilitiesTable(props: FacilitiesTableProps) {
     const { reportId }: FacilitiesTableProps = props;
-    const { reportFacilities } = useReportsFacilities(reportId);
+    const { data: reportFacilities } = useReportsFacilities(reportId);
 
     const tableConfig: TableConfig = {
         columns: [

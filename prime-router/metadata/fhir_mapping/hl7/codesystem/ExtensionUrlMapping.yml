@@ -13,6 +13,21 @@
 # event performer function
 - id: "event-performerFunction"
   url: "http://hl7.org/fhir/StructureDefinition/event-performerFunction"
+# humanname own prefix
+- id: "humanname-own-prefix"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
+# humanname own surname
+- id: "humanname-own-name"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-name"
+# humanname partner prefix
+- id: "humanname-partner-prefix"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix"
+# humanname partner surname
+- id: "humanname-partner-name"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-name"
+# humanname assembly order
+- id: "humanname-assembly-order"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order"
 # race
 - id: "race"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd"
@@ -40,15 +55,17 @@
 # message character set
 - id: "character-set"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set"
+- id: "character-set-list"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set-list"
 # source message profile ID
-- id: "source-message-profile-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id"
+- id: "msh21-source-message-profile-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id"
 # message accept acknowledgement type
-- id: "accept-acknowledgement-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/accept-acknowledgement-type"
+- id: "msh-15-accept-acknowledgement-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-15-accept-acknowledgement-type"
 # source application acknowledgement type
-- id: "application-acknowledgement-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/application-acknowledgement-type"
+- id: "msh-16-application-acknowledgement-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-16-application-acknowledgement-type"
 # application-identifier
 - id: "application-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/application-identifier"
@@ -296,3 +313,238 @@
 # Universal Namespace ID
 - id: "identifier-universal-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id"
+# Data Type Absent Reason
+- id: "data-absent-reason"
+  url: "http://hl7.org/fhir/StructureDefinition/data-absent-reason"
+# Contact Point Country
+- id: "contactpoint-country"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-country"
+# Contact Point Area
+- id: "contactpoint-area"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-area"
+# Contact Point Local
+- id: "contactpoint-local"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-local"
+# Contact Point Extension
+- id: "contactpoint-extension"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-extension"
+# Telephone Number
+- id: "xtn1-telephone-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number"
+# Telecom Use Code
+- id: "xtn2-telecom-use-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code"
+# Telecom Equipment Type
+- id: "xtn3-telecom-equipment-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type"
+# Communication Address
+- id: "xtn4-communication-address"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn4-communication-address"
+# Local Number
+- id: "xtn7-local-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number"
+# Any Text
+- id: "xtn9-any-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text"
+# Unformatted Telephone Number
+- id: "xtn12-unformatted-telephone-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number"
+# HL7 v2 Name
+- id: "hl7v2Name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name"
+# HL7 Use
+- id: "hl7-use"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
+# CWE coding
+- id: "cwe-coding"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding"
+# CWE Coding System
+- id: "cwe-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system"
+# patient-citizenship
+- id: "patient-citizenship"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-citizenship"
+# code
+- id: "code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code"
+# Annotation Identifier
+- id: "cwe1-annotation-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe1-annotation-identifier"
+# Annotation text
+- id: "cwe2-annotation-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe2-annotation-text"
+# Annotation Name of Coding
+- id: "cwe3-annotation-name-of-coding"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe3-annotation-name-of-coding"
+# Annotation Alternate Identifier
+- id: "cwe4-annotation-alternate-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe4-annotation-alternate-identifier"
+# Annotation Alternate Text
+- id: "cwe5-annotation-alternate-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe5-annotation-alternate-text"
+# Annotation Alternate Coding System
+- id: "cwe6-annotation-alternate-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe6-annotation-alternate-coding-system"
+# Annotation Coding System Version ID
+- id: "cwe7-annotation-coding-system-version-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe7-annotation-coding-system-version-id"
+# Annotation Alternate Coding System Version ID
+- id: "cwe8-annotation-alternate-coding-system-version-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe8-annotation-alternate-coding-system-version-id"
+# Annotation Original Text
+- id: "cwe9-annotation-original-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe9-annotation-original-text"
+
+# Given Name
+- id: "cnn3-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn3-given-name"
+# Second and Further Given Names or Initials Thereof
+- id: "cnn4-second-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn4-second-given-name"
+# Suffix (e.g., JR or III)
+- id: "cnn5-suffix"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn5-suffix"
+# Degree (e.g., MD)
+- id: "cnn7-degree"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn7-degree"
+- id: "iso21090-AD-use"
+  url: "http://hl7.org/fhir/StructureDefinition/iso21090-AD-use"
+- id: "xad1-sad1-street-or-mailing-address"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address"
+- id: "xad1-sad2-street-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad2-street-name"
+- id: "xad1-sad3-dwelling-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad3-dwelling-number"
+- id: "xad2-other-designation"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad2-other-designation"
+- id: "xad7-address-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type"
+- id: "xad8-other-geographic-destination"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad8-other-geographic-destination"
+- id: "xad11-address-representation-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad11-address-representation-code"
+- id: "xad12-address-validity-range"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad12-address-validity-range"
+- id: "xad12-address-validity-start"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad12-address-validity-start"
+- id: "xad12-address-validity-end"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad12-address-validity-end"
+- id: "xad15-expiration-reason"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad15-expiration-reason"
+- id: "xad19-addressee"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad19-addressee"
+- id: "xcn3-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn3-given-name"
+- id: "xcn4-second-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn4-second-given-name"
+- id: "xcn5-suffix"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn5-suffix"
+- id: "xcn7-degree"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn7-degree"
+- id: "xcn8-source-table"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn8-source-table"
+- id: "xcn10-name-type-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code"
+- id: "xcn15-name-representation-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn15-name-representation-code"
+- id: "xcn16-name-context"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn16-name-context"
+- id: "xcn17-name-validity-range"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn17-name-validity-range"
+- id: "xcn17-name-validity-start"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn17-name-validity-start"
+- id: "xcn17-name-validity-end"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn17-name-validity-end"
+- id: "xcn19-effective-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn19-effective-date"
+- id: "xcn20-expiration-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn20-expiration-date"
+- id: "xcn21-professional-suffix"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn21-professional-suffix"
+- id: "xcn22-assigning-jurisdiction"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn22-assigning-jurisdiction"
+- id: "xcn23-assigning-agency-or-department"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn23-assigning-agency-or-department"
+# Given Name
+- id: "xpn2-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name"
+# Second and Further Given Names or Initials Thereof
+- id: "xpn3-second-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn3-second-given-name"
+# Suffix (e.g., JR or III)
+- id: "xpn4-suffix"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn4-suffix"
+# Degree (e.g., MD)
+- id: "xpn6-degree"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn6-degree"
+# Name Type Code
+- id: "xpn7-name-type-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code"
+# Name Representation Code
+- id: "xpn8-name-representation-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn8-name-representation-code"
+# Name Context
+- id: "xpn9-name-context"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn9-name-context"
+# Name Validity Range
+- id: "xpn10-name-validity-range"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-range"
+- id: "xpn10-name-validity-start"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-start"
+- id: "xpn10-name-validity-end"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-end"
+# Effective Date
+- id: "xpn12-effective-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn12-effective-date"
+# Expiration Date
+- id: "xpn13-expiration-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn13-expiration-date"
+# Professional Suffix
+- id: "xpn14-professional-suffix"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn14-professional-suffix"
+- id: "iso21090-ADXP-censusTract"
+  url: "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract"
+- id: "xad13-effective-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad13-effective-date"
+- id: "xad14-expiration-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad14-expiration-date"
+# Name suffix
+- id: "name-suffix"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix"
+# Name suffix degree
+- id: "name-suffix-degree"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree"
+# Name suffix professional
+- id: "name-suffix-professional"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-professional"
+# Date time as hl7v2 string
+- id: "hl7v2-date-time"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time"
+- id: "location-physical-type-poc"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/location-physical-type-poc"
+# CWE Annotation
+- id: "cwe-annotation"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-annotation"
+- id: "ei-assigner-organization-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
+- id: "pl6-person-location-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type"
+- id: "dld2-effective-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/dld2-effective-date"
+# CWE Quantity
+- id: "cwe-quantity"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-quantity"
+- id: "msh-7-datetime-of-message"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message"
+- id: "msh-13-sequence-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-13-sequence-number"
+- id: "msh-14-continuation-pointer"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-14-continuation-pointer"
+- id: "msh-19-principal-language-of-message"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-19-principal-language-of-message"
+- id: "msh-20-alternate-character-set-handling-scheme"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-20-alternate-character-set-handling-scheme"
+- id: "msh-24-hd-extension"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-24-hd-extension"
+- id: "msh-25-hd-extension"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-25-hd-extension"
