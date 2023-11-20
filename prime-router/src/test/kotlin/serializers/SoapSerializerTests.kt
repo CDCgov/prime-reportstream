@@ -133,14 +133,32 @@ class SoapSerializerTests {
         """.trimIndent()
         assertThat(
             actual.trim().replace("\r|\n".toRegex(), "")
-                .replace("<wsu:Created>.*?</wsu:Created>".toRegex(), "<wsu:Created>2023-11-20T17:08:48.229Z</wsu:Created>")
-                .replace("<wsu:Expires>.*?</wsu:Expires>".toRegex(), "<wsu:Expires>2023-11-20T17:09:48.229Z</wsu:Expires>")
-                .replace("wsu:Id=\".*?\"".toRegex(), "wsu:Id=\"TS-A766CDE2A9C666F2B317005001282431\"")
+                .replace(
+                    "<wsu:Created>.*?</wsu:Created>".toRegex(),
+                    "<wsu:Created>2023-11-20T17:08:48.229Z</wsu:Created>"
+                )
+                .replace(
+                    "<wsu:Expires>.*?</wsu:Expires>".toRegex(),
+                    "<wsu:Expires>2023-11-20T17:09:48.229Z</wsu:Expires>"
+                )
+                .replace(
+                    "wsu:Id=\".*?\"".toRegex(),
+                    "wsu:Id=\"TS-A766CDE2A9C666F2B317005001282431\""
+                )
         ).isEqualTo(
             expected.trim().replace("\r|\n".toRegex(), "")
-                .replace("<wsu:Created>.*?</wsu:Created>".toRegex(), "<wsu:Created>2023-11-20T17:08:48.229Z</wsu:Created>")
-                .replace("<wsu:Expires>.*?</wsu:Expires>".toRegex(), "<wsu:Expires>2023-11-20T17:09:48.229Z</wsu:Expires>")
-                .replace("wsu:Id=\".*?\"".toRegex(), "wsu:Id=\"TS-A766CDE2A9C666F2B317005001282431\"")
+                .replace(
+                    "<wsu:Created>.*?</wsu:Created>".toRegex(),
+                    "<wsu:Created>2023-11-20T17:08:48.229Z</wsu:Created>"
+                )
+                .replace(
+                    "<wsu:Expires>.*?</wsu:Expires>".toRegex(),
+                    "<wsu:Expires>2023-11-20T17:09:48.229Z</wsu:Expires>"
+                )
+                .replace(
+                    "wsu:Id=\".*?\"".toRegex(),
+                    "wsu:Id=\"TS-A766CDE2A9C666F2B317005001282431\""
+                )
         )
     }
 }
