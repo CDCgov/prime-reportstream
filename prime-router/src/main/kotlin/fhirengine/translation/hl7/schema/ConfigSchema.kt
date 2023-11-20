@@ -162,9 +162,6 @@ abstract class ConfigSchemaElement(
     private var validationErrors: MutableSet<String> = mutableSetOf()
 
     override fun toString(): String {
-        if (schema != null) {
-            return "$schema-$name"
-        }
         return "$name"
     }
 

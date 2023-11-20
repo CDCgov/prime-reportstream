@@ -426,7 +426,7 @@ class FhirToHl7ConverterTests {
             ).convert(bundle)
         }
         assertThat(missingDataEx.message).isEqualTo(
-            "Error encountered while applying: ORU_R01/header-message-headers in ORU_R01 to FHIR bundle. \n" +
+            "Error encountered while applying: message-headers in ORU_R01 to FHIR bundle. \n" +
                 "Error was: Required element message-headers conditional was false or value was empty."
         )
     }
