@@ -79,10 +79,16 @@ class LookupTableEndpointUtilities(
             try {
                 mapper.readValue(respStr)
             } catch (e: MismatchedInputException) {
-                throw IOException("Invalid response body found.")
+                // chain up the cause for details
+                throw IOException(
+                    "Invalid response body found," +
+                        " response status: ${response.status.value}, " +
+                        "body $respStr.",
+                            e
+                )
             }
         } else {
-            throw IOException("Error response: status code: ${response.status.value}, body: $respStr")
+            throw IOException("Error response: response status: ${response.status.value}, body: $respStr")
         }
     }
 
@@ -124,10 +130,12 @@ class LookupTableEndpointUtilities(
         try {
             return mapper.readValue(respStr)
         } catch (e: MismatchedInputException) {
+            // chain up the root cause, here e.g. might have where the json parsing choked
             throw IOException(
                 "Invalid response body found, " +
                     "response status: ${response.status.value}" +
-                    ", body: $respStr"
+                    ", body: $respStr",
+                        e
             )
         }
     }
@@ -207,14 +215,26 @@ class LookupTableEndpointUtilities(
             try {
                 val info = mapper.readValue<LookupTableVersion>(pair.second)
                 if (info.tableName.isNullOrBlank() || info.tableVersion < 1 || info.createdBy.isNullOrBlank() ||
-                    info.createdBy.isNullOrBlank()
+                    info.createdAt.toString().isBlank()
                 ) {
-                    throw IOException("Invalid version information in the response.")
+                    throw IOException(
+                        "Invalid version information in the response, " +
+                            "response status: ${pair.first.status.value}, body: ${pair.second}, " +
+                            "LookupTableVersion object: tableName: ${info.tableName}, " +
+                            "tableVersion: ${info.tableVersion}, " +
+                            "createdBy: ${info.createdBy}, " +
+                            "createdAt: ${info.createdAt}."
+                    )
                 } else {
                     return info
                 }
             } catch (e: MismatchedInputException) {
-                throw IOException("Invalid JSON response, response: ${pair.second}.")
+                // chain up the root cause
+                throw IOException(
+                    "Invalid JSON response, response status: ${pair.first.status.value}" +
+                        ", body: ${pair.second}.",
+                            e
+                )
             }
         }
 
@@ -241,7 +261,7 @@ class LookupTableEndpointUtilities(
                         }
                     } catch (e: MismatchedInputException) {
                         // The error message is not valid JSON.
-                        throw IOException("$notFoundMsg, Error message: ${pair.second}")
+                        throw IOException("$notFoundMsg, Error message: ${pair.second}", e)
                     }
                 }
                 // resource conflict, create a resource that already there

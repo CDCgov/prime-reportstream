@@ -261,6 +261,28 @@ class CommonUtilitiesTests {
     }
 
     @Test
+    fun `test head wrappers happy case`() {
+        val fakeUrlPath = "/fakeEndpoint/head_operation"
+        val clientWithMockEngine = ApiMockEngine(
+            fakeUrlPath,
+            HttpStatusCode.OK,
+            body = """place-holder"""
+        ) {
+            assertEquals(it.method.value, HttpMethod.Head.value)
+            assertEquals(it.url.encodedPath, fakeUrlPath)
+        }.client()
+
+        val (response, respStr) = CommandUtilities.headWithStringResponse(
+            url = "fakeEndpoint/head_operation",
+            expSuccess = true,
+            httpClient = clientWithMockEngine,
+        )
+
+        assertEquals(response.status.value, HttpStatusCode.OK.value)
+        assertEquals(respStr, "place-holder")
+    }
+
+    @Test
     fun `test diffJson with simple json`() {
         val base = """
             {

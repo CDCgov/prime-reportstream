@@ -32,6 +32,14 @@ class RouterCli : CliktCommand(
     printHelpOnEmptyArgs = true,
 ) {
     override fun run() = Unit
+    fun echo(message: String) {
+        super.echo(
+            message,
+            trailingNewline = true,
+            err = false,
+            currentContext.console.lineSeparator
+        )
+    }
 }
 
 fun listSchemas(metadata: Metadata) {
