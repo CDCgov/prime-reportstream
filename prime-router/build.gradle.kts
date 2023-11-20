@@ -27,7 +27,7 @@ import org.jooq.meta.jaxb.ForcedType
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Properties
+import java.util.*
 
 plugins {
     val kotlinVersion by System.getProperties()
@@ -75,25 +75,25 @@ val KEY_DB_PASSWORD = "DB_PASSWORD"
 val KEY_DB_URL = "DB_URL"
 val KEY_PRIME_RS_API_ENDPOINT_HOST = "PRIME_RS_API_ENDPOINT_HOST"
 val dbUser = (
-    project.properties[KEY_DB_USER]
-        ?: System.getenv(KEY_DB_USER)
-        ?: "prime"
-    ) as String
+        project.properties[KEY_DB_USER]
+            ?: System.getenv(KEY_DB_USER)
+            ?: "prime"
+        ) as String
 val dbPassword = (
-    project.properties[KEY_DB_PASSWORD]
-        ?: System.getenv(KEY_DB_PASSWORD)
-        ?: "changeIT!"
-    ) as String
+        project.properties[KEY_DB_PASSWORD]
+            ?: System.getenv(KEY_DB_PASSWORD)
+            ?: "changeIT!"
+        ) as String
 val dbUrl = (
-    project.properties[KEY_DB_URL]
-        ?: System.getenv(KEY_DB_URL)
-        ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
-    ) as String
+        project.properties[KEY_DB_URL]
+            ?: System.getenv(KEY_DB_URL)
+            ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
+        ) as String
 
 val reportsApiEndpointHost = (
-    System.getenv(KEY_PRIME_RS_API_ENDPOINT_HOST)
-        ?: "localhost"
-    )
+        System.getenv(KEY_PRIME_RS_API_ENDPOINT_HOST)
+            ?: "localhost"
+        )
 
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
@@ -406,8 +406,8 @@ tasks.register<JavaExec>("primeCLI") {
             println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
             println(
                 "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
-                    "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
-                    "--target-counties 'Santa Clara' --output-format CSV\""
+                        "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
+                        "--target-counties 'Santa Clara' --output-format CSV\""
             )
         }
     }
@@ -568,8 +568,9 @@ tasks.azureFunctionsRun {
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
-            "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
-            "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+                "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;" +
+                "BlobEndpoint=http://localhost:10000/devstoreaccount1;" +
+                "QueueEndpoint=http://localhost:10001/devstoreaccount1;"
 
     val env = mutableMapOf<String, Any>(
         "AzureWebJobsStorage" to devAzureConnectString,
@@ -853,7 +854,7 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20231013")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
-    implementation("com.hierynomus:sshj:0.36.0")
+    implementation("com.hierynomus:sshj:0.37.0")
     implementation("org.apache.poi:poi:5.2.4")
     implementation("org.apache.commons:commons-csv:1.10.0")
     implementation("org.apache.commons:commons-lang3:3.13.0")

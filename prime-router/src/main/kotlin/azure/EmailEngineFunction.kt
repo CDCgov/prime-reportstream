@@ -34,8 +34,7 @@ import gov.cdc.prime.router.secrets.SecretHelper
 import gov.cdc.prime.router.tokens.oktaMembershipClaim
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import gov.cdc.prime.router.tokens.subjectClaim
-import io.ktor.client.call.body
-import kotlinx.coroutines.runBlocking
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
@@ -311,26 +310,28 @@ class EmailScheduleEngine {
                 val grp = encodeOrg(org)
 
                 // get the OKTA Group Id
-                val response1 = CommandUtilities.get(
+                val (_, respStrJson1) = CommandUtilities.getWithStringResponse(
                     url = "$OKTA_GROUPS_API?q=$grp",
                     tkn = null,
                     hdr = mapOf("Authorization" to "SSWS $ssws")
                 )
 
-                val respStrJson1 = runBlocking {
-                    response1.body<String>()
-                }
-
                 val grpId = JSONObject(respStrJson1).getString("id")
 
-                val response2 = CommandUtilities.get(
+                // get the users within that OKTA group
+                val (_, respStrJson) = CommandUtilities.getWithStringResponse(
                     url = "$OKTA_GROUPS_API/$grpId/users",
                     tkn = null,
                     hdr = mapOf("Authorization" to "SSWS $ssws")
                 )
+
+                val users = JSONArray(respStrJson)
+                for (user in users) emails.add(
+                    (user as JSONObject).getJSONObject("profile").getString("email")
+                )
             }
         } catch (ex: Throwable) {
-            logger.warning("Error in fetching emails")
+            logger.warning("Error in fetching emails, exception: ${ex.message}")
             emails = mutableListOf()
         }
 

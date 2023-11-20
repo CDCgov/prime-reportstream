@@ -67,9 +67,9 @@ class CommandUtilities {
          */
         internal fun waitForApi(
             environment: Environment,
-                                retries: Int = 30,
-                                pollIntervalSecs: Long = 1,
-                                httpClient: HttpClient? = null,
+            retries: Int = 30,
+            pollIntervalSecs: Long = 1,
+            httpClient: HttpClient? = null,
         ) {
             val url = environment.formUrl(waitForApiEndpointPath)
             val accessToken = OktaCommand.fetchAccessToken(environment.oktaApp)
@@ -133,6 +133,7 @@ class CommandUtilities {
                             walkTree(element, "$path[$index]", visitor)
                         }
                     }
+
                     node.isObject -> {
                         val parentPath = if (path.isBlank()) "" else "$path."
                         node.fields().forEach { entry ->
@@ -411,14 +412,14 @@ class CommandUtilities {
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                    (httpClient ?: createDefaultHttpClient(tkn)).submitForm(
-                        url,
-                        formParameters = Parameters.build {
-                            formParams?.forEach { param ->
-                                append(param.key, param.value)
-                            }
+                (httpClient ?: createDefaultHttpClient(tkn)).submitForm(
+                    url,
+                    formParameters = Parameters.build {
+                        formParams?.forEach { param ->
+                            append(param.key, param.value)
                         }
-                    ) {
+                    }
+                ) {
                     timeout {
                         requestTimeoutMillis = tmo
                     }
