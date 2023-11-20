@@ -82,6 +82,17 @@ elements:
     value: [ '""' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-11' ]
 
+  - name: specimen-collection-amount-quantity
+    value: [ '%resource.collection.quantity.value' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-12-1' ]
+
+  - name: specimen-collection-amount-units
+    condition: '%context.collection.quantity.where(extension(%`rsext-cq-units`).value).exists()'
+    resource: '%resource.collection.quantity.extension(%`rsext-cq-units`).value'
+    constants:
+      cweFieldPath: '%{hl7SpecimenFieldPath}-12-2'
+    schema: ../datatypes/codeableConcept/CWE
+
   - name: specimen-description
     resource: '%resource.note.where(extension(%`rsext-hl7v2Name`).exists().not())'
     value: [ '%resource.text' ]
