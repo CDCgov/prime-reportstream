@@ -22,7 +22,6 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.clearMocks
 import io.mockk.every
@@ -30,6 +29,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
+import io.mockk.runs
 import io.mockk.spyk
 import io.mockk.unmockkObject
 import io.mockk.verify
@@ -416,9 +416,9 @@ class BatchFunctionTests {
         mockkObject(BlobAccess.Companion)
         mockkObject(ActionHistory)
         every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns ByteArray(4)
-        every { BlobAccess.Companion.deleteBlob(any()) } just Runs
+        every { BlobAccess.Companion.deleteBlob(any()) } just runs
         every { BlobAccess.Companion.exists(any()) } returns true
-        every { ActionHistory.sanityCheckReports(any(), any(), any()) } just Runs
+        every { ActionHistory.sanityCheckReports(any(), any(), any()) } just runs
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(UnitTestUtils.simpleMetadata, settings)
         val mockReportFile = mockk<ReportFile>()
