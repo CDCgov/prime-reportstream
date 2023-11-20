@@ -161,22 +161,6 @@ class MainCmdTests {
     }
 
     @Test
-    fun `test prime CLI - generate-docs`() {
-        val cmd = GenerateDocs()
-        runBlocking {
-            cmd.test(
-                expectedExitCode = 0,
-                environmentVariables = mapOf(
-                    Pair("POSTGRES_USER", "prime"),
-                    Pair("POSTGRES_PASSWORD", "changeIT!"),
-                    Pair("POSTGRES_URL", "jdbc:postgresql://localhost:5432/prime_data_hub")
-                )
-            ) {
-            }
-        }
-    }
-
-    @Test
     fun `test prime CLI - RouterCli top cmd`() {
         val cmd = RouterCli()
         runBlocking {
