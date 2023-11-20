@@ -24,6 +24,7 @@ data class TestSoapPayload(
 class SoapSerializerTests {
     private val defaultNamespace = "http://reportstream.cdc.gov"
     private val namespaces = mapOf("xmlns:elr" to defaultNamespace)
+    private val soapVersion = null
 
     @Test
     fun `test serializing object to xml`() {
@@ -54,7 +55,7 @@ class SoapSerializerTests {
         val password = UUID.randomUUID().toString()
         val timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())
         val testPayload = TestSoapPayload(userName = userName, password = password, timestamp = timestamp)
-        val envelope = SoapEnvelope(testPayload, namespaces)
+        val envelope = SoapEnvelope(testPayload, namespaces, soapVersion)
         val actual = envelope.toXml()
         val expected = """
             <?xml version='1.0' encoding='UTF-8'?>

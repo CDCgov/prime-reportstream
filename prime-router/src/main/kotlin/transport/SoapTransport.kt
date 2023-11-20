@@ -77,6 +77,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
      * object and converted to XML
      * @param soapEndpoint The URL to post to when sending the message
      * @param soapAction The command to invoke on the remote server
+     * @param soapVersion Which SOAP version we are using
      * @param context Really just here to get logging injected
      */
     private suspend fun connectToSoapService(
@@ -99,7 +100,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                         // adds the SOAPAction header and content type headers. Content type has to be set here explicitly as KTOR doesn't have a built in option for application/soap+xml which is required for SOAP 1.2
                         header(
                             "content-type",
-                            "application/soap+xml;action=\"urn:SubmitMessage\""
+                            "application/soap+xml;action=\"" + soapAction + "\""
                         )
                         setBody(
                             message,
