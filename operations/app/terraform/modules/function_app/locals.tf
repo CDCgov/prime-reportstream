@@ -104,7 +104,8 @@ locals {
   cors_lower = [
     "https://${var.environment}.reportstream.cdc.gov",
     "https://${var.environment}.prime.cdc.gov",
-    "https://swaggeruiapidocs.z13.web.core.windows.net"
+    "https://swaggeruiapidocs.z13.web.core.windows.net",
+    "https://reportstream.oktapreview.com"
   ]
   cors_trial_frontends = [
     "https://pdhstagingpublictrial01.z13.web.core.windows.net",
