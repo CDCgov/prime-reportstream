@@ -328,8 +328,6 @@ class EmailScheduleEngine {
                     tkn = null,
                     hdr = mapOf("Authorization" to "SSWS $ssws")
                 )
-
-                println(response2)
             }
         } catch (ex: Throwable) {
             logger.warning("Error in fetching emails")
