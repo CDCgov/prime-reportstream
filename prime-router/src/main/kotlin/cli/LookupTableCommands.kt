@@ -526,6 +526,37 @@ class LookupTableGetCommand : GenericLookupTableCommand(
     }
 }
 
+class ObservationMappingConstants {
+    companion object {
+        const val TEST_CODE_KEY = "Code"
+        const val TEST_CODESYSTEM_KEY = "Code System"
+        const val TEST_OID_KEY = "Member OID"
+        const val TEST_NAME_KEY = "Name"
+        const val TEST_DESCRIPTOR_KEY = "Descriptor"
+        const val TEST_VERSION_KEY = "Version"
+
+        const val CONDITION_STATUS_KEY = "Status"
+        const val CONDITION_NAME_KEY = "condition_name"
+        const val CONDITION_CODE_KEY = "condition_code"
+        const val CONDITION_CODE_SYSTEM_KEY = "Condition Code System"
+        const val CONDITION_CODE_SYSTEM_VERSION_KEY = "Condition Code System Version"
+        const val CONDITION_VALUE_SOURCE_KEY = "Value Source"
+        const val CONDITION_CREATED_AT = "Created At"
+
+        val TEST_KEYS = listOf(
+            TEST_CODE_KEY, TEST_CODESYSTEM_KEY, TEST_OID_KEY, TEST_NAME_KEY,
+            TEST_DESCRIPTOR_KEY, TEST_VERSION_KEY
+        )
+        val CONDITION_KEYS = listOf(
+            CONDITION_STATUS_KEY, CONDITION_NAME_KEY, CONDITION_CODE_KEY,
+            CONDITION_CODE_SYSTEM_KEY, CONDITION_CODE_SYSTEM_VERSION_KEY,
+            CONDITION_VALUE_SOURCE_KEY, CONDITION_CREATED_AT
+        )
+
+        val ALL_KEYS = TEST_KEYS + CONDITION_KEYS
+    }
+}
+
 /**
  * Print out a lookup table.
  */
@@ -562,17 +593,15 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
         private const val SENDER_COMPENDIUM_MAPPED_KEY = "mapped?"
         private const val SENDER_COMPENDIUM_MAPPED_TRUE = "Y"
         private const val SENDER_COMPENDIUM_MAPPED_FALSE = "N"
-        const val OBX_MAPPING_CODE_KEY = "Code"
-        const val OBX_MAPPING_CODESYSTEM_KEY = "Code System"
 
         fun compareMappings(
             inputData: List<Map<String, String>>,
             tableMap: Map<String?, Map<String, String>>,
         ): List<Map<String, String>> {
             val outputData = inputData.map {
-                if (tableMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(OBX_MAPPING_CODESYSTEM_KEY) == it.getValue(
-                        SENDER_COMPENDIUM_CODESYSTEM_KEY
-                    )
+                if (tableMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(
+                        ObservationMappingConstants.TEST_CODESYSTEM_KEY
+                ) == it.getValue(SENDER_COMPENDIUM_CODESYSTEM_KEY)
                 ) {
                     it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_TRUE)
                 } else {
@@ -618,12 +647,12 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
         }
 
         // Check loaded table for needed columns
-        arrayOf(OBX_MAPPING_CODE_KEY, OBX_MAPPING_CODESYSTEM_KEY).forEach {
+        arrayOf(ObservationMappingConstants.TEST_CODE_KEY, ObservationMappingConstants.TEST_CODESYSTEM_KEY).forEach {
             if (it !in tableData[0].keys) throw PrintMessage("Loaded table $tableName missing column: $it")
         }
 
         // Create lookup table of codes
-        val tableMap = tableData.associateBy { it[OBX_MAPPING_CODE_KEY] }
+        val tableMap = tableData.associateBy { it[ObservationMappingConstants.TEST_CODE_KEY] }
 
         // Add a mapped? value to each row of table data
         val outputData = compareMappings(inputData, tableMap)
@@ -631,9 +660,7 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
         // Save an output file and print the resulting table data
         if (outputFile != null) {
             saveTableAsCSV(outputFile!!.outputStream(), outputData)
-            echo(
-                "Saved ${outputData.size} rows to ${outputFile!!.absolutePath} "
-            )
+            echo("Saved ${outputData.size} rows to ${outputFile!!.absolutePath}")
         }
         echo(LookupTableCommands.rowsToPrintableTable(outputData, outputData[0].keys.toList()))
     }
@@ -688,34 +715,10 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
     private val tableVersion by option("-v", "--version", help = "The version of the table to get").int()
 
     companion object {
-        // TODO: refactor constants
-        private const val SENDER_COMPENDIUM_CODE_KEY = "test code"
-        private const val SENDER_COMPENDIUM_CODESYSTEM_KEY = "coding system"
-        private const val SENDER_COMPENDIUM_MAPPED_KEY = "mapped?"
-        private const val SENDER_COMPENDIUM_MAPPED_TRUE = "Y"
-        private const val SENDER_COMPENDIUM_MAPPED_FALSE = "N"
+        private const val OBX_MAPPING_CSV_PATH = "metadata/tables/local/observation-mapping.csv"
+        private const val OBX_MAPPING_NO_OID_KEY = "NO_OID"
 
-        private const val OBX_MAPPING_CODE_KEY = "Code"
-        private const val OBX_MAPPING_CODESYSTEM_KEY = "Code System"
-        private const val OBX_MAPPING_OID_KEY = "Member OID"
-        private const val OBX_MAPPING_NAME_KEY = "Name"
-        private const val OBX_MAPPING_DESCRIPTOR_KEY = "Descriptor"
-        private const val OBX_MAPPING_VERSION_KEY = "Version"
-
-        private const val OBX_MAPPING_CONDITION_STATUS_KEY = "Status"
-        private const val OBX_MAPPING_CONDITION_NAME_KEY = "condition_name"
-        private const val OBX_MAPPING_CONDITION_CODE_KEY = "condition_code"
-        private const val OBX_MAPPING_CONDITION_CODE_SYSTEM_KEY = "Condition Code System"
-        private const val OBX_MAPPING_CONDITION_CODE_SYSTEM_VERSION_KEY = "Condition Code System Version"
-        private const val OBX_MAPPING_CONDITION_VALUE_SOURCE_KEY = "Value Source"
-        private const val OBX_MAPPING_CONDITION_CREATED_AT = "Created At"
-
-        private val OBX_MAPPING_CONDITION_KEYS = listOf(
-            OBX_MAPPING_CONDITION_STATUS_KEY, OBX_MAPPING_CONDITION_NAME_KEY, OBX_MAPPING_CONDITION_CODE_KEY,
-            OBX_MAPPING_CONDITION_CODE_SYSTEM_KEY, OBX_MAPPING_CONDITION_CODE_SYSTEM_VERSION_KEY,
-            OBX_MAPPING_CONDITION_VALUE_SOURCE_KEY, OBX_MAPPING_CONDITION_CREATED_AT
-        )
-
+        // TODO: change to abstract provider pattern + implement
         fun fetchLatestTestData(oids: List<String>): Map<String, List<Map<String, String>>> {
             //            val data : List<Map<String, String>> = listOf(mapOf("foo" to "bar"))
             //            return data
@@ -723,7 +726,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
             return mapOf("buzz" to listOf(mapOf("foo" to "bar")))
         }
 
-        fun updateMappings(
+        fun syncMappings(
             inputData: Map<String, List<Map<String, String>>>,
             updateData: Map<String, List<Map<String, String>>>,
         ): List<Map<String, String>> {
@@ -731,7 +734,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
             updateData.forEach { update ->
                 // fetch the condition data from existing table
                 val conditionData = inputData[update.key]!![0].filterKeys {
-                    it in OBX_MAPPING_CONDITION_KEYS
+                    it in ObservationMappingConstants.CONDITION_KEYS
                 }
 
                 // for each snomed code in this update
@@ -739,7 +742,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                     outputData.add(it + conditionData)
                 }
             }
-            return outputData + inputData.getOrDefault("NO_OID", emptyList())
+            return outputData + inputData.getOrDefault(OBX_MAPPING_NO_OID_KEY, emptyList())
         }
     }
 
@@ -749,9 +752,6 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
             val inputData = csvReader().readAllWithHeader(inputFile!!)
             if (inputData.isEmpty()) {
                 throw PrintMessage("Input file ${inputFile!!.absolutePath} has no data.", true)
-            }
-            arrayOf(SENDER_COMPENDIUM_CODE_KEY, SENDER_COMPENDIUM_CODESYSTEM_KEY).forEach {
-                if (it !in inputData[0].keys) throw PrintMessage("Supplied compendium is missing column: $it")
             }
             inputData
         } else {
@@ -778,19 +778,21 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
             tableData
         }
 
-        // TODO: Check loaded table for needed columns
-//        arrayOf(OBX_MAPPING_CODE_KEY, OBX_MAPPING_CODESYSTEM_KEY).forEach {
-//            if (it !in tableData[0].keys) throw PrintMessage("Loaded table $tableName missing column: $it")
-//        }
+        // Verify the loaded table contains the appropriate columns
+        ObservationMappingConstants.ALL_KEYS.forEach {
+            if (it !in tableData[0].keys) throw PrintMessage("Loaded table $tableName missing column: $it")
+        }
 
         // Create lookup table of codes
-        val tableMap = tableData.groupBy { it.getOrDefault(OBX_MAPPING_OID_KEY, "NO_OID") }
+        val tableMap = tableData.groupBy {
+            it.getOrDefault(ObservationMappingConstants.TEST_OID_KEY, OBX_MAPPING_NO_OID_KEY)
+        }
 
         // Fetch the updated data
-        val updateData = fetchLatestTestData(tableMap.keys.filter { it != "NO_OID" })
+        val updateData = fetchLatestTestData(tableMap.keys.filter { it != OBX_MAPPING_NO_OID_KEY })
 
         // Update the data
-        val outputData = updateMappings(tableMap, updateData)
+        val outputData = syncMappings(tableMap, updateData)
 
         // Save an output file
         if (outputFile != null) {
@@ -799,22 +801,25 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                 "Saved ${outputData.size} rows to ${outputFile!!.absolutePath} "
             )
         }
+
+        // Save updated local csv of table
         if ((
             !silent && confirm(
-                    "Continue to create a new version of observation-mapping.csv with ${outputData.size} rows?"
-                ) == true
-            ) || silent
+                "Continue to create a new version of observation-mapping.csv with ${outputData.size} rows?"
+            ) == true
+        ) || silent
         ) {
-            // TODO: Save updated mapping csv
+            val outputCSV = File(OBX_MAPPING_CSV_PATH)
+            saveTableAsCSV(outputCSV, outputData)
+            echo("Saved ${outputData.size} rows to ${outputCSV.absolutePath} ")
         }
 
         if ((
-                !silent && confirm("Continue to create a new version of $tableName with ${outputData.size} rows?")
-                    == true
-                ) || silent
+            !silent && confirm("Continue to create a new version of $tableName with ${outputData.size} rows?")
+                == true
+        ) || silent
         ) {
             tableUtil.createTable(tableName, outputData, true)
-    //        echo(LookupTableCommands.rowsToPrintableTable(outputData, outputData[0].keys.toList()))
         }
     }
 }

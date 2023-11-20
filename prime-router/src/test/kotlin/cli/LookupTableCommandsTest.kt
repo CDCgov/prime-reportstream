@@ -223,7 +223,7 @@ class LookupTableCommandsTest {
     }
 
     @Test
-    fun `update observation mapping table`() {
+    fun `sync observation mapping table with update data`() {
         val conditionData = mapOf(
             "condition_name" to "Acute poliomyelitis (disorder)",
             "condition_code" to "398102009",
@@ -232,6 +232,7 @@ class LookupTableCommandsTest {
             "Value Source" to "RCTC",
             "Created At" to "10/24/23"
         )
+        val noOIDData = listOf(mapOf("foo" to "bar"), mapOf("biz" to "buzz"))
         val tableData = mapOf(
             "2.16.840.1.113762.1.4.1146.828" to listOf(
                 mapOf(
@@ -252,9 +253,9 @@ class LookupTableCommandsTest {
                     "Version" to "2023-03",
                     "Status" to "Active",
                 ) + conditionData
-            )
+            ),
+            "NO_OID" to noOIDData
         )
-
         val updateData = mapOf(
             "2.16.840.1.113762.1.4.1146.828" to listOf(
                 mapOf(
@@ -275,11 +276,11 @@ class LookupTableCommandsTest {
                     "Version" to "2023-03",
                     "Status" to "Active"
                 )
-            )
+            ),
         )
 
-        val output = LookupTableUpdateMappingCommand.updateMappings(tableData, updateData)
-        val expectedOutput = updateData.flatMap { it.value.map { condition -> condition + conditionData } }
+        val output = LookupTableUpdateMappingCommand.syncMappings(tableData, updateData)
+        val expectedOutput = updateData.flatMap { it.value.map { condition -> condition + conditionData } } + noOIDData
         assertThat(output).isEqualTo(expectedOutput)
     }
 }
