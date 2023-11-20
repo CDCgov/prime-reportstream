@@ -243,7 +243,7 @@ class ConfigSchemaElementProcessingException(
     val element: ConfigSchemaElement,
     override val cause: Throwable?,
 ) :
-    RuntimeException(cause = cause) {
+    RuntimeException(cause) {
 
     override val message: String =
         """Error encountered while applying: $element in ${schema.name} to FHIR bundle. 
