@@ -1,16 +1,17 @@
 constants:
-  hl7Order: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})'
+  hl7Order: '%{hl7SegmentGroup}(%{orderIndex})'
   diagnostic: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex]'
   service: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].basedOn.resolve()'
   specimen: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].specimen.resolve()'
-  hl7ObservationNotes: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
-  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
+  hl7ObservationNotes: '%{hl7SegmentGroup}(%{orderIndex})/OBSERVATION'
+  hl7ObservationPath: '%{hl7SegmentGroup}(%{orderIndex})/OBSERVATION'
 elements:
+  #ORC
   - name: order-segment
     # Only create the segment if we have data for it
     condition: '%service.extension(%`rsext-order-control`).exists()'
     schema: order
-
+  #OBR
   - name: observation-request
     # Condition from ORU_RO1 covers this schema as well
     schema: observation-request

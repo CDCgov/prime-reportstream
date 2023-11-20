@@ -52,6 +52,8 @@ elements:
   - name: order-observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
     condition: '%resource.count() > 0'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/ORDER_OBSERVATION'
     required: true
     schema: base/order-observation
     resourceIndex: orderIndex
