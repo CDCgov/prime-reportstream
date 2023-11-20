@@ -239,3 +239,16 @@ elements:
     resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom.where(system = "phone")'
     resourceIndex: telecomIndex
     schema: datatypes/simple-report-telecom
+
+  # Hopefully these can be removed one day, but currently this isn't being sent by SR correctly
+  - name: message-event-code-code
+    bundleProperty: 'Bundle.entry.resource.ofType(MessageHeader).event.display.split("^")[0]'
+    value: [ '"ORU"' ]
+
+  - name: message-event-code-trigger-event
+    bundleProperty: 'Bundle.entry.resource.ofType(MessageHeader).event.display.split("^")[1]'
+    value: [ '"R01"' ]
+
+  - name: message-event-code-message-structure
+    bundleProperty: 'Bundle.entry.resource.ofType(MessageHeader).event.display.split("^")[2]'
+    value: [ '"ORU_R01"' ]
