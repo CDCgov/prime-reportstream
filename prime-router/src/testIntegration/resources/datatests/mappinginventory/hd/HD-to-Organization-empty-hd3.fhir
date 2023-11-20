@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1699996816601757000.f302738d-39d0-49b1-9733-891d94c923f2",
+  "id" : "1700502412197421000.caa303c4-3ea5-40fd-b736-2d190527279e",
   "meta" : {
-    "lastUpdated" : "2023-11-14T16:20:16.627-05:00"
+    "lastUpdated" : "2023-11-20T11:46:52.223-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T10:25:31.000-04:00",
+  "timestamp" : "2023-05-01T09:25:31.000-05:00",
   "entry" : [ {
     "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
     "resource" : {
@@ -18,6 +18,9 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
         "valueString" : "^~\\&#"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
+        "valueString" : "20230501102531-0400"
       } ],
       "eventCoding" : {
         "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
@@ -25,14 +28,22 @@
         "display" : "ORU^R01^ORU_R01"
       },
       "sender" : {
-        "reference" : "Organization/1699996816725558000.ec3024ff-3869-4562-b647-3c8aa426e986"
+        "reference" : "Organization/1700502412321580000.334b892c-b2f7-4a10-ada5-cf02ba9ca563"
+      },
+      "source" : {
+        "_endpoint" : {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+            "valueCode" : "unknown"
+          } ]
+        }
       }
     }
   }, {
-    "fullUrl" : "Organization/1699996816725558000.ec3024ff-3869-4562-b647-3c8aa426e986",
+    "fullUrl" : "Organization/1700502412321580000.334b892c-b2f7-4a10-ada5-cf02ba9ca563",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1699996816725558000.ec3024ff-3869-4562-b647-3c8aa426e986",
+      "id" : "1700502412321580000.334b892c-b2f7-4a10-ada5-cf02ba9ca563",
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
@@ -53,10 +64,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1699996817170369000.b0207bda-99a2-4838-9f8c-ac05e18d1932",
+    "fullUrl" : "Provenance/1700502412809964000.48d30069-9242-4c1c-9a0b-11ff39923c7c",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1699996817170369000.b0207bda-99a2-4838-9f8c-ac05e18d1932",
+      "id" : "1700502412809964000.48d30069-9242-4c1c-9a0b-11ff39923c7c",
       "recorded" : "2023-05-01T10:25:31-04:00",
       "_recorded" : {
         "extension" : [ {
@@ -87,21 +98,21 @@
           } ]
         },
         "who" : {
-          "reference" : "Organization/1699996817168600000.954de408-0d3b-4a8e-b112-33ac2f53986d"
+          "reference" : "Organization/1700502412808725000.33bcf3f9-0849-4edc-8330-9a2a1b2db918"
         }
       } ],
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1699996817174558000.05d40641-23f1-4aa4-9d5a-ca0d81c06cab"
+          "reference" : "Device/1700502412813887000.395b8d1d-6158-4395-917b-dbf87241d24b"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1699996817168600000.954de408-0d3b-4a8e-b112-33ac2f53986d",
+    "fullUrl" : "Organization/1700502412808725000.33bcf3f9-0849-4edc-8330-9a2a1b2db918",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1699996817168600000.954de408-0d3b-4a8e-b112-33ac2f53986d",
+      "id" : "1700502412808725000.33bcf3f9-0849-4edc-8330-9a2a1b2db918",
       "identifier" : [ {
         "value" : "CDC Atlanta"
       } ],
@@ -122,10 +133,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Device/1699996817174558000.05d40641-23f1-4aa4-9d5a-ca0d81c06cab",
+    "fullUrl" : "Device/1700502412813887000.395b8d1d-6158-4395-917b-dbf87241d24b",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1699996817174558000.05d40641-23f1-4aa4-9d5a-ca0d81c06cab"
+      "id" : "1700502412813887000.395b8d1d-6158-4395-917b-dbf87241d24b"
     }
   } ]
 }
