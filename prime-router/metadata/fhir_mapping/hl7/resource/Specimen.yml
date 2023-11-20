@@ -64,6 +64,7 @@ processing:
   vars:
     spm6: SPM.6
 
+
 condition:
   condition: $spm24 NOT_NULL
   valueOf: datatype/CodeableConcept
@@ -136,6 +137,13 @@ extension_4-specimenTypeModifier:
       valueOf: datatype/CodeableConcept
       expressionType: resource
       specs: SPM.5
+
+note_1:
+  valueOf: datatype/Annotation_var
+  expressionType: resource
+  generateList: true
+  vars:
+    noteText: SPM.12
 
 note_1:
   valueOf: datatype/Annotation_var

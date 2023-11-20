@@ -516,3 +516,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-24-hd-extension"
 - id: "msh-25-hd-extension"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-25-hd-extension"
+# CQ Quantity
+- id: "cq-units"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cq-units"
