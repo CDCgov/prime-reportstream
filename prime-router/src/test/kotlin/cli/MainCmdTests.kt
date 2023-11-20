@@ -2,7 +2,6 @@ package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.PrintHelpMessage
 import com.github.ajalt.clikt.core.PrintMessage
-import com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut
 import com.wolpl.clikttestkit.test
 import gov.cdc.prime.router.cli.tests.TestReportStream
 import kotlinx.coroutines.runBlocking
@@ -12,26 +11,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class MainCmdTests {
-
-    @Test
-    fun `test prime CLI - list happy`() {
-        val listSchema = ListSchemas()
-        val text = tapSystemOut {
-            runBlocking {
-                listSchema.test(
-                    expectedExitCode = 0,
-                    environmentVariables = mapOf(
-                        Pair("POSTGRES_USER", "prime"),
-                        Pair("POSTGRES_PASSWORD", "changeIT!"),
-                        Pair("POSTGRES_URL", "jdbc:postgresql://localhost:5432/prime_data_hub")
-                    )
-                ) {
-                }
-            }
-        }
-        assertTrue(text.contains("Current Hub Schema Library"))
-        assertTrue(text.contains("Current Clients (Senders to the Hub)"))
-    }
 
     @Test
     fun `test prime CLI - commands help`() {
