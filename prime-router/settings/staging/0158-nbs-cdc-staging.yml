@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
-# ./prime multiple-settings set --env staging --input ./settings/staging/0154-nbs-staging.yml
-# ./prime multiple-settings set --input ./junk/NBS/0154-nbs-cdc-staging.yml
+# ./prime multiple-settings set --env staging --input ./settings/staging/0158-nbs-staging.yml
+# ./prime multiple-settings set --input ./junk/NBS/0158-nbs-cdc-staging.yml
 ---
 - name: dataingestion
   description: "Data Ingestion CDC NBS"
