@@ -187,4 +187,4 @@ extension_6:
       type: SYSTEM_URL
       value: identifier-index-name
     valueString:
-      value: "alternate-placer-identifier"
+      value: $identifierIndexName
