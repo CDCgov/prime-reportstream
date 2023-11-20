@@ -197,7 +197,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             "msgType" to "HL7",
             "validationActive" to "true",
             "senderLabName" to "CDC PRIME REPORTSTREAM",
-            "sourceLabName" to  "CDC PRIME REPORTSTREAM"
+            "sourceLabName" to "CDC PRIME REPORTSTREAM"
         )
     )
 
@@ -571,5 +571,4 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         assertThat(retryItems).isNull()
     }
-
 }
