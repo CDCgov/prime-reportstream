@@ -11,13 +11,13 @@ import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.JsonConvertException
-import io.mockk.Runs
 import io.mockk.clearConstructorMockk
 import io.mockk.every
 import io.mockk.just
+import io.mockk.mockk
 import io.mockk.mockkConstructor
+import io.mockk.runs
 import io.mockk.verify
-import java.io.File
 import java.io.OutputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -383,10 +383,10 @@ class CommonUtilitiesTests {
             listOf("x", "y", "z"),
             listOf("xx", "yy", "zz")
         )
-        val someFile = File("/dev/null")
+        val outputStream = mockk<OutputStream>()
         mockkConstructor(CsvWriter::class)
-        every { anyConstructed<CsvWriter>().writeAll(any(), any<OutputStream>()) } just Runs
-        saveTableAsCSV(someFile, table)
+        every { anyConstructed<CsvWriter>().writeAll(any(), any<OutputStream>()) } just runs
+        saveTableAsCSV(outputStream, table)
         verify(exactly = 1) { anyConstructed<CsvWriter>().writeAll(expectedCSVRows, any<OutputStream>()) }
         clearConstructorMockk(CsvWriter::class)
     }

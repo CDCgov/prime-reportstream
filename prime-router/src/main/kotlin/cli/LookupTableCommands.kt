@@ -511,7 +511,7 @@ class LookupTableGetCommand(httpClient: HttpClient? = null) : GenericLookupTable
                 echo(LookupTableCommands.rowsToPrintableTable(tableList, colNames))
                 echo("")
             } else {
-                saveTableAsCSV(outputFile!!, tableList)
+                saveTableAsCSV(outputFile!!.outputStream(), tableList)
                 echo(
                     "Saved ${tableList.size} rows of table $tableName version $version " +
                         "to ${outputFile!!.absolutePath} "
@@ -642,7 +642,7 @@ class LookupTableCompareMappingCommand(httpClient: HttpClient? = null) : Generic
 
         // Save an output file and print the resulting table data
         if (outputFile != null) {
-            saveTableAsCSV(outputFile!!, outputData)
+            saveTableAsCSV(outputFile!!.outputStream(), outputData)
             echo(
                 "Saved ${outputData.size} rows to ${outputFile!!.absolutePath} "
             )
