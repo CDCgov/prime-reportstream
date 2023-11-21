@@ -304,6 +304,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
     companion object {
         /** A default value for the timeouts to connect and send messages */
         private const val TIMEOUT = 50_000
+
         /** Our default Http Client, with an optional SSL context */
         private fun createDefaultHttpClient(jks: UserJksCredential?): HttpClient {
             return HttpClient(Apache) {

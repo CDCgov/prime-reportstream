@@ -23,7 +23,7 @@ data class TestSoapPayload(
 @JacksonXmlRootElement(localName = "stag:TestSoap12Message")
 data class TestSoap12Payload(
     @field:JacksonXmlProperty(localName = "stag:TestSoap12Payload")
-    val textFileContents: String
+    val textFileContents: String,
 ) : XmlObject
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

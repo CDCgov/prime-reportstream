@@ -60,7 +60,7 @@ class SoapEnvelope(
     /** A map of namespaces that get injected into the XML header */
     val namespaces: Map<String, String>,
     /** The Soap version being implemented*/
-    val soapVersion: String?
+    val soapVersion: String?,
 ) : XmlObject
 
 /**

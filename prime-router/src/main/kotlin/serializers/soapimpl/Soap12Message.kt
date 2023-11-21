@@ -11,5 +11,5 @@ import gov.cdc.prime.router.serializers.XmlObject
 @JacksonXmlRootElement(localName = "stag:SubmitMessage")
 data class Soap12Message(
     @field:JacksonXmlProperty(localName = "stag:payload")
-    val textFileContents: String
+    val textFileContents: String,
 ) : XmlObject
