@@ -26,8 +26,8 @@ class LookupTableCommandsTest {
      */
     private fun getMockUtil(
         url: String,
-                            status: HttpStatusCode,
-                            body: String,
+        status: HttpStatusCode,
+        body: String,
     ): LookupTableEndpointUtilities {
         return LookupTableEndpointUtilities(
             Environment.LOCAL,
@@ -91,14 +91,14 @@ class LookupTableCommandsTest {
             "tableSha256Checksum" : "4295f38f1e9bdb233d5086bdae3cf92024815883db3f0a96066580c4ba74fcde"
         }]"""
         val listOfTables = getMockUtil(
-                    "/api/lookuptables/list",
-                    HttpStatusCode.OK,
-                    body = tables
-                ).fetchList()
-        assertThat { listOfTables.isNotEmpty() && listOfTables.size == 2 }
+            "/api/lookuptables/list",
+            HttpStatusCode.OK,
+            body = tables
+        ).fetchList()
+        assertTrue(listOfTables.isNotEmpty() && listOfTables.size == 2)
     }
 
-        @Test
+    @Test
     fun `test rows to table`() {
         val colNames = listOf("a", "b")
         val data = mapOf(colNames[0] to "value1", colNames[1] to "value2")
@@ -172,7 +172,7 @@ class LookupTableCommandsTest {
         )
         assertTrue(
             exception.message.toString().contains(
-            "New Lookup Table Table is identical to existing table version 1"
+                "New Lookup Table Table is identical to existing table version 1"
             )
         )
     }
@@ -211,10 +211,10 @@ class LookupTableCommandsTest {
             "version" : ""
         }]"""
         val table = getMockUtil(
-                "${LookupTableEndpointUtilities.endpointRoot}/yesno/1/content",
-                HttpStatusCode.OK,
-                body = body
-            ).fetchTableContent("yesno", 1)
+            "${LookupTableEndpointUtilities.endpointRoot}/yesno/1/content",
+            HttpStatusCode.OK,
+            body = body
+        ).fetchTableContent("yesno", 1)
 
         assertThat(table.size).isEqualTo(3)
     }

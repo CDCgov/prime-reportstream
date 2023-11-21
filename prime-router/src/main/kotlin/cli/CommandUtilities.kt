@@ -177,6 +177,19 @@ class CommandUtilities {
             return mergedRows.filter { it.baseValue != it.toValue }.sortedBy { it.name }
         }
 
+        /**
+         * GET (query resource) operation to the given endpoint resource [url]
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param queryParameters: null default, query parameters of the request
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return the pair of response of type HttpResponse and the body in string form
+         */
         fun getWithStringResponse(
             url: String,
             tkn: BearerTokens? = null,
@@ -205,6 +218,19 @@ class CommandUtilities {
             return Pair(response, bodyStr)
         }
 
+        /**
+         * GET (query resource) operation to the given endpoint resource [url]
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param queryParameters: null default, query parameters of the request
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return the response of type HttpResponse
+         */
         fun get(
             url: String,
             tkn: BearerTokens? = null,
@@ -242,6 +268,20 @@ class CommandUtilities {
             }
         }
 
+        /**
+         * PUT (modify resource) operation to the given endpoint resource [url]
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param queryParameters: null default, query parameters of the request
+         * @param jsonPayload: null default, if present, it's the string representation of resource to be created
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return the pair of response of type HttpResponse and the body in string form
+         */
         fun putWithStringResponse(
             url: String,
             tkn: BearerTokens? = null,
@@ -272,6 +312,20 @@ class CommandUtilities {
             return Pair(response, respStr)
         }
 
+        /**
+         * PUT (modify resource) operation to the given endpoint resource [url]
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param queryParameters: null default, query parameters of the request
+         * @param jsonPayload: null default, if present, it's the string representation of resource to be created
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return the response of type HttpResponse
+         */
         fun put(
             url: String,
             tkn: BearerTokens? = null,
@@ -310,6 +364,20 @@ class CommandUtilities {
             }
         }
 
+        /**
+         * POST (create resource) operation to the given endpoint resource [url]
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param queryParameters: null default, query parameters of the request
+         * @param jsonPayload: required, the string representation of resource to be created
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return the pair of response of type HttpResponse and the body in string form
+         */
         fun postWithStringResponse(
             url: String,
             tkn: BearerTokens? = null,
@@ -339,6 +407,20 @@ class CommandUtilities {
             return Pair(response, respStr)
         }
 
+        /**
+         * POST (create resource) operation to the given endpoint resource [url]
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param queryParameters: null default, query parameters of the request
+         * @param jsonPayload: required, the string representation of resource to be created
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return the response of type HttpResponse
+         */
         fun post(
             url: String,
             tkn: BearerTokens? = null,
@@ -377,6 +459,19 @@ class CommandUtilities {
             }
         }
 
+        /**
+         * Submit form to the endpoint as indicated by [url]
+         *
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return object of type <T>, suppose to be deserialized from underlying response body
+         */
         inline fun <reified T> submitFormT(
             url: String,
             tkn: BearerTokens? = null,
@@ -401,6 +496,19 @@ class CommandUtilities {
             }
         }
 
+        /**
+         * Submit form to the endpoint as indicated by [url]
+         *
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return the response of HttpResponse
+         */
         fun submitForm(
             url: String,
             tkn: BearerTokens? = null,
@@ -439,6 +547,19 @@ class CommandUtilities {
             }
         }
 
+        /**
+         * HEAD operation to the given endpoint resource [url]
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param queryParameters: null default, query parameters of the request
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return the pair of response of HttpResponse and the body in string
+         */
         fun headWithStringResponse(
             url: String,
             tkn: BearerTokens? = null,
@@ -465,6 +586,19 @@ class CommandUtilities {
             return Pair(response, respStr)
         }
 
+        /**
+         * HEAD operation to the given endpoint resource [url]
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param queryParameters: null default, query parameters of the request
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return the pair of response of HttpResponse and the body in string
+         */
         fun head(
             url: String,
             tkn: BearerTokens? = null,
@@ -498,6 +632,22 @@ class CommandUtilities {
             }
         }
 
+        /**
+         * DELETE a resource by endpoint URL [url]
+         * A thin wrapper on top of the underlying 3rd party http client, e.g. ktor http client
+         * with:
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param queryParameters: null default, query parameters of the request
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return the pair of response of HttpResponse and the body in string
+         *
+         */
         fun deleteWithStringResponse(
             url: String,
             tkn: BearerTokens? = null,
@@ -524,6 +674,22 @@ class CommandUtilities {
             return Pair(response, respStr)
         }
 
+        /**
+         * DELETE a resource by endpoint URL [url]
+         * A thin wrapper on top of the underlying 3rd party http client, e.g. ktor http client
+         * with:
+         * @param url: required, the url to the resource endpoint
+         * @param tkn: null default, the access token needed to call the endpoint
+         * @param hdr: null default, the headers of the request
+         * @param acceptedCt: default application/json the accepted content type
+         * @param expSuccess: default false, if response with status >= 300 will throw error
+         * @param tmo: default to a system base value in millis
+         * @param queryParameters: null default, query parameters of the request
+         * @param httpClient: null default, a http client injected by caller
+         *
+         * @return the pair of response of HttpResponse and the body in string
+         *
+         */
         fun delete(
             url: String,
             tkn: BearerTokens? = null,
@@ -557,6 +723,14 @@ class CommandUtilities {
             }
         }
 
+        /**
+         * Create a http client with sensible default settings
+         * note: most configuration parameters are overridable
+         * e.g. expectSuccess default to false because most of the time
+         * the caller wants to handle the whole range of response status
+         * @param bearerTokens null default, the access token needed to call the endpoint
+         * @return a HttpClient with all sensible defaults
+         */
         fun createDefaultHttpClient(bearerTokens: BearerTokens?): HttpClient {
             return HttpClient(Apache) {
                 // installs logging into the call to post to the server
