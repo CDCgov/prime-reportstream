@@ -337,7 +337,7 @@ extension_6:
       type: SYSTEM_URL
       value: collector-identifier
     valueReference:
-      valueOf: resource/Practitioner
+      valueOf: datatypes/XCN/Practitioner
       expressionType: reference
       specs: OBR.10
 
