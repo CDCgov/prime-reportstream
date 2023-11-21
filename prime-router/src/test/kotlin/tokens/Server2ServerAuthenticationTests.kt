@@ -467,9 +467,9 @@ class Server2ServerAuthenticationTests {
                 token,
                 "simple_report.*.report",
             )
-        assertThat { parsed.organization.name == sender.organizationName }
-        assertThat { parsed.kid == exampleKeyId }
-        assertThat { parsed.kty == KeyType.RSA }
+        assertThat(parsed.organization.name).isEqualTo(sender.organizationName)
+        assertThat(parsed.kid).isEqualTo(exampleKeyId)
+        assertThat(parsed.kty).isEqualTo(KeyType.RSA)
     }
 
     @Test
@@ -487,9 +487,9 @@ class Server2ServerAuthenticationTests {
                 token,
                 "simple_report.*.report",
             )
-        assertThat { parsed.organization.name == organization.name }
-        assertThat { parsed.kid == exampleKeyId }
-        assertThat { parsed.kty == KeyType.RSA }
+        assertThat(parsed.organization.name).isEqualTo(organization.name)
+        assertThat(parsed.kid).isEqualTo(exampleKeyId)
+        assertThat(parsed.kty).isEqualTo(KeyType.RSA)
     }
 
     @Test

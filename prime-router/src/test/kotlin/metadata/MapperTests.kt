@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.metadata
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNull
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -108,7 +108,7 @@ class MapperTests {
         var args = mutableListOf<String>()
         // test for zero to ten args passed - each should fail (skip testing 5)
         while (args.count() < 11) {
-            if (args.count() != 5) assertThat { mapper.valueNames(element, args) }.isFailure()
+            if (args.count() != 5) assertFailure { mapper.valueNames(element, args) }
             args.add("arg")
         }
         // test normal call  mapper: ifThenElse(<=, otc_flag comparisonValue, patient_state, ordering_provider_state)
@@ -133,7 +133,7 @@ class MapperTests {
 
         // bad legal args
         args = mutableListOf(">>", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
-        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+        assertFailure { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }
 
         // test inequality operator
         args = mutableListOf("!=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
@@ -245,17 +245,17 @@ class MapperTests {
         // int AND string
         args = listOf("==", "otc_flag", "2", "patient_state", "ordering_provider_state")
         eAVotc = ElementAndValue(Element(args[1]), "Butterfly") // this should error, to save hours of debugging
-        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+        assertFailure { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }
 
         // string AND int
         args = listOf("==", "otc_flag", "Zebra", "patient_state", "ordering_provider_state")
         eAVotc = ElementAndValue(Element(args[1]), "2") // this should error, to save hours of debugging
-        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+        assertFailure { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }
 
         // bad legal args
         args = listOf(">>", "otc_flag", "2", "patient_state", "ordering_provider_state")
         eAVotc = ElementAndValue(Element(args[1]), "2.0") // element otc_flag has .value "2.0"
-        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+        assertFailure { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }
 
         // operator as a value of an element
         args = listOf("op_elm", "otc_flag", "2", "patient_state", "ordering_provider_state")
