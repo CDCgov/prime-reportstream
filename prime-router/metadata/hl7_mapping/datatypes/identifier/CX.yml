@@ -19,9 +19,11 @@ elements:
       hl7HDField: '%{cxFieldPath}-4'
 
   - name: system
-    value: ['%resource.system']
-    condition: '%resource.system.exists()'
-    hl7Spec: [ '%{cxFieldPath}-4' ]
+    resource: '%resource.system'
+    condition: '%resource.exists()'
+    schema: ../../resources/URI/HD
+    constants:
+      hl7HDField: '%{cxFieldPath}-4'
 
   - name: identifier-type-coding
     value: [ '%resource.type.coding.code' ]

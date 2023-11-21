@@ -52,44 +52,87 @@ system:
   vars:
     cx41: String, CX.4.1
     cx43: String, CX.4.3
-  expressionType: nested
-  condition: $cx43 EQUALS ISO || cx43 EQUALS UUID
-  expressions:
-    - condition: $cx41 NOT_NULL
-      expressionType: HL7Spec
-      type: STRING
-      valueOf: CX.4.1
-    - condition: $cx41 NULL && cx43 EQUALS ISO
-      expressionType: HL7Spec
-      type: STRING
-      constants:
-        prefix: "urn:oid:"
-      vars:
-        uri: String, CX.4.2
-        join: $prefix + $uri
-      valueOf: $join
-    - condition: $cx41 NULL && cx43 EQUALS UUID
-      expressionType: HL7Spec
-      type: STRING
-      constants:
-        prefix: "urn:uuid:"
-      vars:
-        uri: String, CX.4.2
-        join: $prefix + $uri
-      valueOf: $join
+  condition: $cx41 NOT_NULL
+  expressionType: HL7Spec
+  type: STRING
+  valueOf: CX.4.1
 
-extension_system:
-  generateList: true
+system_2:
+  constants:
+    prefix: "urn:oid:"
+  vars:
+      cx41: String, CX.4.1
+      cx43: String, CX.4.3
+      join: $prefix + CX.4.2
+  condition: $cx41 NULL && $cx43 EQUALS ISO
+  expressionType: HL7Spec
+  type: STRING
+  valueOf: $join
+
+system_3:
+  constants:
+    prefix: "urn:uuid:"
+  vars:
+      cx41: String, CX.4.1
+      cx43: String, CX.4.3
+      join: $prefix + CX.4.2
+  condition: $cx41 NULL && $cx43 EQUALS UUID
+  expressionType: HL7Spec
+  type: STRING
+  valueOf: $join
+
+_system:
   expressionType: nested
+  vars:
+    cx41: String, CX.4.1
+    cx42: String, CX.4.2
+    cx43: String, CX.4.3
   expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: coding-system
-    valueCodeableConcept:
-      valueOf: datatype/CodeableConcept_var
-      expressionType: resource
-      vars:
-        code: String, CX.4
+    extension_1:
+      condition: $cx41 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: cx-4-1-extension
+        valueString:
+          type: STRING
+          valueOf: $cx41
+          expressionType: HL7Spec
+
+_system_2:
+  condition: $cx41 NULL
+  expressionType: nested
+  vars:
+    cx41: String, CX.4.1
+    cx42: String, CX.4.2
+    cx43: String, CX.4.3
+  expressionsMap:
+    extension_2:
+      condition: $cx43 EQUALS ISO || $cx43 EQUALS UID
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: cx-4-2-extension
+        valueString:
+          type: STRING
+          valueOf: $cx42
+          expressionType: HL7Spec
+    extension_3:
+      condition: $cx43 EQUALS ISO || $cx43 EQUALS UID
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: cx-4-3-extension
+        valueString:
+          type: STRING
+          valueOf: $cx43
+          expressionType: HL7Spec
 
 type:
   valueOf: datatype/CodeableConcept_var

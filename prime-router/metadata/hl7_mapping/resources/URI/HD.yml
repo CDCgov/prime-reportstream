@@ -1,0 +1,20 @@
+elements:
+
+  - name: valueHD1
+    condition: '%resource.extension(%`rsext-cx-4-1-extension`).exists()'
+    value:
+      - '%resource.extension(%`rsext-cx-4-1-extension`).value'
+
+    hl7Spec: [ '%{hl7HDField}-1' ]
+
+  - name: valueHD2
+    condition: '%resource.extension(%`rsext-cx-4-2-extension`).exists()'
+    value:
+      - '%resource.extension(%`rsext-cx-4-2-extension`).value'
+    hl7Spec: [ '%{hl7HDField}-2' ]
+
+  - name: valueHD3
+    condition: '%resource.extension(%`rsext-cx-4-3-extension`).exists()'
+    value:
+      - '%resource.extension(%`rsext-cx-4-3-extension`).value'
+    hl7Spec: [ '%{hl7HDField}-3' ]

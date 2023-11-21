@@ -537,3 +537,12 @@
 # Identifier Index Name
 - id: "identifier-index-name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-index-name"
+# cx-4-1-extension 
+- id: "cx-4-1-extension"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-1-extension"
+# cx-4-2-extension 
+- id: "cx-4-2-extension"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-2-extension"
+# cx-4-3-extension 
+- id: "cx-4-3-extension"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-3-extension"
