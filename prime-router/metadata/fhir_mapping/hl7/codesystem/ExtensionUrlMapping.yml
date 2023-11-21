@@ -548,6 +548,7 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-24-hd-extension"
 - id: "msh-25-hd-extension"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-25-hd-extension"
+<<<<<<< HEAD
 # Assigning jurisdiction
 - id: "assigning-jurisdiction"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-jurisdiction"
@@ -581,3 +582,8 @@
 # cx-5-extension
 - id: "cx-5-extension"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-5-extension"
+=======
+# Entity identifier
+- id: "entity-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier"
+>>>>>>> master
