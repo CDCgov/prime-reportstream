@@ -73,9 +73,6 @@ quantity:
   valueOf: datatypes/CQ/Quantity
   expressionType: resource
   specs: SPM.12 | OBR.9
-#  vars:
-#    value: String, SPM.12.1 | OBR.9.1
-#    unit: SPM.12.2 | OBR.9.2
 
 method:
   condition: $spm7 NOT_NULL

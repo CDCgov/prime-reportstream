@@ -64,7 +64,6 @@ processing:
   vars:
     spm6: SPM.6
 
-
 condition:
   condition: $spm24 NOT_NULL
   valueOf: datatype/CodeableConcept
