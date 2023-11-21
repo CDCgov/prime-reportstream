@@ -35,7 +35,7 @@ extension_2:
 assigner_1:
   vars:
     cx43: String, CX.4.3
-  condition: cx43 NULL
+  condition: $cx43 NULL
   valueOf: datatypes/HD/Organization
   expressionType: reference
   specs: CX.4
@@ -51,47 +51,40 @@ assigner_2:
 system:
   vars:
     cx41: String, CX.4.1
+    cx42: String, CX.4.2
     cx43: String, CX.4.3
-  condition: $cx41 NOT_NULL
-  expressionType: HL7Spec
-  type: STRING
-  valueOf: CX.4.1
-
-system_2:
-  constants:
-    prefix: "urn:oid:"
-  vars:
-      cx41: String, CX.4.1
-      cx43: String, CX.4.3
-      join: $prefix + CX.4.2
-  condition: $cx41 NULL && $cx43 EQUALS ISO
-  expressionType: HL7Spec
-  type: STRING
-  valueOf: $join
-
-system_3:
-  constants:
-    prefix: "urn:uuid:"
-  vars:
-      cx41: String, CX.4.1
-      cx43: String, CX.4.3
-      join: $prefix + CX.4.2
-  condition: $cx41 NULL && $cx43 EQUALS UUID
-  expressionType: HL7Spec
-  type: STRING
-  valueOf: $join
-
-_system:
+  condition: $cx43 EQUALS ISO || $cx43 EQUALS UUID
   expressionType: nested
+  expressions:
+    - condition: $cx41 NOT_NULL
+      type: STRING
+      valueOf: $cx41
+    - condition: $cx41 NULL && $cx43 EQUALS ISO
+      constants:
+        prefix: "urn:oid:"
+      vars:
+        systemURI: $prefix + CX.4.2
+      type: STRING
+      valueOf: $systemURI
+    - condition: $cx41 NULL && $cx43 EQUALS UUID
+      constants:
+        prefix: "urn:uuid:"
+      vars:
+        systemURI: $prefix + CX.4.2
+      type: STRING
+      valueOf: $systemURI
+_system:
   vars:
     cx41: String, CX.4.1
     cx42: String, CX.4.2
     cx43: String, CX.4.3
+  condition: $cx43 EQUALS ISO || $cx43 EQUALS UUID
+  expressionType: nested
   expressionsMap:
     extension_1:
-      condition: $cx41 NOT_NULL
       generateList: true
       expressionType: nested
+      condition: $cx41 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -100,19 +93,10 @@ _system:
           type: STRING
           valueOf: $cx41
           expressionType: HL7Spec
-
-_system_2:
-  condition: $cx41 NULL
-  expressionType: nested
-  vars:
-    cx41: String, CX.4.1
-    cx42: String, CX.4.2
-    cx43: String, CX.4.3
-  expressionsMap:
     extension_2:
-      condition: $cx43 EQUALS ISO || $cx43 EQUALS UID
       generateList: true
       expressionType: nested
+      condition: $cx42 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -122,7 +106,6 @@ _system_2:
           valueOf: $cx42
           expressionType: HL7Spec
     extension_3:
-      condition: $cx43 EQUALS ISO || $cx43 EQUALS UID
       generateList: true
       expressionType: nested
       expressionsMap:
@@ -144,16 +127,17 @@ type:
 extension_type:
   generateList: true
   expressionType: nested
+  condition: $cx5 NOT_NULL
+  vars:
+    cx5: CX.5
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: cx-5-extension
-    valueCodeableConcept:
-      valueOf: datatype/CodeableConcept_var
-      expressionType: resource
-      vars:
-        code: String, CX.5
-        system: $system
+    valueString:
+      type: STRING
+      valueOf: $cx5
+      expressionType: HL7Spec
 
 extension_assigningFacility:
   generateList: true

@@ -4,7 +4,6 @@ elements:
     condition: '%resource.extension(%`rsext-cx-4-1-extension`).exists()'
     value:
       - '%resource.extension(%`rsext-cx-4-1-extension`).value'
-
     hl7Spec: [ '%{hl7HDField}-1' ]
 
   - name: valueHD2

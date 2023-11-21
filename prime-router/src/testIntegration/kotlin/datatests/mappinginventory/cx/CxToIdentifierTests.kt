@@ -7,11 +7,17 @@ class CxToIdentifierTests {
     @Test
     fun `test correctly handles CX datatype for organization`() {
         assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-organization").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-organization-null-org-type").passed)
     }
 
     @Test
     fun `test correctly handles CX datatype for system `() {
-        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-system").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-system-iso").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-system-iso-no-cx-4-1").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-system-iso-no-cx-4-2").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-system-uuid").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-system-uuid-no-cx-4-1").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-system-uuid-no-cx-4-2").passed)
     }
 
     @Test

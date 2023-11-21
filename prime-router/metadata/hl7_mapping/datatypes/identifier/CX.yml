@@ -26,7 +26,7 @@ elements:
       hl7HDField: '%{cxFieldPath}-4'
 
   - name: identifier-type-coding
-    value: [ '%resource.extension(%`rsext-cx-5-extension`).value.coding.code' ]
+    value: [ '%resource.extension(%`rsext-cx-5-extension`).value' ]
     condition: '%resource.exists()'
     hl7Spec: [ '%{cxFieldPath}-5' ]
 
