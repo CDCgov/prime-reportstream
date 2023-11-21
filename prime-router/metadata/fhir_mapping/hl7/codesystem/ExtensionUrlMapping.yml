@@ -548,3 +548,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-24-hd-extension"
 - id: "msh-25-hd-extension"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-25-hd-extension"
+# Entity identifier
+- id: "entity-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier"
