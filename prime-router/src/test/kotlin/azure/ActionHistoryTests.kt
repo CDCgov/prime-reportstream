@@ -1,8 +1,10 @@
 package gov.cdc.prime.router.azure
 
+import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.containsOnly
+import assertk.assertions.extracting
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
@@ -107,7 +109,7 @@ class ActionHistoryTests {
         assertThat(actionHistory1.action.externalName).isEqualTo(payloadName)
 
         // not allowed to track the same report twice.
-        assertThat { actionHistory1.trackExternalInputReport(report1, blobInfo1) }.isFailure()
+        assertFailure { actionHistory1.trackExternalInputReport(report1, blobInfo1) }
     }
 
     @Test
@@ -179,7 +181,7 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(0)
 
         // not allowed to track the same report twice.
-        assertThat { actionHistory1.trackCreatedReport(event1, report1, orgReceiver, blobInfo1) }.isFailure()
+        assertFailure { actionHistory1.trackCreatedReport(event1, report1, orgReceiver, blobInfo1) }
     }
 
     @Test
@@ -219,7 +221,7 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(0)
 
         // not allowed to track the same report twice.
-        assertThat { actionHistory1.trackCreatedReport(event1, report1, blobInfo = blobInfo1) }.isFailure()
+        assertFailure { actionHistory1.trackCreatedReport(event1, report1, blobInfo = blobInfo1) }
     }
 
     @Test
@@ -247,7 +249,7 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(0)
 
         // not allowed to track the same report twice.
-        assertThat { actionHistory1.trackCreatedReport(event1, report1) }.isFailure()
+        assertFailure { actionHistory1.trackCreatedReport(event1, report1) }
     }
 
     @Test
@@ -264,7 +266,7 @@ class ActionHistoryTests {
         assertThat(reportFile.sendingOrg).isNull()
         assertThat(null).isEqualTo(reportFile.itemCount)
         // not allowed to track the same report twice.
-        assertThat { actionHistory1.trackExistingInputReport(uuid) }.isFailure()
+        assertFailure { actionHistory1.trackExistingInputReport(uuid) }
     }
 
     @Test
@@ -313,11 +315,11 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(15)
         assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
         // not allowed to track the same report twice.
-        assertThat {
+        assertFailure {
             actionHistory1.trackSentReport(
                 orgReceiver, uuid, "filename1", "params1", "result1", header
             )
-        }.isFailure()
+        }
     }
 
     @Test
@@ -344,11 +346,11 @@ class ActionHistoryTests {
         assertThat(reportFile2.blobDigest).isNull()
         assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
         // not allowed to track the same report twice.
-        assertThat {
+        assertFailure {
             actionHistory1.trackDownloadedReport(
                 reportFile1, "filename1", uuid2, "bob"
             )
-        }.isFailure()
+        }
     }
 
     @Test
@@ -381,10 +383,10 @@ class ActionHistoryTests {
 
         actionHistory.setActionId(12345)
 
-        assertThat { actionHistory.action.actionId.equals(12345) }
-        assertThat { actionHistory.reportsReceived.values.all { it.actionId.equals(12345) } }
-        assertThat { actionHistory.reportsOut.values.all { it.actionId.equals(12345) } }
-        assertThat { actionHistory.filteredOutReports.values.all { it.actionId.equals(12345) } }
+        assertThat(actionHistory.action.actionId).isEqualTo(12345)
+        assertThat(actionHistory.reportsReceived.values).extracting { it.actionId }.containsOnly(12345L)
+        assertThat(actionHistory.reportsOut.values).extracting { it.actionId }.containsOnly(12345L)
+        assertThat(actionHistory.filteredOutReports.values).extracting { it.actionId }.containsOnly(12345L)
     }
 
     @Test
@@ -410,7 +412,7 @@ class ActionHistoryTests {
 
         actionHistory.generateLineages()
 
-        assertThat { actionHistory.reportLineages.size == 1 }
+        assertThat(actionHistory.reportLineages.size).isEqualTo(1)
     }
 
     @Test
@@ -465,7 +467,7 @@ class ActionHistoryTests {
 
         actionHistory.nullifyReportIdsForNonTrackedReports()
 
-        assertThat { actionHistory.actionLogs.all { it.reportId == null } }
+        assertThat(actionHistory.actionLogs).extracting { it.reportId }.containsOnly(null)
     }
 
     @Test
