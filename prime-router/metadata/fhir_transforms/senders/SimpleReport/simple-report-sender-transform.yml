@@ -278,7 +278,9 @@ elements:
     resourceIndex: telecomIndex
     schema: datatypes/simple-report-telecom
 
-  # populate Specimen identifier
+  # To populate SPM-2 appropriately, we need to overwrite the existing specimen.identifier[0]
+  # The value that exists in there is not used anywhere in the expected HL7 while the expected
+  # values can be found in the diagnostic report and its referenced organization
   - name: sr-specimen-placer-assigned-identifier-value
     bundleProperty: '%specimen.identifier[0].value'
     value: [ '%diagnosticReport.id' ]
