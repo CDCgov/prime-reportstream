@@ -1,4 +1,3 @@
-# To submit this to localhost, run:
 # ./prime multiple-settings set --env staging --input ./settings/staging/0159-AR-onboarding.yml
 
 - name: "ar-phd"
