@@ -13,4 +13,9 @@ class CxToIdentifierTests {
     fun `test correctly handles CX datatype for system `() {
         assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-identifier-system").passed)
     }
+
+    @Test
+    fun `test correctly handles CX 5 not being PLAC`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("cx/cx-5").passed)
+    }
 }
