@@ -141,6 +141,20 @@ type:
     code: $code
     system: $system
 
+extension_type:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cx-5-extension
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        code: String, CX.5
+        system: $system
+
 extension_assigningFacility:
   generateList: true
   expressionType: nested

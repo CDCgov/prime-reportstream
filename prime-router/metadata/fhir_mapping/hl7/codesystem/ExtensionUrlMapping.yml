@@ -546,3 +546,6 @@
 # cx-4-3-extension 
 - id: "cx-4-3-extension"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-3-extension"
+# cx-5-extension
+- id: "cx-5-extension"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-5-extension"
