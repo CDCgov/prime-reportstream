@@ -5,6 +5,31 @@ constants:
   patient: 'Bundle.entry.resource.ofType(Patient)'
 elements:
 
+  # MSH
+  - name: sending-application-target-msh3-extension
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '"CDC PRIME - Atlanta"' ]
+
+  - name: sending-application-universal-id-extension
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+
+  - name: sending-application-universal-id-type-extension
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '"ISO"' ]
+
+  - name: sending-application-target-msh3
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
+    value: [ '"sending-application"' ]
+
   # Order Filler identifier - this was being populated in CA receiver transforms
   #                           should've been a sender transform in the first place since
   #                           this is needed for NY too
@@ -150,7 +175,8 @@ elements:
 
   # Covid pipeline populates this by looking at the hl70005 value-set version
   - name: sr-patient-race-version
-    bundleProperty: '%patient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.version'
+    resource: '%patient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    bundleProperty: '%resource.coding.version'
     value: [ '"2.5.1"' ]
 
   # This is populated as a sender transform in the Covid pipeline
@@ -160,7 +186,8 @@ elements:
 
   # Covid pipeline populates this by looking at the hl70189 value-set version
   - name: sr-patient-ethnic-group-version
-    bundleProperty: '%patient.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value.coding.version'
+    resource: '%patient.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value'
+    bundleProperty: '%resource.coding.version'
     value: [ '"2.9"' ]
 
   # Covid pipeline populates this by looking at the hl70078 value-set version
@@ -219,11 +246,9 @@ elements:
 
   # Populating display based on text
   - name: sr-patient-race-display
-    resource: '%patient'
-    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
-    bundleProperty: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].display'
-    value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text'
+    resource: '%patient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    bundleProperty: '%resource.coding[0].display'
+    value: [ '%resource.text' ]
 
   # Populating display based on text
   - name: sr-specimen-type-display

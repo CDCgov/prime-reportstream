@@ -15,7 +15,7 @@ elements:
   - name: software-segment
     condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    schema: ../common/software
+    schema: ../resources/MessageHeader/SFT
 
   - name: patient-information
     resource: 'Bundle.entry.resource.ofType(Patient)'
