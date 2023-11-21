@@ -1,9 +1,9 @@
 package gov.cdc.prime.router
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasClass
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
@@ -869,7 +869,7 @@ class ReportTests {
         val mockMetadata = mockk<Metadata>()
 
         // No message body
-        assertThat {
+        assertFailure {
             Report.generateReportAndUploadBlob(
                 Event.EventAction.BATCH,
                 "".toByteArray(),
@@ -879,10 +879,10 @@ class ReportTests {
                 mockActionHistory,
                 topic = Topic.FULL_ELR,
             )
-        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+        }.hasClass(java.lang.IllegalStateException::class.java)
 
         // No report ID
-        assertThat {
+        assertFailure {
             Report.generateReportAndUploadBlob(
                 Event.EventAction.BATCH,
                 UUID.randomUUID().toString().toByteArray(),
@@ -892,10 +892,10 @@ class ReportTests {
                 mockActionHistory,
                 topic = Topic.FULL_ELR,
             )
-        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+        }.hasClass(java.lang.IllegalStateException::class.java)
 
         // Invalid receiver type
-        assertThat {
+        assertFailure {
             Report.generateReportAndUploadBlob(
                 Event.EventAction.BATCH,
                 UUID.randomUUID().toString().toByteArray(),
@@ -905,15 +905,15 @@ class ReportTests {
                 mockActionHistory,
                 topic = Topic.FULL_ELR,
             )
-        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+        }.hasClass(java.lang.IllegalStateException::class.java)
     }
 
     @Test
     fun `test generateReportAndUploadBlob for hl7`() {
-        val mockMetadata = mockk<Metadata>() {
+        val mockMetadata = mockk<Metadata> {
             every { fileNameTemplates } returns emptyMap()
         }
-        val mockActionHistory = mockk<ActionHistory>() {
+        val mockActionHistory = mockk<ActionHistory> {
             every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         }
         val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
@@ -974,10 +974,10 @@ class ReportTests {
 
     @Test
     fun `test generateReportAndUploadBlob for fhir`() {
-        val mockMetadata = mockk<Metadata>() {
+        val mockMetadata = mockk<Metadata> {
             every { fileNameTemplates } returns emptyMap()
         }
-        val mockActionHistory = mockk<ActionHistory>() {
+        val mockActionHistory = mockk<ActionHistory> {
             every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         }
         val fhirMockData = UUID.randomUUID().toString().toByteArray() // Just some data
@@ -1046,7 +1046,7 @@ class OptionTests {
         assertThat(noneOption).equals(Options.None)
 
         val invalidOption = "INVALID OPTION"
-        assertFailsWith<Options.InvalidOptionException>() { Options.valueOfOrNone(invalidOption) }
+        assertFailsWith<Options.InvalidOptionException> { Options.valueOfOrNone(invalidOption) }
     }
 
     @Test

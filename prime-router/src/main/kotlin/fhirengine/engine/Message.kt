@@ -65,7 +65,7 @@ data class RawSubmission(
      * Download the file associated with a RawSubmission message
      */
     fun downloadContent(): String {
-        val blobContent = BlobAccess.downloadBlob(this.blobURL)
+        val blobContent = BlobAccess.downloadBlobAsByteArray(this.blobURL)
         val localDigest = BlobAccess.digestToString(BlobAccess.sha256Digest(blobContent))
         check(this.digest == localDigest) {
             "FHIR - Downloaded file does not match expected file\n${this.digest} | $localDigest"

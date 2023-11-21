@@ -43,8 +43,8 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 const val SCHEDULE = "*/5 * * * *" // every 5 minutes
-const val OKTA_ISSUER = "https://hhs-prime.okta.com/oauth2/default"
-const val OKTA_GROUPS_API = "https://hhs-prime-admin.okta.com/api/v1/groups"
+const val OKTA_ISSUER = "https://reportstream.okta.com/oauth2/default"
+const val OKTA_GROUPS_API = "https://reportstream-admin.okta.com/api/v1/groups"
 const val FROM_EMAIL = "reportstream@cdc.gov"
 const val SUBJECT_EMAIL = "ReportStream Daily Email"
 const val FIVE_MINUTES_IN_SECONDS = 5 * 60
@@ -56,7 +56,7 @@ data class EmailSchedule(
     val cronSchedule: String,
     val organizations: List<String> = ArrayList<String>(),
     val emails: List<String> = ArrayList<String>(),
-    val parameters: Map<String, String> = HashMap<String, String>()
+    val parameters: Map<String, String> = HashMap<String, String>(),
 )
 
 class EmailScheduleEngine {
@@ -119,7 +119,7 @@ class EmailScheduleEngine {
         @Suppress("UNUSED_PARAMETER")
         @TimerTrigger(name = "emailScheduleEngine", schedule = SCHEDULE)
         timerInfo: String,
-        context: ExecutionContext
+        context: ExecutionContext,
     ) {
         val logger: Logger = context.logger
         val mapper = ObjectMapper().registerModule(
@@ -195,7 +195,6 @@ class EmailScheduleEngine {
      * @returns true if the given schedule should fire; false otherwise
      */
     private fun shouldFire(schedule: EmailSchedule): Boolean {
-
         val parser = CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX))
         // Get date for last execution
         val now = ZonedDateTime.now()
@@ -207,7 +206,7 @@ class EmailScheduleEngine {
         less than 5 minutes of the last timer execution is valid (i.e. timer trigger fires at 11:59 but the cron for the
         schedule is at noon, without this, they don't "line up" and the schedule is always reported as shouldFire = false)
         This accounts for a difference in cron timers (Azure's and the one referenced here)
-        */
+         */
         return (timeFromLastExecution.get().toSeconds() < FIVE_MINUTES_IN_SECONDS)
     }
 
@@ -232,7 +231,8 @@ class EmailScheduleEngine {
         return workflowEngine.db.transactReturning { tx ->
             @Suppress("UNRESOLVED_REFERENCE")
             val settings = workflowEngine.db.fetchSettings(SettingType.ORGANIZATION, tx)
-            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER") settings.map { it.getName() }
+            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
+            settings.map { it.getName() }
         }
     }
 
@@ -248,10 +248,12 @@ class EmailScheduleEngine {
      * @todo Consolidate Authentication and claims processing #1594
      */
     fun validateUser(requestToken: String, logger: Logger): String? {
-
         val jwtToken =
-            if (requestToken.length > AUTH_KEY.length) requestToken.substring(AUTH_KEY.length)
-            else ""
+            if (requestToken.length > AUTH_KEY.length) {
+                requestToken.substring(AUTH_KEY.length)
+            } else {
+                ""
+            }
 
         var user: String? = null
 
@@ -268,9 +270,11 @@ class EmailScheduleEngine {
                 // get the user name
                 @Suppress("UNCHECKED_CAST")
                 user =
-                    if ((jwt.claims[oktaMembershipClaim] as List<String>).contains(oktaSystemAdminGroup))
+                    if ((jwt.claims[oktaMembershipClaim] as List<String>).contains(oktaSystemAdminGroup)) {
                         jwt.claims[subjectClaim].toString()
-                    else null
+                    } else {
+                        null
+                    }
             } catch (ex: Throwable) {
                 logger.log(Level.WARNING, "Error in verification of token", ex)
             }
@@ -297,15 +301,12 @@ class EmailScheduleEngine {
      * @returns List of emails to send to
      */
     private fun getEmails(org: String, logger: Logger): List<String> {
-
         var emails: MutableList<String> = mutableListOf()
 
         try {
-
             var ssws: String? = SecretHelper.getSecretService().fetchSecret("SSWS_OKTA")
 
             if (ssws !== null) {
-
                 var grp = encodeOrg(org)
 
                 // get the OKTA Group Id
@@ -351,7 +352,6 @@ class EmailScheduleEngine {
         var response: Response = Response()
 
         if (sendgridId !== null) {
-
             val sg: SendGrid = SendGrid(sendgridId)
             val request: Request = Request()
 
@@ -364,8 +364,9 @@ class EmailScheduleEngine {
                 logger.warning("Can't contact sendgrid")
             } finally {
                 logger.info("sending to $emails - result ${response.getStatusCode()}")
-                if (!(200..299).contains(response.getStatusCode()))
+                if (!(200..299).contains(response.getStatusCode())) {
                     logger.severe("error - ${response.getBody()}")
+                }
             }
         } else {
             logger.info("Can't find SENDGRID_ID secret")

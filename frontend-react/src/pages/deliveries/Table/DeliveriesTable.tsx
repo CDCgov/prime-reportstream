@@ -20,11 +20,14 @@ import usePagination from "../../../hooks/UsePagination";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
-import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
+import {
+    EventName,
+    useAppInsightsContext,
+} from "../../../contexts/AppInsightsContext";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -74,13 +77,14 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     isLoading,
     serviceReportsList,
 }) => {
-    const { oktaToken, activeMembership } = useSessionContext();
+    const { appInsights } = useAppInsightsContext();
+    const { authState, activeMembership } = useSessionContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
-            oktaToken?.accessToken || "",
-            activeMembership?.parsedName || "",
+            authState.accessToken?.accessToken ?? "",
+            activeMembership?.parsedName ?? "",
         );
     };
     const transformDate = (s: string) => {
@@ -141,8 +145,11 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
                 showDateHints={true}
                 filterManager={filterManager}
                 onFilterClick={({ from, to }: { from: string; to: string }) =>
-                    trackAppInsightEvent(featureEvent, {
-                        tableFilter: { startRange: from, endRange: to },
+                    appInsights?.trackEvent({
+                        name: featureEvent,
+                        properties: {
+                            tableFilter: { startRange: from, endRange: to },
+                        },
                     })
                 }
             />
@@ -218,26 +225,26 @@ const DeliveriesTableWithNumberedPagination = ({
 
 export const DeliveriesTable = () => {
     const {
-        loadingServices,
-        services,
+        isLoading,
+        data: services,
         activeService,
         setActiveService,
         isDisabled,
     } = useOrganizationReceiversFeed();
 
-    if (loadingServices) return <Spinner />;
+    if (isLoading) return <Spinner />;
 
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
 
     if (
-        !loadingServices &&
+        !isLoading &&
         (!activeService ||
             activeService?.customerStatus === CustomerStatusType.INACTIVE)
     )
         return (
-            <div className="usa-section margin-bottom-10">
+            <div className="usa-section margin-bottom-5">
                 <NoServicesBanner />
             </div>
         );
@@ -245,7 +252,7 @@ export const DeliveriesTable = () => {
         <>
             {activeService && (
                 <DeliveriesTableWithNumberedPagination
-                    services={services}
+                    services={services!!}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />

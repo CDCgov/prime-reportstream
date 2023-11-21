@@ -10,12 +10,12 @@ elements:
       Bundle.entry.resource.ofType(MessageHeader).event.code = 'A01'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     required: true
-    schema: ../common/message-header
+    schema: ../resources/MessageHeader/MSH
 
   - name: software-segment
     condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    schema: ../common/software
+    schema: ../resources/MessageHeader/SFT
 
   - name: patient-information
     resource: 'Bundle.entry.resource.ofType(Patient)'

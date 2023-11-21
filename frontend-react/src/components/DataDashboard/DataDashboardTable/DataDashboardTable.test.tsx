@@ -1,9 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { mockAppInsights } from "../../../utils/__mocks__/ApplicationInsights";
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import {
     dataDashboardServer,
     makeRSReceiverDeliveryResponseFixture,
@@ -13,6 +11,11 @@ import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { renderApp } from "../../../utils/CustomRenderUtils";
+import {
+    mockAppInsights,
+    mockAppInsightsContextReturnValue,
+} from "../../../contexts/__mocks__/AppInsightsContext";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import DataDashboardTable from "./DataDashboardTable";
 
@@ -26,21 +29,22 @@ jest.mock("../../../TelemetryService", () => ({
 
 beforeEach(() => {
     // Mock our SessionProvider's data
-    mockSessionContext.mockReturnValue({
-        oktaToken: {
-            accessToken: "TOKEN",
-        },
+    mockSessionContentReturnValue({
+        authState: {
+            accessToken: { accessToken: "TOKEN" },
+        } as any,
         activeMembership: {
             memberType: MemberType.RECEIVER,
             parsedName: "testOrg",
             service: "testReceiverService",
         },
-        dispatch: () => {},
-        initialized: true,
-        isUserAdmin: false,
-        isUserReceiver: true,
-        isUserSender: false,
-        environment: "test",
+
+        user: {
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
+            isUserTransceiver: false,
+        } as any,
     });
 });
 
@@ -50,32 +54,33 @@ describe("DataDashboardTable", () => {
     afterAll(() => dataDashboardServer.close());
 
     describe("useOrganizationReceiversFeed without data", () => {
-        beforeEach(() => {
+        function setup() {
+            mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
-                loadingServices: false,
-                services: [],
+                isLoading: false,
+                data: [],
                 setActiveService: () => {},
-                isDisabled: false,
-            });
+            } as any);
 
             // Mock our SessionProvider's data
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
 
             // Mock the response from the Deliveries hook
@@ -90,9 +95,10 @@ describe("DataDashboardTable", () => {
 
             // Render the component
             renderApp(<DataDashboardTable />);
-        });
+        }
 
         test("if no active service display NoServicesBanner", async () => {
+            setup();
             const heading = await screen.findByText(/No available data/i);
             expect(heading).toBeInTheDocument();
         });
@@ -102,14 +108,14 @@ describe("DataDashboardTable", () => {
 describe("DataDashboardTableWithPagination", () => {
     describe("when enabled", () => {
         describe("with multiple receiver services and data", () => {
-            beforeEach(() => {
+            function setup() {
+                mockAppInsightsContextReturnValue();
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
-                    loadingServices: false,
-                    services: mockReceiverServices,
+                    isLoading: false,
+                    data: mockReceiverServices,
                     setActiveService: () => {},
-                    isDisabled: false,
-                });
+                } as any);
 
                 const mockUseReceiverDeliveriesCallback = {
                     data: makeRSReceiverDeliveryResponseFixture(10),
@@ -122,13 +128,15 @@ describe("DataDashboardTableWithPagination", () => {
 
                 // Render the component
                 renderApp(<DataDashboardTable />);
-            });
+            }
 
             test("renders receiver services", () => {
+                setup();
                 expect(screen.getAllByRole("option").length).toBe(5);
             });
 
             test("renders table with pagination", async () => {
+                setup();
                 const pagination = await screen.findByLabelText(/Pagination/i);
                 expect(pagination).toBeInTheDocument();
 
@@ -150,6 +158,7 @@ describe("DataDashboardTableWithPagination", () => {
             });
 
             test("renders 10 results per page + 1 header row", () => {
+                setup();
                 // renders 10 results per page + 1 header row regardless of the total number of records
                 // since our pagination limit is set to 10
                 const rows = screen.getAllByRole("row");
@@ -158,6 +167,7 @@ describe("DataDashboardTableWithPagination", () => {
 
             describe("TableFilter", () => {
                 test("Clicking on filter invokes the trackAppInsightEvent", async () => {
+                    setup();
                     await userEvent.click(screen.getByText("Filter"));
 
                     expect(mockAppInsights.trackEvent).toBeCalledWith({
@@ -174,14 +184,13 @@ describe("DataDashboardTableWithPagination", () => {
         });
 
         describe("with one active receiver service", () => {
-            beforeEach(() => {
+            function setup() {
+                mockAppInsightsContextReturnValue();
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
-                    loadingServices: false,
-                    services: receiverServicesGenerator(1),
+                    data: receiverServicesGenerator(1),
                     setActiveService: () => {},
-                    isDisabled: false,
-                });
+                } as any);
 
                 const mockUseReceiverDeliveriesCallback = {
                     data: makeRSReceiverDeliveryResponseFixture(0),
@@ -194,9 +203,10 @@ describe("DataDashboardTableWithPagination", () => {
 
                 // Render the component
                 renderApp(<DataDashboardTable />);
-            });
+            }
 
             test("renders the receiver service", () => {
+                setup();
                 expect(screen.queryByRole("select")).not.toBeInTheDocument();
                 expect(
                     screen.getByText("Receiver service:"),
@@ -205,37 +215,42 @@ describe("DataDashboardTableWithPagination", () => {
             });
 
             test("without data", () => {
-                expect(screen.getByText("No data to show")).toBeInTheDocument();
+                setup();
+                expect(
+                    screen.getByText("No available data"),
+                ).toBeInTheDocument();
+                expect(screen.getByText("contact us")).toBeInTheDocument();
             });
         });
 
         describe("with no receiver services", () => {
-            beforeEach(() => {
+            function setup() {
+                mockAppInsightsContextReturnValue();
                 // Mock our receiver services feed data
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: undefined,
-                    loadingServices: false,
-                    services: [],
+                    isLoading: false,
+                    data: [],
                     setActiveService: () => {},
-                    isDisabled: false,
-                });
+                } as any);
 
                 // Mock our SessionProvider's data
-                mockSessionContext.mockReturnValue({
-                    oktaToken: {
-                        accessToken: "TOKEN",
-                    },
+                mockSessionContentReturnValue({
+                    authState: {
+                        accessToken: { accessToken: "TOKEN" },
+                    } as any,
                     activeMembership: {
                         memberType: MemberType.RECEIVER,
                         parsedName: "testOrgNoReceivers",
                         service: "testReceiver",
                     },
-                    dispatch: () => {},
-                    initialized: true,
-                    isUserAdmin: false,
-                    isUserReceiver: true,
-                    isUserSender: false,
-                    environment: "test",
+
+                    user: {
+                        isUserAdmin: false,
+                        isUserReceiver: true,
+                        isUserSender: false,
+                        isUserTransceiver: false,
+                    } as any,
                 });
 
                 // Mock the response from the Deliveries hook
@@ -250,9 +265,10 @@ describe("DataDashboardTableWithPagination", () => {
 
                 // Render the component
                 renderApp(<DataDashboardTable />);
-            });
+            }
 
             test("renders the NoServicesBanner message", async () => {
+                setup();
                 const heading = await screen.findByText("No available data");
                 expect(heading).toBeInTheDocument();
             });
@@ -260,32 +276,34 @@ describe("DataDashboardTableWithPagination", () => {
     });
 
     describe("when disabled", () => {
-        beforeEach(() => {
+        function setup() {
+            mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
-                loadingServices: false,
-                services: [],
-                setActiveService: () => {},
+                isLoading: false,
                 isDisabled: true,
-            });
+                data: [],
+                setActiveService: () => {},
+            } as any);
 
             // Mock our SessionProvider's data
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
 
             // Mock the response from the Deliveries hook
@@ -300,9 +318,10 @@ describe("DataDashboardTableWithPagination", () => {
 
             // Render the component
             renderApp(<DataDashboardTable />);
-        });
+        }
 
         test("renders an error saying admins shouldn't fetch organization data", async () => {
+            setup();
             expect(
                 await screen.findByText(
                     "Cannot fetch Organization data as admin",

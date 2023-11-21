@@ -5,7 +5,7 @@ import config from "../../config";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 
-import { EditReceiverSettings } from "./EditReceiverSettings";
+import { EditReceiverSettingsPage } from "./EditReceiverSettings";
 
 const mockData = {
     name: "CSV",
@@ -84,7 +84,19 @@ jest.mock("react-router-dom", () => ({
 }));
 
 describe("EditReceiverSettings", () => {
+    function setup() {
+        renderApp(<EditReceiverSettingsPage />);
+    }
+
     beforeAll(() => {
+        global.window = Object.create(window);
+        const url = "http://test.com";
+        Object.defineProperty(window, "location", {
+            value: {
+                href: url,
+            },
+            writable: true,
+        });
         settingsServer.listen();
         settingsServer.use(
             rest.get(
@@ -93,12 +105,13 @@ describe("EditReceiverSettings", () => {
             ),
         );
     });
-    afterAll(() => settingsServer.close());
-    beforeEach(() => {
-        renderApp(<EditReceiverSettings />);
+    afterAll(() => {
+        setup();
+        settingsServer.close();
     });
 
     test("should be able to edit keys field", () => {
+        setup();
         const descriptionField = screen.getByTestId("description");
         expect(descriptionField).toBeInTheDocument();
 

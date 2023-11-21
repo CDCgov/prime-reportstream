@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
@@ -160,7 +160,7 @@ class FhirTranslatorTests {
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
             accessSpy.insertTask(any(), any(), any(), any(), any())
             actionHistory.trackActionReceiverInfo(any(), any())
         }
@@ -206,7 +206,6 @@ class FhirTranslatorTests {
      */
     @Test
     fun `test when customerStatus = testing`() {
-
         // set up
         val schemaName = ORU_R01_SCHEMA
         val receiver = Receiver(
@@ -381,7 +380,7 @@ class FhirTranslatorTests {
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
             accessSpy.insertTask(any(), any(), any(), any(), any())
             engine.pruneBundleForReceiver(any(), any())
         }
@@ -577,7 +576,7 @@ class FhirTranslatorTests {
         byteBody = engine.getByteArrayFromBundle(fhirReceiver, fhirBundle)
         assertThat(byteBody).isNotEmpty()
 
-        assertThat { engine.getByteArrayFromBundle(csvReceiver, fhirBundle) }.isFailure()
+        assertFailure { engine.getByteArrayFromBundle(csvReceiver, fhirBundle) }
     }
 
     @Test
@@ -596,6 +595,6 @@ class FhirTranslatorTests {
         assertThat(strBody).isNotEmpty()
         assertThat(strBody.contains("MSH|^~\\&#")).isTrue()
 
-        assertThat { hl7Message.encode() }.isFailure()
+        assertFailure { hl7Message.encode() }
     }
 }

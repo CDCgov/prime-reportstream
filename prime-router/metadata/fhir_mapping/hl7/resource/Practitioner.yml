@@ -18,7 +18,7 @@ identifier_1:
     typeSegment: XCN.13
 
 name:
-  specs: XCN | XCN | CNN | NDL | PPN
+  specs: XCN | CNN | NDL | PPN
   valueOf: datatype/HumanName
   generateList: true
   expressionType: resource

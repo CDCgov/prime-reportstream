@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.tokens
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -36,15 +36,15 @@ class AuthenticatedClaimsTests {
         // First test Okta auth
         // failure cases
         var jwt: Map<String, Any> = mapOf() // empty
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Okta) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Okta) }
         jwt = mapOf("foo" to "bar") // bad
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Okta) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Okta) }
         jwt = mapOf("organization" to "xyz", "sub" to "c@rlos.com") // bad 'organization'
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Okta) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Okta) }
         jwt = mapOf("organization" to listOf("DHSender_xyz")) // missing sub
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Okta) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Okta) }
         jwt = mapOf("sub" to "c@rlos.com") // missing organization
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Okta) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Okta) }
 
         // success cases
         jwt = mapOf("organization" to listOf("DHxyz"), "sub" to "c@rlos.com")
@@ -92,7 +92,7 @@ class AuthenticatedClaimsTests {
 
         // server2server auth with badly formed scope.
         jwt = mapOf("scope" to "a.b.c", "sub" to "c@rlos.com")
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
 
         // Now test server2server auth with properly formed slcoe
         jwt = mapOf("scope" to "*.*.primeadmin", "sub" to "c@rlos.com")
@@ -112,15 +112,15 @@ class AuthenticatedClaimsTests {
 
         // server2server Failure cases
         jwt = mapOf() // empty
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
         jwt = mapOf("sub" to "c@rlos.com") // missing scope
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
         jwt = mapOf("organization" to "xyz", "sub" to "c@rlos.com") // missing scope
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
         jwt = mapOf("scope" to "blarg", "sub" to "c@rlos.com") // malformed scope
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
         jwt = mapOf("foo" to "bar") // general badness
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
     }
 
     @Test
@@ -183,10 +183,10 @@ class AuthenticatedClaimsTests {
         assertThat(claims4.authorizedForSendOrReceive(emptySender, req)).isFalse()
 
         val rawClaims5: Map<String, Any> = mapOf("sub" to "b@b.com") // missing scope
-        assertThat { AuthenticatedClaims(rawClaims5, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(rawClaims5, AuthenticationType.Server2Server) }
 
         val rawClaims6: Map<String, Any> = mapOf("scope" to "", "sub" to "b@b.com") // empty scope
-        assertThat { AuthenticatedClaims(rawClaims6, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(rawClaims6, AuthenticationType.Server2Server) }
     }
 
     @Test
@@ -433,6 +433,7 @@ class AuthenticatedClaimsTests {
         tok = AuthenticatedClaims.getAccessToken(req)
         assertThat(tok).isNull()
     }
+
     @Test
     fun `test authorizeForSubmission with claims run through authenticate`() {
         val req = MockHttpRequestMessage("test")

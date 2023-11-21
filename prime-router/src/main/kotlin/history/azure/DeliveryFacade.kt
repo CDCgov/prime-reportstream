@@ -16,7 +16,7 @@ import java.time.OffsetDateTime
  */
 class DeliveryFacade(
     private val dbDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess(),
-    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton
+    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
 ) : ReportFileFacade(
     dbAccess
 ) {
@@ -42,7 +42,7 @@ class DeliveryFacade(
         cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
-        pageSize: Int
+        pageSize: Int,
     ): List<DeliveryHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."

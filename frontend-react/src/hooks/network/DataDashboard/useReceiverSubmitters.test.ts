@@ -1,9 +1,9 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
 import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer";
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
-import { AppWrapper } from "../../../utils/CustomRenderUtils";
-import { MemberType } from "../../UseOktaMemberships";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
+import { renderHook } from "../../../utils/CustomRenderUtils";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import useReceiverSubmitters from "./UseReceiverSubmitters";
 
@@ -14,55 +14,52 @@ describe("useReceiverSubmitters", () => {
 
     describe("with no Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: undefined,
-                dispatch: () => {},
-                initialized: true,
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: false,
-                environment: "test",
+
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
         });
 
         test("returns undefined", async () => {
-            const { result } = renderHook(() => useReceiverSubmitters(), {
-                wrapper: AppWrapper(),
-            });
+            const { result } = renderHook(() => useReceiverSubmitters());
             await waitFor(() => expect(result.current.data).toEqual(undefined));
-            expect(result.current.isLoading).toEqual(true);
+            expect(result.current.isLoading).toEqual(false);
         });
     });
 
     describe("with Organization and service name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrg",
                     service: "testService",
                 },
-                dispatch: () => {},
-                initialized: true,
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
         });
 
         test("returns receiver meta and submitters", async () => {
-            const { result } = renderHook(
-                () => useReceiverSubmitters("testService"),
-                {
-                    wrapper: AppWrapper(),
-                },
+            const { result } = renderHook(() =>
+                useReceiverSubmitters("testService"),
             );
 
             await waitFor(() => expect(result.current.data).toHaveLength(1));

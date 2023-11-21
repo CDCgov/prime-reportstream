@@ -45,7 +45,8 @@ object UnitTestUtils {
         useHighPrecisionHeaderDateTimeFormat: Boolean = false,
         convertDateTimesToReceiverLocalTime: Boolean = false,
         useTestProcessingMode: Boolean = false,
-        schemaName: String = "covid-19"
+        convertTimestampToDateTime: String? = null,
+        schemaName: String = "covid-19",
     ): Hl7Configuration {
         return Hl7Configuration(
             messageProfileId = "",
@@ -64,7 +65,8 @@ object UnitTestUtils {
             useHighPrecisionHeaderDateTimeFormat = useHighPrecisionHeaderDateTimeFormat,
             convertDateTimesToReceiverLocalTime = convertDateTimesToReceiverLocalTime,
             useTestProcessingMode = useTestProcessingMode,
-            schemaName = schemaName
+            schemaName = schemaName,
+            convertTimestampToDateTime = convertTimestampToDateTime
         )
     }
 
@@ -74,7 +76,7 @@ object UnitTestUtils {
         constants: MutableMap<String, String> = mutableMapOf(),
         customFhirFunctions: FhirPathFunctions? = null,
         config: ContextConfig? = null,
-        translationFunctions: TranslationFunctions? = Hl7TranslationFunctions()
+        translationFunctions: TranslationFunctions? = Hl7TranslationFunctions(),
     ): CustomContext {
         return CustomContext(
             bundle,

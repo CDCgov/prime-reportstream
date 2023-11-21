@@ -246,8 +246,8 @@ class CompareFhirDataTests {
 
         // Actual has less than expected, but same data
         result = comparator.compareResource(resourceB, listOf(resourceA), "", "Organization")
-        assertThat(result.passed).isTrue()
-        assertThat(result.errors).isEmpty()
+        assertThat(result.passed).isFalse()
+        assertThat(result.errors).isNotEmpty()
 
         // Expected has less than actual, but same data
         result = comparator.compareResource(resourceA, listOf(resourceC), "", "Organization")
@@ -256,8 +256,8 @@ class CompareFhirDataTests {
 
         // Actual has less than expected, but same data
         result = comparator.compareResource(resourceC, listOf(resourceA), "", "Organization")
-        assertThat(result.passed).isTrue()
-        assertThat(result.errors).isEmpty()
+        assertThat(result.passed).isFalse()
+        assertThat(result.errors).isNotEmpty()
 
         // Actual has a primitive instead of a resource
         result = comparator.compareResource(StringType("some string"), listOf(resourceA), "", "")

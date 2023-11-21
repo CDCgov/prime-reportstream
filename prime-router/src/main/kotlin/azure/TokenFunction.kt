@@ -39,7 +39,7 @@ data class OAuthError(
     val error: String,
     @JsonProperty("error_description")
     val errorDescription: String,
-    @JsonIgnore val errorUriLocation: String
+    @JsonIgnore val errorUriLocation: String,
 ) {
     @JsonProperty("error_uri")
     fun getErrorUri(): String {
@@ -62,7 +62,7 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
             name = "token",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         // Exampling incoming URL
         // http://localhost:7071/api/token
@@ -91,9 +91,9 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
             // Note that we allow the required parameters to come from the request body, or from URL parameters.
             // TODO Work with our senders to deprecate parameters sent in the URL.
             val scope = bodyParams[scope] ?: request.queryParameters[scope]
-                ?: throw Server2ServerAuthenticationException(Server2ServerError.MISSING_SCOPE, "")
+            ?: throw Server2ServerAuthenticationException(Server2ServerError.MISSING_SCOPE, "")
             val clientAssertion = bodyParams[client_assertion] ?: request.queryParameters[client_assertion]
-                ?: throw Server2ServerAuthenticationException(Server2ServerError.MISSING_CLIENT_ASSERTION, scope)
+            ?: throw Server2ServerAuthenticationException(Server2ServerError.MISSING_CLIENT_ASSERTION, scope)
 
             val server2ServerAuthentication = Server2ServerAuthentication(workflowEngine)
             val jti = DatabaseJtiCache(workflowEngine.db)

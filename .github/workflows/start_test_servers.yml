@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       
       # Login to Azure
-      - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+      - uses: azure/login@4c88f01b0e3a5600e08a37889921afd060f75cf0
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 

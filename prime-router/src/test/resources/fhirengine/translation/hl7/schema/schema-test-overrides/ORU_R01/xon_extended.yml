@@ -3,5 +3,5 @@
 extends: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/xon.yml'
 elements:
   - name: xon-2
-    value: ['"2"']
-    hl7Spec: ['%{xonPath}-2']
+    value: [ '"2"' ]
+    hl7Spec: [ '%{xonPath}-2' ]

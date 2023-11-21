@@ -26,21 +26,21 @@ data class SFTPTransportType
     val host: String,
     val port: String,
     val filePath: String,
-    val credentialName: String? = null
+    val credentialName: String? = null,
 ) :
     TransportType("SFTP")
 
 data class EmailTransportType
 @JsonCreator constructor(
     val addresses: List<String>,
-    val from: String = "qtv1@cdc.gov" // TODO: default to a better choice
+    val from: String = "qtv1@cdc.gov", // TODO: default to a better choice
 ) :
     TransportType("EMAIL")
 
 data class BlobStoreTransportType
 @JsonCreator constructor(
     val storageName: String, // this looks for an env var with this name. env var value is the connection string.
-    val containerName: String // eg, hhsprotect
+    val containerName: String, // eg, hhsprotect
 ) :
     TransportType("BLOBSTORE")
 
@@ -51,7 +51,7 @@ data class AS2TransportType
     val senderId: String,
     val senderEmail: String = "reportstream@cdc.gov", // Default,
     val mimeType: String = "application/hl7-v2",
-    val contentDescription: String = "SARS-CoV-2 Electronic Lab Results"
+    val contentDescription: String = "SARS-CoV-2 Electronic Lab Results",
 ) :
     TransportType("AS2")
 
@@ -123,7 +123,7 @@ data class RESTTransportType
     /** [parameters] The map of parameters to be sent in the message */
     val parameters: Map<String, String> = emptyMap(),
     /** [headers] The map of headers to be sent in the message */
-    val headers: Map<String, String>
+    val headers: Map<String, String>,
 ) : TransportType("REST") {
     override fun toString(): String = "apiUrl=$reportUrl"
 }

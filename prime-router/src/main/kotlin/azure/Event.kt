@@ -34,7 +34,9 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         SEND_ERROR,
         WIPE_ERROR, // Deprecated
         RESEND,
-        REBATCH;
+        REBATCH,
+        OTHER, // a default/unknown
+        ;
 
         fun toTaskAction(): TaskAction {
             return when (this) {
@@ -54,6 +56,8 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 WIPE_ERROR -> TaskAction.wipe_error
                 RESEND -> TaskAction.resend
                 REBATCH -> TaskAction.rebatch
+                // OTHER is not an expected value, more of a logical fallback/default used in BlobAccess.uploadBody
+                OTHER -> TaskAction.other
             }
         }
 
@@ -63,7 +67,8 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 TRANSLATE,
                 BATCH,
                 SEND,
-                WIPE -> this.toString().lowercase()
+                WIPE,
+                -> this.toString().lowercase()
                 else -> null
             }
         }
@@ -114,18 +119,21 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                     val options = Options.valueOfOrNone(parts[3])
 
                     // convert incoming serialized routeTo string into List<String>
-                    val routeTo = if (parts[5].isNotEmpty())
+                    val routeTo = if (parts[5].isNotEmpty()) {
                         parts[5].split(ROUTE_TO_SEPARATOR)
-                    else
+                    } else {
                         emptyList()
+                    }
 
                     // convert incoming defaults serialized string to Map<String,String>
-                    val defaults = if (parts[4].isNotEmpty())
+                    val defaults = if (parts[4].isNotEmpty()) {
                         parts[4].split(',').associate { pair ->
                             val defaultParts = pair.split(DEFAULT_SEPARATOR)
                             Pair(defaultParts[0], defaultParts[1])
                         }
-                    else emptyMap()
+                    } else {
+                        emptyMap()
+                    }
 
                     ProcessEvent(action, reportId, options, defaults, routeTo, after)
                 }
@@ -153,9 +161,11 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 // Process event requires 'event type', 'action', 'report id', and 'options'.
                 //  'route to', 'default' and 'at are optional but must be present (even if a blank string).
                 ProcessEvent.eventType -> {
-                    if (parts.size != 7) error(
-                        "Internal Error: Process event requires 7 parts."
-                    )
+                    if (parts.size != 7) {
+                        error(
+                            "Internal Error: Process event requires 7 parts."
+                        )
+                    }
                 }
                 else -> error("Internal Error: invalid event type: $event")
             }
@@ -181,7 +191,7 @@ class ProcessEvent(
     val defaults: Map<String, String>,
     val routeTo: List<String>,
     at: OffsetDateTime? = null,
-    val retryToken: RetryToken? = null
+    val retryToken: RetryToken? = null,
 ) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
         // turn the defaults and route to into strings that can go on the process queue

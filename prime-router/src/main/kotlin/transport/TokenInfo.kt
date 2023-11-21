@@ -20,7 +20,7 @@ data class TokenInfo(
     @SerialName("expires_in") val expiresIn: Int? = null,
     @SerialName("refresh_token") val refreshToken: String? = null,
     val scope: String? = null,
-    @SerialName("token_type") val tokenType: String? = null
+    @SerialName("token_type") val tokenType: String? = null,
 )
 
 /**
@@ -37,5 +37,5 @@ data class IdToken(
     val email: String,
     val idToken: String,
     val expiresIn: Int? = null,
-    val refreshToken: String? = null
+    val refreshToken: String? = null,
 )

@@ -149,7 +149,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ): RetryItems? {
         // verify that we have a SOAP transport type for our parameters. I think if we ever fell
         // into this scenario with different parameters there's something seriously wrong in the system,

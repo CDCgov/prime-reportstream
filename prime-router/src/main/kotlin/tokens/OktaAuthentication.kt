@@ -17,7 +17,7 @@ const val oktaSenderGroupPrefix = "DHSender_"
 const val oktaAdminGroupSuffix = "Admins"
 const val oktaSystemAdminGroup = "DHPrimeAdmins"
 const val oktaMembershipClaim = "organization"
-const val envVariableForOktaBaseUrl = "OKTA_baseUrl"
+const val envVariableForOktaBaseUrl = "RS_OKTA_baseUrl"
 
 /**
  * Allowed roles for human interaction with ReportStream
@@ -25,7 +25,7 @@ const val envVariableForOktaBaseUrl = "OKTA_baseUrl"
 enum class PrincipalLevel {
     SYSTEM_ADMIN,
     ORGANIZATION_ADMIN,
-    USER
+    USER,
 }
 
 class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLevel.USER) : Logging {
@@ -93,7 +93,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             claims: AuthenticatedClaims,
             requiredMinimumLevel: PrincipalLevel,
             requiredOrganizationName: String?,
-            requireSenderClaim: Boolean = false
+            requireSenderClaim: Boolean = false,
         ): Boolean {
             @Suppress("UNCHECKED_CAST")
             val membershipsFromOkta = (claims.jwtClaims[oktaMembershipClaim] as? Collection<String> ?: return false)
@@ -150,7 +150,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         organizationName: String = "",
         requireSenderClaim: Boolean = false,
         actionHistory: ActionHistory? = null,
-        block: (AuthenticatedClaims) -> HttpResponseMessage
+        block: (AuthenticatedClaims) -> HttpResponseMessage,
     ): HttpResponseMessage {
         try {
             val accessToken = AuthenticatedClaims.getAccessToken(request)
@@ -161,10 +161,11 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             val claims = if (AuthenticatedClaims.isLocal(accessToken)) {
                 logger.info("Granted test auth request for ${request.httpMethod}:${request.uri.path}")
                 val client = request.headers["client"]
-                val sender = if (client == null)
+                val sender = if (client == null) {
                     null
-                else
+                } else {
                     WorkflowEngine().settings.findSender(client)
+                }
                 AuthenticatedClaims.generateTestClaims(sender)
             } else {
                 authenticate(accessToken, request.httpMethod, request.uri.path)
@@ -182,10 +183,11 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             logger.info("Authorized request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
             return block(claims)
         } catch (ex: Exception) {
-            if (ex.message != null)
+            if (ex.message != null) {
                 logger.error(ex.message!!, ex)
-            else
+            } else {
                 logger.error(ex)
+            }
             return HttpUtilities.internalErrorResponse(request)
         }
     }

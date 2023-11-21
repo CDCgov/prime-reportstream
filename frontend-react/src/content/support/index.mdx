@@ -46,7 +46,7 @@ import site from "../../content/site.json";
                 <CardBody className="text-base">
                     Find solutions as an organization currently connected to ReportStream.
 
-                    [How do I reset my password?](#how-do-i-reset-my-password)
+                    [How do I update or reset my password?](#how-do-i-update-or-reset-my-password)
 
                     [How do I resubmit my data?](#how-do-i-resubmit-my-data)
 
@@ -163,7 +163,7 @@ import site from "../../content/site.json";
                         </CardHeader>
                         <CardBody>
                             - [About us](/about)
-                            - [Security](/resources/security-practices)
+                            - [Security](/about/security)
                             - [Getting started](/getting-started)
                         </CardBody>
                     </Card>
@@ -180,6 +180,19 @@ import site from "../../content/site.json";
                 <h3 className="text-base">Quick answers</h3>
 
                 <Accordion multiselectable items={[
+                    {
+                        id: "how-do-i-register-for-a-reportstream-account",
+                        headingLevel: "h4",
+                        title: "How do I register for a ReportStream account?",
+                        content: (<ol>
+                            <li><strong>Request an account.</strong> <br/>
+                            Submit a <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">service request</A> with information about your organization and explaining that you would like a ReportStream account.</li>
+                            <li><strong>Accept the terms of service.</strong> <br/>
+                            A ReportStream team member will process your request and confirm that you accept our <A href="/terms-of-service">terms of service</A>.</li>
+                            <li><strong>Activate your account</strong>. <br/>
+                            You will receive an email from Okta with a link to activate your account. After following the activation link, you will be prompted to set up your password, security question, and multi-factor authentication.</li>
+                        </ol>)
+                    },
                     {
                         id: "do-i-need-to-report-to-hhs",
                         headingLevel: "h4",
@@ -219,7 +232,7 @@ import site from "../../content/site.json";
                         headingLevel: "h4",
                         title: "How do I set up my public/private key pair?",
                         content: (<>
-                            <p>You can find detailed instructions in our <A href="/resources/api">API guide</A>.</p>
+                            <p>You can find detailed instructions in our <A href="/developer-resources/api">API guide</A>.</p>
 
                             <p><b>Note:</b> Through this authentication process, you generate both a public and private key.
                             You only share the public key with ReportStream.</p>
@@ -233,7 +246,7 @@ import site from "../../content/site.json";
                             <A href="https://loinc.org/get-started/what-loinc-is/">LOINC</A> codes help distinguish between
                             different types of disease-specific tests. These codes are necessary when setting up data
                             formatting to send data through ReportStream. Read more about {" "}
-                            <A href="/resources/api/documentation/data-model">our data model</A> to see how LOINC codes are
+                            <A href="/developer-resources/api/documentation/data-model">our data model</A> to see how LOINC codes are
                             used in ReportStream.
                         </p>)
                     },
@@ -243,8 +256,8 @@ import site from "../../content/site.json";
                         title: "How do I map to the LIVD table?",
                         content: (<>
                             <p>
-                                LOINC In Vitro Diagnostic (LIVD) mapping provides several <A href="/resources/api/documentation/data-model">data elements</A>
-                                {" "} you’ll need for your ReportStream <A href="/resources/api/getting-started">test file</A>. Including:
+                                LOINC In Vitro Diagnostic (LIVD) mapping provides several <A href="/developer-resources/api/documentation/data-model">data elements</A>
+                                {" "} you’ll need for your ReportStream <A href="/developer-resources/api/getting-started">test file</A>. Including:
                             </p>
 
                             <ul>
@@ -259,7 +272,7 @@ import site from "../../content/site.json";
                                 When you know the devices you are reporting for, you can use the LIVD mapping table to
                                 identify the device identifier code. The code is in <A href="https://www.cdc.gov/csels/dls/livd-codes.html">column F</A>,
                                 labeled Test Performed LOINC Code.
-                                Then, you can use that code as described in our <A href="/resources/api/documentation/data-model">data model</A>.
+                                Then, you can use that code as described in our <A href="/developer-resources/api/documentation/data-model">data model</A>.
                             </p>
                         </>)
                     },
@@ -281,7 +294,7 @@ import site from "../../content/site.json";
                         </CardHeader>
                         <CardBody>
                             - [Get started sending data](/getting-started/sending-data)
-                            - [API guide](/resources/api)
+                            - [API guide](/developer-resources/api)
                             - [Developer resources](/developer-resources)
                         </CardBody>
                     </Card>
@@ -305,7 +318,8 @@ import site from "../../content/site.json";
                         content: (<p>
                             <A href={site.forms.contactUs.url}>Contact us</A> so we can update your filter settings. If you are not a current ReportStream user, you can indicate this preference during the onboarding process.
                         </p>)
-                    },{
+                    },
+                    {
                         id: "how-do-i-resubmit-my-data",
                         headingLevel: "h4",
                         title: "How do I resubmit my data?",
@@ -327,12 +341,22 @@ import site from "../../content/site.json";
                         </>)
                     },
                     {
-                        id: "how-do-i-reset-my-password",
+                        id: "how-do-i-update-or-reset-my-password",
                         headingLevel: "h4",
-                        title: "How do I reset my password?",
+                        title: "How do I update or reset my password?",
                         content: (<p>
-                            On the <A href="/login">login page</A>, select Need help signing in? After following the
-                            instructions on the screen, you will receive an email with next steps.
+                            Select <strong>Need help signing in?</strong> on the <A href="/login">login</A> page. 
+                            After selecting <strong>Reset password</strong>, enter your email address. 
+                            Follow the instructions in the reset email you receive.
+                            To update your password, log out and follow the same steps.
+                        </p>)
+                    },
+                    {
+                        id: "how-do-i-manage-team-member-accounts",
+                        headingLevel: "h4",
+                        title: "How do I manage team member accounts?",
+                        content: (<p>
+                            ReportStream manually manages user accounts for your team. To add or remove team members, <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">contact us</A>.
                         </p>)
                     },
                     {
@@ -362,7 +386,7 @@ import site from "../../content/site.json";
                             ### Related pages
                         </CardHeader>
                         <CardBody>
-                            - [Managing your connection](/manage-connection)
+                            - [Managing your connection](/managing-your-connection)
                             - [Developer resources](/developer-resources)
                         </CardBody>
                     </Card>

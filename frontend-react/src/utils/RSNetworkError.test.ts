@@ -23,7 +23,7 @@ describe("RSNetworkError", () => {
             expect(error.name).toEqual(ErrorName.BAD_REQUEST);
             expect(error.message).toEqual(DEFAULT_MSG);
             expect(error.data).toEqual({ isThere: true });
-            expect(error.originalError).toEqual(axiosError);
+            expect(error.cause).toEqual(axiosError);
         });
         test("works with incomplete response", () => {
             const axiosError = new AxiosError(
@@ -37,7 +37,7 @@ describe("RSNetworkError", () => {
             expect(error.name).toEqual(ErrorName.UNKNOWN);
             expect(error.message).toEqual(DEFAULT_MSG);
             expect(error.data).toEqual(undefined);
-            expect(error.originalError).toEqual(axiosError);
+            expect(error.cause).toEqual(axiosError);
         });
     });
     describe("parseStatus", () => {
@@ -53,7 +53,7 @@ describe("RSNetworkError", () => {
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.BAD_REQUEST);
-            expect(error.originalError).toEqual(axiosError);
+            expect(error.cause).toEqual(axiosError);
         });
         test("Unauthorized", () => {
             const axiosError = new AxiosError(
@@ -67,7 +67,7 @@ describe("RSNetworkError", () => {
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.UNAUTHORIZED);
-            expect(error.originalError).toEqual(axiosError);
+            expect(error.cause).toEqual(axiosError);
         });
         test("Not Found", () => {
             const axiosError = new AxiosError(
@@ -81,7 +81,7 @@ describe("RSNetworkError", () => {
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.NOT_FOUND);
-            expect(error.originalError).toEqual(axiosError);
+            expect(error.cause).toEqual(axiosError);
         });
         test("Server Error", () => {
             const axiosError = new AxiosError(
@@ -95,7 +95,7 @@ describe("RSNetworkError", () => {
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.SERVER_ERROR);
-            expect(error.originalError).toEqual(axiosError);
+            expect(error.cause).toEqual(axiosError);
         });
         test("Catch-all (Unknown Error)", () => {
             const axiosError = new AxiosError(
@@ -109,7 +109,7 @@ describe("RSNetworkError", () => {
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.UNKNOWN);
-            expect(error.originalError).toEqual(axiosError);
+            expect(error.cause).toEqual(axiosError);
         });
         test("Catch-all (Undefined Status)", () => {
             const axiosError = new AxiosError(
@@ -121,7 +121,7 @@ describe("RSNetworkError", () => {
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.UNKNOWN);
-            expect(error.originalError).toEqual(axiosError);
+            expect(error.cause).toEqual(axiosError);
         });
     });
 });

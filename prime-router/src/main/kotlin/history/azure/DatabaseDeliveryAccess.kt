@@ -16,7 +16,7 @@ import java.util.UUID
  * Class to access lookup tables stored in the database.
  */
 class DatabaseDeliveryAccess(
-    db: DatabaseAccess = BaseEngine.databaseAccessSingleton
+    db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
 ) : HistoryDatabaseAccess(db) {
 
     /**
@@ -39,7 +39,7 @@ class DatabaseDeliveryAccess(
      */
     override fun organizationFilter(
         organization: String,
-        orgService: String?
+        orgService: String?,
     ): Condition {
         var filter = ACTION.ACTION_NAME.eq(TaskAction.batch)
             .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
@@ -62,7 +62,7 @@ class DatabaseDeliveryAccess(
     override fun <T> fetchAction(
         actionId: Long,
         orgName: String?,
-        klass: Class<T>
+        klass: Class<T>,
     ): T? {
         return db.transactReturning { txn ->
             DSL.using(txn)
@@ -107,7 +107,7 @@ class DatabaseDeliveryAccess(
     fun fetchFacilityList(
         reportId: ReportId,
         sortDir: SortDir,
-        sortColumn: FacilitySortColumn
+        sortColumn: FacilitySortColumn,
     ): List<DeliveryFacility> {
         val column = when (sortColumn) {
             /* Decides sort column by enum */

@@ -75,7 +75,7 @@ export function MessageTracker() {
     const [searchFilter, setSearchFilter] = useState("");
     const [messagesData, setMessagesData] = useState<MessageListResource[]>([]);
     const [hasSearched, setHasSearched] = useState(false);
-    const { search, isLoading } = useMessageSearch();
+    const { mutateAsync: search, isPending } = useMessageSearch();
 
     const searchMessageId = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -115,7 +115,7 @@ export function MessageTracker() {
                                 }
                                 autoFocus
                                 inputSize={"medium"}
-                                aria-disabled={isLoading}
+                                aria-disabled={isPending}
                                 value={searchFilter}
                                 onChange={(evt) =>
                                     setSearchFilter(
@@ -150,7 +150,7 @@ export function MessageTracker() {
             </Form>
 
             <MessageTrackerTableContent
-                isLoading={isLoading}
+                isLoading={isPending}
                 messagesData={messagesData || []}
                 hasSearched={hasSearched}
             ></MessageTrackerTableContent>

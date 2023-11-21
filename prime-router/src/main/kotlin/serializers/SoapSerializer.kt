@@ -168,8 +168,10 @@ class SoapSerializer(
     companion object {
         /** our default SOAP namespace */
         private const val soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/"
+
         /** our default alias */
         private const val soapNamespaceAlias = "soapenv"
+
         /** if we don't get a value for the payload via an annotation we use this */
         private const val defaultPayloadName = "payload"
         private const val soap12Namespace = "http://www.w3.org/2003/05/soap-envelope"
@@ -188,7 +190,7 @@ object SoapObjectService {
         soapTransportType: SoapTransportType,
         header: WorkflowEngine.Header,
         context: ExecutionContext,
-        credential: SoapCredential
+        credential: SoapCredential,
     ): XmlObject? {
         context.logger.info("Creating object for ${soapTransportType.soapAction}")
         return when (soapTransportType.soapAction) {

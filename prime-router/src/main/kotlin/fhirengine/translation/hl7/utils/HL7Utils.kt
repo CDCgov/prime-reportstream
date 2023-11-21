@@ -1,8 +1,12 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
+import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -26,11 +30,19 @@ object HL7Utils : Logging {
      */
     internal fun getMessage(hl7Class: String): Message {
         return try {
-            val message = Class.forName(hl7Class).getDeclaredConstructor().newInstance()
-            if (message is Message) {
-                getMessageTypeString(message) // Just check we can get the type string
+            val messageClass = Class.forName(hl7Class)
+            if (AbstractMessage::class.java.isAssignableFrom(messageClass)) {
+                // We verify above that we have a valid subclass of Message as required for parsing
+                // but the compiler does not know that, so we have to cast
+                @Suppress("UNCHECKED_CAST")
+                val context =
+                    DefaultHapiContext(CanonicalModelClassFactory(messageClass as Class<out Message>))
+                context.validationContext = ValidationContextFactory.noValidation()
+                val message = context.newMessage(messageClass)
                 message
-            } else throw IllegalArgumentException("$hl7Class is not a subclass of ca.uhn.hl7v2.model.Message.")
+            } else {
+                throw IllegalArgumentException("$hl7Class is not a subclass of ca.uhn.hl7v2.model.Message.")
+            }
         } catch (e: Exception) {
             throw IllegalArgumentException("$hl7Class is not a class to use for the conversion.")
         }
@@ -42,9 +54,11 @@ object HL7Utils : Logging {
      */
     internal fun getMessageTypeString(message: Message): List<String> {
         val typeParts = message.javaClass.simpleName.split("_")
-        return if (typeParts.size != 2)
+        return if (typeParts.size != 2) {
             throw IllegalArgumentException("${message.javaClass.simpleName} is not a class to use for the conversion.")
-        else typeParts
+        } else {
+            typeParts
+        }
     }
 
     /**
@@ -69,15 +83,11 @@ object HL7Utils : Logging {
 
         // Add some default fields.  Note these could still be overridden in the schema
         try {
-            val typeParts = getMessageTypeString(message)
             val terser = Terser(message)
             terser.getSegment("MSH").let {
                 val msh2Length = it.getLength(2)
                 terser.set("MSH-1", defaultHl7Delimiter)
                 terser.set("MSH-2", defaultHl7EncodingFourChars.take(msh2Length))
-                terser.set("MSH-9-1", typeParts[0])
-                terser.set("MSH-9-2", typeParts[1])
-                terser.set("MSH-9-3", "${typeParts[0]}_${typeParts[1]}")
                 terser.set("MSH-12", message.version)
             }
         } catch (e: HL7Exception) {
@@ -130,6 +140,8 @@ object HL7Utils : Logging {
 
         return if (start != -1 && end != -1) {
             field.replaceRange(start, end + 1, "")
-        } else field
+        } else {
+            field
+        }
     }
 }

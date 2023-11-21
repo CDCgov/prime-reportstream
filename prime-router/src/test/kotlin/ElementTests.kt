@@ -1,11 +1,11 @@
 package gov.cdc.prime.router
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
@@ -1138,19 +1138,22 @@ internal class ElementTests {
                 element: Element,
                 args: List<String>,
                 values: List<ElementAndValue>,
-                sender: Sender?
+                sender: Sender?,
             ): ElementResult {
-                return if (args.isEmpty()) ElementResult(null)
-                else when (args[0]) {
-                    "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
-                    "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
-                        .warning(InvalidEquipmentMessage(element.fieldMapping))
-                    "1error" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
-                    "2errors" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
-                        .error(InvalidEquipmentMessage(element.fieldMapping))
-                    "mixed" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
-                        .warning(InvalidEquipmentMessage(element.fieldMapping))
-                    else -> throw UnsupportedOperationException()
+                return if (args.isEmpty()) {
+                    ElementResult(null)
+                } else {
+                    when (args[0]) {
+                        "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
+                        "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
+                            .warning(InvalidEquipmentMessage(element.fieldMapping))
+                        "1error" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                        "2errors" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                            .error(InvalidEquipmentMessage(element.fieldMapping))
+                        "mixed" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                            .warning(InvalidEquipmentMessage(element.fieldMapping))
+                        else -> throw UnsupportedOperationException()
+                    }
                 }
             }
         }
@@ -1241,8 +1244,7 @@ internal class ElementTests {
         assertThat(result.warnings).isEmpty()
 
         // Test an incorrect index
-        assertThat { elementJ.processValue(emptyMap(), schema, itemIndex = 0) }
-            .isFailure()
+        assertFailure { elementJ.processValue(emptyMap(), schema, itemIndex = 0) }
     }
 
     @Test

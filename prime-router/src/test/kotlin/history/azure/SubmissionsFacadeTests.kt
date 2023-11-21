@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.history.azure
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.google.common.net.HttpHeaders
@@ -27,7 +27,7 @@ class SubmissionsFacadeTests {
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
 
-        assertThat {
+        assertFailure {
             facade.findSubmissionsAsJson(
                 "",
                 null,
@@ -39,9 +39,9 @@ class SubmissionsFacadeTests {
                 10,
                 true
             )
-        }.isFailure().hasMessage("Invalid organization.")
+        }.hasMessage("Invalid organization.")
 
-        assertThat {
+        assertFailure {
             facade.findSubmissionsAsJson(
                 "  \t\n",
                 null,
@@ -53,7 +53,7 @@ class SubmissionsFacadeTests {
                 10,
                 true
             )
-        }.isFailure().hasMessage("Invalid organization.")
+        }.hasMessage("Invalid organization.")
     }
 
     @Test
@@ -94,10 +94,10 @@ class SubmissionsFacadeTests {
         action2.actionId = 550
         action2.sendingOrg = "myOrg" // good
         action2.actionName = TaskAction.process // bad. Submission queries only work on receive actions.
-        assertThat { facade.findDetailedSubmissionHistory(action2) }.isFailure() // not a receive action
+        assertFailure { facade.findDetailedSubmissionHistory(action2) } // not a receive action
         action2.actionName = TaskAction.receive // good
         action2.sendingOrg = null // bad
-        assertThat { facade.findDetailedSubmissionHistory(action2) }.isFailure() // missing sendingOrg
+        assertFailure { facade.findDetailedSubmissionHistory(action2) } // missing sendingOrg
     }
 
     @Test
@@ -136,6 +136,7 @@ class SubmissionsFacadeTests {
         // This auth also denied, regardless of the sender channel.
         assertThat(facade.checkAccessAuthorizationForOrg(claims, badOrg, "quux", mockRequest)).isFalse()
     }
+
     @Test
     fun `test checkAccessAuthorizationForAction`() {
         val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()

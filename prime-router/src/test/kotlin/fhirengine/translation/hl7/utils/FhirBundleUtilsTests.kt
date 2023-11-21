@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import assertk.assertFailure
 import assertk.assertThat
-import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isTrue
 import org.hl7.fhir.r4.model.Base64BinaryType
@@ -56,8 +56,9 @@ class FhirBundleUtilsTests {
 
         convertedValue = FhirBundleUtils.convertFhirType(BooleanType("true"), "boolean", "boolean")
         assertThat(convertedValue).isInstanceOf(BooleanType::class)
-        if (convertedValue is BooleanType)
+        if (convertedValue is BooleanType) {
             assertThat(convertedValue.booleanValue()).isTrue()
+        }
     }
 
     @Test
@@ -76,7 +77,7 @@ class FhirBundleUtilsTests {
         assertThat(convertedValue).isInstanceOf(DateTimeType::class)
 
         // Incompatible type
-        assertThat { FhirBundleUtils.convertFhirType(DateType("13:28:17"), "time", "dateTime") }.isFailure()
+        assertFailure { FhirBundleUtils.convertFhirType(DateType("13:28:17"), "time", "dateTime") }
     }
 
     @Test
@@ -90,28 +91,28 @@ class FhirBundleUtilsTests {
 
     @Test
     fun `test convert invalid values`() {
-        assertThat {
+        assertFailure {
             FhirBundleUtils.convertFhirType(
                 StringType("testing"),
                 "string",
                 "date"
             )
-        }.isFailure()
+        }
 
-        assertThat {
+        assertFailure {
             FhirBundleUtils.convertFhirType(
                 StringType("testing"),
                 "string",
                 "dateTime"
             )
-        }.isFailure()
+        }
 
-        assertThat {
+        assertFailure {
             FhirBundleUtils.convertFhirType(
                 StringType("testing"),
                 "string",
                 "instant"
             )
-        }.isFailure()
+        }
     }
 }

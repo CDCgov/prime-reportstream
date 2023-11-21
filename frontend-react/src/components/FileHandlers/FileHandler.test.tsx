@@ -1,15 +1,8 @@
-/* eslint-disable testing-library/no-unnecessary-act */
-
-// Even though the linter complains about act(),
-// the test will fail when submitting the form with
-// fireEvent.submit() which requires that its wrapped
-// in act()
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import {
-    fakeFile,
     mockSendFileWithErrors,
     mockSendFileWithWarnings,
     mockSendValidFile,
@@ -28,6 +21,70 @@ import {
 } from "../../hooks/network/WatersHooks";
 
 import FileHandler from "./FileHandler";
+
+export const CSV_SCHEMA_SELECTED = {
+    fileInputResetValue: 0,
+    fileContent: "",
+    fileName: "",
+    errors: [],
+    destinations: "",
+    reportItems: [],
+    reportId: "",
+    successTimestamp: "",
+    cancellable: false,
+    warnings: [],
+    localError: "",
+    overallStatus: "",
+    selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
+} satisfies FileHandlerState;
+
+export const VALID_CSV_FILE_SELECTED = {
+    fileInputResetValue: 0,
+    fileContent: "FAKE",
+    fileName: "fake.csv",
+    errors: [],
+    destinations: "",
+    reportItems: [],
+    reportId: "",
+    successTimestamp: "",
+    cancellable: false,
+    warnings: [],
+    localError: "",
+    overallStatus: "valid",
+    selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
+} satisfies FileHandlerState;
+
+export const INVALID_CSV_FILE_SELECTED = {
+    fileInputResetValue: 0,
+    fileContent: "INVALID",
+    fileName: "invalid.csv",
+    errors: [{} as any],
+    destinations: "",
+    reportItems: [],
+    reportId: "",
+    successTimestamp: "",
+    cancellable: false,
+    warnings: [],
+    localError: "",
+    overallStatus: "",
+    selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
+} satisfies FileHandlerState;
+
+export const WARNING_CSV_FILE_SELECTED = {
+    fileInputResetValue: 0,
+    fileContent: "WARNING",
+    fileName: "warning.csv",
+    errors: [],
+    destinations: "",
+    reportItems: [],
+    reportId: "",
+    successTimestamp: "",
+    cancellable: false,
+    warnings: [{} as any],
+    localError: "",
+    overallStatus: "",
+    selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
+};
 
 jest.mock("../../hooks/UseOrganizationSettings", () => ({
     useOrganizationSettings: () => {
@@ -55,6 +112,7 @@ export async function chooseFile(file: File) {
     expect(screen.getByText("Drag file here or")).toBeVisible();
     await userEvent.upload(screen.getByTestId("file-input-input"), file);
     await screen.findByTestId("file-input-preview-image");
+    await waitFor(() => expect(screen.getByText("Submit")).toBeEnabled());
 }
 
 describe("FileHandler", () => {
@@ -75,9 +133,9 @@ describe("FileHandler", () => {
     ) {
         jest.spyOn(useSenderSchemaOptionsExports, "default").mockReturnValue({
             isLoading: false,
-            schemaOptions: STANDARD_SCHEMA_OPTIONS,
+            data: STANDARD_SCHEMA_OPTIONS,
             ...result,
-        });
+        } as any);
     }
 
     function mockUseWatersUploader(
@@ -87,20 +145,36 @@ describe("FileHandler", () => {
             useWatersUploaderExports,
             "useWatersUploader",
         ).mockReturnValue({
-            isWorking: false,
-            uploaderError: null,
-            sendFile: (() =>
+            isPending: false,
+            error: null,
+            mutateAsync: (() =>
                 Promise.resolve({})) as UseWatersUploaderSendFileMutation,
             ...result,
+        } as any);
+    }
+
+    async function schemaContinue() {
+        await waitFor(async () => {
+            await userEvent.click(screen.getByText("Continue"));
+            expect(screen.getByTestId("form")).toBeInTheDocument();
+        });
+    }
+
+    async function fileContinue() {
+        await waitFor(async () => {
+            const form = screen.getByTestId("form");
+            // eslint-disable-next-line testing-library/no-wait-for-side-effects
+            fireEvent.submit(form);
+            await waitFor(() => expect(form).not.toBeInTheDocument());
         });
     }
 
     describe("by default", () => {
-        beforeEach(() => {
+        function setup() {
             mockUseFileHandler(INITIAL_STATE);
             mockUseSenderSchemaOptions({
                 isLoading: false,
-                schemaOptions: STANDARD_SCHEMA_OPTIONS,
+                data: STANDARD_SCHEMA_OPTIONS,
             });
             mockUseWatersUploader({
                 isWorking: false,
@@ -109,9 +183,10 @@ describe("FileHandler", () => {
             });
 
             renderApp(<FileHandler />);
-        });
+        }
 
         test("renders the prompt as expected", () => {
+            setup();
             expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
                 "ReportStream File Validator",
             );
@@ -123,7 +198,12 @@ describe("FileHandler", () => {
     });
 
     describe("when a valid CSV file is being submitted with no warnings or errors", () => {
-        beforeEach(() => {
+        function setup() {
+            mockUseFileHandler(VALID_CSV_FILE_SELECTED);
+            mockUseSenderSchemaOptions({
+                isLoading: false,
+                data: STANDARD_SCHEMA_OPTIONS,
+            });
             mockUseWatersUploader({
                 isWorking: false,
                 uploaderError: null,
@@ -131,21 +211,14 @@ describe("FileHandler", () => {
             });
 
             renderApp(<FileHandler />);
-        });
+        }
 
-        test("allows the user to upload and file and shows the success screen", async () => {
+        test("allows the user to upload a file and shows the success screen", async () => {
+            setup();
             // Step 1: schema selection
-            expect(screen.getByText("Continue")).toBeDisabled();
-            await chooseSchema("upload-covid-19");
-            await userEvent.click(screen.getByText("Continue"));
-
+            await schemaContinue();
             // Step 2: file upload
-            expect(screen.getByText("Submit")).toBeDisabled();
-            await chooseFile(fakeFile);
-            await act(async () => {
-                fireEvent.submit(screen.getByTestId("form"));
-            });
-
+            await fileContinue();
             // Step 3: success
             await waitFor(() => {
                 return screen.getByText(
@@ -156,7 +229,12 @@ describe("FileHandler", () => {
     });
 
     describe("when a CSV file with warnings is being submitted", () => {
-        beforeEach(() => {
+        function setup() {
+            mockUseFileHandler(WARNING_CSV_FILE_SELECTED);
+            mockUseSenderSchemaOptions({
+                isLoading: false,
+                data: STANDARD_SCHEMA_OPTIONS,
+            });
             mockUseWatersUploader({
                 isWorking: false,
                 uploaderError: null,
@@ -164,28 +242,23 @@ describe("FileHandler", () => {
             });
 
             renderApp(<FileHandler />);
-        });
+        }
 
-        test("allows the user to upload and file and shows the warnings screen", async () => {
+        test("allows the user to upload a file and shows the warnings screen", async () => {
+            setup();
             // Step 1: schema selection
-            expect(screen.getByText("Continue")).toBeDisabled();
-            await chooseSchema("upload-covid-19");
-            await userEvent.click(screen.getByText("Continue"));
+            await schemaContinue();
 
             // Step 2: file upload
-            expect(screen.getByText("Submit")).toBeDisabled();
-            await chooseFile(fakeFile);
-            await act(async () => {
-                fireEvent.submit(screen.getByTestId("form"));
-            });
+            await fileContinue();
 
             // Step 3a: warnings
             expect(screen.getByText("Recommended edits found")).toBeVisible();
 
             // Step 3b: warnings modal
             expect(screen.getByText("Continue without changes")).toBeEnabled();
-            await userEvent.click(screen.getByText(/^Continue$/));
-            await waitFor(() => {
+            await waitFor(async () => {
+                await userEvent.click(screen.getByText(/^Continue$/));
                 return screen.getByText(
                     "Your file is correctly formatted for ReportStream.",
                 );
@@ -194,7 +267,12 @@ describe("FileHandler", () => {
     });
 
     describe("when a CSV file with errors is being submitted", () => {
-        beforeEach(() => {
+        function setup() {
+            mockUseFileHandler(INVALID_CSV_FILE_SELECTED);
+            mockUseSenderSchemaOptions({
+                isLoading: false,
+                data: STANDARD_SCHEMA_OPTIONS,
+            });
             mockUseWatersUploader({
                 isWorking: false,
                 uploaderError: null,
@@ -202,20 +280,15 @@ describe("FileHandler", () => {
             });
 
             renderApp(<FileHandler />);
-        });
+        }
 
         test("allows the user to upload and file and shows the error screen", async () => {
+            setup();
             // Step 1: schema selection
-            expect(screen.getByText("Continue")).toBeDisabled();
-            await chooseSchema("upload-covid-19");
-            await userEvent.click(screen.getByText("Continue"));
+            await schemaContinue();
 
             // Step 2: file upload
-            expect(screen.getByText("Submit")).toBeDisabled();
-            await chooseFile(fakeFile);
-            await act(async () => {
-                fireEvent.submit(screen.getByTestId("form"));
-            });
+            await fileContinue();
 
             // Step 3: errors
             expect(
@@ -224,17 +297,12 @@ describe("FileHandler", () => {
         });
 
         test("allows the user to test another file", async () => {
+            setup();
             // Step 1: schema selection
-            expect(screen.getByText("Continue")).toBeDisabled();
-            await chooseSchema("upload-covid-19");
-            await userEvent.click(screen.getByText("Continue"));
+            await schemaContinue();
 
             // Step 2: file upload
-            expect(screen.getByText("Submit")).toBeDisabled();
-            await chooseFile(fakeFile);
-            await act(async () => {
-                fireEvent.submit(screen.getByTestId("form"));
-            });
+            await fileContinue();
 
             // Step 3: errors
             expect(
@@ -243,12 +311,13 @@ describe("FileHandler", () => {
             expect(
                 screen.queryByText("Continue without changes"),
             ).not.toBeInTheDocument();
-            await userEvent.click(screen.getByText("Test another file"));
 
-            // Step 2: file upload
-            expect(screen.getByText("Drag file here or")).toBeVisible();
+            await waitFor(async () => {
+                await userEvent.click(screen.getByText("Test another file"));
+
+                // Step 2: file upload
+                expect(screen.getByText("Drag file here or")).toBeVisible();
+            });
         });
     });
 });
-
-/* eslint-enable testing-library/no-unnecessary-act */

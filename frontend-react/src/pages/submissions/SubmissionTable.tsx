@@ -15,10 +15,13 @@ import { PaginationProps } from "../../components/Table/Pagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
 import { FeatureName } from "../../utils/FeatureName";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
+import {
+    EventName,
+    useAppInsightsContext,
+} from "../../contexts/AppInsightsContext";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
@@ -44,6 +47,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
     paginationProps,
     submissions,
 }) => {
+    const { appInsights } = useAppInsightsContext();
     const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
     const columns: Array<ColumnConfig> = [
         {
@@ -82,8 +86,11 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
                 showDateHints={true}
                 filterManager={filterManager}
                 onFilterClick={({ from, to }: { from: string; to: string }) =>
-                    trackAppInsightEvent(analyticsEventName, {
-                        tableFilter: { startRange: from, endRange: to },
+                    appInsights?.trackEvent({
+                        name: analyticsEventName,
+                        properties: {
+                            tableFilter: { startRange: from, endRange: to },
+                        },
                     })
                 }
             />
@@ -108,21 +115,25 @@ function SubmissionTableWithNumberedPagination() {
 
     const { fetch: controllerFetch } = useController();
     const fetchResults = useCallback(
-        (currentCursor: string, numResults: number) => {
+        async (currentCursor: string, numResults: number) => {
             // HACK: return empty results if requesting as an admin
             if (isAdmin) {
-                return Promise.resolve<SubmissionsResource[]>([]);
+                return await Promise.resolve<SubmissionsResource[]>([]);
             }
 
-            return controllerFetch(SubmissionsResource.list(), {
-                organization: activeMembership?.parsedName,
-                cursor: currentCursor,
-                since: rangeFrom,
-                until: rangeTo,
-                pageSize: numResults,
-                sortdir: sortOrder,
-                showFailed: false,
-            }) as unknown as Promise<SubmissionsResource[]>;
+            try {
+                return (await controllerFetch(SubmissionsResource.list(), {
+                    organization: activeMembership?.parsedName,
+                    cursor: currentCursor,
+                    since: rangeFrom,
+                    until: rangeTo,
+                    pageSize: numResults,
+                    sortdir: sortOrder,
+                    showFailed: false,
+                })) as unknown as SubmissionsResource[];
+            } catch (e: any) {
+                return [] as SubmissionsResource[];
+            }
         },
         [
             activeMembership?.parsedName,

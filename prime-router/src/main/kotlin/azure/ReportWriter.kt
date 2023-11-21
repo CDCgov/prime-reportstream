@@ -19,7 +19,7 @@ object ReportWriter {
         report: Report,
         sendingApplicationReport: String? = null,
         receivingApplicationReport: String? = null,
-        receivingFacilityReport: String? = null
+        receivingFacilityReport: String? = null,
     ): ByteArray {
         val outputStream = ByteArrayOutputStream()
         when (report.bodyFormat) {

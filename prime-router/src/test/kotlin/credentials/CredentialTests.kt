@@ -1,7 +1,9 @@
 package gov.cdc.prime.router.credentials
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import java.util.UUID
@@ -110,7 +112,7 @@ internal class CredentialTests {
         }
         // println(err.message)
         assertThat(err.message?.indexOf("pass")).isEqualTo(-1)
-        assertThat { err.message?.contains("XXXX") }
+        assertThat(err.message).isNotNull().contains("XXXX")
         val longStr = "abcdefghijklmnopqrstuvwxyz"
         val badJson2 = """
             "@type":"UserPpk","user":"$longStr","pass":"$longStr","key":"$longStr","keyPass":"$longStr"

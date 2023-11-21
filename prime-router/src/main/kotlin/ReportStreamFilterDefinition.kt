@@ -77,12 +77,14 @@ class Matches : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
-        if (args.size < 2) error(
-            "For ${receiver.fullName}: Expecting two or more args to filter $name:" +
-                " (columnName, regex [, regex, regex])"
-        )
+        if (args.size < 2) {
+            error(
+                "For ${receiver.fullName}: Expecting two or more args to filter $name:" +
+                    " (columnName, regex [, regex, regex])"
+            )
+        }
         val columnName = args[0]
         val values = args.subList(1, args.size)
         val columnNames = table.columnNames()
@@ -92,8 +94,9 @@ class Matches : ReportStreamFilterDefinition {
                 selection.or(table.stringColumn(columnName).matchesRegex(regex))
             }
             selection
-        } else
+        } else {
             Selection.withRange(0, 0)
+        }
     }
 }
 
@@ -112,12 +115,14 @@ class DoesNotMatch : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
-        if (args.size < 2) error(
-            "For ${receiver.fullName}: Expecting two or more args to filter $name:" +
-                " (columnName, value, value, ...)"
-        )
+        if (args.size < 2) {
+            error(
+                "For ${receiver.fullName}: Expecting two or more args to filter $name:" +
+                    " (columnName, value, value, ...)"
+            )
+        }
         val columnName = args[0]
         val values = args.subList(1, args.size)
         val columnNames = table.columnNames()
@@ -152,12 +157,14 @@ class FilterOutNegativeAntigenTestType : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
-        if (args.size < 2) error(
-            "For ${receiver.fullName}: Expecting two or more args to filter $name:" +
-                " (columnName, value, value, ...)"
-        )
+        if (args.size < 2) {
+            error(
+                "For ${receiver.fullName}: Expecting two or more args to filter $name:" +
+                    " (columnName, value, value, ...)"
+            )
+        }
         val columnName = args[0]
         val values = args.subList(1, args.size)
         val columnNames = table.columnNames()
@@ -168,8 +175,9 @@ class FilterOutNegativeAntigenTestType : ReportStreamFilterDefinition {
                 val selection = table.stringColumn(columnName).matchesRegex(value)
                 val rowIndex = selection.toArray()
                 for (i in 0..rowIndex.size - 1) {
-                    if (testType.getString(rowIndex[i]).equals("Antigen", ignoreCase = true))
+                    if (testType.getString(rowIndex[i]).equals("Antigen", ignoreCase = true)) {
                         colSelection = colSelection.andNot(Selection.withRange(rowIndex[i], rowIndex[i] + 1))
+                    }
                 }
             }
             colSelection
@@ -179,6 +187,7 @@ class FilterOutNegativeAntigenTestType : ReportStreamFilterDefinition {
         return selection
     }
 }
+
 /**
  * This may or may not be a unicorn.
  */
@@ -189,12 +198,14 @@ class FilterByCounty : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
-        if (args.size != 2) error(
-            "For ${receiver.fullName}: Expecting two args to filter $name:" +
-                "  (TwoLetterState, County)"
-        )
+        if (args.size != 2) {
+            error(
+                "For ${receiver.fullName}: Expecting two args to filter $name:" +
+                    "  (TwoLetterState, County)"
+            )
+        }
         // Try to be very loose on county matching.   Anything with the county name embedded is ok.
         val countyRegex = "(?i).*${args[1]}.*"
 
@@ -203,7 +214,9 @@ class FilterByCounty : ReportStreamFilterDefinition {
             val patientState = table.stringColumn("patient_state")
             val patientCounty = table.stringColumn("patient_county")
             patientState.isEqualTo(args[0]).and(patientCounty.matchesRegex(countyRegex))
-        } else null
+        } else {
+            null
+        }
 
         val facilitySelection = if (columnNames.contains("ordering_facility_state") &&
             columnNames.contains("ordering_facility_county")
@@ -211,7 +224,9 @@ class FilterByCounty : ReportStreamFilterDefinition {
             val facilityState = table.stringColumn("ordering_facility_state")
             val facilityCounty = table.stringColumn("ordering_facility_county")
             facilityState.isEqualTo(args[0]).and(facilityCounty.matchesRegex(countyRegex))
-        } else null
+        } else {
+            null
+        }
 
         // Overall, this is "true" if either the patient is in the county/state
         //   OR, if the facility is in the county/state.
@@ -241,15 +256,16 @@ class OrEquals : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
         if (args.isEmpty()) error("Expecting at least two args for filter $name.  Got none.")
-        if (args.size % 2 != 0)
+        if (args.size % 2 != 0) {
             error(
                 "For ${receiver.fullName}: Expecting a positive even number " +
                     "of args to filter $name: (col,val, col,val,...)." +
                     " Instead got ${args.size} args"
             )
+        }
         val selection = Selection.withRange(0, 0)
         for (i in args.indices step 2) {
             val elemName = args[i]
@@ -257,7 +273,9 @@ class OrEquals : ReportStreamFilterDefinition {
             val colSelection = if (table.columnNames().contains(elemName)) {
                 val elemColumn = table.stringColumn(elemName)
                 elemColumn.matchesRegex(regexStr)
-            } else null
+            } else {
+                null
+            }
             colSelection?.let { selection.or(colSelection) }
         }
         return selection
@@ -274,14 +292,16 @@ class AllowAll : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
         // On empty args (eg, "allowAll()"), our regex returns args of size 1, with a single empty string.
         // Didn't bother trying to fix the regex.
-        if (args.size > 1) error(
-            "For rcvr ${receiver.fullName} Expecting no args for filter $name." +
-                " Got ${args.joinToString(",")}"
-        )
+        if (args.size > 1) {
+            error(
+                "For rcvr ${receiver.fullName} Expecting no args for filter $name." +
+                    " Got ${args.joinToString(",")}"
+            )
+        }
         return Selection.withRange(0, table.rowCount())
     }
 }
@@ -296,13 +316,15 @@ class AllowNone : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
         // See note on allowAll above on regex weirdness.
-        if (args.size > 1) error(
-            "For rcvr ${receiver.fullName} Expecting no args for filter $name." +
-                " Got ${args.joinToString(",")}"
-        )
+        if (args.size > 1) {
+            error(
+                "For rcvr ${receiver.fullName} Expecting no args for filter $name." +
+                    " Got ${args.joinToString(",")}"
+            )
+        }
         return Selection.withRange(0, 0)
     }
 }
@@ -320,7 +342,7 @@ class HasValidDataFor : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
         var selection = Selection.withRange(0, table.rowCount())
 
@@ -355,7 +377,7 @@ class IsValidCLIA : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
         if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
         var selection = Selection.withRange(0, 0)
@@ -382,7 +404,7 @@ class HasAtLeastOneOf : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
         if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
         var selection = Selection.withRange(0, 0)
@@ -407,7 +429,7 @@ class AtLeastOneHasValue : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
         if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
         val searchValue = args[0]
@@ -467,7 +489,7 @@ class InDateInterval : ReportStreamFilterDefinition {
         args: List<String>,
         table: Table,
         receiver: Receiver,
-        doAuditing: Boolean
+        doAuditing: Boolean,
     ): Selection {
         // Check args
         if (args.size != 3) error("Expecting 3 arguments: Got ${args.size}")

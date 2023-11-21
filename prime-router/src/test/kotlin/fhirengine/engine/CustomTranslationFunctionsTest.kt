@@ -7,9 +7,14 @@ import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.USTimeZone
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomFHIRFunctions
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.Hl7TranslationFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -23,19 +28,19 @@ class CustomTranslationFunctionsTest {
 
     @Test
     fun `test convertDateTimeToHL7`() {
-        assertThat(CustomTranslationFunctions().convertDateTimeToHL7(DateTimeType("2015")))
+        assertThat(Hl7TranslationFunctions().convertDateTimeToHL7(DateTimeType("2015")))
             .isEqualTo("2015")
-        assertThat(CustomTranslationFunctions().convertDateTimeToHL7(DateTimeType("2015-04")))
+        assertThat(Hl7TranslationFunctions().convertDateTimeToHL7(DateTimeType("2015-04")))
             .isEqualTo("201504")
-        assertThat(CustomTranslationFunctions().convertDateTimeToHL7(DateTimeType("2015-04-05")))
+        assertThat(Hl7TranslationFunctions().convertDateTimeToHL7(DateTimeType("2015-04-05")))
             .isEqualTo("20150405")
         // Hour only or hour and minute only is not supported by FHIR type
         assertThat(
-            CustomTranslationFunctions().convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11"))
+            Hl7TranslationFunctions().convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11"))
         )
             .isEqualTo("20150405122211")
         assertThat(
-            CustomTranslationFunctions()
+            Hl7TranslationFunctions()
                 .convertDateTimeToHL7(DateTimeType("2015-04-11T12:22:01-04:00"))
         )
             .isEqualTo("20150411122201-0400")
@@ -49,52 +54,54 @@ class CustomTranslationFunctionsTest {
                 mutableListOf(DateTimeType("2015")),
                 timezoneParameters
             )[0] as DateTimeType
-        assertThat(CustomTranslationFunctions().convertDateTimeToHL7(adjustedDateTime)).isEqualTo("2015")
+        assertThat(Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)).isEqualTo("2015")
 
         adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04")),
-            timezoneParameters
-        )[0] as DateTimeType
-        assertThat(CustomTranslationFunctions().convertDateTimeToHL7(adjustedDateTime)).isEqualTo("201504")
+                mutableListOf(DateTimeType("2015-04")),
+                timezoneParameters
+            )[0] as DateTimeType
+        assertThat(Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)).isEqualTo("201504")
 
         adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04-05")),
-            timezoneParameters
-        )[0] as DateTimeType
-        assertThat(CustomTranslationFunctions().convertDateTimeToHL7(adjustedDateTime)).isEqualTo("20150405")
+                mutableListOf(DateTimeType("2015-04-05")),
+                timezoneParameters
+            )[0] as DateTimeType
+        assertThat(Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)).isEqualTo("20150405")
 
         // Fhir doesn't support hour/minute precision
         // With seconds, we should start to see timezone
         adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
-            timezoneParameters
-        )[0] as DateTimeType
-        val tmp = CustomTranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
+                mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
+                timezoneParameters
+            )[0] as DateTimeType
+        val tmp = Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
         assertThat(tmp).isEqualTo("20150405212211+0900")
     }
 
     @org.junit.jupiter.api.Test
     fun `test convertDateTimeToHL7 with CustomContext with receiver setting`() {
-        val receiver = mockkClass(Receiver::class)
+        val receiver = mockkClass(Receiver::class, relaxed = true)
         val appContext = mockkClass(CustomContext::class)
         val config = UnitTestUtils.createConfig(
             useHighPrecisionHeaderDateTimeFormat = true,
-            convertPositiveDateTimeOffsetToNegative = false
+            convertPositiveDateTimeOffsetToNegative = false,
+            convertDateTimesToReceiverLocalTime = true,
+            convertTimestampToDateTime = "MSH-8, SPM-18"
         )
-
         every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
         every { appContext.config }.returns(HL7TranslationConfig(config, receiver))
         every { receiver.dateTimeFormat }.returns(null)
         every { receiver.translation }.returns(config)
+        every { receiver.timeZone } returns (USTimeZone.UTC)
         assertThat(
             CustomTranslationFunctions()
                 .convertDateTimeToHL7(
                     DateTimeType("2023-07-21T10:30:17.328-07:00"), appContext
                 )
-        ).isEqualTo("20230721103017.0000-0700")
+        ).isEqualTo("20230721173017.0000+0000")
         assertThat(
             CustomTranslationFunctions()
                 .convertDateTimeToHL7(
@@ -108,7 +115,39 @@ class CustomTranslationFunctionsTest {
         assertThat(
             CustomTranslationFunctions()
                 .convertDateTimeToHL7(DateTimeType("2015-04-11T12:22:01-04:00"), appContext)
-        ).isEqualTo("20150411122201.0000-0400")
+        ).isEqualTo("20150411162201.0000+0000")
+
+        assertThat(
+            CustomTranslationFunctions()
+                .convertDateTimeToHL7(
+                    DateTimeType("2015-04-11T12:22:01-04:00"),
+                    appContext,
+                    ConverterSchemaElement(hl7Spec = listOf("MSH-8")),
+                    ConstantSubstitutor()
+                )
+        ).isEqualTo("20150411162201")
+
+        assertThat(
+            CustomTranslationFunctions()
+                .getDateTimeFormat(
+                    "MSH-8, SPM-18",
+                    ConverterSchemaElement(hl7Spec = listOf("MSH-8")),
+                    ConstantSubstitutor(),
+                    appContext,
+                    receiver.dateTimeFormat
+                )
+        ).isEqualTo(DateUtilities.DateTimeFormat.LOCAL)
+
+        assertThat(
+            CustomTranslationFunctions()
+                .getDateTimeFormat(
+                    "MSH-8, SPM-18",
+                    ConverterSchemaElement(hl7Spec = listOf("MSH-9")),
+                    ConstantSubstitutor(),
+                    appContext,
+                    receiver.dateTimeFormat
+                )
+        ).isEqualTo(receiver.dateTimeFormat)
     }
 
     @Test

@@ -16,7 +16,6 @@ import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.credentials.RestCredential
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.transport.RESTTransport
@@ -50,7 +49,7 @@ class CheckFunction : Logging {
         val checkSuccessful: Boolean,
         val initiatedOn: Instant,
         val completedAt: Instant,
-        val checkResult: String
+        val checkResult: String,
     )
 
     class TestFileFilter(val fileName: String) : RemoteResourceFilter {
@@ -156,7 +155,7 @@ class CheckFunction : Logging {
             route = "checkreceiver/org/{orgName}/receiver/{receiverName}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("orgName") orgName: String,
-        @BindingName("receiverName") receiverName: String
+        @BindingName("receiverName") receiverName: String,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
 
@@ -216,8 +215,9 @@ class CheckFunction : Logging {
     ) {
         // Each setting is checked against this logic to see if it should run.
         fun checkShouldRun(receiverSetting: Receiver): Boolean {
-            if (receiverSetting.customerStatus != CustomerStatus.ACTIVE)
+            if (receiverSetting.customerStatus != CustomerStatus.ACTIVE) {
                 return false
+            }
             // note: SFTP and REST are supports, but we should still expand!
             return when (receiverSetting.transport) {
                 is SFTPTransportType -> true
@@ -289,7 +289,7 @@ class CheckFunction : Logging {
     private fun testAllTransports(
         receivers: Collection<Receiver>,
         sftpFile: SftpFile?,
-        responseBody: MutableList<String>
+        responseBody: MutableList<String>,
     ): Boolean {
         var overallPass = false
         receivers.forEach { receiver ->
@@ -338,7 +338,7 @@ class CheckFunction : Logging {
     private fun testRest(
         restTransportType: RESTTransportType,
         receiver: Receiver,
-        responseBody: MutableList<String>
+        responseBody: MutableList<String>,
     ): Boolean {
         logger.info("REST Transport $restTransportType")
         responseBody.add("${receiver.fullName}: REST Transport")
@@ -347,10 +347,7 @@ class CheckFunction : Logging {
             val reportId = UUID.randomUUID().toString()
             // REST transport throws exception with error method to handle fails
             // get the username/password to authenticate with OAuth, fail throws exception
-            val credential: RestCredential = theRESTTransport.lookupDefaultCredential(receiver)
-
-            // get the TLS/SSL cert in a JKS if needed, NY uses a specific one, fail throws exception
-            val jksCredential = restTransportType.tlsKeystore?.let { theRESTTransport.lookupJksCredentials(it) }
+            val (credential, jksCredential) = theRESTTransport.getCredential(restTransportType, receiver)
 
             responseBody.add("Attempting to authenticate at: ${restTransportType.authTokenUrl}")
             val aLogger: Logger = Logger.getLogger(this.toString())
@@ -390,7 +387,7 @@ class CheckFunction : Logging {
         sftpTransportType: SFTPTransportType,
         receiver: Receiver,
         sftpFile: CheckFunction.SftpFile?,
-        responseBody: MutableList<String>
+        responseBody: MutableList<String>,
     ): Boolean {
         val path = sftpTransportType.filePath
         logger.info("SFTP Transport $sftpTransportType")
@@ -449,7 +446,7 @@ class CheckFunction : Logging {
     private fun trackException(
         t: Throwable,
         responseBody: MutableList<String>,
-        receiver: Receiver
+        receiver: Receiver,
     ) {
         logger.info("Exception in health check: ${t.message}: ${t.cause?.message ?: "No root cause"}")
         logger.info(t.stackTraceToString())

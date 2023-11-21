@@ -14,7 +14,7 @@ interface FhirPathFunctions {
      */
     fun resolveFunction(
         functionName: String?,
-        additionalFunctions: FhirPathFunctions? = null
+        additionalFunctions: FhirPathFunctions? = null,
     ): FHIRPathEngine.IEvaluationContext.FunctionDetails?
 
     /**
@@ -25,6 +25,6 @@ interface FhirPathFunctions {
         focus: MutableList<Base>?,
         functionName: String?,
         parameters: MutableList<MutableList<Base>>?,
-        additionalFunctions: FhirPathFunctions? = null
+        additionalFunctions: FhirPathFunctions? = null,
     ): MutableList<Base>
 }

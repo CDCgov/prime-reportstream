@@ -18,22 +18,22 @@ elements:
     hl7Spec: [ '%{cweFieldPath}-2' ]
   - name: identifier-system-url
     resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").system'
-    condition: '%resource.value.startsWith("http")'
+    condition: '%resource.value.exists() and %resource.value.startsWith("http")'
     value: [ '%resource.getCodingSystemMapping()' ]
     hl7Spec: [ '%{cweFieldPath}-3' ]
   - name: identifier-system-url
     resource: '%resource.coding[0]'
-    condition: '%resource.system.value.startsWith("http") and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    condition: '%resource.system.value.exists() and %resource.system.value.startsWith("http") and %resource.extension(%`rsext-code-index-name`).exists().not()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{cweFieldPath}-3' ]
   - name: identifier-system
     resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").system'
-    condition: '%resource.value.startsWith("http").not()'
+    condition: '%resource.value.exists() and %resource.value.startsWith("http").not()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{cweFieldPath}-3' ]
   - name: identifier-system
     resource: '%resource.coding[0]'
-    condition: '%resource.system.value.startsWith("http").not() and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    condition: '%resource.system.value.exists() and %resource.system.value.startsWith("http").not() and %resource.extension(%`rsext-code-index-name`).exists().not()'
     value: [ '%resource.system.value' ]
     hl7Spec: [ '%{cweFieldPath}-3' ]
   - name: identifier-version
@@ -45,7 +45,7 @@ elements:
   - name: coding-system-oid
     resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").extension(%`rsext-coding-system-oid`)'
     condition: '%resource.value.exists()'
-    value: ['%resource.value.getId()']
+    value: [ '%resource.value.getId()' ]
     hl7Spec: [ '%{cweFieldPath}-14' ]
   - name: coding-system-oid
     resource: '%resource.coding[0].extension(%`rsext-coding-system-oid`)'
@@ -67,22 +67,22 @@ elements:
     hl7Spec: [ '%{cweFieldPath}-5' ]
   - name: alt-identifier-system-url
     resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").system'
-    condition: '%resource.value.startsWith("http")'
+    condition: '%resource.value.exists() and %resource.value.startsWith("http")'
     value: [ '%resource.getCodingSystemMapping()' ]
     hl7Spec: [ '%{cweFieldPath}-6' ]
   - name: alt-identifier-system-url
     resource: '%resource.coding[1]'
-    condition: '%resource.system.value.startsWith("http") and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    condition: '%resource.system.value.exists() and %resource.system.value.startsWith("http") and %resource.extension(%`rsext-code-index-name`).exists().not()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{cweFieldPath}-6' ]
   - name: alt-identifier-system
     resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").system'
-    condition: '%resource.value.startsWith("http").not()'
+    condition: '%resource.value.exists() and %resource.value.startsWith("http").not()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{cweFieldPath}-6' ]
   - name: alt-identifier-system
     resource: '%resource.coding[1]'
-    condition: '%resource.system.value.startsWith("http").not() and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    condition: '%resource.system.value.exists() and %resource.system.value.startsWith("http").not() and %resource.extension(%`rsext-code-index-name`).exists().not()'
     value: [ '%resource.system.value' ]
     hl7Spec: [ '%{cweFieldPath}-6' ]
   - name: alt-identifier-version
@@ -106,22 +106,22 @@ elements:
     hl7Spec: [ '%{cweFieldPath}-11' ]
   - name: second-alt-identifier-system-url
     resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "second alternate identifier").system'
-    condition: '%resource.value.startsWith("http")'
+    condition: '%resource.value.exists() and %resource.value.startsWith("http")'
     value: [ '%resource.getCodingSystemMapping()' ]
     hl7Spec: [ '%{cweFieldPath}-12' ]
   - name: second-alt-identifier-system-url
     resource: '%resource.coding[2]'
-    condition: '%resource.system.value.startsWith("http") and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    condition: '%resource.system.value.exists() and %resource.system.value.startsWith("http") and %resource.extension(%`rsext-code-index-name`).exists().not()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{cweFieldPath}-12' ]
   - name: second-alt-identifier-system
     resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "second alternate identifier").system'
-    condition: '%resource.value.startsWith("http").not()'
+    condition: '%resource.value.exists() and %resource.value.startsWith("http").not()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{cweFieldPath}-12' ]
   - name: second-alt-identifier-system
     resource: '%resource.coding[2]'
-    condition: '%resource.system.value.startsWith("http").not() and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    condition: '%resource.system.value.exists() and %resource.system.value.startsWith("http").not() and %resource.extension(%`rsext-code-index-name`).exists().not()'
     value: [ '%resource.system.value' ]
     hl7Spec: [ '%{cweFieldPath}-12' ]
   - name: second-alt-identifier-version

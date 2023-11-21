@@ -175,7 +175,6 @@ SwIDAQAB
         )
     ]
 )
-
 @SecuritySchemes(
     value = [
         SecurityScheme(
@@ -183,8 +182,8 @@ SwIDAQAB
             type = SecuritySchemeType.OAUTH2,
             flows = OAuthFlows(
                 authorizationCode = OAuthFlow(
-                    authorizationUrl = "https://hhs-prime.oktapreview.com/oauth2/default/v1/authorize",
-                    tokenUrl = "https://hhs-prime.oktapreview.com/oauth2/default/v1/token",
+                    authorizationUrl = "https://reportstream.oktapreview.com/oauth2/default/v1/authorize",
+                    tokenUrl = "https://reportstream.oktapreview.com/oauth2/default/v1/token",
                     scopes = [
                         OAuthScope(
                             name = "openid",
@@ -204,7 +203,6 @@ SwIDAQAB
         )
     ]
 )
-
 class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFacade.common) : Logging {
     data class ApiKeysResponse(val orgName: String, val keys: List<JwkSet>)
 
@@ -215,7 +213,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     private fun getApiKeysForOrg(
         request: HttpRequestMessage<String?>,
         orgName: String,
-        useNewApiResponse: Boolean = false
+        useNewApiResponse: Boolean = false,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin", "$orgName.*.user"))) {
@@ -301,7 +299,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             description = PARAM_DESC_ORGNAME_GET
         )
         @PathParam(PARAM_NAME_ORGNAME)
-        @BindingName(PARAM_NAME_ORGNAME) orgName: String
+        @BindingName(PARAM_NAME_ORGNAME) orgName: String,
     ): HttpResponseMessage {
         return getApiKeysForOrg(request, orgName)
     }
@@ -372,7 +370,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             description = PARAM_DESC_ORGNAME_GET,
         )
         @PathParam(PARAM_NAME_ORGNAME)
-        @BindingName(PARAM_NAME_ORGNAME) orgName: String
+        @BindingName(PARAM_NAME_ORGNAME) orgName: String,
     ): HttpResponseMessage {
         return getApiKeysForOrg(request, orgName, true)
     }
@@ -390,7 +388,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
                 required = true,
                 description = PARAM_DESC_ORGNAME_POST,
 
-            )
+                )
         ],
         responses = [
             ApiResponse(
@@ -481,7 +479,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             description = PARAM_DESC_KID_POST,
         )
         @QueryParam(PARAM_NAME_KID)
-        @BindingName(PARAM_NAME_KID) kidStr: String? = null
+        @BindingName(PARAM_NAME_KID) kidStr: String? = null,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin"))) {
@@ -496,7 +494,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
 
         try {
             val scope = scopeStr ?: request.queryParameters[PARAM_NAME_SCOPE]
-                ?: return HttpUtilities.bad(request, "Scope must be provided")
+            ?: return HttpUtilities.bad(request, "Scope must be provided")
             if (!Scope.isValidScope(scope, organization)) {
                 return HttpUtilities.bad(
                     request,
@@ -623,17 +621,20 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             name = PARAM_NAME_ORGNAME,
             description = PARAM_DESC_ORGNAME_DEL
         )
-        @PathParam(PARAM_NAME_ORGNAME) @BindingName(PARAM_NAME_ORGNAME) orgName: String,
+        @PathParam(PARAM_NAME_ORGNAME)
+        @BindingName(PARAM_NAME_ORGNAME) orgName: String,
         @Parameter(
             name = PARAM_NAME_SCOPE,
             description = PARAM_DESC_SCOPE_DEL
         )
-        @PathParam(PARAM_NAME_SCOPE) @BindingName(PARAM_NAME_SCOPE) scope: String,
+        @PathParam(PARAM_NAME_SCOPE)
+        @BindingName(PARAM_NAME_SCOPE) scope: String,
         @Parameter(
             name = PARAM_NAME_KID,
             description = PARAM_DESC_KID_DEL
         )
-        @PathParam(PARAM_NAME_KID) @BindingName(PARAM_NAME_KID) kid: String
+        @PathParam(PARAM_NAME_KID)
+        @BindingName(PARAM_NAME_KID) kid: String,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin"))) {

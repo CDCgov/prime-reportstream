@@ -16,7 +16,7 @@ import java.util.SortedMap
 abstract class ConfigSchema<T : ConfigSchemaElement>(
     var elements: MutableList<T> = mutableListOf(),
     var constants: SortedMap<String, String> = sortedMapOf(),
-    var extends: String? = null
+    var extends: String? = null,
 ) {
     /**
      * Name used to identify this schema.
@@ -45,28 +45,6 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
      * Private property used to build list of validation errors
      */
     private var validationErrors: MutableSet<String> = mutableSetOf()
-
-    /**
-     * Returns count of duplicate elements in the schema
-     *
-     * Root -> A -> C
-     *         B -> C
-     *
-     *      vs
-     *
-     * Root -> A -> B -> D
-     *           -> C -> D
-     *
-     * The first graph will contain duplicate elements, but the second will not
-     *
-     * @returns the duplicate elements contained in the first or second nested schemas
-     *
-     */
-    val duplicateElements: Map<String?, Int>
-        get() = (
-            elements.filter { it.name != null } +
-                elements.flatMap { it.schemaRef?.elements ?: emptyList() }
-            ).groupingBy { it.name }.eachCount().filter { it.value > 1 }
 
     /**
      * Add an error [msg] to the list of errors.
@@ -179,7 +157,7 @@ abstract class ConfigSchemaElement(
     var resourceIndex: String? = null,
     var constants: SortedMap<String, String> = sortedMapOf(),
     var valueSet: ValueSetCollection? = null,
-    var debug: Boolean = false
+    var debug: Boolean = false,
 ) {
     private var validationErrors: MutableSet<String> = mutableSetOf()
 
