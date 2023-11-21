@@ -142,13 +142,6 @@ note_1:
   expressionType: resource
   generateList: true
   vars:
-    noteText: SPM.12
-
-note_1:
-  valueOf: datatype/Annotation_var
-  expressionType: resource
-  generateList: true
-  vars:
     noteText: SPM.14
 
 note_2:
