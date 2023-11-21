@@ -1,8 +1,7 @@
 package gov.cdc.prime.router.azure
 
-import assertk.assertThat
+import assertk.assertFailure
 import assertk.assertions.hasClass
-import assertk.assertions.isFailure
 import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -400,7 +399,7 @@ class BatchFunctionTests {
         every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
         every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns "somecontent".toByteArray()
 
-        assertThat { batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn) }.isFailure()
+        assertFailure { batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn) }
             .hasClass(java.lang.IllegalStateException::class.java)
 
         unmockkObject(BlobAccess)

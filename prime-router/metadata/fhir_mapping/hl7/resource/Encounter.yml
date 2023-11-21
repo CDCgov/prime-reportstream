@@ -291,6 +291,28 @@ extension_5:
     KEY_NAME_SUFFIX: String
     urlValue: patient-type
 
+meta:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    security:
+      vars:
+        pv222: String, PV2.22
+      expressionType: nested
+      expressionsMap:
+        code:
+          expressionType: nested
+          expressions:
+            - condition: $pv222 EQUALS Y
+              type: STRING
+              value: true
+            - condition: $pv222 EQUALS N
+              type: STRING
+              value: true
+            - condition: $pv222 NOT_EQUALS Y && $pv222 NOT_EQUALS N
+              type: STRING
+              valueOf: $pv222
+
 serviceProvider:
   condition: $orgIdValue NOT_NULL
   valueOf: resource/Organization
