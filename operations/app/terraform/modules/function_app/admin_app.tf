@@ -29,6 +29,8 @@ locals {
     SLACK_WEBHOOK_URL                  = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-slack-webhook-url)"
     OKTA_clientId                      = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-okta-clientid)"
     OKTA_authKey                       = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-okta-authkey)"
+    RS_OKTA_clientId                   = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-RS-okta-clientid)"
+    RS_OKTA_authKey                    = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-RS-okta-authkey)"
   }
   # Set app configuration
   config = {

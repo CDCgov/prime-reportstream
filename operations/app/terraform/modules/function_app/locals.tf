@@ -8,10 +8,14 @@ locals {
 
     "PRIME_ENVIRONMENT" = var.environment
 
-    "OKTA_baseUrl"  = var.okta_base_url
-    "OKTA_redirect" = var.okta_redirect_url
-    "OKTA_authkey"  = var.OKTA_authKey
-    "OKTA_ClientId" = var.OKTA_clientId
+    "OKTA_baseUrl"     = var.okta_base_url
+    "OKTA_redirect"    = var.okta_redirect_url
+    "OKTA_authkey"     = var.OKTA_authKey
+    "OKTA_ClientId"    = var.OKTA_clientId
+    "RS_OKTA_baseUrl"  = var.RS_okta_base_url
+    "RS_OKTA_redirect" = var.RS_okta_redirect_url
+    "RS_OKTA_authkey"  = var.RS_OKTA_authKey
+    "RS_OKTA_ClientId" = var.RS_OKTA_clientId
     # Manage client secrets via a Key Vault
     "CREDENTIAL_STORAGE_METHOD" = "AZURE"
     "CREDENTIAL_KEY_VAULT_NAME" = "${var.resource_prefix}-clientconfig"
@@ -70,12 +74,14 @@ locals {
   sticky_slot_implicit_settings_names = tolist([
     "AzureWebJobsStorage",
     "OKTA_authKey",
-    "fn_OKTA_clientId",
+    "OKTA_ClientId",
     "OKTA_scope",
+    "RS_OKTA_authKey",
+    "RS_OKTA_ClientId",
+    "RS_OKTA_scope",
     "PartnerStorage",
     "POSTGRES_URL",
-    "POSTGRES_REPLICA_URL",
-    "OKTA_ClientId"
+    "POSTGRES_REPLICA_URL"
   ])
 
   # Any setting not in the common list is therefore unique

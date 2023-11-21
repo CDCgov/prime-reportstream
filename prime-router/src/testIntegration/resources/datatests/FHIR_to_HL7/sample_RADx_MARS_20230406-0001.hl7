@@ -7,5 +7,5 @@ OBX|1|CE|97097-0^COVID-19^LN||260415000^Not detected^SCT|||N^Normal^HL70078|||F|
 OBX|2|CE|80383-3^Flu B^LN||260415000^Not detected^SCT|||N^Normal^HL70078|||F||||||^BD Veritor System for Rapid Detection of SARS-CoV-2 \T\ Flu A+B*||||||Simple Report CSV uploads Truncate Testing Name Too Long truncatethis^^^^^^^^^11D1111111|123 Main St^^^CA^94553^USA
 OBX|3|CE|80382-5^Flu A^LN||260415000^Not detected^SCT|||N^Normal^HL70078|||F||||||^BD Veritor System for Rapid Detection of SARS-CoV-2 \T\ Flu A+B*||||||Simple Report CSV uploads Truncate Testing Name Too Long truncatethis^^^^^^^^^11D1111111|123 Main St^^^CA^94553^USA
 OBX|4|CE|95419-8^Has symptoms related to condition of interest^LN||Y^Yes^HL70136||||||F
-OBX|5|DT|65222-2^Date and time of symptom onset^LN||20230315||||||F
+OBX|5|DT|65222-2^Date and time of symptom onset^LN||20230315000000+0000||||||F
 SPM|1|52a582e4-d389-42d0-b738-bee51cf5244d&Simple Report CSV uploads Truncate Testing Name Too Long truncatethis&11D1111111&CLIA^52a582e4-d389-42d0-b738-bee51cf5244d&Simple Report CSV uploads Truncate Testing Name Too Long truncatethis&11D1111111&CLIA||697989009^^SCT^^^^^^Anterior Nasal Swab|||||||||||||20230330123142+0000

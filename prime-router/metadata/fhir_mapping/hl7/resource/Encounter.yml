@@ -290,6 +290,28 @@ extension_5:
     KEY_NAME_SUFFIX: String
     urlValue: patient-type
 
+meta:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    security:
+      vars:
+        pv222: String, PV2.22
+      expressionType: nested
+      expressionsMap:
+        code:
+          expressionType: nested
+          expressions:
+            - condition: $pv222 EQUALS Y
+              type: STRING
+              value: true
+            - condition: $pv222 EQUALS N
+              type: STRING
+              value: true
+            - condition: $pv222 NOT_EQUALS Y && $pv222 NOT_EQUALS N
+              type: STRING
+              valueOf: $pv222
+
 serviceProvider:
   condition: $orgIdValue NOT_NULL
   valueOf: resource/Organization
@@ -302,6 +324,36 @@ serviceProvider:
     orgIdSystem: 'extID'  # 'urn:id:' added by SystemCX processing
 
 location:
-  valueOf: secondary/EncounterLocation
-  expressionType: resource
   generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        pv13: String_ALL, PV1.3
+      condition: $pv13 NOT_NULL
+      expressionsMap:
+        location:
+          valueOf: resource/Location
+          expressionType: reference
+          specs: PV1.3
+          constants:
+            locationJoinChar: ","
+    - expressionType: nested
+      vars:
+        pv16: STRING_ALL, PV1.6
+      condition: $pv16 NOT_NULL
+      expressionsMap:
+        location:
+          expressionType: reference
+          valueOf: datatypes/PL/Location
+          specs: PV1.6
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7-use
+            valueString:
+              type: STRING
+              value: 'prior-patient-location'
