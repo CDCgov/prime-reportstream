@@ -60,7 +60,7 @@ serviceType:
 
 priority:
   valueOf: datatype/CodeableConcept
-  condition: v$alueIn NOT_NULL
+  condition: $valueIn NOT_NULL
   expressionType: resource
   specs: PV2.25
   vars:
@@ -79,11 +79,12 @@ period:
     end: PV1.45
 
 length:
-  valueOf: datatype/Duration
+  condition: $pv2_11 NOT_NULL
+  valueOf: datatypes/NM/Quantity-LengthOfStay
   expressionType: resource
+  specs: PV2.11
   vars:
-    pv2time: STRING, PV2.11
-    pv1length: PV1, GeneralUtils.pv1DurationLength(pv1length,ZONEID)
+    pv2_11: String, PV2.11
 
 reasonCode_1:
   valueOf: datatype/CodeableConcept
