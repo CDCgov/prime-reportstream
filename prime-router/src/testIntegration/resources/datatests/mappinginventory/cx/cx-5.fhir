@@ -218,7 +218,7 @@
                 }
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-index-name",
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
                 "valueString" : "alternate-placer-identifier"
               },
               {
@@ -272,19 +272,13 @@
                 "valueString" : "checkdigit"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-5-extension",
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type-code",
                 "valueString": "ACSN"
               }
             ],
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "PLAC"
                 }
@@ -294,12 +288,12 @@
             "_system" : {
               "extension" : [
                 {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-3-extension",
-                  "valueString" : "ISO"
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                  "valueString" : "testcx42"
                 },
                 {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-2-extension",
-                  "valueString" : "testcx42"
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                  "valueString" : "ISO"
                 }
               ]
             },

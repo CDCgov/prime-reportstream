@@ -569,15 +569,6 @@
 # Naming System Check Digit
 - id: "naming-system-check-digit"
   url: "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit"
-# cx-4-1-assigning-authority 
-- id: "cx-4-1-assigning-authority"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-1-assigning-authority"
-# cx-4-2-assigning-authority 
-- id: "cx-4-2-assigning-authority"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-2-assigning-authority"
-# cx-4-3-assigning-authority 
-- id: "cx-4-3-assigning-authority"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-3-assigning-authority"
-# cx-5-assigning-authority
-- id: "cx-5-identifier-type-code"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-5-identifier-type-code"
+# cx-5 identifier type code
+- id: "identifier-type-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type-code"

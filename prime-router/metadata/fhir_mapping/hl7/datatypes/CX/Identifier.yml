@@ -81,37 +81,37 @@ _system:
   condition: $cx43 EQUALS ISO || $cx43 EQUALS UUID
   expressionType: nested
   expressionsMap:
-    system_1:
+    extension_1-namespace-id:
       generateList: true
       expressionType: nested
       condition: $cx41 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cx-4-1-assigning-authority
+          value: namespace-id
         valueString:
           type: STRING
           valueOf: $cx41
           expressionType: HL7Spec
-    system_2:
+    extension_2-universal-id:
       generateList: true
       expressionType: nested
       condition: $cx42 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cx-4-2-assigning-authority
+          value: universal-id
         valueString:
           type: STRING
           valueOf: $cx42
           expressionType: HL7Spec
-    system_3:
+    extension_3-universal-id-type:
       generateList: true
       expressionType: nested
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cx-4-3-assigning-authority
+          value: universal-id-type
         valueString:
           type: STRING
           valueOf: $cx43
@@ -123,16 +123,16 @@ type:
     code: $code | CX.5
     system: $system
   expressions:
-      - expressionType: nested
-        expressionsMap:
-          coding:
-            generateList: true
-            expressionType: nested
-            expressionsMap:
-              code:
-                valueOf: $code
-              system:
-                valueOf: $system
+    - expressionType: nested
+      expressionsMap:
+        coding:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            code:
+              valueOf: $code
+            system:
+              valueOf: $system
 
 extension_type:
   generateList: true
@@ -143,7 +143,7 @@ extension_type:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: cx-5-identifier-type-code
+      value: identifier-type-code
     valueString:
       type: STRING
       valueOf: $cx5
@@ -204,7 +204,6 @@ period:
               type: STRING
               valueOf: $endDate
               expressionType: HL7Spec
-
 
 extension_4:
   generateList: true

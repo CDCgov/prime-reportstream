@@ -21,12 +21,12 @@ elements:
   - name: system
     resource: '%resource.system'
     condition: '%resource.exists()'
-    schema: ../../resources/URI/HD
+    schema: ../../datatypes/URI/HD
     constants:
       hl7HDField: '%{cxFieldPath}-4'
 
   - name: identifier-type-coding
-    value: [ '%resource.extension(%`rsext-cx-5-identifier-type-code`).value' ]
+    value: [ '%resource.extension(%`rsext-identifier-type-code`).value' ]
     condition: '%resource.exists()'
     hl7Spec: [ '%{cxFieldPath}-5' ]
 
