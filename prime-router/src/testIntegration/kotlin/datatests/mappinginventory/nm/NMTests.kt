@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 class NMTests {
     @Test
-    fun `test NM`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("nm/test").passed)
+    fun `test NM to quantity`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("nm/nm-to-quantity").passed)
     }
 }
