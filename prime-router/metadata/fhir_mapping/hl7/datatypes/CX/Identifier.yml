@@ -138,7 +138,7 @@ type:
   valueOf: datatype/CodeableConcept_var
   expressionType: resource
   vars:
-    code: $code
+    code: $code | CX.5
     system: $system
 
 extension_type:
