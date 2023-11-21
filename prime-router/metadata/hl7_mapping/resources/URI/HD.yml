@@ -1,19 +1,19 @@
 elements:
 
   - name: valueHD1
-    condition: '%resource.extension(%`rsext-cx-4-1-extension`).exists()'
+    condition: '%resource.extension(%`rsext-cx-4-1-assigning-authority`).exists()'
     value:
-      - '%resource.extension(%`rsext-cx-4-1-extension`).value'
+      - '%resource.extension(%`rsext-cx-4-1-assigning-authority`).value'
     hl7Spec: [ '%{hl7HDField}-1' ]
 
   - name: valueHD2
-    condition: '%resource.extension(%`rsext-cx-4-2-extension`).exists()'
+    condition: '%resource.extension(%`rsext-cx-4-2-assigning-authority`).exists()'
     value:
-      - '%resource.extension(%`rsext-cx-4-2-extension`).value'
+      - '%resource.extension(%`rsext-cx-4-2-assigning-authority`).value'
     hl7Spec: [ '%{hl7HDField}-2' ]
 
   - name: valueHD3
-    condition: '%resource.extension(%`rsext-cx-4-3-extension`).exists()'
+    condition: '%resource.extension(%`rsext-cx-4-3-assigning-authority`).exists()'
     value:
-      - '%resource.extension(%`rsext-cx-4-3-extension`).value'
+      - '%resource.extension(%`rsext-cx-4-3-assigning-authority`).value'
     hl7Spec: [ '%{hl7HDField}-3' ]

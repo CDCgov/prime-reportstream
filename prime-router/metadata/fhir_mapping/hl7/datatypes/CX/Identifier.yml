@@ -81,48 +81,58 @@ _system:
   condition: $cx43 EQUALS ISO || $cx43 EQUALS UUID
   expressionType: nested
   expressionsMap:
-    extension_1:
+    system_1:
       generateList: true
       expressionType: nested
       condition: $cx41 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cx-4-1-extension
+          value: cx-4-1-assigning-authority
         valueString:
           type: STRING
           valueOf: $cx41
           expressionType: HL7Spec
-    extension_2:
+    system_2:
       generateList: true
       expressionType: nested
       condition: $cx42 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cx-4-2-extension
+          value: cx-4-2-assigning-authority
         valueString:
           type: STRING
           valueOf: $cx42
           expressionType: HL7Spec
-    extension_3:
+    system_3:
       generateList: true
       expressionType: nested
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cx-4-3-extension
+          value: cx-4-3-assigning-authority
         valueString:
           type: STRING
           valueOf: $cx43
           expressionType: HL7Spec
 
 type:
-  valueOf: datatype/CodeableConcept_var
-  expressionType: resource
+  expressionType: nested
   vars:
     code: $code | CX.5
     system: $system
+  expressions:
+      - expressionType: nested
+        expressionsMap:
+          coding:
+            generateList: true
+            expressionType: nested
+            expressionsMap:
+              code:
+                valueOf: $code
+              system:
+                valueOf: $system
 
 extension_type:
   generateList: true
@@ -133,7 +143,7 @@ extension_type:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: cx-5-extension
+      value: cx-5-identifier-type-code
     valueString:
       type: STRING
       valueOf: $cx5
@@ -226,6 +236,6 @@ extension_6:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: identifier-index-name
+      value: hl7-use
     valueString:
       value: $identifierIndexName

@@ -548,7 +548,9 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-24-hd-extension"
 - id: "msh-25-hd-extension"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-25-hd-extension"
-<<<<<<< HEAD
+# Entity identifier
+- id: "entity-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier"
 # Assigning jurisdiction
 - id: "assigning-jurisdiction"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-jurisdiction"
@@ -567,23 +569,15 @@
 # Naming System Check Digit
 - id: "naming-system-check-digit"
   url: "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit"
-# Identifier Index Name
-- id: "identifier-index-name"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-index-name"
-# cx-4-1-extension 
-- id: "cx-4-1-extension"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-1-extension"
-# cx-4-2-extension 
-- id: "cx-4-2-extension"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-2-extension"
-# cx-4-3-extension 
-- id: "cx-4-3-extension"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-3-extension"
-# cx-5-extension
-- id: "cx-5-extension"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-5-extension"
-=======
-# Entity identifier
-- id: "entity-identifier"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier"
->>>>>>> master
+# cx-4-1-assigning-authority 
+- id: "cx-4-1-assigning-authority"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-1-assigning-authority"
+# cx-4-2-assigning-authority 
+- id: "cx-4-2-assigning-authority"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-2-assigning-authority"
+# cx-4-3-assigning-authority 
+- id: "cx-4-3-assigning-authority"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-4-3-assigning-authority"
+# cx-5-assigning-authority
+- id: "cx-5-identifier-type-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-5-identifier-type-code"
