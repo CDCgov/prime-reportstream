@@ -1,6 +1,15 @@
-import { useState } from "react";
+import { forwardRef, useRef, useState } from "react";
 import { useResource } from "rest-hooks";
-import { Button, ButtonGroup, Label, TextInput } from "@trussworks/react-uswds";
+import {
+    Button,
+    ButtonGroup,
+    Label,
+    Modal,
+    ModalHeading,
+    ModalRef,
+    ModalToggleButton,
+    TextInput,
+} from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
@@ -8,31 +17,102 @@ import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { useSessionContext } from "../../contexts/Session";
 import { USNavLink } from "../USLink";
 import { Table } from "../../shared/Table/Table";
-import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
+import { MemberType, UserAssociation } from "../../utils/OrganizationUtils";
+import { useOrganizationReceivers } from "../../hooks/UseOrganizationReceivers";
+import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
+import { mergeRefs } from "../../utils/ReactMergeRefs";
+import { Suspense } from "../../shared/Suspense/Suspense";
+
+export function OrganizationUserTypeList({
+    orgId,
+    onSelect,
+}: {
+    orgId: string;
+    onSelect: (value: UserAssociation) => void;
+}) {
+    const { data: senders } = useOrganizationSenders(orgId);
+    const senderTypes: UserAssociation[] | undefined = senders?.map((s) => ({
+        organizationId: orgId,
+        type: MemberType.SENDER,
+        name: s.name,
+    }));
+    const { data: receivers } = useOrganizationReceivers(orgId);
+    const receiverTypes: UserAssociation[] | undefined = receivers?.map(
+        (r) => ({
+            organizationId: orgId,
+            type: MemberType.RECEIVER,
+            name: r.name,
+        }),
+    );
+    // TODO: Show when org admin concept exists.
+    /*const admin: UserAssociation = {
+        organizationId: orgId,
+        type: MemberType.ORG_ADMIN,
+        name: "Org Admin",
+    };*/
+
+    if (!senderTypes || !receiverTypes) return null;
+
+    const list: UserAssociation[] = [...senderTypes, ...receiverTypes];
+
+    return (
+        <section>
+            {list.map((a) => (
+                <div key={a.name ?? a.type} onClick={() => onSelect(a)}>
+                    {a.type} - {a.name}
+                </div>
+            ))}
+        </section>
+    );
+}
+
+export const OrganizationUserTypeListModal = forwardRef<
+    ModalRef,
+    { orgId?: string; onSelect: (value: UserAssociation) => void }
+>(({ orgId, onSelect }, _ref) => {
+    const ref = useRef<ModalRef>(null);
+    const mergedRef = mergeRefs([_ref, ref]);
+
+    return (
+        <Modal
+            ref={mergedRef}
+            id="example-modal-1"
+            aria-labelledby="modal-1-heading"
+            aria-describedby="modal-1-description"
+        >
+            <ModalHeading id="modal-1-heading">
+                Select user type to impersonate
+            </ModalHeading>
+            <div className="usa-prose">
+                <div id="modal-1-description">
+                    <Suspense>
+                        {orgId && (
+                            <OrganizationUserTypeList
+                                orgId={orgId}
+                                onSelect={onSelect}
+                            />
+                        )}
+                    </Suspense>
+                </div>
+            </div>
+        </Modal>
+    );
+});
 
 export function OrgsTable() {
+    const modalRef = useRef<ModalRef>(null);
     const orgs: OrgSettingsResource[] = useResource(
         OrgSettingsResource.list(),
         {},
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
-    const { activeMembership, setActiveMembership } = useSessionContext();
+    const { activeMembership, impersonate } = useSessionContext();
     const currentOrg = activeMembership?.parsedName;
+    const [modalOrgId, setModalOrgId] = useState<undefined | string>();
 
-    const handleSelectOrgClick = (orgName: string) => {
-        const { service, memberType } = activeMembership || {};
-
-        let payload: Partial<MembershipSettings> = {
-            parsedName: orgName,
-        };
-        if (
-            memberType === MemberType.SENDER ||
-            memberType === MemberType.PRIME_ADMIN
-        ) {
-            payload.service = service || "default";
-        }
-        setActiveMembership(payload);
+    const handleSelect = (assocation: UserAssociation) => {
+        impersonate(assocation);
     };
 
     const handleEditOrgClick = (orgName: string) => {
@@ -115,16 +195,15 @@ export function OrgsTable() {
                     columnHeader: "",
                     content: (
                         <ButtonGroup type="segmented">
-                            <Button
+                            <ModalToggleButton
                                 key={`${eachOrg.name}_select`}
-                                onClick={() =>
-                                    handleSelectOrgClick(`${eachOrg.name}`)
-                                }
-                                type="button"
+                                opener
                                 className="padding-1 usa-button--outline"
+                                modalRef={modalRef}
+                                onClick={() => setModalOrgId(eachOrg.name)}
                             >
                                 Set
-                            </Button>
+                            </ModalToggleButton>
                             <Button
                                 key={`${eachOrg.name}_edit`}
                                 onClick={() =>
@@ -146,6 +225,11 @@ export function OrgsTable() {
             <Helmet>
                 <title>Admin-Organizations</title>
             </Helmet>
+            <OrganizationUserTypeListModal
+                ref={modalRef}
+                orgId={modalOrgId}
+                onSelect={handleSelect}
+            />
             <section id="orgsettings" className="margin-bottom-5">
                 <h2>Organizations ({orgs.length})</h2>
                 <form autoComplete="off" className="grid-row">

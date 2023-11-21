@@ -1,9 +1,9 @@
 import { screen } from "@testing-library/react";
 
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
-import { PERMISSIONS } from "../../utils/UsefulTypes";
 import { useFeatureFlags } from "../../contexts/FeatureFlags";
 import { render } from "../../utils/Test/render";
+import { MemberType } from "../../utils/OrganizationUtils";
 
 import { RequireGateBase } from "./RequireGate";
 
@@ -41,7 +41,7 @@ describe("RequireGate", () => {
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
                 featureFlags={FeatureFlagName.FOR_TEST}
-                auth={PERMISSIONS.PRIME_ADMIN}
+                auth={MemberType.PRIME_ADMIN}
             >
                 <TestElementWithProp test={"Success!"} />
             </RequireGateBase>,
@@ -68,7 +68,7 @@ describe("RequireGate", () => {
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
-                auth={PERMISSIONS.RECEIVER}
+                auth={MemberType.RECEIVER}
             >
                 <TestElement />
             </RequireGateBase>,
@@ -89,7 +89,7 @@ describe("RequireGate", () => {
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
-                auth={PERMISSIONS.RECEIVER}
+                auth={MemberType.RECEIVER}
             >
                 <TestElement />
             </RequireGateBase>,
@@ -131,7 +131,7 @@ describe("RequireGate", () => {
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
-                auth={[PERMISSIONS.SENDER, PERMISSIONS.RECEIVER]}
+                auth={[MemberType.SENDER, MemberType.RECEIVER]}
             >
                 <TestElement />
             </RequireGateBase>,
@@ -157,7 +157,7 @@ describe("RequireGate", () => {
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
-                auth={[PERMISSIONS.SENDER, PERMISSIONS.RECEIVER]}
+                auth={[MemberType.SENDER, MemberType.RECEIVER]}
             >
                 <TestElement />
             </RequireGateBase>,
@@ -188,7 +188,7 @@ describe("RequireGate", () => {
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
-                auth={PERMISSIONS.PRIME_ADMIN}
+                auth={MemberType.PRIME_ADMIN}
             >
                 <TestElement />
             </RequireGateBase>,

@@ -17,12 +17,12 @@ export function sortAndFilterInactiveServices(
 }
 /** Fetches a list of receiver services for your active organization, and provides a controller to switch
  * between them */
-export const useOrganizationReceiversFeed = () => {
+export const useOrganizationReceiversFeed = (orgName?: string) => {
     const {
         data: receivers,
         isDisabled,
         ...query
-    } = useOrganizationReceivers();
+    } = useOrganizationReceivers(orgName);
     const [active, setActive] = useState<RSReceiver | undefined>();
     const [data, setData] = useState<RSReceiver[]>();
 

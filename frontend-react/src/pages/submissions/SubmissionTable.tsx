@@ -15,7 +15,6 @@ import { PaginationProps } from "../../components/Table/Pagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/Session";
 import { FeatureName } from "../../utils/FeatureName";
-import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
 import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
 
@@ -100,8 +99,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
 };
 
 function SubmissionTable() {
-    const { activeMembership } = useSessionContext();
-    const isAdmin = activeMembership?.parsedName === Organizations.PRIMEADMINS;
+    const { user } = useSessionContext();
 
     const filterManager = useFilterManager(filterManagerDefaults);
     const pageSize = filterManager.pageSettings.size;
@@ -113,13 +111,13 @@ function SubmissionTable() {
     const fetchResults = useCallback(
         async (currentCursor: string, numResults: number) => {
             // HACK: return empty results if requesting as an admin
-            if (isAdmin) {
+            if (user.isAdmin) {
                 return await Promise.resolve<SubmissionsResource[]>([]);
             }
 
             try {
                 return (await controllerFetch(SubmissionsResource.list(), {
-                    organization: activeMembership?.parsedName,
+                    organization: user.organization,
                     cursor: currentCursor,
                     since: rangeFrom,
                     until: rangeTo,
@@ -132,12 +130,12 @@ function SubmissionTable() {
             }
         },
         [
-            activeMembership?.parsedName,
-            sortOrder,
+            user.isAdmin,
+            user.organization,
             controllerFetch,
             rangeFrom,
             rangeTo,
-            isAdmin,
+            sortOrder,
         ],
     );
 
@@ -170,7 +168,7 @@ function SubmissionTable() {
         analyticsEventName,
     });
 
-    if (isAdmin) {
+    if (user.isAdmin) {
         return (
             <div className="grid-container">
                 <AdminFetchAlert />

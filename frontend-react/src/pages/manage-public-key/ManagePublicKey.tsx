@@ -198,9 +198,10 @@ export function ManagePublicKeyPageBase({
 
 export function ManagePublicKeyPage() {
     const { appInsights } = useAppInsightsContext();
-    const { data: senders, isLoading } = useOrganizationSenders();
-    const { activeMembership: { parsedName } = { parsedName: "" } } =
-        useSessionContext();
+    const { user } = useSessionContext();
+    const { data: senders, isLoading } = useOrganizationSenders(
+        user.organization,
+    );
     const { data: { keys } = {} } = useOrganizationPublicKeys();
     const {
         mutateAsync: submitKey,
@@ -247,7 +248,7 @@ export function ManagePublicKeyPage() {
     return (
         <ManagePublicKeyPageBase
             onSubmitPublicKey={submitPublicKeyHandler}
-            organization={parsedName}
+            organization={user.organization!!}
             keySets={keys}
             isLoading={isLoading}
             isSubmitting={isSubmitting}

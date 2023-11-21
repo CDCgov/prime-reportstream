@@ -11,7 +11,7 @@ import styles from "./DataDashboard.module.scss";
 
 function DataDashboardPage() {
     const { data: orgDetails } = useOrganizationSettings();
-    const { description } = orgDetails || {};
+    const { description } = orgDetails ?? {};
     return (
         <div className={styles.DataDashboard}>
             <div className="bg-primary-darker text-white">

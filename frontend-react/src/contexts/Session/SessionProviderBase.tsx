@@ -1,6 +1,7 @@
 import { useOktaAuth } from "@okta/okta-react";
 import { useRef, useState, useMemo, useCallback, useEffect } from "react";
 import type { AuthState } from "@okta/okta-auth-js";
+import { useNavigate } from "react-router";
 
 import { AppConfig } from "../../config";
 import { updateApiSessions } from "../../network/Apis";
@@ -8,9 +9,9 @@ import {
     MembershipSettings,
     membershipsFromToken,
     RSUserClaims,
-    MemberType,
+    RSUser,
+    UserAssociation,
 } from "../../utils/OrganizationUtils";
-import { getUserPermissions } from "../../utils/PermissionsUtils";
 import { RSConsole } from "../../utils/console";
 import { useAppInsightsContext } from "../AppInsights";
 import site from "../../content/site.json";
@@ -31,6 +32,7 @@ export default function SessionProviderBase({
     authState,
     config,
 }: SessionProviderBaseProps) {
+    const navigate = useNavigate();
     const { appInsights } = useAppInsightsContext();
     const initActiveMembership = useRef(
         JSON.parse(
@@ -77,21 +79,35 @@ export default function SessionProviderBase({
         }
     }, [oktaAuth, rsconsole]);
 
+    const user = useMemo(
+        () =>
+            new RSUser({
+                claims: authState.idToken?.claims as RSUserClaims | undefined,
+            }),
+        [authState.idToken?.claims],
+    );
+
+    const [impersonatedUser, setImpersonatedUser] = useState<
+        RSUser | undefined
+    >();
+    const impersonate = useCallback(
+        (value: UserAssociation | UserAssociation[]) => {
+            setImpersonatedUser(new RSUser({ impersonation: value }));
+            navigate("/");
+        },
+        [navigate],
+    );
+
     const context = useMemo(() => {
         return {
             oktaAuth,
             authState,
             activeMembership,
-            user: {
-                claims: authState.idToken?.claims,
-                ...getUserPermissions(
-                    authState?.accessToken?.claims as RSUserClaims,
-                ),
-                /* This logic is a for when admins have other orgs present on their Okta claims
-                 * that interfere with the activeMembership.memberType "soft" check */
-                isAdminStrictCheck:
-                    activeMembership?.memberType === MemberType.PRIME_ADMIN,
-            },
+            _user: user,
+            impersonatedUser,
+            user: impersonatedUser ?? user,
+            impersonate,
+            clearImpersonation: () => setImpersonatedUser(undefined),
             logout,
             _activeMembership,
             setActiveMembership,
@@ -103,6 +119,9 @@ export default function SessionProviderBase({
         oktaAuth,
         authState,
         activeMembership,
+        user,
+        impersonatedUser,
+        impersonate,
         logout,
         _activeMembership,
         config,

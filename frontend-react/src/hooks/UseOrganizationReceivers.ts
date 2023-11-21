@@ -9,28 +9,30 @@ import { Organizations } from "./UseAdminSafeOrganizationName";
 
 const { receivers } = servicesEndpoints;
 
-export const useOrganizationReceivers = () => {
+export const useOrganizationReceivers = (orgName?: string) => {
     const { activeMembership } = useSessionContext();
     const parsedName = activeMembership?.parsedName;
+    const isAdmin =
+        Boolean(parsedName) && parsedName === Organizations.PRIMEADMINS;
+    const isEnabled = !!orgName || (!isAdmin && !!parsedName);
 
     const authorizedFetch = useAuthorizedFetch<RSReceiver[]>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(receivers, {
                 segments: {
-                    orgName: parsedName!!,
+                    orgName: orgName ?? parsedName!!,
                 },
             }),
-        [parsedName, authorizedFetch],
+        [authorizedFetch, orgName, parsedName],
     );
-    const isAdmin =
-        Boolean(parsedName) && parsedName === Organizations.PRIMEADMINS;
+
     return {
         ...useQuery({
-            queryKey: [receivers.queryKey, activeMembership],
+            queryKey: [receivers.queryKey, orgName ?? activeMembership],
             queryFn: memoizedDataFetch,
-            enabled: !isAdmin && !!parsedName,
+            enabled: isEnabled,
         }),
-        isDisabled: isAdmin,
+        isDisabled: !isEnabled,
     };
 };

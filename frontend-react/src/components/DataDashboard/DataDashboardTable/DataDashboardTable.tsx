@@ -25,6 +25,7 @@ import {
 } from "../../../contexts/AppInsights";
 import { RSReceiverDeliveryResponse } from "../../../config/endpoints/dataDashboard";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
+import { useSessionContext } from "../../../contexts/Session";
 
 export interface DashboardFilterAndTableProps {
     receiverServices: RSReceiver[];
@@ -157,6 +158,7 @@ function DashboardFilterAndTable({
 }
 
 export default function DataDashboardTable() {
+    const { user } = useSessionContext();
     const featureEvent = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_FILTER}`;
     const { appInsights } = useAppInsightsContext();
     const {
@@ -165,7 +167,7 @@ export default function DataDashboardTable() {
         data: services,
         activeService,
         setActiveService,
-    } = useOrganizationReceiversFeed();
+    } = useOrganizationReceiversFeed(user.organization);
     const {
         data: results,
         filterManager,

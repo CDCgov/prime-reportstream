@@ -12,7 +12,7 @@ const { publicKeys } = servicesEndpoints;
 
 export type UseOrganizationPublicKeysResult = UseQueryResult<RSApiKeysResponse>;
 
-export default function useOrganizationPublicKeys() {
+export default function useOrganizationPublicKeys(orgName?: string) {
     const authorizedFetch = useAuthorizedFetch<RSApiKeysResponse>();
 
     const { activeMembership } = useSessionContext();
@@ -20,14 +20,16 @@ export default function useOrganizationPublicKeys() {
         () =>
             authorizedFetch(publicKeys, {
                 segments: {
-                    orgName: activeMembership?.parsedName!!,
+                    orgName: orgName ?? activeMembership?.parsedName!!,
                 },
             }),
-        [activeMembership?.parsedName, authorizedFetch],
+        [activeMembership?.parsedName, authorizedFetch, orgName],
     );
     return useQuery({
-        queryKey: [publicKeys.queryKey, activeMembership],
+        queryKey: [publicKeys.queryKey, orgName ?? activeMembership],
         queryFn: memoizedDataFetch,
-        enabled: !!activeMembership?.parsedName && !!activeMembership.service,
+        enabled:
+            !!orgName ||
+            (!!activeMembership?.parsedName && !!activeMembership.service),
     });
 }

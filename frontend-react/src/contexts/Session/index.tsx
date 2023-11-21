@@ -1,13 +1,12 @@
 import React, { createContext, useContext } from "react";
-import OktaAuth, {
-    CustomUserClaims,
-    UserClaims,
-    AuthState,
-} from "@okta/okta-auth-js";
+import OktaAuth, { AuthState } from "@okta/okta-auth-js";
 import { Security } from "@okta/okta-react";
 
-import { RSUserPermissions } from "../../utils/PermissionsUtils";
-import { MembershipSettings } from "../../utils/OrganizationUtils";
+import {
+    MembershipSettings,
+    RSUser,
+    UserAssociation,
+} from "../../utils/OrganizationUtils";
 import type { AppConfig } from "../../config";
 import site from "../../content/site.json";
 import { RSConsole } from "../../utils/console";
@@ -19,11 +18,9 @@ export interface SessionCtx {
     authState: AuthState;
     activeMembership?: MembershipSettings;
     _activeMembership?: MembershipSettings;
-    user: {
-        claims?: UserClaims<CustomUserClaims>;
-        isAdminStrictCheck: boolean;
-        isUserTransceiver: boolean;
-    } & RSUserPermissions;
+    user: RSUser;
+    impersonate: (value: UserAssociation | UserAssociation[]) => void;
+    clearImpersonation: () => void;
     logout: () => void;
     setActiveMembership: (value: Partial<MembershipSettings> | null) => void;
     config: AppConfig;

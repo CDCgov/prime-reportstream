@@ -35,7 +35,7 @@ export function isOrganizationsMissingTransport(orgName: string): boolean {
     return ReceiverOrganizationsMissingTransport.indexOf(orgName) > -1;
 }
 
-export const useOrganizationSettings = () => {
+export const useOrganizationSettings = (orgName?: string) => {
     const { activeMembership } = useSessionContext();
     const parsedName = activeMembership?.parsedName;
 
@@ -44,16 +44,17 @@ export const useOrganizationSettings = () => {
         () =>
             authorizedFetch(settings, {
                 segments: {
-                    orgName: parsedName!!,
+                    orgName: orgName ?? parsedName!!,
                 },
             }),
-        [parsedName, authorizedFetch],
+        [authorizedFetch, orgName, parsedName],
     );
     return useQuery({
-        queryKey: [settings.queryKey, activeMembership],
+        queryKey: [settings.queryKey, orgName ?? activeMembership],
         queryFn: memoizedDataFetch,
         enabled:
-            Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS,
+            !!orgName ||
+            (Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS),
     });
 };
 

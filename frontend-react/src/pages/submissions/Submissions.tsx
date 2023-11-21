@@ -5,11 +5,13 @@ import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
 import { FeatureName } from "../../utils/FeatureName";
+import { useSessionContext } from "../../contexts/Session";
 
 import SubmissionTable from "./SubmissionTable";
 
 function SubmissionHistoryPage() {
-    const { data: orgDetails } = useOrganizationSettings();
+    const { user } = useSessionContext();
+    const { data: orgDetails } = useOrganizationSettings(user.organization);
     const { description } = orgDetails ?? {};
 
     return (

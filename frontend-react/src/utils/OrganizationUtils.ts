@@ -75,6 +75,7 @@ export enum MemberType {
     RECEIVER = "receiver",
     PRIME_ADMIN = "prime-admin",
     NON_STAND = "non-standard",
+    ORG_ADMIN = "org-admin",
 }
 
 export interface MembershipSettings {
@@ -141,3 +142,143 @@ export const membershipsFromToken = (
         rsClaims.organization[0];
     return getSettingsFromOrganization(orgClaim);
 };
+
+/**
+ * TODO: Revamp users in okta.
+ * - Move group name array from `organization` to `groups` in claims
+ * - Record user's display-friendly organization name in their profiles
+ * - Research and determine best way (if any) to represent an Okta user
+ *   that can have multiple associations spanning multiple organizations
+ */
+export function parseAssociations(claims: RSUserClaims) {
+    if (!claims.organization) throw new Error("No organization claim found");
+
+    // organization claim is actually array of group names
+    return claims.organization.map((groupName) => {
+        const type = getTypeOfGroup(groupName),
+            organizationId =
+                type === MemberType.PRIME_ADMIN
+                    ? "reportstream"
+                    : parseOrgName(groupName),
+            name = extractSenderName(groupName);
+
+        return {
+            organizationId,
+            type,
+            name,
+        };
+    });
+}
+
+export interface UserAssociation {
+    organizationId: string;
+    type: MemberType;
+    name?: string;
+}
+
+export type UserOrgAssociationQuery = Pick<UserAssociation, "organizationId"> &
+    Partial<Omit<UserAssociation, "organizationId">>;
+
+export class RSUser {
+    associations: UserAssociation[];
+    isImpersonated: boolean;
+    isAnonymous: boolean;
+
+    organization?: string;
+    email?: string;
+    username?: string;
+    familyName?: string;
+    givenName?: string;
+
+    constructor({
+        claims,
+        impersonation: _impersonation,
+    }: {
+        claims?: RSUserClaims;
+        impersonation?: UserAssociation | UserAssociation[];
+    }) {
+        const impersonation = Array.isArray(_impersonation)
+            ? _impersonation
+            : _impersonation
+            ? [_impersonation]
+            : undefined;
+
+        this.associations = claims
+            ? parseAssociations(claims)
+            : impersonation ?? [];
+        this.isAnonymous = !impersonation && !claims;
+        this.isImpersonated = !!impersonation;
+
+        this.organization =
+            impersonation?.[0].organizationId ??
+            this.associations?.[0]?.organizationId;
+        this.email = claims?.email;
+        this.username =
+            impersonation?.[0].name ??
+            claims?.preferred_username ??
+            claims?.email;
+        this.familyName = claims?.family_name;
+        this.givenName = claims?.given_name;
+    }
+
+    getOrgAssociations({
+        organizationId,
+        type,
+        name,
+    }: UserOrgAssociationQuery) {
+        return this.associations.filter(
+            (a) =>
+                a.organizationId === organizationId &&
+                (!type || a.type === type) &&
+                (!name || a.name === name),
+        );
+    }
+
+    hasOrgAssociation(query: UserOrgAssociationQuery) {
+        return this.getOrgAssociations(query).length > 0;
+    }
+
+    hasAssocationType(type: MemberType) {
+        return this.associations.some((a) => a.type === type);
+    }
+
+    get isAdmin() {
+        return this.associations.some((a) => a.type === MemberType.PRIME_ADMIN);
+    }
+
+    get isSender() {
+        return this.associations.some((a) => a.type === MemberType.SENDER);
+    }
+
+    get isReceiver() {
+        return this.associations.some((a) => a.type === MemberType.RECEIVER);
+    }
+
+    get isTransceiver() {
+        return this.isSender && this.isReceiver;
+    }
+
+    isOrgAdmin(orgId: string) {
+        return this.associations.some(
+            (a) =>
+                a.type === MemberType.ORG_ADMIN && a.organizationId === orgId,
+        );
+    }
+
+    // Deprecated
+    get isUserAdmin() {
+        return this.isAdmin;
+    }
+    get isAdminStrictCheck() {
+        return this.isAdmin;
+    }
+    get isUserSender() {
+        return this.isSender;
+    }
+    get isUserReceiver() {
+        return this.isReceiver;
+    }
+    get isUserTransceiver() {
+        return this.isTransceiver;
+    }
+}

@@ -343,7 +343,7 @@ export const ReportStreamHeader = ({
     children,
     isNavHidden,
 }: ReportStreamHeaderProps) => {
-    const { config, user, activeMembership, logout } = useSessionContext();
+    const { config, user, logout, clearImpersonation } = useSessionContext();
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
     const toggleMobileNav = useCallback(
         () => setIsMobileNavOpen((v) => !v),
@@ -386,18 +386,30 @@ export const ReportStreamHeader = ({
                                 containerRef={navContainerRef}
                             >
                                 <div className="nav-cta-container">
-                                    {user.claims ? (
+                                    {!user.isAnonymous ? (
                                         <>
                                             <span className={styles.UserEmail}>
-                                                {user.claims.email ?? "Unknown"}
+                                                {user.username ?? "Unknown"}
                                             </span>
-                                            {user.isUserAdmin && (
+                                            {(user.isImpersonated ||
+                                                user.isAdmin) &&
+                                            user.isImpersonated ? (
+                                                <Button
+                                                    type="button"
+                                                    onClick={clearImpersonation}
+                                                >
+                                                    {user.organization}
+                                                    <Icon
+                                                        name="Close"
+                                                        className="text-tbottom"
+                                                    />
+                                                </Button>
+                                            ) : (
                                                 <USLinkButton
                                                     outline
                                                     href="/admin/settings"
                                                 >
-                                                    {activeMembership?.parsedName ??
-                                                        " "}
+                                                    {user.organization}
                                                     <Icon
                                                         name="Loop"
                                                         className="text-tbottom"

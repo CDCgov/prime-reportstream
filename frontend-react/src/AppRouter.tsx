@@ -5,7 +5,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
 import { RequireGate } from "./shared/RequireGate/RequireGate";
-import { PERMISSIONS } from "./utils/UsefulTypes";
+import { MemberType } from "./utils/OrganizationUtils";
 
 /* Content Pages */
 const Home = React.lazy(
@@ -536,7 +536,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "admin",
                 element: (
-                    <RequireGate auth={PERMISSIONS.PRIME_ADMIN}>
+                    <RequireGate auth={MemberType.PRIME_ADMIN}>
                         <Outlet />
                     </RequireGate>
                 ),
