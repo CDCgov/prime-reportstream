@@ -49,6 +49,7 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.NoSuchFileException
 import java.time.Instant
+import kotlin.collections.plus
 
 /**
  * Utilities to submit and get data from the Lookup Tables API.
@@ -710,11 +711,10 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
     private val apiKey by option("-k", "--api-key", help = "The authentication key used for the NMLS VSAC")
         .required()
 
-    // TODO: implement
     /**
      * OID of valueset to update.
      */
-    private val oids by option("-i", "--oid", help = "Specify OIDs (comma delimited) to update (all by default)")
+    private val oids by option("-i", "--oids", help = "Specify OIDs (comma delimited) to update (default: all OIDs)")
 
     /**
      * Activate a created table in one shot.
@@ -792,7 +792,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                     outputData.add(it + conditionData)
                 }
             }
-            return outputData + inputData.getOrDefault(OBX_MAPPING_NO_OID_KEY, emptyList())
+            return outputData + inputData.filterKeys { it !in updateData.keys }.values.flatten() // add static values
         }
     }
 
@@ -842,7 +842,10 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
         }
 
         // Fetch the updated data
-        val updateData = fetchLatestTestData(tableMap.keys.filter { it != OBX_MAPPING_NO_OID_KEY }, client)
+        val updateData = fetchLatestTestData(
+            oids?.split(',') ?: tableMap.keys.filter { it != OBX_MAPPING_NO_OID_KEY }, // use oid list if provided
+            client
+        )
 
         // Update the data
         val outputData = syncMappings(tableMap, updateData)

@@ -229,6 +229,7 @@ class LookupTableCommandsTest {
         assertThat(output).isEqualTo(expectedOutput)
     }
 
+    // TODO: split up test cases
     @Test
     fun `sync observation mapping table with update data`() {
         val conditionData = mapOf(
@@ -261,6 +262,7 @@ class LookupTableCommandsTest {
                     "Status" to "Active",
                 ) + conditionData
             ),
+            "Some Random OID" to noOIDData,
             "NO_OID" to noOIDData
         )
         val updateData = mapOf(
@@ -287,10 +289,12 @@ class LookupTableCommandsTest {
         )
 
         val output = LookupTableUpdateMappingCommand.syncMappings(tableData, updateData)
-        val expectedOutput = updateData.flatMap { it.value.map { condition -> condition + conditionData } } + noOIDData
+        val expectedOutput = updateData.flatMap { it.value.map { condition -> condition + conditionData } } +
+            noOIDData + noOIDData // verify entries missing from updateData were not dropped
         assertThat(output).isEqualTo(expectedOutput)
     }
 
+    // TODO: split up test cases
     @Test
     fun `fetch observation mapping update data`() {
         val responseMap = mapOf(
