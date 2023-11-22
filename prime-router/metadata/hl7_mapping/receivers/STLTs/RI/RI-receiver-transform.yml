@@ -62,3 +62,7 @@ elements:
     resource: 'Bundle'
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION*/OBR-16-1' ]
+
+  - name: observation-result-with-aoe
+    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
+    resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not()) | %service.supportingInfo.resolve().where(meta.tag.code = "AOE")'
