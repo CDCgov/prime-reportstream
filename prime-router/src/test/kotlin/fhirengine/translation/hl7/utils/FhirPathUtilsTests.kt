@@ -1,17 +1,16 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.all
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasClass
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
@@ -45,8 +44,8 @@ class FhirPathUtilsTests {
         assertThat(FhirPathUtils.parsePath("%resource.contact.relationship.first().coding.exists()")).isNotNull()
 
         // Bad ones
-        assertThat { FhirPathUtils.parsePath("Bundle.entry.resource.BADMETHOD(MessageHeader)") }.isFailure()
-        assertThat { FhirPathUtils.parsePath("Bundle...entry.resource.ofType(MessageHeader)") }.isFailure()
+        assertFailure { FhirPathUtils.parsePath("Bundle.entry.resource.BADMETHOD(MessageHeader)") }
+        assertFailure { FhirPathUtils.parsePath("Bundle...entry.resource.ofType(MessageHeader)") }
 
         // Null
         assertThat(FhirPathUtils.parsePath(null)).isNull()
@@ -98,7 +97,7 @@ class FhirPathUtilsTests {
 
         // Bad extension names throw an out of bound exception (a bug in the library)
         path = "Bundle.extension('blah').value"
-        assertThat { FhirPathUtils.evaluate(null, bundle, bundle, path) }.isSuccess()
+        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path))
         assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
 
         // Empty string
@@ -134,20 +133,20 @@ class FhirPathUtilsTests {
         var path = "Bundle.timestamp"
         var result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
-        assertThat { terser.set("MSH-7", result) }.isSuccess()
+        assertThat(terser.set("MSH-7", result))
 
         // Test DateTimeType
         path = "Bundle.entry.resource.effective"
         result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
-        assertThat { terser.set("MSH-7", result) }.isSuccess()
+        assertThat(terser.set("MSH-7", result))
 
         // Test InstanceType (which boils down to a DateTimeType)
         observation.effective = InstantType("2015-04-11T12:22:01-04:00")
         path = "Bundle.entry.resource.effective"
         result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
-        assertThat { terser.set("MSH-7", result) }.isSuccess()
+        assertThat(terser.set("MSH-7", result))
 
         val ext = Extension()
         ext.url = "http://example.com/extensions#someext"
@@ -157,7 +156,7 @@ class FhirPathUtilsTests {
         path = "Bundle.entry.resource.extension.value"
         result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
-        assertThat { terser.set("MSH-7", result) }.isSuccess()
+        assertThat(terser.set("MSH-7", result))
 
         // Test TimeType
         ext.setValue(TimeType("13:04:05.098"))
@@ -165,14 +164,14 @@ class FhirPathUtilsTests {
         result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         // OBX-2 is one of the few HL7 fields that accepts a TM
-        assertThat { terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", result) }.isSuccess()
+        assertThat(terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", result))
 
         // Test regular string
         bundle.id = "super special id"
         path = "Bundle.id"
         result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
-        assertThat { terser.set("MSH-10", result) }.isSuccess()
+        assertThat(terser.set("MSH-10", result))
 
         // Empty string
         assertThat(FhirPathUtils.evaluateString(appContext, bundle, bundle, "")).isEmpty()
@@ -202,13 +201,13 @@ class FhirPathUtilsTests {
 
         // verify it throws exception for bad syntax
         expression = "Bundle.#*($&id.exists()"
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, expression) }.isFailure().all {
+        assertFailure { FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, expression) }.all {
             hasClass(SchemaException::class.java)
         }
 
         // verify it throws exception for non-boolean expression
         expression = "Bundle.id"
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, expression) }.isFailure().all {
+        assertFailure { FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, expression) }.all {
             hasClass(SchemaException::class.java)
         }
     }

@@ -41,3 +41,9 @@ elements:
     constants:
       hl7NDLField: '%{fieldPath}-35'
     schema: ../resources/PractitionerRole/NDL
+
+  - name: alternate-placer-order-number
+    resource: '%service.identifier.where(extension(%`rsext-hl7-use`).value = "alternate-placer-identifier" )'
+    constants:
+      cxFieldPath: '%{fieldPath}-53'
+    schema: ../datatypes/identifier/CX
