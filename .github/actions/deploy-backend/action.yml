@@ -227,6 +227,12 @@ runs:
           > /dev/null
       shell: bash
 
+    - name: Get function app checksum
+      id: get-checksum
+      uses: ./.github/actions/deploy-checksum
+      with:
+        env: ${{ inputs.env-name }}
+
     - uses: Azure/functions-container-action@0aec6197033a72d3ca813f1aebd9391f639c2a8f
       id: deploy-candidate
       with:
@@ -244,6 +250,17 @@ runs:
           AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
           zdd-promote-slot
       shell: bash
+
+    - name: Validate function app checksum
+      id: validate-checksum
+      uses: ./.github/actions/deploy-checksum
+      with:
+        env: ${{ inputs.env-name }}
+        validate: true
+
+    - name: Fail if invalid function app checksum
+      if: steps.validate-checksum.outputs.valid != 'true'
+      run: exit 1
 
     - name: Remove GitHub action IP whitelist
       if: ${{ always() }} # This should happen even on a failure

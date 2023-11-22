@@ -1,0 +1,40 @@
+# action.yml
+name: Deploy Checksum
+description: Validate pre and post deployment checksums
+inputs:
+  env:
+    description: Environment to validate
+    required: true
+  file:
+    description: File to store checksum value
+    default: deploy-checksum.txt
+  validate:
+    description: Check
+    default: false
+outputs:
+  valid:
+    description: True if checksums match
+    value: ${{ steps.validate_checksum.outputs.valid }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Get checksum
+      if: inputs.validate != 'true'
+      id: get_checksum
+      shell: bash
+      run: |
+        sha=$(az functionapp config appsettings list -g prime-data-hub-${{ inputs.env }} -n pdh${{ inputs.env }}-functionapp | sha256sum)
+        echo $sha > ${{ inputs.file }}
+
+    - name: Validate pre and post checksums
+      if: inputs.validate == 'true'
+      id: validate_checksum
+      shell: bash
+      run: |
+        az functionapp config appsettings list -g prime-data-hub-${{ inputs.env }} -n pdh${{ inputs.env }}-functionapp \
+        | sha256sum -c ${{ inputs.file }} --status
+        exitcode=$?
+        [ $exitcode -eq 0 ] && codevalid=true || codevalid=false
+        echo "valid=$codevalid" >> $GITHUB_OUTPUT
