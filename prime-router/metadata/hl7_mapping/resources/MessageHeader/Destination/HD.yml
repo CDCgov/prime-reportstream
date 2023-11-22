@@ -1,5 +1,4 @@
 elements:
-
   - name: msh-destination-namespace-id
     value: [ '%resource.name' ]
     hl7Spec: [ '%{hl7HDField}-1' ]
