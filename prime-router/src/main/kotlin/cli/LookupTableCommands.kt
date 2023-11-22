@@ -714,7 +714,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
     /**
      * OID of valueset to update.
      */
-    private val oids by option("-i", "--oids", help = "Specify OIDs (comma delimited) to update (default: all OIDs)")
+    private val oids by option("-d", "--oids", help = "Specify OIDs (comma delimited) to update (default: all OIDs)")
 
     /**
      * Activate a created table in one shot.
