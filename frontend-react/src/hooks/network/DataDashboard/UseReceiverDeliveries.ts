@@ -96,7 +96,7 @@ export default function useReceiverDeliveries(serviceName?: string) {
             filterManager,
         ],
         queryFn: memoizedDataFetch,
-        enabled: !!activeMembership?.parsedName && !!activeMembership.service,
+        enabled: !!activeMembership?.parsedName,
     });
 
     return { data, filterManager, isLoading };
