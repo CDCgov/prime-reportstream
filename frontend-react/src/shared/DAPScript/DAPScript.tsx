@@ -1,9 +1,9 @@
 import { Helmet } from "react-helmet-async";
+import React from "react";
 
 import { appRoutes } from "../../AppRouter";
 
 export interface DAPScriptProps {
-    env?: string;
     pathname?: string;
 }
 
@@ -18,22 +18,15 @@ const isAuthenticatedPath = (pathname: string) => {
         return route.path?.includes(basePath);
     });
 
-    return !!(matchedRoute?.element as React.ReactElement).props?.auth;
+    if (!matchedRoute || !React.isValidElement(matchedRoute.element)) {
+        return false;
+    }
+
+    return !!matchedRoute.element.props?.auth;
 };
 
-export const DAPScript = ({
-    env = "development",
-    pathname,
-}: DAPScriptProps) => {
-    /*
-        NOTE: we originally allowed all known public-facing pages at this point,
-        i.e. login, TOS and all the Getting Started and How it Works pages
-        but then found that these would not be triggered due this site being SPA (vs. static)
-        i.e. only on true page loads- visiting the site initially or manually refreshing a page
-        For now, we'll only track visits to the main homepage, and allow App Insights to track
-        more detailed analytics.
-     */
-    if (env !== "production" || (pathname && isAuthenticatedPath(pathname))) {
+export const DAPScript = ({ pathname }: DAPScriptProps) => {
+    if (pathname && isAuthenticatedPath(pathname)) {
         return null;
     }
 

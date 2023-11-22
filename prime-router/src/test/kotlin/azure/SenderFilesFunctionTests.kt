@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.azure
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
@@ -140,16 +140,12 @@ class SenderFilesFunctionTests {
 
         // Bad value
         val mockRequestWithBadReportId = buildRequest(mapOf("report-id" to "1234"))
-        assertThat {
-            senderFileFunctions.checkParameters(mockRequestWithBadReportId)
-        }.isFailure()
+        assertFailure { senderFileFunctions.checkParameters(mockRequestWithBadReportId) }
         verify(atLeast = 1) { mockRequestWithBadReportId.queryParameters }
 
         // Missing value
         val mockRequestMissing = buildRequest(emptyMap())
-        assertThat {
-            senderFileFunctions.checkParameters(mockRequestMissing)
-        }.isFailure()
+        assertFailure { senderFileFunctions.checkParameters(mockRequestMissing) }
         verify(atLeast = 1) { mockRequestMissing.queryParameters }
 
         // MessageID
@@ -172,9 +168,7 @@ class SenderFilesFunctionTests {
         val mockRequestWithMessageIdNoReportID = buildRequest(mapOf("message-id" to "1234"))
         val senderFileFunctionNoReport = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
         every { mockDbAccess.fetchSingleMetadata(any(), any()) } returns buildCovidResultMetadata(null)
-        assertThat {
-            senderFileFunctionNoReport.checkParameters(mockRequestWithMessageIdNoReportID)
-        }.isFailure()
+        assertFailure { senderFileFunctionNoReport.checkParameters(mockRequestWithMessageIdNoReportID) }
         verify(atLeast = 1) { mockRequestWithBadReportId.queryParameters }
     }
 
@@ -220,8 +214,7 @@ class SenderFilesFunctionTests {
         every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
         every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } throws IOException("File not found")
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
-        assertThat { senderFileFunctions.processRequest(functionParams) }
-            .isFailure()
+        assertFailure { senderFileFunctions.processRequest(functionParams) }
             .isInstanceOf(FileNotFoundException::class.java)
     }
 
@@ -264,8 +257,7 @@ class SenderFilesFunctionTests {
         every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
         every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } throws IOException("File not found")
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
-        assertThat { senderFileFunctions.processRequest(functionParams) }
-            .isFailure()
+        assertFailure { senderFileFunctions.processRequest(functionParams) }
             .isInstanceOf(FileNotFoundException::class.java)
     }
 }
