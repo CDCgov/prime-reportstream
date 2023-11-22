@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.cli
 
+import ca.uhn.fhir.context.FhirContext
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
@@ -32,8 +33,17 @@ import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
+import io.ktor.client.plugins.auth.providers.basic
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
 import org.apache.http.HttpStatus
+import org.hl7.fhir.r4.model.ValueSet
 import org.jooq.JSONB
 import java.io.File
 import java.io.IOException
@@ -534,8 +544,8 @@ class ObservationMappingConstants {
         const val TEST_NAME_KEY = "Name"
         const val TEST_DESCRIPTOR_KEY = "Descriptor"
         const val TEST_VERSION_KEY = "Version"
+        const val TEST_STATUS_KEY = "Status"
 
-        const val CONDITION_STATUS_KEY = "Status"
         const val CONDITION_NAME_KEY = "condition_name"
         const val CONDITION_CODE_KEY = "condition_code"
         const val CONDITION_CODE_SYSTEM_KEY = "Condition Code System"
@@ -543,14 +553,23 @@ class ObservationMappingConstants {
         const val CONDITION_VALUE_SOURCE_KEY = "Value Source"
         const val CONDITION_CREATED_AT = "Created At"
 
+        const val TEST_CODESYSTEM_LOINC = "LOINC"
+        const val TEST_CODESYSTEM_SNOMEDCT = "SNOMEDCT"
+        const val VSAC_CODESYSTEM_LOINC = "http://loinc.org"
+        const val VSAC_CODESYSTEM_SNOMEDCT = "http://snomed.info/sct"
+
         val TEST_KEYS = listOf(
             TEST_CODE_KEY, TEST_CODESYSTEM_KEY, TEST_OID_KEY, TEST_NAME_KEY,
-            TEST_DESCRIPTOR_KEY, TEST_VERSION_KEY
+            TEST_DESCRIPTOR_KEY, TEST_VERSION_KEY, TEST_STATUS_KEY
         )
         val CONDITION_KEYS = listOf(
-            CONDITION_STATUS_KEY, CONDITION_NAME_KEY, CONDITION_CODE_KEY,
-            CONDITION_CODE_SYSTEM_KEY, CONDITION_CODE_SYSTEM_VERSION_KEY,
-            CONDITION_VALUE_SOURCE_KEY, CONDITION_CREATED_AT
+            CONDITION_NAME_KEY, CONDITION_CODE_KEY, CONDITION_CODE_SYSTEM_KEY,
+            CONDITION_CODE_SYSTEM_VERSION_KEY, CONDITION_VALUE_SOURCE_KEY, CONDITION_CREATED_AT
+        )
+
+        val TEST_CODESYSTEM_MAP = mapOf(
+            VSAC_CODESYSTEM_SNOMEDCT to TEST_CODESYSTEM_SNOMEDCT,
+            VSAC_CODESYSTEM_LOINC to TEST_CODESYSTEM_LOINC
         )
 
         val ALL_KEYS = TEST_KEYS + CONDITION_KEYS
@@ -558,7 +577,7 @@ class ObservationMappingConstants {
 }
 
 /**
- * Print out a lookup table.
+ * Compare a sender compendium with an observation mapping lookup table.
  */
 class LookupTableCompareMappingCommand : GenericLookupTableCommand(
     name = "compare-mapping",
@@ -584,7 +603,7 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
 
     /**
      * Table version option.
-    */
+     */
     private val tableVersion by option("-v", "--version", help = "The version of the table to get").int()
 
     companion object {
@@ -601,7 +620,7 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
             val outputData = inputData.map {
                 if (tableMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(
                         ObservationMappingConstants.TEST_CODESYSTEM_KEY
-                ) == it.getValue(SENDER_COMPENDIUM_CODESYSTEM_KEY)
+                    ) == it.getValue(SENDER_COMPENDIUM_CODESYSTEM_KEY)
                 ) {
                     it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_TRUE)
                 } else {
@@ -667,28 +686,35 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
 }
 
 /**
- * Print out a lookup table.
+ * Update an observation mapping table using the NLMS Value Authority.
  */
 class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
     name = "update-mapping",
     help = "Compares a sender compendium against an observation mapping lookup table, outputting an annotated CSV"
 ) {
     /**
-     * Optional output file to save the annotated table to.
+     * Optional output file to save the updated table to.
      */
-    private val outputFile by option("-o", "--output-file", help = "Specify file to save annotated table data as CSV")
+    private val outputFile by option("-o", "--output-file", help = "Specify file to save updated table data as CSV")
         .file(false, canBeDir = false)
 
     /**
      * Table name option.
      */
-    private val tableName by option("-n", "--name", help = "The name of the table to perform the comparison on")
+    private val tableName by option("-n", "--name", help = "The name of the table to perform the update on")
         .required()
 
     /**
+     * API key option.
+     */
+    private val apiKey by option("-k", "--api-key", help = "The authentication key used for the NMLS VSAC")
+        .required()
+
+    // TODO: implement
+    /**
      * OID of valueset to update.
      */
-    private val oid by option("-i", "--oid", help = "OID of valueset to update (all valuesets by default)")
+    private val oids by option("-i", "--oid", help = "Specify OIDs (comma delimited) to update (all by default)")
 
     /**
      * Activate a created table in one shot.
@@ -718,12 +744,36 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
         private const val OBX_MAPPING_CSV_PATH = "metadata/tables/local/observation-mapping.csv"
         private const val OBX_MAPPING_NO_OID_KEY = "NO_OID"
 
-        // TODO: change to abstract provider pattern + implement
-        fun fetchLatestTestData(oids: List<String>): Map<String, List<Map<String, String>>> {
-            //            val data : List<Map<String, String>> = listOf(mapOf("foo" to "bar"))
-            //            return data
-            print(oids)
-            return mapOf("buzz" to listOf(mapOf("foo" to "bar")))
+        private suspend fun fetchValueSetForOID(oid: String, client: HttpClient): ValueSet {
+            val response = client.get("https://cts.nlm.nih.gov/fhir/ValueSet/$oid/\$expand")
+            return FhirContext.forR4().newJsonParser().parseResource(ValueSet::class.java, response.bodyAsText())
+        }
+        fun fetchLatestTestData(oids: List<String>, client: HttpClient): Map<String, List<Map<String, String>>> {
+            // for each oid, fetch the ValueSet and create a test map
+            return runBlocking {
+                oids.associateWith { oid ->
+                    async {
+                        fetchValueSetForOID(oid, client).let { valueSet ->
+                            valueSet.expansion.contains.map { test ->
+                                mapOf(
+                                    ObservationMappingConstants.TEST_CODE_KEY to test.code,
+                                    ObservationMappingConstants.TEST_CODESYSTEM_KEY to
+                                        ObservationMappingConstants.TEST_CODESYSTEM_MAP.getOrDefault(
+                                            test.system,
+                                            test.system
+                                        ),
+                                    ObservationMappingConstants.TEST_OID_KEY to valueSet.idElement.idPart,
+                                    ObservationMappingConstants.TEST_NAME_KEY to valueSet.name,
+                                    ObservationMappingConstants.TEST_DESCRIPTOR_KEY to test.display,
+                                    ObservationMappingConstants.TEST_STATUS_KEY to valueSet.status.toString()
+                                        .lowercase().replaceFirstChar(Char::titlecase),
+                                    ObservationMappingConstants.TEST_VERSION_KEY to test.version.split('/').last()
+                                )
+                            }
+                        }
+                    }
+                }.mapValues { it.value.await() } // undefer all values after starting coroutines
+            }
         }
 
         fun syncMappings(
@@ -737,7 +787,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                     it in ObservationMappingConstants.CONDITION_KEYS
                 }
 
-                // for each snomed code in this update
+                // add mapping for each test code in this update
                 update.value.forEach {
                     outputData.add(it + conditionData)
                 }
@@ -747,19 +797,18 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
     }
 
     override fun run() {
-        // Read the input file.
-        val tableData = if (inputFile != null) {
+        val tableData = if (inputFile != null) { // Start with data from a file
             val inputData = csvReader().readAllWithHeader(inputFile!!)
-            if (inputData.isEmpty()) {
+            inputData.ifEmpty {
                 throw PrintMessage("Input file ${inputFile!!.absolutePath} has no data.", true)
             }
-            inputData
-        } else {
+        } else { // Start with data from existing lookup table
             val loadTableVersion: Int = tableVersion ?: tableUtil.findActiveVersion(tableName)
 
-            // Verify the table/version exists
+            // Verify the table/version exists and load it
             try {
                 tableUtil.fetchTableInfo(tableName, loadTableVersion)
+                tableUtil.fetchTableContent(tableName, loadTableVersion)
             } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
                 throw PrintMessage("The table $tableName version $loadTableVersion was not found.", true)
             } catch (e: IOException) {
@@ -767,15 +816,19 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                     "Error fetching table version for $tableName version $loadTableVersion: ${e.message}",
                     true
                 )
-            }
-
-            // Load the active or specified version of the table
-            val tableData = try {
-                tableUtil.fetchTableContent(tableName, loadTableVersion)
             } catch (e: Exception) {
                 throw PrintMessage("Error fetching table content for table $tableName: ${e.message}", true)
             }
-            tableData
+        }
+
+        val client = HttpClient {
+            install(Auth) {
+                basic {
+                    credentials {
+                        BasicAuthCredentials(username = "apikey", password = apiKey)
+                    }
+                }
+            }
         }
 
         // Verify the loaded table contains the appropriate columns
@@ -789,37 +842,64 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
         }
 
         // Fetch the updated data
-        val updateData = fetchLatestTestData(tableMap.keys.filter { it != OBX_MAPPING_NO_OID_KEY })
+        val updateData = fetchLatestTestData(tableMap.keys.filter { it != OBX_MAPPING_NO_OID_KEY }, client)
 
         // Update the data
         val outputData = syncMappings(tableMap, updateData)
 
         // Save an output file
         if (outputFile != null) {
-            saveTableAsCSV(outputFile!!, outputData)
-            echo(
-                "Saved ${outputData.size} rows to ${outputFile!!.absolutePath} "
-            )
+            saveTableAsCSV(outputFile!!.outputStream(), outputData)
+            echo("Saved ${outputData.size} rows to ${outputFile!!.absolutePath}")
         }
 
         // Save updated local csv of table
         if ((
-            !silent && confirm(
-                "Continue to create a new version of observation-mapping.csv with ${outputData.size} rows?"
-            ) == true
-        ) || silent
+                !silent && confirm(
+                    "Continue to create a new version of observation-mapping.csv with ${outputData.size} rows?"
+                ) == true
+                ) || silent
         ) {
             val outputCSV = File(OBX_MAPPING_CSV_PATH)
-            saveTableAsCSV(outputCSV, outputData)
+            saveTableAsCSV(outputCSV.outputStream(), outputData)
             echo("Saved ${outputData.size} rows to ${outputCSV.absolutePath} ")
         }
 
         if ((
-            !silent && confirm("Continue to create a new version of $tableName with ${outputData.size} rows?")
-                == true
-        ) || silent
+                !silent && confirm("Continue to create a new version of $tableName with ${outputData.size} rows?")
+                    == true
+                ) || silent
         ) {
-            tableUtil.createTable(tableName, outputData, true)
+            val newTableInfo = try {
+                tableUtil.createTable(tableName, outputData, true)
+            } catch (e: IOException) {
+                throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
+            } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
+                val dupVersion = e.message?.substringAfterLast("version")
+                echo(
+                    "Skipping creation of duplicate table $tableName since it is duplicated with version$dupVersion."
+                )
+                return
+            }
+
+            // Always have an active version, so if this is the first version then activate it.
+            if (activate || newTableInfo.tableVersion == 1) {
+                try {
+                    tableUtil.activateTable(tableName, newTableInfo.tableVersion)
+                } catch (e: Exception) {
+                    throw PrintMessage(
+                        "\tError activating table $tableName version ${newTableInfo.tableVersion}. " +
+                            "Table was created.  Try to activate it. : ${e.message}",
+                        true
+                    )
+                }
+                echo("\tTable version ${newTableInfo.tableVersion} is now active.")
+            } else {
+                echo(
+                    "\tTable version ${newTableInfo.tableVersion} " +
+                        "left inactive, so don't forget to activate it."
+                )
+            }
         }
     }
 }

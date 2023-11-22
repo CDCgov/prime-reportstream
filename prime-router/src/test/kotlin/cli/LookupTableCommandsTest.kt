@@ -11,6 +11,13 @@ import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteReadChannel
 import io.mockk.every
 import io.mockk.mockk
 import org.apache.http.HttpStatus
@@ -282,5 +289,208 @@ class LookupTableCommandsTest {
         val output = LookupTableUpdateMappingCommand.syncMappings(tableData, updateData)
         val expectedOutput = updateData.flatMap { it.value.map { condition -> condition + conditionData } } + noOIDData
         assertThat(output).isEqualTo(expectedOutput)
+    }
+
+    @Test
+    fun `fetch observation mapping update data`() {
+        val responseMap = mapOf(
+            "https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1146.828/\$expand" to """
+                {
+                  "resourceType": "ValueSet",
+                  "id": "2.16.840.1.113762.1.4.1146.828",
+                  "meta": {
+                    "versionId": "13",
+                    "lastUpdated": "2022-01-18T01:03:06.000-05:00",
+                    "profile": [ "http://hl7.org/fhir/StructureDefinition/shareablevalueset", "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm" ]
+                  },
+                  "extension": [ {
+                    "url": "http://hl7.org/fhir/StructureDefinition/valueset-effectiveDate",
+                    "valueDate": "2022-01-18"
+                  } ],
+                  "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1146.828",
+                  "identifier": [ {
+                    "system": "urn:ietf:rfc:3986",
+                    "value": "urn:oid:2.16.840.1.113762.1.4.1146.828"
+                  } ],
+                  "version": "20220118",
+                  "name": "Poliovirus Infection (Organism or Substance in Lab Results)",
+                  "title": "Poliovirus Infection (Organism or Substance in Lab Results)",
+                  "status": "active",
+                  "date": "2022-01-18T01:03:06-05:00",
+                  "publisher": "CSTE Steward",
+                  "expansion": {
+                    "identifier": "urn:uuid:069f2f2e-b377-4017-99a5-78e14652e031",
+                    "timestamp": "2023-11-22T10:15:22-05:00",
+                    "total": 5,
+                    "offset": 0,
+                    "parameter": [ {
+                      "name": "count",
+                      "valueInteger": 1000
+                    }, {
+                      "name": "offset",
+                      "valueInteger": 0
+                    } ],
+                    "contains": [ {
+                      "system": "http://snomed.info/sct",
+                      "version": "http://snomed.info/sct/731000124108/version/20230901",
+                      "code": "16362001",
+                      "display": "Human poliovirus 3 (organism)"
+                    }, {
+                      "system": "http://snomed.info/sct",
+                      "version": "http://snomed.info/sct/731000124108/version/20230901",
+                      "code": "22580008",
+                      "display": "Human poliovirus 1 (organism)"
+                    }, {
+                      "system": "http://snomed.info/sct",
+                      "version": "http://snomed.info/sct/731000124108/version/20230901",
+                      "code": "44172002",
+                      "display": "Human poliovirus (organism)"
+                    }, {
+                      "system": "http://snomed.info/sct",
+                      "version": "http://snomed.info/sct/731000124108/version/20230901",
+                      "code": "55174004",
+                      "display": "Human poliovirus 2 (organism)"
+                    }, {
+                      "system": "http://snomed.info/sct",
+                      "version": "http://snomed.info/sct/731000124108/version/20230901",
+                      "code": "713616004",
+                      "display": "Antigen of Human poliovirus (substance)"
+                    } ]
+                  }
+                }
+            """.trimIndent(),
+            "https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1146.1112/\$expand" to """
+                {
+                  "resourceType": "ValueSet",
+                  "id": "2.16.840.1.113762.1.4.1146.1112",
+                  "meta": {
+                    "versionId": "5",
+                    "lastUpdated": "2019-12-27T01:00:20.000-05:00",
+                    "profile": [ "http://hl7.org/fhir/StructureDefinition/shareablevalueset", "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm" ]
+                  },
+                  "extension": [ {
+                    "url": "http://hl7.org/fhir/StructureDefinition/valueset-effectiveDate",
+                    "valueDate": "2019-12-27"
+                  } ],
+                  "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1146.1112",
+                  "identifier": [ {
+                    "system": "urn:ietf:rfc:3986",
+                    "value": "urn:oid:2.16.840.1.113762.1.4.1146.1112"
+                  } ],
+                  "version": "20191227",
+                  "name": "Poliovirus infection (Test Panels for Poliovirus Antibody)",
+                  "title": "Poliovirus infection (Test Panels for Poliovirus Antibody)",
+                  "status": "active",
+                  "date": "2019-12-27T01:00:20-05:00",
+                  "publisher": "CSTE Steward",
+                  "expansion": {
+                    "identifier": "urn:uuid:804fcbb8-70e0-488e-9c4e-9eaef5888c75",
+                    "timestamp": "2023-11-22T10:15:22-05:00",
+                    "total": 2,
+                    "offset": 0,
+                    "parameter": [ {
+                      "name": "count",
+                      "valueInteger": 1000
+                    }, {
+                      "name": "offset",
+                      "valueInteger": 0
+                    } ],
+                    "contains": [ {
+                      "system": "http://loinc.org",
+                      "version": "2.76",
+                      "code": "41506-7",
+                      "display": "Polio virus neutralizing Ab panel - Serum by Neutralization test"
+                    }, {
+                      "system": "http://loinc.org",
+                      "version": "2.76",
+                      "code": "68320-1",
+                      "display": "Polio virus Ab panel [Titer] - Serum"
+                    } ]
+                  }
+                }
+            """.trimIndent()
+        )
+        val expectedOutput = mapOf(
+            "2.16.840.1.113762.1.4.1146.828" to listOf(
+                mapOf(
+                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
+                    "Code" to "16362001",
+                    "Descriptor" to "Human poliovirus 3 (organism)",
+                    "Code System" to "SNOMEDCT",
+                    "Version" to "20230901",
+                    "Status" to "Active"
+                ),
+                mapOf(
+                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
+                    "Code" to "22580008",
+                    "Descriptor" to "Human poliovirus 1 (organism)",
+                    "Code System" to "SNOMEDCT",
+                    "Version" to "20230901",
+                    "Status" to "Active"
+                ),
+                mapOf(
+                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
+                    "Code" to "44172002",
+                    "Descriptor" to "Human poliovirus (organism)",
+                    "Code System" to "SNOMEDCT",
+                    "Version" to "20230901",
+                    "Status" to "Active"
+                ),
+                mapOf(
+                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
+                    "Code" to "55174004",
+                    "Descriptor" to "Human poliovirus 2 (organism)",
+                    "Code System" to "SNOMEDCT",
+                    "Version" to "20230901",
+                    "Status" to "Active"
+                ),
+                mapOf(
+                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
+                    "Code" to "713616004",
+                    "Descriptor" to "Antigen of Human poliovirus (substance)",
+                    "Code System" to "SNOMEDCT",
+                    "Version" to "20230901",
+                    "Status" to "Active"
+                )
+            ),
+            "2.16.840.1.113762.1.4.1146.1112" to listOf(
+                mapOf(
+                    "Member OID" to "2.16.840.1.113762.1.4.1146.1112",
+                    "Name" to "Poliovirus infection (Test Panels for Poliovirus Antibody)",
+                    "Code" to "41506-7",
+                    "Descriptor" to "Polio virus neutralizing Ab panel - Serum by Neutralization test",
+                    "Code System" to "LOINC",
+                    "Version" to "2.76",
+                    "Status" to "Active"
+                ),
+                mapOf(
+                    "Member OID" to "2.16.840.1.113762.1.4.1146.1112",
+                    "Name" to "Poliovirus infection (Test Panels for Poliovirus Antibody)",
+                    "Code" to "68320-1",
+                    "Descriptor" to "Polio virus Ab panel [Titer] - Serum",
+                    "Code System" to "LOINC",
+                    "Version" to "2.76",
+                    "Status" to "Active"
+                )
+            )
+        )
+        val mockEngine = MockEngine { request ->
+            respond(
+                content = ByteReadChannel(responseMap.getValue(request.url.toString())),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val client = HttpClient(mockEngine)
+        val updateData = LookupTableUpdateMappingCommand.fetchLatestTestData(
+            listOf("2.16.840.1.113762.1.4.1146.828", "2.16.840.1.113762.1.4.1146.1112"),
+            client
+        )
+        assertThat(updateData).isEqualTo(expectedOutput)
     }
 }
