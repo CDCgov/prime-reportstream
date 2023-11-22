@@ -11,7 +11,7 @@ unit:
     - condition: $cwe_originalText NULL
       type: STRING
       expressionType: HL7Spec
-      valueOf: CQ.2.1
+      valueOf: CQ.2.2
     - condition: $cwe_originalText NOT_NULL
       type: STRING
       valueOf: $cwe_originalText
