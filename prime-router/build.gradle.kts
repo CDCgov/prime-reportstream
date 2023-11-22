@@ -801,6 +801,8 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.45.0")
     implementation("com.azure:azure-core-http-netty:1.13.10")
+    // pin io.projectreactor.netty:reactor-netty-http@1.0.39
+    implementation("io.projectreactor.netty:reactor-netty-http:1.0.39")
     implementation("com.azure:azure-storage-blob:12.25.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -905,6 +907,8 @@ dependencies {
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.14")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
+    // pin com.squareup.okio:okio@3.4.0
+    runtimeOnly("com.squareup.okio:okio:3.4.0")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
@@ -920,7 +924,7 @@ dependencies {
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
-    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.27.0")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")

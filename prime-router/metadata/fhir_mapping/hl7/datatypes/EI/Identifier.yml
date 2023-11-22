@@ -23,6 +23,10 @@ type:
 extension_1-assigning-authority:
   generateList: true
   expressionType: nested
+  vars:
+    ei2: EI.2
+    ei3: EI.3
+    ei4: EI.4
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -32,6 +36,7 @@ extension_1-assigning-authority:
       expressionType: nested
       expressions:
         - expressionType: nested
+          condition: $ei2 NOT_NULL
           expressionsMap:
             url:
               type: SYSTEM_URL
@@ -39,8 +44,9 @@ extension_1-assigning-authority:
             valueString:
               type: STRING
               expressionType: HL7Spec
-              valueOf: EI.2
+              valueOf: $ei2
         - expressionType: nested
+          condition: $ei3 NOT_NULL
           expressionsMap:
             url:
               type: SYSTEM_URL
@@ -48,8 +54,9 @@ extension_1-assigning-authority:
             valueString:
               type: STRING
               expressionType: HL7Spec
-              valueOf: EI.3
+              valueOf: $ei3
         - expressionType: nested
+          condition: $ei4 NOT_NULL
           expressionsMap:
             url:
               type: SYSTEM_URL
@@ -57,7 +64,7 @@ extension_1-assigning-authority:
             valueCode:
               type: STRING
               expressionType: HL7Spec
-              valueOf: EI.4
+              valueOf: $ei4
 
 extension_2-hl7-use:
   generateList: true

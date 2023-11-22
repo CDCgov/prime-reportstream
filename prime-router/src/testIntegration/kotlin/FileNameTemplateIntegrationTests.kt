@@ -5,7 +5,6 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import assertk.assertions.isSuccess
 import assertk.assertions.startsWith
 import assertk.assertions.support.expected
 import assertk.assertions.support.show
@@ -142,7 +141,7 @@ class FileNameTemplateIntegrationTests {
         val actualLast6 = actual.takeLast(6)
         // assert
         assertThat(actualLast6.length).isEqualTo(6)
-        assertThat { actualLast6.toInt() }.isSuccess()
+        assertThat(actualLast6.toInt())
     }
 
     @Test
