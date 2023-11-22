@@ -261,6 +261,7 @@ runs:
     - name: Fail if invalid function app checksum
       if: steps.validate-checksum.outputs.valid != 'true'
       run: exit 1
+      shell: bash
 
     - name: Remove GitHub action IP whitelist
       if: ${{ always() }} # This should happen even on a failure
