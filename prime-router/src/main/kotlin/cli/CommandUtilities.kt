@@ -13,10 +13,6 @@ import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.expectSuccess
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.accept
 import io.ktor.client.request.delete
@@ -734,10 +730,12 @@ class CommandUtilities {
         fun createDefaultHttpClient(bearerTokens: BearerTokens?): HttpClient {
             return HttpClient(Apache) {
                 // installs logging into the call to post to the server
-                install(Logging) {
-                    logger = Logger.SIMPLE
-                    level = LogLevel.INFO
-                }
+                // commented out - not to override underlying default logger settings
+                // enable to trace http client internals when needed
+                // install(Logging) {
+                //     logger = Logger.SIMPLE
+                //     level = LogLevel.INFO
+                // }
                 bearerTokens?.let {
                     install(Auth) {
                         bearer {
