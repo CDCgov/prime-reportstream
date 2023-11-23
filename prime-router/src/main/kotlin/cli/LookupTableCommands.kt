@@ -614,22 +614,25 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
         private const val SENDER_COMPENDIUM_MAPPED_TRUE = "Y"
         private const val SENDER_COMPENDIUM_MAPPED_FALSE = "N"
 
+        /**
+         * Annotates a sender [compendium] with a new column indicating whether the value is in the lookup table's
+         * [tableTestCodeMap], a map grouping mappings by test code
+         * @return a list of maps representing a sender compendium CSV with a new column: `mapped?`
+         */
         fun compareMappings(
-            inputData: List<Map<String, String>>,
-            tableMap: Map<String?, Map<String, String>>,
+            compendium: List<Map<String, String>>,
+            tableTestCodeMap: Map<String?, Map<String, String>>,
         ): List<Map<String, String>> {
-            val outputData = inputData.map {
-                if (tableMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(
+            return compendium.map { // process every code in the compendium
+                if (tableTestCodeMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(
                         ObservationMappingConstants.TEST_CODESYSTEM_KEY
                     ) == it.getValue(SENDER_COMPENDIUM_CODESYSTEM_KEY)
-                ) {
+                ) { // check for a matching code and code system i.e. mapped
                     it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_TRUE)
                 } else {
                     it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_FALSE)
                 }
             }
-
-            return outputData
         }
     }
 
@@ -687,11 +690,11 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
 }
 
 /**
- * Update an observation mapping table using the NLMS Value Authority.
+ * Update an observation mapping table using the NLM Value Set Authority.
  */
 class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
     name = "update-mapping",
-    help = "Compares a sender compendium against an observation mapping lookup table, outputting an annotated CSV"
+    help = "Update an observation mapping table using the NLM Value Set Authority."
 ) {
     /**
      * Optional output file to save the updated table to.
@@ -741,23 +744,33 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
     private val tableVersion by option("-v", "--version", help = "The version of the table to get").int()
 
     companion object {
-        private const val OBX_MAPPING_CSV_PATH = "metadata/tables/local/observation-mapping.csv"
-        private const val OBX_MAPPING_NO_OID_KEY = "NO_OID"
+        private const val OBX_MAPPING_CSV_PATH = "metadata/tables/local/observation-mapping.csv" // to update local csv
+        private const val OBX_MAPPING_NO_OID_KEY = "NO_OID" // to group mappings without OIDs
 
+        /**
+         * Looks up the ValueSet for a member [oid] using the supplied http [client] in the NIH National Library of
+         * Medicine Value Set Authority.
+         * @return a [ValueSet] for the supplied [oid]
+         */
         private suspend fun fetchValueSetForOID(oid: String, client: HttpClient): ValueSet {
             val response = client.get("https://cts.nlm.nih.gov/fhir/ValueSet/$oid/\$expand")
             return FhirContext.forR4().newJsonParser().parseResource(ValueSet::class.java, response.bodyAsText())
         }
+
+        /**
+         * Fetches latest test data for all [oids] supplied using the specified http [client]
+         * @return updated test data grouped by OID, suitable for use with syncMappings()
+         */
         fun fetchLatestTestData(oids: List<String>, client: HttpClient): Map<String, List<Map<String, String>>> {
-            // for each oid, fetch the ValueSet and create a test map
-            return runBlocking {
-                oids.associateWith { oid ->
+            return runBlocking { // wait
+                // for each oid, fetch the ValueSet and create a test map
+                oids.associateWith { oid -> // create a map of oids to their associated tests in the valueset
                     async {
-                        fetchValueSetForOID(oid, client).let { valueSet ->
-                            valueSet.expansion.contains.map { test ->
-                                mapOf(
+                        fetchValueSetForOID(oid, client).let { valueSet -> // fetch the updated valueset for the oid
+                            valueSet.expansion.contains.map { test -> // add every test in the oid valueset
+                                mapOf( // assemble map of test data
                                     ObservationMappingConstants.TEST_CODE_KEY to test.code,
-                                    ObservationMappingConstants.TEST_CODESYSTEM_KEY to
+                                    ObservationMappingConstants.TEST_CODESYSTEM_KEY to // coerce to our values
                                         ObservationMappingConstants.TEST_CODESYSTEM_MAP.getOrDefault(
                                             test.system,
                                             test.system
@@ -772,27 +785,25 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                             }
                         }
                     }
-                }.mapValues { it.value.await() } // undefer all values after starting coroutines
+                }.mapValues { it.value.await() } // un-defer all values after starting coroutines
             }
         }
 
+        /**
+         * Generate a new observation mapping table with updated test data [updateOIDMap] using condition data from an
+         * existing observation mappings [tableOIDMap]; both maps grouping mappings by member oid
+         * @return updated observation mapping table as a list of maps
+         */
         fun syncMappings(
-            inputData: Map<String, List<Map<String, String>>>,
-            updateData: Map<String, List<Map<String, String>>>,
+            tableOIDMap: Map<String, List<Map<String, String>>>,
+            updateOIDMap: Map<String, List<Map<String, String>>>,
         ): List<Map<String, String>> {
-            val outputData: MutableList<Map<String, String>> = mutableListOf()
-            updateData.forEach { update ->
-                // fetch the condition data from existing table
-                val conditionData = inputData[update.key]!![0].filterKeys {
-                    it in ObservationMappingConstants.CONDITION_KEYS
+            return updateOIDMap.map { update -> // process every oid test group update
+                val conditionData = tableOIDMap[update.key]!![0].filterKeys {
+                    it in ObservationMappingConstants.CONDITION_KEYS // fetch existing condition data for this oid
                 }
-
-                // add mapping for each test code in this update
-                update.value.forEach {
-                    outputData.add(it + conditionData)
-                }
-            }
-            return outputData + inputData.filterKeys { it !in updateData.keys }.values.flatten() // add static values
+                update.value.map { it + conditionData } // add condition data to each test
+            }.flatten() + tableOIDMap.filterKeys { it !in updateOIDMap.keys }.values.flatten() // flatten + add constants
         }
     }
 

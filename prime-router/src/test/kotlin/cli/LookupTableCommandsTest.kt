@@ -229,7 +229,6 @@ class LookupTableCommandsTest {
         assertThat(output).isEqualTo(expectedOutput)
     }
 
-    // TODO: split up test cases
     @Test
     fun `sync observation mapping table with update data`() {
         val conditionData = mapOf(
@@ -241,51 +240,34 @@ class LookupTableCommandsTest {
             "Created At" to "10/24/23"
         )
         val noOIDData = listOf(mapOf("foo" to "bar"), mapOf("biz" to "buzz"))
+        val polioData = mapOf(
+            "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+            "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
+            "Descriptor" to "Human poliovirus 3 (organism)",
+            "Code System" to "SNOMEDCT",
+            "Version" to "2023-03",
+            "Status" to "Active",
+        )
         val tableData = mapOf(
             "2.16.840.1.113762.1.4.1146.828" to listOf(
-                mapOf(
-                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
-                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
-                    "Code" to "16362001",
-                    "Descriptor" to "Human poliovirus 3 (organism)",
-                    "Code System" to "SNOMEDCT",
-                    "Version" to "2023-03",
-                    "Status" to "Active",
-                ) + conditionData,
-                mapOf(
-                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
-                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
-                    "Code" to "16362002",
-                    "Descriptor" to "Human poliovirus 3 (organism)",
-                    "Code System" to "SNOMEDCT",
-                    "Version" to "2023-03",
-                    "Status" to "Active",
-                ) + conditionData
+                mapOf("Code" to "16362001") + polioData + conditionData,
+                mapOf("Code" to "16362002") + polioData + conditionData
             ),
             "Some Random OID" to noOIDData,
             "NO_OID" to noOIDData
         )
+        val labTestData = mapOf(
+            "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+            "Name" to "Poliovirus Infection (Organism or Substance in Lab Results) 2",
+            "Code System" to "SNOMEDCT",
+            "Version" to "2023-03",
+            "Status" to "Active"
+        )
         val updateData = mapOf(
             "2.16.840.1.113762.1.4.1146.828" to listOf(
-                mapOf(
-                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
-                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results) 2",
-                    "Code" to "16362002",
-                    "Descriptor" to "Human poliovirus over 9000 (organism)",
-                    "Code System" to "SNOMEDCT",
-                    "Version" to "2023-03",
-                    "Status" to "Active"
-                ),
-                mapOf(
-                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
-                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results) 2",
-                    "Code" to "16362003",
-                    "Descriptor" to "Human poliovirus 3 (organism)",
-                    "Code System" to "SNOMEDCT",
-                    "Version" to "2023-03",
-                    "Status" to "Active"
-                )
-            ),
+                mapOf("Code" to "16362002", "Descriptor" to "Human poliovirus over 9000 (organism)") + labTestData,
+                mapOf("Code" to "16362003", "Descriptor" to "Human poliovirus 3 (organism)") + labTestData
+            )
         )
 
         val output = LookupTableUpdateMappingCommand.syncMappings(tableData, updateData)
@@ -294,7 +276,6 @@ class LookupTableCommandsTest {
         assertThat(output).isEqualTo(expectedOutput)
     }
 
-    // TODO: split up test cases
     @Test
     fun `fetch observation mapping update data`() {
         val responseMap = mapOf(
@@ -414,73 +395,34 @@ class LookupTableCommandsTest {
                 }
             """.trimIndent()
         )
+        val labTestData = mapOf(
+            "Member OID" to "2.16.840.1.113762.1.4.1146.828",
+            "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
+            "Code System" to "SNOMEDCT",
+            "Version" to "20230901",
+            "Status" to "Active"
+        )
+        val antiBodyData = mapOf(
+            "Member OID" to "2.16.840.1.113762.1.4.1146.1112",
+            "Name" to "Poliovirus infection (Test Panels for Poliovirus Antibody)",
+            "Code System" to "LOINC",
+            "Version" to "2.76",
+            "Status" to "Active"
+        )
         val expectedOutput = mapOf(
             "2.16.840.1.113762.1.4.1146.828" to listOf(
-                mapOf(
-                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
-                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
-                    "Code" to "16362001",
-                    "Descriptor" to "Human poliovirus 3 (organism)",
-                    "Code System" to "SNOMEDCT",
-                    "Version" to "20230901",
-                    "Status" to "Active"
-                ),
-                mapOf(
-                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
-                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
-                    "Code" to "22580008",
-                    "Descriptor" to "Human poliovirus 1 (organism)",
-                    "Code System" to "SNOMEDCT",
-                    "Version" to "20230901",
-                    "Status" to "Active"
-                ),
-                mapOf(
-                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
-                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
-                    "Code" to "44172002",
-                    "Descriptor" to "Human poliovirus (organism)",
-                    "Code System" to "SNOMEDCT",
-                    "Version" to "20230901",
-                    "Status" to "Active"
-                ),
-                mapOf(
-                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
-                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
-                    "Code" to "55174004",
-                    "Descriptor" to "Human poliovirus 2 (organism)",
-                    "Code System" to "SNOMEDCT",
-                    "Version" to "20230901",
-                    "Status" to "Active"
-                ),
-                mapOf(
-                    "Member OID" to "2.16.840.1.113762.1.4.1146.828",
-                    "Name" to "Poliovirus Infection (Organism or Substance in Lab Results)",
-                    "Code" to "713616004",
-                    "Descriptor" to "Antigen of Human poliovirus (substance)",
-                    "Code System" to "SNOMEDCT",
-                    "Version" to "20230901",
-                    "Status" to "Active"
-                )
+                mapOf("Code" to "16362001", "Descriptor" to "Human poliovirus 3 (organism)") + labTestData,
+                mapOf("Code" to "22580008", "Descriptor" to "Human poliovirus 1 (organism)") + labTestData,
+                mapOf("Code" to "44172002", "Descriptor" to "Human poliovirus (organism)") + labTestData,
+                mapOf("Code" to "55174004", "Descriptor" to "Human poliovirus 2 (organism)") + labTestData,
+                mapOf("Code" to "713616004", "Descriptor" to "Antigen of Human poliovirus (substance)") + labTestData
             ),
             "2.16.840.1.113762.1.4.1146.1112" to listOf(
                 mapOf(
-                    "Member OID" to "2.16.840.1.113762.1.4.1146.1112",
-                    "Name" to "Poliovirus infection (Test Panels for Poliovirus Antibody)",
                     "Code" to "41506-7",
-                    "Descriptor" to "Polio virus neutralizing Ab panel - Serum by Neutralization test",
-                    "Code System" to "LOINC",
-                    "Version" to "2.76",
-                    "Status" to "Active"
-                ),
-                mapOf(
-                    "Member OID" to "2.16.840.1.113762.1.4.1146.1112",
-                    "Name" to "Poliovirus infection (Test Panels for Poliovirus Antibody)",
-                    "Code" to "68320-1",
-                    "Descriptor" to "Polio virus Ab panel [Titer] - Serum",
-                    "Code System" to "LOINC",
-                    "Version" to "2.76",
-                    "Status" to "Active"
-                )
+                    "Descriptor" to "Polio virus neutralizing Ab panel - Serum by Neutralization test"
+                ) + antiBodyData,
+                mapOf("Code" to "68320-1", "Descriptor" to "Polio virus Ab panel [Titer] - Serum") + antiBodyData
             )
         )
         val mockEngine = MockEngine { request ->
