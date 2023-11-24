@@ -9,7 +9,7 @@ inputs:
     description: File to store checksum value
     default: deploy-checksum.txt
   validate:
-    description: Check
+    description: Check if pre and post checksums match
     default: false
 outputs:
   valid:
