@@ -802,7 +802,7 @@ dependencies {
     implementation("com.azure:azure-core:1.45.0")
     implementation("com.azure:azure-core-http-netty:1.13.10")
     // pin io.projectreactor.netty:reactor-netty-http@1.0.39
-    implementation("io.projectreactor.netty:reactor-netty-http:1.0.39")
+    implementation("io.projectreactor.netty:reactor-netty-http:1.1.13")
     implementation("com.azure:azure-storage-blob:12.25.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
