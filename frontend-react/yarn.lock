@@ -50,6 +50,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/code-frame@npm:^7.23.4":
+  version: 7.23.4
+  resolution: "@babel/code-frame@npm:7.23.4"
+  dependencies:
+    "@babel/highlight": ^7.23.4
+    chalk: ^2.4.2
+  checksum: 29999d08c3dbd803f3c296dae7f4f40af1f9e381d6bbc76e5a75327c4b8b023bcb2e209843d292f5d71c3b5c845df1da959d415ed862d6a68e0ad6c5c9622d37
+  languageName: node
+  linkType: hard
+
 "@babel/compat-data@npm:^7.22.6, @babel/compat-data@npm:^7.22.9, @babel/compat-data@npm:^7.23.2":
   version: 7.23.2
   resolution: "@babel/compat-data@npm:7.23.2"
@@ -363,6 +373,17 @@ __metadata:
     chalk: ^2.4.2
     js-tokens: ^4.0.0
   checksum: 7266d2bff8aa8fc78eb65b6e92a8211e12897a731126a282d2f9bb50d8fcaa4c1b02af2284f990ac7e3ab8d892d448a2cab8f5ed0ea8a90bce2c025b11ebe802
+  languageName: node
+  linkType: hard
+
+"@babel/highlight@npm:^7.23.4":
+  version: 7.23.4
+  resolution: "@babel/highlight@npm:7.23.4"
+  dependencies:
+    "@babel/helper-validator-identifier": ^7.22.20
+    chalk: ^2.4.2
+    js-tokens: ^4.0.0
+  checksum: 643acecdc235f87d925979a979b539a5d7d1f31ae7db8d89047269082694122d11aa85351304c9c978ceeb6d250591ccadb06c366f358ccee08bb9c122476b89
   languageName: node
   linkType: hard
 
@@ -15354,7 +15375,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "react-frontend@workspace:."
   dependencies:
-    "@babel/code-frame": ^7.22.13
+    "@babel/code-frame": ^7.23.4
     "@babel/core": ^7.23.2
     "@babel/eslint-parser": ^7.22.11
     "@babel/plugin-syntax-flow": ^7.22.5
