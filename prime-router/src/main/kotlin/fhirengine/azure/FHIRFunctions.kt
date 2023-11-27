@@ -17,7 +17,6 @@ import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.Message
-import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
@@ -144,7 +143,7 @@ class FHIRFunctions(
         dequeueCount: Int,
         fhirEngine: FHIREngine,
         actionHistory: ActionHistory,
-    ): List<RawSubmission> {
+    ): List<Message> {
         val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
 
         val newMessages = databaseAccess.transactReturning { txn ->
@@ -160,16 +159,15 @@ class FHIRFunctions(
      * Deserializes the [message] into a RawSubmission, verifies it is of the correct type.
      * Logs the [engineType] and [dequeueCount]
      */
-    private fun readMessage(engineType: String, message: String, dequeueCount: Int): RawSubmission {
+    private fun readMessage(engineType: String, message: String, dequeueCount: Int): Message {
         logger.debug(
             "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
-        val messageContent = Message.deserialize(message)
-        check(messageContent is RawSubmission) {
-            "An unknown message was received by the FHIR $engineType Function " +
-                "${messageContent.javaClass.kotlin.qualifiedName}"
-        }
-        return messageContent
+        //        check(messageContent is RawSubmission) {
+//            "An unknown message was received by the FHIR $engineType Function " +
+//                "${messageContent.javaClass.kotlin.qualifiedName}"
+//        }
+        return Message.deserialize(message)
     }
 
     /**

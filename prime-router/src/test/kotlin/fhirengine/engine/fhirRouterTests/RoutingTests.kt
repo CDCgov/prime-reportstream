@@ -5,6 +5,7 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.hasClass
+import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -20,6 +21,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
@@ -38,6 +40,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.addReceivers
+import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -80,6 +83,8 @@ class RoutingTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
+    val mockActionHistory = ActionHistory(TaskAction.route)
+
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
@@ -242,7 +247,7 @@ class RoutingTests {
 
     @BeforeEach
     fun reset() {
-        report.filteringResults.clear()
+        mockActionHistory.actionLogs.clear()
         clearAllMocks()
     }
 
@@ -261,7 +266,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -282,7 +287,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -303,7 +308,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -328,7 +333,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -353,7 +358,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -378,7 +383,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isEmpty()
@@ -402,12 +407,13 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
 
         // assert only the quality filter didn't pass
-        assertThat(report.filteringResults).isNotEmpty()
-        assertThat(report.filteringResults.count()).isEqualTo(1)
-        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.QUALITY_FILTER)
+        assertThat(mockActionHistory.actionLogs).isNotEmpty()
+        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.QUALITY_FILTER)
         assertThat(receivers).isEmpty()
     }
 
@@ -477,12 +483,8 @@ class RoutingTests {
 
         // act
         accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        verify(exactly = 0) {
-            bundle.addReceivers(any(), any())
+            val messages = engine.run(message, actionLogger, actionHistory, txn)
+            assertThat(messages).isEmpty()
         }
     }
 
@@ -532,12 +534,8 @@ class RoutingTests {
 
         // act
         accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        verify(exactly = 0) {
-            bundle.addReceivers(any(), any())
+            val messages = engine.run(message, actionLogger, mockActionHistory, txn)
+            assertThat(messages).isEmpty()
         }
     }
 
@@ -586,12 +584,8 @@ class RoutingTests {
 
         // act
         accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        verify(exactly = 0) {
-            bundle.addReceivers(any(), any())
+            val messages = engine.run(message, actionLogger, mockActionHistory, txn)
+            assertThat(messages).isEmpty()
         }
     }
 
@@ -640,12 +634,8 @@ class RoutingTests {
 
         // act
         accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        verify(exactly = 0) {
-            bundle.addReceivers(any(), any())
+            val messages = engine.run(message, actionLogger, mockActionHistory, txn)
+            assertThat(messages).isEmpty()
         }
     }
 
@@ -695,12 +685,8 @@ class RoutingTests {
 
         // act
         accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        verify(exactly = 0) {
-            any<Bundle>().addReceivers(any(), any())
+            val messages = engine.run(message, actionLogger, mockActionHistory, txn)
+            assertThat(messages).isEmpty()
         }
     }
 
@@ -744,13 +730,14 @@ class RoutingTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
 
-        mockkStatic(Bundle::addReceivers)
-        every { any<Bundle>().addReceivers(any(), any()) } returns Unit
+        mockkStatic(Bundle::filterObservations)
+        every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
         accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
+            val messages = engine.run(message, actionLogger, actionHistory, txn)
+            assertThat(messages).hasSize(1)
         }
 
         // assert
@@ -759,7 +746,6 @@ class RoutingTests {
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any(), any())
             accessSpy.insertTask(any(), any(), any(), any(), any())
-            any<Bundle>().addReceivers(any(), any())
         }
     }
 
@@ -782,7 +768,7 @@ class RoutingTests {
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
 
-        every { engine.applyFilters(any(), any(), any()) } returns emptyList()
+        every { engine.applyFilters(any(), any(), any(), any()) } returns emptyList()
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
@@ -791,12 +777,10 @@ class RoutingTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
 
-        mockkStatic(Bundle::addReceivers)
-        every { any<Bundle>().addReceivers(any(), any()) } returns Unit
-
         // act
         accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
+            val messages = engine.run(message, actionLogger, actionHistory, txn)
+            assertThat(messages).isEmpty()
         }
 
         // assert
@@ -806,7 +790,6 @@ class RoutingTests {
         }
         verify(exactly = 0) {
             accessSpy.insertTask(any(), any(), any(), any())
-            any<Bundle>().addReceivers(any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
         }
     }
@@ -891,17 +874,19 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
-        assertThat(report.filteringResults.count()).isEqualTo(0)
+        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(0)
         engine.logFilterResults(
             qualFilter.toString(),
             bundle,
-            report,
+            report.id,
+            mockActionHistory,
             receiver,
             ReportStreamFilterType.QUALITY_FILTER,
             bundle
         )
-        assertThat(report.filteringResults.count()).isEqualTo(1)
-        assertThat(report.filteringResults[0].filterName).isEqualTo(qualFilter.toString())
+        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(reportStreamFilterResult.filterName).isEqualTo(qualFilter.toString())
     }
 
     @Test
@@ -990,13 +975,13 @@ class RoutingTests {
             engine.evaluateFilterConditionAsOr(any(), any(), false, any(), any())
         } returns Pair(false, filter.toString())
 
-        engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, true)
+        engine.evaluateFilterAndLogResult(filter, bundle, report.id, mockActionHistory, receiver, type, true)
         verify(exactly = 0) {
-            engine.logFilterResults(any(), any(), any(), any(), any(), any())
+            engine.logFilterResults(any(), any(), any(), any(), any(), any(), any())
         }
-        engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, false)
+        engine.evaluateFilterAndLogResult(filter, bundle, report.id, mockActionHistory, receiver, type, false)
         verify(exactly = 1) {
-            engine.logFilterResults(any(), any(), any(), any(), any(), any())
+            engine.logFilterResults(any(), any(), any(), any(), any(), any(), any())
         }
 
         // use case for condition filter
@@ -1010,7 +995,8 @@ class RoutingTests {
         engine.evaluateFilterAndLogResult(
             filter,
             bundle,
-            report,
+            report.id,
+            mockActionHistory,
             receiver,
             ReportStreamFilterType.CONDITION_FILTER,
             defaultResponse = true,
@@ -1019,7 +1005,7 @@ class RoutingTests {
             useOr = true
         )
         verify(exactly = 1) {
-            engine.logFilterResults(any(), any(), any(), any(), any(), any())
+            engine.logFilterResults(any(), any(), any(), any(), any(), any(), any())
         }
     }
 
@@ -1037,13 +1023,13 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // when doing routing for full-elr, verify that etor receiver isn't included (not even in logged results)
-        var receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        var receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers).isEmpty()
 
         // when doing routing for etor, verify that etor receiver is included
-        receivers = engine.applyFilters(bundle, report, Topic.ETOR_TI)
-        assertThat(report.filteringResults).isEmpty()
+        receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.ETOR_TI)
+        assertThat(mockActionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0]).isEqualTo(etorOrganization.receivers[0])
     }
@@ -1062,13 +1048,13 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // when doing routing for etor, verify that full-elr receiver isn't included (not even in logged results)
-        var receivers = engine.applyFilters(bundle, report, Topic.ETOR_TI)
+        var receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.ETOR_TI)
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers).isEmpty()
 
         // when doing routing for full-elr, verify that full-elr receiver is included
-        receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
-        assertThat(report.filteringResults).isEmpty()
+        receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        assertThat(mockActionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0]).isEqualTo(oneOrganization.receivers[0])
     }
@@ -1087,13 +1073,13 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // when doing routing for full-elr, verify that elims receiver isn't included (not even in logged results)
-        var receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        var receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers).isEmpty()
 
         // when doing routing for elims, verify that elims receiver is included
-        receivers = engine.applyFilters(bundle, report, Topic.ELR_ELIMS)
-        assertThat(report.filteringResults).isEmpty()
+        receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.ELR_ELIMS)
+        assertThat(mockActionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0]).isEqualTo(elimsOrganization.receivers[0])
     }
@@ -1112,19 +1098,19 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // when routing for etor, verify that only the active etor receiver is included (even in logged results)
-        var receivers = engine.applyFilters(bundle, report, Topic.ETOR_TI)
-        assertThat(report.filteringResults).isEmpty()
+        var receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.ETOR_TI)
+        assertThat(mockActionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0].name).isEqualTo("simulatedlab")
 
         // when routing for full-elr, verify that only the active full-elr receiver is included (even in logged results)
-        receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
-        assertThat(report.filteringResults).isEmpty()
+        receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        assertThat(mockActionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0].name).isEqualTo(RECEIVER_NAME)
 
         // Verify error when using non-UP topic
-        assertFailure { engine.applyFilters(bundle, report, Topic.COVID_19) }
+        assertFailure { engine.applyFilters(bundle, report.id, mockActionHistory, Topic.COVID_19) }
             .hasClass(java.lang.IllegalStateException::class.java)
     }
 
@@ -1147,13 +1133,14 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, condFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
 
         // assert only the quality filter didn't pass
 
-        assertThat(report.filteringResults).isNotEmpty()
-        assertThat(report.filteringResults.count()).isEqualTo(1)
-        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.ROUTING_FILTER)
+        assertThat(mockActionHistory.actionLogs).isNotEmpty()
+        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.ROUTING_FILTER)
         assertThat(receivers).isEmpty()
     }
 
@@ -1176,13 +1163,14 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, condFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
 
         // assert only the processing mode filter didn't pass
 
-        assertThat(report.filteringResults).isNotEmpty()
-        assertThat(report.filteringResults.count()).isEqualTo(1)
-        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(mockActionHistory.actionLogs).isNotEmpty()
+        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
         assertThat(receivers).isEmpty()
     }
 
@@ -1206,14 +1194,15 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, condFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
 
         // assert only the condition mode filter didn't pass
         // and check that the observation was logged
-        assertThat(report.filteringResults).isNotEmpty()
-        assertThat(report.filteringResults.count()).isEqualTo(5)
-        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.CONDITION_FILTER)
-        assertThat(report.filteringResults[0].filteredTrackingElement.contains("loinc.org"))
+        assertThat(mockActionHistory.actionLogs).isNotEmpty()
+        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(5)
+        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.CONDITION_FILTER)
+        assertThat(reportStreamFilterResult.filteredTrackingElement.contains("loinc.org"))
         assertThat(receivers).isEmpty()
     }
 
@@ -1234,34 +1223,38 @@ class RoutingTests {
         val result = engine.evaluateFilterAndLogResult(
             procModeFilter,
             bundle,
-            report,
+            report.id,
+            mockActionHistory,
             oneOrganization.receivers[0],
             ReportStreamFilterType.PROCESSING_MODE_FILTER,
             false,
         )
 
         assertThat(result).isFalse()
-        assertThat(report.filteringResults).isNotEmpty()
-        assertThat(report.filteringResults.count()).isEqualTo(1)
-        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
-        assertThat(report.filteringResults[0].message).doesNotContain("default filter")
+        assertThat(mockActionHistory.actionLogs).isNotEmpty()
+        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(reportStreamFilterResult.message).doesNotContain("default filter")
 
-        report.filteringResults.clear()
+        mockActionHistory.actionLogs.clear()
 
         val result2 = engine.evaluateFilterAndLogResult(
             engine.processingModeDefaults[Topic.FULL_ELR]!!,
             bundle,
-            report,
+            report.id,
+            mockActionHistory,
             oneOrganization.receivers[0],
             ReportStreamFilterType.PROCESSING_MODE_FILTER,
             false,
         )
 
         assertThat(result2).isFalse()
-        assertThat(report.filteringResults).isNotEmpty()
-        assertThat(report.filteringResults.count()).isEqualTo(1)
-        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
-        assertThat(report.filteringResults[0].message).contains("default filter")
+        assertThat(mockActionHistory.actionLogs).isNotEmpty()
+        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult2 = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(reportStreamFilterResult2.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(reportStreamFilterResult2.message).contains("default filter")
     }
 
     @Test
@@ -1283,17 +1276,19 @@ class RoutingTests {
         val result = engine.evaluateFilterAndLogResult(
             nonBooleanFilter,
             bundle,
-            report,
+            report.id,
+            mockActionHistory,
             oneOrganization.receivers[0],
             ReportStreamFilterType.PROCESSING_MODE_FILTER,
             false,
         )
 
         assertThat(result).isFalse()
-        assertThat(report.filteringResults).isNotEmpty()
-        assertThat(report.filteringResults.count()).isEqualTo(1)
-        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
-        assertThat(report.filteringResults[0].message).contains(EXCEPTION_FOUND)
+        assertThat(mockActionHistory.actionLogs).isNotEmpty()
+        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(reportStreamFilterResult.message).contains(EXCEPTION_FOUND)
 
         val result2 = engine.evaluateFilterConditionAsAnd(
             nonBooleanFilter,

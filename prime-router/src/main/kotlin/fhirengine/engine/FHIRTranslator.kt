@@ -55,8 +55,8 @@ class FHIRTranslator(
      *  element.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
-    override fun doWork(
-        message: RawSubmission,
+    override fun <T : gov.cdc.prime.router.fhirengine.engine.Message> doWork(
+        message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
@@ -66,31 +66,54 @@ class FHIRTranslator(
 
         // track input report
         actionHistory.trackExistingInputReport(message.reportId)
-
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val receiverEndpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
+        when (message) {
+            is RawSubmission -> {
+                val receiverAndEndpoints: List<Pair<Endpoint, Receiver>> = receiverEndpoints.mapNotNull { endpoint ->
+                    val receiver = settings.findReceiver(endpoint.identifier[0].value)
+                    if (receiver != null) {
+                        Pair(endpoint, receiver)
+                    } else {
+                        null
+                    }
+                }
 
-        val receiverAndEndpoints: List<Pair<Endpoint, Receiver>> = receiverEndpoints.mapNotNull { endpoint ->
-            val receiver = settings.findReceiver(endpoint.identifier[0].value)
-            if (receiver != null) {
-                Pair(endpoint, receiver)
-            } else {
-                null
-            }
-        }
+                return receiverAndEndpoints
+                    .map {
+                        actionHistory.trackActionReceiverInfo(it.second.organizationName, it.second.name)
+                        it
+                    }
+                    .filter {
+                        it.second.topic.isUniversalPipeline
+                    }
+                    .map { (receiverEndpoint, receiver) ->
+                        val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
 
-        return receiverAndEndpoints
-            .map {
-                actionHistory.trackActionReceiverInfo(it.second.organizationName, it.second.name)
-                it
-            }
-            .filter {
-                it.second.topic.isUniversalPipeline
-            }
-            .map { (receiverEndpoint, receiver) ->
-                val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
+                        val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
 
-                val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
+                        // get a Report from the message
+                        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+                            Event.EventAction.BATCH,
+                            bodyBytes,
+                            listOf(message.reportId),
+                            receiver,
+                            this.metadata,
+                            actionHistory,
+                            topic = message.topic,
+                        )
+
+                        FHIREngineRunResult(
+                            event,
+                            report,
+                            blobInfo.blobUrl,
+                            null
+                        )
+                    }
+            }
+            is FhirTranslateMessage -> {
+                val receiver = settings.findReceiver(message.receiverName) ?: throw Exception("reciver must exist")
+                val bodyBytes = getByteArrayFromBundle(receiver, bundle)
 
                 // get a Report from the message
                 val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
@@ -103,13 +126,19 @@ class FHIRTranslator(
                     topic = message.topic,
                 )
 
-                FHIREngineRunResult(
-                    event,
-                    report,
-                    blobInfo.blobUrl,
-                    null
+                return listOf(
+                    FHIREngineRunResult(
+                        event,
+                        report,
+                        blobInfo.blobUrl,
+                        null
+                    )
                 )
             }
+            else -> {
+                return emptyList()
+            }
+        }
     }
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.TRANSLATED_AT

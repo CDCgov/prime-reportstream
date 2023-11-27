@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
@@ -8,6 +10,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
@@ -26,7 +29,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.addReceivers
+import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
@@ -173,8 +176,8 @@ class FHIRRouter(
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
-    override fun doWork(
-        message: RawSubmission,
+    override fun <T : Message> doWork(
+        message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
@@ -187,76 +190,74 @@ class FHIRRouter(
         // pull fhir document and parse FHIR document
         val bundle = FhirTranscoder.decode(message.downloadContent())
 
-        // create report object
-        val sources = emptyList<Source>()
-        val report = Report(
-            Report.Format.FHIR,
-            sources,
-            1,
-            metadata = this.metadata,
-            topic = message.topic,
-        )
-
-        // create item lineage
-        report.itemLineages = listOf(
-            ItemLineage(
-                null,
-                message.reportId,
-                1,
-                report.id,
-                1,
-                null,
-                null,
-                null,
-                report.getItemHashForRow(1)
-            )
-        )
-
         // get the receivers that this bundle should go to
-        val listOfReceivers = applyFilters(bundle, report, message.topic)
+        // TODO: apply matching
+        val listOfReceivers = applyFilters(bundle, message.reportId, actionHistory, message.topic)
 
         // check if there are any receivers
         if (listOfReceivers.isNotEmpty()) {
-            // this bundle has receivers; send message to translate function
-            // add the receivers to the fhir bundle
-            bundle.addReceivers(listOfReceivers, shorthandLookupTable)
+            return listOfReceivers.flatMap { receiver ->
+                val sources = emptyList<Source>()
+                val report = Report(
+                    Report.Format.FHIR,
+                    sources,
+                    1,
+                    metadata = this.metadata,
+                    topic = message.topic,
+                    destination = receiver
+                )
 
-            // create translate event
-            val nextEvent = ProcessEvent(
-                Event.EventAction.TRANSLATE,
-                report.id,
-                Options.None,
-                emptyMap(),
-                emptyList()
-            )
-
-            // upload new copy to blobstore
-            val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-            val blobInfo = BlobAccess.uploadBody(
-                Report.Format.FHIR,
-                bodyBytes,
-                report.name,
-                message.blobSubFolderName,
-                nextEvent.eventAction
-            )
-
-            // ensure tracking is set
-            actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
-
-            return listOf(
-                FHIREngineRunResult(
-                    nextEvent,
-                    report,
-                    blobInfo.blobUrl,
-                    RawSubmission(
+                // create item lineage
+                report.itemLineages = listOf(
+                    ItemLineage(
+                        null,
+                        message.reportId,
+                        1,
                         report.id,
-                        blobInfo.blobUrl,
-                        BlobAccess.digestToString(blobInfo.digest),
-                        message.blobSubFolderName,
-                        message.topic,
+                        1,
+                        null,
+                        null,
+                        null,
+                        report.getItemHashForRow(1)
                     )
                 )
-            )
+                val receiverBundle = bundle.filterObservations(receiver.conditionFilter, shorthandLookupTable)
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.TRANSLATE,
+                    report.id,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
+
+                // upload new copy to blobstore
+                val bodyBytes = FhirTranscoder.encode(receiverBundle).toByteArray()
+                val blobInfo = BlobAccess.uploadBody(
+                    Report.Format.FHIR,
+                    bodyBytes,
+                    report.name,
+                    message.blobSubFolderName,
+                    nextEvent.eventAction
+                )
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
+
+                listOf(
+                    FHIREngineRunResult(
+                        nextEvent,
+                        report,
+                        blobInfo.blobUrl,
+                        FhirTranslateMessage(
+                            report.id,
+                            blobInfo.blobUrl,
+                            BlobAccess.digestToString(blobInfo.digest),
+                            message.blobSubFolderName,
+                            message.topic,
+                            receiver.fullName
+                        )
+                    )
+                )
+            }
         } else {
             // this bundle does not have receivers; only perform the work necessary to track the routing action
             // create none event
@@ -266,6 +267,28 @@ class FHIRRouter(
                 Options.None,
                 emptyMap(),
                 emptyList()
+            )
+            val report = Report(
+                Report.Format.FHIR,
+                emptyList(),
+                1,
+                metadata = this.metadata,
+                topic = message.topic
+            )
+
+            // create item lineage
+            report.itemLineages = listOf(
+                ItemLineage(
+                    null,
+                    message.reportId,
+                    1,
+                    report.id,
+                    1,
+                    null,
+                    null,
+                    null,
+                    report.getItemHashForRow(1)
+                )
             )
 
             // ensure tracking is set
@@ -279,29 +302,17 @@ class FHIRRouter(
     override val engineType: String = "Route"
 
     /**
-     * Inserts a 'translate' task into the task table for the [report] in question. This is just a pass-through
-     * function but is present here for proper separation of layers and testing. This may need to be modified in
-     * the future.
-     * The task will track the [report] in the [format] specified and knows it is located at [reportUrl].
-     * [nextAction] specifies what is going to happen next for this report
-     *
-     */
-    private fun insertTranslateTask(
-        report: Report,
-        reportFormat: String,
-        reportUrl: String,
-        nextAction: Event,
-    ) {
-        db.insertTask(report, reportFormat, reportUrl, nextAction, null)
-    }
-
-    /**
      * Applies all filters to the list of all receivers with topic with a topic matching [topic] that are not set as
      * INACTIVE. FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message
      * As it goes through the filters, results are logged onto the provided [report]
      * @return list of receivers that should receive this bundle
      */
-    internal fun applyFilters(bundle: Bundle, report: Report, topic: Topic): List<Receiver> {
+    internal fun applyFilters(
+        bundle: Bundle,
+        reportId: ReportId,
+        actionHistory: ActionHistory,
+        topic: Topic,
+    ): List<Receiver> {
         check(topic.isUniversalPipeline) { "Unexpected topic $topic in the Universal Pipeline routing step." }
         val listOfReceivers = mutableListOf<Receiver>()
         // find all receivers that have a matching topic and determine which applies
@@ -328,7 +339,8 @@ class FHIRRouter(
             passes = passes && evaluateFilterAndLogResult(
                 getQualityFilters(receiver, orgFilters),
                 bundle,
-                report,
+                reportId,
+                actionHistory,
                 receiver,
                 ReportStreamFilterType.QUALITY_FILTER,
                 false,
@@ -340,7 +352,8 @@ class FHIRRouter(
             passes = passes && evaluateFilterAndLogResult(
                 getRoutingFilter(receiver, orgFilters),
                 bundle,
-                report,
+                reportId,
+                actionHistory,
                 receiver,
                 ReportStreamFilterType.ROUTING_FILTER,
                 defaultResponse = true,
@@ -351,7 +364,8 @@ class FHIRRouter(
             passes = passes && evaluateFilterAndLogResult(
                 getProcessingModeFilter(receiver, orgFilters),
                 bundle,
-                report,
+                reportId,
+                actionHistory,
                 receiver,
                 ReportStreamFilterType.PROCESSING_MODE_FILTER,
                 defaultResponse = true
@@ -376,7 +390,8 @@ class FHIRRouter(
                     evaluateFilterAndLogResult(
                         getConditionFilter(receiver, orgFilters),
                         bundle,
-                        report,
+                        reportId,
+                        actionHistory,
                         receiver,
                         ReportStreamFilterType.CONDITION_FILTER,
                         defaultResponse = true,
@@ -415,7 +430,8 @@ class FHIRRouter(
     internal fun evaluateFilterAndLogResult(
         filters: ReportStreamFilter,
         bundle: Bundle,
-        report: Report,
+        reportId: ReportId,
+        actionHistory: ActionHistory,
         receiver: Receiver,
         filterType: ReportStreamFilterType,
         defaultResponse: Boolean,
@@ -440,7 +456,7 @@ class FHIRRouter(
                     ""
                 }
             }${failingFilterName ?: "unknown"}"
-            logFilterResults(filterToLog, bundle, report, receiver, filterType, focusResource)
+            logFilterResults(filterToLog, bundle, reportId, actionHistory, receiver, filterType, focusResource)
         }
         return passes
     }
@@ -592,7 +608,8 @@ class FHIRRouter(
     internal fun logFilterResults(
         filterName: String,
         bundle: Bundle,
-        report: Report,
+        reportId: ReportId,
+        actionHistory: ActionHistory,
         receiver: Receiver,
         filterType: ReportStreamFilterType,
         focusResource: Base,
@@ -609,14 +626,23 @@ class FHIRRouter(
                 if (coding != null) filteredTrackingElement += " with " + coding.system + " code: " + coding.code
             }
         }
-        report.filteringResults.add(
-            ReportStreamFilterResult(
-                receiver.fullName,
-                report.itemCount,
-                filterName,
-                emptyList(),
-                filteredTrackingElement,
-                filterType
+        val filterResult = ReportStreamFilterResult(
+            receiver.fullName,
+            // The FHIR router will only ever process a single item
+            1,
+            filterName,
+            emptyList(),
+            filteredTrackingElement,
+            filterType
+        )
+        actionHistory.trackLogs(
+            ActionLog(
+                filterResult,
+                filterResult.filteredTrackingElement,
+                null, // we don't have accurate filteredIndex (rownums) to put here; due to juri filtering.
+                reportId = reportId,
+                action = actionHistory.action,
+                type = ActionLogLevel.filter,
             )
         )
     }

@@ -48,8 +48,27 @@ class FHIRConverter(
      * [message] is the incoming message to be turned into FHIR and saved
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
-    override fun doWork(
-        message: RawSubmission,
+    override fun <T : Message> doWork(
+        message: T,
+        actionLogger: ActionLogger,
+        actionHistory: ActionHistory,
+    ): List<FHIREngineRunResult> {
+        return when (message) {
+            is FhirConvertMessage -> {
+                fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
+            }
+            is RawSubmission -> {
+                fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
+            }
+            else -> {
+                throw Exception("Unexpected message type")
+            }
+        }
+    }
+
+    private fun fhirEngineRunResults(
+        message: Message,
+        schemaName: String,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
@@ -63,7 +82,7 @@ class FHIRConverter(
         if (fhirBundles.isNotEmpty()) {
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
             actionHistory.trackExistingInputReport(message.reportId)
-            val transformer = getTransformerFromSchema(message.schemaName)
+            val transformer = getTransformerFromSchema(schemaName)
             return fhirBundles.mapIndexed { bundleIndex, bundle ->
                 // conduct FHIR Transform
                 transformer?.transform(bundle)
@@ -155,7 +174,7 @@ class FHIRConverter(
      * @return one or more FHIR bundles
      */
     internal fun getContentFromHL7(
-        message: RawSubmission,
+        message: Message,
         actionLogger: ActionLogger,
     ): List<Bundle> {
         // create the hl7 reader
@@ -184,7 +203,7 @@ class FHIRConverter(
      * @return a list containing a FHIR bundle
      */
     internal fun getContentFromFHIR(
-        message: RawSubmission,
+        message: Message,
         actionLogger: ActionLogger,
     ): List<Bundle> {
         return FhirTranscoder.getBundles(message.downloadContent(), actionLogger)
