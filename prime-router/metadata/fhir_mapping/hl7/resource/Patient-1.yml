@@ -1,0 +1,9 @@
+resourceType: Patient
+# Represents data that needs to be extracted for a Patient Resource in FHIR
+# reference: https://www.hl7.org/fhir/patient.html
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
