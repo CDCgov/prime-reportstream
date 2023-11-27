@@ -259,7 +259,7 @@ fun Bundle.filterObservations(
     shortHandLookupTable: MutableMap<String, String>,
 ): Bundle {
     if (conditionFilter.isEmpty()) {
-        return this
+        return this.copy()
     }
     val (observationsToKeep, allObservations) =
         getFilteredObservations(this, conditionFilter, shortHandLookupTable)

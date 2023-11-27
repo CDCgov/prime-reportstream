@@ -948,6 +948,9 @@ class RoutingTests {
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
+        mockkStatic(Bundle::filterObservations)
+        every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
+
         // act
         accessSpy.transact { txn ->
             val messages = engine.run(message, actionLogger, actionHistory, txn)
