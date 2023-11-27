@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.cli
 
 import ca.uhn.fhir.context.FhirContext
+import ca.uhn.fhir.parser.DataFormatException
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
@@ -34,11 +35,14 @@ import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
 import io.ktor.client.plugins.auth.providers.basic
 import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.request
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
@@ -746,6 +750,9 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
     companion object {
         private const val OBX_MAPPING_CSV_PATH = "metadata/tables/local/observation-mapping.csv" // to update local csv
         private const val OBX_MAPPING_NO_OID_KEY = "NO_OID" // to group mappings without OIDs
+        private const val OBX_MAPPING_NON_RCTC_KEY = "NON_RCTC" // to group non-RCTC mappings
+        private const val OBX_MAPPING_RCTC_VALUE_SOURCE = "RCTC" // value source value representing RCTC mappings
+        private val OBX_MAPPING_FILTER = listOf(OBX_MAPPING_NO_OID_KEY, OBX_MAPPING_NON_RCTC_KEY)
 
         /**
          * Looks up the ValueSet for a member [oid] using the supplied http [client] in the NIH National Library of
@@ -766,23 +773,27 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                 // for each oid, fetch the ValueSet and create a test map
                 oids.associateWith { oid -> // create a map of oids to their associated tests in the valueset
                     async {
-                        fetchValueSetForOID(oid, client).let { valueSet -> // fetch the updated valueset for the oid
-                            valueSet.expansion.contains.map { test -> // add every test in the oid valueset
-                                mapOf( // assemble map of test data
-                                    ObservationMappingConstants.TEST_CODE_KEY to test.code,
-                                    ObservationMappingConstants.TEST_CODESYSTEM_KEY to // coerce to our values
-                                        ObservationMappingConstants.TEST_CODESYSTEM_MAP.getOrDefault(
-                                            test.system,
-                                            test.system
-                                        ),
-                                    ObservationMappingConstants.TEST_OID_KEY to valueSet.idElement.idPart,
-                                    ObservationMappingConstants.TEST_NAME_KEY to valueSet.name,
-                                    ObservationMappingConstants.TEST_DESCRIPTOR_KEY to test.display,
-                                    ObservationMappingConstants.TEST_STATUS_KEY to valueSet.status.toString()
-                                        .lowercase().replaceFirstChar(Char::titlecase),
-                                    ObservationMappingConstants.TEST_VERSION_KEY to test.version.split('/').last()
-                                )
+                        try {
+                            fetchValueSetForOID(oid, client).let { valueSet -> // fetch the updated valueset for the oid
+                                valueSet.expansion.contains.map { test -> // add every test in the oid valueset
+                                    mapOf( // assemble map of test data
+                                        ObservationMappingConstants.TEST_CODE_KEY to test.code,
+                                        ObservationMappingConstants.TEST_CODESYSTEM_KEY to // coerce to our values
+                                            ObservationMappingConstants.TEST_CODESYSTEM_MAP.getOrDefault(
+                                                test.system,
+                                                test.system
+                                            ),
+                                        ObservationMappingConstants.TEST_OID_KEY to valueSet.idElement.idPart,
+                                        ObservationMappingConstants.TEST_NAME_KEY to valueSet.name,
+                                        ObservationMappingConstants.TEST_DESCRIPTOR_KEY to test.display,
+                                        ObservationMappingConstants.TEST_STATUS_KEY to valueSet.status.toString()
+                                            .lowercase().replaceFirstChar(Char::titlecase),
+                                        ObservationMappingConstants.TEST_VERSION_KEY to test.version.split('/').last()
+                                    )
+                                }
                             }
+                        } catch (e: DataFormatException) {
+                            throw PrintMessage("Error encountered parsing update for oid '$oid':\n{$e.message}", true)
                         }
                     }
                 }.mapValues { it.value.await() } // un-defer all values after starting coroutines
@@ -803,7 +814,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                     it in ObservationMappingConstants.CONDITION_KEYS // fetch existing condition data for this oid
                 }
                 update.value.map { it + conditionData } // add condition data to each test
-            }.flatten() + tableOIDMap.filterKeys { it !in updateOIDMap.keys }.values.flatten() // flatten + add constants
+            }.flatten() + tableOIDMap.filterKeys { it !in updateOIDMap.keys }.values.flatten() // flatten + add carryover
         }
     }
 
@@ -840,6 +851,26 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                     }
                 }
             }
+            HttpResponseValidator {
+                validateResponse { response: HttpResponse ->
+                    val statusCode = response.status.value
+                    when (statusCode) {
+                        in 300..399 -> "redirect"
+                        401 -> "auth exception"
+                        in 400..499 -> "client exception"
+                        in 500..599 -> "server exception"
+                        in 600..Integer.MAX_VALUE -> "general exception"
+                        else -> null
+                    }.also { errorText ->
+                        if (!errorText.isNullOrBlank()) {
+                            throw PrintMessage(
+                                "Encountered $errorText ($statusCode) while fetching ${response.request.url}",
+                                true
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         // Verify the loaded table contains the appropriate columns
@@ -849,12 +880,18 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
 
         // Create lookup table of codes
         val tableMap = tableData.groupBy {
-            it.getOrDefault(ObservationMappingConstants.TEST_OID_KEY, OBX_MAPPING_NO_OID_KEY)
+            if (it[ObservationMappingConstants.CONDITION_VALUE_SOURCE_KEY] != OBX_MAPPING_RCTC_VALUE_SOURCE) {
+                OBX_MAPPING_NON_RCTC_KEY
+            } else {
+                it[ObservationMappingConstants.TEST_OID_KEY].let { oid ->
+                    if (oid.isNullOrBlank()) OBX_MAPPING_NO_OID_KEY else oid
+                }
+            }
         }
 
         // Fetch the updated data
         val updateData = fetchLatestTestData(
-            oids?.split(',') ?: tableMap.keys.filter { it != OBX_MAPPING_NO_OID_KEY }, // use oid list if provided
+            oids?.split(',') ?: tableMap.keys.filter { it !in OBX_MAPPING_FILTER }, // use oid list if provided
             client
         )
 
@@ -870,7 +907,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
         // Save updated local csv of table
         if ((
                 !silent && confirm(
-                    "Continue to create a new version of observation-mapping.csv with ${outputData.size} rows?"
+                    "Save an updated local observation-mapping.csv with ${outputData.size} rows?"
                 ) == true
                 ) || silent
         ) {
