@@ -25,6 +25,6 @@ export default function useOrganizationSenders() {
     return useQuery({
         queryKey: [senders.queryKey, activeMembership],
         queryFn: memoizedDataFetch,
-        enabled: !!activeMembership?.parsedName && !!activeMembership.service,
+        enabled: !!activeMembership?.parsedName,
     });
 }
