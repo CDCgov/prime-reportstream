@@ -182,7 +182,7 @@ class End2EndUniversalPipeline : CoolTest() {
                 val translateReportId = getSingleChildReportId(routeReportId)
                     ?: return bad(
                         "***async end2end_up FAILED***:" +
-                        " Did not find a translate report id from route: $routeReportId"
+                            " Did not find a translate report id from route: $routeReportId"
                     )
 
                 val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
