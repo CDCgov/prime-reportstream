@@ -86,87 +86,84 @@ class SoapSerializer(
         // root element by force, so I can use it down below
         val payloadName = value.payload::class.findAnnotation() as? JacksonXmlRootElement
         if (xmlGen != null) {
+            writeEnvelopeNamespaces(xmlGen, value)
             when (value.soapVersion) {
                 // SOAP version 1.2 has a very different structure than SOAP 1.1 and uses WS security elements in the header.
                 "SOAP12" -> {
-                    // this timestamp id just needs to be a random unique identifier
-                    val timestampId = "TS-" + (java.util.UUID.randomUUID())
-                    val timeCreated = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())
-                    val timeExpires = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plusSeconds(180))
-
-                    xmlGen.writeStartObject()
-                    xmlGen.setNextIsAttribute(true)
-                    // write out the SOAP namespace into the header
-                    xmlGen.writeFieldName("xmlns:$soapNamespaceAlias")
-                    // and the namespace as well
-                    xmlGen.writeString(soap12Namespace)
-                    // write out all the other namespaces we have
-                    value.namespaces.forEach {
-                        xmlGen.setNextIsAttribute(true)
-                        xmlGen.writeFieldName(it.key)
-                        xmlGen.writeString(it.value)
-                    }
-                    // write out the header element
-                    xmlGen.writeObjectFieldStart("$soapNamespaceAlias:Header")
-                    // write out XML element for wsse Security element
-                    xmlGen.writeObjectFieldStart("wsse:Security")
-                    // include required attribute in wsse:Security element
-                    xmlGen.setNextIsAttribute(true)
-                    xmlGen.writeStringField("soapenv:mustUnderstand", "1")
-                    xmlGen.setNextIsAttribute(true)
-                    xmlGen.writeStringField(
-                        "xmlns:wsse",
-                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
-                    )
-                    // write out timestamp elements and attributes for wsse security header
-                    xmlGen.writeObjectFieldStart("wsu:Timestamp")
-                    xmlGen.setNextIsAttribute(true)
-                    xmlGen.writeFieldName("wsu:Id")
-                    xmlGen.writeString(timestampId)
-                    xmlGen.setNextIsAttribute(true)
-                    xmlGen.writeStringField(
-                        "xmlns:wsu",
-                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
-                    )
-                    xmlGen.setNextIsAttribute(false)
-                    xmlGen.writeStringField("wsu:Created", timeCreated)
-                    xmlGen.setNextIsAttribute(false)
-                    xmlGen.writeStringField("wsu:Expires", timeExpires)
-                    // close the objects for the wsu:timestamp, wsse:Security and soapenv:Header elements
-                    repeat(3) { xmlGen.writeEndObject() }
-                    // create the body XML element
-                    xmlGen.writeObjectFieldStart("$soapNamespaceAlias:Body")
-                    // insert the XML object(s) created in the soapimpl files
-                    xmlGen.writePOJOField(payloadName?.localName ?: defaultPayloadName, value.payload)
-                    xmlGen.writeEndObject()
+                    writeSoap12Header(xmlGen)
                 }
                 else -> {
-                    // generate SOAP 1.1 message elements
-                    xmlGen.writeStartObject()
-                    xmlGen.setNextIsAttribute(true)
-                    // write out the SOAP namespace into the header
-                    xmlGen.writeFieldName("xmlns:$soapNamespaceAlias")
-                    // and the namespace as well
-                    xmlGen.writeString(soapNamespace)
-                    // write out all the other namespaces we have
-                    value.namespaces.forEach {
-                        xmlGen.setNextIsAttribute(true)
-                        xmlGen.writeFieldName(it.key)
-                        xmlGen.writeString(it.value)
-                    }
-                    xmlGen.setNextIsAttribute(false)
-                    // write out a null header
                     xmlGen.writeNullField("$soapNamespaceAlias:Header")
-                    // write out the body of the envelope
-                    xmlGen.writeObjectFieldStart("$soapNamespaceAlias:Body")
-                    // write out the payload itself
-                    xmlGen.writePOJOField(payloadName?.localName ?: defaultPayloadName, value.payload)
-                    xmlGen.writeEndObject()
                 }
             }
+            // write out the body of the envelope
+            xmlGen.writeObjectFieldStart("$soapNamespaceAlias:Body")
+            // write out the payload itself
+            xmlGen.writePOJOField(payloadName?.localName ?: defaultPayloadName, value.payload)
+            xmlGen.writeEndObject()
         }
     }
 
+    /**
+     * Writes out the SOAP Envelope namespaces in XML as defined in receiver settings
+     */
+    private fun writeEnvelopeNamespaces(xmlGen: ToXmlGenerator, value: SoapEnvelope) {
+        // start SOAP Envelope xml
+        xmlGen.writeStartObject()
+        xmlGen.setNextIsAttribute(true)
+        // write out the SOAP namespace into the header
+        xmlGen.writeFieldName("xmlns:$soapNamespaceAlias")
+        // and the namespace as well
+         if (value.soapVersion == "SOAP12") {
+            xmlGen.writeString(soap12Namespace)
+        } else {
+            xmlGen.writeString(soapNamespace)
+        }
+        value.namespaces.forEach {
+            xmlGen.setNextIsAttribute(true)
+            xmlGen.writeFieldName(it.key)
+            xmlGen.writeString(it.value)
+        }
+        xmlGen.setNextIsAttribute(false)
+    }
+
+    /**
+     * If SOAP Version 1.2 is used by receiver this creates the needed security headers
+     */
+    private fun writeSoap12Header(xmlGen: ToXmlGenerator) {
+        // this timestamp id just needs to be a random unique identifier
+        val timestampId = "TS-" + (java.util.UUID.randomUUID())
+        val timeCreated = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())
+        val timeExpires = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plusSeconds(180))
+
+        xmlGen.writeObjectFieldStart("$soapNamespaceAlias:Header")
+        // write out XML element for wsse Security element
+        xmlGen.writeObjectFieldStart("wsse:Security")
+        // include required attribute in wsse:Security element
+        xmlGen.setNextIsAttribute(true)
+        xmlGen.writeStringField("soapenv:mustUnderstand", "1")
+        xmlGen.setNextIsAttribute(true)
+        xmlGen.writeStringField(
+            "xmlns:wsse",
+            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+        )
+        // write out timestamp elements and attributes for wsse security header
+        xmlGen.writeObjectFieldStart("wsu:Timestamp")
+        xmlGen.setNextIsAttribute(true)
+        xmlGen.writeFieldName("wsu:Id")
+        xmlGen.writeString(timestampId)
+        xmlGen.setNextIsAttribute(true)
+        xmlGen.writeStringField(
+            "xmlns:wsu",
+            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+        )
+        xmlGen.setNextIsAttribute(false)
+        xmlGen.writeStringField("wsu:Created", timeCreated)
+        xmlGen.setNextIsAttribute(false)
+        xmlGen.writeStringField("wsu:Expires", timeExpires)
+        // close the objects for the wsu:timestamp, wsse:Security and soapenv:Header elements
+        repeat(3) { xmlGen.writeEndObject() }
+    }
     companion object {
         /** our default SOAP namespace */
         private const val soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/"
