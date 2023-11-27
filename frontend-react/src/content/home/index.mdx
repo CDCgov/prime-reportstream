@@ -4,15 +4,6 @@ liveMapContact:
       subTitle: Public health entities
       summary: ReportStream works with organizations who need to report data and public health entities who need to receive data.
       description: ReportStream helps state, local, and territorial agencies across the United States get the data they need for the best possible public health responses.
-      features:
-        - img: rs-live-stlt.svg
-          imgAlt: Map of the U.S. showing states and territories where ReportStream is currently live
-          linkInternal: /how-it-works/where-were-live
-      citation:
-        - title: More test results and improved interoperability
-          quote: All the people we worked with were competent and focused. I will commend the team as to how they have continued to onboard facilities and get those lab results to us timely. Without it, we wouldn’t have received those reports at all; or, we would have had numerous pages of faxes. This initiative really improved our interoperability.
-          author: Monica Gamez
-          authorTitle: Deputy Associate Commissioner, Texas Department of State Health Services
 ---
 import site from "../site.json";
 
@@ -23,7 +14,7 @@ import site from "../site.json";
             <p className="rs-subtitle">ReportStream is CDC’s free, interoperable platform for streamlining public health reporting.
                 <br />We navigate unique, complex requirements and work to make sure your data gets where it needs to be.</p>
             <div className="grid-row margin-top-8 margin-bottom-2">
-                <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big" target="_blank">Connect now</A>
+                <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big" target="_blank">Connect with us</A>
             </div>
         </header>
     </div>
@@ -35,13 +26,15 @@ import site from "../site.json";
             <CardGroup>
                 <Card gridLayout={{col: "fill"}} isAlternate>
                     <CardMedia>
-                        <img src="/assets/img/home/how-we-help-1.png" alt="Create a personalized plan to meet your unique public health data needs" />
+                        <img src="/assets/img/home/how-we-help-1.png" alt="Create a personalized plan to meet your public health data needs" />
                     </CardMedia>
                     <CardHeader className="font-sans-lg" typeof="div">
-                        Create a personalized plan to meet your unique public health data needs
+                        Create a personalized plan to meet your public health data needs
                     </CardHeader>
                     <CardBody>
-                        Our expert team works with your preferences to accept data in HL7, FHIR and CSV, and deliver data through multiple connection types.
+                        Our expert team works with your preferences to accept ELR data in HL7, FHIR, CSV and more, and deliver data through multiple connection types.
+
+                        Learn [how to set up transfer](/getting-started) of COVID, mpox, flu and RSV data.
                     </CardBody>
                 </Card>
                 <Card gridLayout={{col: "fill"}} isAlternate>
@@ -53,6 +46,8 @@ import site from "../site.json";
                     </CardHeader>
                     <CardBody>
                         Through our secure, cloud-based platform, data is validated, routed and transformed to the correct jurisdictions in the correct formatting.
+
+                        Learn how we prioritize the [security of your data](/about/security) throughout the process.
                     </CardBody>
                 </Card>
                 <Card gridLayout={{col: "fill"}} isAlternate>
@@ -64,6 +59,8 @@ import site from "../site.json";
                     </CardHeader>
                     <CardBody>
                         Our [expert support team](/support) is on call and ready to solve any problems that arise.
+
+                        Explore [our tools](/managing-your-connection) for managing your data transfer with ReportStream.
                     </CardBody>
                 </Card>
             </CardGroup>

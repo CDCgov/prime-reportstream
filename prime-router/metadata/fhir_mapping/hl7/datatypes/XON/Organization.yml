@@ -11,21 +11,33 @@ name:
   expressionType: HL7Spec
 
 extension_1-nameType:
+  condition: xon2 NOT_NULL
   generateList: true
   expressionType: nested
+  vars:
+    xon2: XON.2
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: organization-name-type
-    valueCodeableConcept:
-      valueOf: datatype/CodeableConcept
+    valueCoding:
+      valueOf: datatypes/CWE/Coding
       generateList: true
       expressionType: resource
       specs: XON.2
+      constants:
+        hl7v2Name: organization-name-type-code
+
 
 identifier_1:
   expressionType: nested
   vars:
+    xon3: XON.3
+    xon4: XON.4
+    xon5: XON.5
+    xon6: XON.6
+    xon7: XON.7
+    xon8: XON.8
     xon10: String, XON.10
   expressionsMap:
     value_1:
@@ -39,6 +51,7 @@ identifier_1:
       expressionType: HL7Spec
       valueOf: XON.10
     type:
+      condition: $xon7 NOT_NULL
       valueOf: datatype/CodeableConcept_var
       expressionType: resource
       vars:
@@ -46,6 +59,7 @@ identifier_1:
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     extension_1-checkDigitSchema:
+      condition: $xon5 NOT_NULL
       generateList: true
       expressionType: nested
       expressionsMap:
@@ -57,6 +71,7 @@ identifier_1:
           type: STRING
           expressionType: HL7Spec
     extension_2-checkDigit:
+      condition: $xon4 NOT_NULL
       generateList: true
       expressionType: nested
       expressionsMap:
@@ -69,8 +84,6 @@ identifier_1:
           valueOf: XON.4
     extension_3-assigningAuthority:
       condition: $xon6 NOT_NULL
-      vars:
-        xon6: String, XON.6
       generateList: true
       expressionType: resource
       valueOf: datatypes/HD/ExtensionAssigningAuthority
@@ -128,3 +141,25 @@ extension_3-xon10OrganizationIdentifier:
       expressionType: HL7Spec
       type: STRING
       valueOf: XON.10
+
+extension_hl7Use:
+  generateList: true
+  expressionType: nested
+  condition: $xonOrganizationHL7Use NOT_NULL
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: hl7-use
+    valueString:
+      type: STRING
+      valueOf: $xonOrganizationHL7Use
+
+contact:
+  expressionType: nested
+  expressionsMap:
+    address:
+      condition: $XADAddress NOT_NULL
+      valueOf: datatypes/XAD/Address
+      expressionType: resource
+      generateList: true
+      specs: $XADAddress

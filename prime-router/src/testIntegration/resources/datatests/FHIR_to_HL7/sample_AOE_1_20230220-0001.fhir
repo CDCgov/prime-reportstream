@@ -38,7 +38,7 @@
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+          "display" : "ORU^R01^ORU_R01"
         },
         "destination" : [
           {
@@ -69,6 +69,22 @@
             {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id",
               "valueString" : "20210810"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+              "valueString" : "CDC PRIME - Atlanta"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+              "valueString" : "2.16.840.1.114222.4.1.237821"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+              "valueString" : "ISO"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+              "valueString" : "sending-application"
             }
           ],
           "name" : "MEDITECH",
@@ -198,6 +214,10 @@
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+            "valueString" : "MEDITECH"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon10-organization-identifier",
             "valueString" : "MEDITECH"
           },
           {
@@ -477,7 +497,7 @@
             }
           ]
         },
-        "name" : "ROSE MEDICAL CENTER "
+        "name" : "ROSE MEDICAL CENTER"
       }
     },
     {
@@ -540,6 +560,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -795,7 +821,7 @@
             }
           ]
         },
-        "name" : "ROSE MEDICAL CENTER "
+        "name" : "ROSE MEDICAL CENTER"
       }
     },
     {
@@ -858,6 +884,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -1148,7 +1180,7 @@
             }
           ]
         },
-        "name" : "ROSE MEDICAL CENTER "
+        "name" : "ROSE MEDICAL CENTER"
       }
     },
     {
@@ -1211,6 +1243,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -1526,6 +1564,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -1847,6 +1891,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -2178,6 +2228,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -2499,6 +2555,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -2830,6 +2892,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -3151,6 +3219,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -3517,6 +3591,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -3850,6 +3930,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -4175,6 +4261,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -4500,6 +4592,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -4838,6 +4936,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -5163,6 +5267,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -5488,6 +5598,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -5813,6 +5929,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -6138,6 +6260,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -6463,6 +6591,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -6788,6 +6922,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -7126,7 +7266,7 @@
             }
           ]
         },
-        "name" : "ROSE MEDICAL CENTER "
+        "name" : "ROSE MEDICAL CENTER"
       }
     },
     {
@@ -7189,6 +7329,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -7514,7 +7660,7 @@
             }
           ]
         },
-        "name" : "ROSE MEDICAL CENTER "
+        "name" : "ROSE MEDICAL CENTER"
       }
     },
     {
@@ -7577,6 +7723,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -7844,7 +7996,7 @@
             }
           ]
         },
-        "name" : "ROSE MEDICAL CENTER "
+        "name" : "ROSE MEDICAL CENTER"
       }
     },
     {
@@ -7907,6 +8059,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -8232,7 +8390,7 @@
             }
           ]
         },
-        "name" : "ROSE MEDICAL CENTER "
+        "name" : "ROSE MEDICAL CENTER"
       }
     },
     {
@@ -8295,6 +8453,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -8562,7 +8726,7 @@
             }
           ]
         },
-        "name" : "ROSE MEDICAL CENTER "
+        "name" : "ROSE MEDICAL CENTER"
       }
     },
     {
@@ -8625,6 +8789,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -8944,7 +9114,7 @@
             }
           ]
         },
-        "name" : "ROSE MEDICAL CENTER "
+        "name" : "ROSE MEDICAL CENTER"
       }
     },
     {
@@ -9007,6 +9177,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -9169,9 +9345,43 @@
         },
         "identifier" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -9264,11 +9474,45 @@
             }
           ]
         },
-        "identifier" : [
+        "identifier" :  [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -9361,11 +9605,45 @@
             }
           ]
         },
-        "identifier" : [
+        "identifier" :  [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -9438,11 +9716,45 @@
             }
           ]
         },
-        "identifier" : [
+        "identifier" :  [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -9595,8 +9907,25 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "placer-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123.1"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -9607,7 +9936,6 @@
                 }
               ]
             },
-            "system" : "urn:id:M12776123.1",
             "value" : "09339017"
           },
           {
@@ -9801,6 +10129,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Christopher Beau Willison",
             "family" : "Willison",
@@ -9919,6 +10253,36 @@
           {
             "telecom" : [
               {
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+                    "valueString" : "+1 303 695 2653"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
+                    "valueString" : "6952653"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                    "valueString" : "303"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                    "valueString" : "1"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                    "valueString" : "6952653"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                    "valueString" : "PH"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
+                    "valueString" : "WPN"
+                  }
+                ],
                 "system" : "phone",
                 "value" : "+1 303 695 2653",
                 "use" : "work"
@@ -10266,8 +10630,25 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "placer-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123.2"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -10278,7 +10659,6 @@
                 }
               ]
             },
-            "system" : "urn:id:M12776123.2",
             "value" : "09339017"
           },
           {
@@ -10484,6 +10864,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Christopher Beau Willison",
             "family" : "Willison",
@@ -10602,6 +10988,36 @@
           {
             "telecom" : [
               {
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+                    "valueString" : "+1 303 695 2653"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
+                    "valueString" : "6952653"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                    "valueString" : "303"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                    "valueString" : "1"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                    "valueString" : "6952653"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                    "valueString" : "PH"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
+                    "valueString" : "WPN"
+                  }
+                ],
                 "system" : "phone",
                 "value" : "+1 303 695 2653",
                 "use" : "work"
@@ -10957,8 +11373,25 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "placer-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123.3"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -10969,7 +11402,6 @@
                 }
               ]
             },
-            "system" : "urn:id:M12776123.3",
             "value" : "09339017"
           },
           {
@@ -11184,6 +11616,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Christopher Beau Willison",
             "family" : "Willison",
@@ -11302,6 +11740,36 @@
           {
             "telecom" : [
               {
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+                    "valueString" : "+1 303 695 2653"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
+                    "valueString" : "6952653"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                    "valueString" : "303"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                    "valueString" : "1"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                    "valueString" : "6952653"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                    "valueString" : "PH"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
+                    "valueString" : "WPN"
+                  }
+                ],
                 "system" : "phone",
                 "value" : "+1 303 695 2653",
                 "use" : "work"
@@ -11832,6 +12300,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Christopher Beau Willison",
             "family" : "Willison",
@@ -12316,6 +12790,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Christopher Beau Willison",
             "family" : "Willison",
@@ -12757,6 +13237,36 @@
         ],
         "telecom" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+                "valueString" : "+1 303 693 0111"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
+                "valueString" : "6930111"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                "valueString" : "303"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                "valueString" : "1"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                "valueString" : "6930111"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                "valueString" : "PH"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
+                "valueString" : "PRN"
+              }
+            ],
             "system" : "phone",
             "value" : "+1 303 693 0111",
             "use" : "home"
@@ -12764,8 +13274,40 @@
           {
             "extension" : [
               {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+                "valueString" : "+1 303 999 9999"
+              },
+              {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
                 "valueString" : "Business"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text",
+                "valueString" : "Business"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
+                "valueString" : "9999999"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                "valueString" : "303"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                "valueString" : "1"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                "valueString" : "9999999"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                "valueString" : "PH"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
+                "valueString" : "WPN"
               }
             ],
             "system" : "phone",
@@ -12826,6 +13368,16 @@
               }
             ],
             "name" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
+                  "valueString" : "GENARO"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
+                  "valueString" : "L"
+                }
+              ],
               "use" : "official",
               "text" : "GENARO SURYAN",
               "family" : "SURYAN",
@@ -12896,6 +13448,16 @@
               }
             ],
             "address" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
+                  "valueString" : "4861 20TH AVE"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
+                  "valueCode" : "H"
+                }
+              ],
               "use" : "home",
               "line" : [
                 "4861 20TH AVE"
@@ -13173,6 +13735,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "text" : "James Madison Hunt",
             "family" : "Hunt",
             "given" : [
@@ -13245,6 +13813,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "text" : "James Madison Hunt",
             "family" : "Hunt",
             "given" : [
@@ -13317,6 +13891,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "text" : "James Madison Hunt",
             "family" : "Hunt",
             "given" : [
@@ -13385,6 +13965,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "text" : "James M Neid",
             "family" : "Neid",
             "given" : [
@@ -13453,6 +14039,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "NP"
+              }
+            ],
             "text" : "Todd Hultman",
             "family" : "Hultman",
             "given" : [
@@ -13524,6 +14116,12 @@
         ],
         "name" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "text" : "James Madison Hunt",
             "family" : "Hunt",
             "given" : [

@@ -47,23 +47,17 @@ describe("ConfirmSaveSettingModal", () => {
 
     describe("on initial mount", () => {
         describe("when the updated JSON is valid", () => {
-            beforeEach(() => {
-                renderComponent();
-            });
-
             test("disables the save button", () => {
+                renderComponent();
                 expect(saveButtonNode).toBeDisabled();
             });
         });
 
         describe("when the updated JSON is invalid", () => {
-            beforeEach(() => {
+            test("disables the save button", () => {
                 renderComponent({
                     newjson: INVALID_JSON,
                 });
-            });
-
-            test("disables the save button", () => {
                 expect(saveButtonNode).toBeDisabled();
             });
         });
@@ -71,29 +65,31 @@ describe("ConfirmSaveSettingModal", () => {
 
     describe("on change", () => {
         describe("when the updated JSON is valid", () => {
-            beforeEach(() => {
+            function setup() {
                 renderComponent();
 
                 fireEvent.change(textareaNode, {
                     target: { value: VALID_JSON_UPDATED },
                 });
-            });
+            }
 
             test("disables the save button", () => {
+                setup();
                 expect(saveButtonNode).toBeDisabled();
             });
         });
 
         describe("when the updated JSON is invalid", () => {
-            beforeEach(() => {
+            function setup() {
                 renderComponent();
 
                 fireEvent.change(textareaNode, {
                     target: { value: INVALID_JSON },
                 });
-            });
+            }
 
             test("disables the save button", () => {
+                setup();
                 expect(saveButtonNode).toBeDisabled();
             });
         });
@@ -102,7 +98,7 @@ describe("ConfirmSaveSettingModal", () => {
     describe("on clicking the 'Check syntax' button", () => {
         describe("when the updated JSON is valid", () => {
             describe("when there are no changes", () => {
-                beforeEach(() => {
+                function setup() {
                     renderComponent();
 
                     fireEvent.click(checkSyntaxButtonNode);
@@ -110,25 +106,28 @@ describe("ConfirmSaveSettingModal", () => {
                     errorDiffNode = screen.queryByTestId(
                         "EditableCompare__errorDiff",
                     );
-                });
+                }
 
                 test("does not render an error diff", () => {
+                    setup();
                     expect(errorDiffNode).toBeNull();
                 });
 
                 test("does not render an error toast", () => {
+                    setup();
                     expect(
                         screen.queryByText(/JSON data generated/),
                     ).not.toBeInTheDocument();
                 });
 
                 test("pretty-prints the JSON in the textarea", () => {
+                    setup();
                     expect(textareaNode.innerHTML).toEqual('{\n  "a": 1\n}');
                 });
             });
 
             describe("when there are changes", () => {
-                beforeEach(() => {
+                function setup() {
                     renderComponent();
 
                     fireEvent.change(textareaNode, {
@@ -139,19 +138,22 @@ describe("ConfirmSaveSettingModal", () => {
                     errorDiffNode = screen.queryByTestId(
                         "EditableCompare__errorDiff",
                     );
-                });
+                }
 
                 test("does not render an error diff", () => {
+                    setup();
                     expect(errorDiffNode).toBeNull();
                 });
 
                 test("does not render an error toast", () => {
+                    setup();
                     expect(
                         screen.queryByText(/JSON data generated/),
                     ).not.toBeInTheDocument();
                 });
 
                 test("pretty-prints the JSON in the textarea", () => {
+                    setup();
                     expect(textareaNode.innerHTML).toEqual(
                         '{\n  "a": 1,\n  "b": 2\n}',
                     );
@@ -161,8 +163,7 @@ describe("ConfirmSaveSettingModal", () => {
 
         describe("when the updated JSON is invalid", () => {
             const consoleTraceSpy = jest.fn();
-
-            beforeEach(() => {
+            function setup() {
                 renderComponent();
 
                 jest.spyOn(console, "trace").mockImplementationOnce(
@@ -177,18 +178,20 @@ describe("ConfirmSaveSettingModal", () => {
                 errorDiffNode = screen.getByTestId(
                     "EditableCompare__errorDiff",
                 );
-            });
+            }
 
             afterEach(() => {
                 jest.resetAllMocks();
             });
 
             test("renders an error diff highlighting the error", () => {
+                setup();
                 expect(errorDiffNode).toBeVisible();
                 expect(errorDiffNode?.innerHTML).toContain("{ nope");
             });
 
             test("renders an error toast", () => {
+                setup();
                 expect(consoleTraceSpy).toHaveBeenCalled();
                 expect(
                     screen.queryByText(/JSON data generated/),
@@ -197,6 +200,7 @@ describe("ConfirmSaveSettingModal", () => {
 
             describe("when the user starts typing again", () => {
                 test("it removes the highlighting", () => {
+                    setup();
                     expect(errorDiffNode).toBeVisible();
 
                     fireEvent.change(textareaNode, {

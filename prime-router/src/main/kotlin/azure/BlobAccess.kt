@@ -134,7 +134,7 @@ class BlobAccess() : Logging {
             blobBytes: ByteArray,
             reportName: String,
             subfolderName: String? = null,
-            action: Event.EventAction = Event.EventAction.NONE,
+            action: Event.EventAction = Event.EventAction.OTHER,
         ): BlobInfo {
             val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
             val blobName = when (action) {
@@ -191,6 +191,36 @@ class BlobAccess() : Logging {
         /** Checks if a blob actually exists in the blobstore */
         fun exists(blobUrl: String, blobConnInfo: BlobContainerMetadata = defaultBlobMetadata): Boolean {
             return getBlobClient(blobUrl, blobConnInfo).exists()
+        }
+
+        /**
+         * Copies all blobs prefixed with the [directory] value from the soure to destination
+         *
+         * @param directory - the prefix (or directory) containing the blobs to be copied
+         * @param source - the source account to copy from
+         * @param destination - the destination to copy to
+         */
+        fun copyDir(directory: String, source: BlobContainerMetadata, destination: BlobContainerMetadata) {
+            val sourceContainer = getBlobContainer(source)
+            val destinationContainer = getBlobContainer(destination)
+            val blobsToCopy = listBlobs(directory, source)
+            blobsToCopy.forEach { blob ->
+                val sourceBlobClient = sourceContainer.getBlobClient(blob.currentBlobItem.name)
+                val destinationBlobClient = destinationContainer.getBlobClient(blob.currentBlobItem.name)
+                // Azurite does not support copying between instances of azurite
+                // https://github.com/Azure/Azurite/issues/767
+                // which would be the correct way to implement this functionality rather than
+                // downloading the content and uploading.  That solution would be:
+                //  val expiryTime = OffsetDateTime.now().plusDays(1)
+                //  val sasPermission = BlobSasPermission()
+                //    .setReadPermission(true)
+                //  val sasSignatureValues = BlobServiceSasSignatureValues(expiryTime, sasPermission)
+                //    .setStartTime(OffsetDateTime.now())
+                //  val sasToken = fromBlobClient.generateSas(sasSignatureValues)
+                //  toBlobClient.copyFromUrl("${fromBlobClient.blobUrl}?$sasToken")
+                val data = sourceBlobClient.downloadContent()
+                destinationBlobClient.upload(data, true)
+            }
         }
 
         /**

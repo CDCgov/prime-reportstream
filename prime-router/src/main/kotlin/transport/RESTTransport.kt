@@ -92,13 +92,12 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         // get the file name, or create one from the report ID, NY requires a file name in the POST
         val fileName = header.reportFile.externalName ?: "$reportId.hl7"
         // get the username/password to authenticate with OAuth
-        val credential: RestCredential = if (restTransportInfo.authType == "two-legged") {
-            lookupTwoLeggedCredential(receiver)
-        } else {
-            lookupDefaultCredential(receiver)
-        }
+        val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
+
+//         restTransportInfo.headers = restTransportInfo.headers + Pair("Content-Length", header.content.size.toLong())
+
         // get the TLS/SSL cert in a JKS if needed, NY uses a specific one
-        val jksCredential = restTransportInfo.tlsKeystore?.let { lookupJksCredentials(it) }
+//        val jksCredential = restTransportInfo.tlsKeystore?.let { lookupJksCredentials(it) }
 
         return try {
             // run our call to the endpoint in a blocking fashion
@@ -200,6 +199,23 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 }
             }
         }
+    }
+
+    /**
+     * Get credential either two-legged or default.
+     * @param transportType the transport type of two-legged or default
+     * @param receiver the receiver setting
+     */
+    fun getCredential(transport: RESTTransportType, receiver: Receiver): Pair<RestCredential, UserJksCredential?> {
+        val credential: RestCredential = if (transport.authType == "two-legged") {
+            lookupTwoLeggedCredential(receiver)
+        } else {
+            lookupDefaultCredential(receiver)
+        }
+
+        val jksCredential: UserJksCredential? = transport.tlsKeystore?.let { lookupJksCredentials(it) }
+
+        return Pair(credential, jksCredential)
     }
 
     /**
@@ -403,7 +419,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         httpClient: HttpClient,
     ): TokenInfo {
         httpClient.use { client ->
-            if (restUrl.contains("dataingestion.datateam-cdc-nbs")) {
+            if (restUrl.contains("dataingestion.test.nbspreview.com")) {
                 val idTokenInfoString: String = client.post(restUrl) {
                     val credentialString = credential.user + ":" + credential.pass
                     val basicAuth = "Basic " + Base64.getEncoder().encodeToString(credentialString.encodeToByteArray())
@@ -411,7 +427,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     postHeaders(
                         mapOf(
                             "Authorization" to basicAuth,
-                            "Host" to "dataingestion.datateam-cdc-nbs.eqsandbox.com"
+                            "Host" to "dataingestion.test.nbspreview.com"
                         )
                     )
                 }.body()
@@ -453,8 +469,16 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val theResponse: HttpResponse = client.post(restUrl) {
                 logger.info("posting report to rest API")
                 expectSuccess = true // throw an exception if not successful
-                postHeaders(
+
+                // NBS requires the Content-Length to be set
+                val newHeaders = if (restUrl.contains("dataingestion.test.nbspreview.com")) {
+                    headers.plus(mapOf("Content-Length" to message.size.toString()))
+                } else {
                     headers
+                }
+
+                postHeaders(
+                    newHeaders
                 )
                 setBody(
                     when (restUrl.substringAfterLast('/')) {

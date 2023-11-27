@@ -19,10 +19,11 @@ export type CheckSettingParams = {
 };
 
 export const useCheckSettingsCmd = () => {
-    const { authorizedFetch } = useAuthorizedFetch<CheckSettingResult>();
+    const authorizedFetch = useAuthorizedFetch<CheckSettingResult>();
     const checkSettingsCmd = new RSEndpoint({
         path: "/checkreceiver/org/:orgName/receiver/:receiverName",
         method: HTTPMethods.POST,
+        queryKey: "checkReceiverSettings",
     });
 
     const updateValueSet = (params: CheckSettingParams) => {
@@ -30,14 +31,7 @@ export const useCheckSettingsCmd = () => {
             segments: { ...params },
         });
     };
-    const mutation = useMutation<
-        CheckSettingResult,
-        RSNetworkError,
-        CheckSettingParams
-    >(updateValueSet);
-    return {
-        doCheck: mutation.mutateAsync,
-        isLoading: mutation.isLoading,
-        error: mutation.error,
-    };
+    return useMutation<CheckSettingResult, RSNetworkError, CheckSettingParams>({
+        mutationFn: updateValueSet,
+    });
 };

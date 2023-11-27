@@ -14,7 +14,6 @@ import com.github.ajalt.clikt.parameters.types.int
 import com.github.difflib.text.DiffRow
 import com.github.difflib.text.DiffRowGenerator
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Headers
@@ -30,6 +29,7 @@ import de.m3y.kformat.table
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.commons.io.FileUtils
@@ -497,7 +497,7 @@ class LookupTableGetCommand : GenericLookupTableCommand(
                 echo(LookupTableCommands.rowsToPrintableTable(tableList, colNames))
                 echo("")
             } else {
-                saveTable(outputFile!!, tableList)
+                saveTableAsCSV(outputFile!!.outputStream(), tableList)
                 echo(
                     "Saved ${tableList.size} rows of table $tableName version $version " +
                         "to ${outputFile!!.absolutePath} "
@@ -507,21 +507,132 @@ class LookupTableGetCommand : GenericLookupTableCommand(
             echo("Table $tableName version $version has no rows.")
         }
     }
+}
+
+/**
+ * Print out a lookup table.
+ */
+class LookupTableCompareMappingCommand : GenericLookupTableCommand(
+    name = "compare-mapping",
+    help = "Compares a sender compendium against an observation mapping lookup table, outputting an annotated CSV"
+) {
+    /**
+     * The input file to get the table data from.
+     */
+    private val inputFile by option("-i", "--input-file", help = "Input CSV file with the sender compendium table data")
+        .file(true, canBeDir = false, mustBeReadable = true).required()
 
     /**
-     * Save table data in [tableRows] to an [outputFile] in CSV format.
+     * Optional output file to save the annotated table to.
      */
-    private fun saveTable(outputFile: File, tableRows: List<Map<String, String>>) {
-        val colNames = tableRows[0].keys.toList()
-        val rows = mutableListOf(colNames)
-        tableRows.forEach { row ->
-            rows.add(
-                colNames.map { colName ->
-                    row[colName] ?: ""
+    private val outputFile by option("-o", "--output-file", help = "Specify file to save annotated table data as CSV")
+        .file(false, canBeDir = false)
+
+    /**
+     * Table name option.
+     */
+    private val tableName by option("-n", "--name", help = "The name of the table to perform the comparison on")
+        .required()
+
+    /**
+     * Table version option.
+    */
+    private val tableVersion by option("-v", "--version", help = "The version of the table to get").int()
+
+    companion object {
+        private const val SENDER_COMPENDIUM_CODE_KEY = "test code"
+        private const val SENDER_COMPENDIUM_CODESYSTEM_KEY = "coding system"
+        private const val SENDER_COMPENDIUM_MAPPED_KEY = "mapped?"
+        private const val SENDER_COMPENDIUM_MAPPED_TRUE = "Y"
+        private const val SENDER_COMPENDIUM_MAPPED_FALSE = "N"
+        private const val OBX_MAPPING_CODE_KEY = "Code"
+        private const val OBX_MAPPING_CODESYSTEM_KEY = "Code System"
+
+        fun compareMappings(
+            inputData: List<Map<String, String>>,
+            tableMap: Map<String?, Map<String, String>>,
+        ): List<Map<String, String>> {
+            val outputData = inputData.map {
+                if (tableMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(OBX_MAPPING_CODESYSTEM_KEY) == it.getValue(
+                        SENDER_COMPENDIUM_CODESYSTEM_KEY
+                    )
+                ) {
+                    it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_TRUE)
+                } else {
+                    it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_FALSE)
                 }
+            }
+
+            return outputData
+        }
+    }
+
+    private fun findActiveVersion(tableName: String): Int {
+        val tableList = try {
+            tableUtil.fetchList()
+        } catch (e: IOException) {
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+        }
+        val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
+        if (activeVersion == 0) throw PrintMessage("Could not find lookup table: $tableName", true)
+        return activeVersion
+    }
+
+    override fun run() {
+        // Read the input file.
+        val inputData = csvReader().readAllWithHeader(inputFile)
+
+        // Check the supplied compendium
+        if (inputData.isEmpty()) {
+            throw PrintMessage("Input file ${inputFile.absolutePath} has no data.", true)
+        }
+        arrayOf(SENDER_COMPENDIUM_CODE_KEY, SENDER_COMPENDIUM_CODESYSTEM_KEY).forEach {
+            if (it !in inputData[0].keys) throw PrintMessage("Supplied compendium is missing column: $it")
+        }
+
+        val loadTableVersion: Int = tableVersion ?: findActiveVersion(tableName)
+
+        // Verify the table/version exists
+        try {
+            tableUtil.fetchTableInfo(tableName, loadTableVersion)
+        } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
+            throw PrintMessage("The table $tableName version $loadTableVersion was not found.", true)
+        } catch (e: IOException) {
+            throw PrintMessage(
+                "Error fetching table version for $tableName version $loadTableVersion: ${e.message}",
+                true
             )
         }
-        csvWriter().writeAll(rows, outputFile.outputStream())
+
+        // Load the active or specified version of the table
+        val tableData = try {
+            tableUtil.fetchTableContent(tableName, loadTableVersion)
+        } catch (e: Exception) {
+            throw PrintMessage("Error fetching table content for table $tableName: ${e.message}", true)
+        }
+
+        // Check loaded table for needed columns
+        if (OBX_MAPPING_CODE_KEY !in tableData[0].keys) {
+            throw PrintMessage("Loaded table $tableName missing code column: $OBX_MAPPING_CODE_KEY", true)
+        }
+        if (OBX_MAPPING_CODESYSTEM_KEY !in tableData[0].keys) {
+            echo("Warning: Loaded table missing codesystem column: $OBX_MAPPING_CODESYSTEM_KEY")
+        }
+
+        // Create lookup table of codes
+        val tableMap = tableData.associateBy { it[OBX_MAPPING_CODE_KEY] }
+
+        // Add a mapped? value to each row of table data
+        val outputData = compareMappings(inputData, tableMap)
+
+        // Save an output file and print the resulting table data
+        if (outputFile != null) {
+            saveTableAsCSV(outputFile!!.outputStream(), outputData)
+            echo(
+                "Saved ${outputData.size} rows to ${outputFile!!.absolutePath} "
+            )
+        }
+        echo(LookupTableCommands.rowsToPrintableTable(outputData, outputData[0].keys.toList()))
     }
 }
 

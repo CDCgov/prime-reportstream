@@ -20,8 +20,8 @@ elements:
   # SFT-1-1
   - name: software-vendor-name
     condition: true
-    resource: 'Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`)'
-    bundleProperty: '%resource.value.resolve().name'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`).value.resolve()'
+    bundleProperty: '%resource.name'
     value: [ '"Centers for Disease Control and Prevention"' ]
 
   - name: processing-id

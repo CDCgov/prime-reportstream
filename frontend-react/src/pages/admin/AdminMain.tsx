@@ -7,23 +7,20 @@ import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
 import { OrgsTable } from "../../components/Admin/OrgsTable";
-import { AuthElement } from "../../components/AuthElement";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import { FeatureName } from "../../utils/FeatureName";
 
-export function AdminMain() {
+const fallbackPage = () => <ErrorPage type="page" />;
+const fallbackMessage = () => <ErrorPage type="message" />;
+
+export function AdminMainPage() {
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
+        <NetworkErrorBoundary fallbackComponent={fallbackMessage}>
             <GridContainer>
                 <article>
                     <Helmet>
                         <title>{FeatureName.ADMIN}</title>
                     </Helmet>
-                    <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="message" />}
-                    >
+                    <NetworkErrorBoundary fallbackComponent={fallbackPage}>
                         <Suspense fallback={<Spinner />}>
                             <OrgsTable />
                         </Suspense>
@@ -35,11 +32,4 @@ export function AdminMain() {
     );
 }
 
-export function AdminMainWithAuth() {
-    return (
-        <AuthElement
-            element={<AdminMain />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
+export default AdminMainPage;

@@ -113,6 +113,19 @@ identifier_5:
   expressionType: resource
   specs: ORC.21
 
+identifier_6:
+  condition: $valueIn NOT_NULL
+  valueOf: datatypes/CX/Identifier
+  generateList: true
+  expressionType: resource
+  specs: OBR.53
+  constants:
+    system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+    code: "PLAC"
+    identifierIndexName: "alternate-placer-identifier"
+  vars:
+    valueIn: OBR.53
+
 status:
   type: SERVICE_REQUEST_STATUS
   default: "unknown"
@@ -142,16 +155,24 @@ authoredOn:
   vars:
     dateTimeIn: ORC.9
     orderControl: String, ORC.1
-
-occurrenceDateTime:
-  condition: $startTiming NULL && $endTiming NULL
-  type: STRING
-  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-  expressionType: JEXL
+_authoredOn:
+  expressionType: nested
+  condition: $orderControl EQUALS NW && $dateTimeIn NOT_NULL
   vars:
-    dateTimeIn: ORC.15
-    startTiming: TQ1.7
-    endTiming: TQ1.8
+    dateTimeIn: ORC.9
+    orderControl: String, ORC.1
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
 
 occurrenceTiming:
   valueOf: datatype/Timing
@@ -284,16 +305,17 @@ extension_3-enterersLocation:
 extension_4-orderEffectiveDate:
   generateList: true
   expressionType: nested
+  condition: $orc15 NOT_NULL
+  vars:
+    orc15: ORC.15
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: order-effective-date
-    valueDateTime:
+    valueString:
       type: STRING
-      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-      expressionType: JEXL
-      vars:
-        dateTimeIn: ORC.15
+      valueOf: $orc15
+      expressionType: HL7Spec
 
 extension_5:
   generateList: true
@@ -315,7 +337,7 @@ extension_6:
       type: SYSTEM_URL
       value: collector-identifier
     valueReference:
-      valueOf: resource/Practitioner
+      valueOf: datatypes/XCN/Practitioner
       expressionType: reference
       specs: OBR.10
 

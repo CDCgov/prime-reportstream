@@ -54,7 +54,7 @@ jobs:
         run: |
          echo  ${env:Stale_Issues} >> StaleIssues.txt
 
-      - uses: MeilCli/slack-upload-file@84c8cc64564137454744d317987ca3e7699b7325
+      - uses: MeilCli/slack-upload-file@78d47cdee726875577010edd3b6bc30ed057ca8b
         id: message
         continue-on-error: true
         with:
@@ -63,7 +63,7 @@ jobs:
           file_path: 'PullRequests.txt'
           initial_comment: 'Stale pull requests report'
 
-      - uses: MeilCli/slack-upload-file@84c8cc64564137454744d317987ca3e7699b7325
+      - uses: MeilCli/slack-upload-file@78d47cdee726875577010edd3b6bc30ed057ca8b
         id: Branchesmessage
         continue-on-error: true
         with:
@@ -72,7 +72,7 @@ jobs:
           file_path: 'Branches.txt'
           initial_comment: 'Stale branches report'
 
-      - uses: MeilCli/slack-upload-file@84c8cc64564137454744d317987ca3e7699b7325
+      - uses: MeilCli/slack-upload-file@78d47cdee726875577010edd3b6bc30ed057ca8b
         id: Issuesmessage
         continue-on-error: true
         with:

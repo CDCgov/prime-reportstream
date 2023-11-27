@@ -20,10 +20,23 @@ env:
 jobs:
   sonarcloud:
     if: github.actor != 'dependabot[bot]'
-    name: "SonarCloud scan"
+    name: "SonarCloud/CodeQL scan"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["java-kotlin"]
 
     steps:
+      - name: Increase swapfile
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 15G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          sudo swapon --show
+
       - name: "Check out everything"
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
@@ -31,11 +44,11 @@ jobs:
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@033f2358d95522973eee35810e35a86fae4a71d8
+        uses: tj-actions/branch-names@ab304d8562e2f137165e1d930e6d22d431189074
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@95690f9ece77c1740f4a55b7f1de9023ed6b1f87
+        uses: tj-actions/changed-files@da093c1609db0edd0a037ce9664e135f74bf30d9
         with:
           files_yaml: |
             frontend:
@@ -60,14 +73,24 @@ jobs:
         working-directory: prime-router
         run: docker-compose -f docker-compose.postgres.yml up -d
 
+      - name: Initialize CodeQL
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: github/codeql-action/init@df32e399139a3050671466d7d9b3cbacc1cfd034
+        with:
+          languages: ${{ matrix.language }}
+
       - name: Build Prime Router Package
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
-        run: ./gradlew jacocoTestReport
+        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar
+
+      - name: Perform Java CodeQL Analysis
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: github/codeql-action/analyze@df32e399139a3050671466d7d9b3cbacc1cfd034
 
       - name: Use Node.js with yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d
+        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65
         with:
           node-version-file: "frontend-react/package.json"
 

@@ -275,8 +275,11 @@ describe("Sorting integration", () => {
  *   Refactor these tests to use new functions instead of TestTable
  * */
 describe("Table, filter integration tests", () => {
-    beforeEach(() => renderApp(<TestTable />));
+    function setup() {
+        renderApp(<TestTable />);
+    }
     test("date range selection and clearing", async () => {
+        setup();
         /* Workaround to assert changing state */
         const defaultState =
             "range: from 2000-01-01T00:00:00.000Z to 3000-01-01T00:00:00.000Z";
@@ -295,6 +298,7 @@ describe("Table, filter integration tests", () => {
     });
 
     test("cursor sets properly according to sort order", async () => {
+        setup();
         const defaultCursor = "cursor: 3000-01-01T00:00:00.000Z";
         expect(screen.getByText(/cursor:/)).toHaveTextContent(defaultCursor);
 

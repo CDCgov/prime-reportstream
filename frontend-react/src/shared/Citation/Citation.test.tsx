@@ -12,11 +12,12 @@ describe("Citation rendering", () => {
         authorTitle: "Mock author title",
     };
 
-    beforeEach(() => {
+    function setup() {
         renderApp(<Citation {...fakeCitation} />);
-    });
+    }
 
     test("Citation renders props", () => {
+        setup();
         const title = screen.getByTestId("title");
         const quote = screen.getByTestId("quote");
         const author = screen.getByTestId("author");

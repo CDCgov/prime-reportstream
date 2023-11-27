@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import {
     dataDashboardEndpoints,
@@ -56,8 +57,7 @@ export default function useReceiverSubmitters(serviceName?: string) {
     const rangeTo = filterManager.rangeSettings.to;
     const rangeFrom = filterManager.rangeSettings.from;
 
-    const { authorizedFetch, rsUseQuery } =
-        useAuthorizedFetch<RSReceiverSubmitterResponse>();
+    const authorizedFetch = useAuthorizedFetch<RSReceiverSubmitterResponse>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(receiverSubmitters, {
@@ -88,19 +88,18 @@ export default function useReceiverSubmitters(serviceName?: string) {
             sortDirection,
         ],
     );
-    const { data, isLoading } = rsUseQuery(
-        [
-            receiverSubmitters.queryKey,
-            activeMembership,
-            orgAndService,
-            filterManager,
-        ],
-        memoizedDataFetch,
-        {
+    return {
+        ...useQuery({
+            queryKey: [
+                receiverSubmitters.queryKey,
+                activeMembership,
+                orgAndService,
+                filterManager,
+            ],
+            queryFn: memoizedDataFetch,
             enabled:
                 !!activeMembership?.parsedName && !!activeMembership.service,
-        },
-    );
-
-    return { data, filterManager, isLoading };
+        }),
+        filterManager,
+    };
 }

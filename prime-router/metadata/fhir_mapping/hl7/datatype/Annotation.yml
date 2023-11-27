@@ -10,7 +10,7 @@ authorReference:
   specs: NTE.5
   vars:
     performer: NTE.5
- 
+
 time:
   type: STRING
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
