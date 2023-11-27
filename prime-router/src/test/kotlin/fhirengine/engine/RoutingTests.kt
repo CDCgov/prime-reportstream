@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
+package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertFailure
 import assertk.assertThat
@@ -31,9 +31,6 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.engine.FHIREngine
-import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
-import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -76,6 +73,7 @@ private const val PERFORMER_OR_PATIENT_CA = "(%performerState.exists() and %perf
     "or (%patientState.exists() and %patientState = 'CA')"
 private const val PROVENANCE_COUNT_GREATER_THAN_10 = "Bundle.entry.resource.ofType(Provenance).count() > 10"
 private const val EXCEPTION_FOUND = "exception found"
+private const val CONDITION_FILTER = "%resource.code.coding.code = '95418-0'"
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RoutingTests {
@@ -83,7 +81,7 @@ class RoutingTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    val mockActionHistory = ActionHistory(TaskAction.route)
+    private val actionHistory = ActionHistory(TaskAction.route)
 
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
@@ -95,11 +93,34 @@ class RoutingTests {
                 ORGANIZATION_NAME,
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
-                "one"
+                "one",
             ),
             Receiver(
                 "full-elr-hl7-2",
                 ORGANIZATION_NAME,
+                Topic.FULL_ELR,
+                CustomerStatus.INACTIVE,
+                "one"
+            )
+        )
+    )
+
+    val secondElrOrganization = DeepOrganization(
+        "second org",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                "second-receiver-2",
+                "second org",
+                Topic.FULL_ELR,
+                CustomerStatus.ACTIVE,
+                "one",
+                conditionFilter = listOf(CONDITION_FILTER)
+            ),
+            Receiver(
+                "full-elr-hl7-2",
+                "second org",
                 Topic.FULL_ELR,
                 CustomerStatus.INACTIVE,
                 "one"
@@ -247,7 +268,9 @@ class RoutingTests {
 
     @BeforeEach
     fun reset() {
-        mockActionHistory.actionLogs.clear()
+        actionHistory.reportsIn.clear()
+        actionHistory.reportsOut.clear()
+        actionHistory.actionLogs.clear()
         clearAllMocks()
     }
 
@@ -266,7 +289,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -287,7 +310,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -308,7 +331,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -333,7 +356,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -358,7 +381,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -383,7 +406,7 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isEmpty()
@@ -407,12 +430,12 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
 
         // assert only the quality filter didn't pass
-        assertThat(mockActionHistory.actionLogs).isNotEmpty()
-        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
-        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(actionHistory.actionLogs).isNotEmpty()
+        assertThat(actionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
         assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.QUALITY_FILTER)
         assertThat(receivers).isEmpty()
     }
@@ -441,12 +464,10 @@ class RoutingTests {
         val fhirData = File(VALID_FHIR_URL).readText()
 
         mockkObject(BlobAccess)
-        mockkObject(FHIRBundleHelpers)
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
@@ -473,12 +494,7 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
 
-        val bundle = Bundle()
-        mockkStatic(Bundle::addReceivers)
-        every { bundle.addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
@@ -493,11 +509,9 @@ class RoutingTests {
         val fhirData = File(VALID_FHIR_URL).readText()
 
         mockkObject(BlobAccess)
-        mockkObject(FHIRBundleHelpers)
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
@@ -524,18 +538,16 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
 
-        val bundle = Bundle()
-        mockkStatic(Bundle::addReceivers)
-        every { bundle.addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
         accessSpy.transact { txn ->
-            val messages = engine.run(message, actionLogger, mockActionHistory, txn)
+            val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
+            assertThat(actionHistory.actionLogs).hasSize(1)
+            val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
+            assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.QUALITY_FILTER)
         }
     }
 
@@ -544,11 +556,8 @@ class RoutingTests {
         val fhirData = File(VALID_FHIR_URL).readText()
 
         mockkObject(BlobAccess)
-        mockkObject(FHIRBundleHelpers)
-
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
@@ -575,17 +584,15 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        val bundle = Bundle()
-        mockkStatic(Bundle::addReceivers)
-        every { bundle.addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
         accessSpy.transact { txn ->
-            val messages = engine.run(message, actionLogger, mockActionHistory, txn)
+            val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
+            assertThat(actionHistory.actionLogs).hasSize(1)
+            val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
+            assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.ROUTING_FILTER)
         }
     }
 
@@ -594,11 +601,9 @@ class RoutingTests {
         val fhirData = File(VALID_FHIR_URL).readText()
 
         mockkObject(BlobAccess)
-        mockkObject(FHIRBundleHelpers)
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
@@ -625,17 +630,15 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        val bundle = Bundle()
-        mockkStatic(Bundle::addReceivers)
-        every { bundle.addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
         accessSpy.transact { txn ->
-            val messages = engine.run(message, actionLogger, mockActionHistory, txn)
+            val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
+            assertThat(actionHistory.actionLogs).hasSize(1)
+            val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
+            assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
         }
     }
 
@@ -644,11 +647,9 @@ class RoutingTests {
         val fhirData = File(VALID_FHIR_URL).readText()
 
         mockkObject(BlobAccess)
-        mockkObject(FHIRBundleHelpers)
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
@@ -676,17 +677,16 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-
-        mockkStatic(Bundle::addReceivers)
-        every { any<Bundle>().addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
         accessSpy.transact { txn ->
-            val messages = engine.run(message, actionLogger, mockActionHistory, txn)
+            val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
+            // There are five observations in the bundle, none of which pass the filter and each one is logged once
+            assertThat(actionHistory.actionLogs).hasSize(5)
+            val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
+            assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.CONDITION_FILTER)
         }
     }
 
@@ -695,11 +695,9 @@ class RoutingTests {
         val fhirData = File(VALID_FHIR_URL).readText()
 
         mockkObject(BlobAccess)
-        mockkObject(FHIRBundleHelpers)
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
@@ -727,8 +725,6 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
 
         mockkStatic(Bundle::filterObservations)
         every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
@@ -738,13 +734,184 @@ class RoutingTests {
         accessSpy.transact { txn ->
             val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).hasSize(1)
+            assertThat(actionHistory.actionLogs).isEmpty()
+            assertThat(actionHistory.reportsIn).hasSize(1)
+            assertThat(actionHistory.reportsOut).hasSize(1)
         }
 
         // assert
         verify(exactly = 1) {
-            actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any(), any())
+            BlobAccess.uploadBlob(any(), any(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `test a message is queued per receiver that will have the report delivered`() {
+        val fhirData = File(VALID_FHIR_URL).readText()
+
+        mockkObject(BlobAccess)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization, secondElrOrganization)
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR,
+            )
+        )
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = BODY_URL
+
+        // filters
+        val jurisFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val qualFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val procModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+
+        mockkStatic(Bundle::filterObservations)
+        every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
+
+        // act
+        accessSpy.transact { txn ->
+            val messages = engine.run(message, actionLogger, actionHistory, txn)
+            assertThat(messages).hasSize(2)
+            assertThat(actionHistory.actionLogs).isEmpty()
+            assertThat(actionHistory.reportsIn).hasSize(1)
+            assertThat(actionHistory.reportsOut).hasSize(2)
+        }
+
+        // assert
+        verify(exactly = 2) {
+            BlobAccess.uploadBlob(any(), any(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `test the bundle queued for the translate function is filtered to conditions the receiver wants`() {
+        val fhirData = File(VALID_FHIR_URL).readText()
+
+        mockkObject(BlobAccess)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(secondElrOrganization)
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR,
+            )
+        )
+
+        val originalBundle = FhirTranscoder.decode(fhirData)
+        val expectedBundle = originalBundle
+            .filterObservations(listOf(CONDITION_FILTER), engine.loadFhirPathShorthandLookupTable())
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = BODY_URL
+
+        // filters
+        val jurisFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val qualFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val procModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
+
+        // act
+        accessSpy.transact { txn ->
+            val messages = engine.run(message, actionLogger, actionHistory, txn)
+            assertThat(messages).hasSize(1)
+            assertThat(actionHistory.actionLogs).isEmpty()
+            assertThat(actionHistory.reportsIn).hasSize(1)
+            assertThat(actionHistory.reportsOut).hasSize(1)
+        }
+
+        // assert
+        verify(exactly = 1) {
+            BlobAccess.uploadBlob(any(), FhirTranscoder.encode(expectedBundle).toByteArray(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `test a receiver can receive a report when no condition filters are configured`() {
+        val fhirData = File(VALID_FHIR_URL).readText()
+
+        mockkObject(BlobAccess)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR,
+            )
+        )
+
+        val originalBundle = FhirTranscoder.decode(fhirData)
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = BODY_URL
+
+        // filters
+        val jurisFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val qualFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val procModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
+
+        // act
+        accessSpy.transact { txn ->
+            val messages = engine.run(message, actionLogger, actionHistory, txn)
+            assertThat(messages).hasSize(1)
+            assertThat(actionHistory.actionLogs).isEmpty()
+            assertThat(actionHistory.reportsIn).hasSize(1)
+            assertThat(actionHistory.reportsOut).hasSize(1)
+        }
+
+        // assert
+        verify(exactly = 1) {
+            BlobAccess.uploadBlob(any(), FhirTranscoder.encode(originalBundle).toByteArray(), any())
             accessSpy.insertTask(any(), any(), any(), any(), any())
         }
     }
@@ -754,16 +921,22 @@ class RoutingTests {
         val fhirData = File(VALID_FHIR_URL).readText()
 
         mockkObject(BlobAccess)
-        mockkObject(FHIRBundleHelpers)
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message =
-            spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR))
+            spyk(
+                RawSubmission(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER_NAME,
+                    topic = Topic.FULL_ELR
+                )
+            )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
@@ -774,23 +947,19 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
 
         // act
         accessSpy.transact { txn ->
             val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
+            assertThat(actionHistory.reportsIn).hasSize(1)
+            assertThat(actionHistory.reportsOut).hasSize(1)
         }
 
         // assert
-        verify(exactly = 1) {
-            actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-        }
         verify(exactly = 0) {
             accessSpy.insertTask(any(), any(), any(), any())
-            BlobAccess.Companion.uploadBlob(any(), any())
+            BlobAccess.uploadBlob(any(), any())
         }
     }
 
@@ -874,18 +1043,18 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
-        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(0)
+        assertThat(actionHistory.actionLogs.count()).isEqualTo(0)
         engine.logFilterResults(
             qualFilter.toString(),
             bundle,
             report.id,
-            mockActionHistory,
+            actionHistory,
             receiver,
             ReportStreamFilterType.QUALITY_FILTER,
             bundle
         )
-        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
-        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(actionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
         assertThat(reportStreamFilterResult.filterName).isEqualTo(qualFilter.toString())
     }
 
@@ -900,7 +1069,6 @@ class RoutingTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val actionHistory = mockk<ActionHistory>()
         val actionLogger = ActionLogger()
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
@@ -923,8 +1091,6 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
 
         mockkStatic(Bundle::addReceivers)
         every { any<Bundle>().addReceivers(any(), any()) } returns Unit
@@ -975,11 +1141,11 @@ class RoutingTests {
             engine.evaluateFilterConditionAsOr(any(), any(), false, any(), any())
         } returns Pair(false, filter.toString())
 
-        engine.evaluateFilterAndLogResult(filter, bundle, report.id, mockActionHistory, receiver, type, true)
+        engine.evaluateFilterAndLogResult(filter, bundle, report.id, actionHistory, receiver, type, true)
         verify(exactly = 0) {
             engine.logFilterResults(any(), any(), any(), any(), any(), any(), any())
         }
-        engine.evaluateFilterAndLogResult(filter, bundle, report.id, mockActionHistory, receiver, type, false)
+        engine.evaluateFilterAndLogResult(filter, bundle, report.id, actionHistory, receiver, type, false)
         verify(exactly = 1) {
             engine.logFilterResults(any(), any(), any(), any(), any(), any(), any())
         }
@@ -996,7 +1162,7 @@ class RoutingTests {
             filter,
             bundle,
             report.id,
-            mockActionHistory,
+            actionHistory,
             receiver,
             ReportStreamFilterType.CONDITION_FILTER,
             defaultResponse = true,
@@ -1023,13 +1189,13 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // when doing routing for full-elr, verify that etor receiver isn't included (not even in logged results)
-        var receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        var receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers).isEmpty()
 
         // when doing routing for etor, verify that etor receiver is included
-        receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.ETOR_TI)
-        assertThat(mockActionHistory.actionLogs).isEmpty()
+        receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.ETOR_TI)
+        assertThat(actionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0]).isEqualTo(etorOrganization.receivers[0])
     }
@@ -1048,13 +1214,13 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // when doing routing for etor, verify that full-elr receiver isn't included (not even in logged results)
-        var receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.ETOR_TI)
+        var receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.ETOR_TI)
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers).isEmpty()
 
         // when doing routing for full-elr, verify that full-elr receiver is included
-        receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
-        assertThat(mockActionHistory.actionLogs).isEmpty()
+        receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
+        assertThat(actionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0]).isEqualTo(oneOrganization.receivers[0])
     }
@@ -1073,13 +1239,13 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // when doing routing for full-elr, verify that elims receiver isn't included (not even in logged results)
-        var receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        var receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers).isEmpty()
 
         // when doing routing for elims, verify that elims receiver is included
-        receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.ELR_ELIMS)
-        assertThat(mockActionHistory.actionLogs).isEmpty()
+        receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.ELR_ELIMS)
+        assertThat(actionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0]).isEqualTo(elimsOrganization.receivers[0])
     }
@@ -1098,19 +1264,19 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // when routing for etor, verify that only the active etor receiver is included (even in logged results)
-        var receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.ETOR_TI)
-        assertThat(mockActionHistory.actionLogs).isEmpty()
+        var receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.ETOR_TI)
+        assertThat(actionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0].name).isEqualTo("simulatedlab")
 
         // when routing for full-elr, verify that only the active full-elr receiver is included (even in logged results)
-        receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
-        assertThat(mockActionHistory.actionLogs).isEmpty()
+        receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
+        assertThat(actionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0].name).isEqualTo(RECEIVER_NAME)
 
         // Verify error when using non-UP topic
-        assertFailure { engine.applyFilters(bundle, report.id, mockActionHistory, Topic.COVID_19) }
+        assertFailure { engine.applyFilters(bundle, report.id, actionHistory, Topic.COVID_19) }
             .hasClass(java.lang.IllegalStateException::class.java)
     }
 
@@ -1133,13 +1299,13 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, condFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
 
         // assert only the quality filter didn't pass
 
-        assertThat(mockActionHistory.actionLogs).isNotEmpty()
-        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
-        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(actionHistory.actionLogs).isNotEmpty()
+        assertThat(actionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
         assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.ROUTING_FILTER)
         assertThat(receivers).isEmpty()
     }
@@ -1163,13 +1329,13 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, condFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
 
         // assert only the processing mode filter didn't pass
 
-        assertThat(mockActionHistory.actionLogs).isNotEmpty()
-        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
-        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(actionHistory.actionLogs).isNotEmpty()
+        assertThat(actionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
         assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
         assertThat(receivers).isEmpty()
     }
@@ -1194,13 +1360,13 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, condFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report.id, mockActionHistory, Topic.FULL_ELR)
+        val receivers = engine.applyFilters(bundle, report.id, actionHistory, Topic.FULL_ELR)
 
         // assert only the condition mode filter didn't pass
         // and check that the observation was logged
-        assertThat(mockActionHistory.actionLogs).isNotEmpty()
-        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(5)
-        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(actionHistory.actionLogs).isNotEmpty()
+        assertThat(actionHistory.actionLogs.count()).isEqualTo(5)
+        val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
         assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.CONDITION_FILTER)
         assertThat(reportStreamFilterResult.filteredTrackingElement.contains("loinc.org"))
         assertThat(receivers).isEmpty()
@@ -1224,35 +1390,35 @@ class RoutingTests {
             procModeFilter,
             bundle,
             report.id,
-            mockActionHistory,
+            actionHistory,
             oneOrganization.receivers[0],
             ReportStreamFilterType.PROCESSING_MODE_FILTER,
             false,
         )
 
         assertThat(result).isFalse()
-        assertThat(mockActionHistory.actionLogs).isNotEmpty()
-        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
-        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(actionHistory.actionLogs).isNotEmpty()
+        assertThat(actionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
         assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
         assertThat(reportStreamFilterResult.message).doesNotContain("default filter")
 
-        mockActionHistory.actionLogs.clear()
+        actionHistory.actionLogs.clear()
 
         val result2 = engine.evaluateFilterAndLogResult(
             engine.processingModeDefaults[Topic.FULL_ELR]!!,
             bundle,
             report.id,
-            mockActionHistory,
+            actionHistory,
             oneOrganization.receivers[0],
             ReportStreamFilterType.PROCESSING_MODE_FILTER,
             false,
         )
 
         assertThat(result2).isFalse()
-        assertThat(mockActionHistory.actionLogs).isNotEmpty()
-        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
-        val reportStreamFilterResult2 = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(actionHistory.actionLogs).isNotEmpty()
+        assertThat(actionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult2 = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
         assertThat(reportStreamFilterResult2.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
         assertThat(reportStreamFilterResult2.message).contains("default filter")
     }
@@ -1277,16 +1443,16 @@ class RoutingTests {
             nonBooleanFilter,
             bundle,
             report.id,
-            mockActionHistory,
+            actionHistory,
             oneOrganization.receivers[0],
             ReportStreamFilterType.PROCESSING_MODE_FILTER,
             false,
         )
 
         assertThat(result).isFalse()
-        assertThat(mockActionHistory.actionLogs).isNotEmpty()
-        assertThat(mockActionHistory.actionLogs.count()).isEqualTo(1)
-        val reportStreamFilterResult = mockActionHistory.actionLogs[0].detail as ReportStreamFilterResult
+        assertThat(actionHistory.actionLogs).isNotEmpty()
+        assertThat(actionHistory.actionLogs.count()).isEqualTo(1)
+        val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
         assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
         assertThat(reportStreamFilterResult.message).contains(EXCEPTION_FOUND)
 

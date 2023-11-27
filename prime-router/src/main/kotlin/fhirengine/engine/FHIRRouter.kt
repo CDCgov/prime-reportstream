@@ -148,7 +148,7 @@ class FHIRRouter(
      * lookup table was not found, or it does not contain the expected columns. If an empty map is returned, a
      * warning indicating why will be logged.
      */
-    private fun loadFhirPathShorthandLookupTable(): MutableMap<String, String> {
+    internal fun loadFhirPathShorthandLookupTable(): MutableMap<String, String> {
         val lookup = metadata.findLookupTable(fhirPathFilterShorthandTableName)
         // log a warning and return an empty table if either lookup table is missing or has incorrect columns
         return if (lookup != null &&
@@ -221,6 +221,7 @@ class FHIRRouter(
                         report.getItemHashForRow(1)
                     )
                 )
+
                 val receiverBundle = bundle.filterObservations(receiver.conditionFilter, shorthandLookupTable)
                 val nextEvent = ProcessEvent(
                     Event.EventAction.TRANSLATE,
@@ -347,6 +348,7 @@ class FHIRRouter(
                 receiver.reverseTheQualityFilter,
             )
 
+            // TODO: clarify what this filter is specifically targeting
             // ROUTING FILTER
             //  default: allowAll
             passes = passes && evaluateFilterAndLogResult(
