@@ -1,0 +1,126 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0159-AR-onboarding.yml
+
+- name: "ar-phd"
+  description: "Arkansas Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "AR"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "ar-phd"
+      topic: "covid-19"
+      customerStatus: "inactive"
+      translation: !<HL7>
+        schemaName: "covid-19"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        receivingApplicationName: null
+        receivingApplicationOID: null
+        receivingFacilityName: null
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue:
+        replaceValueAwithB:
+          MSH-3:
+            - '*': "CDC PRIME - Atlanta^2.16.840.1.114222.4.1.237821^ISO"
+          MSH-4:
+            - '*': "CDC PRIME - Atlanta^2.16.840.1.114222.4.1.237821^ISO"
+          MSH-5:
+            - '*': "AR.NBS^2.16.840.1.114222.4.3.3.2.5.3^ISO"
+          MSH-6:
+            - '*': "AR DOH^2.16.840.1.114222.4.1.141^ISO"
+          PID-10:
+            - '1002-5': "1002-5^American Indian or Alaska Native^HL70005^^^^2.5.1"
+            - '2028-9': "2028-9^Asian^HL70005^^^^2.5.1"
+            - '2054-5': "2054-5^Black or African American^HL70005^^^^2.5.1"
+            - '2076-8': "2076-8^Native Hawaiian or Other Pacific Islander^HL70005^^^^2.5.1"
+            - '2106-3': "2106-3^White^HL70005^^^^2.5.1"
+            - '2131-1': "2131-1^Other^HL70005^^^^2.5.1"
+          ORC-12-9-2:
+            - '*': "NPI"
+          ORC-12-9-3:
+            - '*': "ISO"
+          OBR-16-9-2:
+            - '*': "NPI"
+          OBR-16-9-3:
+            - '*': "ISO"
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: true
+        suppressHl7Fields: "MSH-19-1, MSH-19-2, MSH-19-3, ORC-2-1, ORC-2-2, ORC-2-3, ORC-2-4, ORC-4-1, ORC-4-2, ORC-4-3, ORC-4-4, OBR-2-1, OBR-2-2, OBR-2-3, OBR-2-4, OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4"
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "ORC-3-2, OBR-3-2, OBX-17-1"
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: true
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        valueSetOverrides:
+          hl70005:
+            name: ""
+            system: "HL7"
+            reference: ""
+            referenceUrl: null
+            values:
+              - code: ""
+                display: null
+                version: null
+                replaces: "UNK"
+                system: null
+                version: null
+              - code: ""
+                display: null
+                version: null
+                replaces: "ASKU"
+                system: null
+                version: null
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, AR, patient_state, AR)"
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "01:25"
+        timeZone: "CENTRAL"
+        maxReportCount: 3
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SOAP>
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/ADH_STAGEServiceHttpsSoap12Endpoint"
+        soapAction: "urn:SubmitMessage"
+        soapVersion: "SOAP12"
+        tlsKeystore: null
+        namespaces:
+          xmlns:stag: "https://www.healthy.arkansas.gov/STAGEService"
+      externalName: null
+      timeZone: CENTRAL
+      dateTimeFormat: "OFFSET"
