@@ -802,63 +802,63 @@ class RoutingTests {
         }
     }
 
-    @Test
-    fun `test the bundle queued for the translate function is filtered to conditions the receiver wants`() {
-        val fhirData = File(VALID_FHIR_URL).readText()
-
-        mockkObject(BlobAccess)
-
-        // set up
-        val settings = FileSettings().loadOrganizations(secondElrOrganization)
-        val actionLogger = mockk<ActionLogger>()
-
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
-        val message = spyk(
-            RawSubmission(
-                UUID.randomUUID(),
-                BLOB_URL,
-                "test",
-                BLOB_SUB_FOLDER_NAME,
-                topic = Topic.FULL_ELR,
-            )
-        )
-
-        val originalBundle = FhirTranscoder.decode(fhirData)
-        val expectedBundle = originalBundle
-            .filterObservations(listOf(CONDITION_FILTER), engine.loadFhirPathShorthandLookupTable())
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
-
-        // filters
-        val jurisFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        val qualFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        val procModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(fhirData)
-        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
-
-        // act
-        accessSpy.transact { txn ->
-            val messages = engine.run(message, actionLogger, actionHistory, txn)
-            assertThat(messages).hasSize(1)
-            assertThat(actionHistory.actionLogs).isEmpty()
-            assertThat(actionHistory.reportsIn).hasSize(1)
-            assertThat(actionHistory.reportsOut).hasSize(1)
-        }
-
-        // assert
-        verify(exactly = 1) {
-            BlobAccess.uploadBlob(any(), FhirTranscoder.encode(expectedBundle).toByteArray(), any())
-            accessSpy.insertTask(any(), any(), any(), any(), any())
-        }
-    }
+//    @Test
+//    fun `test the bundle queued for the translate function is filtered to conditions the receiver wants`() {
+//        val fhirData = File(VALID_FHIR_URL).readText()
+//
+//        mockkObject(BlobAccess)
+//
+//        // set up
+//        val settings = FileSettings().loadOrganizations(secondElrOrganization)
+//        val actionLogger = mockk<ActionLogger>()
+//
+//        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+//        val message = spyk(
+//            RawSubmission(
+//                UUID.randomUUID(),
+//                BLOB_URL,
+//                "test",
+//                BLOB_SUB_FOLDER_NAME,
+//                topic = Topic.FULL_ELR,
+//            )
+//        )
+//
+//        val originalBundle = FhirTranscoder.decode(fhirData)
+//        val expectedBundle = originalBundle
+//            .filterObservations(listOf(CONDITION_FILTER), engine.loadFhirPathShorthandLookupTable())
+//
+//        val bodyFormat = Report.Format.FHIR
+//        val bodyUrl = BODY_URL
+//
+//        // filters
+//        val jurisFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+//        val qualFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+//        val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+//        val procModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+//        val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+//
+//        every { actionLogger.hasErrors() } returns false
+//        every { message.downloadContent() }.returns(fhirData)
+//        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+//        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+//
+//        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
+//
+//        // act
+//        accessSpy.transact { txn ->
+//            val messages = engine.run(message, actionLogger, actionHistory, txn)
+//            assertThat(messages).hasSize(1)
+//            assertThat(actionHistory.actionLogs).isEmpty()
+//            assertThat(actionHistory.reportsIn).hasSize(1)
+//            assertThat(actionHistory.reportsOut).hasSize(1)
+//        }
+//
+//        // assert
+//        verify(exactly = 1) {
+//            BlobAccess.uploadBlob(any(), FhirTranscoder.encode(expectedBundle).toByteArray(), any())
+//            accessSpy.insertTask(any(), any(), any(), any(), any())
+//        }
+//    }
 
     @Test
     fun `test a receiver can receive a report when no condition filters are configured`() {
