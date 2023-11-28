@@ -11,6 +11,20 @@ periodically by dumping the table from staging/prod or using the CLI to update t
 
 ## Update prod/staging tables using RESTful sources
 Pending completion of #11510
+Use the prime CLI `lookuptables update-mapping` command:
+Change the `--env` value as needed and be sure to provide your API key
+```zsh
+prime lookuptables update-mapping -a -n observation-mapping -k YOUR_API_KEY --env local
+```
+Other useful options:
+- `-o` to write a copy of the updated table
+- `-s` to run silently (no requests for confirmation)
+- `-d` to provide a comma-separated list of OIDs to update
+- `-i` to use an input file as the base to update from
+- `-v` to use a specific version of the table as the base to update from
+
+See the NMLS VSAC Support Center [here](https://www.nlm.nih.gov/vsac/support/usingvsac/vsacfhirapi.html) to request an
+API key.
 
 ## Update the local CSV by getting tables from prod/staging
 Use the prime CLI `lookuptables get` command:  
