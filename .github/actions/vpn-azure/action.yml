@@ -95,7 +95,7 @@ runs:
         exit 1
       shell: bash
 
-    - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+    - uses: azure/login@4c88f01b0e3a5600e08a37889921afd060f75cf0
       with:
         creds: ${{ inputs.sp-creds }}
 
