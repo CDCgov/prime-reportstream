@@ -7,3 +7,43 @@ id:
   expressionType: JEXL
 
 identifier:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: resource
+      specs: PID.2
+      valueOf: datatypes/CX/Identifier
+      vars:
+        identifierIndexName: "patient-id"
+    - expressionType: resource
+      specs: PID.3
+      valueOf: datatypes/CX/Identifier
+      generateList: true
+      vars:
+        identifierIndexName: "patient-identifier-list"
+    - expressionType: resource
+      specs: PID.4
+      valueOf: datatypes/CX/Identifier
+      vars:
+        identifierIndexName: "alternate-patient-id"
+    - expressionType: nested
+      expressionsMap:
+        value:
+          type: STRING
+          valueOf: PID.19
+          expressionType: HL7Spec
+        type:
+          expressionType: nested
+          expressionsMap:
+            coding:
+              expressionType: nested
+              expressionsMap:
+                code:
+                  type: STRING
+                  value: SS
+                system:
+                  type: STRING
+                  value: http://terminology.hl7.org/CodeSystem/v2-0203
+        system:
+          type: STRING
+          value: http://hl7.org/fhir/sid/us-ssn
