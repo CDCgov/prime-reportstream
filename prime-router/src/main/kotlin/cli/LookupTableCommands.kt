@@ -51,6 +51,7 @@ import org.hl7.fhir.r4.model.ValueSet
 import org.jooq.JSONB
 import java.io.File
 import java.io.IOException
+import java.net.ConnectException
 import java.nio.file.NoSuchFileException
 import java.time.Instant
 import kotlin.collections.plus
@@ -755,6 +756,42 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
         private val OBX_MAPPING_FILTER = listOf(OBX_MAPPING_NO_OID_KEY, OBX_MAPPING_NON_RCTC_KEY)
 
         /**
+         * Builds a HTTP client for the NMLS VSAC using the provided [apiKey]
+         * @return a ktor [HttpClient] for the NMLS VSAC with response status code validation
+         */
+        fun buildAPIClient(apiKey: String): HttpClient {
+            return HttpClient {
+                install(Auth) {
+                    basic {
+                        credentials {
+                            BasicAuthCredentials(username = "apikey", password = apiKey)
+                        }
+                    }
+                }
+                HttpResponseValidator {
+                    validateResponse { response: HttpResponse ->
+                        val statusCode = response.status.value
+                        when (statusCode) {
+                            in 300..399 -> "redirect"
+                            401 -> "auth exception"
+                            in 400..499 -> "client exception"
+                            in 500..599 -> "server exception"
+                            in 600..Integer.MAX_VALUE -> "general exception"
+                            else -> null
+                        }.also { errorText ->
+                            if (!errorText.isNullOrBlank()) {
+                                throw PrintMessage(
+                                    "Encountered $errorText ($statusCode) while fetching ${response.request.url}",
+                                    true
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
          * Looks up the ValueSet for a member [oid] using the supplied http [client] in the NIH National Library of
          * Medicine Value Set Authority.
          * @return a [ValueSet] for the supplied [oid]
@@ -768,8 +805,8 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
          * Fetches latest test data for all [oids] supplied using the specified http [client]
          * @return updated test data grouped by OID, suitable for use with syncMappings()
          */
-        fun fetchLatestTestData(oids: List<String>, client: HttpClient): Map<String, List<Map<String, String>>> {
-            return runBlocking { // wait
+        fun fetchLatestTestData(oids: List<String>, client: HttpClient) =
+            runBlocking { // wait
                 // for each oid, fetch the ValueSet and create a test map
                 oids.associateWith { oid -> // create a map of oids to their associated tests in the valueset
                     async {
@@ -794,11 +831,27 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                             }
                         } catch (e: DataFormatException) {
                             throw PrintMessage("Error encountered parsing update for oid '$oid':\n{$e.message}", true)
+                        } catch (e: ConnectException) {
+                            throw PrintMessage("The update API endpoint is not available", true)
                         }
                     }
                 }.mapValues { it.value.await() } // un-defer all values after starting coroutines
             }
-        }
+
+        /**
+         * Build a map of observation mappings keyed by member oid from an observation mapping [tableData]
+         * @return a map of lists of mappings grouped by oids, with special entries NON_RCTC and NO_OID
+         */
+        fun buildOIDMap(tableData: List<Map<String, String>>) =
+            tableData.groupBy {
+                if (it[ObservationMappingConstants.CONDITION_VALUE_SOURCE_KEY] != OBX_MAPPING_RCTC_VALUE_SOURCE) {
+                    OBX_MAPPING_NON_RCTC_KEY // not an RCTC mapping - cannot be updated
+                } else {
+                    it[ObservationMappingConstants.TEST_OID_KEY].let { oid -> // group by OID
+                        if (oid.isNullOrBlank()) OBX_MAPPING_NO_OID_KEY else oid // group mappings with blank/null OIDs
+                    }
+                }
+            }
 
         /**
          * Generate a new observation mapping table with updated test data [updateOIDMap] using condition data from an
@@ -816,95 +869,69 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                 update.value.map { it + conditionData } // add condition data to each test
             }.flatten() + tableOIDMap.filterKeys { it !in updateOIDMap.keys }.values.flatten() // flatten + add carryover
         }
+
+        fun loadAndValidateTableData(
+            inputFile: File?,
+            tableName: String,
+            tableUtil: LookupTableEndpointUtilities,
+            tableVersion: Int?,
+        ) =
+            if (inputFile != null) { // Start with data from a file
+                val inputData = csvReader().readAllWithHeader(inputFile)
+                inputData.ifEmpty {
+                    throw PrintMessage("Input file ${inputFile.absolutePath} has no data.", true)
+                }
+            } else { // Start with data from existing lookup table
+                val loadTableVersion: Int = tableVersion ?: tableUtil.findActiveVersion(tableName)
+
+                // Verify the table/version exists and load it
+                try {
+                    tableUtil.fetchTableInfo(tableName, loadTableVersion)
+                    tableUtil.fetchTableContent(tableName, loadTableVersion)
+                } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
+                    throw PrintMessage("The table $tableName version $loadTableVersion was not found.", true)
+                } catch (e: IOException) {
+                    throw PrintMessage(
+                        "Error fetching table version for $tableName version $loadTableVersion: ${e.message}",
+                        true
+                    )
+                } catch (e: Exception) {
+                    throw PrintMessage("Error fetching table content for table $tableName: ${e.message}", true)
+                }
+            }.also { tableData ->
+                // Verify the loaded table contains the appropriate columns
+                ObservationMappingConstants.ALL_KEYS.forEach {
+                    if (it !in tableData[0].keys) throw PrintMessage("Loaded data is missing column: $it")
+                }
+            }
     }
 
     override fun run() {
-        val tableData = if (inputFile != null) { // Start with data from a file
-            val inputData = csvReader().readAllWithHeader(inputFile!!)
-            inputData.ifEmpty {
-                throw PrintMessage("Input file ${inputFile!!.absolutePath} has no data.", true)
-            }
-        } else { // Start with data from existing lookup table
-            val loadTableVersion: Int = tableVersion ?: tableUtil.findActiveVersion(tableName)
+        // Load data from either the input file or specified table
+        val tableData = loadAndValidateTableData(inputFile, tableName, tableUtil, tableVersion)
 
-            // Verify the table/version exists and load it
-            try {
-                tableUtil.fetchTableInfo(tableName, loadTableVersion)
-                tableUtil.fetchTableContent(tableName, loadTableVersion)
-            } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
-                throw PrintMessage("The table $tableName version $loadTableVersion was not found.", true)
-            } catch (e: IOException) {
-                throw PrintMessage(
-                    "Error fetching table version for $tableName version $loadTableVersion: ${e.message}",
-                    true
-                )
-            } catch (e: Exception) {
-                throw PrintMessage("Error fetching table content for table $tableName: ${e.message}", true)
-            }
-        }
-
-        val client = HttpClient {
-            install(Auth) {
-                basic {
-                    credentials {
-                        BasicAuthCredentials(username = "apikey", password = apiKey)
-                    }
-                }
-            }
-            HttpResponseValidator {
-                validateResponse { response: HttpResponse ->
-                    val statusCode = response.status.value
-                    when (statusCode) {
-                        in 300..399 -> "redirect"
-                        401 -> "auth exception"
-                        in 400..499 -> "client exception"
-                        in 500..599 -> "server exception"
-                        in 600..Integer.MAX_VALUE -> "general exception"
-                        else -> null
-                    }.also { errorText ->
-                        if (!errorText.isNullOrBlank()) {
-                            throw PrintMessage(
-                                "Encountered $errorText ($statusCode) while fetching ${response.request.url}",
-                                true
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        // Verify the loaded table contains the appropriate columns
-        ObservationMappingConstants.ALL_KEYS.forEach {
-            if (it !in tableData[0].keys) throw PrintMessage("Loaded table $tableName missing column: $it")
-        }
+        // Build an API client to query the NMLS VSAC
+        val client = buildAPIClient(apiKey)
 
         // Create lookup table of codes
-        val tableMap = tableData.groupBy {
-            if (it[ObservationMappingConstants.CONDITION_VALUE_SOURCE_KEY] != OBX_MAPPING_RCTC_VALUE_SOURCE) {
-                OBX_MAPPING_NON_RCTC_KEY
-            } else {
-                it[ObservationMappingConstants.TEST_OID_KEY].let { oid ->
-                    if (oid.isNullOrBlank()) OBX_MAPPING_NO_OID_KEY else oid
-                }
-            }
-        }
+        val tableOIDMap = buildOIDMap(tableData)
 
-        // Fetch the updated data
+        // Fetch the update data
         val updateData = fetchLatestTestData(
-            oids?.split(',') ?: tableMap.keys.filter { it !in OBX_MAPPING_FILTER }, // use oid list if provided
+            oids?.split(',') ?: tableOIDMap.keys.filter { it !in OBX_MAPPING_FILTER }, // use oid list if provided
             client
         )
 
-        // Update the data
-        val outputData = syncMappings(tableMap, updateData)
+        // Sync the update data with current data
+        val outputData = syncMappings(tableOIDMap, updateData)
 
-        // Save an output file
+        // Save an output file if specified
         if (outputFile != null) {
             saveTableAsCSV(outputFile!!.outputStream(), outputData)
             echo("Saved ${outputData.size} rows to ${outputFile!!.absolutePath}")
         }
 
-        // Save updated local csv of table
+        // Save local csv of updated table
         if ((
                 !silent && confirm(
                     "Save an updated local observation-mapping.csv with ${outputData.size} rows?"
@@ -916,6 +943,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
             echo("Saved ${outputData.size} rows to ${outputCSV.absolutePath} ")
         }
 
+        // Save updated table to the database
         if ((
                 !silent && confirm("Continue to create a new version of $tableName with ${outputData.size} rows?")
                     == true
