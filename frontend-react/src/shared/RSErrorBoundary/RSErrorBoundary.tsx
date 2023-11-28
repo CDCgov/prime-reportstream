@@ -1,9 +1,9 @@
 import { ErrorBoundary } from "react-error-boundary";
 
-import { isRSNetworkError } from "../utils/RSNetworkError";
-import { ErrorPage } from "../pages/error/ErrorPage";
-import { useSessionContext } from "../contexts/Session";
-import { RSConsole } from "../utils/console";
+import { isRSNetworkError } from "../../utils/RSNetworkError";
+import { ErrorPage } from "../../pages/error/ErrorPage";
+import { useSessionContext } from "../../contexts/Session";
+import { RSConsole } from "../../utils/console";
 
 export interface RSErrorBoundaryBaseProps extends React.PropsWithChildren {
     rsconsole: RSConsole;

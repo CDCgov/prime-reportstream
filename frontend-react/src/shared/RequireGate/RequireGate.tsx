@@ -4,13 +4,15 @@ import React from "react";
 import { useSessionContext } from "../../contexts/Session";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import { useFeatureFlags } from "../../contexts/FeatureFlags";
-import { MemberType } from "../../utils/OrganizationUtils";
+import { MemberType, RSUser } from "../../utils/OrganizationUtils";
 
 const ErrorNoPage = React.lazy(
     () => import("../../pages/error/legacy-content/ErrorNoPage"),
 );
 
 export interface RequireGateBaseProps extends React.PropsWithChildren {
+    user: RSUser;
+    checkFlags: (flags: FeatureFlagName[]) => boolean;
     auth?: boolean | MemberType | MemberType[];
     featureFlags?: FeatureFlagName | FeatureFlagName[];
     failElement: React.ReactElement;
@@ -21,14 +23,14 @@ export interface RequireGateBaseProps extends React.PropsWithChildren {
  * Component wrapper to enforce auth and feature flags requirements.
  */
 export function RequireGateBase({
+    user,
+    checkFlags,
     auth,
     children,
     featureFlags,
     anonymousElement,
     failElement,
 }: RequireGateBaseProps) {
-    const { user } = useSessionContext();
-    const { checkFlags } = useFeatureFlags();
     const perms = auth
         ? Array.isArray(auth)
             ? auth
@@ -60,7 +62,7 @@ export function RequireGateBase({
             return anonymousElement;
         }
         if (user.isAdmin) isAdmin = true;
-        if (user.isAdmin || perms.some((a) => user.hasAssocationType(a)))
+        if (user.isAdmin || perms.every((a) => user.hasAssocationType(a)))
             isAuthAllowed = true;
     }
 
@@ -76,10 +78,14 @@ export interface RequireGateProps
     extends Omit<RequireGateBaseProps, "anonymousElement" | "failElement"> {}
 
 export function RequireGate(props: RequireGateProps) {
+    const { checkFlags } = useFeatureFlags();
     const location = useLocation();
+    const { user } = useSessionContext();
     return (
         <RequireGateBase
             {...props}
+            user={user}
+            checkFlags={checkFlags}
             anonymousElement={
                 <Navigate
                     to="/login"

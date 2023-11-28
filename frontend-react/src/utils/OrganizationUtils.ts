@@ -189,14 +189,17 @@ export class RSUser {
     username?: string;
     familyName?: string;
     givenName?: string;
+    client?: string;
 
-    constructor({
-        claims,
-        impersonation: _impersonation,
-    }: {
-        claims?: RSUserClaims;
-        impersonation?: UserAssociation | UserAssociation[];
-    }) {
+    constructor(
+        props?:
+            | {
+                  claims?: RSUserClaims;
+                  impersonation?: UserAssociation | UserAssociation[];
+              }
+            | undefined,
+    ) {
+        const { claims, impersonation: _impersonation } = props ?? {};
         const impersonation = Array.isArray(_impersonation)
             ? _impersonation
             : _impersonation

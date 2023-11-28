@@ -1,25 +1,23 @@
 import { ReactElement } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
-import useSenderResource from "../hooks/UseSenderResource";
-
-import { USLink } from "./USLink";
+import useSenderResource from "../../hooks/UseSenderResource";
+import { USLink } from "../../components/USLink";
+import type { RSSender } from "../../config/endpoints/settings";
 
 const isNotActive = (val: string | undefined): boolean => {
     return val === "testing" || val === "inactive";
 };
 
 export interface SenderModeBannerBaseProps extends React.PropsWithChildren {
-    isLoading?: boolean;
-    customerStatus?: string;
+    customerStatus?: RSSender["customerStatus"];
 }
 
-function SenderModeBannerBase({
+export function SenderModeBannerBase({
     children,
     customerStatus,
-    isLoading,
 }: SenderModeBannerBaseProps) {
-    if (!isLoading && isNotActive(customerStatus)) {
+    if (isNotActive(customerStatus)) {
         return (
             <section>
                 <header className="usa-banner__header bg-yellow">
@@ -47,10 +45,9 @@ function SenderModeBannerBase({
 const SenderModeBanner = (
     props: React.PropsWithChildren,
 ): ReactElement | null => {
-    const { data, isLoading } = useSenderResource();
+    const { data } = useSenderResource();
     return (
         <SenderModeBannerBase
-            isLoading={isLoading}
             customerStatus={data?.customerStatus}
             {...props}
         />

@@ -21,7 +21,13 @@ import { useFeatureFlags } from "../../contexts/FeatureFlags";
 import { useToast } from "../../contexts/Toast";
 
 function TestError({ error }: FallbackProps) {
-    return <>{error.toString()}</>;
+    return (
+        <>
+            {error.message}
+            <br />
+            {error.stack}
+        </>
+    );
 }
 
 function ConditionalWrapper({

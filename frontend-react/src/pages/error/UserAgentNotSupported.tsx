@@ -1,5 +1,5 @@
 import { USExtLink } from "../../components/USLink";
-import { ReportStreamHeader } from "../../components/header/ReportStreamHeader";
+import { ReportStreamHeader } from "../../shared/ReportStreamHeader/ReportStreamHeader";
 import site from "../../content/site.json";
 
 export function UserAgentNotSupported() {

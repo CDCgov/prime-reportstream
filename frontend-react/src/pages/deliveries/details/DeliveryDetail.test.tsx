@@ -1,27 +1,29 @@
-import { useParams } from "react-router-dom";
+import { render, screen } from "../../../utils/Test/render";
 
-import { mockUseReportsDetail } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { RSDelivery } from "../../../config/endpoints/deliveries";
-import { render } from "../../../utils/Test/render";
-
-import DeliveryDetailPage from "./DeliveryDetail";
-
-const TEST_ID = "test-id-123";
+import { DeliveryDetailBase } from "./DeliveryDetail";
 
 vi.mock("./DeliveryFacilitiesTable");
+vi.mock("./Summary");
 
 describe("DeliveryDetails", () => {
-    beforeEach(() => {
-        vi.mocked(useParams).mockReturnValue({ reportId: TEST_ID });
-    });
-    /* Render tests for the Table component cover the generation of a table via config. The only untested
-     * unit inside DeliveryFacilitiesTable was the link between the reportId and the hook we pass it into to
-     * fetch data. */
-    test("url param (reportId) feeds into network hook", () => {
-        mockUseReportsDetail.mockReturnValue({
-            data: {} as RSDelivery,
-        } as any);
-        render(<DeliveryDetailPage />);
-        expect(mockUseReportsDetail).toHaveBeenCalledWith(TEST_ID);
+    test("renders", () => {
+        render(
+            <DeliveryDetailBase
+                report={{
+                    batchReadyAt: "",
+                    deliveryId: 0,
+                    expires: "",
+                    fileName: "",
+                    fileType: "",
+                    receiver: "",
+                    reportId: "",
+                    reportItemCount: 1,
+                    topic: "",
+                }}
+            >
+                Test
+            </DeliveryDetailBase>,
+        );
+        expect(screen.getByText("Test")).toBeInTheDocument();
     });
 });

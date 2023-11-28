@@ -13,38 +13,42 @@ import Spinner from "../../components/Spinner";
 import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
 import { NoServicesBanner } from "../../components/alerts/NoServicesAlert";
 import FacilitiesProvidersTable from "../../components/DataDashboard/FacilitiesProviders/FacilitiesProvidersTable";
+import { RSReceiver } from "../../config/endpoints/settings";
+import {
+    RSReceiverSubmitterMeta,
+    RSSubmitter,
+} from "../../config/endpoints/dataDashboard";
+import { FilterManager } from "../../hooks/filters/UseFilterManager";
 
 import styles from "./FacilitiesProviders.module.scss";
 
-export function FacilitiesProvidersPage() {
-    const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
-    const { appInsights } = useAppInsightsContext();
-    const {
-        isLoading: isFeedLoading,
-        data: services,
-        activeService,
-        setActiveService,
-        isDisabled,
-    } = useOrganizationReceiversFeed();
-    const {
-        data: { meta, data: submitters } = {},
-        filterManager,
-        isLoading: isSubmittersLoading,
-    } = useReceiverSubmitters(activeService?.name);
-    const filterClickHandler = useCallback(
-        (from: string, to: string) => {
-            appInsights?.trackEvent({
-                name: featureEvent,
-                properties: {
-                    tableFilter: {
-                        startRange: from,
-                        endRange: to,
-                    },
-                },
-            });
-        },
-        [appInsights, featureEvent],
-    );
+export interface FacilitiesProvidersBaseProps extends React.PropsWithChildren {
+    onFilterClick: (from: string, to: string) => void;
+    activeService?: RSReceiver;
+    isDisabled?: boolean;
+    isFeedLoading?: boolean;
+    isSubmittersLoading?: boolean;
+    submitters?: RSSubmitter[];
+    meta?: RSReceiverSubmitterMeta;
+    services?: RSReceiver[];
+    setActiveService: React.Dispatch<
+        React.SetStateAction<RSReceiver | undefined>
+    >;
+    filterManager: FilterManager;
+}
+
+export function FacilitiesProvidersBase({
+    onFilterClick,
+    activeService,
+    isDisabled,
+    isFeedLoading,
+    isSubmittersLoading,
+    meta,
+    services,
+    submitters,
+    setActiveService,
+    filterManager,
+}: FacilitiesProvidersBaseProps) {
     const isLoading = isFeedLoading || isSubmittersLoading;
 
     if (isDisabled) return <AdminFetchAlert />;
@@ -98,7 +102,7 @@ export function FacilitiesProvidersPage() {
                                     activeService={activeService}
                                     setActiveService={setActiveService}
                                     filterManager={filterManager}
-                                    onFilterClick={filterClickHandler}
+                                    onFilterClick={onFilterClick}
                                     submitters={submitters}
                                     pagesTotal={meta.totalPages}
                                     submittersTotal={meta.totalFilteredCount}
@@ -110,6 +114,51 @@ export function FacilitiesProvidersPage() {
                 </div>
             </HeroWrapper>
         </div>
+    );
+}
+
+export function FacilitiesProvidersPage(props: React.PropsWithChildren) {
+    const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
+    const { appInsights } = useAppInsightsContext();
+    const {
+        isLoading: isFeedLoading,
+        data: services,
+        activeService,
+        setActiveService,
+        isDisabled,
+    } = useOrganizationReceiversFeed();
+    const {
+        data: { meta, data: submitters } = {},
+        filterManager,
+        isLoading: isSubmittersLoading,
+    } = useReceiverSubmitters(activeService?.name);
+    const filterClickHandler = useCallback(
+        (from: string, to: string) => {
+            appInsights?.trackEvent({
+                name: featureEvent,
+                properties: {
+                    tableFilter: {
+                        startRange: from,
+                        endRange: to,
+                    },
+                },
+            });
+        },
+        [appInsights, featureEvent],
+    );
+    return (
+        <FacilitiesProvidersBase
+            {...props}
+            onFilterClick={filterClickHandler}
+            meta={meta}
+            services={services}
+            submitters={submitters}
+            isFeedLoading={isFeedLoading}
+            isDisabled={isDisabled}
+            isSubmittersLoading={isSubmittersLoading}
+            filterManager={filterManager}
+            setActiveService={setActiveService}
+        />
     );
 }
 

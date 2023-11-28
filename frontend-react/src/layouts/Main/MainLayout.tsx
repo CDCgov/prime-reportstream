@@ -3,9 +3,9 @@ import { Outlet, useMatches } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import React, { Suspense, useMemo } from "react";
 
-import RSErrorBoundary from "../../components/RSErrorBoundary";
+import RSErrorBoundary from "../../shared/RSErrorBoundary/RSErrorBoundary";
 import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
-import { ReportStreamHeader } from "../../components/header/ReportStreamHeader";
+import { ReportStreamHeader } from "../../shared/ReportStreamHeader/ReportStreamHeader";
 import Spinner from "../../components/Spinner";
 
 const ArticleWrapper = (props: React.PropsWithChildren) => {

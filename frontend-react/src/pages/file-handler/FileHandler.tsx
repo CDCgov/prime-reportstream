@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 
 import useFileHandler, {
@@ -6,22 +6,23 @@ import useFileHandler, {
     FileHandlerState,
 } from "../../hooks/UseFileHandler";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import site from "../../content/site.json";
 import { USExtLink, USLink } from "../../components/USLink";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
 import Alert from "../../shared/Alert/Alert";
 import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
 import { useSessionContext } from "../../contexts/Session";
 import useSenderResource from "../../hooks/UseSenderResource";
-import { useWatersUploader } from "../../hooks/network/WatersHooks";
+import {
+    WatersPostArgs,
+    useWatersUploader,
+} from "../../hooks/network/WatersHooks";
 import { useToast } from "../../contexts/Toast";
-import FileHandlerFileUploadStep, {
-    getClientHeader,
-} from "../../components/FileHandlers/FileHandlerFileUploadStep";
+import FileHandlerFileUploadStep from "../../components/FileHandlers/FileHandlerFileUploadStep";
 import FileHandlerSchemaSelectionStep from "../../components/FileHandlers/FileHandlerSchemaSelectionStep";
 import FileHandlerErrorsWarningsStep from "../../components/FileHandlers/FileHandlerErrorsWarningsStep";
 import FileHandlerSuccessStep from "../../components/FileHandlers/FileHandlerSuccessStep";
 import { parseCsvForError } from "../../utils/FileUtils";
+import { WatersResponse } from "../../config/endpoints/waters";
 
 export interface FileHandlerStepProps extends FileHandlerState {
     isValid?: boolean;
@@ -57,14 +58,26 @@ function mapStateToOrderedSteps(state: FileHandlerState) {
     ];
 }
 
-export default function FileHandler() {
-    const { toast } = useToast();
-    const { appInsights } = useAppInsightsContext();
-    const { data: organization } = useOrganizationSettings();
-    const { data: sender } = useSenderResource();
-    const { activeMembership } = useSessionContext();
-    const { mutateAsync: sendFile, isPending: isSubmitting } =
-        useWatersUploader();
+export interface FileHandlerBaseProps extends React.PropsWithChildren {
+    onError: (e: any, info?: object) => void;
+    onSuccess: (value: WatersResponse) => void;
+    onSubmit: (value: WatersPostArgs) => Promise<WatersResponse>;
+    isSubmitting?: boolean;
+    client: string;
+    contactEmail: string;
+    subHeader?: string;
+}
+
+export default function FileHandlerBase({
+    onError,
+    onSuccess,
+    onSubmit,
+    children,
+    isSubmitting,
+    client,
+    contactEmail,
+    subHeader,
+}: FileHandlerBaseProps) {
     const { state, dispatch } = useFileHandler();
     const { fileName, localError } = state;
     const orderedSteps = mapStateToOrderedSteps(state).filter(
@@ -79,9 +92,9 @@ export default function FileHandler() {
 
     useEffect(() => {
         if (localError) {
-            toast(localError, "error");
+            onError(localError);
         }
-    }, [localError, toast]);
+    }, [localError, onError]);
 
     function decrementStepIndex() {
         if (currentStepIndex === 0) {
@@ -118,7 +131,7 @@ export default function FileHandler() {
         if (file.type === "csv" || file.type === "text/csv") {
             const localCsvError = parseCsvForError(file.name, fileContent);
             if (localCsvError) {
-                toast(localCsvError, "error");
+                onError(localCsvError);
                 return;
             }
         }
@@ -153,26 +166,29 @@ export default function FileHandler() {
             selectedSchemaOption,
             fileType,
         } = state;
+        let eventData = {};
 
-        if (fileContent.length === 0) {
-            toast("No file contents to validate", "error");
-            return;
-        }
-
-        let eventData;
         try {
-            const response = await sendFile({
-                contentType,
-                fileContent,
-                fileName: file?.name!!,
-                client: getClientHeader(
-                    selectedSchemaOption.value,
-                    activeMembership,
-                    sender,
-                ),
-                schema: selectedSchemaOption.value,
-                format: selectedSchemaOption.format,
-            });
+            if (fileContent.length === 0) {
+                throw new Error("No file contents to validate");
+            }
+
+            let response: WatersResponse;
+
+            try {
+                response = await onSubmit({
+                    contentType,
+                    fileContent,
+                    fileName: file?.name!!,
+                    client,
+                    schema: selectedSchemaOption.value,
+                    format: selectedSchemaOption.format,
+                });
+            } catch (e: any) {
+                throw new Error(
+                    "An error occured while trying to validate. Please try again later.",
+                );
+            }
 
             dispatch({
                 type: FileHandlerActionType.REQUEST_COMPLETE,
@@ -181,37 +197,14 @@ export default function FileHandler() {
 
             incrementStepIndex();
 
-            eventData = {
-                warningCount: response?.warnings?.length,
-                errorCount: response?.errors?.length,
-                overallStatus: response?.overallStatus,
-            };
+            onSuccess(response);
         } catch (e: any) {
-            // TODO: update this when we're still sending 200s back on validation warnings/errors
-            if (e.data) {
-                eventData = {
-                    warningCount: e.data.warningCount,
-                    errorCount: e.data.errorCount,
-                };
-            }
-
-            toast("File validation error. Please try again.", "error");
-
-            handleResetToFileSelection();
-        }
-
-        if (eventData) {
-            appInsights?.trackEvent({
-                name: EventName.FILE_VALIDATOR,
-                properties: {
-                    fileValidator: {
-                        schema: selectedSchemaOption?.value,
-                        fileType: fileType,
-                        sender: organization?.name,
-                        ...eventData,
-                    },
-                },
+            onError(e, {
+                schema: selectedSchemaOption?.value,
+                fileType: fileType,
+                ...eventData,
             });
+            handleResetToFileSelection();
         }
     }
 
@@ -228,9 +221,7 @@ export default function FileHandler() {
             <article>
                 <h1 className="margin-y-4">ReportStream File Validator</h1>
 
-                {organization?.description && (
-                    <h2 className="font-sans-lg">{organization.description}</h2>
-                )}
+                {subHeader && <h2 className="font-sans-lg">{subHeader}</h2>}
 
                 {fileName && (
                     <div className="margin-bottom-3">
@@ -296,13 +287,90 @@ export default function FileHandler() {
                         required and common mistakes.
                     </Alert>
                 )}
+
                 <p className="text-base-darker margin-top-10">
                     Questions or feedback? Please email{" "}
-                    <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
-                        {site.orgs.RS.email}
+                    <USExtLink href={`mailto: ${contactEmail}`}>
+                        {contactEmail}
                     </USExtLink>
                 </p>
+                {children}
             </article>
         </GridContainer>
+    );
+}
+
+export function FileHandler() {
+    const { toast } = useToast();
+    const { appInsights } = useAppInsightsContext();
+    const { data: organization } = useOrganizationSettings();
+    const { data: sender } = useSenderResource();
+    const { mutateAsync: sendFile, isPending: isSubmitting } =
+        useWatersUploader();
+    const { site } = useSessionContext();
+    const submitHandler = useCallback(
+        async (props: WatersPostArgs) => {
+            // TODO: update this when we're sending 200s back on validation warnings/errors
+            try {
+                return await sendFile(props);
+            } catch (e: any) {
+                if (e.data) {
+                    return e.data;
+                }
+                throw e;
+            }
+        },
+        [sendFile],
+    );
+    const errorHandler = useCallback(
+        (e: any, info?: object) => {
+            toast(e, "error");
+            if (info) {
+                appInsights?.trackEvent({
+                    name: EventName.FILE_VALIDATOR,
+                    properties: {
+                        fileValidator: {
+                            ...info,
+                            sender: organization?.name,
+                        },
+                    },
+                });
+            }
+        },
+        [appInsights, organization?.name, toast],
+    );
+    const successHandler = useCallback(
+        (value: WatersResponse) => {
+            appInsights?.trackEvent({
+                name: EventName.FILE_VALIDATOR,
+                properties: {
+                    fileValidator: {
+                        sender: organization?.name,
+                        warningCount: value?.warnings?.length,
+                        errorCount: value?.errors?.length,
+                        overallStatus: value?.overallStatus,
+                    },
+                },
+            });
+        },
+        [appInsights, organization?.name],
+    );
+
+    const client = sender
+        ? `${sender?.organizationName}.${sender.name}`
+        : undefined;
+
+    if (!client) throw new Error("Invalid user");
+
+    return (
+        <FileHandlerBase
+            onError={errorHandler}
+            onSuccess={successHandler}
+            onSubmit={submitHandler}
+            isSubmitting={isSubmitting}
+            client={client}
+            contactEmail={site.orgs.RS.email}
+            subHeader={organization?.description}
+        />
     );
 }

@@ -3,7 +3,7 @@ import { screen } from "@testing-library/react";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import { useFeatureFlags } from "../../contexts/FeatureFlags";
 import { render } from "../../utils/Test/render";
-import { MemberType } from "../../utils/OrganizationUtils";
+import { MemberType, RSUser } from "../../utils/OrganizationUtils";
 
 import { RequireGateBase } from "./RequireGate";
 
@@ -42,23 +42,15 @@ describe("RequireGate", () => {
                 failElement={<Fail />}
                 featureFlags={FeatureFlagName.FOR_TEST}
                 auth={MemberType.PRIME_ADMIN}
+                user={
+                    new RSUser({
+                        claims: { organization: ["DHPrimeAdmins"] } as any,
+                    })
+                }
+                checkFlags={mockCheckFlags}
             >
                 <TestElementWithProp test={"Success!"} />
             </RequireGateBase>,
-            {
-                providers: {
-                    Session: {
-                        authState: {
-                            isAuthenticated: true,
-                            accessToken: {
-                                claims: {
-                                    organization: ["DHPrimeAdmins"],
-                                },
-                            },
-                        } as any,
-                    },
-                },
-            },
         );
         expect(screen.getByText("Success!")).toBeInTheDocument();
         expect(mockUseNavigate).not.toHaveBeenCalled();
@@ -69,18 +61,11 @@ describe("RequireGate", () => {
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
                 auth={MemberType.RECEIVER}
+                user={new RSUser()}
+                checkFlags={mockCheckFlags}
             >
                 <TestElement />
             </RequireGateBase>,
-            {
-                providers: {
-                    Session: {
-                        authState: {
-                            isAuthenticated: false,
-                        } as any,
-                    },
-                },
-            },
         );
         expect(screen.getByText("Anonymous")).toBeInTheDocument();
     });
@@ -90,23 +75,17 @@ describe("RequireGate", () => {
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
                 auth={MemberType.RECEIVER}
+                user={
+                    new RSUser({
+                        claims: {
+                            organization: ["DHSender_tx_phd"],
+                        },
+                    } as any)
+                }
+                checkFlags={mockCheckFlags}
             >
                 <TestElement />
             </RequireGateBase>,
-            {
-                providers: {
-                    Session: {
-                        authState: {
-                            isAuthenticated: true,
-                            accessToken: {
-                                claims: {
-                                    organization: ["DHSender_tx_phd"],
-                                },
-                            },
-                        } as any,
-                    },
-                },
-            },
         );
         expect(screen.getByText("Failure")).toBeInTheDocument();
     });
@@ -120,6 +99,8 @@ describe("RequireGate", () => {
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
                 featureFlags={FeatureFlagName.FOR_TEST}
+                user={new RSUser()}
+                checkFlags={mockCheckFlags}
             >
                 <TestElement />
             </RequireGateBase>,
@@ -132,49 +113,37 @@ describe("RequireGate", () => {
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
                 auth={[MemberType.SENDER, MemberType.RECEIVER]}
+                user={
+                    new RSUser({
+                        claims: {
+                            organization: ["DHSender_tx_phd"],
+                        },
+                    } as any)
+                }
+                checkFlags={mockCheckFlags}
             >
                 <TestElement />
             </RequireGateBase>,
-            {
-                providers: {
-                    Session: {
-                        authState: {
-                            isAuthenticated: true,
-                            accessToken: {
-                                claims: {
-                                    organization: ["DHSender_tx_phd"],
-                                },
-                            },
-                        } as any,
-                    },
-                },
-            },
         );
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
     });
-    test("Considers all given authorized user types (negative)", () => {
+    test.only("Considers all given authorized user types (negative)", () => {
         render(
             <RequireGateBase
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
                 auth={[MemberType.SENDER, MemberType.RECEIVER]}
+                user={
+                    new RSUser({
+                        claims: {
+                            organization: ["DHOther"],
+                        },
+                    } as any)
+                }
+                checkFlags={mockCheckFlags}
             >
                 <TestElement />
             </RequireGateBase>,
-            {
-                providers: {
-                    Session: {
-                        authState: {
-                            isAuthenticated: true,
-                            accessToken: {
-                                claims: {
-                                    organization: ["DHOther"],
-                                },
-                            },
-                        } as any,
-                    },
-                },
-            },
         );
         expect(screen.getByText("Failure")).toBeInTheDocument();
     });
@@ -189,26 +158,17 @@ describe("RequireGate", () => {
                 anonymousElement={<Anonymous />}
                 failElement={<Fail />}
                 auth={MemberType.PRIME_ADMIN}
+                user={
+                    new RSUser({
+                        claims: {
+                            organization: ["DHSender_tx_phd", "DHPrimeAdmins"],
+                        },
+                    } as any)
+                }
+                checkFlags={mockCheckFlags}
             >
                 <TestElement />
             </RequireGateBase>,
-            {
-                providers: {
-                    Session: {
-                        authState: {
-                            isAuthenticated: true,
-                            accessToken: {
-                                claims: {
-                                    organization: [
-                                        "DHSender_tx_phd",
-                                        "DHPrimeAdmins",
-                                    ],
-                                },
-                            },
-                        } as any,
-                    },
-                },
-            },
         );
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
     });

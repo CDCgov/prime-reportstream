@@ -12,15 +12,10 @@ import {
     STANDARD_SCHEMA_OPTIONS,
     UseSenderSchemaOptionsHookResult,
 } from "../../senders/hooks/UseSenderSchemaOptions";
-import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
-import {
-    UseWatersUploaderResult,
-    UseWatersUploaderSendFileMutation,
-} from "../../hooks/network/WatersHooks";
 import { render } from "../../utils/Test/render";
-import { mockAppInsights } from "../../__mocks__/ApplicationInsights";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
-import FileHandler from "./FileHandler";
+import FileHandlerBase from "./FileHandler";
 
 export const CSV_SCHEMA_SELECTED = {
     fileInputResetValue: 0,
@@ -52,7 +47,25 @@ export const VALID_CSV_FILE_SELECTED = {
     localError: "",
     overallStatus: "valid",
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
+    fileType: FileType.CSV,
 } satisfies FileHandlerState;
+
+export const EMPTY_CSV_FILE_SELECTED = {
+    fileInputResetValue: 0,
+    fileContent: "",
+    fileName: "empty.csv",
+    errors: [],
+    destinations: "",
+    reportItems: [],
+    reportId: "",
+    successTimestamp: "",
+    cancellable: false,
+    warnings: [{} as any],
+    localError: "",
+    overallStatus: "",
+    selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
+    fileType: FileType.CSV,
+};
 
 export const INVALID_CSV_FILE_SELECTED = {
     fileInputResetValue: 0,
@@ -68,6 +81,7 @@ export const INVALID_CSV_FILE_SELECTED = {
     localError: "",
     overallStatus: "",
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
+    fileType: FileType.CSV,
 } satisfies FileHandlerState;
 
 export const WARNING_CSV_FILE_SELECTED = {
@@ -84,28 +98,8 @@ export const WARNING_CSV_FILE_SELECTED = {
     localError: "",
     overallStatus: "",
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
+    fileType: FileType.CSV,
 };
-
-vi.mock("../../hooks/UseOrganizationSettings", async () => ({
-    useOrganizationSettings: vi.fn(() => {
-        return {
-            data: {
-                description: "wow, cool organization",
-                createdAt: "2023-01-10T21:23:14.467Z",
-                createdBy: "local@test.com",
-                filters: [],
-                jurisdiction: "FEDERAL",
-                name: "aegis",
-                version: 0,
-            },
-            isLoading: false,
-        };
-    }),
-}));
-
-vi.mock("../../hooks/UseSenderResource", () => ({
-    default: vi.fn(() => ({})),
-}));
 
 export async function chooseSchema(schemaName: string) {
     expect(screen.getByText(/Select data model/)).toBeVisible();
@@ -120,6 +114,11 @@ export async function chooseFile(file: File) {
 }
 
 describe("FileHandler", () => {
+    const mockOnError = vi.fn();
+    const mockOnSubmit = vi.fn();
+    const mockOnSuccess = vi.fn();
+    const subHeader = "wow, cool organization";
+
     function mockUseFileHandler(
         fileHandlerState: Partial<FileHandlerState> = {},
     ) {
@@ -142,20 +141,6 @@ describe("FileHandler", () => {
         } as any);
     }
 
-    function mockUseWatersUploader(
-        result: Partial<UseWatersUploaderResult> = {},
-    ) {
-        vi.spyOn(useWatersUploaderExports, "useWatersUploader").mockReturnValue(
-            {
-                isPending: false,
-                error: null,
-                mutateAsync: (() =>
-                    Promise.resolve({})) as UseWatersUploaderSendFileMutation,
-                ...result,
-            } as any,
-        );
-    }
-
     async function schemaContinue() {
         await waitFor(async () => {
             await userEvent.click(screen.getByText("Continue"));
@@ -164,12 +149,11 @@ describe("FileHandler", () => {
     }
 
     async function fileContinue() {
+        const form = screen.getByTestId("form");
         await waitFor(async () => {
-            const form = screen.getByTestId("form");
-            // eslint-disable-next-line testing-library/no-wait-for-side-effects
             fireEvent.submit(form);
-            await waitFor(() => expect(form).not.toBeInTheDocument());
         });
+        await waitFor(() => expect(form).not.toBeInTheDocument());
     }
 
     describe("by default", () => {
@@ -179,13 +163,17 @@ describe("FileHandler", () => {
                 isLoading: false,
                 data: STANDARD_SCHEMA_OPTIONS,
             });
-            mockUseWatersUploader({
-                isPending: false,
-                error: null,
-                mutateAsync: vi.fn(),
-            });
 
-            render(<FileHandler />);
+            render(
+                <FileHandlerBase
+                    client=""
+                    onError={mockOnError}
+                    onSuccess={mockOnSuccess}
+                    onSubmit={mockOnSubmit}
+                    contactEmail=""
+                    subHeader={subHeader}
+                />,
+            );
         }
 
         test("renders the prompt as expected", () => {
@@ -207,9 +195,18 @@ describe("FileHandler", () => {
                 isLoading: false,
                 data: STANDARD_SCHEMA_OPTIONS,
             });
-            mockUseWatersUploader();
+            mockOnSubmit.mockResolvedValue({});
 
-            render(<FileHandler />);
+            render(
+                <FileHandlerBase
+                    client=""
+                    onError={mockOnError}
+                    onSuccess={mockOnSuccess}
+                    onSubmit={mockOnSubmit}
+                    contactEmail=""
+                    subHeader={subHeader}
+                />,
+            );
         }
 
         test("allows the user to upload a file and shows the success screen", async () => {
@@ -226,21 +223,11 @@ describe("FileHandler", () => {
             });
         });
 
-        test("it calls trackAppInsightEvent with event data", async () => {
-            await setup();
-            expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
-                name: "File Validator",
-                properties: {
-                    fileValidator: {
-                        errorCount: 0,
-                        fileType: undefined,
-                        overallStatus: "Valid",
-                        schema: "whatever",
-                        sender: undefined,
-                        warningCount: 0,
-                    },
-                },
-            });
+        test("it calls onSuccess with event data", async () => {
+            setup();
+            await schemaContinue();
+            await fileContinue();
+            expect(mockOnSuccess).toHaveBeenCalledWith({});
         });
     });
 
@@ -251,15 +238,18 @@ describe("FileHandler", () => {
                 isLoading: false,
                 data: STANDARD_SCHEMA_OPTIONS,
             });
-            mockUseWatersUploader({
-                isPending: false,
-                error: null,
-                mutateAsync: vi
-                    .fn()
-                    .mockResolvedValue(mockSendFileWithWarnings),
-            });
+            mockOnSubmit.mockResolvedValue(mockSendFileWithWarnings);
 
-            render(<FileHandler />);
+            render(
+                <FileHandlerBase
+                    client=""
+                    onError={mockOnError}
+                    onSuccess={mockOnSuccess}
+                    onSubmit={mockOnSubmit}
+                    contactEmail=""
+                    subHeader={subHeader}
+                />,
+            );
         }
 
         test("allows the user to upload a file and shows the warnings screen", async () => {
@@ -282,6 +272,15 @@ describe("FileHandler", () => {
                 );
             });
         });
+
+        test("it calls onSuccess with event data", async () => {
+            setup();
+            await schemaContinue();
+            await fileContinue();
+            expect(mockOnSuccess).toHaveBeenCalledWith(
+                mockSendFileWithWarnings,
+            );
+        });
     });
 
     describe("when a CSV file with errors is being submitted", () => {
@@ -291,13 +290,18 @@ describe("FileHandler", () => {
                 isLoading: false,
                 data: STANDARD_SCHEMA_OPTIONS,
             });
-            mockUseWatersUploader({
-                isPending: false,
-                error: null,
-                mutateAsync: vi.fn().mockResolvedValue(mockSendFileWithErrors),
-            });
+            mockOnSubmit.mockResolvedValue(mockSendFileWithErrors);
 
-            render(<FileHandler />);
+            render(
+                <FileHandlerBase
+                    client=""
+                    onError={mockOnError}
+                    onSuccess={mockOnSuccess}
+                    onSubmit={mockOnSubmit}
+                    contactEmail=""
+                    subHeader={subHeader}
+                />,
+            );
         }
 
         test("allows the user to upload and file and shows the error screen", async () => {
@@ -337,20 +341,52 @@ describe("FileHandler", () => {
                 expect(screen.getByText("Drag file here or")).toBeVisible();
             });
         });
-        test("it calls trackAppInsightEvent with event data", async () => {
-            await setup();
-            expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
-                name: "File Validator",
-                properties: {
-                    fileValidator: {
-                        errorCount: 2,
-                        fileType: undefined,
-                        schema: "whatever",
-                        sender: undefined,
-                        warningCount: 0,
-                    },
-                },
+
+        test("it calls onSuccess with event data", async () => {
+            setup();
+            await schemaContinue();
+            await fileContinue();
+            expect(mockOnSuccess).toHaveBeenCalledWith(mockSendFileWithErrors);
+        });
+    });
+
+    describe.only("when an unexpected error occurs", () => {
+        function setup() {
+            mockUseFileHandler(EMPTY_CSV_FILE_SELECTED);
+            mockUseSenderSchemaOptions({
+                isLoading: false,
+                data: STANDARD_SCHEMA_OPTIONS,
             });
+            mockOnSubmit.mockImplementation(() => {
+                throw new Error("Unknown error");
+            });
+
+            render(
+                <FileHandlerBase
+                    client=""
+                    onError={mockOnError}
+                    onSuccess={mockOnSuccess}
+                    onSubmit={mockOnSubmit}
+                    contactEmail=""
+                    subHeader={subHeader}
+                />,
+            );
+        }
+
+        test("it calls onError with event data", async () => {
+            setup();
+            await schemaContinue();
+            const form = screen.getByTestId("form");
+            await waitFor(async () => {
+                fireEvent.submit(form);
+            });
+            expect(mockOnError).toHaveBeenCalledWith(
+                new Error("No file contents to validate"),
+                {
+                    fileType: EMPTY_CSV_FILE_SELECTED.fileType,
+                    schema: EMPTY_CSV_FILE_SELECTED.selectedSchemaOption.value,
+                },
+            );
         });
     });
 });

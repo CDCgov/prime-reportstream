@@ -7,7 +7,7 @@ import {
     Format,
 } from "../../utils/TemporarySettingsAPITypes";
 import { RSSender } from "../../config/endpoints/settings";
-import { fakeFile, mockSendValidFile } from "../../__mocks__/validation";
+import { fakeFile } from "../../__mocks__/validation";
 import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
 import { render } from "../../utils/Test/render";
 
@@ -99,12 +99,17 @@ describe("FileHandlerFileUploadStep", () => {
                 });
             }
 
-            test("calls onFileChange with the file and content", async () => {
+            test("calls onFileChange with the file", async () => {
                 await setup();
-                expect(onFileChangeSpy).toHaveBeenCalledWith(
-                    fakeFile,
-                    "foo,bar\r\nbar,foo",
-                );
+                expect(onFileChangeSpy).toHaveBeenCalled();
+                expect(
+                    Array.from(
+                        (
+                            onFileChangeSpy.mock
+                                .lastCall[0] as React.ChangeEvent<HTMLInputElement>
+                        ).target.files ?? [],
+                    ),
+                ).toEqual([fakeFile]);
             });
         });
 
@@ -161,9 +166,7 @@ describe("FileHandlerFileUploadStep", () => {
 
             test("it calls onSubmit", async () => {
                 await setup();
-                expect(DEFAULT_PROPS.onSubmit).toHaveBeenCalledWith(
-                    mockSendValidFile,
-                );
+                expect(DEFAULT_PROPS.onSubmit).toHaveBeenCalled();
             });
         });
     });

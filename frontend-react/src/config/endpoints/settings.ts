@@ -37,7 +37,7 @@ export interface RSSender extends RSService {
     allowDuplicates: boolean;
     createdAt?: string;
     createdBy?: string;
-    customerStatus: string;
+    customerStatus: "inactive" | "testing" | "active";
     format: string;
     keys?: SenderKeys;
     name: string;

@@ -26,7 +26,7 @@ describe("RequestedChangesDisplay", () => {
             />,
         );
 
-        const alert = await screen.findByRole("alert");
+        const alert = await screen.findByRole("region");
         expect(alert).toHaveClass("usa-alert--warning");
 
         const message = await screen.findByText("Broken Glass, Everywhere");
@@ -185,7 +185,7 @@ describe("FileQualityFilterDisplay", () => {
             />,
         );
 
-        const alert = await screen.findByRole("alert");
+        const alert = await screen.findByRole("region");
         expect(alert).toHaveClass("usa-alert--warning");
 
         const message = await screen.findByText(

@@ -5,7 +5,7 @@ import silenceVirtualConsole from "../../utils/Test/silenceVirtualConsole";
 
 import MainLayout from "./MainLayout";
 
-vi.mock("../../components/header/ReportStreamHeader");
+vi.mock("../../shared/ReportStreamHeader/ReportStreamHeader");
 
 function ErroringComponent() {
     throw new Error("MainLayout Error Test");

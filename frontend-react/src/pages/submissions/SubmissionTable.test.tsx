@@ -1,38 +1,29 @@
-import { Fixture } from "@rest-hooks/test";
 import { screen, within } from "@testing-library/react";
 
-import SubmissionsResource from "../../resources/SubmissionsResource";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 import { MemberType } from "../../utils/OrganizationUtils";
 import { render } from "../../utils/Test/render";
+import usePagination from "../../hooks/UsePagination";
 
 import SubmissionTable from "./SubmissionTable";
 
+vi.mock("../../hooks/UsePagination");
+
 describe("SubmissionTable", () => {
+    const mockUsePagination = vi.mocked(usePagination);
+
     test("renders a placeholder", async () => {
-        const fixtures: Fixture[] = [
-            {
-                endpoint: SubmissionsResource.list(),
-                args: [
-                    {
-                        organization: "testOrg",
-                        cursor: "3000-01-01T00:00:00.000Z",
-                        since: "2000-01-01T00:00:00.000Z",
-                        until: "3000-01-01T00:00:00.000Z",
-                        pageSize: 61,
-                        sortdir: "DESC",
-                        showFailed: false,
-                    },
-                ],
-                error: false,
-                response: [
-                    { submissionId: 0 },
-                    { submissionId: 1 },
-                ] as SubmissionsResource[],
+        mockUsePagination.mockReturnValue({
+            currentPageResults: [{ submissionId: 0 }, { submissionId: 1 }],
+            isLoading: false,
+            paginationProps: {
+                currentPageNum: 1,
+                setSelectedPage: vi.fn(),
+                slots: [],
+                label: "",
             },
-        ];
+        });
         render(<SubmissionTable />, {
-            restHookFixtures: fixtures,
             providers: {
                 Session: {
                     activeMembership: {
@@ -68,8 +59,17 @@ describe("SubmissionTable", () => {
 
     describe("when rendering as an admin", () => {
         function setup() {
+            mockUsePagination.mockReturnValue({
+                currentPageResults: [],
+                isLoading: false,
+                paginationProps: {
+                    currentPageNum: 1,
+                    setSelectedPage: vi.fn(),
+                    slots: [],
+                    label: "",
+                },
+            });
             render(<SubmissionTable />, {
-                restHookFixtures: [],
                 providers: {
                     Session: {
                         activeMembership: {
@@ -78,10 +78,10 @@ describe("SubmissionTable", () => {
                             service: "",
                         },
                         user: {
-                            isUserAdmin: true,
-                            isUserReceiver: false,
-                            isUserSender: false,
-                            isUserTransceiver: false,
+                            isAdmin: true,
+                            isReceiver: false,
+                            isSender: false,
+                            isTransceiver: false,
                         } as any,
                     },
                 },
