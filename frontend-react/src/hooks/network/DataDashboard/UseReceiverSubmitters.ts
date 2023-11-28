@@ -97,8 +97,7 @@ export default function useReceiverSubmitters(serviceName?: string) {
                 filterManager,
             ],
             queryFn: memoizedDataFetch,
-            enabled:
-                !!activeMembership?.parsedName && !!activeMembership.service,
+            enabled: !!orgAndService,
         }),
         filterManager,
     };
