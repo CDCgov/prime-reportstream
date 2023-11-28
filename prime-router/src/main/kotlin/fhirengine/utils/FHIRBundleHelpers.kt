@@ -2,7 +2,6 @@ package gov.cdc.prime.router.fhirengine.utils
 
 import ca.uhn.hl7v2.model.Message
 import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -13,9 +12,7 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DiagnosticReport
-import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Extension
-import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Property
@@ -30,56 +27,6 @@ import kotlin.reflect.jvm.isAccessible
  * A collection of helper functions that modify an existing FHIR bundle.
  */
 const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
-
-/**
- * Adds [receiverList] to the [fhirBundle] as targets using the [shortHandLookupTable] to evaluate conditions
- * to determine which observation extensions to add to each receiver.
- */
-fun Bundle.addReceivers(
-    receiverList: List<Receiver>,
-    shortHandLookupTable: MutableMap<String, String>,
-) {
-    val provenanceResource = try {
-        this.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-    } catch (e: NoSuchElementException) {
-        this.addProvenanceReference()
-        this.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-    }
-
-    // Create the list of target receivers to be added to the Provenance of the bundle
-    val targetList = mutableListOf<Reference>()
-
-    // check all active customers for receiver data
-    receiverList.filter { it.customerStatus != CustomerStatus.INACTIVE }.forEach { receiver ->
-        val endpoint = Endpoint()
-        getObservationExtensions(this, receiver, shortHandLookupTable).forEach { endpoint.addExtension(it) }
-
-        endpoint.id = Hl7RelatedGeneralUtils.generateResourceId()
-        endpoint.name = receiver.displayName
-        when (receiver.customerStatus) {
-            CustomerStatus.TESTING -> endpoint.status = Endpoint.EndpointStatus.TEST
-            else -> endpoint.status = Endpoint.EndpointStatus.ACTIVE
-        }
-        val rsIdentifier = Identifier()
-        rsIdentifier.value = receiver.fullName
-        rsIdentifier.system = "https://reportstream.cdc.gov/prime-router"
-        endpoint.identifier.add(rsIdentifier)
-        val entry = this.addEntry()
-            .setFullUrl("${endpoint.fhirType()}/${endpoint.id}")
-            .setResource(endpoint)
-
-        val reference = Reference()
-        reference.reference = entry.fullUrl
-        reference.resource = endpoint
-        targetList.add(reference)
-    }
-
-    // Clear out any existing endpoints if they exist
-    provenanceResource.target.map { it.resource }.filterIsInstance<Endpoint>()
-        .forEach { this.deleteResource(it) }
-
-    if (targetList.isNotEmpty()) provenanceResource.target.addAll(targetList)
-}
 
 /**
  * Adds references to diagnostic reports within [fhirBundle] as provenance targets

@@ -135,7 +135,65 @@ class FhirTranslatorTests {
         val engine = makeFhirEngine()
 
         val message =
-            spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, topic = Topic.FULL_ELR))
+            spyk(
+                FhirTranslateMessage(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER,
+                    topic = Topic.FULL_ELR,
+                    oneOrganization.receivers[0].fullName
+                )
+            )
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = BODY_URL
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }
+            .returns(File(VALID_DATA_URL).readText())
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+
+        every { actionHistory.trackActionReceiverInfo(any(), any()) }
+            .returns(Unit)
+
+        // act
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
+
+        // assert
+        verify(exactly = 1) {
+            actionHistory.trackExistingInputReport(any())
+            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
+            actionHistory.trackActionReceiverInfo(any(), any())
+        }
+    }
+
+    @Test
+    fun `legacy - test full elr translation happy path, one receiver RawSubmission message`() {
+        mockkObject(BlobAccess)
+
+        // set up
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+        val engine = makeFhirEngine()
+
+        val message =
+            spyk(
+                RawSubmission(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER,
+                    topic = Topic.FULL_ELR
+                )
+            )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
@@ -172,12 +230,21 @@ class FhirTranslatorTests {
         mockkObject(BlobAccess)
 
         // set up
-        val settings = FileSettings().loadOrganizations(colorado)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = makeFhirEngine(settings = settings)
-        val message = spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, Topic.FULL_ELR))
+        val message = spyk(
+            FhirTranslateMessage(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER,
+                Topic.FULL_ELR,
+                oneOrganization.receivers[0].fullName
+            )
+        )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
@@ -189,6 +256,7 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { actionHistory.trackActionReceiverInfo(any(), any()) } returns Unit
 
         // act
         accessSpy.transact { txn ->
@@ -347,8 +415,9 @@ class FhirTranslatorTests {
         assertThat(terser.get(MSH_11_1)).isEqualTo("T")
     }
 
+    // TODO: test can be removed after deploy ticket:
     @Test
-    fun `test full elr translation happy path, receiver with condition filter so extensions`() {
+    fun `legacy- test full elr translation happy path, receiver with condition filter so extensions`() {
         mockkObject(BlobAccess)
 
         // set up
@@ -410,7 +479,16 @@ class FhirTranslatorTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val message = spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, Topic.FULL_ELR))
+        val message = spyk(
+            FhirTranslateMessage(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER,
+                Topic.FULL_ELR,
+                badSchemaOrganization.receivers[0].fullName
+            )
+        )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL

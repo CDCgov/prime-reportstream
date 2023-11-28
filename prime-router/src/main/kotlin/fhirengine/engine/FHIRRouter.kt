@@ -191,8 +191,7 @@ class FHIRRouter(
         val bundle = FhirTranscoder.decode(message.downloadContent())
 
         // get the receivers that this bundle should go to
-        // TODO: apply matching
-        val listOfReceivers = applyFilters(bundle, message.reportId, actionHistory, message.topic)
+        val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
 
         // check if there are any receivers
         if (listOfReceivers.isNotEmpty()) {
@@ -222,6 +221,7 @@ class FHIRRouter(
                     )
                 )
 
+                // If the receiver does not have a condition filter set send the entire bundle to the translate step
                 val receiverBundle = if (receiver.conditionFilter.isEmpty()) {
                     bundle
                 } else {
@@ -315,7 +315,7 @@ class FHIRRouter(
      * As it goes through the filters, results are logged onto the provided [report]
      * @return list of receivers that should receive this bundle
      */
-    internal fun applyFilters(
+    internal fun findReceiversForBundle(
         bundle: Bundle,
         reportId: ReportId,
         actionHistory: ActionHistory,
@@ -355,7 +355,6 @@ class FHIRRouter(
                 receiver.reverseTheQualityFilter,
             )
 
-            // TODO: clarify what this filter is specifically targeting
             // ROUTING FILTER
             //  default: allowAll
             passes = passes && evaluateFilterAndLogResult(

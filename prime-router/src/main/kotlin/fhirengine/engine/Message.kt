@@ -24,6 +24,7 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
 @JsonSubTypes(
     JsonSubTypes.Type(RawSubmission::class, name = "raw"),
     JsonSubTypes.Type(FhirConvertMessage::class, name = "convert"),
+    JsonSubTypes.Type(FhirRouteMessage::class, name = "route"),
     JsonSubTypes.Type(FhirTranslateMessage::class, name = "translate")
 )
 abstract class Message {
@@ -65,6 +66,10 @@ abstract class Message {
             return mapper.readValue(s)
         }
     }
+
+    override fun toString(): String {
+        return mapper.writeValueAsString(this)
+    }
 }
 
 /**
@@ -92,6 +97,15 @@ data class FhirConvertMessage(
     val schemaName: String = "",
 ) : Message()
 
+@JsonTypeName("route")
+data class FhirRouteMessage(
+    override val reportId: ReportId,
+    override val blobURL: String,
+    override val digest: String,
+    override val blobSubFolderName: String,
+    override val topic: Topic,
+) : Message()
+
 @JsonTypeName("translate")
 data class FhirTranslateMessage(
     override val reportId: ReportId,
@@ -99,5 +113,5 @@ data class FhirTranslateMessage(
     override val digest: String,
     override val blobSubFolderName: String,
     override val topic: Topic,
-    val receiverName: String,
+    val receiverFullName: String,
 ) : Message()
