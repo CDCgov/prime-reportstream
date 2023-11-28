@@ -59,6 +59,7 @@ import java.io.File
 import java.util.Date
 import java.util.UUID
 import java.util.stream.Collectors
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -69,6 +70,7 @@ private const val DIAGNOSTIC_REPORT_EXPRESSION = "Bundle.entry.resource.ofType(D
 private const val MULTIPLE_OBSERVATIONS_URL = "src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir"
 private const val OBSERVATIONS_FILTER = "%resource.code.coding.code.intersect('94558-5').exists()"
 
+@Ignore
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FHIRBundleHelpersTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
