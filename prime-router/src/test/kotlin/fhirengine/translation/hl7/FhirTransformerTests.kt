@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -520,24 +520,24 @@ class FhirTransformerTests {
         bundle.id = "abc123"
 
         // Can't currently create entry on the fly
-        assertThat {
+        assertFailure {
             transformer.setBundleProperty(
                 "Bundle.entry.resource.ofType(DiagnosticReport).status", CodeType("final"),
                 CustomContext(bundle, bundle), bundle, bundle
             )
-        }.isFailure()
+        }
 
         val patient = Patient()
         patient.id = "def456"
         bundle.addEntry().resource = patient
 
         // Can't currently create new resources on the fly
-        assertThat {
+        assertFailure {
             transformer.setBundleProperty(
                 "Bundle.entry.resource.ofType(DiagnosticReport).status", CodeType("final"),
                 CustomContext(bundle, bundle), bundle, bundle
             )
-        }.isFailure()
+        }
 
         // Improper extension format
         transformer.setBundleProperty(
@@ -565,20 +565,20 @@ class FhirTransformerTests {
         verifyErrorAndResetLogger(logger)
 
         // Incompatible value types
-        assertThat {
+        assertFailure {
             transformer.setBundleProperty(
                 "Bundle.entry.resource.ofType(Patient).name.text", CodeableConcept(),
                 CustomContext(bundle, bundle), bundle, bundle
             )
-        }.isFailure()
+        }
         verifyErrorAndResetLogger(logger)
 
-        assertThat {
+        assertFailure {
             transformer.setBundleProperty(
                 "Bundle.entry.resource.ofType(Patient).active", StringType("nonBoolean"),
                 CustomContext(bundle, bundle), bundle, bundle
             )
-        }.isFailure()
+        }
         verifyErrorAndResetLogger(logger)
     }
 
