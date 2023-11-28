@@ -12,16 +12,16 @@ deterministically
 create an HL7 message. A few examples on when this can occur:
 
 - the inventory does not map a field
-  -
-  see [MSH.2](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=J4)
+    -
+    see [MSH.2](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=J4)
 - the inventory does not map a field if it does not meet certain conditions
-  -
-  see [MSH.5.1](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0&range=G3)
+    -
+    see [MSH.5.1](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0&range=G3)
 - the inventory inserts different HL7 components into the same array
     - see [XAD](https://docs.google.com/spreadsheets/d/1hSTEur557TIKPEKZRoprVw-uNpw12JZtri-iQsc4uQ0/edit#gid=0&range=J4)
 - the inventory specifies preferring one HL7 field over the other
-  -
-  see [MSH.6](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=G11)
+    -
+    see [MSH.6](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=G11)
 
 These cases are all handled by adding custom extensions that can then be read when converting to HL7. These extensions
 either store
@@ -58,4 +58,7 @@ implementation differs from what is in the spreadsheets.
 
 ### PID -> Patient
 
-- MSH.20 is deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Thus this field is not being mapped.
+- PID.6: The inventory maps the value to a `valueString` extention but `valueHumanName` is available and fully captures
+  the values, so it is being used over `valueString`
+- PID.19 and PID.20 are deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Further, the HAPI v2.7 model has set both
+  fields to NULLDT. Thus, this field is not being mapped.
