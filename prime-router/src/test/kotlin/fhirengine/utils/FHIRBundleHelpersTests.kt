@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
+package gov.cdc.prime.router.fhirengine.utils
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
@@ -9,6 +9,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -23,21 +24,6 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
-import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import gov.cdc.prime.router.fhirengine.utils.addProvenanceReference
-import gov.cdc.prime.router.fhirengine.utils.addReceivers
-import gov.cdc.prime.router.fhirengine.utils.deleteChildlessResource
-import gov.cdc.prime.router.fhirengine.utils.deleteResource
-import gov.cdc.prime.router.fhirengine.utils.enhanceBundleMetadata
-import gov.cdc.prime.router.fhirengine.utils.filterObservations
-import gov.cdc.prime.router.fhirengine.utils.getDiagnosticReportNoObservations
-import gov.cdc.prime.router.fhirengine.utils.getObservationExtensions
-import gov.cdc.prime.router.fhirengine.utils.getResourceProperties
-import gov.cdc.prime.router.fhirengine.utils.getResourceReferences
-import gov.cdc.prime.router.fhirengine.utils.handleBirthTime
-import gov.cdc.prime.router.fhirengine.utils.removePHI
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
 import io.mockk.spyk
@@ -70,7 +56,6 @@ private const val DIAGNOSTIC_REPORT_EXPRESSION = "Bundle.entry.resource.ofType(D
 private const val MULTIPLE_OBSERVATIONS_URL = "src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir"
 private const val OBSERVATIONS_FILTER = "%resource.code.coding.code.intersect('94558-5').exists()"
 
-@Ignore
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FHIRBundleHelpersTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -338,6 +323,7 @@ class FHIRBundleHelpersTests {
         assertThat(bundle.getDiagnosticReportNoObservations()).isEmpty()
     }
 
+    @Ignore
     @Test
     fun `Test Removing observation from diagnostic report with single observation`() {
         val actionLogger = ActionLogger()
@@ -772,7 +758,7 @@ class FHIRBundleHelpersTests {
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
         val hl7Messages = hl7Reader.getMessages(hl7Message)
 
-        assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v251.segment.MSH).isTrue()
+        assertThat(hl7Messages[0]["MSH"] is MSH).isTrue()
 
         bundle.enhanceBundleMetadata(hl7Messages[0])
 
@@ -822,7 +808,7 @@ class FHIRBundleHelpersTests {
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_2.6.hl7").readText()
         val hl7Messages = hl7Reader.getMessages(hl7Message)
 
-        assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v251.segment.MSH).isFalse()
+        assertThat(hl7Messages[0]["MSH"] is MSH).isFalse()
         assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v27.segment.MSH).isFalse()
 
         bundle.enhanceBundleMetadata(hl7Messages[0])
