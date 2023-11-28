@@ -29,7 +29,7 @@ After the conversion of an Item to the FHIR format, an additional transform can 
 transform is called a "Sender Transform" because it is used to make sender-specific adjustments to the FHIR bundle.
 
 Sender Transforms are completely optional, but ReportStream has created a sender transform that mimics the behavior of 
-original pipeline (`prime-router/metadata/fhir_transforms/senders/default-sender-transform.yml`). This is a good place 
+original pipeline (`prime-router/metadata/fhir_transforms/senders/original-pipeline-transforms.yml`). This is a good place 
 to start to understand what kind of transforms a Sender may want performed on their messages.
 
 > See [FHIR-to-FHIR Transformations](../design/design/transformations.md#fhir-to-fhir-transformations) for more 
