@@ -18,13 +18,16 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLProtocol
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
+import io.mockk.unmockkConstructor
 import kotlinx.coroutines.runBlocking
 import org.apache.http.HttpStatus
 import org.jooq.JSONB
@@ -286,7 +289,7 @@ class LookupTableCommandsTest {
     @Test
     fun `parse NMLS VSAC value into FHIR and map to observation mapping update data`() {
         val responseMap = mapOf(
-            "https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1146.828/\$expand" to """
+            "http://localhost/fhir/ValueSet/2.16.840.1.113762.1.4.1146.828/\$expand" to """
                 {
                   "resourceType": "ValueSet",
                   "id": "2.16.840.1.113762.1.4.1146.828",
@@ -351,7 +354,7 @@ class LookupTableCommandsTest {
                   }
                 }
             """.trimIndent(),
-            "https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1146.1112/\$expand" to """
+            "http://localhost/fhir/ValueSet/2.16.840.1.113762.1.4.1146.1112/\$expand" to """
                 {
                   "resourceType": "ValueSet",
                   "id": "2.16.840.1.113762.1.4.1146.1112",
@@ -480,7 +483,14 @@ class LookupTableCommandsTest {
 
     @Test
     fun `handle update api is not available`() {
-        val client = HttpClient()
+        val client = HttpClient {
+            defaultRequest {
+                host = "192.0.2.0" // blackhole
+                url {
+                    protocol = URLProtocol.HTTPS
+                }
+            }
+        }
         runBlocking {
             assertFailure {
                 LookupTableUpdateMappingCommand.fetchLatestTestData(listOf("someoid"), client)
@@ -500,5 +510,6 @@ class LookupTableCommandsTest {
                 null
             )
         }.hasMessage("Loaded data is missing column: Code")
+        unmockkConstructor(CsvReader::class)
     }
 }

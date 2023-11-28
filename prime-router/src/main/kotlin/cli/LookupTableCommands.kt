@@ -39,10 +39,12 @@ import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
 import io.ktor.client.plugins.auth.providers.basic
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
+import io.ktor.http.URLProtocol
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
@@ -768,6 +770,12 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                         }
                     }
                 }
+                defaultRequest {
+                    host = "cts.nlm.nih.gov"
+                    url {
+                        protocol = URLProtocol.HTTPS
+                    }
+                }
                 HttpResponseValidator {
                     validateResponse { response: HttpResponse ->
                         val statusCode = response.status.value
@@ -797,7 +805,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
          * @return a [ValueSet] for the supplied [oid]
          */
         private suspend fun fetchValueSetForOID(oid: String, client: HttpClient): ValueSet {
-            val response = client.get("https://cts.nlm.nih.gov/fhir/ValueSet/$oid/\$expand")
+            val response = client.get("fhir/ValueSet/$oid/\$expand")
             return FhirContext.forR4().newJsonParser().parseResource(ValueSet::class.java, response.bodyAsText())
         }
 
