@@ -222,7 +222,14 @@ class FHIRRouter(
                     )
                 )
 
-                val receiverBundle = bundle.filterObservations(receiver.conditionFilter, shorthandLookupTable)
+                val receiverBundle = if (receiver.conditionFilter.isEmpty()) {
+                    bundle
+                } else {
+                    bundle.filterObservations(
+                        receiver.conditionFilter,
+                        shorthandLookupTable
+                    )
+                }
                 val nextEvent = ProcessEvent(
                     Event.EventAction.TRANSLATE,
                     report.id,

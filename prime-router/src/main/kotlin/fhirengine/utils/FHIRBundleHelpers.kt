@@ -258,9 +258,6 @@ fun Bundle.filterObservations(
     conditionFilter: ReportStreamFilter,
     shortHandLookupTable: MutableMap<String, String>,
 ): Bundle {
-    if (conditionFilter.isEmpty()) {
-        return this.copy()
-    }
     val (observationsToKeep, allObservations) =
         getFilteredObservations(this, conditionFilter, shortHandLookupTable)
     val filteredBundle = this.copy()
