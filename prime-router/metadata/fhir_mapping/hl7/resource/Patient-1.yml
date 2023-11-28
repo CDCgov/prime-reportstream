@@ -43,6 +43,7 @@ birthDate:
         pid7: PID.7
         dateTimeIn: PID.7, GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)
         isTime: PID.7, GeneralUtils.dateTimeWithZoneId(isTime,ZONEID).length() > 10
+        # util adds dashes between year and month and day extending length to 10 (yyyy-mm-dd)
       expressionType: nested
       expressionsMap:
         # this extension is needed to comply with the official HL7v2-to-FHIR mapping
