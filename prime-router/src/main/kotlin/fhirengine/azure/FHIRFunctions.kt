@@ -163,10 +163,6 @@ class FHIRFunctions(
         logger.debug(
             "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
-        //        check(messageContent is RawSubmission) {
-//            "An unknown message was received by the FHIR $engineType Function " +
-//                "${messageContent.javaClass.kotlin.qualifiedName}"
-//        }
         return Message.deserialize(message)
     }
 
