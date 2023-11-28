@@ -42,7 +42,6 @@ import org.junit.jupiter.api.BeforeEach
 import java.io.File
 import java.util.Date
 import java.util.stream.Collectors
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -205,7 +204,6 @@ class FHIRBundleHelpersTests {
     }
 
     // TODO: fix OOM exception, ticket:
-    @Ignore
     @Test
     fun `Test Removing observation from diagnostic report with single observation`() {
         val actionLogger = ActionLogger()

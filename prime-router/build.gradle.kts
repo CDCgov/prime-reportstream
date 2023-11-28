@@ -168,7 +168,7 @@ tasks.test {
 
     // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
-    forkEvery = 1
+    forkEvery = 10
     dependsOn("compileKotlin")
     finalizedBy("jacocoTestReport")
     // Run the test task if specified configuration files are changed
