@@ -1,15 +1,19 @@
 package gov.cdc.prime.router.cli
 
+import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.github.doyaaaaaken.kotlincsv.client.CsvReader
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -20,8 +24,11 @@ import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkConstructor
+import kotlinx.coroutines.runBlocking
 import org.apache.http.HttpStatus
 import org.jooq.JSONB
+import java.io.File
 import java.io.IOException
 import java.time.OffsetDateTime
 import kotlin.test.Test
@@ -277,7 +284,7 @@ class LookupTableCommandsTest {
     }
 
     @Test
-    fun `fetch observation mapping update data`() {
+    fun `parse NMLS VSAC value into FHIR and map to observation mapping update data`() {
         val responseMap = mapOf(
             "https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1146.828/\$expand" to """
                 {
@@ -438,5 +445,60 @@ class LookupTableCommandsTest {
             client
         )
         assertThat(updateData).isEqualTo(expectedOutput)
+    }
+
+    @Test
+    fun `build a map of observation mappings grouped by oid`() {
+        val inputData = listOf(
+            mapOf(
+                "Member OID" to "SOME_OID",
+                "Value Source" to "RCTC"
+            ),
+            mapOf(
+                "Member OID" to "SOME_OID",
+                "Value Source" to "RCTC"
+            ),
+            mapOf(
+                "Member OID" to "SOME_OTHER_OID",
+                "Value Source" to "RCTC"
+            ),
+            mapOf(
+                "Member OID" to "",
+                "Value Source" to "RCTC"
+            ),
+            mapOf(
+                "Member OID" to "",
+                "Value Source" to "OTHER"
+            )
+        )
+        val outputData = LookupTableUpdateMappingCommand.buildOIDMap(inputData)
+        assertThat(outputData.getValue("SOME_OID").size).isEqualTo(2)
+        assertThat(outputData.getValue("SOME_OTHER_OID").size).isEqualTo(1)
+        assertThat(outputData.getValue("NON_RCTC").size).isEqualTo(1)
+        assertThat(outputData.getValue("NO_OID").size).isEqualTo(1)
+    }
+
+    @Test
+    fun `handle update api is not available`() {
+        val client = HttpClient()
+        runBlocking {
+            assertFailure {
+                LookupTableUpdateMappingCommand.fetchLatestTestData(listOf("someoid"), client)
+            }.hasMessage("The update API endpoint is not available")
+        }
+    }
+
+    @Test
+    fun `handle bad input file`() {
+        mockkConstructor(CsvReader::class)
+        every { anyConstructed<CsvReader>().readAllWithHeader(any<File>()) } returns listOf(emptyMap())
+        assertFailure {
+            LookupTableUpdateMappingCommand.loadAndValidateTableData(
+                File(""),
+                "table",
+                LookupTableEndpointUtilities(Environment.LOCAL),
+                null
+            )
+        }.hasMessage("Loaded data is missing column: Code")
     }
 }
