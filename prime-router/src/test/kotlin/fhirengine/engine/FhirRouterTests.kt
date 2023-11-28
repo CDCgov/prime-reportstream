@@ -75,7 +75,7 @@ private const val EXCEPTION_FOUND = "exception found"
 private const val CONDITION_FILTER = "%resource.code.coding.code = '95418-0'"
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class RoutingTests {
+class FhirRouterTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
