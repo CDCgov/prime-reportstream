@@ -76,16 +76,16 @@
 - name: ignore
   description: FOR TESTING ONLY
   jurisdiction: FEDERAL
-  filters:
-    - topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
-    - topic: monkeypox
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
-    - topic: full-elr
-      jurisdictionalFilter:
-        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
-      qualityFilter:
-        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+#  filters:
+#    - topic: covid-19
+#      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
+#    - topic: monkeypox
+#      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
+#    - topic: full-elr
+#      jurisdictionalFilter:
+#        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
+#      qualityFilter:
+#        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
   senders:
     - name: ignore-lifepoint
       organizationName: ignore

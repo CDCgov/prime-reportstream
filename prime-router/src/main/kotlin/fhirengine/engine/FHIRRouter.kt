@@ -310,7 +310,8 @@ class FHIRRouter(
 
         topicReceivers.forEach { receiver ->
             // get the receiver's organization, since we need to be able to find/combine the correct filters
-            val orgFilters = settings.findOrganization(receiver.organizationName)!!.filters
+//            val orgFilters1 = settings.findOrganization(receiver.organizationName)!!.filters
+            val orgFilters = listOf<ReportStreamFilters>()
 
             // Get the applicable filters, either receiver or organization level if there are no receiver filters
 
