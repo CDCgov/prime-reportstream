@@ -53,3 +53,9 @@ elements:
     condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
     bundleProperty: '%resource.receivedTime'
     value: [ '%resource.collection.collected + 6 seconds' ]
+
+  - name: sender-identifier
+    condition: false
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value[x]'
+    value: [ 'sender-id' ]
