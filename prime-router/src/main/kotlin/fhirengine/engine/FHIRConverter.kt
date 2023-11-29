@@ -17,7 +17,9 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.fhirengine.utils.addMappedCondition
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Observation
 import org.jooq.Field
 import java.time.OffsetDateTime
 
@@ -85,6 +87,10 @@ class FHIRConverter(
             return fhirBundles.mapIndexed { bundleIndex, bundle ->
                 // conduct FHIR Transform
                 transformer?.transform(bundle)
+
+                bundle.entry.filterIsInstance<Observation>().forEach {
+                    it.addMappedCondition(metadata)?.run { actionLogger.mapping(this) }
+                }
 
                 // make a 'report'
                 val report = Report(

@@ -2,14 +2,19 @@ package gov.cdc.prime.router.fhirengine.utils
 
 import ca.uhn.hl7v2.model.Message
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.router.ActionLogDetail
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.UnmappableConditionMessage
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Extension
@@ -25,6 +30,40 @@ import java.util.stream.Stream
  * A collection of helper functions that modify an existing FHIR bundle.
  */
 const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
+
+// TODO: constants
+fun Observation.addMappedCondition(metadata: Metadata): ActionLogDetail? {
+    val mappingTable = metadata.findLookupTable("observation-mapping")!!
+    val codeLists = mapOf(
+        "observation.code.coding.code" to this.code.coding.map { it.code },
+        "observation.valueCodeableConcept.coding.code" to this.valueCodeableConcept.coding.map { it.code }
+    )
+    if (codeLists.values.flatten().isEmpty()) return UnmappableConditionMessage()
+
+    val unmappableCodes = codeLists.mapValues { codeList ->
+        codeList.value.mapNotNull { code ->
+            mappingTable.dataRowsMap.find { it["code"] == code }.let { mapping ->
+                if (mapping.isNullOrEmpty()) {
+                    code
+                } else {
+                    this.addExtension(
+                        Extension(
+                            "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
+                            Coding(
+                                mapping["condition code system"],
+                                mapping["condition code"],
+                                mapping["condition name"]
+                            )
+                        )
+                    )
+                    null
+                }
+            }
+        }
+    }
+
+    return if (unmappableCodes.values.flatten().isEmpty()) null else UnmappableConditionMessage(unmappableCodes)
+}
 
 /**
  * Adds references to diagnostic reports within [fhirBundle] as provenance targets

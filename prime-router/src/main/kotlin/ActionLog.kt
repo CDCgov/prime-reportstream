@@ -25,6 +25,7 @@ enum class ActionLogLevel {
     warning,
     error,
     filter,
+    mapping,
 }
 
 /**
@@ -217,6 +218,20 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
      */
     fun error(actionDetails: List<ActionLogDetail>) {
         actionDetails.forEach { error(it) }
+    }
+
+    /**
+     * Log an [actionDetail] as an error log.
+     */
+    fun mapping(actionDetail: ActionLogDetail) {
+        log(actionDetail, ActionLogLevel.mapping)
+    }
+
+    /**
+     * Log a list of [actionDetails] as mapping logs.
+     */
+    fun mapping(actionDetails: List<ActionLogDetail>) {
+        actionDetails.forEach { mapping(it) }
     }
 
     /**
