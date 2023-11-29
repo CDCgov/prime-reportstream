@@ -87,6 +87,7 @@ fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
     )
 }
 
+// TODO: https://github.com/CDCgov/prime-reportstream/issues/12427 fix resource consumption
 /**
  * Deletes a [resource] from a bundle, removes all references to the [resource] and any orphaned children.
  * If the [resource] being deleted is an [Observation] and that results in diagnostic reports having no

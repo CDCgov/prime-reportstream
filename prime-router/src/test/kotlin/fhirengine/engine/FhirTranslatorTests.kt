@@ -412,7 +412,7 @@ class FhirTranslatorTests {
         assertThat(terser.get(MSH_11_1)).isEqualTo("T")
     }
 
-    // TODO: test can be removed after deploy ticket:
+    // TODO: test can be removed after deploy ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
     @Test
     fun `legacy- test full elr translation happy path, receiver with condition filter so extensions`() {
         mockkObject(BlobAccess)

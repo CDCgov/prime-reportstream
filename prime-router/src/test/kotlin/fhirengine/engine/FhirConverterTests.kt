@@ -158,7 +158,7 @@ class FhirConverterTests {
         }
     }
 
-    // TODO: remove after a deploy has been completed. Ticket:
+    // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
     @Test
     fun `legacy - test processHl7 happy path`() {
         mockkObject(BlobAccess)

@@ -94,7 +94,7 @@ class FHIRTranslator(
                     )
                 )
             }
-            // TODO: remove after a deploy has been completed. Ticket:
+            // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
             is RawSubmission -> {
                 val provenance =
                     bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -207,7 +207,7 @@ class FHIRTranslator(
         return hl7Message
     }
 
-    // TODO: remove after a deploy has been completed. Ticket:
+    // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
     /**
      * Removes observations from a [bundle] that are not referenced in [receiverEndpoint] and any endpoints that are
      * not [receiverEndpoint]
@@ -222,7 +222,7 @@ class FHIRTranslator(
         return newBundle
     }
 
-    // TODO: remove after a deploy has been completed. Ticket:
+    // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
     /**
      * Removes observations from this bundle that are not referenced in [receiverEndpoint]
      *
@@ -253,7 +253,7 @@ class FHIRTranslator(
         return this
     }
 
-    // TODO: remove after a deploy has been completed. Ticket:
+    // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
     /**
      * Removes endpoints from this bundle that do not match [receiverEndpoint]
      *

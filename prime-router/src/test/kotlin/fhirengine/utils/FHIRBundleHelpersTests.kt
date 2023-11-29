@@ -203,7 +203,6 @@ class FHIRBundleHelpersTests {
         assertThat(bundle.getDiagnosticReportNoObservations()).isEmpty()
     }
 
-    // TODO: fix OOM exception, ticket:
     @Test
     fun `Test Removing observation from diagnostic report with single observation`() {
         val actionLogger = ActionLogger()
