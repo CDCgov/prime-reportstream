@@ -28,9 +28,19 @@ identifier:
         identifierIndexName: "alternate-patient-id"
 
 name:
-  expressionType: resource
-  specs: PID.5
-  valueOf: datatypes/XPN/HumanName
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: resource
+      specs: PID.5
+      valueOf: datatypes/XPN/HumanName
+      vars:
+        hl7Use: patient-name
+    - expressionType: resource
+      specs: PID.9
+      valueOf: datatypes/XPN/HumanName
+      vars:
+        hl7Use: patient-alias
 
 birthDate:
   expressionType: nested
@@ -71,6 +81,20 @@ birthDate:
               valueOf: $pid7
               expressionType: HL7Spec
 
+gender:
+  type: ADMINISTRATIVE_GENDER
+  valueOf: PID.8
+  expressionType: HL7Spec
+
+address:
+  expressionType: nested
+  expressions:
+    - expressionType: resource
+      specs: PID.9
+      valueOf: datatypes/XPN/HumanName
+      vars:
+        hl7Use: patient-alias
+
 extension:
   expressionType: nested
   expressions:
@@ -87,3 +111,14 @@ extension:
         specs: PID.6
         vars:
           pid6: PID.6
+    - expressionType: nested
+      specs: PID.10
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: "race"
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: CWE

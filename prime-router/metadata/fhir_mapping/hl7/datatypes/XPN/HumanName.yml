@@ -233,3 +233,12 @@ extension:
           type: STRING
           expressionType: HL7Spec
           valueOf: XPN.14
+    - expressionType: nested
+      condition: $hl7Use NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: hl7-use
+        valueString:
+          type: STRING
+          valueOf: $hl7Use
