@@ -96,10 +96,14 @@ data class SoapTransportType
     val endpoint: String,
     /** The SOAP action to invoke */
     val soapAction: String,
+    /** The version of SOAP being implemented */
+    val soapVersion: String? = null,
     /** The credential name */
     val credentialName: String? = null,
     /** The namespaces used in the creation of the object */
     val namespaces: Map<String, String>? = null,
+    /** [tlsKeystore]The name for the credential manager to get the JKS used in TLS/SSL */
+    val tlsKeystore: String? = null,
 ) : TransportType("SOAP") {
     override fun toString(): String = "endpoint=$endpoint, soapAction=$soapAction"
 }

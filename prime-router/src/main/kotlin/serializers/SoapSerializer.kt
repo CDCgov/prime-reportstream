@@ -17,6 +17,7 @@ import gov.cdc.prime.router.credentials.SoapCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.serializers.soapimpl.Credentials
 import gov.cdc.prime.router.serializers.soapimpl.LabFile
+import gov.cdc.prime.router.serializers.soapimpl.Soap12Message
 import gov.cdc.prime.router.serializers.soapimpl.UploadFiles
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -58,18 +59,22 @@ class SoapEnvelope(
     val payload: Any,
     /** A map of namespaces that get injected into the XML header */
     val namespaces: Map<String, String>,
+    /** The Soap version being implemented*/
+    val soapVersion: String?,
 ) : XmlObject
 
 /**
  * The SOAP serializer that takes our [SoapEnvelope] and turns it into a proper SOAP object that can be sent
  * to our endpoint
  */
-class SoapSerializer(private val envelope: Class<SoapEnvelope>?) : StdSerializer<SoapEnvelope>(envelope) {
+class SoapSerializer(
+    private val envelope: Class<SoapEnvelope>?,
+) : StdSerializer<SoapEnvelope>(envelope) {
     // Jackson Mapper requires this even if we don't use it in our code
     constructor() : this(null)
 
     /**
-     * takes the SoapEnvelope, and its payload, and writes the data out as an XML object
+     * takes the SoapEnvelope, and its payload, and writes the data out as an XML object in two different ways based on whether the receiver is using SOAP ver 1.1 or SOAP ver 1.2
      */
     override fun serialize(value: SoapEnvelope?, gen: JsonGenerator?, provider: SerializerProvider?) {
         if (value?.payload == null) {
@@ -80,23 +85,17 @@ class SoapSerializer(private val envelope: Class<SoapEnvelope>?) : StdSerializer
         // the way that Jackson Mapper works, so I have just cheated here and pulled the
         // root element by force, so I can use it down below
         val payloadName = value.payload::class.findAnnotation() as? JacksonXmlRootElement
-
         if (xmlGen != null) {
-            xmlGen.writeStartObject()
-            xmlGen.setNextIsAttribute(true)
-            // write out the SOAP namespace into the header
-            xmlGen.writeFieldName("xmlns:$soapNamespaceAlias")
-            // and the namespace as well
-            xmlGen.writeString(soapNamespace)
-            // write out all the other namespaces we have
-            value.namespaces.forEach {
-                xmlGen.setNextIsAttribute(true)
-                xmlGen.writeFieldName(it.key)
-                xmlGen.writeString(it.value)
+            writeEnvelopeNamespaces(xmlGen, value)
+            when (value.soapVersion) {
+                // SOAP version 1.2 has a very different structure than SOAP 1.1 and uses WS security elements in the header.
+                "SOAP12" -> {
+                    writeSoap12Header(xmlGen)
+                }
+                else -> {
+                    xmlGen.writeNullField("$soapNamespaceAlias:Header")
+                }
             }
-            xmlGen.setNextIsAttribute(false)
-            // write out a null header
-            xmlGen.writeNullField("$soapNamespaceAlias:Header")
             // write out the body of the envelope
             xmlGen.writeObjectFieldStart("$soapNamespaceAlias:Body")
             // write out the payload itself
@@ -105,6 +104,66 @@ class SoapSerializer(private val envelope: Class<SoapEnvelope>?) : StdSerializer
         }
     }
 
+    /**
+     * Writes out the SOAP Envelope namespaces in XML as defined in receiver settings
+     */
+    private fun writeEnvelopeNamespaces(xmlGen: ToXmlGenerator, value: SoapEnvelope) {
+        // start SOAP Envelope xml
+        xmlGen.writeStartObject()
+        xmlGen.setNextIsAttribute(true)
+        // write out the SOAP namespace into the header
+        xmlGen.writeFieldName("xmlns:$soapNamespaceAlias")
+        // and the namespace as well
+         if (value.soapVersion == "SOAP12") {
+            xmlGen.writeString(soap12Namespace)
+        } else {
+            xmlGen.writeString(soapNamespace)
+        }
+        value.namespaces.forEach {
+            xmlGen.setNextIsAttribute(true)
+            xmlGen.writeFieldName(it.key)
+            xmlGen.writeString(it.value)
+        }
+        xmlGen.setNextIsAttribute(false)
+    }
+
+    /**
+     * If SOAP Version 1.2 is used by receiver this creates the needed security headers
+     */
+    private fun writeSoap12Header(xmlGen: ToXmlGenerator) {
+        // this timestamp id just needs to be a random unique identifier
+        val timestampId = "TS-" + (java.util.UUID.randomUUID())
+        val timeCreated = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())
+        val timeExpires = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plusSeconds(180))
+
+        xmlGen.writeObjectFieldStart("$soapNamespaceAlias:Header")
+        // write out XML element for wsse Security element
+        xmlGen.writeObjectFieldStart("wsse:Security")
+        // include required attribute in wsse:Security element
+        xmlGen.setNextIsAttribute(true)
+        xmlGen.writeStringField("soapenv:mustUnderstand", "1")
+        xmlGen.setNextIsAttribute(true)
+        xmlGen.writeStringField(
+            "xmlns:wsse",
+            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+        )
+        // write out timestamp elements and attributes for wsse security header
+        xmlGen.writeObjectFieldStart("wsu:Timestamp")
+        xmlGen.setNextIsAttribute(true)
+        xmlGen.writeFieldName("wsu:Id")
+        xmlGen.writeString(timestampId)
+        xmlGen.setNextIsAttribute(true)
+        xmlGen.writeStringField(
+            "xmlns:wsu",
+            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+        )
+        xmlGen.setNextIsAttribute(false)
+        xmlGen.writeStringField("wsu:Created", timeCreated)
+        xmlGen.setNextIsAttribute(false)
+        xmlGen.writeStringField("wsu:Expires", timeExpires)
+        // close the objects for the wsu:timestamp, wsse:Security and soapenv:Header elements
+        repeat(3) { xmlGen.writeEndObject() }
+    }
     companion object {
         /** our default SOAP namespace */
         private const val soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/"
@@ -114,6 +173,7 @@ class SoapSerializer(private val envelope: Class<SoapEnvelope>?) : StdSerializer
 
         /** if we don't get a value for the payload via an annotation we use this */
         private const val defaultPayloadName = "payload"
+        private const val soap12Namespace = "http://www.w3.org/2003/05/soap-envelope"
     }
 }
 
@@ -132,11 +192,11 @@ object SoapObjectService {
         credential: SoapCredential,
     ): XmlObject? {
         context.logger.info("Creating object for ${soapTransportType.soapAction}")
-        val userPassCredential = credential as? UserPassCredential
-            ?: error("Unable to cast credential for ${header.receiver?.name} to UserPassCredential")
         return when (soapTransportType.soapAction) {
             // I detest magic strings, I need to think on this more
             "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles" -> {
+                val userPassCredential = credential as? UserPassCredential
+                    ?: error("Unable to cast credential for ${header.receiver?.name} to UserPassCredential")
                 // PA object - this is very specific to PA
                 // get the timestamp for the credential object
                 val timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())
@@ -155,8 +215,12 @@ object SoapObjectService {
                 // return the composite object for PA
                 UploadFiles(credentials, arrayOf(labFile))
             }
-            // right now PA is our only SOAP client
-            else -> null
+            // Else serialize objects for AR, our only other SOAP client
+            else -> {
+                val encodedfileContents = Base64.getEncoder().encodeToString(header.content!!)
+                val textFileContents = String(Base64.getDecoder().decode(encodedfileContents))
+                Soap12Message(textFileContents)
+            }
         }
     }
 }
