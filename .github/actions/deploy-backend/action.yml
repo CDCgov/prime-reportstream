@@ -251,7 +251,7 @@ runs:
         key: backend
         validate: true
         fail-invalid: true
-        input: $(az functionapp config appsettings list -g prime-data-hub-${{ inputs.env-name }} -n pdh${{ inputs.env-name }}-functionapp)
+        input: $(sleep 15; az functionapp config appsettings list -g prime-data-hub-${{ inputs.env-name }} -n pdh${{ inputs.env-name }}-functionapp)
 
     - name: Remove GitHub action IP whitelist
       if: ${{ always() }} # This should happen even on a failure
