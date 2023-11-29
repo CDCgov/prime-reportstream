@@ -53,12 +53,3 @@ elements:
     condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
     bundleProperty: '%resource.receivedTime'
     value: [ '%resource.collection.collected + 6 seconds' ]
-
-  # This can be overridden in sender transforms to flag the messages as coming from that sender
-  # This can simplify the filtering of receivers by keying off of this field to either allow or
-  # disallow messages from particular senders
-  - name: sender-identifier
-    condition: false
-    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    bundleProperty: '%resource.extension(%`rsext-sender-id").value[x]'
-    value: [ 'sender-id' ]
