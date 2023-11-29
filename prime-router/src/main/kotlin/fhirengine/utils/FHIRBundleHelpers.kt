@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.UnmappableConditionMessage
+import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
@@ -31,13 +32,12 @@ import java.util.stream.Stream
  */
 const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
 
-// TODO: constants
 fun Observation.addMappedCondition(metadata: Metadata): ActionLogDetail? {
     val mappingTable = metadata.findLookupTable("observation-mapping")!!
     val codeLists = mapOf(
-        "observation.code.coding.code" to this.code.coding.map { it.code },
-        "observation.valueCodeableConcept.coding.code" to this.valueCodeableConcept.coding.map { it.code }
-    )
+        ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER to this.code.coding.map { it.code },
+        ObservationMappingConstants.BUNDLE_CODEABLE_IDENTIFIER to this.valueCodeableConcept.coding.map { it.code }
+    ).filterValues { it.isNotEmpty() }
     if (codeLists.values.flatten().isEmpty()) return UnmappableConditionMessage()
 
     val unmappableCodes = codeLists.mapValues { codeList ->
@@ -50,9 +50,9 @@ fun Observation.addMappedCondition(metadata: Metadata): ActionLogDetail? {
                         Extension(
                             "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
                             Coding(
-                                mapping["condition code system"],
-                                mapping["condition code"],
-                                mapping["condition name"]
+                                mapping[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
+                                mapping[ObservationMappingConstants.CONDITION_CODE_KEY],
+                                mapping[ObservationMappingConstants.CONDITION_NAME_KEY]
                             )
                         )
                     )
