@@ -21,7 +21,7 @@ import io.mockk.mockkObject
 import io.mockk.spyk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.*
+import java.util.UUID
 
 class GAENTransportIntegrationTests : TransportIntegrationTests() {
     private fun getMockUtil(
@@ -132,12 +132,12 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             .returns(UserApiKeyCredential("rick", "xzy"))
 
         val retryItems = transMock.send(
-                transportType,
-                header,
-                UUID.randomUUID(),
-                retryItems = null,
-                context,
-                actionHistory
+            transportType,
+            header,
+            UUID.randomUUID(),
+            retryItems = null,
+            context,
+            actionHistory
         )
 
         assertThat(retryItems).isNull()

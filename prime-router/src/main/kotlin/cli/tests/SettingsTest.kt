@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.cli.tests
 
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.HttpStatusCode
 import java.net.HttpURLConnection
@@ -94,18 +94,18 @@ class SettingsTest : CoolTest() {
          */
         echo("VERIFY the dummy organization existed or not...")
 
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path,
             tkn = BearerTokens(dummyAccessToken, refreshToken = ""),
-            tmo = CommandUtilities.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
+            tmo = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
             expSuccess = false
         )
 
         if (response.status != HttpStatusCode.NotFound) {
-            val (delResp, delRespStr) = CommandUtilities.deleteWithStringResponse(
+            val (delResp, delRespStr) = HttpClientUtils.deleteWithStringResponse(
                 url = path,
                 tkn = BearerTokens(dummyAccessToken, refreshToken = ""),
-                tmo = CommandUtilities.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
+                tmo = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
                 expSuccess = false
             )
             when (delResp.status) {
@@ -113,7 +113,7 @@ class SettingsTest : CoolTest() {
                 else ->
                     return bad(
                         settingErrorMessage +
-                            "Failed Dummy organization - del response: $delRespStr, get response: $respStr."
+                                "Failed Dummy organization - del response: $delRespStr, get response: $respStr."
                     )
             }
         }
@@ -122,7 +122,7 @@ class SettingsTest : CoolTest() {
          * CREATE the dummy organization
          */
         echo("CREATE the new dummy organization...")
-        val (putResponse, putRespStr) = CommandUtilities.putWithStringResponse(
+        val (putResponse, putRespStr) = HttpClientUtils.putWithStringResponse(
             url = path,
             tkn = BearerTokens(dummyAccessToken, refreshToken = ""),
             jsonPayload = newDummyOrganization,
@@ -143,7 +143,7 @@ class SettingsTest : CoolTest() {
          * VERIFY the created dummy organization
          */
         echo("VERITY the new dummy organization was created...")
-        val (getResponse, getRespStr) = CommandUtilities.getWithStringResponse(
+        val (getResponse, getRespStr) = HttpClientUtils.getWithStringResponse(
             url = path,
             tkn = BearerTokens(dummyAccessToken, refreshToken = ""),
             expSuccess = false
@@ -152,7 +152,7 @@ class SettingsTest : CoolTest() {
         if (getResponse.status == HttpStatusCode.NotFound) {
             return bad(
                 settingErrorMessage + " get response status: ${getResponse.status.value}" +
-            ", response body: $getRespStr"
+                        ", response body: $getRespStr"
             )
         }
 
@@ -167,7 +167,7 @@ class SettingsTest : CoolTest() {
         /**
          * UPDATE the dummy organization
          */
-        val (updResponse, updRespStr) = CommandUtilities.putWithStringResponse(
+        val (updResponse, updRespStr) = HttpClientUtils.putWithStringResponse(
             url = path,
             tkn = BearerTokens(dummyAccessToken, refreshToken = ""),
             expSuccess = false,
@@ -179,7 +179,7 @@ class SettingsTest : CoolTest() {
             else ->
                 return bad(
                     settingErrorMessage + "Failed on can't create update dummy organization," +
-                " put response status: ${updResponse.status.value}, body: $updRespStr"
+                            " put response status: ${updResponse.status.value}, body: $updRespStr"
                 )
         }
 
@@ -187,7 +187,7 @@ class SettingsTest : CoolTest() {
          * VERIFY the updated dummy organization
          */
         echo("VERIFY it is the new dummy organization is updated...")
-        val (newDummyResponse, newDummyRespStr) = CommandUtilities.getWithStringResponse(
+        val (newDummyResponse, newDummyRespStr) = HttpClientUtils.getWithStringResponse(
             url = path,
             tkn = BearerTokens(dummyAccessToken, refreshToken = ""),
             expSuccess = false
@@ -195,7 +195,7 @@ class SettingsTest : CoolTest() {
         if (newDummyResponse.status == HttpStatusCode.NotFound) {
             return bad(
                 settingErrorMessage + "Failed on verify the new dummy organization," +
-            " get response status: ${newDummyResponse.status.value}, body: $newDummyRespStr"
+                        " get response status: ${newDummyResponse.status.value}, body: $newDummyRespStr"
             )
         }
 
@@ -206,7 +206,7 @@ class SettingsTest : CoolTest() {
         if (!newDummyRespStr.contains("UPDATEDUMMYORG")) {
             return bad(
                 settingErrorMessage + "It is not the updated dummy organization, " +
-            " get response status: ${newDummyResponse.status.value}, body: $newDummyRespStr"
+                        " get response status: ${newDummyResponse.status.value}, body: $newDummyRespStr"
             )
         }
 
@@ -214,18 +214,18 @@ class SettingsTest : CoolTest() {
          * DELETE the updated dummy organization
          */
         echo("DELETE the updated dummy organization...")
-        val (delNewDummyResponse, delNewDummyRespStr) = CommandUtilities.deleteWithStringResponse(
+        val (delNewDummyResponse, delNewDummyRespStr) = HttpClientUtils.deleteWithStringResponse(
             url = path,
             tkn = BearerTokens(dummyAccessToken, refreshToken = ""),
             expSuccess = false,
-            tmo = CommandUtilities.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
+            tmo = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
         )
 
         if (delNewDummyResponse.status == HttpStatusCode.NotFound) {
             return bad(
                 settingErrorMessage + "Failed on delete - " +
-            "delete response status: ${delNewDummyResponse.status.value}, " +
-            " body: $delNewDummyRespStr"
+                        "delete response status: ${delNewDummyResponse.status.value}, " +
+                        " body: $delNewDummyRespStr"
             )
         }
 
@@ -233,17 +233,17 @@ class SettingsTest : CoolTest() {
          * VERIFY the dummy organization deleted
          */
         echo("VERIFY it is the new dummy organization is deleted...")
-        val (getNewDummyDelResp, getNewDummyDelRespStr) = CommandUtilities.getWithStringResponse(
+        val (getNewDummyDelResp, getNewDummyDelRespStr) = HttpClientUtils.getWithStringResponse(
             url = path,
             tkn = BearerTokens(dummyAccessToken, refreshToken = ""),
-            tmo = CommandUtilities.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
+            tmo = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
             expSuccess = false
         )
         if (getNewDummyDelResp.status != HttpStatusCode.NotFound) {
             return bad(
                 settingErrorMessage + "Failed cleaned up - " +
-                    " get response status: ${getNewDummyDelResp.status.value}, " +
-            "body: $getNewDummyDelRespStr"
+                        " get response status: ${getNewDummyDelResp.status.value}, " +
+                        "body: $getNewDummyDelRespStr"
             )
         }
 

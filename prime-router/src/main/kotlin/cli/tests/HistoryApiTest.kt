@@ -5,9 +5,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.HttpStatusCode
@@ -120,19 +120,19 @@ class HistoryApiTest : CoolTest() {
      * The json body may be null even if the test passed, in cases of an expected error code.
      */
     private fun historyApiQuery(testCase: HistoryApiTestCase): Pair<Boolean, String?> {
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
-                url = testCase.path,
-                tkn = BearerTokens(testCase.bearer, refreshToken = ""),
-                tmo = 45000,
-                expSuccess = false,
-                queryParameters = testCase.parameters?.associate {
-                    Pair(it.first, it.second.toString())
-                }
-            )
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
+            url = testCase.path,
+            tkn = BearerTokens(testCase.bearer, refreshToken = ""),
+            tmo = 45000,
+            expSuccess = false,
+            queryParameters = testCase.parameters?.associate {
+                Pair(it.first, it.second.toString())
+            }
+        )
         return if (response.status != testCase.expectedHttpStatus) {
             bad(
                 "***$name Test '${testCase.name}' FAILED:" +
-                    " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.status.value}"
+                        " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.status.value}"
             )
             Pair(false, null)
         } else if (testCase.expectedHttpStatus != HttpStatusCode.OK) {
@@ -306,8 +306,8 @@ class SubmissionListChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker
             if (submissionsHistories.size != testCase.expectedReports.size) {
                 return testBeingRun.bad(
                     "*** ${testBeingRun.name}: TEST '${testCase.name}' FAILED: " +
-                        "${testCase.expectedReports.size} reports submitted" +
-                        " but got ${submissionsHistories.size} submission histories."
+                            "${testCase.expectedReports.size} reports submitted" +
+                            " but got ${submissionsHistories.size} submission histories."
                 )
             }
 
@@ -315,7 +315,7 @@ class SubmissionListChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker
             if (missingReportIds.isNotEmpty()) {
                 return testBeingRun.bad(
                     "*** ${testBeingRun.name}: TEST '${testCase.name}' FAILED: " +
-                        "These ReportIds are missing from the history: ${missingReportIds.joinToString(",")}"
+                            "These ReportIds are missing from the history: ${missingReportIds.joinToString(",")}"
                 )
             }
         }
@@ -356,14 +356,15 @@ class ReportDetailsChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker(
                 if (testCase.expectedReports.first() != submissionDetails.reportId) {
                     testBeingRun.bad(
                         "Expecting reportId ${testCase.expectedReports.toList()[0]} but " +
-                            " got reportId ${submissionDetails.reportId} in submission details response"
+                                " got reportId ${submissionDetails.reportId} in submission details response"
                     )
                     return false
                 }
             } else {
                 testBeingRun.bad(
                     "Test is not written correctly - please fix:" +
-                        " For DetailedSubmissionHistory tests, Pass exactly one reportId in the expectedReports set."
+                            " For DetailedSubmissionHistory tests, Pass exactly " +
+                            "one reportId in the expectedReports set."
                 )
                 return false
             }

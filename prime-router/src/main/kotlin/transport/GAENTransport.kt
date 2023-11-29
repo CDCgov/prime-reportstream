@@ -15,7 +15,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.cli.CommandUtilities
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
@@ -169,8 +169,8 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         gaenTransportInfo: GAENTransportType,
     ) {
         val msg = "FAILED GAEN notification of inputReportId $reportId to $gaenTransportInfo " +
-            "(receiver = $receiverFullName);" +
-            "No retry; Exception: ${ex.javaClass.canonicalName} ${ex.localizedMessage}"
+                "(receiver = $receiverFullName);" +
+                "No retry; Exception: ${ex.javaClass.canonicalName} ${ex.localizedMessage}"
         // Dev note: Expecting severe level to trigger monitoring alerts
         context.logger.severe(msg)
         actionHistory.setActionType(TaskAction.send_error)
@@ -228,7 +228,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
 
         val payload = mapper.writeValueAsString(notification)
 
-        val (response, respStr) = CommandUtilities.postWithStringResponse(
+        val (response, respStr) = HttpClientUtils.postWithStringResponse(
             url = params.gaenTransportInfo.apiUrl.toString(),
             hdr = mapOf(Pair(API_KEY, params.credential.apiKey.toString())),
             jsonPayload = payload,
@@ -304,9 +304,11 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
                 GAENUUIDFormat.PHONE_DATE -> {
                     hmacGenerator.hmacHex("$phone$testDate")
                 }
+
                 GAENUUIDFormat.REPORT_ID -> {
                     "$reportId"
                 }
+
                 GAENUUIDFormat.WA_NOTIFY -> {
                     // WA Notify doesn't want the country code in the UUID calculation
                     val phoneNumber = PhoneNumberUtil.getInstance().parse(phone, "US")

@@ -30,6 +30,7 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.HttpStatusCode
@@ -132,7 +133,7 @@ abstract class SettingCommand(
             OktaCommand.fetchAccessToken(environment.oktaApp)
                 ?: abort(
                     "Invalid access token. " +
-                        "Run ./prime login to fetch/refresh your access token for the $env environment."
+                            "Run ./prime login to fetch/refresh your access token for the $env environment."
                 )
         }
     }
@@ -149,7 +150,7 @@ abstract class SettingCommand(
     ): String {
         val path = formPath(environment, Operation.PUT, settingType, settingName)
         verbose("PUT $path :: $payload")
-        val (response, respStr) = CommandUtilities.putWithStringResponse(
+        val (response, respStr) = HttpClientUtils.putWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
             expSuccess = false,
@@ -168,6 +169,7 @@ abstract class SettingCommand(
                 }
                 "Success. Setting $settingName at version $versionInfo"
             }
+
             HttpStatusCode.Created -> "Success. Created $settingName\n"
             else -> handleHttpFailure(settingName, response.status.value, respStr)
         }
@@ -179,7 +181,7 @@ abstract class SettingCommand(
     fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
         verbose("DELETE $path")
-        val (response, respStr) = CommandUtilities.deleteWithStringResponse(
+        val (response, respStr) = HttpClientUtils.deleteWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
             expSuccess = false
@@ -205,7 +207,7 @@ abstract class SettingCommand(
     ): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
         verbose("GET $path")
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken, refreshToken = "")
         )
@@ -230,7 +232,7 @@ abstract class SettingCommand(
     fun getMany(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken, refreshToken = "")
         )
@@ -253,10 +255,10 @@ abstract class SettingCommand(
     ): List<String> {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
-            tmo = CommandUtilities.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
+            tmo = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
         if (response.status == HttpStatusCode.OK) {
             val result = mutableListOf<String>()
@@ -446,10 +448,12 @@ abstract class SettingCommand(
                 val organization = mapper.readValue(input, OrganizationAPI::class.java)
                 Pair(organization.name, jsonMapper.writeValueAsString(organization))
             }
+
             SettingType.SENDER -> {
                 val sender = mapper.readValue(input, Sender::class.java)
                 Pair(sender.fullName, jsonMapper.writeValueAsString(sender))
             }
+
             SettingType.RECEIVER -> {
                 val receiver = mapper.readValue(input, ReceiverAPI::class.java)
                 Pair(receiver.fullName, jsonMapper.writeValueAsString(receiver))
@@ -464,10 +468,12 @@ abstract class SettingCommand(
                 val organization = jsonMapper.readValue(output, OrganizationAPI::class.java)
                 yamlMapper.writeValueAsString(organization)
             }
+
             SettingType.SENDER -> {
                 val sender = jsonMapper.readValue(output, Sender::class.java)
                 return yamlMapper.writeValueAsString(sender)
             }
+
             SettingType.RECEIVER -> {
                 val receiver = jsonMapper.readValue(output, ReceiverAPI::class.java)
                 return yamlMapper.writeValueAsString(receiver)
@@ -570,6 +576,7 @@ abstract class SettingCommand(
                         val (orgName, senderName) = Sender.parseFullName(settingName)
                         "/organizations/$orgName/senders/$senderName"
                     }
+
                     SettingType.RECEIVER -> {
                         val (orgName, receiverName) = Receiver.parseFullName(settingName)
                         "/organizations/$orgName/receivers/$receiverName"
@@ -919,10 +926,10 @@ class PutMultipleSettings : SettingCommand(
      * @return true if the file settings are newer or there is nothing in the database, false otherwise
      */
     private fun isFileUpdated(): Boolean {
-        val (response, respStr) = CommandUtilities.headWithStringResponse(
+        val (response, respStr) = HttpClientUtils.headWithStringResponse(
             url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "").toString(),
             tkn = BearerTokens(oktaAccessToken, refreshToken = ""),
-            tmo = CommandUtilities.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
+            tmo = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
 
         if (response.status == HttpStatusCode.OK) {
@@ -976,10 +983,11 @@ class GetMultipleSettings : SettingCommand(
     private val loadToLocal by option(
         "-l", "--load-to-local",
         help = "Load settings to local database with transport modified to use SFTP. " +
-            "You will have the chance to approve or decline a diff. " +
-            "If the -a (--append-to-orgs) option is used in conjunction with the load option, the modified results " +
-            "are used when appending to the organizations.yml file. If the -o (--output) option is used, the " +
-            "original, unmodified settings will be output to that file."
+                "You will have the chance to approve or decline a diff. " +
+                "If the -a (--append-to-orgs) option is used in conjunction with the " +
+                "load option, the modified results " +
+                "are used when appending to the organizations.yml file. If the -o (--output) option is used, the " +
+                "original, unmodified settings will be output to that file."
     ).flag(default = false)
 
     private val appendToOrgs by option(

@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.cli.tests
 
-import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
@@ -85,7 +85,7 @@ class SftpcheckTest : CoolTest() {
         path: String,
         accessToken: String,
     ): List<String> {
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path,
             tkn = BearerTokens(accessToken, refreshToken = "")
         )
@@ -115,7 +115,7 @@ class SftpcheckTest : CoolTest() {
         path: String,
         accessToken: String,
     ): Pair<HttpResponse, String> {
-        return CommandUtilities.getWithStringResponse(
+        return HttpClientUtils.getWithStringResponse(
             url = path,
             tkn = BearerTokens(accessToken, refreshToken = "")
         )

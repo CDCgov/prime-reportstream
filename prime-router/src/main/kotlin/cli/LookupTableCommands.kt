@@ -21,6 +21,7 @@ import gov.cdc.prime.router.azure.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -65,7 +66,7 @@ class LookupTableEndpointUtilities(
      * @throws IOException if there is a server or API error
      */
     fun fetchList(listInactive: Boolean = false, httpClient: HttpClient? = null): List<LookupTableVersion> {
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = environment.formUrl("$endpointRoot/list").toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
             tmo = requestTimeoutMillis.toLong(),
@@ -101,7 +102,7 @@ class LookupTableEndpointUtilities(
     fun activateTable(tableName: String, version: Int): LookupTableVersion {
         val url = environment.formUrl("$endpointRoot/$tableName/$version/activate").toString()
         // seems need to destruct a pair by assignment
-        val (response, respStr) = CommandUtilities.putWithStringResponse(
+        val (response, respStr) = HttpClientUtils.putWithStringResponse(
             url = url,
             tkn = BearerTokens(accessToken, refreshToken = ""),
             tmo = requestTimeoutMillis.toLong(),
@@ -118,7 +119,7 @@ class LookupTableEndpointUtilities(
      */
     fun fetchTableContent(tableName: String, version: Int): List<Map<String, String>> {
         val url = environment.formUrl("$endpointRoot/$tableName/$version/content").toString()
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = url,
             tkn = BearerTokens(accessToken, refreshToken = ""),
             tmo = requestTimeoutMillis.toLong(),
@@ -148,7 +149,7 @@ class LookupTableEndpointUtilities(
      */
     fun fetchTableInfo(tableName: String, version: Int): LookupTableVersion {
         val url = environment.formUrl("$endpointRoot/$tableName/$version/info").toString()
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = url,
             tkn = BearerTokens(accessToken, refreshToken = ""),
             tmo = requestTimeoutMillis.toLong(),
@@ -170,7 +171,7 @@ class LookupTableEndpointUtilities(
                 "$endpointRoot/$tableName?table&forceTableToCreate=$forceTableToCreate"
             ).toString()
         val (response, respStr) =
-            CommandUtilities.postWithStringResponse(
+            HttpClientUtils.postWithStringResponse(
                 url = url,
                 tkn = BearerTokens(accessToken, refreshToken = ""),
                 tmo = requestTimeoutMillis.toLong(),

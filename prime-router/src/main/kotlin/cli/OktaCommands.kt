@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.sun.net.httpserver.HttpServer
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.transport.TokenInfo
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -102,13 +103,13 @@ class LoginCommand : OktaCommand(
 
     private fun authorizeUrl(clientId: String, oktaUrl: String, state: String, codeChallenge: String): String {
         return "$oktaUrl$oktaAuthorizePath?" +
-            "client_id=$clientId&" +
-            "response_type=code&" +
-            "scope=$oktaScope&" +
-            "redirect_uri=$redirectHost:$redirectPort$redirectPath&" +
-            "state=$state&" +
-            "code_challenge_method=S256&" +
-            "code_challenge=$codeChallenge"
+                "client_id=$clientId&" +
+                "response_type=code&" +
+                "scope=$oktaScope&" +
+                "redirect_uri=$redirectHost:$redirectPort$redirectPath&" +
+                "state=$state&" +
+                "code_challenge_method=S256&" +
+                "code_challenge=$codeChallenge"
     }
 
     private fun startRedirectServer() {
@@ -139,7 +140,7 @@ class LoginCommand : OktaCommand(
         clientId: String,
         oktaBaseUrl: String,
     ): TokenInfo {
-        return CommandUtilities.submitFormT(
+        return HttpClientUtils.submitFormT(
             url = "$oktaBaseUrl$oktaTokenPath",
             formParams = mapOf(
                 Pair("grant_type", "authorization_code"),
@@ -251,7 +252,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             if (accessTokenFile.expiresAt <= LocalDateTime.now().plusMinutes(5)) return false
             val oktaBaseUrl = getOktaUrlBase(oktaApp)
             // Try out the token with Otka for the final confirmation
-            val response = CommandUtilities.get(
+            val response = HttpClientUtils.get(
                 url = "$oktaBaseUrl$oktaUserInfoPath",
                 tkn = BearerTokens(accessTokenFile.token, refreshToken = "")
             )

@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import gov.cdc.prime.router.azure.SenderFilesFunction
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messages.ReportFileMessage
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -86,7 +87,7 @@ class SenderFilesCommand : CliktCommand(
             OktaCommand.fetchAccessToken(environment.value.oktaApp)
                 ?: abort(
                     "Invalid access token. " +
-                        "Run ./prime login to fetch/refresh your access token for the $env environment."
+                            "Run ./prime login to fetch/refresh your access token for the $env environment."
                 )
         }
     }
@@ -110,13 +111,13 @@ class SenderFilesCommand : CliktCommand(
         val path = environment.value.formUrl("api/sender-files")
         val params = buildParameters()
         verbose("GET $path with $params")
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken.value, refreshToken = ""),
             queryParameters = params.associate {
                 Pair(it.first, it.second.toString())
             },
-            tmo = CommandUtilities.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
+            tmo = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
         try {
             return jsonMapper.readValue(respStr, Array<ReportFileMessage>::class.java)?.toList()

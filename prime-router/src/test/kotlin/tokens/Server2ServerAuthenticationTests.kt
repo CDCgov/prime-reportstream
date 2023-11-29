@@ -32,7 +32,8 @@ import org.junit.jupiter.api.assertThrows
 import tokens.Server2ServerAuthenticationException
 import java.math.BigInteger
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.Date
+import java.util.UUID
 import javax.crypto.SecretKey
 import kotlin.test.Test
 import kotlin.test.assertEquals

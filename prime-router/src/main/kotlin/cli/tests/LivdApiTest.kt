@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.azure.LivdData
-import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import io.ktor.http.HttpStatusCode
 
 /**
@@ -51,7 +51,7 @@ class LivdApiTest : CoolTest() {
                         if (livdValues.isEmpty()) {
                             return testBeingRun.bad(
                                 "***${testBeingRun.name}: TEST '${testCase.name}' FAILED: " +
-                                    "Call to API succeeded but results array is empty"
+                                        "Call to API succeeded but results array is empty"
                             )
                         }
                         return true
@@ -81,7 +81,7 @@ class LivdApiTest : CoolTest() {
                         }
                         return testBeingRun.bad(
                             "***${testBeingRun.name}: TEST '${testCase.name}' FAILED: " +
-                                "Filtering via the API did not succeed."
+                                    "Filtering via the API did not succeed."
                         )
                     }
                 )
@@ -112,7 +112,7 @@ class LivdApiTest : CoolTest() {
      * Runs the query against the LIVD API for the given path and parameters
      */
     private fun livdApiQuery(testCase: LivdApiTestCase): Pair<Boolean, String?> {
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = testCase.path,
             tmo = 75000,
             queryParameters = testCase.parameters?.associate {

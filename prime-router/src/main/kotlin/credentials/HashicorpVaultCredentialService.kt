@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.credentials
 
-import gov.cdc.prime.router.cli.CommandUtilities
+import gov.cdc.prime.router.common.HttpClientUtils
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
@@ -17,7 +17,7 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
         vaultAddr: String?,
         vaultToken: String?,
     ): Credential? {
-        val (response, respStr) = CommandUtilities.getWithStringResponse(
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = "${vaultAddr ?: VAULT_API_ADDR}/v1/secret/$connectionId",
             hdr = mapOf("X-Vault-Token" to (vaultToken ?: VAULT_TOKEN)),
             httpClient = httpClient
@@ -38,7 +38,7 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
         vaultAddr: String?,
         vaultToken: String?,
     ) {
-        val (response, respStr) = CommandUtilities.postWithStringResponse(
+        val (response, respStr) = HttpClientUtils.postWithStringResponse(
             url = "${vaultAddr ?: VAULT_API_ADDR}/v1/secret/$connectionId",
             hdr = mapOf("X-Vault-Token" to (vaultToken ?: VAULT_TOKEN)),
             jsonPayload = credential.toJSON(),

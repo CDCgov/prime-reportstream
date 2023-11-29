@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.PrintHelpMessage
-import com.github.ajalt.clikt.core.PrintMessage
 import com.wolpl.clikttestkit.test
 import gov.cdc.prime.router.cli.tests.TestReportStream
 import io.ktor.http.HttpStatusCode
@@ -18,6 +17,20 @@ class MainCmdTests {
         body: String,
     ): LookupTableListCommand {
         return LookupTableListCommand(
+            ApiMockEngine(
+                url,
+                status,
+                body
+            ).client()
+        )
+    }
+
+    private fun getMockLookupTblGetCmd(
+        url: String,
+        status: HttpStatusCode,
+        body: String,
+    ): LookupTableGetCommand {
+        return LookupTableGetCommand(
             ApiMockEngine(
                 url,
                 status,
@@ -87,37 +100,51 @@ class MainCmdTests {
         assertTrue(
             assertionErrors.isEmpty(),
             "Expect all --help will trigger a PrintHelpMessage thrown, " +
-                "but there are ${assertionErrors.size} failed to do so, " +
-                "errors dump: $assertionErrors"
+                    "but there are ${assertionErrors.size} failed to do so, " +
+                    "errors dump: $assertionErrors"
         )
     }
 
     @Test
-    fun `test prime CLI - lookuptables list connection error`() {
-        val lkUpList = LookupTableListCommand()
+    fun `test prime CLI - lookuptables get -n race -v 1`() {
+        val race_table = """[
+          {
+            "code": "2106-3",
+            "name": "race",
+            "display": "White",
+            "version": ""
+          },
+          {
+            "code": "2106-3",
+            "name": "race",
+            "display": "W",
+            "version": ""
+          },
+          {
+            "code": "2106-3",
+            "name": "race",
+            "display": "Caucasian",
+            "version": ""
+          }]"""
+
+        val mockLookupTblGet = getMockLookupTblGetCmd(
+            url = "/api/lookuptables/race/1/content",
+            HttpStatusCode.OK,
+            body = race_table
+        )
 
         runBlocking {
-            val exception = assertFailsWith<PrintMessage>(
-                block = {
-                    lkUpList.test(
-                        expectedExitCode = 0,
-                        environmentVariables = mapOf(
-                            Pair("POSTGRES_USER", "prime"),
-                            Pair("POSTGRES_PASSWORD", "changeIT!"),
-                            Pair("POSTGRES_URL", "jdbc:postgresql://localhost:5432/prime_data_hub")
-                        )
-                    ) {
-                    }
-                }
-            )
-            assertNotNull(exception.message)
-            assertTrue(
-                exception.message!!.contains(
-                "Error fetching the list of tables: Connection refused"
-                ),
-                "Expect 'Error fetching the list of tables: Connection refused', " +
-                        "but got ${exception.message}"
-            )
+            mockLookupTblGet.test(
+                argv = listOf("-n", "race", "-v", "1"),
+                expectedExitCode = 0,
+                environmentVariables = mapOf(
+                    Pair("POSTGRES_USER", "prime"),
+                    Pair("POSTGRES_PASSWORD", "changeIT!"),
+                    Pair("POSTGRES_URL", "jdbc:postgresql://localhost:5432/prime_data_hub")
+                )
+            ) {
+                ignoreOutputs()
+            }
         }
     }
 

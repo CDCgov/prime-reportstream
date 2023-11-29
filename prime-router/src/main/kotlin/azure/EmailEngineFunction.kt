@@ -28,8 +28,8 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.azure.db.enums.SettingType
-import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.secrets.SecretHelper
 import gov.cdc.prime.router.tokens.oktaMembershipClaim
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
@@ -310,7 +310,7 @@ class EmailScheduleEngine {
                 val grp = encodeOrg(org)
 
                 // get the OKTA Group Id
-                val (_, respStrJson1) = CommandUtilities.getWithStringResponse(
+                val (_, respStrJson1) = HttpClientUtils.getWithStringResponse(
                     url = "$OKTA_GROUPS_API?q=$grp",
                     tkn = null,
                     hdr = mapOf("Authorization" to "SSWS $ssws")
@@ -319,7 +319,7 @@ class EmailScheduleEngine {
                 val grpId = JSONObject(respStrJson1).getString("id")
 
                 // get the users within that OKTA group
-                val (_, respStrJson) = CommandUtilities.getWithStringResponse(
+                val (_, respStrJson) = HttpClientUtils.getWithStringResponse(
                     url = "$OKTA_GROUPS_API/$grpId/users",
                     tkn = null,
                     hdr = mapOf("Authorization" to "SSWS $ssws")

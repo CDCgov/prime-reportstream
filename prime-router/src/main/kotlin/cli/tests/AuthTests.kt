@@ -21,6 +21,7 @@ import gov.cdc.prime.router.cli.PutOrganizationSetting
 import gov.cdc.prime.router.cli.PutSenderSetting
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
@@ -36,7 +37,7 @@ import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 
 /**
  *  Test a variety of waters endpoints across all our various authorization techniques
@@ -89,8 +90,8 @@ class OktaAuthTests : CoolTest() {
                 OktaCommand.fetchAccessToken(environment.oktaApp)
                     ?: CommandUtilities.abort(
                         "Cannot run test $testName. Invalid access token. " +
-                            "Run ./prime login to fetch/refresh a PrimeAdmin access token for " +
-                            "the $environment environment."
+                                "Run ./prime login to fetch/refresh a PrimeAdmin access token for " +
+                                "the $environment environment."
 
                     )
             }
@@ -237,7 +238,7 @@ class OktaAuthTests : CoolTest() {
         ugly("Starting $name Test: try various API paths using a bad token")
         var passed = true
         val advice = "Run   ./prime login --env staging    " +
-            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+                "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
         )
@@ -313,7 +314,7 @@ class OktaAuthTests : CoolTest() {
     ): Boolean {
         ugly("Starting $name Test: test list-of-submissions queries using Okta PrimeAdmin token")
         val advice = "Run   ./prime login --env staging    " +
-            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+                "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
         )
@@ -382,7 +383,7 @@ class OktaAuthTests : CoolTest() {
     ): Boolean {
         ugly("Starting $name Test: test report-details-history queries using Okta auth.")
         val advice = "Run   ./prime login --env staging    " +
-            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+                "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
         )
@@ -607,7 +608,7 @@ class Server2ServerAuthTests : CoolTest() {
         headers.add("authorization" to "Bearer $accessToken")
         val postUrl =
             "${environment.url}/api/settings/organizations/${org1.name}/" +
-                "public-keys?scope=${org1.name}.*.report&kid=${org1.name}.reportunique"
+                    "public-keys?scope=${org1.name}.*.report&kid=${org1.name}.reportunique"
         val (httpStatusPostKey, postKeyResponse) = HttpUtilities.postHttp(
             postUrl,
             end2EndExampleRSAPublicKeyStr.toByteArray(),
@@ -634,10 +635,10 @@ class Server2ServerAuthTests : CoolTest() {
         }
 
         val deleteUrl = environment.url.toString() +
-            "/api/settings/organizations/${org1.name}/public-keys/" +
-            URLEncoder.encode("${org1.name}.*.report", "utf-8") +
-            "/" +
-            URLEncoder.encode("${org1.name}.reportunique", "utf-8")
+                "/api/settings/organizations/${org1.name}/public-keys/" +
+                URLEncoder.encode("${org1.name}.*.report", "utf-8") +
+                "/" +
+                URLEncoder.encode("${org1.name}.reportunique", "utf-8")
         val (httpStatusDeleteKey, deleteKeyResponse) = HttpUtilities.deleteHttp(
             deleteUrl,
             byteArrayOf(),
@@ -721,7 +722,7 @@ class Server2ServerAuthTests : CoolTest() {
                 } else {
                     bad(
                         "EC key: " +
-                            "Should get a 401 response to tampered token but instead got $responseCode3  " + json3
+                                "Should get a 401 response to tampered token but instead got $responseCode3  " + json3
                     )
                     passed = false
                 }
@@ -786,7 +787,7 @@ class Server2ServerAuthTests : CoolTest() {
                 } else {
                     bad(
                         "RSA key: " +
-                            "Should get a 401 response to tampered token but instead got $responseCode3  " + json3
+                                "Should get a 401 response to tampered token but instead got $responseCode3  " + json3
                     )
                     passed = false
                 }
@@ -1164,17 +1165,17 @@ class Server2ServerAuthTests : CoolTest() {
     ): Boolean {
         ugly("Starting $name Test: test settings/organizations queries using server2server auth.")
         val advice = "Run   ./prime login --env staging    " +
-            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+                "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val adminToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: OktaAuthTests.abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
         )
         val orgEndpoint = "${environment.url}/api/settings/organizations"
 
-        val client = CommandUtilities.createDefaultHttpClient(
+        val client = HttpClientUtils.createDefaultHttpClient(
             BearerTokens(userToken, refreshToken = "")
         )
 
-        val clientAdmin = CommandUtilities.createDefaultHttpClient(
+        val clientAdmin = HttpClientUtils.createDefaultHttpClient(
             BearerTokens(adminToken, refreshToken = "")
         )
 
@@ -1212,7 +1213,7 @@ class Server2ServerAuthTests : CoolTest() {
         if (response2.status != HttpStatusCode.OK) {
             bad(
                 "***$name Test settings/organizations Happy Path (admin-GET All Orgs) FAILED:" +
-                    " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response2.status.value}"
+                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response2.status.value}"
             )
             return false
         }
@@ -1232,7 +1233,7 @@ class Server2ServerAuthTests : CoolTest() {
         if (response3.status != HttpStatusCode.OK) {
             bad(
                 "***$name Test settings/organizations Happy Path (user-GET Org Receivers) FAILED:" +
-                    " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response3.status.value}"
+                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response3.status.value}"
             )
             return false
         }
@@ -1251,7 +1252,7 @@ class Server2ServerAuthTests : CoolTest() {
         if (response4.status != HttpStatusCode.OK) {
             bad(
                 "***$name Test settings/organizations Happy Path (admin-GET Org Receivers) FAILED:" +
-                    " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response4.status.value}"
+                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response4.status.value}"
             )
             return false
         }
@@ -1270,7 +1271,7 @@ class Server2ServerAuthTests : CoolTest() {
         if (response5.status != HttpStatusCode.Unauthorized) {
             bad(
                 "***$name Test settings/organizations Unhappy Path (user-GET Unauthorized Org Receivers) FAILED:" +
-                    " Expected HttpStatus ${HttpStatusCode.Unauthorized}. Got ${response5.status.value}"
+                        " Expected HttpStatus ${HttpStatusCode.Unauthorized}. Got ${response5.status.value}"
             )
             return false
         }
