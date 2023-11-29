@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.azure.batch
 
 import assertk.assertFailure
 import assertk.assertions.hasClass
@@ -16,6 +16,12 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
@@ -40,7 +46,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-class BatchFunctionTests {
+class UniversalBatchFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
@@ -91,7 +97,7 @@ class BatchFunctionTests {
         val message = "receiver&BATCH&phd.elr&true"
 
         // Invoke batch function run
-        BatchFunction(engine).run(message, context = null)
+        UniversalBatchFunction(engine).run(message, context = null)
 
         // empty pathway should be called
         verify(exactly = 1) { engine.generateEmptyReport(any(), any()) }
@@ -116,7 +122,7 @@ class BatchFunctionTests {
         mockkObject(HL7MessageHelpers)
         mockkObject(Report)
 
-        val batchFunction = BatchFunction(mockWorkflowEngine)
+        val batchFunction = UniversalBatchFunction(mockWorkflowEngine)
 
         // Test sending HL7 (no HL7 batch) files
         var receiver = Receiver(
@@ -249,7 +255,7 @@ class BatchFunctionTests {
         mockkObject(FHIRBundleHelpers)
         mockkObject(Report)
 
-        val batchFunction = BatchFunction(mockWorkflowEngine)
+        val batchFunction = UniversalBatchFunction(mockWorkflowEngine)
 
         // Test sending unbatched FHIR files
         var receiver = Receiver(
@@ -369,7 +375,7 @@ class BatchFunctionTests {
         every { mockTask.bodyUrl } returns "someurl"
         mockkObject(BlobAccess)
 
-        val batchFunction = BatchFunction(mockWorkflowEngine)
+        val batchFunction = UniversalBatchFunction(mockWorkflowEngine)
 
         // Test sending unsupported file type (CSV)
         var receiver = Receiver(
@@ -449,7 +455,7 @@ class BatchFunctionTests {
         val message = "receiver&BATCH&phd.elr&false"
 
         // invoke batch function run for legacy pipeline
-        BatchFunction(engine).run(message, context = null)
+        CovidBatchFunction(engine).run(message, context = null)
 
         // verify that we only download blobs once in legacy pipeline
         verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(bodyURL, any(), any()) }
@@ -465,7 +471,7 @@ class BatchFunctionTests {
         every { Topic.COVID_19.isUniversalPipeline } returns true
 
         // Invoke batch function run for universal pipeline
-        BatchFunction(engine).run(message, context = null)
+        UniversalBatchFunction(engine).run(message, context = null)
 
         // verify that we only download blobs once in universal pipeline
         verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(bodyURL, any(), any()) }
