@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
+package gov.cdc.prime.router.fhirengine.utils
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
@@ -9,6 +9,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -20,24 +21,8 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
-import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import gov.cdc.prime.router.fhirengine.utils.addProvenanceReference
-import gov.cdc.prime.router.fhirengine.utils.addReceivers
-import gov.cdc.prime.router.fhirengine.utils.deleteChildlessResource
-import gov.cdc.prime.router.fhirengine.utils.deleteResource
-import gov.cdc.prime.router.fhirengine.utils.enhanceBundleMetadata
-import gov.cdc.prime.router.fhirengine.utils.filterObservations
-import gov.cdc.prime.router.fhirengine.utils.getDiagnosticReportNoObservations
-import gov.cdc.prime.router.fhirengine.utils.getObservationExtensions
-import gov.cdc.prime.router.fhirengine.utils.getResourceProperties
-import gov.cdc.prime.router.fhirengine.utils.getResourceReferences
-import gov.cdc.prime.router.fhirengine.utils.handleBirthTime
-import gov.cdc.prime.router.fhirengine.utils.removePHI
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
 import io.mockk.spyk
@@ -54,10 +39,8 @@ import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.TestInstance
 import java.io.File
 import java.util.Date
-import java.util.UUID
 import java.util.stream.Collectors
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -69,7 +52,6 @@ private const val DIAGNOSTIC_REPORT_EXPRESSION = "Bundle.entry.resource.ofType(D
 private const val MULTIPLE_OBSERVATIONS_URL = "src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir"
 private const val OBSERVATIONS_FILTER = "%resource.code.coding.code.intersect('94558-5').exists()"
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FHIRBundleHelpersTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
@@ -95,6 +77,7 @@ class FHIRBundleHelpersTests {
             "one"
         )
     )
+
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
@@ -102,92 +85,9 @@ class FHIRBundleHelpersTests {
         receivers = defaultReceivers
     )
 
-    val message =
-        spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", topic = Topic.FULL_ELR))
-
-    private val validFhirWithProvenance = """
-    {
-        "resourceType": "Bundle",
-        "id": "1666038428133786000.94addcb6-835c-4883-a095-0c50cf113744",
-        "meta": {
-        "lastUpdated": "2022-10-17T20:27:08.149+00:00",
-        "security": [
-            {
-                "code": "SECURITY",
-                "display": "SECURITY"
-            }
-        ]
-    },
-        "identifier": {
-        "value": "MT_COCAA_ORU_AAPHELR.1.6214638"
-    },
-        "type": "message",
-        "timestamp": "2028-08-08T15:28:05.000+00:00",
-        "entry": [
-            {
-                "fullUrl": "Provenance/1666038430962443000.9671377b-8f2b-4f5c-951c-b43ca8fd1a25",
-                "resource": {
-                    "resourceType": "Provenance",
-                    "id": "1666038430962443000.9671377b-8f2b-4f5c-951c-b43ca8fd1a25",
-                    "recorded": "2028-08-08T09:28:05-06:00",
-                    "activity": {
-                        "coding": [
-                            {
-                                "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
-                                "code": "R01",
-                                "display": "ORU_R01"
-                            }
-                        ]
-                    }
-                }
-            }
-        ]
-    }
-    """
-
     @BeforeEach
     fun reset() {
         clearAllMocks()
-    }
-
-    @Test
-    fun `test adding receivers to bundle`() {
-        // set up
-        val bundle = FhirTranscoder.decode(validFhirWithProvenance)
-        val receiversIn = listOf(oneOrganization.receivers[0])
-
-        // act
-        bundle.addReceivers(receiversIn, shorthandLookupTable)
-
-        // assert
-        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        val outs = provenance.target
-        val receiversOut = outs.map { it.resource }
-            .filterIsInstance<Endpoint>().map { it.identifier[0].value }
-        assertThat(receiversOut).isNotEmpty()
-        assertThat(receiversOut[0]).isEqualTo("$ORGANIZATION_NAME.$RECEIVER_NAME")
-    }
-
-    @Test
-    fun `test adding receivers to bundle without provenance`() {
-        // set up
-        val actionLogger = ActionLogger()
-        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data_no_provenance.fhir").readText()
-        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
-        assertThat(messages).isNotEmpty()
-        val bundle = messages[0]
-        val receiversIn = listOf(oneOrganization.receivers[0])
-
-        // act
-        bundle.addReceivers(receiversIn, shorthandLookupTable)
-
-        // assert
-        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        val outs = provenance.target
-        val receiversOut = outs.map { it.resource }
-            .filterIsInstance<Endpoint>().map { it.identifier[0].value }
-        assertThat(receiversOut).isNotEmpty()
-        assertThat(receiversOut[0]).isEqualTo("$ORGANIZATION_NAME.$RECEIVER_NAME")
     }
 
     @Test
@@ -232,39 +132,6 @@ class FHIRBundleHelpersTests {
             .map { it.reference }
             .filter { it.substringBefore(delimiter = "/", missingDelimiterValue = "none") == "DiagnosticReport" }
         assertThat(references).isNotEmpty()
-    }
-
-    @Test
-    fun `test skipping inactive receivers (only inactive)`() {
-        // set up
-        val bundle = FhirTranscoder.decode(validFhirWithProvenance)
-        val receiversIn = listOf(oneOrganization.receivers[1])
-
-        // act
-        bundle.addReceivers(receiversIn, shorthandLookupTable)
-
-        // assert
-        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        val outs = provenance.target
-        val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
-        assertThat(receiversOut).isEmpty()
-    }
-
-    @Test
-    fun `test skipping inactive receivers (mixed)`() {
-        // set up
-        val bundle = FhirTranscoder.decode(validFhirWithProvenance)
-        val receiversIn = oneOrganization.receivers
-
-        // act
-        bundle.addReceivers(receiversIn, shorthandLookupTable)
-
-        // assert
-        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        val outs = provenance.target
-        val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
-        assertThat(receiversOut).isNotEmpty()
-        assertThat(receiversOut[0]).isEqualTo("$ORGANIZATION_NAME.$RECEIVER_NAME")
     }
 
     @Test
@@ -530,31 +397,6 @@ class FHIRBundleHelpersTests {
     }
 
     @Test
-    fun `Test manipulating bundle without provenance`() {
-        // set up
-        val actionLogger = ActionLogger()
-        val fhirBundle = File(VALID_DATA_URL).readText()
-        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
-        assertThat(messages).isNotEmpty()
-        val bundle = messages[0]
-        val receiversIn = listOf(oneOrganization.receivers[0])
-        assertThat(bundle).isNotNull()
-        val provenance = FhirPathUtils.evaluate(
-            CustomContext(bundle, bundle),
-            bundle,
-            bundle,
-            "Bundle.entry.resource.ofType(Provenance)"
-        )[0]
-        assertThat(provenance).isNotNull()
-        bundle.deleteResource(provenance)
-
-        bundle.addReceivers(receiversIn, shorthandLookupTable)
-        assertThat(
-            bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        ).isNotNull()
-    }
-
-    @Test
     fun `Test getChildProperties from a Property`() {
         val diagnosticReport = DiagnosticReport()
         val observation = Observation()
@@ -770,7 +612,7 @@ class FHIRBundleHelpersTests {
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
         val hl7Messages = hl7Reader.getMessages(hl7Message)
 
-        assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v251.segment.MSH).isTrue()
+        assertThat(hl7Messages[0]["MSH"] is MSH).isTrue()
 
         bundle.enhanceBundleMetadata(hl7Messages[0])
 
@@ -820,7 +662,7 @@ class FHIRBundleHelpersTests {
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_2.6.hl7").readText()
         val hl7Messages = hl7Reader.getMessages(hl7Message)
 
-        assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v251.segment.MSH).isFalse()
+        assertThat(hl7Messages[0]["MSH"] is MSH).isFalse()
         assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v27.segment.MSH).isFalse()
 
         bundle.enhanceBundleMetadata(hl7Messages[0])
