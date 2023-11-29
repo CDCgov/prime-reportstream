@@ -10,37 +10,47 @@ identifier:
   expressionType: nested
   generateList: true
   expressions:
-    - expressionType: resource
+    - condition: $pid2 NOT_NULL
+      expressionType: resource
       specs: PID.2
       valueOf: datatypes/CX/Identifier
       vars:
-        identifierIndexName: "patient-id"
-    - expressionType: resource
+        identifierIndexName: patient-id
+        pid2: PID.2
+    - condition: $pid3 NOT_NULL
+      expressionType: resource
       specs: PID.3
       valueOf: datatypes/CX/Identifier
       generateList: true
       vars:
-        identifierIndexName: "patient-identifier-list"
-    - expressionType: resource
+        identifierIndexName: patient-identifier-list
+        pid3: PID.3
+    - condition: $pid4 NOT_NULL
+      expressionType: resource
       specs: PID.4
       valueOf: datatypes/CX/Identifier
       vars:
-        identifierIndexName: "alternate-patient-id"
+        identifierIndexName: alternate-patient-id
+        pid4: PID.4
 
 name:
   expressionType: nested
   generateList: true
   expressions:
-    - expressionType: resource
+    - condition: $pid9 NOT_NULL
+      expressionType: resource
       specs: PID.5
       valueOf: datatypes/XPN/HumanName
       vars:
         hl7Use: patient-name
-    - expressionType: resource
+        pid9: PID.9
+    - condition: $pid9 NOT_NULL
+      expressionType: resource
       specs: PID.9
       valueOf: datatypes/XPN/HumanName
       vars:
         hl7Use: patient-alias
+        pid9: PID.9
 
 birthDate:
   expressionType: nested
@@ -87,18 +97,43 @@ gender:
   expressionType: HL7Spec
 
 address:
+  condition: $pid11 NOT_NULL
+  valueOf: datatypes/XAD/Address
+  generateList: true
+  expressionType: resource
+  specs: PID.11
+  vars:
+    pid11: PID.11
+
+telecom:
   expressionType: nested
   expressions:
-    - expressionType: resource
-      specs: PID.9
-      valueOf: datatypes/XPN/HumanName
+    - condition: $pid13 NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: PID.13
       vars:
-        hl7Use: patient-alias
+        pid13: PID.13
+      constants:
+        useCode: home
+    - condition: $pid14 NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: PID.14
+      vars:
+        pid14: PID.14
+      constants:
+        useCode: work
 
 extension:
   expressionType: nested
   expressions:
-    - expressionType: nested
+    - condition: $pid6 NOT_NULL
+      expressionType: nested
+      vars:
+        pid6: PID.6
       expressionMap:
         url:
           type: SYSTEM_URL
@@ -107,13 +142,13 @@ extension:
       valueHumanName:
         valueOf: datatypes/XPN/HumanName
         expressionType: resource
-        condition: $pid6 NOT_NULL
         specs: PID.6
-        vars:
-          pid6: PID.6
-    - expressionType: nested
+    - condition: $pid10 NOT_NULL
+      expressionType: nested
       specs: PID.10
       generateList: true
+      vars:
+        pid10: PID.10
       expressionsMap:
         url:
           type: SYSTEM_URL
