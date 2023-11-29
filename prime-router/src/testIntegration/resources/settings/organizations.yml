@@ -171,7 +171,6 @@
       organizationName: "elims"
       format: "HL7"
       customerStatus: "testing"
-      schemaName: "metadata/fhir_transforms/senders/original-pipeline-transforms"
       processingType: "sync"
       allowDuplicates: true
       topic: "elr-elims"

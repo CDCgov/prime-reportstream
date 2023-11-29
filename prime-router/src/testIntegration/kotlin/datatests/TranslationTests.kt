@@ -460,7 +460,7 @@ class TranslationTests {
 
         private fun runSenderTransform(bundle: InputStream, schema: String): InputStream {
             val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
-            val transformedBundle = if (schema != "") {
+            val transformedBundle = if (!schema.isNullOrEmpty()) {
                 FhirTransformer(schema).transform(fhirBundle)
             } else {
                 fhirBundle
