@@ -350,7 +350,7 @@ describe("FileHandler", () => {
         });
     });
 
-    describe.only("when an unexpected error occurs", () => {
+    describe("when an unexpected error occurs", () => {
         function setup() {
             mockUseFileHandler(EMPTY_CSV_FILE_SELECTED);
             mockUseSenderSchemaOptions({

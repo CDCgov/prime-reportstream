@@ -8,10 +8,9 @@ import ManagePublicKeyUpload, {
 
 describe("ManagePublicKeyUpload", () => {
     const DEFAULT_PROPS: ManagePublicKeyUploadProps = {
-        onPublicKeySubmit: () => {},
+        onSubmit: async () => {},
         onFileChange: () => {},
         onBack: () => {},
-        hasBack: false,
         publicKey: false,
         file: null,
     };
@@ -50,9 +49,7 @@ describe("ManagePublicKeyUpload", () => {
 
     describe("when hasBack", () => {
         function setup() {
-            doRender({
-                hasBack: true,
-            });
+            doRender();
         }
 
         test("displays Back button", () => {

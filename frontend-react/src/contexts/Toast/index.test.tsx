@@ -60,7 +60,7 @@ describe("Toast", () => {
     });
 
     // TODO
-    describe.skip("toast function", () => {
+    describe.todo("toast function", () => {
         test("renders toast", () => {});
     });
 });

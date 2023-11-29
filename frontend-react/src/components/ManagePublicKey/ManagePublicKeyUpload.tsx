@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import {
     Button,
     FileInput,
@@ -9,25 +9,33 @@ import {
     Label,
 } from "@trussworks/react-uswds";
 
+import useAsyncSafeCallback from "../../hooks/UseAsyncSafeCallback";
+
 export interface ManagePublicKeyUploadProps {
-    onPublicKeySubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
     onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onBack: () => void;
-    hasBack: boolean;
     publicKey: boolean | File;
     file: File | null;
 }
 
 export default function ManagePublicKeyUpload({
-    onPublicKeySubmit,
+    onSubmit,
     onFileChange,
     onBack,
-    hasBack,
     publicKey,
     file,
 }: ManagePublicKeyUploadProps) {
     const isDisabled = !file;
     const fileInputRef = useRef<FileInputRef>(null);
+    const _handleSubmit = useCallback(
+        async (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            await onSubmit(e);
+        },
+        [onSubmit],
+    );
+    const handleSubmit = useAsyncSafeCallback(_handleSubmit);
 
     return (
         <>
@@ -39,10 +47,7 @@ export default function ManagePublicKeyUpload({
             <div data-testid="ManagePublicKeyUpload">
                 <Form
                     name="public-key-upload"
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        onPublicKeySubmit(e);
-                    }}
+                    onSubmit={handleSubmit}
                     className="rs-full-width-form"
                 >
                     <FormGroup className="margin-bottom-3">
@@ -64,7 +69,7 @@ export default function ManagePublicKeyUpload({
                             name="upload-pem-input"
                             aria-describedby="upload-pem-input-label"
                             data-testid="upload-pem-input"
-                            onChange={(e) => onFileChange(e)}
+                            onChange={onFileChange}
                             required
                             ref={fileInputRef}
                             accept=".pem"
@@ -73,7 +78,7 @@ export default function ManagePublicKeyUpload({
                     </FormGroup>
                     <Grid row>
                         <Grid col="auto">
-                            {hasBack && (
+                            {onBack && (
                                 <Button onClick={onBack} type="button" outline>
                                     Back
                                 </Button>

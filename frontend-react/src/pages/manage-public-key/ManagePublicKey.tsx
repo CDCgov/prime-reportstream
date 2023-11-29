@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
+import { ErrorBoundary } from "react-error-boundary";
 
 import Spinner from "../../components/Spinner";
 import { USLink } from "../../components/USLink";
 import { useToast } from "../../contexts/Toast";
-import { ApiKey, ApiKeySet, RSSender } from "../../config/endpoints/settings";
+import { ApiKeySet, RSSender } from "../../config/endpoints/settings";
 import { useSessionContext } from "../../contexts/Session";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 import useCreateOrganizationPublicKey, {
@@ -25,71 +26,66 @@ export const CONTENT_TYPE = "application/x-x509-ca-cert";
 export const FORMAT = "PEM";
 
 export interface ManagePublicKeyPageBaseProps {
-    organization: string;
-    onSubmitPublicKey: (
-        key: OrganizationPublicKeyPostArgs,
-        file: File,
-    ) => Promise<void>;
-    onToast: (...args: any[]) => void;
+    onSubmit: (key: OrganizationPublicKeyPostArgs, file: File) => Promise<void>;
+    onError: (e: any) => void;
     keySets?: ApiKeySet[];
     senders?: RSSender[];
-    isSubmitting?: boolean;
-    isLoading?: boolean;
-    isSuccess?: boolean;
 }
 
+/**
+ * Public key wizard with props for submission and error. Relies on the caller
+ * to update keySets to include new key once created to determine submission
+ * success.
+ */
 export function ManagePublicKeyPageBase({
-    onSubmitPublicKey,
+    onSubmit,
     keySets = [],
     senders = [],
-    isLoading = false,
-    isSubmitting = false,
-    isSuccess = false,
-    organization,
-    onToast,
+    onError,
 }: ManagePublicKeyPageBaseProps) {
-    const [hasPublicKey, setHasPublicKey] = useState(false);
-    const [uploadNewPublicKey, setUploadNewPublicKey] = useState(false);
-    const [sender, setSender] = useState("");
-    const [hasBack, setHasBack] = useState(false);
-    const [fileContent, setFileContent] = useState("");
+    const [sender, setSender] = useState<RSSender | undefined>(
+        senders.length === 1 ? senders[0] : undefined,
+    );
     const [file, setFile] = useState<File | null>(null);
-    const [fileSubmitted, setFileSubmitted] = useState(false);
+    // Three states: undefined (not submitting), null (submitting), object (submitted args)
+    const [submittedArgs, setSubmittedArgs] = useState<
+        OrganizationPublicKeyPostArgs | undefined | null
+    >();
+    const publicKey = sender
+        ? keySets?.some((s) =>
+              s.keys.some(
+                  (k) => k.kid === `${sender.organizationName}.${sender.name}`,
+              ),
+          )
+        : undefined;
+    const isSubmitting = submittedArgs === null;
+    const isPublicKeySubmitted = publicKey && submittedArgs;
+    const isPublicKeyFound = publicKey && !isPublicKeySubmitted;
+    const isUploadEnabled = !publicKey && sender;
+    const isUploadMessageVisible = isUploadEnabled && !isSubmitting;
 
-    const handleSenderSelect = (selectedSender: string, showBack: boolean) => {
-        setSender(selectedSender);
-        setHasBack(showBack);
+    const handleSenderSelect = (selectedSender: string) => {
+        setSender(senders.find((s) => s.name === selectedSender));
     };
 
-    const handleOnBack = () => {
-        setSender("");
-        setUploadNewPublicKey(false);
+    const handleUploadOnBack = () => {
+        setSender(undefined);
     };
 
-    const handlePublicKeySubmit = async (
-        event: React.FormEvent<HTMLFormElement>,
-    ) => {
-        event.preventDefault();
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        const content = await file?.text();
+        if (!content || !sender) throw new Error("File, or sender missing");
 
-        try {
-            if (!file || !fileContent || !sender)
-                throw new Error("File, or sender missing");
+        const args: OrganizationPublicKeyPostArgs = {
+            kid: content,
+            sender: sender.name,
+        };
 
-            await onSubmitPublicKey(
-                {
-                    kid: fileContent,
-                    sender,
-                },
-                file,
-            );
-        } catch (e: any) {
-            onToast(
-                new Error(`Uploading public key failed. ${e.toString()}`, {
-                    cause: e,
-                }),
-                "error",
-            );
-        }
+        setSubmittedArgs(null);
+
+        await onSubmit(args, file!);
+
+        setSubmittedArgs(args);
     };
 
     const handleFileChange = async (
@@ -112,46 +108,28 @@ export function ManagePublicKeyPageBase({
             validateFileType(file, FORMAT, CONTENT_TYPE);
             validateFileSize(file);
             setFile(file);
-            setFileContent(content);
         } catch (e: any) {
-            onToast(e, "error");
+            onError(e);
         }
     };
 
-    useEffect(() => {
-        if (sender && keySets.length) {
-            // check if kid already exists for the selected org.sender
-            const kid = `${organization}.${sender}`;
-            for (const apiKeys of keySets) {
-                if (apiKeys.keys.some((k: ApiKey) => k.kid === kid)) {
-                    setHasPublicKey(true);
-                }
-            }
-        }
-
-        if (senders?.length === 1) {
-            setSender(senders[0].name);
-            setHasBack(false);
-        }
-    }, [keySets, organization, sender, senders]);
-
-    const showPublicKeyConfigured =
-        sender && hasPublicKey && !uploadNewPublicKey && !fileSubmitted;
-    const showUploadMsg =
-        (sender && !fileSubmitted && !hasPublicKey) ||
-        (!uploadNewPublicKey && !sender);
-    const isUploadEnabled =
-        (sender && !fileSubmitted && !hasPublicKey) || uploadNewPublicKey;
-    const hasUploadError = fileSubmitted && !isSubmitting && !isSuccess;
+    const handleSubmissionError = (e: Error) => {
+        setSubmittedArgs(undefined);
+        onError(
+            new Error(`Uploading public key failed. ${e.toString()}`, {
+                cause: e,
+            }),
+        );
+    };
 
     return (
         <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
-            {!isSubmitting && (
+            {!submittedArgs && (
                 <h1 className="margin-top-0 margin-bottom-5">
                     Manage public key
                 </h1>
             )}
-            {showUploadMsg && (
+            {isUploadMessageVisible && (
                 <>
                     <p className="font-sans-md">
                         Send your public key to begin the REST API
@@ -170,28 +148,27 @@ export function ManagePublicKeyPageBase({
             )}
             {!sender && (
                 <ManagePublicKeyChooseSender
-                    senders={senders || []}
+                    senders={senders}
                     onSenderSelect={handleSenderSelect}
                 />
             )}
-            {showPublicKeyConfigured && <ManagePublicKeyConfigured />}
+            {isPublicKeyFound && <ManagePublicKeyConfigured />}
             {isUploadEnabled && (
-                <ManagePublicKeyUpload
-                    onPublicKeySubmit={handlePublicKeySubmit}
-                    onFileChange={handleFileChange}
-                    onBack={handleOnBack}
-                    hasBack={hasBack}
-                    publicKey={hasPublicKey ?? file}
-                    file={file}
-                />
+                <ErrorBoundary
+                    FallbackComponent={ManagePublicKeyUploadError}
+                    onError={handleSubmissionError}
+                >
+                    <ManagePublicKeyUpload
+                        onSubmit={handleSubmit}
+                        onFileChange={handleFileChange}
+                        onBack={sender && handleUploadOnBack}
+                        publicKey={publicKey ?? false}
+                        file={file}
+                    />
+                </ErrorBoundary>
             )}
-            {(isSubmitting || isLoading) && <Spinner />}
-            {isSuccess && <ManagePublicKeyUploadSuccess />}
-            {hasUploadError && (
-                <ManagePublicKeyUploadError
-                    onTryAgain={() => setFileSubmitted(false)}
-                />
-            )}
+            {isSubmitting && <Spinner />}
+            {isPublicKeySubmitted && <ManagePublicKeyUploadSuccess />}
         </GridContainer>
     );
 }
@@ -199,21 +176,21 @@ export function ManagePublicKeyPageBase({
 export function ManagePublicKeyPage() {
     const { appInsights } = useAppInsightsContext();
     const { user } = useSessionContext();
-    const { data: senders, isLoading } = useOrganizationSenders(
-        user.organization,
-    );
+    const { data: senders } = useOrganizationSenders(user.organization);
     const { data: { keys } = {} } = useOrganizationPublicKeys();
-    const {
-        mutateAsync: submitKey,
-        isPending: isSubmitting,
-        isSuccess,
-    } = useCreateOrganizationPublicKey();
+    const { mutateAsync: createKey } = useCreateOrganizationPublicKey();
     const { toast } = useToast();
+    const errorHandler = useCallback(
+        (e: Error) => {
+            toast(e, "error");
+        },
+        [toast],
+    );
 
-    const submitPublicKeyHandler = useCallback(
+    const submitHandler = useCallback(
         async (key: OrganizationPublicKeyPostArgs, file: File) => {
             try {
-                await submitKey(key);
+                await createKey(key);
                 appInsights?.trackEvent({
                     name: FeatureName.PUBLIC_KEY,
                     properties: {
@@ -242,19 +219,15 @@ export function ManagePublicKeyPage() {
                 throw e;
             }
         },
-        [appInsights, submitKey],
+        [appInsights, createKey],
     );
 
     return (
         <ManagePublicKeyPageBase
-            onSubmitPublicKey={submitPublicKeyHandler}
-            organization={user.organization!!}
+            onSubmit={submitHandler}
             keySets={keys}
-            isLoading={isLoading}
-            isSubmitting={isSubmitting}
             senders={senders}
-            onToast={toast}
-            isSuccess={isSuccess}
+            onError={errorHandler}
         />
     );
 }

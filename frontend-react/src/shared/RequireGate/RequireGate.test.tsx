@@ -116,7 +116,7 @@ describe("RequireGate", () => {
                 user={
                     new RSUser({
                         claims: {
-                            organization: ["DHSender_tx_phd"],
+                            organization: ["DHSender_tx-phd", "DHtx-phd"],
                         },
                     } as any)
                 }
@@ -127,7 +127,7 @@ describe("RequireGate", () => {
         );
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
     });
-    test.only("Considers all given authorized user types (negative)", () => {
+    test("Considers all given authorized user types (negative)", () => {
         render(
             <RequireGateBase
                 anonymousElement={<Anonymous />}

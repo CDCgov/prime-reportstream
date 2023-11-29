@@ -1,16 +1,18 @@
 import { Button, Grid } from "@trussworks/react-uswds";
+import { useErrorBoundary } from "react-error-boundary";
 
-import site from "../../content/site.json";
 import { USExtLink } from "../USLink";
 import Alert from "../../shared/Alert/Alert";
+import { useSessionContext } from "../../contexts/Session";
 
-type ManagePublicKeyUploadCompleteProps = {
-    onTryAgain: () => void;
-};
+export interface ManagePublicKeyUploadErrorBaseProps {
+    email: string;
+}
 
-export default function ManagePublicKeyUploadError({
-    onTryAgain,
-}: ManagePublicKeyUploadCompleteProps) {
+export function ManagePublicKeyUploadErrorBase({
+    email,
+}: ManagePublicKeyUploadErrorBaseProps) {
+    const { resetBoundary } = useErrorBoundary();
     const heading = "Key could not be submitted";
 
     return (
@@ -24,18 +26,27 @@ export default function ManagePublicKeyUploadError({
             </div>
             <div className="margin-bottom-4">
                 If you continue to get this error, email{" "}
-                <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
-                    {site.orgs.RS.email}
-                </USExtLink>{" "}
-                for help.
+                <USExtLink href={`mailto: ${email}`}>{email}</USExtLink> for
+                help.
             </div>
             <Grid row>
                 <Grid col="auto">
-                    <Button onClick={onTryAgain} type="button">
+                    <Button onClick={resetBoundary} type="button">
                         Try again
                     </Button>
                 </Grid>
             </Grid>
         </div>
+    );
+}
+
+export interface ManagePublicKeyPageProps {}
+
+export default function ManagePublicKeyUploadError(
+    props: ManagePublicKeyPageProps,
+) {
+    const { site } = useSessionContext();
+    return (
+        <ManagePublicKeyUploadErrorBase {...props} email={site.orgs.RS.email} />
     );
 }

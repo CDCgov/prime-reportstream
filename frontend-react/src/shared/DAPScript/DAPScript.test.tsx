@@ -1,4 +1,4 @@
-describe.skip("Test DAPHeader component", () => {
+describe.todo("Test DAPHeader component", () => {
     test("Renders script on valid pathnames", () => {});
     test("Doesn't render script on invalid pathnames", () => {});
 });
