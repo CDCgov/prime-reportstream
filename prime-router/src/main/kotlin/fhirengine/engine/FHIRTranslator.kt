@@ -55,8 +55,8 @@ class FHIRTranslator(
      *  element.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
-    override fun doWork(
-        message: RawSubmission,
+    override fun <T : gov.cdc.prime.router.fhirengine.engine.Message> doWork(
+        message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
@@ -67,30 +67,12 @@ class FHIRTranslator(
         // track input report
         actionHistory.trackExistingInputReport(message.reportId)
 
-        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        val receiverEndpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
-
-        val receiverAndEndpoints: List<Pair<Endpoint, Receiver>> = receiverEndpoints.mapNotNull { endpoint ->
-            val receiver = settings.findReceiver(endpoint.identifier[0].value)
-            if (receiver != null) {
-                Pair(endpoint, receiver)
-            } else {
-                null
-            }
-        }
-
-        return receiverAndEndpoints
-            .map {
-                actionHistory.trackActionReceiverInfo(it.second.organizationName, it.second.name)
-                it
-            }
-            .filter {
-                it.second.topic.isUniversalPipeline
-            }
-            .map { (receiverEndpoint, receiver) ->
-                val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
-
-                val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
+        when (message) {
+            is FhirTranslateMessage -> {
+                val receiver = settings.findReceiver(message.receiverFullName)
+                    ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
+                actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
+                val bodyBytes = getByteArrayFromBundle(receiver, bundle)
 
                 // get a Report from the message
                 val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
@@ -103,13 +85,67 @@ class FHIRTranslator(
                     topic = message.topic,
                 )
 
-                FHIREngineRunResult(
-                    event,
-                    report,
-                    blobInfo.blobUrl,
-                    null
+                return listOf(
+                    FHIREngineRunResult(
+                        event,
+                        report,
+                        blobInfo.blobUrl,
+                        null
+                    )
                 )
             }
+            // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
+            is RawSubmission -> {
+                val provenance =
+                    bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+                val receiverEndpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
+                val receiverAndEndpoints: List<Pair<Endpoint, Receiver>> = receiverEndpoints.mapNotNull { endpoint ->
+                    val receiver = settings.findReceiver(endpoint.identifier[0].value)
+                    if (receiver != null) {
+                        Pair(endpoint, receiver)
+                    } else {
+                        null
+                    }
+                }
+
+                return receiverAndEndpoints
+                    .map {
+                        actionHistory.trackActionReceiverInfo(it.second.organizationName, it.second.name)
+                        it
+                    }
+                    .filter {
+                        it.second.topic.isUniversalPipeline
+                    }
+                    .map { (receiverEndpoint, receiver) ->
+                        val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
+
+                        val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
+
+                        // get a Report from the message
+                        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+                            Event.EventAction.BATCH,
+                            bodyBytes,
+                            listOf(message.reportId),
+                            receiver,
+                            this.metadata,
+                            actionHistory,
+                            topic = message.topic,
+                        )
+
+                        FHIREngineRunResult(
+                            event,
+                            report,
+                            blobInfo.blobUrl,
+                            null
+                        )
+                    }
+            }
+            else -> {
+                throw RuntimeException(
+                    "Message was not a FhirConvert or RawSubmission and cannot be processed: $message"
+                )
+            }
+        }
     }
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.TRANSLATED_AT
@@ -171,6 +207,7 @@ class FHIRTranslator(
         return hl7Message
     }
 
+    // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
     /**
      * Removes observations from a [bundle] that are not referenced in [receiverEndpoint] and any endpoints that are
      * not [receiverEndpoint]
@@ -185,6 +222,7 @@ class FHIRTranslator(
         return newBundle
     }
 
+    // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
     /**
      * Removes observations from this bundle that are not referenced in [receiverEndpoint]
      *
@@ -215,6 +253,7 @@ class FHIRTranslator(
         return this
     }
 
+    // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
     /**
      * Removes endpoints from this bundle that do not match [receiverEndpoint]
      *

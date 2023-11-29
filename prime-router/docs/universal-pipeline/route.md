@@ -2,13 +2,22 @@
 
 ## Context
 
-The Route function’s purpose is to match FHIR bundles with receivers. Each receiver connected with ReportStream has unique interests in the data that flows through the pipeline. Routing is designed to find the data that meet those interests.
+The Route function’s purpose is to match FHIR bundles with receivers. Each receiver connected with ReportStream has
+unique interests in the data that flows through the pipeline. Routing is designed to find the data that meet those
+interests.
 
-The Route function follows the [Convert](convert.md) function. At this point all data will be in FHIR format. These messages are passed to the FHIR Router which first decodes a FHIR Bundle. `FHIRRouter.applyFilters` does the work to find receivers that accept the bundle. With the list of acceptable receivers, FHIR Endpoints are added to the Provenance resource identifying those receivers.  An Endpoint resource describes the details of a receiver including which test results to include. With that information, the message is passed to the [Translate](translate.md) function where receiver specific work is done.
+The Route function follows the [Convert](convert.md) function. At this point all data will be in FHIR format. These
+messages are passed to the FHIR Router which first decodes a FHIR Bundle. `FHIRRouter.applyFilters` does the work to
+find receivers that accept the bundle. With the list of acceptable receivers, FHIR Endpoints are added to the Provenance
+resource identifying those receivers. An Endpoint resource describes the details of a receiver including which test
+results to include. With that information, the message is passed to the [Translate](translate.md) function where
+receiver specific work is done.
 
 ### Topic
 
-A Topic must be set for all senders and receivers. The choice of topic determines which pipeline is used (Universal or Legacy) and will affect how routing takes place. The routing step will start by limiting available receivers to only those with a topic matching the sender topic. Topics include:
+A Topic must be set for all senders and receivers. The choice of topic determines which pipeline is used (Universal or
+Legacy) and will affect how routing takes place. The routing step will start by limiting available receivers to only
+those with a topic matching the sender topic. Topics include:
 
 
 <table>
@@ -48,7 +57,8 @@ A Topic must be set for all senders and receivers. The choice of topic determine
 
 ### FHIRPath for Routing
 
-FHIRPath is used to build filter expressions. See FHIRPath documentation in [fhir-functions.md](https://github.com/CDCgov/prime-reportstream/blob/d43ab6297a44a4ef2a0fef8d467e79cfcc154f33/prime-router/docs/getting-started/fhir-functions.md)
+FHIRPath is used to build filter expressions. See FHIRPath documentation
+in [fhir-functions.md](https://github.com/CDCgov/prime-reportstream/blob/d43ab6297a44a4ef2a0fef8d467e79cfcc154f33/prime-router/docs/getting-started/fhir-functions.md)
 
 The table below demonstrates a few filter functions and their FHIRPath equivalent.
 
@@ -105,20 +115,24 @@ The table below demonstrates a few filter functions and their FHIRPath equivalen
   </tr>
 </table>
 
-
-
 ## Filter Types
 
 ### Purpose
 
-Routing configuration is a part of the settings for a specific organization and/or receiver. There are five main filter groups*: Jurisdictional, Quality, Routing, Processing Mode Code, and Condition. These filter groups are used to organize the filters and make it easier to report the filter results to a user, but the functionality is the same for all the filters. All filters can take an array of expressions where all expressions must evaluate to true (an AND operation) or at least one must evaluate to true (an OR operation) for the filter group to evaluate to true. All filters can be set by defaults (set in code).
+Routing configuration is a part of the settings for a specific organization and/or receiver. There are five main filter
+groups*: Jurisdictional, Quality, Routing, Processing Mode Code, and Condition. These filter groups are used to organize
+the filters and make it easier to report the filter results to a user, but the functionality is the same for all the
+filters. All filters can take an array of expressions where all expressions must evaluate to true (an AND operation) or
+at least one must evaluate to true (an OR operation) for the filter group to evaluate to true. All filters can be set by
+defaults (set in code).
 
 _*Filter groups may have been referred to as filter types in the past._
 
-
 ### **Jurisdictional Filter**
 
-Identifies data that falls within a receiver’s jurisdiction as most of our organizations are geographic entities (e.g., patient state is CO).  Note that the non-matching result of the jurisdictional filter is not reported to users via the submission history API as this filter is just to decide to which receiver data needs to go.
+Identifies data that falls within a receiver’s jurisdiction as most of our organizations are geographic entities (e.g.,
+patient state is CO). Note that the non-matching result of the jurisdictional filter is not reported to users via the
+submission history API as this filter is just to decide to which receiver data needs to go.
 
 
 <table>
@@ -141,8 +155,6 @@ Identifies data that falls within a receiver’s jurisdiction as most of our org
    </td>
   </tr>
 </table>
-
-
 
 ### Quality Filter
 
@@ -178,21 +190,21 @@ Filter out any data that does not meet the specified minimum requirements (e.g. 
  *   At least one of order test date, specimen collection date/time, test result date
  */
 val qualityFilterDefault: ReportStreamFilter = listOf(
-    "%messageId.exists()",
-    "%patient.name.family.exists()",
-    "%patient.name.given.count() > 0",
-    "%patient.birthDate.exists()",
-    "%specimen.type.exists()",
-    "(%patient.address.line.exists() or " +
-        "%patient.address.postalCode.exists() or " +
-        "%patient.telecom.exists())",
-    "(" +
-        "(%specimen.collection.collectedPeriod.exists() or " +
-        "%specimen.collection.collected.exists()" +
-        ") or " +
-        "%serviceRequest.occurrence.exists() or " +
-        "%observation.effective.exists())"
-)
+        "%messageId.exists()",
+        "%patient.name.family.exists()",
+        "%patient.name.given.count() > 0",
+        "%patient.birthDate.exists()",
+        "%specimen.type.exists()",
+        "(%patient.address.line.exists() or " +
+            "%patient.address.postalCode.exists() or " +
+            "%patient.telecom.exists())",
+        "(" +
+            "(%specimen.collection.collectedPeriod.exists() or " +
+            "%specimen.collection.collected.exists()" +
+            ") or " +
+            "%serviceRequest.occurrence.exists() or " +
+            "%observation.effective.exists())"
+    )
 ```
 
 ### Routing Filter
@@ -221,11 +233,12 @@ Generic filtering that does not concern data quality or condition (e.g. test res
   </tr>
 </table>
 
-
-
 ### Processing Mode Code Filter
 
-The processing mode of the data indicates the sender’s intended context for the data. Options for this field are found here [CodeSystem: processingId](https://terminology.hl7.org/5.2.0/CodeSystem-v2-0103.html). The intention is to ensure the sender and receiver operate with the same data content context. Test data should only be accepted by test receivers. Production data should only be accepted by production receivers.
+The processing mode of the data indicates the sender’s intended context for the data. Options for this field are found
+here [CodeSystem: processingId](https://terminology.hl7.org/5.2.0/CodeSystem-v2-0103.html). The intention is to ensure
+the sender and receiver operate with the same data content context. Test data should only be accepted by test receivers.
+Production data should only be accepted by production receivers.
 
 
 <table>
@@ -255,15 +268,15 @@ The processing mode of the data indicates the sender’s intended context for th
  *  Must have a processing mode id of 'P'
  */
 val processingModeFilterDefault: ReportStreamFilter = listOf(
-    "%processingId = 'P'"
-)
+        "%processingId = 'P'"
+    )
 ```
 
 ### Condition Filter
 
-Filter data based on the test identifiers. A receiver expecting flu results should only accept tests for flu. If the message contains multiple observations, some that pass the condition filter and others that do not, the condition filter will be used to identify the desired observations. Identifiers for the needed observations are added to the Endpoint which is then added to the Provenance resource.
-
-*The Translate step will review the Endpoints and remove any observations that are not identified.
+Filter data based on the test identifiers. A receiver expecting flu results should only accept tests for flu. If the
+message contains multiple observations, some that pass the condition filter and others that do not, the condition filter
+will pass if any the observations are of interest to the receiver.
 
 
 <table>
@@ -287,34 +300,46 @@ Filter data based on the test identifiers. A receiver expecting flu results shou
   </tr>
 </table>
 
+## Routing
 
+After the list of receivers that should receive the report are compiled, each receiver is iterated over and a bundle
+is created that is pruned to only the observations that they are interested in is created and then a message is
+dispatched
+for that receiver to the translation queue.
 
 ## Storage
 
-The `Route Function` retrieves messages from the `pdhprodstorageaccount` Azure Storage Account. Within that storage account there is a blob container named `reports` containing folders for use by the Universal Pipeline. The `Convert Function` places all messages into the route folder for retrieval by the `Route Function`. Those messages that match a receiver's filtering will then be placed in the `translate` folder for future retrieval by the `Translate Function`. Messages within the `route` folder are saved to sub-folders equaling the name of the sender.
-
+The `Route Function` retrieves messages from the `pdhprodstorageaccount` Azure Storage Account. Within that storage
+account there is a blob container named `reports` containing folders for use by the Universal Pipeline.
+The `Convert Function` places all messages into the route folder for retrieval by the `Route Function`. Those messages
+that match a receiver's filtering will then be placed in the `translate` folder for future retrieval by
+the `Translate Function`. Messages within the `route` folder are saved to sub-folders equaling the name of the sender.
 
 ## Filter Reversal
 
-This is a NOT operation on the result of the filters set in the Quality Filter. The primary use is to set the filters for a secondary receiver to ingest all data not accepted by a primary receiver. This may be helpful to keep the qualityFilter setting the same for both the primary and secondary and make it easier to read the configuration.
-
+This is a NOT operation on the result of the filters set in the Quality Filter. The primary use is to set the filters
+for a secondary receiver to ingest all data not accepted by a primary receiver. This may be helpful to keep the
+qualityFilter setting the same for both the primary and secondary and make it easier to read the configuration.
 
 ## Logging
 
-
 ### Purpose
 
-Filtering logic can be extensive and complex. Recording the outcome of the filters provides internal and external users an important view of events. Logging is particularly important when reports do not pass filtering.
+Filtering logic can be extensive and complex. Recording the outcome of the filters provides internal and external users
+an important view of events. Logging is particularly important when reports do not pass filtering.
 
 * **Jurisdictional Filter**
-    * results of this filter are **not** logged. Given that most items are only meant for one or maybe a couple jurisdictions out of hundreds, there is little value in logging here.
+    * results of this filter are **not** logged. Given that most items are only meant for one or maybe a couple
+      jurisdictions out of hundreds, there is little value in logging here.
 * **Other Filters**(Quality, Routing, Processing Mode Code, and Condition)
-    * Following Jurisdictional filtering, all other filter groups use `evaluateFilterAndLogResult()`. Upon failure of a filter in a filter group, the outcome is logged to the Action Log table. See Action Log table in [ReportStream Data Model](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/design/data-model.md#action_log-table)
-  
+    * Following Jurisdictional filtering, all other filter groups use `evaluateFilterAndLogResult()`. Upon failure of a
+      filter in a filter group, the outcome is logged to the Action Log table. See Action Log table
+      in [ReportStream Data Model](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/design/data-model.md#action_log-table)
+
 ```kotlin
 if (!passes) {
     val filterToLog = "${
-        if (isDefaultFilter(filterType, filters)) "(default filter) " 
+        if (isDefaultFilter(filterType, filters)) "(default filter) "
         else ""
     }${failingFilterName ?: "unknown"}"
     logFilterResults(filterToLog, bundle, report, receiver, filterType, focusResource)
@@ -322,48 +347,49 @@ if (!passes) {
 ```
 
 * **Code Exceptions**
-    * Results of code exceptions on all filters(including jurisdictional) are logged as warnings in the Action Log table:
+    * Results of code exceptions on all filters(including jurisdictional) are logged as warnings in the Action Log
+      table:
 
 ```kotlin
-catch (e: SchemaException) {
+catch(e: SchemaException) {
     actionLogger?.warn(EvaluateFilterConditionErrorMessage(e.message))
     exceptionFilters += filterElement
 }
 ```
 
-Various scenarios for filter logging are outlined in the [filtering design](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/features/0001-universal-pipeline-filter-reporting.md#filter-log-scenarios).
+Various scenarios for filter logging are outlined in
+the [filtering design](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/features/0001-universal-pipeline-filter-reporting.md#filter-log-scenarios).
 
 ## Configuring Filters
 
-
 ### Frontend User Interface
 
-The admin user interface at[ https://reportstream.cdc.gov/](https://reportstream.cdc.gov/) allows a PRIME admin to manage the settings of an organization, sender and/or receiver.  Filters are configured as free text and the input text must conform to the expected syntax.
+The admin user interface at[ https://reportstream.cdc.gov/](https://reportstream.cdc.gov/) allows a PRIME admin to
+manage the settings of an organization, sender and/or receiver. Filters are configured as free text and the input text
+must conform to the expected syntax.
 
 ### Command Line Interface
 
 All filters for receivers and organizations can be created/updated/deleted via the command line.
 
-
-
 1. create a .yml file containing the updated FHIRPath expressions. Ensure the file begins with “---”. Example:
-
 
 ```yaml
 ---
-- name: yoyodyne
-  description: Yoyodyne Propulsion Laboratories, the Future Starts Tomorrow!
-  jurisdiction: FEDERAL
-  receivers:
-    - name: ELR
-      externalName: yoyodyne ELR
-      organizationName: yoyodyne
-      topic: full-elr
-      customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'CA')]
+-   name: yoyodyne
+    description: Yoyodyne Propulsion Laboratories, the Future Starts Tomorrow!
+    jurisdiction: FEDERAL
+    receivers:
+        -   name: ELR
+            externalName: yoyodyne ELR
+            organizationName: yoyodyne
+            topic: full-elr
+            customerStatus: active
+            jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'CA') ]
 ```
 
-2. Use the following commands to load the information from the .yml files into the staging database. First obtain a login token for staging
+2. Use the following commands to load the information from the .yml files into the staging database. First obtain a
+   login token for staging
 
 `./prime login –env staging`
 
@@ -373,5 +399,6 @@ Next update the staging DB
 
 ## Retries
 
-There is no custom retry strategy for this step.  If an error occurs during this step, the message is re-queued up to five
+There is no custom retry strategy for this step. If an error occurs during this step, the message is re-queued up to
+five
 times before being placed in the poison queue.
