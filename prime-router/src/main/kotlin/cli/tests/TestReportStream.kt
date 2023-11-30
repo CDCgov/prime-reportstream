@@ -742,8 +742,7 @@ abstract class CoolTest {
                 actionsList.forEach { action ->
                     val useRecevingServiceName = !(
                         (action == TaskAction.receive && asyncProcessMode) ||
-                            action == TaskAction.convert ||
-                            action == TaskAction.route
+                            action == TaskAction.convert
                         )
                     val count = itemLineageCountQuery(
                         txn = txn,
