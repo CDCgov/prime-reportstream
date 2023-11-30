@@ -306,3 +306,13 @@ extension:
               valueOf: datatypes/CWE/CodeableConcept
               expressionType: resource
               specs: PID.39
+    - expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: ethnic-group
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PID.27
