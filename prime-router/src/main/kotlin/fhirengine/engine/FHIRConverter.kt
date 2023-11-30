@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -88,8 +89,10 @@ class FHIRConverter(
                 // conduct FHIR Transform
                 transformer?.transform(bundle)
 
-                bundle.entry.filterIsInstance<Observation>().forEach {
-                    it.addMappedCondition(metadata)?.run { actionLogger.mapping(this) }
+                bundle.entry.filter { it.resource is Observation }.forEach {
+                    (it.resource as Observation).addMappedCondition(metadata).run { // TODO: double check tracked ID
+                        actionLogger.getItemLogger(bundleIndex, it.resource.id).log(this, ActionLogLevel.mapping)
+                    }
                 }
 
                 // make a 'report'

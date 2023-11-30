@@ -31,38 +31,43 @@ import java.util.stream.Stream
  * A collection of helper functions that modify an existing FHIR bundle.
  */
 const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
+const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
 
-fun Observation.addMappedCondition(metadata: Metadata): ActionLogDetail? {
-    val mappingTable = metadata.findLookupTable("observation-mapping")!!
-    val codeLists = mapOf(
-        ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER to this.code.coding.map { it.code },
-        ObservationMappingConstants.BUNDLE_CODEABLE_IDENTIFIER to this.valueCodeableConcept.coding.map { it.code }
+private fun lookupCondition(code: Coding, metadata: Metadata): Coding? {
+    val mappingTable = metadata.findLookupTable("observation-mapping")!! // TODO graceful?
+    val condition = mappingTable.dataRowsMap.find { it[ObservationMappingConstants.TEST_CODE_KEY] == code.code }
+    return if (condition.isNullOrEmpty()) {
+        null
+    } else {
+        Coding(
+            condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
+            condition[ObservationMappingConstants.CONDITION_CODE_KEY],
+            condition[ObservationMappingConstants.CONDITION_NAME_KEY]
+        )
+    }
+}
+
+fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
+    val codeSourcesMap = mapOf(
+        ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER to this.code.coding,
+        ObservationMappingConstants.BUNDLE_CODEABLE_IDENTIFIER to this.valueCodeableConcept.coding
     ).filterValues { it.isNotEmpty() }
-    if (codeLists.values.flatten().isEmpty()) return UnmappableConditionMessage()
+    if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage())
 
-    val unmappableCodes = codeLists.mapValues { codeList ->
-        codeList.value.mapNotNull { code ->
-            mappingTable.dataRowsMap.find { it["code"] == code }.let { mapping ->
-                if (mapping.isNullOrEmpty()) {
-                    code
+    return codeSourcesMap.mapNotNull { codeSourceEntry ->
+        codeSourceEntry.value.mapNotNull { code ->
+            lookupCondition(code, metadata).let { conditionCode ->
+                if (conditionCode == null) {
+                    code.code
                 } else {
-                    this.addExtension(
-                        Extension(
-                            "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                            Coding(
-                                mapping[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
-                                mapping[ObservationMappingConstants.CONDITION_CODE_KEY],
-                                mapping[ObservationMappingConstants.CONDITION_NAME_KEY]
-                            )
-                        )
-                    )
+                    code.addExtension(conditionCodeExtensionURL, conditionCode)
                     null
                 }
             }
+        }.let {
+            if (it.isEmpty()) null else UnmappableConditionMessage(it, codeSourceEntry.key)
         }
     }
-
-    return if (unmappableCodes.values.flatten().isEmpty()) null else UnmappableConditionMessage(unmappableCodes)
 }
 
 /**
