@@ -225,7 +225,7 @@ class DefaultFilterTests {
 
         // act
         val useDefaultProcessingModeFilterResult = engine.evaluateFilterConditionAsAnd(
-            engine.processingModeDefaults[Topic.FULL_ELR],
+            engine.processingModeFilterDefault,
             bundle,
             defaultResponse = false,
             reverseFilter = true
@@ -267,7 +267,7 @@ class DefaultFilterTests {
 
         // act
         val procModeResult = engine.evaluateFilterConditionAsAnd(
-            engine.processingModeDefaults[Topic.FULL_ELR],
+            engine.processingModeFilterDefault,
             bundle,
             false
         )
@@ -287,7 +287,7 @@ class DefaultFilterTests {
 
         // act
         val procModeResult = engine.evaluateFilterConditionAsAnd(
-            engine.processingModeDefaults[Topic.FULL_ELR],
+            engine.processingModeFilterDefault,
             bundle,
             false
         )
@@ -295,7 +295,7 @@ class DefaultFilterTests {
         // assert
         assertThat(procModeResult.first).isFalse()
         assertThat(procModeResult.second).isNotNull()
-        assertThat(procModeResult.second!!).contains(engine.processingModeDefaults[Topic.FULL_ELR]!![0])
+        assertThat(procModeResult.second!!).contains(engine.processingModeFilterDefault)
     }
 
     @Test
@@ -310,7 +310,7 @@ class DefaultFilterTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefaults[Topic.FULL_ELR],
+            engine.fullElrQualityFilterDefault,
             bundle,
             false
         )
@@ -332,7 +332,7 @@ class DefaultFilterTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefaults[Topic.FULL_ELR],
+            engine.fullElrQualityFilterDefault,
             bundle,
             false
         )
@@ -340,8 +340,8 @@ class DefaultFilterTests {
         // assert
         assertThat(qualDefaultResult.first).isFalse()
         assertThat(qualDefaultResult.second).isNotNull()
-        assertThat(qualDefaultResult.second!!).doesNotContain(engine.qualityFilterDefaults[Topic.FULL_ELR]!![0])
-        assertThat(qualDefaultResult.second!!).contains(engine.qualityFilterDefaults[Topic.FULL_ELR]!![1])
+        assertThat(qualDefaultResult.second!!).doesNotContain(engine.fullElrQualityFilterDefault[0])
+        assertThat(qualDefaultResult.second!!).contains(engine.fullElrQualityFilterDefault[1])
     }
 
     @Test
@@ -356,7 +356,7 @@ class DefaultFilterTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefaults[Topic.FULL_ELR],
+            engine.fullElrQualityFilterDefault,
             bundle,
             false
         )
@@ -364,8 +364,8 @@ class DefaultFilterTests {
         // assert
         assertThat(qualDefaultResult.first).isFalse()
         assertThat(qualDefaultResult.second).isNotNull()
-        assertThat(qualDefaultResult.second!!).doesNotContain(engine.qualityFilterDefaults[Topic.FULL_ELR]!![0])
-        assertThat(qualDefaultResult.second!!).contains(engine.qualityFilterDefaults[Topic.FULL_ELR]!![5])
+        assertThat(qualDefaultResult.second!!).doesNotContain(engine.fullElrQualityFilterDefault[0])
+        assertThat(qualDefaultResult.second!!).contains(engine.fullElrQualityFilterDefault[5])
     }
 
     @Test
@@ -380,7 +380,7 @@ class DefaultFilterTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefaults[Topic.FULL_ELR],
+            engine.fullElrQualityFilterDefault,
             bundle,
             false
         )
@@ -388,8 +388,8 @@ class DefaultFilterTests {
         // assert
         assertThat(qualDefaultResult.first).isFalse()
         assertThat(qualDefaultResult.second).isNotNull()
-        assertThat(qualDefaultResult.second!!).doesNotContain(engine.qualityFilterDefaults[Topic.FULL_ELR]!![0])
-        assertThat(qualDefaultResult.second!!).contains(engine.qualityFilterDefaults[Topic.FULL_ELR]!![6])
+        assertThat(qualDefaultResult.second!!).doesNotContain(engine.fullElrQualityFilterDefault[0])
+        assertThat(qualDefaultResult.second!!).contains(engine.fullElrQualityFilterDefault[6])
     }
 
     @Test
@@ -404,7 +404,7 @@ class DefaultFilterTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefaults[Topic.FULL_ELR],
+            engine.fullElrQualityFilterDefault,
             bundle,
             false
         )
@@ -426,7 +426,7 @@ class DefaultFilterTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefaults[Topic.FULL_ELR],
+            engine.fullElrQualityFilterDefault,
             bundle,
             false
         )
@@ -448,7 +448,7 @@ class DefaultFilterTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefaults[Topic.FULL_ELR],
+            engine.fullElrQualityFilterDefault,
             bundle,
             false
         )
@@ -470,7 +470,7 @@ class DefaultFilterTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefaults[Topic.FULL_ELR],
+            engine.fullElrQualityFilterDefault,
             bundle,
             false
         )
@@ -492,7 +492,7 @@ class DefaultFilterTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefaults[Topic.FULL_ELR],
+            engine.fullElrQualityFilterDefault,
             bundle,
             false
         )
@@ -514,7 +514,7 @@ class DefaultFilterTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefaults[Topic.FULL_ELR],
+            engine.fullElrQualityFilterDefault,
             bundle,
             false
         )

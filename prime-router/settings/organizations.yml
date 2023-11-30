@@ -83,16 +83,16 @@
 - name: ignore
   description: FOR TESTING ONLY
   jurisdiction: FEDERAL
-#  filters:
-#    - topic: covid-19
-#      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
-#    - topic: monkeypox
-#      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
-#    - topic: full-elr
-#      jurisdictionalFilter:
-#        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
-#      qualityFilter:
-#        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+  filters:
+    - topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
+    - topic: monkeypox
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
+    - topic: full-elr
+      jurisdictionalFilter:
+        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
+      qualityFilter:
+        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
   senders:
     - name: default
       organizationName: ignore
@@ -883,11 +883,11 @@
 - name: md-phd
   description: TEST Maryland Public Health Department
   jurisdiction: STATE
-#  filters:
-#    - topic: covid-19
-#      jurisdictionalFilter: [ "orEquals(ordering_facility_state, MD, patient_state, MD)" ]
-#    - topic: full-elr
-#      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'MD') or (%patientState.exists() and %patientState = 'MD')" ]
+  filters:
+    - topic: covid-19
+      jurisdictionalFilter: [ "orEquals(ordering_facility_state, MD, patient_state, MD)" ]
+    - topic: full-elr
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'MD') or (%patientState.exists() and %patientState = 'MD')" ]
   stateCode: MD
   receivers:
     - name: elr
