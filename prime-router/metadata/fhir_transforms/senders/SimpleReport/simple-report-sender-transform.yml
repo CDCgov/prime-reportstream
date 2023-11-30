@@ -31,6 +31,21 @@ elements:
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
     value: [ '"sending-application"' ]
 
+  - name: sr-sending-application-facility-identifier-extension
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
+    bundleProperty: '%resource.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id").value[x]'
+    value: [ '%resource.name' ]
+#
+  - name: sr-sending-application-facility-identifier-value
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
+    bundleProperty: '%resource.identifier[1].value'
+    value: [ '%resource.name' ]
+
+  - name: sr-sending-application-universal-id-identifier-extension
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
+    bundleProperty: '%resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id").value[x]'
+    value: [ '%resource.identifier[0].value' ]
+
   # Order Filler identifier - this was being populated in CA receiver transforms
   #                           should've been a sender transform in the first place since
   #                           this is needed for NY too
@@ -226,17 +241,17 @@ elements:
     bundleProperty: '%resource.effective[x]'
     value: [ '%resource.specimen.resolve().collection.collected' ]
 
-  - name: sr-performing-organization-name-non-pracrole-assigning-authority
+  - name: sr-performing-organization-name-non-pracrole-assigning-authority-id-type
     condition: '%resource.performer.resolve().ofType(Organization).exists()'
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
-    value: [ '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x].getIdType()' ]
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x].getIdType()' ]
 
   # Covid pipeline populates this using a sender transform
-  - name: sr-performing-organization-name-non-pracrole-assigning-authority
+  - name: sr-performing-organization-name-non-pracrole-assigning-authority-value
     condition: '%resource.performer.resolve().ofType(Organization).exists()'
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '"urn:oid:2.16.840.1.113883.4.7"' ]
 
   - name: sr-observation-code-display
@@ -264,8 +279,8 @@ elements:
     value: [ '%diagnosticReport.basedOn.resolve().performer' ]
 
   - name: sr-observation-producer-id-system
-    bundleProperty: '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system").valueCodeableConcept.coding.code'
-    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value.getIdType()' ]
+    bundleProperty: '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system").valueCodeableConcept.coding.code'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].value.getIdType()' ]
 
   - name: sr-ordering-facility-phone
     resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact[0].telecom'
@@ -324,3 +339,7 @@ elements:
   - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-universal-id-type
     bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].type.coding[0].code' ]
+
+  - name: sr-message-event-code-code
+    bundleProperty: 'Bundle.entry.resource.ofType(MessageHeader).event.display'
+    value: [ '"ORU^R01^ORU_R01"' ]
