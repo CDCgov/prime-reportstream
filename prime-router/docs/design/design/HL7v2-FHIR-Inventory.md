@@ -64,3 +64,5 @@ implementation differs from what is in the spreadsheets.
   fields to NULLDT. Thus, this field is not being mapped.
 - PID.19 and PID.20 are deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Further, the HAPI v2.7 model has set both
   fields to NULLDT. Thus, this field is not being mapped.
+- PID.21: The inventory does not include a FHIR field on patient that this should be mapped to. We have decided to map
+  to Patient.link which includes a reference to RelatedPerson

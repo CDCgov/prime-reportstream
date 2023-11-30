@@ -1,0 +1,6 @@
+resourceType: RelatedPerson
+
+identifier:
+  expressionType: resource
+  specs: CX
+  valueOf: datatypes/CX/Identifier

@@ -127,6 +127,53 @@ telecom:
       constants:
         useCode: work
 
+communication:
+  expressionType: nested
+  condition: $pid15 NOT_NULL
+  vars:
+    pid15: PID.15
+  expressionsMap:
+    language:
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: PID.15
+
+maritalStatus:
+  condition: $pid16 NOT_NULL
+  vars:
+    pid16: PID.16
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  specs: PID.16
+
+link:
+  expressionType: nested
+  expressionsMap:
+    other:
+      valueOf: datatypes/CX/RelatedPerson-mother
+      expressionType: reference
+      specs: PID.21
+    type:
+      type: STRING
+      valueOf: "seealso"
+
+multipleBirthBoolean:
+  condition: $multipleBirthIndicator NOT_NULL && $birthOrder NULL
+  type: BOOLEAN
+  valueOf: PID.24
+  expressionType: HL7Spec
+  vars:
+    multipleBirthIndicator: PID.24
+    birthOrder: PID.25
+
+multipleBirthInteger:
+  condition: $birthOrder NOT_NULL
+  type: INTEGER
+  valueOf: PID.25
+  expressionType: HL7Spec
+  vars:
+    birthOrder: PID.25
+
 extension:
   expressionType: nested
   expressions:
@@ -152,8 +199,110 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: "race"
+          value: race
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: CWE
+    - condition: $pid17 NOT_NULL
+      expressionType: nested
+      generateList: true
+      vars:
+        pid17: PID.17
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: religion
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PID.17
+    - condition: $pid22 NOT_NULL
+      expressionType: nested
+      generateList: true
+      vars:
+        pid22: PID.22
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: ethnic-group
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PID.22
+    - condition: $pid23 NOT_NULL
+      expressionType: nested
+      generateList: true
+      vars:
+        pid23: PID.23
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: patient-birthPlace
+        valueAddress:
+          expressionType: nested
+          expressionsMap:
+            text:
+              valueOf: PID.23
+              type: STRING
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: pid-patient
+        extension:
+          expressionType: nested
+          expressions:
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pid-24-multiple-birth-indicator
+                valueString:
+                  type: STRING
+                  valueOf: PID.24
+                  expressionType: HL7Spec
+    - expressionType: nested
+      condition: $citizenship NOT_NULL
+      generateList: true
+      vars:
+        citizenship: STRING_ALL, PID.26
+      constants:
+        hl7v2Name: "citizenship"
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: patient-citizenship
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: code
+            valueCodeableConcept:
+              valueOf: datatypes/CWE/CodeableConcept
+              expressionType: resource
+              specs: PID.26
+    - expressionType: nested
+      condition: $tribalCitizenship NOT_NULL
+      generateList: true
+      vars:
+        tribalCitizenship: STRING_ALL, PID.39
+      constants:
+        hl7v2Name: "tribal-citizenship"
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: patient-citizenship
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: code
+            valueCodeableConcept:
+              valueOf: datatypes/CWE/CodeableConcept
+              expressionType: resource
+              specs: PID.39
