@@ -22,9 +22,30 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(RawSubmission::class, name = "raw")
+    JsonSubTypes.Type(RawSubmission::class, name = "raw"),
+    JsonSubTypes.Type(FhirConvertMessage::class, name = "convert"),
+    JsonSubTypes.Type(FhirRouteMessage::class, name = "route"),
+    JsonSubTypes.Type(FhirTranslateMessage::class, name = "translate")
 )
 abstract class Message {
+
+    abstract val reportId: ReportId
+    abstract val blobURL: String
+    abstract val digest: String
+    abstract val blobSubFolderName: String
+    abstract val topic: Topic
+
+    /**
+     * Download the file associated with a RawSubmission message
+     */
+    fun downloadContent(): String {
+        val blobContent = BlobAccess.downloadBlobAsByteArray(this.blobURL)
+        val localDigest = BlobAccess.digestToString(BlobAccess.sha256Digest(blobContent))
+        check(this.digest == localDigest) {
+            "FHIR - Downloaded file does not match expected file\n${this.digest} | $localDigest"
+        }
+        return String(blobContent)
+    }
 
     fun serialize(): String {
         val bytes = mapper.writeValueAsBytes(this)
@@ -45,6 +66,10 @@ abstract class Message {
             return mapper.readValue(s)
         }
     }
+
+    override fun toString(): String {
+        return mapper.writeValueAsString(this)
+    }
 }
 
 /**
@@ -54,22 +79,39 @@ abstract class Message {
  */
 @JsonTypeName("raw")
 data class RawSubmission(
-    val reportId: ReportId,
-    val blobURL: String,
-    val digest: String,
-    val blobSubFolderName: String,
-    val topic: Topic,
+    override val reportId: ReportId,
+    override val blobURL: String,
+    override val digest: String,
+    override val blobSubFolderName: String,
+    override val topic: Topic,
     val schemaName: String = "",
-) : Message() {
-    /**
-     * Download the file associated with a RawSubmission message
-     */
-    fun downloadContent(): String {
-        val blobContent = BlobAccess.downloadBlobAsByteArray(this.blobURL)
-        val localDigest = BlobAccess.digestToString(BlobAccess.sha256Digest(blobContent))
-        check(this.digest == localDigest) {
-            "FHIR - Downloaded file does not match expected file\n${this.digest} | $localDigest"
-        }
-        return String(blobContent)
-    }
-}
+) : Message()
+
+@JsonTypeName("convert")
+data class FhirConvertMessage(
+    override val reportId: ReportId,
+    override val blobURL: String,
+    override val digest: String,
+    override val blobSubFolderName: String,
+    override val topic: Topic,
+    val schemaName: String = "",
+) : Message()
+
+@JsonTypeName("route")
+data class FhirRouteMessage(
+    override val reportId: ReportId,
+    override val blobURL: String,
+    override val digest: String,
+    override val blobSubFolderName: String,
+    override val topic: Topic,
+) : Message()
+
+@JsonTypeName("translate")
+data class FhirTranslateMessage(
+    override val reportId: ReportId,
+    override val blobURL: String,
+    override val digest: String,
+    override val blobSubFolderName: String,
+    override val topic: Topic,
+    val receiverFullName: String,
+) : Message()

@@ -22,20 +22,39 @@ elements:
     value: [ '"CLIA"' ]
     hl7Spec: [ MSH-4-3 ]
 
-  - name: message-character-set
+
+  - name: ca-message-character-set
     value: [ '%resource.extension(%`rsext-character-set`).value', '"UNICODE UTF-8"' ]
+    hl7Spec: [ MSH-18 ]
+
+  - name: message-character-set
+    condition: false
 
   # MSH-5
   - name: receiving-application-namespace-id
     condition: true
     resource: 'Bundle'
     value: [ '"ECLRS"' ]
+    hl7Spec: [ MSH-5-1 ]
 
   # MSH-6
   - name: receiving-facility-namespace-id
     condition: true
     resource: 'Bundle'
     value: [ '"NYSDOH"' ]
+    hl7Spec: [ MSH-6-1 ]
+
+  - name: message-event-code-code
+    value: [ '"ORU"' ]
+    hl7Spec: [ MSH-9-1 ]
+
+  - name: message-event-code-trigger-event
+    value: [ '"R01"' ]
+    hl7Spec: [ MSH-9-2 ]
+
+  - name: message-event-code-message-structure
+    value: [ '"ORU_R01"' ]
+    hl7Spec: [ MSH-9-3 ]
 
   - name: message_profile_id
     value: [ '"PHLabReport-NoAck"' ]

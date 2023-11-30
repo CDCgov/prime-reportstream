@@ -1,0 +1,8 @@
+HL7 v2,,,,,,Condition (IF True),,,HL7 FHIR,,,,,,,,,Comments
+Sort Order,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute/ Data Type,,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,"Vocabulary Mapping
+(IS, ID, CE, CNE, CWE)",Assignment,,
+0,MSG,,,,,,,,display,,,,,,,"MSG.1+""^""+MSG.2+""^""+MSG.3",,
+1,MSG.1,Message Code,ID,1,1,,,,,,,,,,,,,
+2,MSG.2,Trigger Event,ID,1,1,,,,code,,,,,,,,,
+2,MSG.2,Trigger Event,ID,1,1,,,,system,,,,,,,"""http://terminology.hl7.org/CodeSystem/v2-0003""",,
+3,MSG.3,Message Structure,ID,1,1,,,,,,,,,,,,,"This should be mapped to MessageHeader.definition, but we do not have a library of HL7 v2 equivalent FHIR Message Definitions."

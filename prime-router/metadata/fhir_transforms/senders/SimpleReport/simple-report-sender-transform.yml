@@ -3,7 +3,33 @@ constants:
   serviceRequest: 'Bundle.entry.resource.ofType(ServiceRequest)'
   diagnosticReport: 'Bundle.entry.resource.ofType(DiagnosticReport)'
   patient: 'Bundle.entry.resource.ofType(Patient)'
+  specimen: 'Bundle.entry.resource.ofType(Specimen)'
 elements:
+
+  # MSH
+  - name: sending-application-target-msh3-extension
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '"CDC PRIME - Atlanta"' ]
+
+  - name: sending-application-universal-id-extension
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+
+  - name: sending-application-universal-id-type-extension
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '"ISO"' ]
+
+  - name: sending-application-target-msh3
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
+    value: [ '"sending-application"' ]
 
   # Order Filler identifier - this was being populated in CA receiver transforms
   #                           should've been a sender transform in the first place since
@@ -73,21 +99,33 @@ elements:
   # Order Observation Request placer identifier - this was being populated in CA receiver transforms
   #                                               should've been a sender transform in the first place since
   #                                               this is needed for NY too
-  - name: sr-observation-request-identifier-placer
-    bundleProperty: '%diagnosticReport.identifier[1].type.coding.code'
-    value: [ '"PLAC"' ]
-
   - name: sr-observation-request-identifier-placer-value
     bundleProperty: '%diagnosticReport.identifier[1].value'
     value: [ '%diagnosticReport.identifier[0].value' ]
 
-  - name: sr-observation-request-identifier-placer-system
-    bundleProperty: '%diagnosticReport.identifier[1].system'
+  - name: sr-observation-request-identifier-placer-hl7-use
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
+    value: [ '"placer-order-number"' ]
+
+  - name: sr-observation-request-identifier-placer-namespace-id
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
 
-  - name: sr-observation-request-identifier-placer-id
-    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+  - name: sr-observation-request-identifier-placer-universal-id
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
+
+  - name: sr-observation-request-identifier-placer-universal-id-type
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.type.coding[0].code' ]
+
+  - name: sr-observation-request-identifier-placer-type-coding-code
+    bundleProperty: '%diagnosticReport.identifier[1].type.coding[0].code'
+    value: [ '"PLAC"' ]
+
+  - name: sr-observation-request-identifier-placer-type-coding-system
+    bundleProperty: '%diagnosticReport.identifier[1].type.coding[0].system'
+    value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
 
   # SR sends AOEs under ServiceRequest.supportingInfo, but our FHIR to HL7 mappings map Observations
   # under supportingInfo to SPM OBX segments. To be able to exclude this Observations from being map under SPM we need
@@ -138,7 +176,8 @@ elements:
 
   # Covid pipeline populates this by looking at the hl70005 value-set version
   - name: sr-patient-race-version
-    bundleProperty: '%patient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.version'
+    resource: '%patient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    bundleProperty: '%resource.coding.version'
     value: [ '"2.5.1"' ]
 
   # This is populated as a sender transform in the Covid pipeline
@@ -148,7 +187,8 @@ elements:
 
   # Covid pipeline populates this by looking at the hl70189 value-set version
   - name: sr-patient-ethnic-group-version
-    bundleProperty: '%patient.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value.coding.version'
+    resource: '%patient.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value'
+    bundleProperty: '%resource.coding.version'
     value: [ '"2.9"' ]
 
   # Covid pipeline populates this by looking at the hl70078 value-set version
@@ -199,13 +239,17 @@ elements:
     bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '"urn:oid:2.16.840.1.113883.4.7"' ]
 
+  - name: sr-observation-code-display
+    condition: '%resource.code.coding[0].display.empty() and %resource.code.text.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.code.coding[0].display'
+    value: [ '%resource.code.text' ]
+
   # Populating display based on text
   - name: sr-patient-race-display
-    resource: '%patient'
-    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
-    bundleProperty: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].display'
-    value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text'
+    resource: '%patient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    bundleProperty: '%resource.coding[0].display'
+    value: [ '%resource.text' ]
 
   # Populating display based on text
   - name: sr-specimen-type-display
@@ -233,3 +277,50 @@ elements:
     resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom.where(system = "phone")'
     resourceIndex: telecomIndex
     schema: datatypes/simple-report-telecom
+
+  # To populate SPM-2 appropriately, we need to overwrite the existing specimen.identifier[0]
+  # The value that exists in there is not used anywhere in the expected HL7 while the expected
+  # values can be found in the diagnostic report and its referenced organization
+  - name: sr-specimen-placer-assigned-identifier-value
+    bundleProperty: '%specimen.identifier[0].value'
+    value: [ '%diagnosticReport.id' ]
+
+  - name: sr-specimen-placer-assigned-identifier-type-coding-code
+    bundleProperty: '%specimen.identifier[0].type.coding[0].code'
+    value: [ '"PGN"' ]
+
+  - name: sr-specimen-placer-assigned-identifier-type-coding-system
+    bundleProperty: '%specimen.identifier[0].type.coding[0].system'
+    value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
+
+  - name: sr-specimen-placer-assigned-identifier-namespace-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-specimen-placer-assigned-identifier-universal-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].value' ]
+
+  - name: sr-specimen-placer-assigned-identifier-universal-id-type
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].type.coding[0].code' ]
+
+  - name: sr-specimen-placer-assigned-identifier-hl7-use
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
+    value: [ '"specimen-id-placer"' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-value
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier").value[x]'
+    value: [ '%diagnosticReport.id' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-namespace-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-universal-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].value' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-universal-id-type
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].type.coding[0].code' ]

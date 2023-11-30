@@ -28,6 +28,6 @@ export default function useOrganizationPublicKeys() {
     return useQuery({
         queryKey: [publicKeys.queryKey, activeMembership],
         queryFn: memoizedDataFetch,
-        enabled: !!activeMembership?.parsedName && !!activeMembership.service,
+        enabled: !!activeMembership?.parsedName,
     });
 }

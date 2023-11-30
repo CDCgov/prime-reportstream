@@ -5,19 +5,28 @@ id:
   expressionType: JEXL
 
 identifier_1:
-  valueOf: datatype/Entity_Identifier_Pair_1
+  condition: $spm21 NOT_NULL
+  valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
   generateList: true
   expressionType: resource
   specs: SPM.2
+  vars:
+    spm21: SPM.2.1
+  constants:
+    hl7Use: "specimen-id-placer"
+    backupExtension: "filler-assigned-identifier"
 
 identifier_2:
-  valueOf: datatype/Entity_Identifier_Pair_2
+  condition: $spm22 NOT_NULL
+  valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
   generateList: true
   expressionType: resource
   specs: SPM.2
+  vars:
+    spm22: SPM.2.2
   constants:
-    primaryCode: FGN
-    primarySystem: v2-0203
+    hl7Use: "specimen-id-filler"
+    backupExtension: "placer-assigned-identifier"
 
 status:
   type: SPECIMEN_STATUS
@@ -35,6 +44,23 @@ receivedTime:
   expressionType: JEXL
   vars:
     dateTimeIn: SPM.18 | OBR.14
+_receivedTime:
+  expressionType: nested
+  condition: $dateTimeIn NOT_NULL
+  vars:
+    dateTimeIn: SPM.18 | OBR.14
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
 
 collection:
   valueOf: secondary/Collection
