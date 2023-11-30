@@ -50,11 +50,6 @@ class LookupTableEndpointUtilities(
     private val requestTimeoutMillis = 130000
 
     /**
-     * injected http client (ktor)
-     */
-    private val apiClient = httpClient
-
-    /**
      * The Access Token.
      */
     private val accessToken = useThisToken ?: OktaCommand.fetchAccessToken(environment.oktaApp)
@@ -65,7 +60,7 @@ class LookupTableEndpointUtilities(
      * @return if [listInactive] is false then only a list of active tables is returned, otherwise all tables are listed
      * @throws IOException if there is a server or API error
      */
-    fun fetchList(listInactive: Boolean = false, httpClient: HttpClient? = null): List<LookupTableVersion> {
+    fun fetchList(listInactive: Boolean = false): List<LookupTableVersion> {
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = environment.formUrl("$endpointRoot/list").toString(),
             tokens = BearerTokens(accessToken, refreshToken = ""),
@@ -73,7 +68,7 @@ class LookupTableEndpointUtilities(
             queryParameters = mapOf(
                 Pair(LookupTableFunctions.showInactiveParamName, listInactive.toString())
             ),
-            httpClient = httpClient ?: apiClient
+            httpClient = httpClient
         )
 
         return if (response.status == HttpStatusCode.OK) {
@@ -106,7 +101,7 @@ class LookupTableEndpointUtilities(
             url = url,
             tokens = BearerTokens(accessToken, refreshToken = ""),
             timeout = requestTimeoutMillis.toLong(),
-            httpClient = apiClient
+            httpClient = httpClient
         )
         return getTableInfoResponse(response, respStr)
     }
@@ -123,7 +118,7 @@ class LookupTableEndpointUtilities(
             url = url,
             tokens = BearerTokens(accessToken, refreshToken = ""),
             timeout = requestTimeoutMillis.toLong(),
-            httpClient = apiClient
+            httpClient = httpClient
         )
 
         checkResponseForCommonErrors(response, respStr)
@@ -153,7 +148,7 @@ class LookupTableEndpointUtilities(
             url = url,
             tokens = BearerTokens(accessToken, refreshToken = ""),
             timeout = requestTimeoutMillis.toLong(),
-            httpClient = apiClient
+            httpClient = httpClient
         )
         return getTableInfoResponse(response, respStr)
     }
@@ -176,7 +171,7 @@ class LookupTableEndpointUtilities(
                 tokens = BearerTokens(accessToken, refreshToken = ""),
                 timeout = requestTimeoutMillis.toLong(),
                 jsonPayload = mapper.writeValueAsString(tableData),
-                httpClient = apiClient
+                httpClient = httpClient
             )
         return getTableInfoResponse(response, respStr)
     }
@@ -819,7 +814,7 @@ class LookupTableListCommand(httpClient: HttpClient? = null) : GenericLookupTabl
 
     override fun run() {
         val data = try {
-            tableUtil.fetchList(showInactive, httpClient)
+            tableUtil.fetchList(showInactive)
         } catch (e: IOException) {
             throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
         }

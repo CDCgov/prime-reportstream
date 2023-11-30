@@ -31,7 +31,7 @@ class LookupTableCommandsTest {
     ): LookupTableEndpointUtilities {
         return LookupTableEndpointUtilities(
             Environment.LOCAL,
-            null,
+            useThisToken = null,
             ApiMockEngine(
                 url,
                 status,
