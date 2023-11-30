@@ -19,7 +19,7 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
     ): Credential? {
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = "${vaultAddr ?: VAULT_API_ADDR}/v1/secret/$connectionId",
-            hdr = mapOf("X-Vault-Token" to (vaultToken ?: VAULT_TOKEN)),
+            headers = mapOf("X-Vault-Token" to (vaultToken ?: VAULT_TOKEN)),
             httpClient = httpClient
         )
 
@@ -40,7 +40,7 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
     ) {
         val (response, respStr) = HttpClientUtils.postWithStringResponse(
             url = "${vaultAddr ?: VAULT_API_ADDR}/v1/secret/$connectionId",
-            hdr = mapOf("X-Vault-Token" to (vaultToken ?: VAULT_TOKEN)),
+            headers = mapOf("X-Vault-Token" to (vaultToken ?: VAULT_TOKEN)),
             jsonPayload = credential.toJSON(),
             httpClient = httpClient
         )

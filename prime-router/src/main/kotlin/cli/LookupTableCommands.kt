@@ -68,8 +68,8 @@ class LookupTableEndpointUtilities(
     fun fetchList(listInactive: Boolean = false, httpClient: HttpClient? = null): List<LookupTableVersion> {
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = environment.formUrl("$endpointRoot/list").toString(),
-            tkn = BearerTokens(accessToken, refreshToken = ""),
-            tmo = requestTimeoutMillis.toLong(),
+            tokens = BearerTokens(accessToken, refreshToken = ""),
+            timeout = requestTimeoutMillis.toLong(),
             queryParameters = mapOf(
                 Pair(LookupTableFunctions.showInactiveParamName, listInactive.toString())
             ),
@@ -104,8 +104,8 @@ class LookupTableEndpointUtilities(
         // seems need to destruct a pair by assignment
         val (response, respStr) = HttpClientUtils.putWithStringResponse(
             url = url,
-            tkn = BearerTokens(accessToken, refreshToken = ""),
-            tmo = requestTimeoutMillis.toLong(),
+            tokens = BearerTokens(accessToken, refreshToken = ""),
+            timeout = requestTimeoutMillis.toLong(),
             httpClient = apiClient
         )
         return getTableInfoResponse(response, respStr)
@@ -121,8 +121,8 @@ class LookupTableEndpointUtilities(
         val url = environment.formUrl("$endpointRoot/$tableName/$version/content").toString()
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = url,
-            tkn = BearerTokens(accessToken, refreshToken = ""),
-            tmo = requestTimeoutMillis.toLong(),
+            tokens = BearerTokens(accessToken, refreshToken = ""),
+            timeout = requestTimeoutMillis.toLong(),
             httpClient = apiClient
         )
 
@@ -151,8 +151,8 @@ class LookupTableEndpointUtilities(
         val url = environment.formUrl("$endpointRoot/$tableName/$version/info").toString()
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = url,
-            tkn = BearerTokens(accessToken, refreshToken = ""),
-            tmo = requestTimeoutMillis.toLong(),
+            tokens = BearerTokens(accessToken, refreshToken = ""),
+            timeout = requestTimeoutMillis.toLong(),
             httpClient = apiClient
         )
         return getTableInfoResponse(response, respStr)
@@ -173,9 +173,8 @@ class LookupTableEndpointUtilities(
         val (response, respStr) =
             HttpClientUtils.postWithStringResponse(
                 url = url,
-                tkn = BearerTokens(accessToken, refreshToken = ""),
-                tmo = requestTimeoutMillis.toLong(),
-                expSuccess = false, // need to let 409 conflict come back to caller
+                tokens = BearerTokens(accessToken, refreshToken = ""),
+                timeout = requestTimeoutMillis.toLong(),
                 jsonPayload = mapper.writeValueAsString(tableData),
                 httpClient = apiClient
             )

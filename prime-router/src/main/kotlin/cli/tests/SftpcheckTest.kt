@@ -87,7 +87,7 @@ class SftpcheckTest : CoolTest() {
     ): List<String> {
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path,
-            tkn = BearerTokens(accessToken, refreshToken = "")
+            tokens = BearerTokens(accessToken, refreshToken = "")
         )
         return when {
             response.status != HttpStatusCode.OK -> emptyList()
@@ -117,7 +117,7 @@ class SftpcheckTest : CoolTest() {
     ): Pair<HttpResponse, String> {
         return HttpClientUtils.getWithStringResponse(
             url = path,
-            tkn = BearerTokens(accessToken, refreshToken = "")
+            tokens = BearerTokens(accessToken, refreshToken = "")
         )
     }
 }

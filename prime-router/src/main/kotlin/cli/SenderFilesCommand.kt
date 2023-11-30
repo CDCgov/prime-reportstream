@@ -113,11 +113,11 @@ class SenderFilesCommand : CliktCommand(
         verbose("GET $path with $params")
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path.toString(),
-            tkn = BearerTokens(accessToken.value, refreshToken = ""),
+            tokens = BearerTokens(accessToken.value, refreshToken = ""),
             queryParameters = params.associate {
                 Pair(it.first, it.second.toString())
             },
-            tmo = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
+            timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
         try {
             return jsonMapper.readValue(respStr, Array<ReportFileMessage>::class.java)?.toList()

@@ -8,7 +8,6 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.accept
 import io.ktor.client.request.delete
@@ -40,11 +39,10 @@ class HttpClientUtils {
         /**
          * GET (query resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptedContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param queryParameters: null default, query parameters of the request
          * @param httpClient: null default, a http client injected by caller
          *
@@ -52,21 +50,19 @@ class HttpClientUtils {
          */
         fun getWithStringResponse(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = false,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType = ContentType.Application.Json,
+            timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
         ): Pair<HttpResponse, String> {
             val response = get(
                 url = url,
-                tkn = tkn,
-                hdr = hdr,
-                acceptedCt = acceptedCt,
-                expSuccess = expSuccess,
-                tmo = tmo,
+                tokens = tokens,
+                headers = headers,
+                acceptedContent = acceptedContent,
+                timeout = timeout,
                 queryParameters = queryParameters,
                 httpClient = httpClient
             )
@@ -81,11 +77,10 @@ class HttpClientUtils {
         /**
          * GET (query resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptedContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param queryParameters: null default, query parameters of the request
          * @param httpClient: null default, a http client injected by caller
          *
@@ -93,37 +88,33 @@ class HttpClientUtils {
          */
         fun get(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = false,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType = ContentType.Application.Json,
+            timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: createDefaultHttpClient(tkn)).get(url) {
+                (httpClient ?: createDefaultHttpClient(tokens)).get(url) {
                     timeout {
-                        requestTimeoutMillis = tmo
+                        requestTimeoutMillis = timeout
                     }
-
-                    expectSuccess = expSuccess
-
                     url {
                         queryParameters?.forEach {
                             parameter(it.key, it.value.toString())
                         }
                     }
 
-                    hdr?.let {
+                    headers?.let {
                         headers {
-                            hdr.forEach {
+                            headers.forEach {
                                 append(it.key, it.value)
                             }
                         }
                     }
 
-                    accept(acceptedCt)
+                    accept(acceptedContent)
                 }
             }
         }
@@ -131,11 +122,10 @@ class HttpClientUtils {
         /**
          * PUT (modify resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptedContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param queryParameters: null default, query parameters of the request
          * @param jsonPayload: null default, if present, it's the string representation of resource to be created
          * @param httpClient: null default, a http client injected by caller
@@ -144,22 +134,20 @@ class HttpClientUtils {
          */
         fun putWithStringResponse(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = false,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType = ContentType.Application.Json,
+            timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             jsonPayload: String? = null,
             httpClient: HttpClient? = null,
         ): Pair<HttpResponse, String> {
             val response = put(
                 url = url,
-                tkn = tkn,
-                hdr = hdr,
-                acceptedCt = acceptedCt,
-                expSuccess = expSuccess,
-                tmo = tmo,
+                tokens = tokens,
+                headers = headers,
+                acceptedContent = acceptedContent,
+                timeout = timeout,
                 queryParameters = queryParameters,
                 jsonPayload = jsonPayload,
                 httpClient = httpClient
@@ -175,11 +163,10 @@ class HttpClientUtils {
         /**
          * PUT (modify resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptedContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param queryParameters: null default, query parameters of the request
          * @param jsonPayload: null default, if present, it's the string representation of resource to be created
          * @param httpClient: null default, a http client injected by caller
@@ -188,35 +175,33 @@ class HttpClientUtils {
          */
         fun put(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = false,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType = ContentType.Application.Json,
+            timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             jsonPayload: String? = null,
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: createDefaultHttpClient(tkn)).put(url) {
+                (httpClient ?: createDefaultHttpClient(tokens)).put(url) {
                     timeout {
-                        requestTimeoutMillis = tmo
+                        requestTimeoutMillis = timeout
                     }
-                    expectSuccess = expSuccess
                     url {
                         queryParameters?.forEach {
                             parameter(it.key, it.value.toString())
                         }
                     }
-                    hdr?.let {
+                    headers?.let {
                         headers {
-                            hdr.forEach {
+                            headers.forEach {
                                 append(it.key, it.value)
                             }
                         }
                     }
                     contentType(ContentType.Application.Json)
-                    accept(acceptedCt)
+                    accept(acceptedContent)
                     jsonPayload?.let {
                         setBody(jsonPayload)
                     }
@@ -227,11 +212,10 @@ class HttpClientUtils {
         /**
          * POST (create resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptedContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param queryParameters: null default, query parameters of the request
          * @param jsonPayload: required, the string representation of resource to be created
          * @param httpClient: null default, a http client injected by caller
@@ -240,22 +224,20 @@ class HttpClientUtils {
          */
         fun postWithStringResponse(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = false,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType = ContentType.Application.Json,
+            timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             jsonPayload: String,
             httpClient: HttpClient? = null,
         ): Pair<HttpResponse, String> {
             val response = post(
                 url = url,
-                tkn = tkn,
-                hdr = hdr,
-                acceptedCt = acceptedCt,
-                expSuccess = expSuccess,
-                tmo = tmo,
+                tokens = tokens,
+                headers = headers,
+                acceptedContent = acceptedContent,
+                timeout = timeout,
                 queryParameters = queryParameters,
                 jsonPayload = jsonPayload,
                 httpClient = httpClient
@@ -270,11 +252,10 @@ class HttpClientUtils {
         /**
          * POST (create resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptedContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param queryParameters: null default, query parameters of the request
          * @param jsonPayload: required, the string representation of resource to be created
          * @param httpClient: null default, a http client injected by caller
@@ -283,37 +264,34 @@ class HttpClientUtils {
          */
         fun post(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = false,
-            tmo: Long? = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType = ContentType.Application.Json,
+            timeout: Long? = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             jsonPayload: String,
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: createDefaultHttpClient(tkn)).post(url) {
+                (httpClient ?: createDefaultHttpClient(tokens)).post(url) {
                     timeout {
-                        requestTimeoutMillis = tmo
+                        requestTimeoutMillis = timeout
                     }
-
-                    expectSuccess = expSuccess
 
                     url {
                         queryParameters?.forEach {
                             parameter(it.key, it.value.toString())
                         }
                     }
-                    hdr?.let {
+                    headers?.let {
                         headers {
-                            hdr.forEach {
+                            headers.forEach {
                                 append(it.key, it.value)
                             }
                         }
                     }
                     contentType(ContentType.Application.Json)
-                    accept(acceptedCt)
+                    accept(acceptedContent)
                     setBody(jsonPayload)
                 }
             }
@@ -323,33 +301,30 @@ class HttpClientUtils {
          * Submit form to the endpoint as indicated by [url]
          *
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptedContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param httpClient: null default, a http client injected by caller
          *
          * @return object of type <T>, suppose to be deserialized from underlying response body
          */
         inline fun <reified T> submitFormT(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = false,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType = ContentType.Application.Json,
+            timeout: Long = REQUEST_TIMEOUT_MILLIS,
             formParams: Map<String, String>? = null,
             httpClient: HttpClient? = null,
         ): T {
             return runBlocking {
                 submitForm(
                     url = url,
-                    tkn = tkn,
-                    hdr = hdr,
-                    acceptedCt = acceptedCt,
-                    expSuccess = expSuccess,
-                    tmo = tmo,
+                    tokens = tokens,
+                    headers = headers,
+                    acceptedContent = acceptedContent,
+                    timeout = timeout,
                     formParams = formParams,
                     httpClient = httpClient,
                 ).body()
@@ -360,27 +335,25 @@ class HttpClientUtils {
          * Submit form to the endpoint as indicated by [url]
          *
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptedContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param httpClient: null default, a http client injected by caller
          *
          * @return the response of HttpResponse
          */
         fun submitForm(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = false,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType = ContentType.Application.Json,
+            timeout: Long = REQUEST_TIMEOUT_MILLIS,
             formParams: Map<String, String>? = null,
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: createDefaultHttpClient(tkn)).submitForm(
+                (httpClient ?: createDefaultHttpClient(tokens)).submitForm(
                     url,
                     formParameters = Parameters.build {
                         formParams?.forEach { param ->
@@ -389,20 +362,18 @@ class HttpClientUtils {
                     }
                 ) {
                     timeout {
-                        requestTimeoutMillis = tmo
+                        requestTimeoutMillis = timeout
                     }
 
-                    expectSuccess = expSuccess
-
-                    hdr?.let {
+                    headers?.let {
                         headers {
-                            hdr.forEach {
+                            headers.forEach {
                                 append(it.key, it.value)
                             }
                         }
                     }
 
-                    accept(acceptedCt)
+                    accept(acceptedContent)
                 }
             }
         }
@@ -410,11 +381,10 @@ class HttpClientUtils {
         /**
          * HEAD operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptedContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param queryParameters: null default, query parameters of the request
          * @param httpClient: null default, a http client injected by caller
          *
@@ -422,21 +392,19 @@ class HttpClientUtils {
          */
         fun headWithStringResponse(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = false,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType = ContentType.Application.Json,
+            timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
         ): Pair<HttpResponse, String> {
             val response = head(
                 url = url,
-                tkn = tkn,
-                hdr = hdr,
-                acceptedCt = acceptedCt,
-                expSuccess = expSuccess,
-                tmo = tmo,
+                tokens = tokens,
+                headers = headers,
+                acceptContent = acceptedContent,
+                timeout = timeout,
                 queryParameters = queryParameters,
                 httpClient = httpClient
             )
@@ -449,11 +417,10 @@ class HttpClientUtils {
         /**
          * HEAD operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param queryParameters: null default, query parameters of the request
          * @param httpClient: null default, a http client injected by caller
          *
@@ -461,33 +428,31 @@ class HttpClientUtils {
          */
         fun head(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = false,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptContent: ContentType = ContentType.Application.Json,
+            timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: createDefaultHttpClient(tkn)).head(url) {
+                (httpClient ?: createDefaultHttpClient(tokens)).head(url) {
                     timeout {
-                        requestTimeoutMillis = tmo
+                        requestTimeoutMillis = timeout
                     }
-                    expectSuccess = expSuccess
                     url {
                         queryParameters?.forEach {
                             parameter(it.key, it.value)
                         }
                     }
-                    hdr?.let {
+                    headers?.let {
                         headers {
-                            hdr.forEach {
+                            headers.forEach {
                                 append(it.key, it.value)
                             }
                         }
                     }
-                    accept(acceptedCt)
+                    accept(acceptContent)
                 }
             }
         }
@@ -497,11 +462,10 @@ class HttpClientUtils {
          * A thin wrapper on top of the underlying 3rd party http client, e.g. ktor http client
          * with:
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptedContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param queryParameters: null default, query parameters of the request
          * @param httpClient: null default, a http client injected by caller
          *
@@ -510,21 +474,19 @@ class HttpClientUtils {
          */
         fun deleteWithStringResponse(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType = ContentType.Application.Json,
+            timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
         ): Pair<HttpResponse, String> {
             val response = delete(
                 url = url,
-                tkn = tkn,
-                hdr = hdr,
-                acceptedCt = acceptedCt,
-                expSuccess = expSuccess,
-                tmo = tmo,
+                tokens = tokens,
+                headers = headers,
+                acceptedContent = acceptedContent,
+                timeout = timeout,
                 queryParameters = queryParameters,
                 httpClient = httpClient
             )
@@ -539,11 +501,10 @@ class HttpClientUtils {
          * A thin wrapper on top of the underlying 3rd party http client, e.g. ktor http client
          * with:
          * @param url: required, the url to the resource endpoint
-         * @param tkn: null default, the access token needed to call the endpoint
-         * @param hdr: null default, the headers of the request
-         * @param acceptedCt: default application/json the accepted content type
-         * @param expSuccess: default false, if response with status >= 300 will throw error
-         * @param tmo: default to a system base value in millis
+         * @param tokens: null default, the access token needed to call the endpoint
+         * @param headers: null default, the headers of the request
+         * @param acceptedContent: default application/json the accepted content type
+         * @param timeout: default to a system base value in millis
          * @param queryParameters: null default, query parameters of the request
          * @param httpClient: null default, a http client injected by caller
          *
@@ -552,33 +513,31 @@ class HttpClientUtils {
          */
         fun delete(
             url: String,
-            tkn: BearerTokens? = null,
-            hdr: Map<String, String>? = null,
-            acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean = false,
-            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType = ContentType.Application.Json,
+            timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: createDefaultHttpClient(tkn)).delete(url) {
+                (httpClient ?: createDefaultHttpClient(tokens)).delete(url) {
                     timeout {
-                        requestTimeoutMillis = tmo
+                        requestTimeoutMillis = timeout
                     }
-                    expectSuccess = expSuccess
                     url {
                         queryParameters?.forEach {
                             parameter(it.key, it.value.toString())
                         }
                     }
-                    hdr?.let {
+                    headers?.let {
                         headers {
-                            hdr.forEach {
+                            headers.forEach {
                                 append(it.key, it.value)
                             }
                         }
                     }
-                    accept(acceptedCt)
+                    accept(acceptedContent)
                 }
             }
         }
@@ -609,7 +568,6 @@ class HttpClientUtils {
                         }
                     }
                 }
-                expectSuccess = false
                 // install contentNegotiation to handle json response
                 install(ContentNegotiation) {
                     json(

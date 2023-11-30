@@ -114,7 +114,7 @@ class LivdApiTest : CoolTest() {
     private fun livdApiQuery(testCase: LivdApiTestCase): Pair<Boolean, String?> {
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = testCase.path,
-            tmo = 75000,
+            timeout = 75000,
             queryParameters = testCase.parameters?.associate {
                 Pair(it.first, it.second.toString())
             }

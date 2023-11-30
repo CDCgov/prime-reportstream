@@ -230,9 +230,9 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
 
         val (response, respStr) = HttpClientUtils.postWithStringResponse(
             url = params.gaenTransportInfo.apiUrl.toString(),
-            hdr = mapOf(Pair(API_KEY, params.credential.apiKey.toString())),
+            headers = mapOf(Pair(API_KEY, params.credential.apiKey.toString())),
             jsonPayload = payload,
-            acceptedCt = ContentType.Application.Json,
+            acceptedContent = ContentType.Application.Json,
             httpClient = httpClient
         )
 

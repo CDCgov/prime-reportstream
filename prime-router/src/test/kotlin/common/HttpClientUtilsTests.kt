@@ -2,7 +2,6 @@ package gov.cdc.prime.router.common
 
 import gov.cdc.prime.router.cli.ApiMockEngine
 import gov.cdc.prime.router.transport.TokenInfo
-import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.JsonConvertException
@@ -152,17 +151,13 @@ class HttpClientUtilsTests {
             assertEquals(it.url.encodedPath, fakeUrlPath)
         }.client()
 
-        // when expect success set to true
-        assertFailsWith<ServerResponseException>(
-            block = {
-                HttpClientUtils.postWithStringResponse(
-                    url = "fakeEndpoint/post_bad_payload",
-                    expSuccess = true,
-                    httpClient = clientWithMockEngine,
-                    jsonPayload = """{"lookupTableVersionId" ---- 6}"""
-                )
-            }
+        val (response, _) = HttpClientUtils.postWithStringResponse(
+            url = "fakeEndpoint/post_bad_payload",
+            httpClient = clientWithMockEngine,
+            jsonPayload = """{"lookupTableVersionId" ---- 6}"""
         )
+
+        assertEquals(response.status, HttpStatusCode.BadGateway)
     }
 
     @Test
@@ -179,7 +174,6 @@ class HttpClientUtilsTests {
 
         val result = HttpClientUtils.deleteWithStringResponse(
             url = "fakeEndpoint/delete_resource",
-            expSuccess = true,
             httpClient = clientWithMockEngine,
         )
         assertNotNull(result, "Expect a pair of response and response body as json string.")
@@ -202,7 +196,6 @@ class HttpClientUtilsTests {
 
         val result = HttpClientUtils.submitFormT<TokenInfo>(
             url = "fakeEndpoint/submit_form",
-            expSuccess = true,
             formParams = mapOf(
                 Pair("grant_type", "authorization_code"),
                 Pair("redirect_uri", "fake-redirect-001"),
@@ -233,7 +226,6 @@ class HttpClientUtilsTests {
             block = {
                 HttpClientUtils.submitFormT<TokenInfo>(
                     url = "fakeEndpoint/submit_form",
-                    expSuccess = true,
                     formParams = mapOf(
                         Pair("grant_type", "authorization_code"),
                         Pair("redirect_uri", "fake-redirect-001"),
@@ -261,7 +253,6 @@ class HttpClientUtilsTests {
 
         val (response, respStr) = HttpClientUtils.headWithStringResponse(
             url = "fakeEndpoint/head_operation",
-            expSuccess = true,
             httpClient = clientWithMockEngine,
         )
 

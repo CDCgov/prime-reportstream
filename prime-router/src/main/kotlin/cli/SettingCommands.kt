@@ -152,8 +152,7 @@ abstract class SettingCommand(
         verbose("PUT $path :: $payload")
         val (response, respStr) = HttpClientUtils.putWithStringResponse(
             url = path.toString(),
-            tkn = BearerTokens(accessToken, refreshToken = ""),
-            expSuccess = false,
+            tokens = BearerTokens(accessToken, refreshToken = ""),
             jsonPayload = payload
         )
 
@@ -183,8 +182,7 @@ abstract class SettingCommand(
         verbose("DELETE $path")
         val (response, respStr) = HttpClientUtils.deleteWithStringResponse(
             url = path.toString(),
-            tkn = BearerTokens(accessToken, refreshToken = ""),
-            expSuccess = false
+            tokens = BearerTokens(accessToken, refreshToken = ""),
         )
 
         return when (response.status) {
@@ -209,7 +207,7 @@ abstract class SettingCommand(
         verbose("GET $path")
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path.toString(),
-            tkn = BearerTokens(accessToken, refreshToken = "")
+            tokens = BearerTokens(accessToken, refreshToken = "")
         )
 
         return if (response.status == HttpStatusCode.OK) {
@@ -234,7 +232,7 @@ abstract class SettingCommand(
         verbose("GET $path")
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path.toString(),
-            tkn = BearerTokens(accessToken, refreshToken = "")
+            tokens = BearerTokens(accessToken, refreshToken = "")
         )
 
         if (response.status == HttpStatusCode.OK) {
@@ -257,8 +255,8 @@ abstract class SettingCommand(
         verbose("GET $path")
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path.toString(),
-            tkn = BearerTokens(accessToken, refreshToken = ""),
-            tmo = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
+            tokens = BearerTokens(accessToken, refreshToken = ""),
+            timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
         if (response.status == HttpStatusCode.OK) {
             val result = mutableListOf<String>()
@@ -928,8 +926,8 @@ class PutMultipleSettings : SettingCommand(
     private fun isFileUpdated(): Boolean {
         val (response, respStr) = HttpClientUtils.headWithStringResponse(
             url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "").toString(),
-            tkn = BearerTokens(oktaAccessToken, refreshToken = ""),
-            tmo = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
+            tokens = BearerTokens(oktaAccessToken, refreshToken = ""),
+            timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
 
         if (response.status == HttpStatusCode.OK) {

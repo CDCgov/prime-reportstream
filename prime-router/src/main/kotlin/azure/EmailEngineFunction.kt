@@ -312,8 +312,7 @@ class EmailScheduleEngine {
                 // get the OKTA Group Id
                 val (_, respStrJson1) = HttpClientUtils.getWithStringResponse(
                     url = "$OKTA_GROUPS_API?q=$grp",
-                    tkn = null,
-                    hdr = mapOf("Authorization" to "SSWS $ssws")
+                    headers = mapOf("Authorization" to "SSWS $ssws")
                 )
 
                 val grpId = JSONObject(respStrJson1).getString("id")
@@ -321,8 +320,7 @@ class EmailScheduleEngine {
                 // get the users within that OKTA group
                 val (_, respStrJson) = HttpClientUtils.getWithStringResponse(
                     url = "$OKTA_GROUPS_API/$grpId/users",
-                    tkn = null,
-                    hdr = mapOf("Authorization" to "SSWS $ssws")
+                    headers = mapOf("Authorization" to "SSWS $ssws")
                 )
 
                 val users = JSONArray(respStrJson)

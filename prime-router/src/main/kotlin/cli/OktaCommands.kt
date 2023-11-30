@@ -254,7 +254,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             // Try out the token with Otka for the final confirmation
             val response = HttpClientUtils.get(
                 url = "$oktaBaseUrl$oktaUserInfoPath",
-                tkn = BearerTokens(accessTokenFile.token, refreshToken = "")
+                tokens = BearerTokens(accessTokenFile.token, refreshToken = "")
             )
             return response.status.isSuccess()
         }

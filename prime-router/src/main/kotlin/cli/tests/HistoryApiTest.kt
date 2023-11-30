@@ -122,9 +122,8 @@ class HistoryApiTest : CoolTest() {
     private fun historyApiQuery(testCase: HistoryApiTestCase): Pair<Boolean, String?> {
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = testCase.path,
-            tkn = BearerTokens(testCase.bearer, refreshToken = ""),
-            tmo = 45000,
-            expSuccess = false,
+            tokens = BearerTokens(testCase.bearer, refreshToken = ""),
+            timeout = 45000,
             queryParameters = testCase.parameters?.associate {
                 Pair(it.first, it.second.toString())
             }
