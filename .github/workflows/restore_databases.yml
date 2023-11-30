@@ -121,7 +121,8 @@ jobs:
     name: "Backup source: ${{ needs.pre_job.outputs.env_name }} - ${{ matrix.db }}"
     needs:
       - pre_job
-    runs-on: ubuntu-latest
+    # 22.04 error: mount error: cifs filesystem not supported by the system
+    runs-on: ubuntu-20.04
     strategy:
       max-parallel: 1
       matrix:
@@ -214,7 +215,8 @@ jobs:
     if: |
       (needs.pre_job.outputs.restore_ignore_backup_age == 'true' || needs.backup_source.outputs.backup_age_valid != 'true') &&
       (needs.pre_job.outputs.sink_env_name != 'prod')
-    runs-on: ubuntu-latest
+    # 22.04 error: mount error: cifs filesystem not supported by the system
+    runs-on: ubuntu-20.04
     strategy:
       max-parallel: 1
       matrix:
