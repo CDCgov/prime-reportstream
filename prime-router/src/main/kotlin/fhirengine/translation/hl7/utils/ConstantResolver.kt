@@ -16,7 +16,7 @@ import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TypeDetails
 import org.hl7.fhir.r4.model.ValueSet
 import org.hl7.fhir.r4.utils.FHIRPathEngine
-import org.hl7.fhir.r4.utils.FHIRPathEngine.IEvaluationContext.FunctionDetails
+import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
 
 /**
  * Context used for resolving [constants] and custom FHIR functions. The class is for us to add our customer function

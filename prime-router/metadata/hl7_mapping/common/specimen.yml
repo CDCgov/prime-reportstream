@@ -64,6 +64,12 @@ elements:
     value: [ '""' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-11' ]
 
+  - name: specimen-collection-amount
+    resource: '%resource.collection.quantity'
+    constants:
+      cqFieldPath: '%{hl7SpecimenFieldPath}-12'
+    schema: ../datatypes/Quantity/CQ
+
   - name: specimen-description
     resource: '%resource.note.where(extension(%`rsext-hl7v2Name`).exists().not())'
     value: [ '%resource.text' ]
