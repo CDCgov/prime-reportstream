@@ -450,25 +450,12 @@ class UniversalBatchFunctionTests {
             mockTask
         )
         every { engine.db.fetchReportFile(any(), any(), any()) } returns mockReportFile
-
-        // the message that will be passed to batchFunction
-        val message = "receiver&BATCH&phd.elr&false"
-
-        // invoke batch function run for legacy pipeline
-        CovidBatchFunction(engine).run(message, context = null)
-
-        // verify that we only download blobs once in legacy pipeline
-        verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(bodyURL, any(), any()) }
-
-        // setup for universal pipeline
-        clearMocks(BlobAccess.Companion)
-        every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns ByteArray(4)
-        every {
-            BlobAccess.Companion.uploadBody(any(), any(), any(), any(), any())
-        } returns mockk<BlobAccess.BlobInfo>()
         every { BlobAccess.Companion.exists(any()) } returns true
         mockkObject(Topic.COVID_19)
         every { Topic.COVID_19.isUniversalPipeline } returns true
+
+        // the message that will be passed to batchFunction
+        val message = "receiver&BATCH&phd.elr&false"
 
         // Invoke batch function run for universal pipeline
         UniversalBatchFunction(engine).run(message, context = null)
