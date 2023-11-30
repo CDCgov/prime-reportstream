@@ -18,9 +18,11 @@ import io.ktor.client.request.headers
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.put
+import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
@@ -95,28 +97,16 @@ class HttpClientUtils {
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
         ): HttpResponse {
-            return runBlocking {
-                (httpClient ?: createDefaultHttpClient(tokens)).get(url) {
-                    timeout {
-                        requestTimeoutMillis = timeout
-                    }
-                    url {
-                        queryParameters?.forEach {
-                            parameter(it.key, it.value.toString())
-                        }
-                    }
-
-                    headers?.let {
-                        headers {
-                            headers.forEach {
-                                append(it.key, it.value)
-                            }
-                        }
-                    }
-
-                    accept(acceptedContent)
-                }
-            }
+            return invoke(
+                HttpMethod.Get,
+                url = url,
+                tokens = tokens,
+                headers = headers,
+                acceptedContent = acceptedContent,
+                timeout = timeout,
+                queryParameters = queryParameters,
+                httpClient = httpClient
+            )
         }
 
         /**
@@ -183,30 +173,17 @@ class HttpClientUtils {
             jsonPayload: String? = null,
             httpClient: HttpClient? = null,
         ): HttpResponse {
-            return runBlocking {
-                (httpClient ?: createDefaultHttpClient(tokens)).put(url) {
-                    timeout {
-                        requestTimeoutMillis = timeout
-                    }
-                    url {
-                        queryParameters?.forEach {
-                            parameter(it.key, it.value.toString())
-                        }
-                    }
-                    headers?.let {
-                        headers {
-                            headers.forEach {
-                                append(it.key, it.value)
-                            }
-                        }
-                    }
-                    contentType(ContentType.Application.Json)
-                    accept(acceptedContent)
-                    jsonPayload?.let {
-                        setBody(jsonPayload)
-                    }
-                }
-            }
+            return invoke(
+                method = HttpMethod.Put,
+                url = url,
+                tokens = tokens,
+                headers = headers,
+                acceptedContent = acceptedContent,
+                timeout = timeout,
+                queryParameters = queryParameters,
+                jsonPayload = jsonPayload,
+                httpClient = httpClient
+            )
         }
 
         /**
@@ -272,29 +249,17 @@ class HttpClientUtils {
             jsonPayload: String,
             httpClient: HttpClient? = null,
         ): HttpResponse {
-            return runBlocking {
-                (httpClient ?: createDefaultHttpClient(tokens)).post(url) {
-                    timeout {
-                        requestTimeoutMillis = timeout
-                    }
-
-                    url {
-                        queryParameters?.forEach {
-                            parameter(it.key, it.value.toString())
-                        }
-                    }
-                    headers?.let {
-                        headers {
-                            headers.forEach {
-                                append(it.key, it.value)
-                            }
-                        }
-                    }
-                    contentType(ContentType.Application.Json)
-                    accept(acceptedContent)
-                    setBody(jsonPayload)
-                }
-            }
+            return invoke(
+                method = HttpMethod.Post,
+                url = url,
+                tokens = tokens,
+                headers = headers,
+                acceptedContent = acceptedContent,
+                timeout = timeout,
+                queryParameters = queryParameters,
+                jsonPayload = jsonPayload,
+                httpClient = httpClient
+            )
         }
 
         /**
@@ -394,7 +359,7 @@ class HttpClientUtils {
             url: String,
             tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
-            acceptedContent: ContentType = ContentType.Application.Json,
+            acceptedContent: ContentType? = ContentType.Application.Json,
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
@@ -403,7 +368,7 @@ class HttpClientUtils {
                 url = url,
                 tokens = tokens,
                 headers = headers,
-                acceptContent = acceptedContent,
+                acceptedContent = acceptedContent,
                 timeout = timeout,
                 queryParameters = queryParameters,
                 httpClient = httpClient
@@ -430,31 +395,21 @@ class HttpClientUtils {
             url: String,
             tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
-            acceptContent: ContentType = ContentType.Application.Json,
-            timeout: Long = REQUEST_TIMEOUT_MILLIS,
+            acceptedContent: ContentType? = ContentType.Application.Json,
+            timeout: Long? = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
         ): HttpResponse {
-            return runBlocking {
-                (httpClient ?: createDefaultHttpClient(tokens)).head(url) {
-                    timeout {
-                        requestTimeoutMillis = timeout
-                    }
-                    url {
-                        queryParameters?.forEach {
-                            parameter(it.key, it.value)
-                        }
-                    }
-                    headers?.let {
-                        headers {
-                            headers.forEach {
-                                append(it.key, it.value)
-                            }
-                        }
-                    }
-                    accept(acceptContent)
-                }
-            }
+            return invoke(
+                method = HttpMethod.Head,
+                url = url,
+                tokens = tokens,
+                headers = headers,
+                acceptedContent = acceptedContent,
+                timeout = timeout,
+                queryParameters = queryParameters,
+                httpClient = httpClient
+            )
         }
 
         /**
@@ -520,8 +475,35 @@ class HttpClientUtils {
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
         ): HttpResponse {
+            return invoke(
+                method = HttpMethod.Delete,
+                url = url,
+                tokens = tokens,
+                headers = headers,
+                acceptedContent = acceptedContent,
+                timeout = timeout,
+                queryParameters = queryParameters,
+                httpClient = httpClient
+            )
+        }
+
+        /**
+         * Common helper for external func
+         */
+        private fun invoke(
+            method: HttpMethod,
+            url: String,
+            tokens: BearerTokens? = null,
+            headers: Map<String, String>? = null,
+            acceptedContent: ContentType? = ContentType.Application.Json,
+            timeout: Long? = REQUEST_TIMEOUT_MILLIS,
+            queryParameters: Map<String, String>? = null,
+            jsonPayload: String? = null,
+            httpClient: HttpClient? = null,
+        ): HttpResponse {
             return runBlocking {
-                (httpClient ?: createDefaultHttpClient(tokens)).delete(url) {
+                (httpClient ?: createDefaultHttpClient(tokens)).request(url) {
+                    this.method = method
                     timeout {
                         requestTimeoutMillis = timeout
                     }
@@ -530,6 +512,7 @@ class HttpClientUtils {
                             parameter(it.key, it.value.toString())
                         }
                     }
+
                     headers?.let {
                         headers {
                             headers.forEach {
@@ -537,7 +520,13 @@ class HttpClientUtils {
                             }
                         }
                     }
-                    accept(acceptedContent)
+                    acceptedContent?.let {
+                        accept(acceptedContent)
+                        contentType(acceptedContent)
+                    }
+                    jsonPayload?.let {
+                        setBody(jsonPayload)
+                    }
                 }
             }
         }
