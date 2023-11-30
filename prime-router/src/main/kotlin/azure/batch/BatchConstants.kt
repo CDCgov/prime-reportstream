@@ -7,14 +7,14 @@ object BatchConstants {
 
     // batch functions
     object Function {
-        const val COVID_BATCH_FUNCTION = "covid_batch_fn"
-        const val UNIVERSAL_BATCH_FUNCTION = "universal_batch_fn"
+        const val COVID_BATCH_FUNCTION = "covid-batch-fn"
+        const val UNIVERSAL_BATCH_FUNCTION = "universal-batch-fn"
     }
 
     // batch queues
     object Queue {
-        const val COVID_BATCH_QUEUE = "covid_batch_queue"
-        const val UNIVERSAL_BATCH_QUEUE = "universal_batch_queue"
+        const val COVID_BATCH_QUEUE = "covid-batch-queue"
+        const val UNIVERSAL_BATCH_QUEUE = "universal-batch-queue"
     }
 
     // batch size

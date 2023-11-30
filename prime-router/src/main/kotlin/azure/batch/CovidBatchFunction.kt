@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure.batch
 
-import ca.uhn.fhir.context.FhirContext
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
@@ -33,10 +32,6 @@ class CovidBatchFunction(
         @Suppress("UNUSED_PARAMETER")
         context: ExecutionContext?,
     ) {
-        @Suppress("DEPRECATION")
-        val test = FhirContext()
-        test.isFormatJsonSupported
-
         try {
             logger.trace("CovidBatchFunction starting.  Message: $message")
             val event = Event.parseQueueMessage(message) as BatchEvent
