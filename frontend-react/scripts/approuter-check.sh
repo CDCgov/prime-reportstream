@@ -11,9 +11,9 @@ if echo "$MODIFIED_FILES" | grep -q "$APPROUTER_FILE"; then
     response=$(echo "$response" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
 
     if [[ "$response" =~ ^(yes|y)$ ]]; then
-        echo "Proceeding with the rest of the script..."
+        echo "Proceeding with commit."
     else
-        echo "Exiting script."
+        echo "Exiting."
         exit 0
     fi
 fi
