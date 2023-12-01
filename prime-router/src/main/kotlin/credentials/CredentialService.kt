@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.credentials
 
-import io.ktor.client.HttpClient
 import org.apache.logging.log4j.kotlin.Logging
 
 abstract class CredentialService() : Logging {
@@ -13,16 +12,17 @@ abstract class CredentialService() : Logging {
 
     abstract fun fetchCredential(
         connectionId: String,
-        httpClient: HttpClient? = null,
-        vaultAddr: String? = null,
-        vaultToken: String? = null,
+//        httpClient: HttpClient? = null,
+//        vaultAddr: String? = null,
+//        vaultToken: String? = null,
     ): Credential?
+
     abstract fun saveCredential(
         connectionId: String,
         credential: Credential,
-        httpClient: HttpClient? = null,
-        vaultAddr: String? = null,
-        vaultToken: String? = null,
+//        httpClient: HttpClient? = null,
+//        vaultAddr: String? = null,
+//        vaultToken: String? = null,
     )
 
     /* Base implementation for credentialService with validations */
@@ -31,19 +31,13 @@ abstract class CredentialService() : Logging {
         connectionId: String,
         callerId: String,
         reason: CredentialRequestReason,
-        httpClient: HttpClient? = null,
-        vaultAddr: String? = null,
-        vaultToken: String? = null,
     ): Credential? {
         require(URL_SAFE_KEY_PATTERN.matches(connectionId)) {
             "connectionId must match: ${URL_SAFE_KEY_PATTERN.pattern}"
         }
         logger.info { "CREDENTIAL REQUEST: $callerId requested connectionId($connectionId) credential for $reason" }
         return fetchCredential(
-            connectionId,
-            httpClient = httpClient,
-            vaultAddr = vaultAddr,
-            vaultToken = vaultToken
+            connectionId
         )
     }
 
@@ -51,9 +45,6 @@ abstract class CredentialService() : Logging {
         connectionId: String,
         credential: Credential,
         callerId: String,
-        httpClient: HttpClient? = null,
-        vaultAddr: String? = null,
-        vaultToken: String? = null,
     ) {
         require(URL_SAFE_KEY_PATTERN.matches(connectionId)) {
             "connectionId must match: ${URL_SAFE_KEY_PATTERN.pattern}"
@@ -62,9 +53,6 @@ abstract class CredentialService() : Logging {
         saveCredential(
             connectionId,
             credential,
-            httpClient = httpClient,
-            vaultAddr = vaultAddr,
-            vaultToken = vaultToken
         )
         logger.info { "CREDENTIAL UPDATE: $callerId updated connectionId($connectionId) credential successfully." }
     }

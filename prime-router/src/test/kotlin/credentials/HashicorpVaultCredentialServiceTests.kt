@@ -1,8 +1,5 @@
 package gov.cdc.prime.router.credentials
 
-// import net.wussmann.kenneth.mockfuel.MockFuelClient
-// import net.wussmann.kenneth.mockfuel.MockFuelStore
-// import net.wussmann.kenneth.mockfuel.data.MockResponse
 import com.sendgrid.Method
 import gov.cdc.prime.router.cli.ApiMockEngine
 import io.ktor.client.HttpClient
@@ -24,24 +21,22 @@ internal class HashicorpVaultCredentialServiceTests {
         f: ((request: HttpRequestData) -> Unit)? = null,
     ): HttpClient {
         return ApiMockEngine(
-                url,
-                status,
-                body,
-                f = f
-            ).client()
+            url,
+            status,
+            body,
+            f = f
+        ).client()
     }
 
     @Test
     fun `uses Vault api to fetch a credential`() {
-        val creds: Credential? = HashicorpVaultCredentialService.fetchCredential(
+        val creds: Credential? = HashicorpVaultCredentialService.fetchCredentialHelper(
             CONNECTION_ID,
-            "HashicorpVaultCredentialServiceTests",
-            CredentialRequestReason.AUTOMATED_TEST,
             httpClient = getMockClient(
                 url = "/v1/secret/$CONNECTION_ID",
                 HttpStatusCode.OK,
                 body = """{"data":{"@type":"UserPass","user":"user","pass":"pass"}}"""
-            )
+            ),
         )
         assertTrue(creds is UserPassCredential)
         assertTrue(creds.user == "user")
@@ -50,7 +45,7 @@ internal class HashicorpVaultCredentialServiceTests {
 
     @Test
     fun `uses Vault api to fetch a missing credential`() {
-        val creds = HashicorpVaultCredentialService.fetchCredential(
+        val creds = HashicorpVaultCredentialService.fetchCredentialHelper(
             connectionId = CONNECTION_ID,
             httpClient = getMockClient(
                 url = "/v1/secret/$CONNECTION_ID",
@@ -70,7 +65,7 @@ internal class HashicorpVaultCredentialServiceTests {
 
     @Test
     fun `uses Vault api to save a credential`() {
-        HashicorpVaultCredentialService.saveCredential(
+        HashicorpVaultCredentialService.saveCredentialHelper(
             CONNECTION_ID,
             VALID_CREDENTIAL,
             vaultAddr = VAULT_API_ADDR,

@@ -272,8 +272,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel,
             "GAENTransport",
-            CredentialRequestReason.GAEN_NOTIFICATION,
-            httpClient
+            CredentialRequestReason.GAEN_NOTIFICATION
         ) as? UserApiKeyCredential?
             ?: error("Unable to find GAEN credentials for $receiverFullName using $credentialLabel")
     }

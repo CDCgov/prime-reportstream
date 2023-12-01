@@ -13,9 +13,20 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
 
     override fun fetchCredential(
         connectionId: String,
-        httpClient: HttpClient?,
-        vaultAddr: String?,
-        vaultToken: String?,
+    ): Credential? {
+        return fetchCredentialHelper(
+            connectionId = connectionId
+        )
+    }
+
+    /**
+     * object specific impl - also adapted to unit tests
+     */
+    fun fetchCredentialHelper(
+        connectionId: String,
+        httpClient: HttpClient? = null,
+        vaultAddr: String? = null,
+        vaultToken: String? = null,
     ): Credential? {
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = "${vaultAddr ?: VAULT_API_ADDR}/v1/secret/$connectionId",
@@ -34,9 +45,22 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
     override fun saveCredential(
         connectionId: String,
         credential: Credential,
-        httpClient: HttpClient?,
-        vaultAddr: String?,
-        vaultToken: String?,
+    ) {
+        return saveCredentialHelper(
+            connectionId = connectionId,
+            credential = credential
+        )
+    }
+
+    /**
+     * object specific impl - also adapted to unit tests
+     */
+    fun saveCredentialHelper(
+        connectionId: String,
+        credential: Credential,
+        httpClient: HttpClient? = null,
+        vaultAddr: String? = null,
+        vaultToken: String? = null,
     ) {
         val (response, respStr) = HttpClientUtils.postWithStringResponse(
             url = "${vaultAddr ?: VAULT_API_ADDR}/v1/secret/$connectionId",

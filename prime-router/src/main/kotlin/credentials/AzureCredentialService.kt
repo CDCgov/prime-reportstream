@@ -6,7 +6,6 @@ import com.azure.core.http.policy.RetryPolicy
 import com.azure.identity.DefaultAzureCredentialBuilder
 import com.azure.security.keyvault.secrets.SecretClient
 import com.azure.security.keyvault.secrets.SecretClientBuilder
-import io.ktor.client.HttpClient
 import java.time.Duration
 
 internal object AzureCredentialService : CredentialService() {
@@ -27,9 +26,6 @@ internal object AzureCredentialService : CredentialService() {
 
     override fun fetchCredential(
         connectionId: String,
-        httpClient: HttpClient?,
-        vaultAddr: String?,
-        vaultToken: String?,
     ): Credential? {
         return secretClient.getSecret("$connectionId")?.let {
             return Credential.fromJSON(it.value)
@@ -39,9 +35,6 @@ internal object AzureCredentialService : CredentialService() {
     override fun saveCredential(
         connectionId: String,
         credential: Credential,
-        httpClient: HttpClient?,
-        vaultAddr: String?,
-        vaultToken: String?,
     ) {
         secretClient.setSecret("$connectionId", credential.toJSON())
             ?: throw Exception("Failed to save credentials for: $connectionId")
