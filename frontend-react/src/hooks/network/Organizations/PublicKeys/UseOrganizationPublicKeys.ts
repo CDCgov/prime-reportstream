@@ -20,7 +20,7 @@ export default function useOrganizationPublicKeys() {
         () =>
             authorizedFetch(publicKeys, {
                 segments: {
-                    orgName: activeMembership?.parsedName!!,
+                    orgId: activeMembership?.parsedName!!,
                 },
             }),
         [activeMembership?.parsedName, authorizedFetch],

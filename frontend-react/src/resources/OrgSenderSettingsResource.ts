@@ -22,11 +22,11 @@ export default class OrgSenderSettingsResource extends OrgSettingsBaseResource {
         return "OrgSenderSettingsResource";
     }
 
-    static listUrl(params: { orgname: string }): string {
-        return `${RS_API_URL}/api/settings/organizations/${params.orgname}/senders`;
+    static listUrl(params: { orgId: string }): string {
+        return `${RS_API_URL}/api/settings/organizations/${params.orgId}/senders`;
     }
 
-    static url(params: { orgname: string; sendername: string }): string {
-        return `${RS_API_URL}/api/settings/organizations/${params.orgname}/senders/${params.sendername}`;
+    static url(params: { orgId: string; entityId: string }): string {
+        return `${RS_API_URL}/api/settings/organizations/${params.orgId}/senders/${params.entityId}`;
     }
 }

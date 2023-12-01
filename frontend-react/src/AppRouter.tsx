@@ -137,11 +137,6 @@ const SubmissionsPage = React.lazy(
     () => import("./pages/submissions/Submissions"),
 );
 const AdminMainPage = React.lazy(() => import("./pages/admin/AdminMain"));
-const AdminOrgNewPage = React.lazy(() => import("./pages/admin/AdminOrgNew"));
-const AdminOrgEditPage = React.lazy(() => import("./pages/admin/AdminOrgEdit"));
-const EditSenderSettingsPage = React.lazy(
-    () => import("./components/Admin/EditSenderSettings"),
-);
 const AdminLMFPage = React.lazy(
     () => import("./pages/admin/AdminLastMileFailures"),
 );
@@ -163,8 +158,8 @@ const ValueSetsIndexPage = React.lazy(
 const DeliveriesPage = React.lazy(
     () => import("./pages/deliveries/Deliveries"),
 );
-const EditReceiverSettingsPage = React.lazy(
-    () => import("./components/Admin/EditReceiverSettings"),
+const AdminSettingFormPage = React.lazy(
+    () => import("./pages/admin/AdminSettingForm"),
 );
 const AdminRevHistoryPage = React.lazy(
     () => import("./pages/admin/AdminRevHistory"),
@@ -192,9 +187,6 @@ const FacilityProviderSubmitterDetailsPage = React.lazy(
         import(
             "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails"
         ),
-);
-const NewSettingPage = React.lazy(
-    () => import("./components/Admin/NewSetting"),
 );
 
 export const appRoutes: RouteObject[] = [
@@ -548,28 +540,152 @@ export const appRoutes: RouteObject[] = [
                 ),
                 children: [
                     {
-                        path: "settings",
-                        element: <AdminMainPage />,
-                    },
-                    {
-                        path: "new/org",
-                        element: <AdminOrgNewPage />,
-                    },
-                    {
-                        path: "orgsettings/org/:orgname",
-                        element: <AdminOrgEditPage />,
-                    },
-                    {
-                        path: "orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
-                        element: <EditReceiverSettingsPage />,
-                    },
-                    {
-                        path: "orgsendersettings/org/:orgname/sender/:sendername/action/:action",
-                        element: <EditSenderSettingsPage />,
-                    },
-                    {
-                        path: "orgnewsetting/org/:orgname/settingtype/:settingtype",
-                        element: <NewSettingPage />,
+                        path: "organizations",
+                        children: [
+                            {
+                                index: true,
+                                element: <AdminMainPage />,
+                            },
+                            {
+                                path: "new",
+                                children: [
+                                    {
+                                        index: true,
+                                        element: (
+                                            <AdminSettingFormPage
+                                                entityType="Organization"
+                                                mode="new"
+                                            />
+                                        ),
+                                    },
+                                    {
+                                        path: ":entityId",
+                                        element: (
+                                            <AdminSettingFormPage
+                                                entityType="Organization"
+                                                mode="new"
+                                            />
+                                        ),
+                                    },
+                                ],
+                            },
+                            {
+                                path: ":orgId",
+                                children: [
+                                    {
+                                        path: "edit",
+                                        element: (
+                                            <AdminSettingFormPage
+                                                entityType="Organization"
+                                                mode="edit"
+                                            />
+                                        ),
+                                    },
+                                    {
+                                        path: "history",
+                                        element: (
+                                            <AdminRevHistoryPage settingType="organization" />
+                                        ),
+                                    },
+                                    {
+                                        path: "receiver",
+                                        children: [
+                                            {
+                                                path: "new",
+                                                children: [
+                                                    {
+                                                        index: true,
+                                                        element: (
+                                                            <AdminSettingFormPage
+                                                                entityType="Receiver"
+                                                                mode="new"
+                                                            />
+                                                        ),
+                                                    },
+                                                    {
+                                                        path: ":entityId",
+                                                        element: (
+                                                            <AdminSettingFormPage
+                                                                entityType="Receiver"
+                                                                mode="new"
+                                                            />
+                                                        ),
+                                                    },
+                                                ],
+                                            },
+                                            {
+                                                path: ":entityId",
+                                                children: [
+                                                    {
+                                                        path: "edit",
+                                                        element: (
+                                                            <AdminSettingFormPage
+                                                                entityType="Receiver"
+                                                                mode="edit"
+                                                            />
+                                                        ),
+                                                    },
+                                                    {
+                                                        path: "history",
+                                                        element: (
+                                                            <AdminRevHistoryPage settingType="receiver" />
+                                                        ),
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                    {
+                                        path: "sender",
+                                        children: [
+                                            {
+                                                path: "new",
+                                                children: [
+                                                    {
+                                                        index: true,
+                                                        element: (
+                                                            <AdminSettingFormPage
+                                                                entityType="Sender"
+                                                                mode="new"
+                                                            />
+                                                        ),
+                                                    },
+                                                    {
+                                                        path: ":entityId",
+                                                        element: (
+                                                            <AdminSettingFormPage
+                                                                entityType="Sender"
+                                                                mode="new"
+                                                            />
+                                                        ),
+                                                    },
+                                                ],
+                                            },
+                                            {
+                                                path: ":entityId",
+                                                children: [
+                                                    {
+                                                        path: "edit",
+                                                        element: (
+                                                            <AdminSettingFormPage
+                                                                entityType="Sender"
+                                                                mode="edit"
+                                                            />
+                                                        ),
+                                                    },
+                                                    {
+                                                        path: "history",
+                                                        element: (
+                                                            <AdminRevHistoryPage settingType="sender" />
+                                                        ),
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
                     },
                     {
                         path: "lastmile",
@@ -600,10 +716,6 @@ export const appRoutes: RouteObject[] = [
                                 element: <ValueSetsDetailPage />,
                             },
                         ],
-                    },
-                    {
-                        path: "revisionhistory/org/:org/settingtype/:settingType",
-                        element: <AdminRevHistoryPage />,
                     },
                 ],
             },

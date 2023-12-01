@@ -17,7 +17,7 @@ export default function useOrganizationSenders() {
         () =>
             authorizedFetch(senders, {
                 segments: {
-                    orgName: activeMembership?.parsedName!!,
+                    orgId: activeMembership?.parsedName!!,
                 },
             }),
         [activeMembership?.parsedName, authorizedFetch],

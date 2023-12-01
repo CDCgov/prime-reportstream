@@ -258,7 +258,7 @@ function ReportStreamNavbar({
         <Dropdown
             menuName="Admin"
             dropdownList={[
-                <USSmartLink href="/admin/settings" key="settings">
+                <USSmartLink href="/admin/organizations" key="settings">
                     Organization Settings
                 </USSmartLink>,
                 <USSmartLink href="/admin/features" key="features">
@@ -394,7 +394,7 @@ export const ReportStreamHeader = ({
                                             {user.isUserAdmin && (
                                                 <USLinkButton
                                                     outline
-                                                    href="/admin/settings"
+                                                    href="/admin/organizations"
                                                 >
                                                     {activeMembership?.parsedName ??
                                                         " "}

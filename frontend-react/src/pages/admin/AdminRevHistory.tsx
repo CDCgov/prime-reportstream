@@ -141,9 +141,18 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
     );
 };
 
+export interface SettingVersionHistoryPageParams
+    extends Omit<SettingRevisionParams, "settingType"> {}
+
+export interface SettingVersionHistoryPageProps {
+    settingType: "organization" | "receiver" | "sender";
+}
+
 /** main page, not exported here because it should only be loaded via AdminRevHistoryWithAuth() **/
-const AdminRevHistoryPage = () => {
-    const { org, settingType } = useParams<SettingRevisionParams>(); // props past to page via the route/url path args
+const SettingVersionHistoryPage = ({
+    settingType,
+}: SettingVersionHistoryPageProps) => {
+    const { orgId } = useParams<SettingVersionHistoryPageParams>(); // props past to page via the route/url path args
     const [leftJson, setLeftJson] = useState("");
     const [rightJson, setRightJson] = useState("");
     // used to highlight which item is selected.
@@ -182,7 +191,7 @@ const AdminRevHistoryPage = () => {
 
             <section className="grid-container margin-top-0">
                 <h4>
-                    Settings Revision History for "{org}" {settingType}
+                    Settings Revision History for "{orgId}" {settingType}
                 </h4>
                 <section className="margin-bottom-5">
                     Select different versions from each list to compare.
@@ -194,8 +203,8 @@ const AdminRevHistoryPage = () => {
                     <Grid row className={"rs-list-diffs-container"}>
                         <Suspense fallback={<Spinner />}>
                             <MainRevHistoryComponent
-                                org={org || ""}
-                                settingType={settingType || "organization"}
+                                orgId={orgId ?? ""}
+                                settingType={settingType ?? "organization"}
                                 leftSelectedListItem={leftSelectedListItem}
                                 rightSelectedListItem={rightSelectedListItem}
                                 onClickHandler={onClickHandler}
@@ -250,10 +259,4 @@ const AdminRevHistoryPage = () => {
     );
 };
 
-export const _exportForTesting = {
-    dataToAccordionItems,
-    AdminRevHistory: AdminRevHistoryPage,
-    MainRevHistoryComponent,
-};
-
-export default AdminRevHistoryPage;
+export default SettingVersionHistoryPage;

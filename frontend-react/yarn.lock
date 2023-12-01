@@ -4803,14 +4803,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trussworks/react-uswds@npm:^5.4.0":
-  version: 5.4.0
-  resolution: "@trussworks/react-uswds@npm:5.4.0"
+"@trussworks/react-uswds@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@trussworks/react-uswds@npm:6.0.0"
   peerDependencies:
     "@uswds/uswds": ^3.6.0
     react: ^16.x || ^17.x || ^18.x
     react-dom: ^16.x || ^17.x || ^18.x
-  checksum: b8218bbe8b7a6ac543b1eea46f388730b45f13047aeb3bc272503f073520d53e8e2b0287cf9fe13995c4ddf969463ecabf74b7a4fc82f1fb569f3f070030250f
+  checksum: 786b9b2092a05c661fd5e95c5d2b4baf59f68dea3ad4d37d81c4548705cbf6b4a7a27592e18ac7bf0897fb01bd98e571f490ae4a4afd36ce3a6316de2657bd66
   languageName: node
   linkType: hard
 
@@ -7024,9 +7024,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001538, caniuse-lite@npm:^1.0.30001541":
-  version: 1.0.30001561
-  resolution: "caniuse-lite@npm:1.0.30001561"
-  checksum: 949829fe037e23346595614e01d362130245920503a12677f2506ce68e1240360113d6383febed41e8aa38cd0f5fd9c69c21b0af65a71c0246d560db489f1373
+  version: 1.0.30001565
+  resolution: "caniuse-lite@npm:1.0.30001565"
+  checksum: 7621f358d0e1158557430a111ca5506008ae0b2c796039ef53aeebf4e2ba15e5241cb89def21ea3a633b6a609273085835b44a522165d871fa44067cdf29cccd
   languageName: node
   linkType: hard
 
@@ -15406,7 +15406,7 @@ __metadata:
     "@testing-library/jest-dom": ^6.1.3
     "@testing-library/react": ^14.0.0
     "@testing-library/user-event": ^14.5.1
-    "@trussworks/react-uswds": ^5.4.0
+    "@trussworks/react-uswds": ^6.0.0
     "@types/dompurify": ^3.0.3
     "@types/downloadjs": ^1.4.4
     "@types/github-slugger": ^1.3.0

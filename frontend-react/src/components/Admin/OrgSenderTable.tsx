@@ -9,13 +9,13 @@ import { USLink, USNavLink } from "../USLink";
 import { DisplayMeta } from "./DisplayMeta";
 
 interface OrgSettingsTableProps {
-    orgname: string;
+    orgId: string;
 }
 
 export function OrgSenderTable(props: OrgSettingsTableProps) {
     const orgSenderSettings: OrgSenderSettingsResource[] = useResource(
         OrgSenderSettingsResource.list(),
-        { orgname: props.orgname },
+        { orgId: props.orgId },
     );
 
     return (
@@ -26,7 +26,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
             <h2>
                 Organization Sender Settings ({orgSenderSettings.length}){" - "}
                 <USLink
-                    href={`/admin/revisionhistory/org/${props.orgname}/settingtype/sender`}
+                    href={`/admin/organizations/${props.orgId}/sender/settingType/history`}
                 >
                     History
                 </USLink>
@@ -51,7 +51,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                             <th scope="col" align="right">
                                 <USNavLink
                                     className="usa-button"
-                                    href={`/admin/orgnewsetting/org/${props.orgname}/settingtype/sender`}
+                                    href={`/admin/organizations/${props.orgId}/sender/new`}
                                     key={`sender-create-link`}
                                 >
                                     New
@@ -77,14 +77,14 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                                     <ButtonGroup type="segmented">
                                         <USNavLink
                                             className="usa-button"
-                                            href={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/edit`}
+                                            href={`/admin/organizations/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/edit`}
                                             key={`sender-edit-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Edit
                                         </USNavLink>
                                         <USNavLink
                                             className="usa-button"
-                                            href={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/clone`}
+                                            href={`/admin/organizations/${eachOrgSetting.organizationName}/sender/new/${eachOrgSetting.name}`}
                                             key={`sender-clone-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Clone

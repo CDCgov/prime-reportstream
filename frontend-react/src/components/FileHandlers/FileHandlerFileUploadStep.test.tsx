@@ -357,6 +357,7 @@ describe("getClientHeader", () => {
         processingType: "sync",
         schemaName: DEFAULT_SCHEMA_NAME,
         topic: "covid-19",
+        version: 0,
     };
 
     describe("when selectedSchemaName is falsy", () => {

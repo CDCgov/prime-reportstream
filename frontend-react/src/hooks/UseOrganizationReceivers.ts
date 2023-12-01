@@ -18,7 +18,7 @@ export const useOrganizationReceivers = () => {
         () =>
             authorizedFetch(receivers, {
                 segments: {
-                    orgName: parsedName!!,
+                    orgId: parsedName!!,
                 },
             }),
         [parsedName, authorizedFetch],

@@ -28,7 +28,7 @@ export default function useCreateOrganizationPublicKey(): UseCreateOrganizationP
         sender,
     }: OrganizationPublicKeyPostArgs) => {
         return await authorizedFetch(servicesEndpoints.createPublicKey, {
-            segments: { orgName: parsedName!! },
+            segments: { orgId: parsedName!! },
             params: {
                 scope: `${parsedName}.*.report`,
                 kid: `${parsedName}.${sender}`,

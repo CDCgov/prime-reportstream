@@ -53,7 +53,7 @@ function App({ oktaAuth, config, ...props }: AppProps) {
                         authState.accessToken,
                     )
                 ) {
-                    url = "/admin/settings";
+                    url = "/admin/organizations";
                 }
                 if (
                     authState?.accessToken &&

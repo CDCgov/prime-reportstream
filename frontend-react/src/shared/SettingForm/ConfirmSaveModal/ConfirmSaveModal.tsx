@@ -16,7 +16,10 @@ import React, {
 } from "react";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 
-import { EditableCompare, EditableCompareRef } from "../EditableCompare";
+import {
+    EditableCompare,
+    EditableCompareRef,
+} from "../../../components/EditableCompare";
 
 interface ModalConfirmButtonProps {
     uniquid: string;
@@ -47,7 +50,7 @@ export const ModalConfirmSaveButton = ({
 ModalConfirmSaveButton.displayName = "ModalConfirmSaveButton";
 
 // interface on Component that is callable
-export interface ConfirmSaveSettingModalRef extends ModalRef {
+export interface ConfirmSaveModalRef extends ModalRef {
     getEditedText: () => string;
     getOriginalText: () => string;
     setWarning: (warning: string) => void;
@@ -63,15 +66,15 @@ export interface CompareSettingsModalProps {
     newjson: string;
 }
 
-export const ConfirmSaveSettingModal = forwardRef(
+export const ConfirmSaveModal = forwardRef(
     (
         { uniquid, onConfirm, oldjson, newjson }: CompareSettingsModalProps,
-        ref: Ref<ConfirmSaveSettingModalRef>,
+        ref: Ref<ConfirmSaveModalRef>,
     ) => {
         const modalRef = useRef<ModalRef>(null);
         const diffEditorRef = useRef<EditableCompareRef>(null);
         const [errorText, setErrorText] = useState("");
-        const [saveDisabled, setSaveDisabled] = useState(false);
+        const [isValid, setIsValid] = useState(false);
         const scopedConfirm = () => {
             onConfirm();
         };
@@ -79,10 +82,13 @@ export const ConfirmSaveSettingModal = forwardRef(
         // Disable the 'Save' button whenever the user updates the textarea
         // It'll only be enabled when they click the 'Check syntax' button,
         // and it passes validation
-        const onChange = () => setSaveDisabled(true);
+        const onChange = () => setIsValid(false);
         const onCheckSyntaxClick = () => {
-            if (diffEditorRef?.current?.refreshEditedText()) {
-                setSaveDisabled(false);
+            if (diffEditorRef.current) {
+                const isValid = diffEditorRef?.current?.refreshEditedText();
+                setIsValid(isValid);
+                if (!isValid) setErrorText("JSON is invalid");
+                else setErrorText("");
             }
         };
 
@@ -108,7 +114,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                     modalRef?.current?.toggleModal(undefined, false);
                 },
                 disableSave: () => {
-                    setSaveDisabled(true);
+                    setIsValid(true);
                 },
                 // route these down to modal ref
                 modalId: modalRef?.current?.modalId || "",
@@ -156,23 +162,25 @@ export const ConfirmSaveSettingModal = forwardRef(
                         >
                             Go back
                         </ModalToggleButton>
-                        <ModalConfirmSaveButton
-                            uniquid={uniquid}
-                            handleClose={scopedConfirm}
-                            disabled={saveDisabled}
-                            data-testid={"editCompareSaveButton"}
-                        >
-                            Save
-                        </ModalConfirmSaveButton>
-                        <Button
-                            aria-label="Check the settings JSON syntax"
-                            key={`${uniquid}-validate-button`}
-                            data-uniquid={uniquid}
-                            onClick={onCheckSyntaxClick}
-                            type="button"
-                        >
-                            Check syntax
-                        </Button>
+                        {isValid ? (
+                            <ModalConfirmSaveButton
+                                uniquid={uniquid}
+                                handleClose={scopedConfirm}
+                                data-testid={"editCompareSaveButton"}
+                            >
+                                Save
+                            </ModalConfirmSaveButton>
+                        ) : (
+                            <Button
+                                aria-label="Check the settings JSON syntax"
+                                key={`${uniquid}-validate-button`}
+                                data-uniquid={uniquid}
+                                onClick={onCheckSyntaxClick}
+                                type="button"
+                            >
+                                Check syntax
+                            </Button>
+                        )}
                     </ButtonGroup>
                 </ModalFooter>
             </Modal>

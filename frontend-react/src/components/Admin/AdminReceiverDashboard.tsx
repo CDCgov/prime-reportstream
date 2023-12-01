@@ -3,7 +3,7 @@ import React, { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import {
     Button,
     DateRangePicker,
-    Dropdown,
+    Select,
     Grid,
     GridContainer,
     Label,
@@ -524,8 +524,8 @@ function renderAllReceiverRows(props: {
             ? visibleSliceCount === 0
             : false;
 
-        const linkOrgSettings = `/admin/orgsettings/org/${orgName}`;
-        const linkRecvSettings = `/admin/orgreceiversettings/org/${orgName}/receiver/${recvrName}/action/edit`;
+        const linkOrgSettings = `/admin/organizations/${orgName}/edit`;
+        const linkRecvSettings = `/admin/organizations/${orgName}/receiver/${recvrName}/edit`;
         // cheat confession: using `data-` props allow us to stick properties
         // on components without type checking requiring it be a formal prop.
         perReceiverRowElements.push(
@@ -966,7 +966,7 @@ export function AdminReceiverDashboard() {
                         className="fixed-tooltip"
                         label="Show only rows in one of these states."
                     >
-                        <Dropdown
+                        <Select
                             id="successrate-dropdown"
                             name="successrate-dropdown"
                             onChange={(evt) =>
@@ -985,7 +985,7 @@ export function AdminReceiverDashboard() {
                             <option value={SuccessRate.MIXED_SUCCESS}>
                                 Mixed success
                             </option>
-                        </Dropdown>
+                        </Select>
                     </Tooltip>
                 </div>
             </form>

@@ -44,7 +44,7 @@ export const useOrganizationSettings = () => {
         () =>
             authorizedFetch(settings, {
                 segments: {
-                    orgName: parsedName!!,
+                    orgId: parsedName!!,
                 },
             }),
         [parsedName, authorizedFetch],
@@ -78,7 +78,7 @@ export const useOrganizationSettings__ = createQuery({
                     fetchConfig: {
                         ...options.variables?.fetchConfig,
                         segments: {
-                            orgName: activeMembership?.parsedName,
+                            orgId: activeMembership?.parsedName,
                         },
                     },
                 },

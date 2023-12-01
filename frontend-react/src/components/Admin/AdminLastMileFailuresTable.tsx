@@ -174,7 +174,7 @@ const DataLoadRenderTable = (props: {
             const parts = eachRow.receiver.split(".") || eachRow.receiver;
             const org = parts[0] || "";
             const recvrName = parts.slice(1).join(".");
-            const linkRecvSettings = `/admin/orgreceiversettings/org/${org}/receiver/${recvrName}/action/edit`;
+            const linkRecvSettings = `/admin/organizations/${org}/receiver/${recvrName}/edit`;
             const resends = fiterResends(eachRow.reportId);
             const dataForDialog: DataForDialog = {
                 info: eachRow,

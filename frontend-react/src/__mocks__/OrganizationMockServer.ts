@@ -26,7 +26,8 @@ export const dummySender = {
     schemaName: "test/covid-19-test",
     allowDuplicates: false,
     processingType: "sync",
-};
+    version: 1,
+} satisfies RSSender;
 
 export const fakeOrg = {
     countyName: "Testing County",
@@ -55,6 +56,7 @@ export const sendersGenerator = (count: number) => {
             schemaName: "test/covid-19-test",
             allowDuplicates: false,
             processingType: "sync",
+            version: 1,
         });
     }
     return senders;
@@ -71,12 +73,20 @@ export const receiversGenerator = (count: number) => {
         receiverServices.push({
             name: `elr-${i}`,
             organizationName: "testOrg",
+            customerStatus: "",
+            translation: undefined,
+            topic: "",
+            version: 0,
         });
     }
     // Used to test sorting
     receiverServices.push({
         name: `abc-1`,
         organizationName: "testOrg",
+        customerStatus: "",
+        translation: undefined,
+        topic: "",
+        version: 0,
     });
 
     // Used to test filter
@@ -84,6 +94,9 @@ export const receiversGenerator = (count: number) => {
         name: `abc-2`,
         organizationName: "testOrg",
         customerStatus: CustomerStatusType.INACTIVE,
+        translation: undefined,
+        topic: "",
+        version: 0,
     });
 
     return receiverServices;

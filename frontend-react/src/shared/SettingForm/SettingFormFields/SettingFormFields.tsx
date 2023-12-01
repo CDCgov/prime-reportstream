@@ -4,16 +4,15 @@ import {
     Label,
     Textarea,
     TextInput,
-    Dropdown,
+    Select,
 } from "@trussworks/react-uswds";
 import { useRef } from "react";
 
-import { checkJson } from "../../utils/misc";
+import { checkJson } from "../../../utils/misc";
 import {
     getListOfEnumValues,
     ReportStreamSettingsEnum,
-} from "../../utils/TemporarySettingsAPITypes";
-import { showToast } from "../../contexts/Toast";
+} from "../../../utils/TemporarySettingsAPITypes";
 
 export const TextInputComponent = (params: {
     fieldname: string;
@@ -22,12 +21,18 @@ export const TextInputComponent = (params: {
     savefunc: (val: string) => void;
     disabled?: boolean;
     toolTip?: JSX.Element;
+    required?: boolean;
 }): JSX.Element => {
     const key = params.fieldname;
     return (
         <Grid row>
             <Grid col={3}>
-                <Label htmlFor={params.fieldname}>{params.label}:</Label>
+                <Label
+                    htmlFor={params.fieldname}
+                    requiredMarker={params.required}
+                >
+                    {params.label}:
+                </Label>
                 {params.toolTip ? params.toolTip : null}
             </Grid>
             <Grid col={9}>
@@ -41,6 +46,7 @@ export const TextInputComponent = (params: {
                     className="rs-input"
                     onChange={(e) => params.savefunc(e?.target?.value || "")}
                     disabled={params.disabled}
+                    required={params.required}
                 />
             </Grid>
         </Grid>
@@ -55,6 +61,7 @@ export const TextAreaComponent = (params: {
     defaultnullvalue: string | null;
     disabled?: boolean;
     toolTip?: JSX.Element;
+    onJsonInvalid: (e: Error) => void;
 }): JSX.Element => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
     let defaultValue = JSON.stringify(params?.defaultvalue, undefined, 2);
@@ -92,9 +99,10 @@ export const TextAreaComponent = (params: {
                             // checkJson made sure the following JSON.parse won't throw.
                             params.savefunc(JSON.parse(text));
                         } else {
-                            showToast(
-                                `JSON data generated an error "${errorMsg}"`,
-                                "error",
+                            params.onJsonInvalid(
+                                new Error(
+                                    `JSON data generated an error "${errorMsg}"`,
+                                ),
                             );
                         }
                     }}
@@ -150,7 +158,7 @@ export const DropdownComponent = (params: DropdownProps): JSX.Element => {
                 {params.toolTip ? params.toolTip : null}
             </Grid>
             <Grid col={9}>
-                <Dropdown
+                <Select
                     id={key}
                     data-testid={key}
                     name={key}
@@ -164,7 +172,7 @@ export const DropdownComponent = (params: DropdownProps): JSX.Element => {
                             {v}
                         </option>
                     ))}
-                </Dropdown>
+                </Select>
             </Grid>
         </Grid>
     );

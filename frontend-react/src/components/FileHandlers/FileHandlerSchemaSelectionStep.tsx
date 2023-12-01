@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { FileInputRef, Dropdown, Button } from "@trussworks/react-uswds";
+import { FileInputRef, Select, Button } from "@trussworks/react-uswds";
 
 import useSenderSchemaOptions, {
     SchemaOption,
@@ -41,7 +41,7 @@ export default function FileHandlerSchemaSelectionStep({
             <p className="margin-top-4 margin-bottom-2">Select data model</p>
 
             <div className="margin-bottom-4">
-                <Dropdown
+                <Select
                     id="upload-schema-select"
                     name="upload-schema-select"
                     value={selectedSchemaOption.value}
@@ -66,7 +66,7 @@ export default function FileHandlerSchemaSelectionStep({
                             {title}
                         </option>
                     ))}
-                </Dropdown>
+                </Select>
             </div>
 
             <Button

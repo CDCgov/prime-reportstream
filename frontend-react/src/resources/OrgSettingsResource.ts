@@ -20,8 +20,8 @@ export default class OrgSettingsResource extends OrgSettingsBaseResource {
         return `${RS_API_URL}/api/settings/organizations`;
     }
 
-    static url(params: { orgname: string }): string {
-        return `${RS_API_URL}/api/settings/organizations/${params.orgname}`;
+    static url(params: { orgId: string }): string {
+        return `${RS_API_URL}/api/settings/organizations/${params.orgId}`;
     }
 
     /**

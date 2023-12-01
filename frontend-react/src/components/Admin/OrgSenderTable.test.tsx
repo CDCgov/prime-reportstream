@@ -163,7 +163,7 @@ jest.mock("rest-hooks", () => ({
 
 describe("OrgReceiverTable", () => {
     function setup() {
-        renderApp(<OrgSenderTable orgname={"test"} key={"test"} />);
+        renderApp(<OrgSenderTable orgId={"test"} key={"test"} />);
     }
     beforeAll(() => settingsServer.listen());
     afterEach(() => settingsServer.resetHandlers());

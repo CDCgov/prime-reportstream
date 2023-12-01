@@ -14,14 +14,14 @@ export interface CheckSettingResult {
 
 /** parameters used for the request. Also used by the react page to make passing data down easier **/
 export type CheckSettingParams = {
-    orgName: string;
-    receiverName: string;
+    orgId: string;
+    receiverId: string;
 };
 
 export const useCheckSettingsCmd = () => {
     const authorizedFetch = useAuthorizedFetch<CheckSettingResult>();
     const checkSettingsCmd = new RSEndpoint({
-        path: "/checkreceiver/org/:orgName/receiver/:receiverName",
+        path: "/checkreceiver/org/:orgId/receiver/:receiverId",
         method: HTTPMethods.POST,
         queryKey: "checkReceiverSettings",
     });
