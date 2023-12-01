@@ -1,0 +1,12 @@
+elements:
+
+  - name: quantity
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{cqFieldPath}-1' ]
+
+  - name: units
+    condition: '%context.where(extension(%`rsext-cq-units`).value).exists()'
+    resource: '%resource.extension(%`rsext-cq-units`).value'
+    constants:
+      cweFieldPath: '%{cqFieldPath}-2'
+    schema: ../../datatypes/codeableConcept/CWE

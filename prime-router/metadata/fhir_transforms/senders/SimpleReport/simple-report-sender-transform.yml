@@ -1,4 +1,4 @@
-extends: ../default-sender-transform
+extends: ../original-pipeline-transforms
 constants:
   serviceRequest: 'Bundle.entry.resource.ofType(ServiceRequest)'
   diagnosticReport: 'Bundle.entry.resource.ofType(DiagnosticReport)'
