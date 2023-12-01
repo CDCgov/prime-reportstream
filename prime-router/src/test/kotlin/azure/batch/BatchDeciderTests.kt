@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.azure.batch
 
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -7,6 +7,10 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -41,6 +45,22 @@ class BatchDeciderTests {
         ),
     )
 
+    val universalPipelineOrg = DeepOrganization(
+        "upOrg",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                "elr",
+                "upOrg",
+                Topic.FULL_ELR,
+                CustomerStatus.INACTIVE,
+                "one",
+                timing = timing1
+            )
+        ),
+    )
+
     private fun makeEngine(settings: SettingsProvider): WorkflowEngine {
         return WorkflowEngine.Builder().metadata(UnitTestUtils.simpleMetadata).settingsProvider(settings)
             .databaseAccess(accessSpy).blobAccess(blobMock).queueAccess(queueMock).build()
@@ -54,7 +74,7 @@ class BatchDeciderTests {
     @Test
     fun `Test with no receiver getting empty batch file`() {
         // Setup
-        every { queueMock.sendMessage(any()) } returns Unit
+        every { queueMock.sendMessageToQueue(any(), any()) } returns Unit
         every { timing1.isValid() } returns true
         every { timing1.numberPerDay } returns 1
         every { timing1.maxReportCount } returns 1
@@ -80,7 +100,7 @@ class BatchDeciderTests {
     @Test
     fun `Test with receiver getting empty on every batch`() {
         // Setup
-        every { queueMock.sendMessage(any()) } returns Unit
+        every { queueMock.sendMessageToQueue(any(), any()) } returns Unit
         every { timing1.isValid() } returns true
         every { timing1.batchInPrevious60Seconds(any()) } returns true
         every { timing1.numberPerDay } returns 1440
@@ -92,7 +112,7 @@ class BatchDeciderTests {
             )
         }
 
-        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val settings = FileSettings().loadOrganizations(oneOrganization, universalPipelineOrg)
         val engine = makeEngine(settings)
 
         every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
@@ -102,6 +122,7 @@ class BatchDeciderTests {
         // Invoke batch decider run
         var result1 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
         var result2 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
+        val result3 = BatchDeciderFunction(engine).determineQueueMessageCount(universalPipelineOrg.receivers[0], null)
         BatchDeciderFunction(engine).run("", context = null)
         BatchDeciderFunction(engine).run("", context = null)
 
@@ -109,12 +130,13 @@ class BatchDeciderTests {
         assertEquals(true, result1.second)
         assertEquals(1, result2.first)
         assertEquals(true, result2.second)
+        assertEquals(result3, Pair(1, true))
     }
 
     @Test
     fun `Test with receiver getting empty once per day`() {
         // Setup
-        every { queueMock.sendMessage(any()) } returns Unit
+        every { queueMock.sendMessageToQueue(any(), any()) } returns Unit
         every { timing1.isValid() } returns true
         every { timing1.batchInPrevious60Seconds(any()) } returns true
         every { timing1.numberPerDay } returns 1440

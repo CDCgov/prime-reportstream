@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.azure.batch
 
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
@@ -6,6 +6,11 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BatchEvent
+import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.ReportEvent
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
@@ -13,20 +18,22 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Configuration
 import java.time.OffsetDateTime
 
-const val batch = "batch"
-const val defaultBatchSize = 100
+private const val batch = "batch"
+private const val defaultBatchSize = 100
 
 /**
  * Min number of times to retry a failed batching operation.
  */
-const val NUM_BATCH_RETRIES = 2
+private const val NUM_BATCH_RETRIES = 2
 
 /**
  * Batch will find all the reports waiting to with a next "batch" action for a receiver name.
- * It will either send the reports directly or merge them together.  A [workflowEngine] can be passed in for
- * mocking/testing purposes.
+ * It will either send the reports directly or merge them together.
+ *
+ * A [workflowEngine] can be passed in for mocking/testing purposes.
  */
-class BatchFunction(
+// @Deprecated("New functions per pipeline. Once the batch queue empties out it will be deleted.")
+class DeprecatedBatchFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
     @FunctionName(batch)
