@@ -177,6 +177,23 @@ multipleBirthInteger:
 extension:
   expressionType: nested
   expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: pid-patient
+        extension:
+          expressionType: nested
+          expressions:
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pid-24-multiple-birth-indicator
+                valueString:
+                  type: STRING
+                  valueOf: PID.24
+                  expressionType: HL7Spec
     - condition: $pid6 NOT_NULL
       expressionType: nested
       vars:
@@ -246,23 +263,6 @@ extension:
               valueOf: PID.23
               type: STRING
     - expressionType: nested
-      expressionsMap:
-        url:
-          type: STRING
-          value: pid-patient
-        extension:
-          expressionType: nested
-          expressions:
-            - expressionType: nested
-              expressionsMap:
-                url:
-                  type: STRING
-                  value: pid-24-multiple-birth-indicator
-                valueString:
-                  type: STRING
-                  valueOf: PID.24
-                  expressionType: HL7Spec
-    - expressionType: nested
       condition: $citizenship NOT_NULL
       generateList: true
       vars:
@@ -311,8 +311,30 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: ethnic-group
+          value: veteran-military-status
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: PID.27
+    - expressionType: nested
+      condition: $nationality NOT_NULL
+      generateList: true
+      vars:
+        nationality: STRING_ALL, PID.28
+      constants:
+        hl7v2Name: "nationality"
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: nationality
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: code
+            valueCodeableConcept:
+              valueOf: datatypes/CWE/CodeableConcept
+              expressionType: resource
+              specs: PID.28

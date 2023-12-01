@@ -364,6 +364,9 @@
 # patient-citizenship
 - id: "patient-citizenship"
   url: "http://hl7.org/fhir/StructureDefinition/patient-citizenship"
+# patient-nationality
+- id: "patient-nationality"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-nationality"
 # code
 - id: "code"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code"
