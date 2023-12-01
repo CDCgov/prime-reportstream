@@ -441,11 +441,6 @@ class FHIRRouter(
 
         if (!passes) {
             val filterToLog = "${ ""
-//                if (isDefaultFilter(filterType, filters)) {
-//                    "(default filter) "
-//                } else {
-//                    ""
-//                }
             }${failingFilterName ?: "unknown"}"
             logFilterResults(filterToLog, bundle, reportId, actionHistory, receiver, filterType, focusResource)
         }
@@ -672,11 +667,6 @@ class FHIRRouter(
             orgFilters?.firstOrNull { it.topic == receiver.topic }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
-//        val receiverFilters = (
-//            orgFilters?.firstOrNull { it.topic == receiver.topic }?.processingModeFilter
-//                ?: emptyList()
-//            ).plus(receiver.processingModeFilter)
-//        return receiverFilters.ifEmpty { processingModeDefaults[receiver.topic] ?: emptyList() }
     }
 
     /**
