@@ -1,7 +1,10 @@
 package gov.cdc.prime.router.cli
 
 import ca.uhn.fhir.context.FhirContext
-import ca.uhn.fhir.parser.DataFormatException
+import ca.uhn.fhir.rest.client.api.IGenericClient
+import ca.uhn.fhir.rest.client.exceptions.FhirClientConnectionException
+import ca.uhn.fhir.rest.client.interceptor.BasicAuthInterceptor
+import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
@@ -34,29 +37,18 @@ import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.HttpResponseValidator
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
-import io.ktor.client.plugins.auth.providers.basic
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
-import io.ktor.client.statement.request
-import io.ktor.http.URLProtocol
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
 import org.apache.http.HttpStatus
+import org.hl7.fhir.r4.model.Parameters
+import org.hl7.fhir.r4.model.UriType
 import org.hl7.fhir.r4.model.ValueSet
 import org.jooq.JSONB
 import java.io.File
 import java.io.IOException
-import java.net.ConnectException
 import java.nio.file.NoSuchFileException
 import java.time.Instant
-import kotlin.collections.plus
 
 /**
  * Utilities to submit and get data from the Lookup Tables API.
@@ -755,65 +747,39 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
         private const val OBX_MAPPING_NO_OID_KEY = "NO_OID" // to group mappings without OIDs
         private const val OBX_MAPPING_NON_RCTC_KEY = "NON_RCTC" // to group non-RCTC mappings
         private const val OBX_MAPPING_RCTC_VALUE_SOURCE = "RCTC" // value source value representing RCTC mappings
+        private const val TERMINOLOGY_SERVER_ENDPOINT = "https://cts.nlm.nih.gov/fhir"
         private val OBX_MAPPING_FILTER = listOf(OBX_MAPPING_NO_OID_KEY, OBX_MAPPING_NON_RCTC_KEY)
 
         /**
          * Builds a HTTP client for the NMLS VSAC using the provided [apiKey]
          * @return a ktor [HttpClient] for the NMLS VSAC with response status code validation
          */
-        fun buildAPIClient(apiKey: String): HttpClient {
-            return HttpClient {
-                install(Auth) {
-                    basic {
-                        credentials {
-                            BasicAuthCredentials(username = "apikey", password = apiKey)
-                        }
-                    }
-                }
-                defaultRequest {
-                    host = "cts.nlm.nih.gov"
-                    url {
-                        protocol = URLProtocol.HTTPS
-                    }
-                }
-                HttpResponseValidator {
-                    validateResponse { response: HttpResponse ->
-                        val statusCode = response.status.value
-                        when (statusCode) {
-                            in 300..399 -> "redirect"
-                            401 -> "auth exception"
-                            in 400..499 -> "client exception"
-                            in 500..599 -> "server exception"
-                            in 600..Integer.MAX_VALUE -> "general exception"
-                            else -> null
-                        }.also { errorText ->
-                            if (!errorText.isNullOrBlank()) {
-                                throw PrintMessage(
-                                    "Encountered $errorText ($statusCode) while fetching ${response.request.url}",
-                                    true
-                                )
-                            }
-                        }
-                    }
-                }
+        fun buildAPIClient(apiKey: String): IGenericClient =
+            FhirContext.forR4().newRestfulGenericClient(TERMINOLOGY_SERVER_ENDPOINT).apply {
+                this.registerInterceptor(BasicAuthInterceptor("apikey", apiKey))
             }
-        }
 
         /**
          * Looks up the ValueSet for a member [oid] using the supplied http [client] in the NIH National Library of
          * Medicine Value Set Authority.
          * @return a [ValueSet] for the supplied [oid]
          */
-        private suspend fun fetchValueSetForOID(oid: String, client: HttpClient): ValueSet {
-            val response = client.get("fhir/ValueSet/$oid/\$expand")
-            return FhirContext.forR4().newJsonParser().parseResource(ValueSet::class.java, response.bodyAsText())
+        fun fetchValueSetForOID(oid: String, client: IGenericClient): ValueSet {
+            val outParams = client
+                .operation()
+                .onType(ValueSet::class.java)
+                .named("expand")
+                .withParameter(Parameters::class.java, "url", UriType(oid))
+                .execute()
+
+            return outParams.getParameter().get(0).resource as ValueSet
         }
 
         /**
          * Fetches latest test data for all [oids] supplied using the specified http [client]
          * @return updated test data grouped by OID, suitable for use with syncMappings()
          */
-        fun fetchLatestTestData(oids: List<String>, client: HttpClient) =
+        fun fetchLatestTestData(oids: List<String>, client: IGenericClient) =
             runBlocking { // wait
                 // for each oid, fetch the ValueSet and create a test map
                 oids.associateWith { oid -> // create a map of oids to their associated tests in the valueset
@@ -837,10 +803,10 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                                     )
                                 }
                             }
-                        } catch (e: DataFormatException) {
-                            throw PrintMessage("Error encountered parsing update for oid '$oid':\n{$e.message}", true)
-                        } catch (e: ConnectException) {
-                            throw PrintMessage("The update API endpoint is not available", true)
+                        } catch (e: ResourceNotFoundException) {
+                            throw PrintMessage("Could not find a ValueSet for oid '$oid'")
+                        } catch (e: FhirClientConnectionException) {
+                            throw PrintMessage("Could not connect to the VSAC service")
                         }
                     }
                 }.mapValues { it.value.await() } // un-defer all values after starting coroutines

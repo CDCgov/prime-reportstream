@@ -5,6 +5,8 @@ import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
+import ca.uhn.fhir.context.FhirContext
+import ca.uhn.fhir.rest.client.api.IGenericClient
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.doyaaaaaken.kotlincsv.client.CsvReader
 import com.github.kittinunf.fuel.core.FuelError
@@ -15,21 +17,14 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.URLProtocol
-import io.ktor.http.headersOf
-import io.ktor.utils.io.ByteReadChannel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
+import io.mockk.mockkObject
 import io.mockk.unmockkConstructor
-import kotlinx.coroutines.runBlocking
+import io.mockk.unmockkObject
 import org.apache.http.HttpStatus
+import org.hl7.fhir.r4.model.ValueSet
 import org.jooq.JSONB
 import java.io.File
 import java.io.IOException
@@ -287,9 +282,9 @@ class LookupTableCommandsTest {
     }
 
     @Test
-    fun `parse NMLS VSAC value into FHIR and map to observation mapping update data`() {
-        val responseMap = mapOf(
-            "http://localhost/fhir/ValueSet/2.16.840.1.113762.1.4.1146.828/\$expand" to """
+    fun `map ValueSet to observation mapping update data`() {
+        val polioTexts = listOf(
+            """
                 {
                   "resourceType": "ValueSet",
                   "id": "2.16.840.1.113762.1.4.1146.828",
@@ -354,7 +349,7 @@ class LookupTableCommandsTest {
                   }
                 }
             """.trimIndent(),
-            "http://localhost/fhir/ValueSet/2.16.840.1.113762.1.4.1146.1112/\$expand" to """
+            """
                 {
                   "resourceType": "ValueSet",
                   "id": "2.16.840.1.113762.1.4.1146.1112",
@@ -435,19 +430,20 @@ class LookupTableCommandsTest {
                 mapOf("Code" to "68320-1", "Descriptor" to "Polio virus Ab panel [Titer] - Serum") + antiBodyData
             )
         )
-        val mockEngine = MockEngine { request ->
-            respond(
-                content = ByteReadChannel(responseMap.getValue(request.url.toString())),
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json")
-            )
+        val parser = FhirContext.forR4().newJsonParser()
+        val polios = polioTexts.map { parser.parseResource(ValueSet::class.java, it) }
+
+        val client = mockk<IGenericClient>()
+        val oids = listOf("2.16.840.1.113762.1.4.1146.828", "2.16.840.1.113762.1.4.1146.1112")
+
+        mockkObject(LookupTableUpdateMappingCommand.Companion)
+        polios.forEachIndexed { i, valueSet ->
+            every { LookupTableUpdateMappingCommand.Companion.fetchValueSetForOID(oids[i], any()) } returns(valueSet)
         }
-        val client = HttpClient(mockEngine)
-        val updateData = LookupTableUpdateMappingCommand.fetchLatestTestData(
-            listOf("2.16.840.1.113762.1.4.1146.828", "2.16.840.1.113762.1.4.1146.1112"),
-            client
-        )
-        assertThat(updateData).isEqualTo(expectedOutput)
+        every { LookupTableUpdateMappingCommand.Companion.fetchLatestTestData(oids, any()) } answers { callOriginal() }
+
+        assertThat(LookupTableUpdateMappingCommand.fetchLatestTestData(oids, client)).isEqualTo(expectedOutput)
+        unmockkObject(LookupTableUpdateMappingCommand.Companion)
     }
 
     @Test
@@ -483,19 +479,11 @@ class LookupTableCommandsTest {
 
     @Test
     fun `handle update api is not available`() {
-        val client = HttpClient {
-            defaultRequest {
-                host = "192.0.2.0" // blackhole
-                url {
-                    protocol = URLProtocol.HTTPS
-                }
-            }
-        }
-        runBlocking {
-            assertFailure {
-                LookupTableUpdateMappingCommand.fetchLatestTestData(listOf("someoid"), client)
-            }.hasMessage("The update API endpoint is not available")
-        }
+        val ctx = FhirContext.forR4()
+        val client = ctx.newRestfulGenericClient("https://192.0.2.0/fhir") // blackhole
+        assertFailure {
+            LookupTableUpdateMappingCommand.fetchLatestTestData(listOf("someoid"), client)
+        }.hasMessage("Could not connect to the VSAC service")
     }
 
     @Test
