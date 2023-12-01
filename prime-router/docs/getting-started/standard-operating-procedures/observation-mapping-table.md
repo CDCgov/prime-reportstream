@@ -1,7 +1,6 @@
 # How to Update the Observation Mapping Table
 
 ## Introduction
-
 The `observation-mapping` table maps a plethora of conditions, observations, and aoe questions to codes in various code
 systems. The data for this table comes from multiple public sources. Once loaded in the database, the prime CLI can be
 used to poll public RESTful sources for updated data.
@@ -24,6 +23,10 @@ Other useful options:
 
 See the NMLS VSAC Support Center [here](https://www.nlm.nih.gov/vsac/support/usingvsac/vsacfhirapi.html) to request an
 API key.
+
+### Important Notes on Update
+- This utility cannot support new OIDS because they must be manually mapped to a condition code. 
+- This utility does not update AOE question mappings
 
 ## Update the local CSV by getting tables from prod/staging
 Use the prime CLI `lookuptables get` command:  
