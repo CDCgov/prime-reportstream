@@ -109,6 +109,12 @@
       topic: full-elr
       customerStatus: active
       format: HL7
+    - name: dev-hci
+      organizationName: test
+      topic: full-elr
+      customerStatus: active
+      schemaName: metadata/fhir_transforms/senders/HCI/hci-sender-transform
+      format: HL7
   receivers:
     - name: DEV_FULL_ELR
       externalName: Ignore FULL_ELR Development
