@@ -13,6 +13,7 @@ fi
 cd frontend-react
 
 ./scripts/approuter-check.sh
+exit 1
 ./scripts/yarn-check.sh
 ./scripts/yarn-dedupe.sh
 yarn lint-staged
