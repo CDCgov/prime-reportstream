@@ -108,7 +108,6 @@ class FHIRTranslator(
                     }
                 }
 
-
                 return receiverAndEndpoints.map { (receiverEndpoint, receiver) ->
                     actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
                     val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
