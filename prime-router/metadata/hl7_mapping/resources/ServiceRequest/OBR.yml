@@ -1,0 +1,56 @@
+constants:
+  obrFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
+
+elements:
+
+  - name: placer-order-number
+    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "obr-2-placer-order-number")'
+    schema: ../../datatypes/identifier-extension/EI
+    constants:
+      eiFieldPath: '%{obrFieldPath}-2'
+
+  - name: filler-order-number
+    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "obr-3-filler-order-number")'
+    schema: ../../datatypes/identifier-extension/EI
+    constants:
+      eiFieldPath: '%{obrFieldPath}-3'
+
+  - name: universal-service-identifier
+    resource: '%resource.code'
+    schema: ../../datatypes/codeableConceptCWE
+    constants:
+      cweFieldPath: '%{obrFieldPath}-4'
+
+  - name: requestd-datetime
+    value: [ '%resource.occurrenceDateTime.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{obrFieldPath}-6' ]
+
+  - name: observation-datetime
+    value: [ '%resource.occurrencePeriod.start.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{obrFieldPath}-7' ]
+
+  - name: observation-end-datetime
+    value: [ '%resource.occurrencePeriod.start.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{obrFieldPath}-8' ]
+
+  - name: reason-for-study
+    resource: '%resource.reasonCode'
+    schema: ../../datatypes/codeableConceptCWE
+    constants:
+      cweFieldPath: '%{obrFieldPath}-31'
+
+  - name: placer-supplemental-service-information
+    resource: '%resource.orderDetail.where(extension(%`rsext-hl7-use`) = "placer-supplemental-service-information")'
+    schema: ../../datatypes/codeableConceptCWE
+    constants:
+      cweFieldPath: '%{obrFieldPath}-47'
+
+  - name: placer-supplemental-service-information
+    resource: '%resource.orderDetail.where(extension(%`rsext-hl7-use`) = "filler-supplemental-service-information")'
+    schema: ../../datatypes/codeableConceptCWE
+    constants:
+      cweFieldPath: '%{obrFieldPath}-48'
+
+  - name: obr-extension
+    resource: '%resource.extension(%`rsext-obr-observation-request`)'
+    schema: ./OBRExtension

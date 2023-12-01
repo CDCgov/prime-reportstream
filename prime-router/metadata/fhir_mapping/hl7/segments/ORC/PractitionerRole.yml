@@ -1,0 +1,22 @@
+resourceType: PractitionerRole
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+
+practitioner:
+  expressionType: reference
+  valueOf: datatypes/XCN/Practitioner
+  specs: ORC.12 | OBR.16
+  vars:
+    XADAddress: ORC.24
+
+organization:
+  vars:
+    XADAddress: ORC.22
+    XTNTelecom: ORC.23
+  expressionType: reference
+  valueOf: datatypes/XON/Organization
+  specs: ORC.21

@@ -161,5 +161,10 @@ contact:
       condition: $XADAddress NOT_NULL
       valueOf: datatypes/XAD/Address
       expressionType: resource
-      generateList: true
       specs: $XADAddress
+    telecom:
+      expressionType: resource
+      condition: $XTNTelecom NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      specs: $XTNTelecom

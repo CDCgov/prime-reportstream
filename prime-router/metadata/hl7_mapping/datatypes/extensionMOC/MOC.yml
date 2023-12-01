@@ -1,0 +1,9 @@
+elements:
+
+  - name: monetary-amount
+    hl7Spec: [ '%{hl7MOCField}-1' ]
+    value: [ '%resource.extension.where(url = "moc-1-monetary-amount").value' ]
+
+  - name: charge-code
+    hl7Spec: [ '%{hl7MOCField}-1' ]
+    value: [ '%resource.extension.where(url = "moc-2-charge-code").value' ]
