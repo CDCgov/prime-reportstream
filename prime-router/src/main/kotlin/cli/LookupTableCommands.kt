@@ -799,7 +799,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
          * Build a list of observation mappings from the [ValueSet] and [conditionData]
          * @return a list of observation mappings with condition data provided
          */
-        fun ValueSet.toMappings(conditionData: Map<String, String>): List<Map<String, String>> =
+        fun ValueSet.toMappings(conditionData: Map<String, String> = emptyMap()): List<Map<String, String>> =
             this.expansion.contains.map { test ->
                 mapOf(
                     ObservationMappingConstants.TEST_CODE_KEY to test.code,

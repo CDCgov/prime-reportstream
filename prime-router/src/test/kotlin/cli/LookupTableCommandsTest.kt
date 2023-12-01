@@ -15,6 +15,7 @@ import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.cli.LookupTableUpdateMappingCommand.Companion.toMappings
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.mockk.every
@@ -453,7 +454,9 @@ class LookupTableCommandsTest {
         }
         every { LookupTableUpdateMappingCommand.Companion.fetchLatestTestData(oids, any()) } answers { callOriginal() }
 
-        assertThat(LookupTableUpdateMappingCommand.fetchLatestTestData(oids, client)).isEqualTo(expectedOutput)
+        assertThat(
+            LookupTableUpdateMappingCommand.fetchLatestTestData(oids, client).mapValues { it.value.toMappings() }
+        ).isEqualTo(expectedOutput)
         unmockkObject(LookupTableUpdateMappingCommand.Companion)
     }
 
