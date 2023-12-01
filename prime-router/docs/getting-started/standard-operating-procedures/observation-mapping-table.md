@@ -10,7 +10,6 @@ A local csv file is kept both as a reference and to seed the local development e
 periodically by dumping the table from staging/prod or using the CLI to update the local table.
 
 ## Update prod/staging tables using RESTful sources
-Pending completion of #11510
 Use the prime CLI `lookuptables update-mapping` command:
 Change the `--env` value as needed and be sure to provide your API key
 ```zsh
