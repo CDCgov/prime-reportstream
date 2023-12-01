@@ -10,9 +10,6 @@ on:
       - demo1
       - demo2
       - demo3
-  pull_request:
-    branches:
-      - master
 
 defaults:
   run:
@@ -128,6 +125,22 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
+      - name: Login to Azure
+        if: |
+          needs.pre_job.outputs.has_router_change == 'true' ||
+          needs.pre_job.outputs.has_react_change == 'true'
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Get function app checksum
+        if: needs.pre_job.outputs.has_router_change == 'true'
+        uses: JosiahSiegel/checksum-validate-action@f7e46678bd1b02cd3cdfa76ac5cb031898b9c46d
+        with:
+          key: backend
+          input: $(az functionapp config appsettings list -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -n pdh${{ needs.pre_job.outputs.env_name }}-functionapp)
+
   approve_frontend_release:
     name: "Approve Frontend Release: ${{ needs.pre_job.outputs.env_name }}"
     needs:
@@ -145,38 +158,11 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-  generate_checksums:
-    name: Generate Checksums
-    needs:
-      - pre_job
-      - approve_router_release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-
-      - name: Login to Azure
-        if: |
-          needs.pre_job.outputs.has_router_change == 'true' ||
-          needs.pre_job.outputs.has_react_change == 'true'
-        uses: ./.github/actions/vpn-azure
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-      - name: Get function app checksum
-        if: needs.pre_job.outputs.has_router_change == 'true'
-        uses: JosiahSiegel/checksum-validate-action@f7e46678bd1b02cd3cdfa76ac5cb031898b9c46d
-        with:
-          key: backend
-          input: $(az functionapp config appsettings list -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -n pdh${{ needs.pre_job.outputs.env_name }}-functionapp)
-
   deploy_router_release:
     name: "Deploy Router Release: ${{ needs.pre_job.outputs.env_name }}"
     needs:
       - pre_job
       - approve_router_release
-      - generate_checksums
     if: |
       always() &&
       !cancelled() &&
