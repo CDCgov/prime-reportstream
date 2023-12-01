@@ -30,7 +30,11 @@ function Summary(props: Props) {
                 <Title preTitle={description} title={report?.reportId || ""} />
             </div>
             <div className="grid-col-auto margin-bottom-5 margin-top-auto">
-                <ReportLink report={report} button />
+                <ReportLink
+                    reportId={report!.reportId}
+                    fileType={report?.fileType}
+                    button
+                />
             </div>
         </div>
     );

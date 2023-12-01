@@ -356,7 +356,8 @@ open class BaseHistoryFunction : Logging {
         try {
             val reportId = ReportId.fromString(reportIdIn)
             val requestedReport = workflowEngine.db.fetchReportFile(reportId)
-            if (requestedReport.receivingOrg != requestOrgName) {
+
+            if (!claims.isPrimeAdmin && requestedReport.receivingOrg != requestOrgName) {
                 return HttpUtilities.notFoundResponse(request)
             }
 
