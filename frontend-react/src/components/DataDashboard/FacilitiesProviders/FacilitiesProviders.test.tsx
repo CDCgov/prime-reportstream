@@ -13,4 +13,3 @@ describe("FacilitiesProviders", () => {
         expect(allLinks[0]).toHaveTextContent("Data Dashboard");
     });
 });
-//random

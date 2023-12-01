@@ -8,7 +8,6 @@ import { RequireGate } from "./shared/RequireGate/RequireGate";
 import { PERMISSIONS } from "./utils/UsefulTypes";
 
 /* Content Pages */
-// random string2
 const Home = React.lazy(
     lazyRouteMarkdown(() => import("./content/home/index.mdx")),
 );
