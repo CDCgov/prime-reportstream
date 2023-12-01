@@ -779,30 +779,13 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
          * Fetches latest test data for all [oids] supplied using the specified http [client]
          * @return updated test data grouped by OID, suitable for use with syncMappings()
          */
-        fun fetchLatestTestData(oids: List<String>, client: IGenericClient) =
+        fun fetchLatestTestData(oids: List<String>, client: IGenericClient): Map<String, ValueSet> =
             runBlocking { // wait
                 // for each oid, fetch the ValueSet and create a test map
                 oids.associateWith { oid -> // create a map of oids to their associated tests in the valueset
                     async {
                         try {
-                            fetchValueSetForOID(oid, client).let { valueSet -> // fetch the updated valueset for the oid
-                                valueSet.expansion.contains.map { test -> // add every test in the oid valueset
-                                    mapOf( // assemble map of test data
-                                        ObservationMappingConstants.TEST_CODE_KEY to test.code,
-                                        ObservationMappingConstants.TEST_CODESYSTEM_KEY to // coerce to our values
-                                            ObservationMappingConstants.TEST_CODESYSTEM_MAP.getOrDefault(
-                                                test.system,
-                                                test.system
-                                            ),
-                                        ObservationMappingConstants.TEST_OID_KEY to valueSet.idElement.idPart,
-                                        ObservationMappingConstants.TEST_NAME_KEY to valueSet.name,
-                                        ObservationMappingConstants.TEST_DESCRIPTOR_KEY to test.display,
-                                        ObservationMappingConstants.TEST_STATUS_KEY to valueSet.status.toString()
-                                            .lowercase().replaceFirstChar(Char::titlecase),
-                                        ObservationMappingConstants.TEST_VERSION_KEY to test.version.split('/').last()
-                                    )
-                                }
-                            }
+                            fetchValueSetForOID(oid, client)
                         } catch (e: ResourceNotFoundException) {
                             throw PrintMessage("Could not find a ValueSet for oid '$oid'")
                         } catch (e: FhirClientConnectionException) {
@@ -810,6 +793,28 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                         }
                     }
                 }.mapValues { it.value.await() } // un-defer all values after starting coroutines
+            }
+
+        /**
+         * Build a list of observation mappings from the [ValueSet] and [conditionData]
+         * @return a list of observation mappings with condition data provided
+         */
+        fun ValueSet.toMappings(conditionData: Map<String, String>): List<Map<String, String>> =
+            this.expansion.contains.map { test ->
+                mapOf(
+                    ObservationMappingConstants.TEST_CODE_KEY to test.code,
+                    ObservationMappingConstants.TEST_CODESYSTEM_KEY to // coerce to our values
+                        ObservationMappingConstants.TEST_CODESYSTEM_MAP.getOrDefault(
+                            test.system,
+                            test.system
+                        ),
+                    ObservationMappingConstants.TEST_OID_KEY to this.idElement.idPart,
+                    ObservationMappingConstants.TEST_NAME_KEY to this.name,
+                    ObservationMappingConstants.TEST_DESCRIPTOR_KEY to test.display,
+                    ObservationMappingConstants.TEST_STATUS_KEY to this.status.toString()
+                        .lowercase().replaceFirstChar(Char::titlecase),
+                    ObservationMappingConstants.TEST_VERSION_KEY to test.version.split('/').last()
+                ) + conditionData
             }
 
         /**
@@ -834,22 +839,27 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
          */
         fun syncMappings(
             tableOIDMap: Map<String, List<Map<String, String>>>,
-            updateOIDMap: Map<String, List<Map<String, String>>>,
+            updateOIDMap: Map<String, ValueSet>,
         ): List<Map<String, String>> {
             return updateOIDMap.map { update -> // process every oid test group update
                 val conditionData = tableOIDMap[update.key]!![0].filterKeys {
                     it in ObservationMappingConstants.CONDITION_KEYS // fetch existing condition data for this oid
                 }
-                update.value.map { it + conditionData } // add condition data to each test
+                update.value.toMappings(conditionData)
             }.flatten() + tableOIDMap.filterKeys { it !in updateOIDMap.keys }.values.flatten() // flatten + add carryover
         }
 
+        /**
+         * Load an [inputFile] or an existing lookup table by [tableName] and [tableVersion] using [tableUtil] and
+         * validate it for an observation mapping update
+         * @return the loaded table as a list of maps
+         */
         fun loadAndValidateTableData(
             inputFile: File?,
             tableName: String,
             tableUtil: LookupTableEndpointUtilities,
             tableVersion: Int?,
-        ) =
+        ): List<Map<String, String>> =
             if (inputFile != null) { // Start with data from a file
                 val inputData = csvReader().readAllWithHeader(inputFile)
                 inputData.ifEmpty {

@@ -268,17 +268,28 @@ class LookupTableCommandsTest {
             "Version" to "2023-03",
             "Status" to "Active"
         )
-        val updateData = mapOf(
-            "2.16.840.1.113762.1.4.1146.828" to listOf(
-                mapOf("Code" to "16362002", "Descriptor" to "Human poliovirus over 9000 (organism)") + labTestData,
-                mapOf("Code" to "16362003", "Descriptor" to "Human poliovirus 3 (organism)") + labTestData
-            )
-        )
+        val valueSet = mockk<ValueSet>()
+        mockkObject(LookupTableUpdateMappingCommand.Companion)
+        with(LookupTableUpdateMappingCommand.Companion) {
+            every { syncMappings(any(), any()) } answers { callOriginal() }
+            every { any<ValueSet>().toMappings(any<Map<String, String>>()) } answers {
+                val data = secondArg<Map<String, String>>() + labTestData
+                listOf(
+                    mapOf("Code" to "16362002", "Descriptor" to "Human poliovirus over 9000 (organism)") + data,
+                    mapOf("Code" to "16362003", "Descriptor" to "Human poliovirus 3 (organism)") + data
+                )
+            }
 
-        val output = LookupTableUpdateMappingCommand.syncMappings(tableData, updateData)
-        val expectedOutput = updateData.flatMap { it.value.map { condition -> condition + conditionData } } +
-            noOIDData + noOIDData // verify entries missing from updateData were not dropped
-        assertThat(output).isEqualTo(expectedOutput)
+            val updateData = mapOf(
+                "2.16.840.1.113762.1.4.1146.828" to valueSet
+            )
+
+            val output = syncMappings(tableData, updateData)
+            val expectedOutput = updateData.flatMap { it.value.toMappings(conditionData) } +
+                noOIDData + noOIDData // verify entries missing from updateData were not dropped
+            assertThat(output).isEqualTo(expectedOutput)
+        }
+        unmockkObject(LookupTableUpdateMappingCommand.Companion)
     }
 
     @Test
