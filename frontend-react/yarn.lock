@@ -7178,14 +7178,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^7.4.0":
-  version: 7.4.0
-  resolution: "chromatic@npm:7.4.0"
+"chromatic@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "chromatic@npm:10.0.0"
   bin:
     chroma: dist/bin.js
     chromatic: dist/bin.js
     chromatic-cli: dist/bin.js
-  checksum: 97c096c8d2e70ea890167b4bc5c9cb717db72f746f14a2e9a367d7534ef10a7b723b0780bfa80743a0de54cd6e664c24a64bd693e654f7df1121abfbeeb1c569
+  checksum: c342276bafb6c848468a983323afd414e70f8a58348c760fa9cbb88200e34470c602dbf3f6f8929d83fa8876c58ca3bfd521eb9c63af33ade69f0633f905bb68
   languageName: node
   linkType: hard
 
@@ -15424,7 +15424,7 @@ __metadata:
     browserslist: ^4.22.1
     browserslist-useragent-regexp: ^4.1.0
     camelcase: ^6.3.0
-    chromatic: ^7.4.0
+    chromatic: ^10.0.0
     classnames: ^2.3.2
     confusing-browser-globals: ^1.0.11
     cross-env: ^7.0.3
