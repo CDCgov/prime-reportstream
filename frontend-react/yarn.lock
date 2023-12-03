@@ -4803,14 +4803,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trussworks/react-uswds@npm:^5.4.0":
-  version: 5.4.0
-  resolution: "@trussworks/react-uswds@npm:5.4.0"
+"@trussworks/react-uswds@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "@trussworks/react-uswds@npm:6.1.0"
   peerDependencies:
     "@uswds/uswds": ^3.6.0
     react: ^16.x || ^17.x || ^18.x
     react-dom: ^16.x || ^17.x || ^18.x
-  checksum: b8218bbe8b7a6ac543b1eea46f388730b45f13047aeb3bc272503f073520d53e8e2b0287cf9fe13995c4ddf969463ecabf74b7a4fc82f1fb569f3f070030250f
+  checksum: 7c34649e686dc0a14b8275510d9ddacd910220ad60e6ca4d1c8e79a9eedc6e7f3464997b1deb8adbd554b6bbe65c1b9a08f5afb9e2a9b3d3d22ef86482ec5822
   languageName: node
   linkType: hard
 
@@ -15395,7 +15395,7 @@ __metadata:
     "@testing-library/jest-dom": ^6.1.3
     "@testing-library/react": ^14.0.0
     "@testing-library/user-event": ^14.5.1
-    "@trussworks/react-uswds": ^5.4.0
+    "@trussworks/react-uswds": ^6.1.0
     "@types/dompurify": ^3.0.3
     "@types/downloadjs": ^1.4.4
     "@types/github-slugger": ^1.3.0
