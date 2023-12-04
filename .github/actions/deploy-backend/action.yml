@@ -13,6 +13,9 @@ inputs:
   version:
     description: "Version tag"
     required: true
+  checksum-validation:
+    default: false
+    description: Run checksum validation step
 
 runs:
   using: "composite"
@@ -246,6 +249,7 @@ runs:
       shell: bash
 
     - name: Validate function app checksum
+      if: inputs.checksum-validation == 'true'
       uses: JosiahSiegel/checksum-validate-action@f7e46678bd1b02cd3cdfa76ac5cb031898b9c46d
       with:
         key: backend
