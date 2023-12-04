@@ -19,7 +19,7 @@ HL7_to_FHIR_to_HL7/elims_1_72_3029202646_5532_NoPII.hl7,,HL7_to_FHIR_to_HL7/elim
 HL7_to_FHIR_to_HL7/elims_2_52_5068110_35230_NoPII.hl7,,HL7_to_FHIR_to_HL7/elims_2_52_5068110_35230_NoPII-expected.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS,"","test.dev-elims","","",""
 HL7_to_FHIR_to_HL7/elims_2_72_3029198209_5121_NoPII.hl7,,HL7_to_FHIR_to_HL7/elims_2_72_3029198209_5121_NoPII-expected.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS,"","test.dev-elims","","",""
 HL7_to_FHIR_to_HL7/elims_29_5065302_35227_NoPII_CANCELED.hl7,,HL7_to_FHIR_to_HL7/elims_29_5065302_35227_NoPII_CANCELED-expected.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS,"","test.dev-elims","","",""
-HL7_to_FHIR_to_HL7/hci.hl7,,HL7_to_FHIR_to_HL7/hci-expected.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS,"","","","",""
+HL7_to_FHIR_to_HL7/hci.hl7,,HL7_to_FHIR_to_HL7/hci-expected.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS,"","test.dev-hci","","",""
 FHIR_to_HL7/sample_AOE_1_20230220-0001.fhir,,FHIR_to_HL7/sample_AOE_1_20230220-0001-custom-datetime.hl7,metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform,HL7,PASS,"","","metadata/fhir_transforms/senders/original-pipeline-transforms",test.DEV_FULL_ELR,""
 FHIR_to_HL7/sample_AOE_1_20230220-0001.fhir,,FHIR_to_HL7/sample_AOE_1_20230220-0001.hl7,metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform,HL7,PASS,"","","metadata/fhir_transforms/senders/original-pipeline-transforms","",""
 FHIR_to_HL7/sample_AOE_2_20230220-0001.fhir,,FHIR_to_HL7/sample_AOE_2_20230220-0001.hl7,metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform,HL7,PASS,"","","metadata/fhir_transforms/senders/original-pipeline-transforms","",""
