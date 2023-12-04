@@ -24,7 +24,6 @@ In order to deploy, we will need to define our resource group and keyvault. Ther
 
 ### secrets.tf
 ```
-
 data "azurerm_key_vault" "tf-secrets" {
   name                = var.tf_secrets_vault
   resource_group_name = var.resource_group
