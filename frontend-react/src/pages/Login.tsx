@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import type { Location } from "react-router-dom";
 import type { Tokens } from "@okta/okta-auth-js";
+import { Helmet } from "react-helmet-async";
 
 import Alert from "../shared/Alert/Alert";
 import { oktaSignInConfig } from "../oktaConfig";
@@ -44,6 +45,9 @@ export function Login() {
 
     return (
         <>
+            <Helmet>
+                <title>ReportStream login</title>
+            </Helmet>
             {isMigrated && <MigrationAlert />}
             <OktaSignInWidget
                 className="margin-top-6 margin-x-auto width-mobile-lg padding-x-8"
