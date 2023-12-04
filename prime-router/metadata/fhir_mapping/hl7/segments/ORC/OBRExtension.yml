@@ -196,7 +196,7 @@ extension:
     - expressionType: nested
       vars:
         obr29: STRING_ALL, OBR.29
-      condition: $orc8 NOT_NULL
+      condition: $obr29 NOT_NULL
       expressionsMap:
         url:
           type: STRING
@@ -205,6 +205,20 @@ extension:
           valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
           expressionType: resource
           specs: OBR.29
+          constants:
+            backupExtension: "filler-assigned-identifier"
+    - expressionType: nested
+      vars:
+        obr33: STRING_ALL, OBR.33
+      condition: $obr33 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: obr-33-assistant-result-interpreter
+        valueReference:
+          valueOf: datatypes/NDL/PractitionerRole
+          expressionType: reference
+          specs: OBR.33
     - expressionType: nested
       vars:
         obr36: STRING, OBR.36
@@ -253,6 +267,18 @@ extension:
           valueOf: datatypes/CNE/CodeableConcept
           expressionType: resource
           specs: OBR.45
+    - expressionType: nested
+      vars:
+        obr48: STRING_ALL, OBR.48
+      condition: $obr48 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: obr-48-medically-necessary-duplicate-procedure
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: OBR.48
     - expressionType: nested
       vars:
         obr49: STRING_ALL, OBR.49

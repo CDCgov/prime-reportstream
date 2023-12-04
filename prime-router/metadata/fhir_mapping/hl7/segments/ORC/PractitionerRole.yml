@@ -7,11 +7,27 @@ id:
 
 
 practitioner:
-  expressionType: reference
-  valueOf: datatypes/XCN/Practitioner
-  specs: ORC.12 | OBR.16
+  expressionType: nested
   vars:
-    XADAddress: ORC.24
+    orc12: STRING_ALL, ORC.12
+    obr16: STRING_ALL, OBR.16
+  expressions:
+    - expressionType: reference
+      condition: $orc12 NOT_NULL
+      valueOf: datatypes/XCN/Practitioner
+      specs: ORC.12
+      vars:
+        XADAddress: ORC.24
+      constants:
+        hlv2Name: orc-12-ordering-provider
+    - expressionType: reference
+      condition: $orc12 NULL && $obr16 NOT_NULL
+      valueOf: datatypes/XCN/Practitioner
+      specs: OBR.16
+      vars:
+        XADAddress: ORC.24
+      constants:
+        hlv2Name: obr-16-ordering-provider
 
 organization:
   vars:

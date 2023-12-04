@@ -368,3 +368,12 @@ extension:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: XCN.23
+    - expressionType: nested
+      condition: $hlv2Name NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Name
+        valueString:
+          type: STRING
+          value: $hlv2Name

@@ -33,14 +33,14 @@ elements:
     value: [ '%resource.value' ]
 
   - name: ordering-provider-from-practitioner
-    condition: '%context.requester.resolve().is(Practitioner)'
+    condition: '%context.requester.resolve().is(Practitioner) and %context.requester.resolve().extension(%`rsext-hl7v2Name`).value = "orc-12-ordering-provider"'
     resource: '%resource.requester.resolve()'
     schema: ../Practitioner/XCN
     constants:
       hl7XCNField: '%{hl7Order}-12'
 
   - name: ordering-provider-from-practitioner-role
-    condition: '%context.requester.resolve().is(PractitionerRole)'
+    condition: '%context.requester.resolve().is(PractitionerRole) and %context.requester.resolve().practitioner.resolve().extension(%`rsext-hl7v2Name`).value = "orc-12-ordering-provider"'
     resource: '%resource.requester.resolve().practitioner.resolve()'
     schema: ../Practitioner/XCN
     constants:

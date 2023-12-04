@@ -32,10 +32,8 @@ elements:
       cweFieldPath: '%{obrFieldPath}-12'
 
   - name: clinical-information
-    resource: '%resource.extension.where(url = "obr-13-clinical-information").value'
-    schema: ../../datatypes/codeableConcept/CWE
-    constants:
-      cweFieldPath: '%{obrFieldPath}-13'
+    value: [ '%resource.extension.where(url = "obr-13-clinical-information").value' ]
+    hl7Spec: [ '%{obrFieldPath}-13' ]
 
   - name: placer-field-1
     value: [ '%resource.extension.where(url = "obr-18-placer-field-1").value' ]
@@ -85,6 +83,12 @@ elements:
     constants:
       eipFieldPath: '%{obrFieldPath}-29'
 
+  - name: result-interpreter
+    resource: '%resource.extension.where(url = "obr-33-assistant-result-interpreter").value.resolve()'
+    constants:
+      hl7NDLField: '%{obrFieldPath}-33'
+    schema: ../PractitionerRole/NDL
+
   - name: scheduled-datetime
     value: [ '%resource.extension.where(url = "obr-36-scheduled-datetime").value' ]
     hl7Spec: [ '%{obrFieldPath}-36' ]
@@ -106,6 +110,13 @@ elements:
     schema: ../../datatypes/codeableConcept/CNE
     constants:
       cneFieldPath: '%{obrFieldPath}-45'
+
+
+  - name: medically-necessary-duplicate-procedure
+    resource: '%resource.extension.where(url = "obr-48-medically-necessary-duplicate-procedure").value'
+    schema: ../../datatypes/codeableConcept/CWE
+    constants:
+      cweFieldPath: '%{obrFieldPath}-48'
 
   - name: result-handling
     value: [ '%resource.extension.where(url = "obr-49-result-handling").value' ]

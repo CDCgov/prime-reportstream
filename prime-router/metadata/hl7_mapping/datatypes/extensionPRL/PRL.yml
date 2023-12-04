@@ -6,10 +6,10 @@ elements:
     resource: '%resource.extension.where(url = "prl-1-parent-observation-identifier").value'
     schema: ../codeableConcept/CWE
 
-  - name: charge-code
+  - name: parent-observation-sub-identifier
     hl7Spec: [ '%{hl7PRLField}-2' ]
     value: [ '%resource.extension.where(url = "prl-2-parent-observation-sub-identifier").value' ]
 
-  - name: charge-code
+  - name: parent-observation-value-descriptor
     hl7Spec: [ '%{hl7PRLField}-3' ]
-    value: [ '%resource.extension.where(url = "prl-3-parent-observation-sub-identifier").value' ]
+    value: [ '%resource.extension.where(url = "prl-3-parent-observation-descriptor").value' ]
