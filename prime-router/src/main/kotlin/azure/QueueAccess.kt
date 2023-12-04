@@ -30,9 +30,18 @@ object QueueAccess {
      */
     fun sendMessage(event: Event) {
         val queueName = event.eventAction.toQueueName() ?: return
+        sendMessageToQueue(event, queueName)
+    }
+
+    /**
+     * Send a message to the queue based on the [event] with a provided queue name.
+     *
+     * The derived queue name from the [event] is ignored purposely.
+     */
+    fun sendMessageToQueue(event: Event, queueName: String) {
         val base64Message = String(Base64.getEncoder().encode(event.toQueueMessage().toByteArray()))
         val now = OffsetDateTime.now()
-        var invisibleDuration = Duration.between(now, event.at ?: now)
+        val invisibleDuration = Duration.between(now, event.at ?: now)
         sendMessage(queueName, base64Message, invisibleDuration)
     }
 
