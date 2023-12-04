@@ -97,14 +97,9 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             }
 
             // if it was able to parse the message through one of the models, then we do not want to log it as an error
-            if (parseError.size == messageModelsToTry.size) {
-                parseError.forEach { currentError ->
-                    logHL7ParseFailure(currentError, messages.isEmpty(), Logger.ERROR)
-                }
-            } else {
-                parseError.forEach { currentError ->
-                    logHL7ParseFailure(currentError, messages.isEmpty(), Logger.WARN)
-                }
+            val parseLogLevel = if (parseError.size == messageModelsToTry.size) Logger.ERROR else Logger.WARN
+            parseError.forEach { currentError ->
+                logHL7ParseFailure(currentError, messages.isEmpty(), parseLogLevel)
             }
         }
 
