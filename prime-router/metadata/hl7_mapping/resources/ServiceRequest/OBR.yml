@@ -36,7 +36,7 @@ elements:
     constants:
       hl7XCNField: '%{obrFieldPath}-16'
 
-  - name: call-back-phone-number
+  - name: call-back-phone-number-obr
     condition: '%context.requester.extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Name`).value[%telecomIndex] = "obr-17-order-callback-phone-number"'
     resource: '%resource.requester.extension(%`rsext-callback-number`).value'
     schema: ../../datatypes/contactPoint/XTN

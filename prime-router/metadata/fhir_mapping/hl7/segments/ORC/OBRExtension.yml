@@ -80,25 +80,34 @@ extension:
           expressionType: HL7Spec
           type: STRING
           valueOf: OBR.13
+    - expressionType: nested
+      vars:
+        orc12: STRING_ALL, ORC.12
+        obr16: STRING_ALL, OBR.16
+        condition: $orc12 NOT_NULL && $obr16 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: obr-16-ordering-provider
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XCN/Practitioner
+          specs: OBR.16
     - condition: $orc14 NOT_NULL && $obr17 NOT_NULL
       vars:
         orc14: STRING_ALL, ORC.14
         obr17: STRING_ALL, OBR.17
       expressionType: nested
       expressionsMap:
-        extension:
-          generateList: true
-          expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: callback-number
-            valueContactPoint:
-              valueOf: datatypes/XTN/ContactPoint
-              expressionType: resource
-              specs: OBR.17
-              constants:
-                hl7v2Name: obr-17-order-callback-phone-number
+        url:
+          type: SYSTEM_URL
+          value: callback-number
+        valueContactPoint:
+          valueOf: datatypes/XTN/ContactPoint
+          expressionType: resource
+          specs: OBR.17
+          constants:
+            hl7v2Name: obr-17-order-callback-phone-number
     - expressionType: nested
       vars:
         obr18: OBR.18
@@ -161,6 +170,9 @@ extension:
           valueOf: OBR.22
     - expressionType: resource
       valueOf: datatypes/MOC/Extension
+      vars:
+        obr23: STRING_ALL, OBR.23
+      condition: $obr23 NOT_NULL
       specs: OBR.23
       constants:
         mocExtensionName: obr-23-charge-to-practice
@@ -177,6 +189,9 @@ extension:
           expressionType: HL7Spec
           valueOf: OBR.24
     - expressionType: resource
+      vars:
+        obr26: STRING_ALL, OBR.26
+      condition: $obr26 NOT_NULL
       valueOf: datatypes/PRL/Extension
       specs: OBR.26
       constants:

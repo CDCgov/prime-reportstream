@@ -8,7 +8,7 @@ elements:
     value: [ '%resource.effective.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{obrFieldPath}-7' ]
 
-  - name: observation-datetime
+  - name: observation-datetime-start
     condition: '%resource.effective.is(Period)'
     value: [ '%resource.effective.start.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{obrFieldPath}-7' ]

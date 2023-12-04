@@ -5,8 +5,8 @@ elements:
   - name: order-control
     hl7Spec: [ '%{hl7Order}-1' ]
     resource: '%resource.extension(%`rsext-business-event`)'
-    condition: '%resource.value.is(code)'
-    value: [ '%resource.value' ]
+    condition: '%resource.value.ofType(code).exists()'
+    value: [ '%resource.value.ofType(code)' ]
 
   - name: placer-order-number
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "orc-2-placer-order-number")'
@@ -29,8 +29,8 @@ elements:
   - name: datetime-of-order-event
     hl7Spec: [ '%{hl7Order}-9' ]
     resource: '%resource.extension(%`rsext-business-event`)'
-    condition: '%resource.value.is(string)'
-    value: [ '%resource.value' ]
+    condition: '%resource.value.ofType(string).exists()'
+    value: [ '%resource.value.ofType(string)' ]
 
   - name: ordering-provider-from-practitioner
     condition: '%context.requester.resolve().is(Practitioner) and %context.requester.resolve().extension(%`rsext-hl7v2Name`).value = "orc-12-ordering-provider"'
@@ -46,7 +46,7 @@ elements:
     constants:
       hl7XCNField: '%{hl7Order}-12'
 
-  - name: call-back-phone-number
+  - name: call-back-phone-number-ocr
     condition: '%context.requester.extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Name`).value[%telecomIndex] = "orc-14-callback-phone-number"'
     resource: '%resource.requester.extension(%`rsext-callback-number`).value'
     schema: ../../datatypes/contactPoint/XTN

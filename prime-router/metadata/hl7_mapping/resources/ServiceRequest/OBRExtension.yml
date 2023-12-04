@@ -2,17 +2,17 @@ elements:
 
   - name: placer-order-number-from-extension
     condition: '%context.identifier.where(extension(%`rsext-hl7-use`).value = "obr-2-placer-order-number").exists().not()'
-    resource: '%resource.extension.where(url = "obr-2-placer-order-number").value.resolve()'
+    resource: '%resource.extension.where(url = "obr-2-placer-order-number").value'
     schema: ../../datatypes/identifier-extension/EI
     constants:
-      eiFieldPath: '%{hl7Order}-2'
+      eiFieldPath: '%{obrFieldPath}-2'
 
   - name: filler-order-number-from-extension
     condition: '%context.identifier.where(extension(%`rsext-hl7-use`).value = "obr-3-filler-order-number").exists().not()'
-    resource: '%resource.extension.where(url = "obr-3-filler-order-number").value.resolve()'
+    resource: '%resource.extension.where(url = "obr-3-filler-order-number").value'
     schema: ../../datatypes/identifier-extension/EI
     constants:
-      eiFieldPath: '%{hl7Order}-3'
+      eiFieldPath: '%{obrFieldPath}-3'
 
 
   - name: collector-identifier
@@ -34,6 +34,20 @@ elements:
   - name: clinical-information
     value: [ '%resource.extension.where(url = "obr-13-clinical-information").value' ]
     hl7Spec: [ '%{obrFieldPath}-13' ]
+
+  - name: ordering-provider-from-extension
+    resource: '%resource.extension.where(url = "obr-16-ordering-provider").value.resolve()'
+    schema: ../Practitioner/XCN
+    constants:
+      hl7XCNField: '%{obrFieldPath}-16'
+
+  - name: call-back-phone-number-obr-from-extension
+    condition: '%context.requester.where(extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Name`).value[%telecomIndex] = "obr-17-order-callback-phone-number").exists().not()'
+    resource: '%resource.extension.where(url = "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number").value'
+    schema: ../../datatypes/contactPoint/XTN
+    resourceIndex: telecomIndex
+    constants:
+      hl7TelecomField: '%{obrFieldPath}-17'
 
   - name: placer-field-1
     value: [ '%resource.extension.where(url = "obr-18-placer-field-1").value' ]
