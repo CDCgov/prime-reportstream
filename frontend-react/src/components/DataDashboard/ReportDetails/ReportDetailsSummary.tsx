@@ -26,6 +26,7 @@ export function ReportDetailsSummary(props: Props) {
                         Download as{" "}
                         <ReportLink
                             reportId={report!.reportId}
+                            reportExpires={report!.expires}
                             fileType={report?.fileType}
                             button
                         />

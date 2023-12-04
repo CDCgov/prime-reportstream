@@ -45,6 +45,7 @@ function TableReportsData(props: Props) {
                     <th scope="row">
                         <ReportLink
                             reportId={report.reportId}
+                            reportExpires={report.expires}
                             fileType={report.fileType}
                         />
                     </th>

@@ -32,6 +32,7 @@ function Summary(props: Props) {
             <div className="grid-col-auto margin-bottom-5 margin-top-auto">
                 <ReportLink
                     reportId={report!.reportId}
+                    reportExpires={report!.expires}
                     fileType={report?.fileType}
                     button
                 />

@@ -4,11 +4,13 @@ import React from "react";
 
 import config from "../../../config";
 import { useSessionContext } from "../../../contexts/SessionContext";
+import { isDateExpired } from "../../../utils/DateTimeUtils";
 
 const { RS_API_URL } = config;
 
 interface ReportLinkProps {
     reportId: string;
+    reportExpires?: string | number;
     fileType?: string;
 
     /* OPTIONAL
@@ -29,6 +31,7 @@ const formatFileType = (fileType: string) => {
 function ReportLink({
     reportId,
     fileType,
+    reportExpires,
     children,
     button,
 }: React.PropsWithChildren<ReportLinkProps>) {
@@ -71,17 +74,21 @@ function ReportLink({
     } else {
         return (
             <>
-                {fileType !== undefined && (
-                    <Button
-                        type="button"
-                        outline
-                        onClick={handleClick}
-                        className="usa-button usa-button--outline float-right display-flex flex-align-center margin-left-1"
-                    >
-                        {formatFileType(fileType)}{" "}
-                        <Icon.FileDownload className="margin-left-1" size={3} />
-                    </Button>
-                )}
+                {fileType !== undefined &&
+                    !isDateExpired(reportExpires || "") && (
+                        <Button
+                            type="button"
+                            outline
+                            onClick={handleClick}
+                            className="usa-button usa-button--outline float-right display-flex flex-align-center margin-left-1"
+                        >
+                            {formatFileType(fileType)}{" "}
+                            <Icon.FileDownload
+                                className="margin-left-1"
+                                size={3}
+                            />
+                        </Button>
+                    )}
             </>
         );
     }
