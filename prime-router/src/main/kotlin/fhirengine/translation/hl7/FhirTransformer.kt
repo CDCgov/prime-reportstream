@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
@@ -67,7 +68,11 @@ class FhirTransformer(
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
         schema.elements.forEach { element ->
-            transformBasedOnElement(element, bundle, focusResource, schemaContext, debug)
+            try {
+                transformBasedOnElement(element, bundle, focusResource, schemaContext, debug)
+            } catch (ex: Exception) {
+                throw ConfigSchemaElementProcessingException(schema, element, ex)
+            }
         }
     }
 

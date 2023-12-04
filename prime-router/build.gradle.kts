@@ -168,6 +168,8 @@ tasks.test {
 
     // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    minHeapSize = "2g"
+    maxHeapSize = "3g"
     dependsOn("compileKotlin")
     finalizedBy("jacocoTestReport")
     // Run the test task if specified configuration files are changed
@@ -839,9 +841,9 @@ dependencies {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.5")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.10.0")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.8.5")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.10.0")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
