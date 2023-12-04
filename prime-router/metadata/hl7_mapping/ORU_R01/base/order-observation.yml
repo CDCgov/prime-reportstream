@@ -15,14 +15,13 @@ elements:
     resource: '%diagnostic'
     schema: ../../resources/DiagnosticReport/ORC
 
-
-  - name: observation-request
-    # Condition from ORU_RO1 covers this schema as well
-    schema: observation-request
-
   - name: observation-request-service-request
     resource: '%service'
     schema: ../../resources/ServiceRequest/OBR
+
+  - name: observation-request-diagnostic-report
+    resource: '%diagnostic'
+    schema: ../../resources/DiagnosticReport/OBR
 
   - name: specimen
     resource: '%specimen'

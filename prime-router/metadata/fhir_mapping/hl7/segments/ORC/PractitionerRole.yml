@@ -16,7 +16,7 @@ practitioner:
 organization:
   vars:
     XADAddress: ORC.22
-    XTNTelecom: ORC.23
+    XTNTelecom: ORC.23 *
   expressionType: reference
   valueOf: datatypes/XON/Organization
   specs: ORC.21

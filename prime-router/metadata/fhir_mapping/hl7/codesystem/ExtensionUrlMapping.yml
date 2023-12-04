@@ -586,3 +586,7 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request"
 - id: "status-modifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/status-modifier"
+- id: obr-11-specimen-action-code
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-11-specimen-action-code"
+- id: callback-number
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number"

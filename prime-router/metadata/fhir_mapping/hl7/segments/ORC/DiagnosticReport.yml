@@ -166,16 +166,16 @@ _issued:
           valueOf: $obr22
           expressionType: HL7Spec
 
+category:
+  expressionType: resource
+  valueOf: datatypes/ID/CodeableConcept
+  specs: OBR.24
+
 status:
   type: DIAGNOSTIC_REPORT_STATUS
   valueOf: OBR.25
   expressionType: HL7Spec
   required: true
-
-category:
-  expressionType: resource
-  valueOf: datatypes/ID/CodeableConcept
-  specs: OBR.24
 
 resultsInterpreter:
   vars:

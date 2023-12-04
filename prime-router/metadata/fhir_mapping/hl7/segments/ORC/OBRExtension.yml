@@ -76,10 +76,29 @@ extension:
         url:
           type: STRING
           value: obr-13-clinical-information
-        valueCodeableConcept:
-          expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
-          specs: OBR.13
+        valueString:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: OBR.13
+    - condition: $orc14 NOT_NULL && $obr17 NOT_NULL
+      vars:
+        orc14: STRING_ALL, ORC.14
+        obr17: STRING_ALL, OBR.17
+      expressionType: nested
+      expressionsMap:
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: callback-number
+            valueContactPoint:
+              valueOf: datatypes/XTN/ContactPoint
+              expressionType: resource
+              specs: OBR.17
+              constants:
+                hl7v2Name: obr-17-order-callback-phone-number
     - expressionType: nested
       vars:
         obr18: OBR.18
@@ -136,7 +155,7 @@ extension:
         url:
           type: STRING
           value: obr-22-results-rpt-status-change-datetime
-        value:
+        valueString:
           type: STRING
           expressionType: HL7Spec
           valueOf: OBR.22
@@ -219,7 +238,7 @@ extension:
           type: STRING
           value: obr-44-procedure-code
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CNE/CodeableConcept
           expressionType: resource
           specs: OBR.44
     - expressionType: nested
@@ -231,7 +250,7 @@ extension:
           type: STRING
           value: obr-45-procedure-code-modifier
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CNE/CodeableConcept
           expressionType: resource
           specs: OBR.45
     - expressionType: nested
@@ -260,10 +279,16 @@ extension:
           specs: OBR.50
     - condition: $orc33 NOT_NULL && $obr53 NOT_NULL
       vars:
-        orc33: ORC.33
-        obr53: OBR.53
-      valueOf: datatypes/CX/Identifier
-      expressionType: resource
-      specs: OBR.53
-      constants:
-        identifierIndexName: "obr-53-alternate-placer-order-number"
+        orc33: STRING_ALL, ORC.33
+        obr53: STRING_ALL, OBR.53
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: obr-53-alternate-placer-order-number
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+          specs: OBR.53
+          constants:
+            identifierIndexName: "obr-53-alternate-placer-order-number"

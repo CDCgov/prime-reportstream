@@ -167,4 +167,4 @@ contact:
       condition: $XTNTelecom NOT_NULL
       valueOf: datatypes/XTN/ContactPoint
       generateList: true
-      specs: $XTNTelecom
+      specs: $XTNTelecom *

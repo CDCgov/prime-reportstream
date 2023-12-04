@@ -29,16 +29,30 @@ elements:
   - name: datetime-of-order-event
     hl7Spec: [ '%{hl7Order}-9' ]
     resource: '%resource.extension(%`rsext-business-event`)'
-    condition: '%resource.value.is(datetime)'
+    condition: '%resource.value.is(string)'
     value: [ '%resource.value' ]
 
   - name: ordering-provider-from-practitioner
-    resource: '%resource.requester.resolve().is(Practitioner)'
+    condition: '%context.requester.resolve().is(Practitioner)'
+    resource: '%resource.requester.resolve()'
     schema: ../Practitioner/XCN
     constants:
       hl7XCNField: '%{hl7Order}-12'
 
-  # TODO ORC-14
+  - name: ordering-provider-from-practitioner-role
+    condition: '%context.requester.resolve().is(PractitionerRole)'
+    resource: '%resource.requester.resolve().practitioner.resolve()'
+    schema: ../Practitioner/XCN
+    constants:
+      hl7XCNField: '%{hl7Order}-12'
+
+  - name: call-back-phone-number
+    condition: '%context.requester.extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Name`).value[%telecomIndex] = "orc-14-callback-phone-number"'
+    resource: '%resource.requester.extension(%`rsext-callback-number`).value'
+    schema: ../../datatypes/contactPoint/XTN
+    resourceIndex: telecomIndex
+    constants:
+      hl7TelecomField: '%{hl7Order}-14'
 
   - name: ordering-facility-name
     condition: '%context.requester.resolve().is(PractitionerRole)'

@@ -30,9 +30,9 @@ status:
 intent:
   expressionType: nested
   vars:
-    obr11: OBR.11
+    obr11: STRING, OBR.11
   expressions:
-    - condition: $obr11 NOT_EQUALS G && $obr11 NOT_EQUALS A
+    - condition: $obr11 NOT_EQUALS G || $obr11 NOT_EQUALS A
       type: STRING
       value: "order"
     - condition: $obr11 EQUALS A
@@ -147,7 +147,7 @@ occurrenceDateTime:
 
 _occurrenceDateTime:
   vars:
-    obr6: STRING,OBR.6
+    obr6: STRING, OBR.6
   condition: $obr6 NOT_NULL
   expressionType: nested
   expressionsMap:
@@ -162,50 +162,6 @@ _occurrenceDateTime:
           type: STRING
           valueOf: OBR.6
           expressionType: HL7Spec
-
-occurrencePeriod:
-  expressionType: nested
-  vars:
-    obr7: OBR.7
-    obr8: OBR.8
-  condition: $obr7 NOT_NULL || $obr8 NOT_NULL
-  expressionsMap:
-    start:
-      valueOf: "GeneralUtils.dateTimeWithZoneId(obr7,ZONEID)"
-      expressionType: JEXL
-    _start:
-      expressionType: nested
-      condition: $obr7 NOT_NULL
-      expressionsMap:
-        extension_1:
-          generateList: true
-          expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: hl7v2-date-time
-            valueString:
-              type: STRING
-              valueOf: $obr7
-              expressionType: HL7Spec
-    end:
-      valueOf: "GeneralUtils.dateTimeWithZoneId(obr8,ZONEID)"
-      expressionType: JEXL
-    _end:
-      expressionType: nested
-      condition: $obr7 NOT_NULL
-      expressionsMap:
-        extension_1:
-          generateList: true
-          expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: hl7v2-date-time
-            valueString:
-              type: STRING
-              valueOf: $obr8
-              expressionType: HL7Spec
 
 authoredOn:
   condition: $orderControl EQUALS NW
@@ -255,11 +211,19 @@ requester:
       specs: ORC.12 | OBR.16
       constants:
         XADAddress: ORC.24
+
+_requester:
+  vars:
+    orc14: STRING_ALL, ORC.14
+    obr17: STRING_ALL, OBR.17
+  expressionType: nested
+  expressions:
     - condition: $orc14 NOT_NULL
       expressionType: nested
       expressionsMap:
         extension:
           generateList: true
+          specs: ORC.14 *
           expressionType: nested
           expressionsMap:
             url:
@@ -268,12 +232,14 @@ requester:
             valueContactPoint:
               valueOf: datatypes/XTN/ContactPoint
               expressionType: resource
-              specs: ORC.14
+              constants:
+                hl7v2Name: orc-14-callback-phone-number
     - condition: $orc14 NULL && $obr17 NOT_NULL
       expressionType: nested
       expressionsMap:
         extension:
           generateList: true
+          specs: OBR.17 *
           expressionType: nested
           expressionsMap:
             url:
@@ -282,7 +248,8 @@ requester:
             valueContactPoint:
               valueOf: datatypes/XTN/ContactPoint
               expressionType: resource
-              specs: OBR.17
+              constants:
+                hl7v2Name: obr-17-order-callback-phone-number
 
 # TODO order type concept
 locationCode:

@@ -23,7 +23,7 @@ elements:
 
   - name: specimen-action-code
     value: [ '%resource.extension.where(url = "obr-11-specimen-action-code").value' ]
-    hl7spec: [ '%{obrFieldPath}-11' ]
+    hl7Spec: [ '%{obrFieldPath}-11' ]
 
   - name: collector-identifier
     resource: '%resource.extension.where(url = "obr-12-danger-code").value'
@@ -39,23 +39,23 @@ elements:
 
   - name: placer-field-1
     value: [ '%resource.extension.where(url = "obr-18-placer-field-1").value' ]
-    hl7spec: [ '%{obrFieldPath}-18' ]
+    hl7Spec: [ '%{obrFieldPath}-18' ]
 
   - name: placer-field-2
     value: [ '%resource.extension.where(url = "obr-19-placer-field-2").value' ]
-    hl7spec: [ '%{obrFieldPath}-19' ]
+    hl7Spec: [ '%{obrFieldPath}-19' ]
 
   - name: filler-field-1
     value: [ '%resource.extension.where(url = "obr-20-filler-field-1").value' ]
-    hl7spec: [ '%{obrFieldPath}-20' ]
+    hl7Spec: [ '%{obrFieldPath}-20' ]
 
   - name: filler-field-2
     value: [ '%resource.extension.where(url = "obr-21-filler-field-2").value' ]
-    hl7spec: [ '%{obrFieldPath}-21' ]
+    hl7Spec: [ '%{obrFieldPath}-21' ]
 
   - name: results-rpt-status-change-datetime
     value: [ '%resource.extension.where(url = "obr-22-results-rpt-status-change-datetime").value' ]
-    hl7spec: [ '%{obrFieldPath}-22' ]
+    hl7Spec: [ '%{obrFieldPath}-22' ]
 
   - name: charge-to-practice
     resource: '%resource.extension.where(url = "obr-23-charge-to-practice")'
@@ -65,7 +65,7 @@ elements:
 
   - name: diagnostic-serv-sect-id
     value: [ '%resource.extension.where(url = "obr-24-diagnostic-serv-sect-id").value' ]
-    hl7spec: [ '%{obrFieldPath}-24' ]
+    hl7Spec: [ '%{obrFieldPath}-24' ]
 
   - name: parent-result
     resource: '%resource.extension.where(url = "obr-26-parent-result")'
@@ -87,7 +87,7 @@ elements:
 
   - name: scheduled-datetime
     value: [ '%resource.extension.where(url = "obr-36-scheduled-datetime").value' ]
-    hl7spec: [ '%{obrFieldPath}-36' ]
+    hl7Spec: [ '%{obrFieldPath}-36' ]
 
   - name: collectors-comment
     resource: '%resource.extension.where(url = "obr-39-collectors-comment").value'
@@ -97,22 +97,28 @@ elements:
 
   - name: procedure-code
     resource: '%resource.extension.where(url = "obr-44-procedure-code").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: ../../datatypes/codeableConcept/CNE
     constants:
-      cweFieldPath: '%{obrFieldPath}-44'
+      cneFieldPath: '%{obrFieldPath}-44'
 
   - name: procedure-code-modifier
     resource: '%resource.extension.where(url = "obr-45-procedure-code-modifier").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: ../../datatypes/codeableConcept/CNE
     constants:
-      cweFieldPath: '%{obrFieldPath}-45'
+      cneFieldPath: '%{obrFieldPath}-45'
 
   - name: result-handling
     value: [ '%resource.extension.where(url = "obr-49-result-handling").value' ]
-    hl7spec: [ '%{obrFieldPath}-49' ]
+    hl7Spec: [ '%{obrFieldPath}-49' ]
 
   - name: parent-universal-service-identifier
     resource: '%resource.extension.where(url = "obr-50-parent-universal-service-identifier").value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
       cweFieldPath: '%{obrFieldPath}-50'
+
+  - name: alternate-placer-order-number-from-identifier
+    resource: '%resource.extension.where(url = "obr-53-alternate-placer-order-number").value'
+    schema: ../../datatypes/identifier/CX
+    constants:
+      cxFieldPath: '%{obrFieldPath}-53'

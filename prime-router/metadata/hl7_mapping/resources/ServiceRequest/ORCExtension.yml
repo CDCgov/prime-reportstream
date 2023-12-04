@@ -20,13 +20,13 @@ elements:
       hl7XCNField: '%{hl7Order}-10'
 
   - name: verified-by
-    resource: '%resource.extension.where (url = "orc-11-verified-by").value.resolve()'
+    resource: '%resource.extension.where(url = "orc-11-verified-by").value.resolve()'
     schema: ../Practitioner/XCN
     constants:
       hl7XCNField: '%{hl7Order}-11'
 
-  - name: verified-by
-    resource: '%resource.extension.where (url = "orc-13-enterers-location").value.resolve()'
+  - name: enterers-location
+    resource: '%resource.extension.where(url = "orc-13-enterers-location").value.resolve()'
     schema: ../Location/PL/PL
     constants:
       hl7PLField: '%{hl7Order}-13'
@@ -40,6 +40,19 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
     constants:
       cweFieldPath: '%{hl7Order}-17'
+
+  - name: entering-organization
+    resource: '%resource.extension.where(url = "orc-18-entering-device").value'
+    schema: ../../datatypes/codeableConcept/CWE
+    constants:
+      cweFieldPath: '%{hl7Order}-18'
+
+  - name: entered-by
+    resource: '%resource.extension.where (url = "orc-19-action-by").value.resolve()'
+    schema: ../Practitioner/XCN
+    constants:
+      hl7XCNField: '%{hl7Order}-19'
+
 
   - name: order-status
     hl7Spec: [ '%{hl7Order}-27' ]

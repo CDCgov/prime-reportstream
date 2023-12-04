@@ -42,6 +42,8 @@ extension:
           valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
           expressionType: resource
           specs: ORC.8
+          constants:
+            backupExtension: "filler-assigned-identifier"
     - expressionType: nested
       vars:
         orc10: STRING_ALL, ORC.10
@@ -102,6 +104,30 @@ extension:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
           specs: ORC.17
+    - expressionType: nested
+      vars:
+        orc17: ORC.18
+      condition: $orc17 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: orc-18-entering-device
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: ORC.18
+    - expressionType: nested
+      vars:
+        orc19: STRING_ALL, ORC.19
+      condition: $orc19 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: orc-19-action-by
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XCN/Practitioner
+          specs: ORC.19
     - expressionType: nested
       vars:
         orc27: ORC.27
