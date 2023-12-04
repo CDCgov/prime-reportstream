@@ -357,10 +357,6 @@ open class BaseHistoryFunction : Logging {
             val reportId = ReportId.fromString(reportIdIn)
             val requestedReport = workflowEngine.db.fetchReportFile(reportId)
 
-            if (!claims.isPrimeAdmin && requestedReport.receivingOrg != requestOrgName) {
-                return HttpUtilities.notFoundResponse(request)
-            }
-
             val contents = if (requestedReport.bodyUrl != null) {
                 BlobAccess.downloadBlobAsByteArray(requestedReport.bodyUrl)
             } else {
