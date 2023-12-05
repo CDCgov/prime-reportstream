@@ -5,7 +5,7 @@
 # Then add keys to it, as needed, like this:
 #  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-hospital --doit
 #  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.etor-service-sender --doit
-# 
+#
 # Then go into prime-reportstream/prime-router/examples/generate-jwt-python/generate-jwt.py
 #     and change these vars to:
 #        my_client_id = "flexion"
@@ -69,7 +69,7 @@
       organizationName: flexion
       topic: etor-ti
       customerStatus: active
-      jurisdictionalFilter: 
+      jurisdictionalFilter:
         - Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01'
       qualityFilter:
         - true
@@ -82,8 +82,8 @@
         useBatching: false
         type: "FHIR"
       transport: !<REST>
-        reportUrl: "https://cdcti-staging-api.azurewebsites.net/v1/etor/orders"
-        authTokenUrl: "https://cdcti-staging-api.azurewebsites.net/v1/auth/token"
+        reportUrl: "https://cdcti-stg-api.azurewebsites.net/v1/etor/orders"
+        authTokenUrl: "https://cdcti-stg-api.azurewebsites.net/v1/auth/token"
         authType: "two-legged"
 # Uncomment below for local Trusted-Intermediary server
         # reportUrl: "http://host.docker.internal:8080/v1/etor/orders"
