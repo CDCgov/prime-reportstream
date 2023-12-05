@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.common
 
+import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.cli.ApiMockEngine
 import gov.cdc.prime.router.transport.TokenInfo
 import io.ktor.http.HttpMethod
@@ -209,6 +210,84 @@ class HttpClientUtilsTests {
     }
 
     @Test
+    fun `test submitForm wrappers malformed json response for type T (list of LookupTableVersion)`() {
+        val payload = """[{
+        "lookupTableVersionId" : 6,
+        "tableName" : "ethnicity",
+        "tableVersion" : 1,
+        "isActive" : true,
+        "createdBy" : "local@test.com",
+        "createdAt" : "2023-11-13T15:38:50.495Z",
+        "tableSha256Checksum" : "67a9db3bb62a79b4a9d22126f58eebb15dd99a2a2a81bdf4ff740fa884fd5635"
+        }, {
+            "lookupTableVersionId" : 9,
+            "tableName" : "fhirpath_filter_shorthand",
+            "tableVersion" : 1,
+            "isActive" : true,
+            "createdBy" : "local@test.com",
+            "createdAt" : "2023-11-13T15:38:50.598Z",
+            "tableSha256Checksum" : "4295f38f1e9bdb233d5086bdae3cf92024815883db3f0a96066580c4ba74fcde"
+        }]"""
+        val fakeUrlPath = "/fakeEndpoint/submit_form"
+        val clientWithMockEngine = ApiMockEngine(
+            fakeUrlPath,
+            HttpStatusCode.OK,
+            body = payload
+        ) {
+            assertEquals(it.method.value, HttpMethod.Post.value)
+            assertEquals(it.url.encodedPath, fakeUrlPath)
+        }.client()
+
+        assertFailsWith<io.ktor.serialization.JsonConvertException>(
+            message = "Expect SerializationException from marshaling json string into LookupTableVersion.",
+            block = {
+                HttpClientUtils.submitFormT<List<LookupTableVersion>>(
+                    url = "fakeEndpoint/submit_form",
+                    // does not matter what we put in the form
+                    // since mock engine fabricate a response
+                    formParams = mapOf(
+                        Pair("grant_type", "authorization_code"),
+                        Pair("redirect_uri", "fake-redirect-001"),
+                        Pair("client_id", "437ry35rfy4f5fh4"),
+                        Pair("code", "code001"),
+                        Pair("code_verifier", "754753977397")
+                    ),
+                    httpClient = clientWithMockEngine,
+                )
+            }
+        )
+    }
+
+    @Test
+    fun `test submitForm wrappers malformed json response for built-in type T (String)`() {
+        val payLoad = """{"access_token": "AYjcyMzY3ZDhiNmJkNTY",
+                 "refresh_token": "RjY2NjM5NzA2OWJjuE7c", 
+                 "token_type"::::"Bearer", "expires_in": 3600}"""
+        val fakeUrlPath = "/fakeEndpoint/submit_form"
+        val clientWithMockEngine = ApiMockEngine(
+            fakeUrlPath,
+            HttpStatusCode.OK,
+            body = payLoad
+        ) {
+            assertEquals(it.method.value, HttpMethod.Post.value)
+            assertEquals(it.url.encodedPath, fakeUrlPath)
+        }.client()
+
+        val jsonStr = HttpClientUtils.submitFormT<String>(
+            url = "fakeEndpoint/submit_form",
+            formParams = mapOf(
+                Pair("grant_type", "authorization_code"),
+                Pair("redirect_uri", "fake-redirect-001"),
+                Pair("client_id", "437ry35rfy4f5fh4"),
+                Pair("code", "code001"),
+                Pair("code_verifier", "754753977397")
+            ),
+            httpClient = clientWithMockEngine,
+        )
+        assertEquals(jsonStr, payLoad)
+    }
+
+    @Test
     fun `test submitForm wrappers malformed json response`() {
         val fakeUrlPath = "/fakeEndpoint/submit_form"
         val clientWithMockEngine = ApiMockEngine(
@@ -258,5 +337,26 @@ class HttpClientUtilsTests {
 
         assertEquals(response.status.value, HttpStatusCode.OK.value)
         assertEquals(respStr, "place-holder")
+    }
+
+    @Test
+    fun `test head wrappers resource not found`() {
+        val fakeUrlPath = "/fakeEndpoint/head_operation"
+        val clientWithMockEngine = ApiMockEngine(
+            fakeUrlPath,
+            HttpStatusCode.NotFound,
+            body = """"""
+        ) {
+            assertEquals(it.method.value, HttpMethod.Head.value)
+            assertEquals(it.url.encodedPath, fakeUrlPath)
+        }.client()
+
+        val (response, respStr) = HttpClientUtils.headWithStringResponse(
+            url = "fakeEndpoint/head_operation",
+            httpClient = clientWithMockEngine,
+        )
+
+        assertEquals(response.status.value, HttpStatusCode.NotFound.value)
+        assertEquals(respStr, "")
     }
 }
