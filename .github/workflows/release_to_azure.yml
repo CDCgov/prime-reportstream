@@ -10,9 +10,6 @@ on:
       - demo1
       - demo2
       - demo3
-  pull_request:
-    branches:
-      - master
 
 defaults:
   run:
