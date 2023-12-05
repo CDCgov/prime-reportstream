@@ -5,6 +5,7 @@ import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
@@ -116,7 +117,11 @@ class FhirToHl7Converter(
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
         schema.elements.forEach { element ->
-            processElement(element, bundle, schemaResource, schemaContext, debug)
+            try {
+                processElement(element, bundle, schemaResource, schemaContext, debug)
+            } catch (ex: Exception) {
+                throw ConfigSchemaElementProcessingException(schema, element, ex)
+            }
         }
     }
 
