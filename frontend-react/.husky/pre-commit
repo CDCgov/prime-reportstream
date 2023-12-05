@@ -12,6 +12,7 @@ fi
 # won't be needed when frontend is its own repo.
 cd frontend-react
 
+./scripts/approuter-check.sh
 ./scripts/yarn-check.sh
 ./scripts/yarn-dedupe.sh
 yarn lint-staged
