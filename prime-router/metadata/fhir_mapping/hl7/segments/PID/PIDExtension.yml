@@ -1,0 +1,34 @@
+url:
+  type: STRING
+  value: pid-patient
+  
+extension:
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: pid-24-multiple-birth-indicator
+        valueString:
+          type: STRING
+          valueOf: PID.24
+          expressionType: HL7Spec
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: pid-32-identity-reliability-code
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PID.32
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: pid-38-production-class-code
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PID.38
