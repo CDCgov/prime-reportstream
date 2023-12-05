@@ -21,6 +21,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Schema
@@ -73,6 +74,68 @@ private const val PERFORMER_OR_PATIENT_CA = "(%performerState.exists() and %perf
 private const val PROVENANCE_COUNT_GREATER_THAN_10 = "Bundle.entry.resource.ofType(Provenance).count() > 10"
 private const val EXCEPTION_FOUND = "exception found"
 private const val CONDITION_FILTER = "%resource.code.coding.code = '95418-0'"
+
+data object SampleFilters {
+    /**
+     * Below Filters were used as default filters for a topic until issue: #11441
+     * when topic level default filters become deprecated, they are renamed as:
+     * 1. fullElrQualityFilterSample
+     * 2. etorTiQualityFilterSample
+     * 3. elrElimsQualityFilterSample
+     * 4. processingModeFilterSample
+     * and parked here for reference
+     *
+     * Now, receivers need to explicitly specify their filters
+     *
+     */
+
+    /**
+     *   Quality filter sample for receivers on FULL_ELR topic:
+     *   Must have message ID, patient last name, patient first name, DOB, specimen type
+     *   At least one of patient street, patient zip code, patient phone number, patient email
+     *   At least one of order test date, specimen collection date/time, test result date
+     */
+    val fullElrQualityFilterSample: ReportStreamFilter = listOf(
+        "%messageId.exists()",
+        "%patient.name.family.exists()",
+        "%patient.name.given.count() > 0",
+        "%patient.birthDate.exists()",
+        "%specimen.type.exists()",
+        "(%patient.address.line.exists() or " +
+                "%patient.address.postalCode.exists() or " +
+                "%patient.telecom.exists())",
+        "(" +
+                "(%specimen.collection.collectedPeriod.exists() or " +
+                "%specimen.collection.collected.exists()" +
+                ") or " +
+                "%serviceRequest.occurrence.exists() or " +
+                "%observation.effective.exists())",
+    )
+
+    /**
+     *   Quality filter sample for receivers on ETOR_TI topic:
+     *   Must have message ID
+     */
+    val etorTiQualityFilterSample: ReportStreamFilter = listOf(
+        "%messageId.exists()",
+    )
+
+    /**
+     *   Quality filter sample for receivers on ELR_ELIMS topic:
+     *   no rules; completely open
+     */
+    val elrElimsQualityFilterSample: ReportStreamFilter = listOf(
+        "true",
+    )
+
+    /**
+     *  Processing mode filter sample for receivers on ETOR_TI or FULL_ELR:
+     *  Must have a processing mode id of 'P'
+     */
+    val processingModeFilterSample: ReportStreamFilter = listOf(
+        "%processingId.exists() and %processingId = 'P'"
+    )
+}
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FhirRouterTests {
@@ -438,25 +501,6 @@ class FhirRouterTests {
         assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.QUALITY_FILTER)
         assertThat(receivers).isEmpty()
     }
-
-//    @Test
-//    fun `0 test qualFilter default - succeed, basic covid FHIR`() {
-//        val fhirData = File(QUALITY_TEST_URL).readText()
-//        val bundle = FhirTranscoder.decode(fhirData)
-//        val settings = FileSettings().loadOrganizations(oneOrganization)
-//        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
-//
-//        // act
-//        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-//            engine.qualityFilterDefaults[Topic.FULL_ELR],
-//            bundle,
-//            false
-//        )
-//
-//        // assert
-//        assertThat(qualDefaultResult.first).isTrue()
-//        assertThat(qualDefaultResult.second).isNull()
-//    }
 
     @Test
     fun `fail - jurisfilter does not pass`() {
@@ -1410,7 +1454,7 @@ class FhirRouterTests {
         actionHistory.actionLogs.clear()
 
         val result2 = engine.evaluateFilterAndLogResult(
-            engine.fullElrQualityFilterDefault,
+            SampleFilters.fullElrQualityFilterSample,
             bundle,
             report.id,
             actionHistory,

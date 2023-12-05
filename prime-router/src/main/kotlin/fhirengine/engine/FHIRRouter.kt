@@ -66,53 +66,6 @@ class FHIRRouter(
     private val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
 
     /**
-     * Default Rules for quality filter on FULL_ELR topic:
-     *   Must have message ID, patient last name, patient first name, DOB, specimen type
-     *   At least one of patient street, patient zip code, patient phone number, patient email
-     *   At least one of order test date, specimen collection date/time, test result date
-     */
-    val fullElrQualityFilterDefault: ReportStreamFilter = listOf(
-        "%messageId.exists()",
-        "%patient.name.family.exists()",
-        "%patient.name.given.count() > 0",
-        "%patient.birthDate.exists()",
-        "%specimen.type.exists()",
-        "(%patient.address.line.exists() or " +
-            "%patient.address.postalCode.exists() or " +
-            "%patient.telecom.exists())",
-        "(" +
-            "(%specimen.collection.collectedPeriod.exists() or " +
-            "%specimen.collection.collected.exists()" +
-            ") or " +
-            "%serviceRequest.occurrence.exists() or " +
-            "%observation.effective.exists())",
-    )
-
-    /**
-     * Default Rules for quality filter on ETOR_TI topic:
-     *   Must have message ID
-     */
-    val etorTiQualityFilterDefault: ReportStreamFilter = listOf(
-        "%messageId.exists()",
-    )
-
-    /**
-     * Default Rules for quality filter on ELR_ELIMS topic:
-     *   no rules; completely open
-     */
-    val elrElimsQualityFilterDefault: ReportStreamFilter = listOf(
-        "true",
-    )
-
-    /**
-     * Default Rule (used for ETOR_TI and FULL_ELR):
-     *  Must have a processing mode id of 'P'
-     */
-    val processingModeFilterDefault: ReportStreamFilter = listOf(
-        "%processingId.exists() and %processingId = 'P'"
-    )
-
-    /**
      * Lookup table `fhirpath_filter_shorthand` containing all the shorthand fhirpath replacements for filtering.
      */
     private val shorthandLookupTable by lazy { loadFhirPathShorthandLookupTable() }
@@ -438,11 +391,16 @@ class FHIRRouter(
             reverseFilter,
             focusResource
         )
-
         if (!passes) {
-            val filterToLog = "${ ""
-            }${failingFilterName ?: "unknown"}"
-            logFilterResults(filterToLog, bundle, reportId, actionHistory, receiver, filterType, focusResource)
+            logFilterResults(
+                failingFilterName ?: "unknown",
+                bundle,
+                reportId,
+                actionHistory,
+                receiver,
+                filterType,
+                focusResource
+            )
         }
         return passes
     }
