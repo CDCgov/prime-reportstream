@@ -245,6 +245,12 @@ generalPractitioner:
   vars:
     patientPrimaryFacility: PD1.3
 
+contact:
+  expressionType: resource
+  valueOf: segments/PID/NK1/Contact
+  specs: NK1
+
+
 extension:
   expressionType: nested
   expressions:

@@ -157,6 +157,18 @@ extension_hl7Use:
 contact:
   expressionType: nested
   expressionsMap:
+    name:
+      condition: $XPNHumanName NOT_NULL
+      valueOf: datatypes/XPN/HumanName
+      expressionType: resource
+      generateList: true
+      specs: $XPNHumanName
+    telecom:
+      condition: $XTNContactPoint NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      expressionType: resource
+      generateList: true
+      specs: $XTNContactPoint
     address:
       condition: $XADAddress NOT_NULL
       valueOf: datatypes/XAD/Address
