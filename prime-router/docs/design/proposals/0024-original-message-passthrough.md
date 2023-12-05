@@ -18,6 +18,10 @@ We will need to store enough information in the pipeline to:
 * Identify an item as an original passthrough item
 * Reproduce the content of the original item
 
+This information would be made available to the `translate` step of the UP, which would then be changed to retrieve the
+original item instead of performing FHIR to HL7v2 translation. Furthermore, modifications to the `batch` step are
+necessary to send the original item as a standalone object with the original filename.
+
 The following proposed implementations can be grouped into two major approaches: storing the HL7v2 data within the FHIR
 bundle, or utilizing the blobURL of the original item upload.
 
@@ -126,4 +130,6 @@ extract the original HL7v2 file from the blobstore.
   original passthrough files?
     * If we utilize existing receivers, does the sender flag indicating original passthrough override receiver quality
       filters?
+    * How do we handle sending to a receiver configured for `MERGE` batching? Would the file be sent immediately or on
+      the batching schedule?
     * Alternatively, should a new `Report.Format` (e.g. `HL7_ORIGINAL`) be added to flag original passthrough items?
