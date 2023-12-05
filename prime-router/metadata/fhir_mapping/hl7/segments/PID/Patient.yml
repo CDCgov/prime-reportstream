@@ -252,8 +252,6 @@ extension:
       valueOf: segments/PID/PIDExtension
     - expressionType: resource
       valueOf: segments/PID/PD1Extension
-    - expressionType: resource
-      valueOf: segments/PID/PV1Extension
     - condition: $pid6 NOT_NULL
       expressionType: nested
       vars:

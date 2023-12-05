@@ -66,3 +66,8 @@ implementation differs from what is in the spreadsheets.
   fields to NULLDT. Thus, this field is not being mapped.
 - PID.21: The inventory does not include a FHIR field on patient that this should be mapped to. We have decided to map
   to Patient.link which includes a reference to RelatedPerson
+
+### PV1 -> Patient
+
+- Mapping inventory only defines PV1.16 mapping and only when the value is `VIP`. PV1.16 is deprecated in NIST HL7v2.5.1
+  spec and is more thoroughly mapped in PV1 -> Encounter. This field does not need to be mapped to Patient.
