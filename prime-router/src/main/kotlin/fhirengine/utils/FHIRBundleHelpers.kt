@@ -93,34 +93,43 @@ fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
  * observations, the [DiagnosticReport] will be deleted
  */
 fun Bundle.deleteResource(resource: Base) {
-    fun deleteResourceInternal(resource: Base, referencesMap: Map<String, List<String>>) {
-        if (this.entry.find { it.fullUrl == resource.idBase } == null) {
+    val referencesToClean = mutableSetOf<Base>()
+
+    fun deleteResourceInternal(resourceInternal: Base, referencesMap: Map<String, List<String>>) {
+        if (this.entry.find { it.fullUrl == resourceInternal.idBase } == null) {
             throw IllegalStateException("Cannot delete resource. FHIR bundle does not contain this resource")
         }
 
         // First remove the resource from the bundle
-        this.entry.removeIf { it.fullUrl == resource.idBase }
+        this.entry.removeIf { it.fullUrl == resourceInternal.idBase }
+
+        // add resource to set of references to clean up after recursion
+        referencesToClean.add(resourceInternal)
 
         // Get the resource children references
-        val resourceChildren = resource.getResourceReferences()
+        val resourceChildren = resourceInternal.getResourceReferences()
         // get all resources except the resource being removed
         val allResources = this.entry
         // get all references for every remaining resource
-        val remainingReferences = referencesMap - resource.idBase
-        val flatRemainingReferences = remainingReferences.flatMap { it.value }
+        val remainingReferences = referencesMap - resourceInternal.idBase
+        val flatRemainingReferences = remainingReferences.flatMap { it.value }.toSet()
 
         // remove orphaned children
         resourceChildren.forEach { child ->
             if (!flatRemainingReferences.contains(child)) {
                 allResources
-                    .firstOrNull { it.fullUrl == child }
-                    ?.let { deleteResourceInternal(it.resource, remainingReferences) }
+                    .find { it.fullUrl == child }
+                    ?.let { entryToDelete ->
+                        deleteResourceInternal(entryToDelete.resource, remainingReferences)
+                    }
             }
         }
+    }
 
-        // Go through every resource and check if the resource has a reference to the resource being deleted
-        // if there is remove the reference
-        allResources.forEach { res ->
+    // Go through every resource and check if the resource has a reference to the resource being deleted
+    // if there is remove the reference
+    fun cleanUpReferences(resource: Base) {
+        this.entry.forEach { res ->
             res.resource::class.memberProperties.forEach { it ->
                 it.isAccessible = true
                 val value = it.getter.call(res.resource)
@@ -133,10 +142,14 @@ fun Bundle.deleteResource(resource: Base) {
         }
     }
 
+    // build up all resources and their references in a map as a starting point
     val allReferencesMap = this.entry.associate {
         it.fullUrl to it.getResourceReferences()
     }
     deleteResourceInternal(resource, allReferencesMap)
+
+    // clean up all references to deleted resources
+    referencesToClean.forEach { cleanUpReferences(it) }
     this.deleteChildlessResource(resource)
 }
 
