@@ -857,6 +857,7 @@ dependencies {
     implementation("org.json:json:20231013")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.37.0")
+    implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.2.4")
     implementation("org.apache.commons:commons-csv:1.10.0")
     implementation("org.apache.commons:commons-lang3:3.13.0")
