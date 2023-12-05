@@ -30,11 +30,11 @@ export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource
         return "OrgReceiverSettingsResource";
     }
 
-    static listUrl(params: { orgname: string }): string {
-        return `${RS_API_URL}/api/settings/organizations/${params.orgname}/receivers`;
+    static listUrl(params: { orgId: string }): string {
+        return `${RS_API_URL}/api/settings/organizations/${params.orgId}/receivers`;
     }
 
-    static url(params: { orgname: string; receivername: string }): string {
-        return `${RS_API_URL}/api/settings/organizations/${params.orgname}/receivers/${params.receivername}`;
+    static url(params: { orgId: string; entityId: string }): string {
+        return `${RS_API_URL}/api/settings/organizations/${params.orgId}/receivers/${params.entityId}`;
     }
 }

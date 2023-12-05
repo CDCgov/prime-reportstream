@@ -34,6 +34,7 @@ import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import Spinner from "../../../components/Spinner";
 import { TableRowData } from "../../../components/Table/TableRows";
 import { DatasetAction } from "../../../components/Table/TableInfo";
+import { useSessionContext } from "../../../contexts/Session";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -142,15 +143,17 @@ export const ValueSetsDetailTable = ({
     const { mutateAsync: saveData, isPending: isSaving } = useValueSetUpdate();
     const { mutateAsync: activateTable, isPending: isActivating } =
         useValueSetActivation();
+    const { rsconsole } = useSessionContext();
     useEffect(() => {
         if (error) {
             handleErrorWithAlert({
                 logMessage: "Error occurred fetching value set",
                 error,
                 setAlert,
+                rsconsole,
             });
         }
-    }, [error, setAlert]);
+    }, [error, rsconsole, setAlert]);
 
     const valueSetsWithIds = useMemo(
         () => addIdsToRows(valueSetData),
@@ -190,12 +193,20 @@ export const ValueSetsDetailTable = ({
                     logMessage: "Error occurred saving value set",
                     error: e,
                     setAlert,
+                    rsconsole,
                 });
                 return;
             }
             setAlert({ type: "success", message: "Value Saved" });
         },
-        [activateTable, saveData, setAlert, valueSetName, valueSetsWithIds],
+        [
+            activateTable,
+            rsconsole,
+            saveData,
+            setAlert,
+            valueSetName,
+            valueSetsWithIds,
+        ],
     );
 
     /* Mutations do not support Suspense */
@@ -237,7 +248,7 @@ const ValueSetsDetailContent = () => {
             <section className="grid-container">
                 <ValueSetsDetailHeader
                     name={readableName}
-                    meta={valueSetMeta}
+                    meta={valueSetMeta!!}
                 />
                 {/* ONLY handles success messaging now */}
                 {alert && (

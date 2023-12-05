@@ -13,7 +13,7 @@ import { ErrorPage } from "../error/ErrorPage";
 import Crumbs, { CrumbConfig } from "../../components/Crumbs";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../utils/FeatureName";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 
 /* Custom types */
 type DestinationItemProps = {

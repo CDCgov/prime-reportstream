@@ -4803,14 +4803,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trussworks/react-uswds@npm:^5.4.0":
-  version: 5.4.0
-  resolution: "@trussworks/react-uswds@npm:5.4.0"
+"@trussworks/react-uswds@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@trussworks/react-uswds@npm:6.0.0"
   peerDependencies:
     "@uswds/uswds": ^3.6.0
     react: ^16.x || ^17.x || ^18.x
     react-dom: ^16.x || ^17.x || ^18.x
-  checksum: b8218bbe8b7a6ac543b1eea46f388730b45f13047aeb3bc272503f073520d53e8e2b0287cf9fe13995c4ddf969463ecabf74b7a4fc82f1fb569f3f070030250f
+  checksum: 786b9b2092a05c661fd5e95c5d2b4baf59f68dea3ad4d37d81c4548705cbf6b4a7a27592e18ac7bf0897fb01bd98e571f490ae4a4afd36ce3a6316de2657bd66
   languageName: node
   linkType: hard
 
@@ -15343,6 +15343,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-error-boundary@npm:^4.0.11":
+  version: 4.0.11
+  resolution: "react-error-boundary@npm:4.0.11"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+  peerDependencies:
+    react: ">=16.13.1"
+  checksum: b3c157fea4e8f78411e9aa0fbf5241f6907b66ede1cd8b7bb22faaeb0339ebeb3dc8e63bf90ef3f740bfa8fd994ca6edf975089cd371b664ad6c2735e7512d38
+  languageName: node
+  linkType: hard
+
 "react-fast-compare@npm:^3.2.0":
   version: 3.2.0
   resolution: "react-fast-compare@npm:3.2.0"
@@ -15395,7 +15406,7 @@ __metadata:
     "@testing-library/jest-dom": ^6.1.3
     "@testing-library/react": ^14.0.0
     "@testing-library/user-event": ^14.5.1
-    "@trussworks/react-uswds": ^5.4.0
+    "@trussworks/react-uswds": ^6.0.0
     "@types/dompurify": ^3.0.3
     "@types/downloadjs": ^1.4.4
     "@types/github-slugger": ^1.3.0
@@ -15474,6 +15485,7 @@ __metadata:
     prettier: ^3.0.3
     react: ^18.2.0
     react-dom: ^18.2.0
+    react-error-boundary: ^4.0.11
     react-helmet-async: ^1.3.0
     react-idle-timer: ^5.7.2
     react-loader-spinner: ^5.4.5

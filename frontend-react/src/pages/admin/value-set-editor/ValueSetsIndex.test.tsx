@@ -4,7 +4,6 @@ import { AxiosError, AxiosResponse } from "axios";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
-import { conditionallySuppressConsole } from "../../../utils/TestUtils";
 import {
     UseValueSetsMetaResult,
     UseValueSetsTableResult,
@@ -95,7 +94,6 @@ describe("ValueSetsIndex tests", () => {
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
     test("Error in query will render error UI instead of table", () => {
-        const restore = conditionallySuppressConsole("not-found: Test");
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
@@ -117,6 +115,5 @@ describe("ValueSetsIndex tests", () => {
                 "Our apologies, there was an error loading this content.",
             ),
         ).toBeInTheDocument();
-        restore();
     });
 });

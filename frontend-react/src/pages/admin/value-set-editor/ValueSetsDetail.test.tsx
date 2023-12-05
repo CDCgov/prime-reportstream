@@ -4,7 +4,6 @@ import { AxiosError, AxiosResponse } from "axios";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
-import { conditionallySuppressConsole } from "../../../utils/TestUtils";
 import {
     useValueSetActivation,
     useValueSetUpdate,
@@ -126,7 +125,6 @@ describe("ValueSetsDetail", () => {
     });
 
     test("Handles error with table fetch", () => {
-        const restore = conditionallySuppressConsole("not-found: Test");
         mockUseValueSetsTable.mockImplementation(() => {
             throw new RSNetworkError(
                 new AxiosError("Test", "404", undefined, {}, {
@@ -148,13 +146,11 @@ describe("ValueSetsDetail", () => {
                 "Our apologies, there was an error loading this content.",
             ),
         ).toBeInTheDocument();
-        restore();
     });
 });
 
 describe("ValueSetsDetailTable", () => {
     test("Handles fetch related errors", () => {
-        const restore = conditionallySuppressConsole("not-found: Test");
         const mockSetAlert = jest.fn();
         mockSaveData.mockImplementation(() => ({}) as any);
         mockActivateTable.mockImplementation(() => ({}) as any);
@@ -171,7 +167,6 @@ describe("ValueSetsDetailTable", () => {
             type: "error",
             message: "unknown-error: test-error",
         });
-        restore();
     });
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
         const mockSaveDataMutate = jest.fn();

@@ -1,4 +1,4 @@
-import * as AppInsightsContextModule from "../AppInsightsContext";
+import * as AppInsightsContextModule from "../AppInsights";
 
 export const mockAppInsights = {
     trackEvent: jest.fn(),

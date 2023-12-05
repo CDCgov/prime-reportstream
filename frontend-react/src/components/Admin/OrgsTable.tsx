@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 import { USNavLink } from "../USLink";
 import { Table } from "../../shared/Table/Table";
 import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
@@ -38,7 +38,7 @@ export function OrgsTable() {
     const handleEditOrgClick = (orgName: string) => {
         // editing... maybe we should keep current org in sync? Switch to the "safe org"?
         // updateOrganization(orgName);
-        navigate(`/admin/orgsettings/org/${orgName}`);
+        navigate(`/admin/organizations/${orgName}/edit`);
     };
 
     const saveListToCSVFile = () => {
@@ -167,7 +167,7 @@ export function OrgsTable() {
                         />
                     </div>
                     <USNavLink
-                        href={"/admin/new/org"}
+                        href={"/admin/organizations/new"}
                         className="usa-button flex-align-self-end height-5"
                     >
                         Create New Organization

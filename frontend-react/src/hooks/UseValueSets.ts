@@ -1,7 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
+import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
 import {
     lookupTablesEndpoints,
     LookupTable,
@@ -10,6 +10,7 @@ import {
     LookupTables,
 } from "../config/endpoints/lookupTables";
 import { RSNetworkError } from "../utils/RSNetworkError";
+import { useSessionContext } from "../contexts/Session";
 
 const { getTableData, getTableList, updateTable, activateTable } =
     lookupTablesEndpoints;
@@ -23,17 +24,16 @@ const { getTableData, getTableList, updateTable, activateTable } =
 const findTableMetaByName = (
     tableName: string,
     tables: LookupTable[] = [],
-): LookupTable => {
+): LookupTable | undefined => {
     if (!tables.length) {
-        return {} as LookupTable;
+        return undefined;
     }
     const filteredBody: LookupTable[] = tables.filter(
         (tv: LookupTable) => tv.tableName === tableName && tv.isActive,
     );
 
     if (!filteredBody.length) {
-        console.info("Unable to find metadata for lookup table: ", tableName);
-        return {} as LookupTable;
+        return undefined;
     }
     return filteredBody.sort(
         (a: LookupTable, b: LookupTable) =>
@@ -89,6 +89,7 @@ export const useValueSetsMeta = (
     dataTableName: string = LookupTables.VALUE_SET,
 ) => {
     const authorizedFetch = useAuthorizedFetch<LookupTable[]>();
+    const { rsconsole } = useSessionContext();
 
     // get all lookup tables in order to get metadata
     const { data: tableData, ...query } = useQuery({
@@ -96,7 +97,19 @@ export const useValueSetsMeta = (
         queryFn: () => authorizedFetch(getTableList),
     });
 
-    const tableMeta = findTableMetaByName(dataTableName, tableData);
+    const tableMeta = useMemo(
+        () => findTableMetaByName(dataTableName, tableData),
+        [dataTableName, tableData],
+    );
+
+    useEffect(() => {
+        if (!tableMeta || tableData?.length) {
+            rsconsole.info(
+                "Unable to find metadata for lookup table: ",
+                dataTableName,
+            );
+        }
+    }, [tableMeta, tableData, dataTableName, rsconsole]);
 
     return { ...query, data: tableMeta };
 };

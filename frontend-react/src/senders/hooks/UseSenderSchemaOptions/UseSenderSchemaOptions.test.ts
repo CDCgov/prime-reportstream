@@ -20,6 +20,7 @@ describe("useSenderSchemaOptions", () => {
         schemaName: StandardSchema.CSV,
         allowDuplicates: false,
         processingType: "sync",
+        version: 0,
     };
 
     function doRenderHook({ data = DEFAULT_SENDER, isLoading = false }) {

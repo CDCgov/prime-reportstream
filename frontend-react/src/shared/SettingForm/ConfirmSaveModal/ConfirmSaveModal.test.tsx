@@ -1,13 +1,14 @@
 import React, { useRef } from "react";
 import { fireEvent, screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../../utils/CustomRenderUtils";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 
 import {
-    ConfirmSaveSettingModal,
-    ConfirmSaveSettingModalRef,
+    ConfirmSaveModal,
+    ConfirmSaveModalRef,
     CompareSettingsModalProps,
-} from "./CompareJsonModal";
+} from "./ConfirmSaveModal";
 
 describe("ConfirmSaveSettingModal", () => {
     const VALID_JSON = JSON.stringify({ a: 1 });
@@ -19,10 +20,10 @@ describe("ConfirmSaveSettingModal", () => {
     let checkSyntaxButtonNode: HTMLElement;
 
     function TestWrapper(props?: Partial<CompareSettingsModalProps>) {
-        const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
+        const confirmModalRef = useRef<ConfirmSaveModalRef>(null);
 
         return (
-            <ConfirmSaveSettingModal
+            <ConfirmSaveModal
                 uniquid={new Date().getTime().toString()}
                 onConfirm={jest.fn()}
                 ref={confirmModalRef}
@@ -41,6 +42,9 @@ describe("ConfirmSaveSettingModal", () => {
         checkSyntaxButtonNode = screen.getByText("Check syntax");
     }
 
+    beforeAll(() => {
+        mockSessionContentReturnValue();
+    });
     afterEach(() => {
         jest.clearAllMocks();
     });
@@ -162,13 +166,8 @@ describe("ConfirmSaveSettingModal", () => {
         });
 
         describe("when the updated JSON is invalid", () => {
-            const consoleTraceSpy = jest.fn();
             function setup() {
                 renderComponent();
-
-                jest.spyOn(console, "trace").mockImplementationOnce(
-                    consoleTraceSpy,
-                );
 
                 fireEvent.change(textareaNode, {
                     target: { value: INVALID_JSON },
@@ -180,24 +179,11 @@ describe("ConfirmSaveSettingModal", () => {
                 );
             }
 
-            afterEach(() => {
-                jest.resetAllMocks();
-            });
-
             test("renders an error diff highlighting the error", () => {
                 setup();
                 expect(errorDiffNode).toBeVisible();
                 expect(errorDiffNode?.innerHTML).toContain("{ nope");
             });
-
-            test("renders an error toast", () => {
-                setup();
-                expect(consoleTraceSpy).toHaveBeenCalled();
-                expect(
-                    screen.queryByText(/JSON data generated/),
-                ).not.toBeInTheDocument();
-            });
-
             describe("when the user starts typing again", () => {
                 test("it removes the highlighting", () => {
                     setup();

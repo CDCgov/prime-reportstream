@@ -29,11 +29,6 @@ import FileHandlerFileUploadStep, {
     getClientHeader,
 } from "./FileHandlerFileUploadStep";
 
-jest.mock("../AlertNotifications", () => ({
-    ...jest.requireActual("../AlertNotifications"),
-    showError: jest.fn(),
-}));
-
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
         ...INITIAL_STATE,
@@ -362,6 +357,7 @@ describe("getClientHeader", () => {
         processingType: "sync",
         schemaName: DEFAULT_SCHEMA_NAME,
         topic: "covid-19",
+        version: 0,
     };
 
     describe("when selectedSchemaName is falsy", () => {

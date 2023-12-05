@@ -1,10 +1,10 @@
 import { fireEvent, screen } from "@testing-library/react";
 import React, { useState } from "react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { ProcessingType } from "../../utils/TemporarySettingsAPITypes";
+import { renderApp } from "../../../utils/CustomRenderUtils";
+import { ProcessingType } from "../../../utils/TemporarySettingsAPITypes";
 
-import { DropdownComponent, DropdownProps } from "./AdminFormEdit";
+import { DropdownComponent, DropdownProps } from "./SettingFormFields";
 
 const DropdownComponentHelper = () => {
     const [state, setState] = useState("");

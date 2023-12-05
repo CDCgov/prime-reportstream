@@ -1,5 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 
+import { RSConsole } from "./console";
+
 export interface ReportStreamAlert {
     type: string;
     message: string;
@@ -14,13 +16,18 @@ export const handleErrorWithAlert = ({
     error,
     logMessage,
     setAlert,
+    rsconsole,
 }: {
     error: any;
     logMessage?: string;
     setAlert?: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
+    rsconsole: RSConsole;
 }) => {
+    if (error) {
+        rsconsole.error(error);
+    }
     if (logMessage) {
-        console.error(logMessage);
+        rsconsole.warn(logMessage);
     }
     // attempt to extract more helpful error from response
     const { response: { data: { error: errorString = null } = {} } = {} } =

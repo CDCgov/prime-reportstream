@@ -17,16 +17,18 @@ import { Security, useOktaAuth } from "@okta/okta-react";
 import {
     getUserPermissions,
     RSUserPermissions,
-} from "../utils/PermissionsUtils";
+} from "../../utils/PermissionsUtils";
 import {
     MembershipSettings,
     membershipsFromToken,
     MemberType,
     RSUserClaims,
-} from "../utils/OrganizationUtils";
-import type { AppConfig } from "../config";
-import { updateApiSessions } from "../network/Apis";
-import site from "../content/site.json";
+} from "../../utils/OrganizationUtils";
+import type { AppConfig } from "../../config";
+import { updateApiSessions } from "../../network/Apis";
+import site from "../../content/site.json";
+import { RSConsole } from "../../utils/console";
+import { useAppInsightsContext } from "../AppInsights";
 
 export interface RSSessionContext {
     oktaAuth: OktaAuth;
@@ -42,6 +44,7 @@ export interface RSSessionContext {
     setActiveMembership: (value: Partial<MembershipSettings> | null) => void;
     config: AppConfig;
     site: typeof site;
+    rsconsole: RSConsole;
 }
 
 export const SessionContext = createContext<RSSessionContext>({
@@ -94,6 +97,7 @@ export function SessionProviderBase({
     authState,
     config,
 }: SessionProviderBaseProps) {
+    const { appInsights } = useAppInsightsContext();
     const initActiveMembership = useRef(
         JSON.parse(
             sessionStorage.getItem("__deprecatedActiveMembership") ?? "null",
@@ -113,15 +117,31 @@ export function SessionProviderBase({
         return { ...actualMembership, ...(_activeMembership ?? {}) };
     }, [authState, _activeMembership]);
 
+    const rsconsole = useMemo(
+        () =>
+            new RSConsole({
+                ai: appInsights?.sdk,
+                consoleSeverityLevels: config.AI_CONSOLE_SEVERITY_LEVELS,
+                reportableConsoleLevels: config.AI_REPORTABLE_CONSOLE_LEVELS,
+                env: config.CLIENT_ENV,
+            }),
+        [
+            appInsights,
+            config.AI_CONSOLE_SEVERITY_LEVELS,
+            config.AI_REPORTABLE_CONSOLE_LEVELS,
+            config.CLIENT_ENV,
+        ],
+    );
+
     const logout = useCallback(async () => {
         try {
             await oktaAuth.signOut({
                 postLogoutRedirectUri: `${window.location.origin}/`,
             });
         } catch (e) {
-            console.trace(e);
+            rsconsole.warn("Failed to logout", e);
         }
-    }, [oktaAuth]);
+    }, [oktaAuth, rsconsole]);
 
     const context = useMemo(() => {
         return {
@@ -143,6 +163,7 @@ export function SessionProviderBase({
             setActiveMembership,
             config,
             site,
+            rsconsole,
         };
     }, [
         oktaAuth,
@@ -151,6 +172,7 @@ export function SessionProviderBase({
         logout,
         _activeMembership,
         config,
+        rsconsole,
     ]);
 
     useEffect(() => {

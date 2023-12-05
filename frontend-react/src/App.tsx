@@ -11,18 +11,16 @@ import ScrollRestoration from "./components/ScrollRestoration";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { permissionCheck } from "./utils/PermissionsUtils";
 import { ErrorPage } from "./pages/error/ErrorPage";
-import { AuthorizedFetchProvider } from "./contexts/AuthorizedFetchContext";
-import { FeatureFlagProvider } from "./contexts/FeatureFlagContext";
-import SessionProvider, { useSessionContext } from "./contexts/SessionContext";
+import { AuthorizedFetchProvider } from "./contexts/AuthorizedFetch";
+import { FeatureFlagProvider } from "./contexts/FeatureFlag";
+import SessionProvider, { useSessionContext } from "./contexts/Session";
 import { appQueryClient } from "./network/QueryClients";
 import { PERMISSIONS } from "./utils/UsefulTypes";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "./contexts/AppInsightsContext";
+import { EventName, useAppInsightsContext } from "./contexts/AppInsights";
 import { preferredBrowsersRegex } from "./utils/SupportedBrowsers";
 import DAPScript from "./shared/DAPScript/DAPScript";
 import { AppConfig } from "./config";
+import { ToastProvider } from "./contexts/Toast";
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -55,7 +53,7 @@ function App({ oktaAuth, config, ...props }: AppProps) {
                         authState.accessToken,
                     )
                 ) {
-                    url = "/admin/settings";
+                    url = "/admin/organizations";
                 }
                 if (
                     authState?.accessToken &&
@@ -179,12 +177,14 @@ const AppBase = ({ Layout }: AppBaseProps) => {
                 <FeatureFlagProvider>
                     <NetworkErrorBoundary fallbackComponent={Fallback}>
                         <CacheProvider>
-                            <ScrollRestoration />
-                            <DAPScript pathname={location.pathname} />
-                            <Suspense>
-                                <Layout />
-                            </Suspense>
-                            <ReactQueryDevtools initialIsOpen={false} />
+                            <ToastProvider>
+                                <ScrollRestoration />
+                                <DAPScript pathname={location.pathname} />
+                                <Suspense>
+                                    <Layout />
+                                </Suspense>
+                                <ReactQueryDevtools initialIsOpen={false} />
+                            </ToastProvider>
                         </CacheProvider>
                     </NetworkErrorBoundary>
                 </FeatureFlagProvider>

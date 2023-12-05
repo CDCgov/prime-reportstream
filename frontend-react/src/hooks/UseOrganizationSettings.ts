@@ -6,8 +6,8 @@ import {
     RSOrganizationSettings,
     servicesEndpoints,
 } from "../config/endpoints/settings";
-import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
-import { useSessionContext } from "../contexts/SessionContext";
+import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
+import { useSessionContext } from "../contexts/Session";
 import { getAuthFetchProps } from "../network/Middleware";
 
 import { Organizations } from "./UseAdminSafeOrganizationName";
@@ -44,7 +44,7 @@ export const useOrganizationSettings = () => {
         () =>
             authorizedFetch(settings, {
                 segments: {
-                    orgName: parsedName!!,
+                    orgId: parsedName!!,
                 },
             }),
         [parsedName, authorizedFetch],
@@ -78,7 +78,7 @@ export const useOrganizationSettings__ = createQuery({
                     fetchConfig: {
                         ...options.variables?.fetchConfig,
                         segments: {
-                            orgName: activeMembership?.parsedName,
+                            orgId: activeMembership?.parsedName,
                         },
                     },
                 },

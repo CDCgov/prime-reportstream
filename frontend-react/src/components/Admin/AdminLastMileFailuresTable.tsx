@@ -16,15 +16,15 @@ import {
 
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
-import { showAlertNotification, showError } from "../AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import AdmAction from "../../resources/AdmActionResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
 import config from "../../config";
 import { USLink } from "../USLink";
 import { Table } from "../../shared/Table/Table";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
 
 const { RS_API_URL } = config;
 
@@ -174,7 +174,7 @@ const DataLoadRenderTable = (props: {
             const parts = eachRow.receiver.split(".") || eachRow.receiver;
             const org = parts[0] || "";
             const recvrName = parts.slice(1).join(".");
-            const linkRecvSettings = `/admin/orgreceiversettings/org/${org}/receiver/${recvrName}/action/edit`;
+            const linkRecvSettings = `/admin/organizations/${org}/receiver/${recvrName}/edit`;
             const resends = fiterResends(eachRow.reportId);
             const dataForDialog: DataForDialog = {
                 info: eachRow,
@@ -360,18 +360,17 @@ ${data.receiver}`;
 
             if (!response.ok) {
                 const msg = `Triggering resend command failed.\n${body}`;
-                showError(msg);
+                showToast(msg, "error");
                 setHtmlContentResultText(msg);
             } else {
                 // oddly, this api just returns a bunch of messages on success.
                 const msg = `Success. \n ${body}`;
-                showAlertNotification("success", msg);
+                showToast(msg, "success");
                 setHtmlContentResultText(msg);
             }
         } catch (e: any) {
-            console.trace(e);
             const msg = `Triggering resend command failed. ${e.toString()}`;
-            showError(msg);
+            showToast(msg, "error");
             setHtmlContentResultText(msg);
         }
         setLoading(false);

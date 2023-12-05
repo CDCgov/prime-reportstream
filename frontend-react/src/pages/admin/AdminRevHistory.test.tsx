@@ -8,7 +8,7 @@ import {
     SettingRevisionParams,
 } from "../../network/api/Organizations/SettingRevisions";
 
-import { _exportForTesting } from "./AdminRevHistory";
+import SettingVersionHistoryPage from "./AdminRevHistory";
 
 const fakeRows: SettingRevision[] = [
     {
@@ -49,7 +49,7 @@ const fakeRows: SettingRevision[] = [
 // router path
 jest.mock("react-router-dom", () => ({
     ...jest.requireActual("react-router-dom"),
-    useParams: () => ({ org: "ignore", settingType: "organization" }),
+    useParams: () => ({ orgId: "ignore" }),
 }));
 
 // replace this call to return our mock data
@@ -76,7 +76,7 @@ describe("AdminRevHistory", () => {
         // and verify the diffs are rendering the diffs correctly
 
         // eslint-disable-next-line react/jsx-pascal-case
-        renderApp(<_exportForTesting.AdminRevHistory />);
+        renderApp(<SettingVersionHistoryPage settingType="organization" />);
         // useful: https://testing-library.com/docs/queries/about/
         // we expect 2x because of the right and left list layout
         // eslint-disable-next-line no-restricted-globals

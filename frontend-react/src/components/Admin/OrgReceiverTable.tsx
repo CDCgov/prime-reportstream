@@ -23,7 +23,7 @@ import { USLink, USNavLink } from "../USLink";
 import { DisplayMeta } from "./DisplayMeta";
 
 interface OrgSettingsTableProps {
-    orgname: string;
+    orgId: string;
 }
 
 const DEFAULT_DATA: CheckSettingResult = {
@@ -32,7 +32,7 @@ const DEFAULT_DATA: CheckSettingResult = {
 };
 
 export function OrgReceiverTable(props: OrgSettingsTableProps) {
-    const { orgname: orgName } = props;
+    const { orgId } = props;
     const orgReceiverSettings: OrgReceiverSettingsResource[] = useResource(
         OrgReceiverSettingsResource.list(),
         props,
@@ -51,7 +51,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
             // clear sent back data
             setCheckResultData(DEFAULT_DATA);
             modalRef?.current?.toggleModal(undefined, true);
-            setClickedReceiver(checkProps.receiverName);
+            setClickedReceiver(checkProps.receiverId);
         },
         [modalRef, setClickedReceiver],
     );
@@ -64,8 +64,8 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 message: "Starting... (this can take a while)",
             });
             const result = await doCheck({
-                orgName,
-                receiverName: clickedReceiver,
+                orgId,
+                receiverId: clickedReceiver,
             });
             setCheckResultData(result);
         } catch (err: any) {
@@ -75,7 +75,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 message: err.toString(),
             });
         }
-    }, [orgName, clickedReceiver, doCheck]);
+    }, [doCheck, orgId, clickedReceiver]);
 
     return (
         <section
@@ -86,7 +86,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 Organization Receiver Settings ({orgReceiverSettings.length})
                 {" - "}
                 <USLink
-                    href={`/admin/revisionhistory/org/${props.orgname}/settingtype/receiver`}
+                    href={`/admin/organizations/${props.orgId}/receiver/settingType/history`}
                 >
                     History
                 </USLink>
@@ -111,7 +111,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                             <th scope="col">
                                 <USNavLink
                                     className="usa-button"
-                                    href={`/admin/orgnewsetting/org/${props.orgname}/settingtype/receiver`}
+                                    href={`/admin/organizations/${props.orgId}/receiver/new`}
                                     key={`receiver-create-link`}
                                 >
                                     New
@@ -141,8 +141,8 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                                             data-receiver={eachOrgSetting.name}
                                             onClick={() =>
                                                 clickShowDialog({
-                                                    orgName: orgName,
-                                                    receiverName: `${eachOrgSetting.name}`,
+                                                    orgId,
+                                                    receiverId: `${eachOrgSetting.name}`,
                                                 })
                                             }
                                         >
@@ -150,14 +150,14 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                                         </Button>
                                         <USNavLink
                                             className="usa-button"
-                                            href={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/edit`}
+                                            href={`/admin/organizations/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/edit`}
                                             key={`receiver-edit-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Edit
                                         </USNavLink>
                                         <USNavLink
                                             className="usa-button"
-                                            href={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/clone`}
+                                            href={`/admin/organizations/${eachOrgSetting.organizationName}/receiver/new/${eachOrgSetting.name}`}
                                             key={`receiver-clone-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Clone

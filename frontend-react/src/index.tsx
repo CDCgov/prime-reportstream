@@ -5,7 +5,7 @@ import React from "react";
 import { createRouter } from "./AppRouter";
 import config from "./config";
 import { aiConfig, createTelemetryService } from "./TelemetryService";
-import AppInsightsContextProvider from "./contexts/AppInsightsContext";
+import AppInsightsContextProvider from "./contexts/AppInsights";
 import { OKTA_AUTH } from "./oktaConfig";
 
 import "./global.scss";

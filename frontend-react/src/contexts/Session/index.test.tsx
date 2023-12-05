@@ -1,10 +1,10 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../utils/CustomRenderUtils";
-import { MemberType } from "../utils/OrganizationUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { MemberType } from "../../utils/OrganizationUtils";
+import { mockSessionContentReturnValue } from "../__mocks__/SessionContext";
 
-import { useSessionContext } from "./SessionContext";
-import { mockSessionContentReturnValue } from "./__mocks__/SessionContext";
+import { useSessionContext } from ".";
 
 describe("SessionContext admin hard check", () => {
     /* Because the session has to be consumed within the session wrapper, I couldn't use renderHook() to

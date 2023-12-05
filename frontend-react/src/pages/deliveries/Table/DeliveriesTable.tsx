@@ -5,7 +5,7 @@ import Table, {
     TableConfig,
 } from "../../../components/Table/Table";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
-import { useSessionContext } from "../../../contexts/SessionContext";
+import { useSessionContext } from "../../../contexts/Session";
 import {
     useOrgDeliveries,
     DeliveriesDataAttr,
@@ -27,7 +27,7 @@ import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import {
     EventName,
     useAppInsightsContext,
-} from "../../../contexts/AppInsightsContext";
+} from "../../../contexts/AppInsights";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";

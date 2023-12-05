@@ -1,7 +1,7 @@
 import type { OnAuthResumeFunction } from "@okta/okta-react/bundles/types/OktaContext";
 import * as React from "react";
 
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 
 const OktaError: React.FC<{ error: Error }> = ({ error }) => {
     if (error.name && error.message) {

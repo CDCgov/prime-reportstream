@@ -20,10 +20,7 @@ import { useMatch } from "react-router-dom";
 
 import { USLink, USLinkButton, USSmartLink } from "../USLink";
 import SenderModeBanner from "../SenderModeBanner";
-import {
-    useSessionContext,
-    RSSessionContext,
-} from "../../contexts/SessionContext";
+import { useSessionContext, RSSessionContext } from "../../contexts/Session";
 import { Icon } from "../../shared";
 import site from "../../content/site.json";
 import Spinner from "../Spinner";
@@ -261,7 +258,7 @@ function ReportStreamNavbar({
         <Dropdown
             menuName="Admin"
             dropdownList={[
-                <USSmartLink href="/admin/settings" key="settings">
+                <USSmartLink href="/admin/organizations" key="settings">
                     Organization Settings
                 </USSmartLink>,
                 <USSmartLink href="/admin/features" key="features">
@@ -397,7 +394,7 @@ export const ReportStreamHeader = ({
                                             {user.isUserAdmin && (
                                                 <USLinkButton
                                                     outline
-                                                    href="/admin/settings"
+                                                    href="/admin/organizations"
                                                 >
                                                     {activeMembership?.parsedName ??
                                                         " "}

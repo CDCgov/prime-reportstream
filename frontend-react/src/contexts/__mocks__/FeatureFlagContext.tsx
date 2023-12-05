@@ -1,4 +1,4 @@
-import * as FeatureFlagModule from "../FeatureFlagContext";
+import * as FeatureFlagModule from "../FeatureFlag";
 
 export const mockFeatureFlagContext = jest.spyOn(
     FeatureFlagModule,

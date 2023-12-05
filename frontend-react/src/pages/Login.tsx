@@ -7,7 +7,7 @@ import Alert from "../shared/Alert/Alert";
 import { oktaSignInConfig } from "../oktaConfig";
 import { USLink } from "../components/USLink";
 import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
-import { useSessionContext } from "../contexts/SessionContext";
+import { useSessionContext } from "../contexts/Session";
 
 const MigrationAlert = () => (
     <Alert type="info" heading="Changes to ReportStream login">

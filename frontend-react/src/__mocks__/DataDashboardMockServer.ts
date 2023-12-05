@@ -21,6 +21,10 @@ export const receiverServicesGenerator = (count: number) => {
         receiverServices.push({
             name: `elr-${i}`,
             organizationName: "testOrg",
+            customerStatus: "",
+            translation: undefined,
+            topic: "",
+            version: 0,
         });
     }
     return receiverServices;

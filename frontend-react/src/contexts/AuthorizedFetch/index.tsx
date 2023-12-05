@@ -1,10 +1,10 @@
 import React, { createContext, useCallback, useContext } from "react";
 import axios, { AxiosError } from "axios";
 
-import { RSEndpoint, AxiosOptionsWithSegments } from "../config/endpoints";
-import { RSNetworkError } from "../utils/RSNetworkError";
-import { useSessionContext } from "../contexts/SessionContext";
-import { useAppInsightsContext } from "../contexts/AppInsightsContext";
+import { RSEndpoint, AxiosOptionsWithSegments } from "../../config/endpoints";
+import { RSNetworkError } from "../../utils/RSNetworkError";
+import { useSessionContext } from "../Session";
+import { useAppInsightsContext } from "../AppInsights";
 
 export type AuthorizedFetcher<T = any> = (
     EndpointConfig: RSEndpoint,

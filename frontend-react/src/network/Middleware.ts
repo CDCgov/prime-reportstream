@@ -3,8 +3,8 @@ import { QueryHook, Middleware } from "react-query-kit";
 import axios, { AxiosRequestConfig } from "axios";
 import { QueryFunction } from "@tanstack/react-query";
 
-import { useSessionContext } from "../contexts/SessionContext";
-import { useAppInsightsContext } from "../contexts/AppInsightsContext";
+import { useSessionContext } from "../contexts/Session";
+import { useAppInsightsContext } from "../contexts/AppInsights";
 import { RSEndpoint } from "../config/endpoints";
 
 export type AuthMiddleware<TData> = Middleware<

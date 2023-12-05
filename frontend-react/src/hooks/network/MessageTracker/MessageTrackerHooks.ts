@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 import {
     RSMessageDetail,
     MessageListResource,
