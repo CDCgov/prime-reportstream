@@ -12,17 +12,11 @@ abstract class CredentialService() : Logging {
 
     abstract fun fetchCredential(
         connectionId: String,
-//        httpClient: HttpClient? = null,
-//        vaultAddr: String? = null,
-//        vaultToken: String? = null,
     ): Credential?
 
     abstract fun saveCredential(
         connectionId: String,
         credential: Credential,
-//        httpClient: HttpClient? = null,
-//        vaultAddr: String? = null,
-//        vaultToken: String? = null,
     )
 
     /* Base implementation for credentialService with validations */
