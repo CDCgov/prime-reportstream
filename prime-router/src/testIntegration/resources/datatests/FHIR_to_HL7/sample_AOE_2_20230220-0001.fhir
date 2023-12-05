@@ -63,6 +63,22 @@
             {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id",
               "valueString" : "20210810"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+              "valueString" : "CDC PRIME - Atlanta"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+              "valueString" : "2.16.840.1.114222.4.1.237821"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+              "valueString" : "ISO"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+              "valueString" : "sending-application"
             }
           ],
           "name" : "MEDITECH",
@@ -204,6 +220,10 @@
                 }
               ]
             }
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon10-organization-identifier",
+            "valueString" : "MEDITECH"
           }
         ],
         "identifier" : [
@@ -9317,11 +9337,45 @@
             }
           ]
         },
-        "identifier" : [
+        "identifier" :  [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -9414,11 +9468,45 @@
             }
           ]
         },
-        "identifier" : [
+        "identifier" :  [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -9511,11 +9599,45 @@
             }
           ]
         },
-        "identifier" : [
+        "identifier" :  [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -9588,11 +9710,45 @@
             }
           ]
         },
-        "identifier" : [
+        "identifier" :  [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {

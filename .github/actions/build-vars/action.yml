@@ -152,6 +152,7 @@ runs:
             - 'operations/**'
             - '.github/actions/build-backend/action.yml'
             - '.github/actions/deploy-backend/action.yml'
+            - '.github/actions/build-vars/action.yml'
             - '.github/workflows/build_hub.yml'
           frontend_react:
             - 'frontend-react/**'
@@ -197,7 +198,7 @@ runs:
           echo "has_react_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi
 
-    - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+    - uses: azure/login@de95379fe4dadc2defb305917eaa7e5dde727294
       if: inputs.sp-creds != 'false'
       with:
         creds: ${{ inputs.sp-creds }}

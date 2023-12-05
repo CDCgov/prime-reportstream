@@ -44,11 +44,11 @@ jobs:
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@ab304d8562e2f137165e1d930e6d22d431189074
+        uses: tj-actions/branch-names@6c999acf206f5561e19f46301bb310e9e70d8815
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@25ef3926d147cd02fc7e931c1ef50772bbb0d25d
+        uses: tj-actions/changed-files@1c938490c880156b746568a518594309cfb3f66b
         with:
           files_yaml: |
             frontend:
@@ -58,7 +58,7 @@ jobs:
 
       - name: Set up JDK 17
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0
+        uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93
         with:
           java-version: "17"
           distribution: "temurin"

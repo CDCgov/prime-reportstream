@@ -1,0 +1,6 @@
+extends: ../baseline-sender-transform
+
+elements:
+  - name: sender-identifier
+    condition: true
+    value: [ '"hcintegrations"' ]

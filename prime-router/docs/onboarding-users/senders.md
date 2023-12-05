@@ -35,7 +35,7 @@ Example:
     - name: default
       organizationName: yoyodyne
       topic: full-elr
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/original-pipeline-transforms
       format: HL7
 ```
 
@@ -49,7 +49,7 @@ A few things to note here:
 - The jurisdiction should be FEDERAL since they are not a STLT
 - The organizationName under `senders` must match the name of the org above
 - The format here is `FHIR`, though it is possible it could another format, such as `HL7`
-- The schema name should use `metadata/fhir_transforms/senders/default-sender-transform` by default
+- The schema name should use `metadata/fhir_transforms/senders/original-pipeline-transforms` by default
 - Pay attention to the value in the topic field to make sure it is correct for your use case
 
 ### Set up a New Schema
@@ -86,7 +86,7 @@ the message with no errors and not lose any data while converting it.
 
 #### Testing sender transforms
 ```shell
-./prime fhirdata --input-file "PATH-TO-SAMPLE-FILE.hl7" -s metadata/fhir_transforms/senders/default-sender-transform.yaml --output-format FHIR --output-file "PATH-TO-OUTPUT-FILE.fhir"
+./prime fhirdata --input-file "PATH-TO-SAMPLE-FILE.hl7" -s metadata/fhir_transforms/senders/original-pipeline-transforms.yaml --output-format FHIR --output-file "PATH-TO-OUTPUT-FILE.fhir"
 ```
 
 This call will take in your sample input file, and apply any sender transforms specified in the schema passed in,

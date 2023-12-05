@@ -499,7 +499,7 @@ open class BaseHistoryFunction : Logging {
             jwtToken = jwtToken.substring(7)
             /* Build our verifier to spec with what's in OktaAuthentication class */
             val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
-                .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
+                .setIssuer("https://${System.getenv("RS_OKTA_baseUrl")}/oauth2/default")
                 .build()
             val jwt = jwtVerifier.decode(jwtToken)
                 ?: throw Throwable("Error in validation of jwt token")
