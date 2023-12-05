@@ -28,6 +28,9 @@
 # humanname assembly order
 - id: "humanname-assembly-order"
   url: "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order"
+# Patient Congregation
+- id: "patient-congregation"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-congregation"
 # race
 - id: "race"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd"
@@ -49,6 +52,9 @@
 # condition-assertedDate
 - id: "condition-assertedDate"
   url: "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
+# patient-disability
+- id: "patient-disability"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-disability"
 # message encoding characters
 - id: "encoding-characters"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters"
@@ -578,3 +584,18 @@
 # Veteran Military Status
 - id: "veteran-military-status"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/veteran-military-status"
+# Identity Unknown
+- id: "identity-unknown"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identity-unknown"
+# PV1 Patient
+- id: "pv1-patient"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-patient"
+# PID Patient
+- id: "pid-patient"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient"
+# Student Status
+- id: "studentStatus"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/studentStatus"
+# Living Willa
+- id: "livingWill"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/livingWill"

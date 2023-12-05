@@ -126,6 +126,13 @@ telecom:
         pid14: PID.14
       constants:
         useCode: work
+    - condition: $pid40 NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: PID.40
+      vars:
+        pid40: PID.40
 
 communication:
   expressionType: nested
@@ -174,6 +181,70 @@ multipleBirthInteger:
   vars:
     birthOrder: PID.25
 
+deceasedBoolean:
+  condition: $deceasedBool NOT_NULL && $deceasedDateTime NULL
+  type: BOOLEAN
+  valueOf: PID.30
+  expressionType: HL7Spec
+  vars:
+    deceasedBool: PID.30
+    deceasedDateTime: PID.29
+
+deceasedDateTime:
+  condition: $dateTimeIn NOT_NULL
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: PID.29
+
+_deceasedDateTime:
+  expressionType: nested
+  condition: pid29 NOT_NULL
+  vars:
+    pid29: PID.29
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: pid29
+          expressionType: HL7Spec
+
+meta:
+  expressionType: nested
+  expressionsMap:
+    lastupdated:
+      type: STRING
+      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+      expressionType: JEXL
+      vars:
+        dateTimeIn: PID.33
+    extension:
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: last-updated-facility-namespace-id
+        valueReference:
+          valueOf: datatypes/HD/Organization
+          expressionType: reference
+          specs: PID.34
+
+generalPractitioner:
+  condition: $patientPrimaryFacility NOT_NULL
+  valueOf: datatypes/XON/Organization
+  generateList: true
+  expressionType: reference
+  specs: PD1.3
+  vars:
+    patientPrimaryFacility: PD1.3
+
 extension:
   expressionType: nested
   expressions:
@@ -193,6 +264,176 @@ extension:
                 valueString:
                   type: STRING
                   valueOf: PID.24
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pid-32-identity-reliability-code
+                valueCodeableConcept:
+                  valueOf: datatypes/CWE/CodeableConcept
+                  expressionType: resource
+                  specs: PID.32
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pid-38-production-class-code
+                valueCodeableConcept:
+                  valueOf: datatypes/CWE/CodeableConcept
+                  expressionType: resource
+                  specs: PID.38
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: pv1-patient
+        extension:
+          expressionType: nested
+          expressions:
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-1-living-dependency
+                valueString:
+                  type: STRING
+                  valueOf: PV1.1
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-2-living-arrangement
+                valueString:
+                  type: STRING
+                  valueOf: PV1.2
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-8-organ-donor-code
+                valueString:
+                  type: STRING
+                  valueOf: PV1.8
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-9-separate-bill
+                valueString:
+                  type: STRING
+                  valueOf: PV1.9
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-10-duplicate-patient
+                valueString:
+                  type: STRING
+                  valueOf: PV1.10
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-11-publicity-code
+                valueString:
+                  type: STRING
+                  valueOf: PV1.11
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-12-protection-indicator
+                valueString:
+                  type: STRING
+                  valueOf: PV1.12
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-13-protection-indicator-effective-date
+                valueString:
+                  type: STRING
+                  valueOf: PV1.13
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-15-advance-directive-code
+                valueString:
+                  type: STRING
+                  valueOf: PV1.15
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-16-immunization-registry-status
+                valueString:
+                  type: STRING
+                  valueOf: PV1.16
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-17-immunization-registry-status-effective-date
+                valueString:
+                  type: STRING
+                  valueOf: PV1.17
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-18-publicity-code-effective-date
+                valueString:
+                  type: STRING
+                  valueOf: PV1.18
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-19-military-branch
+                valueString:
+                  type: STRING
+                  valueOf: PV1.19
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-20-military-rank
+                valueString:
+                  type: STRING
+                  valueOf: PV1.20
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-21-military-status
+                valueString:
+                  type: STRING
+                  valueOf: PV1.21
+                  expressionType: HL7Spec
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: pv1-22-advance-directive-last-verified-date
+                valueString:
+                  type: STRING
+                  valueOf: PV1.22
                   expressionType: HL7Spec
     - condition: $pid6 NOT_NULL
       expressionType: nested
@@ -338,3 +579,90 @@ extension:
               valueOf: datatypes/CWE/CodeableConcept
               expressionType: resource
               specs: PID.28
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: identity-unknown
+        valueString:
+          type: STRING
+          valueOf: PID.31
+          expressionType: HL7Spec
+    - expressionType: nested
+      generateList: true
+      constants:
+        hl7v2Name: "patient-animal"
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: patient-animal
+        extension:
+          generateList: true
+          expressionType: nested
+          expressions:
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: species
+                valueCodeableConcept:
+                  valueOf: datatypes/CWE/CodeableConcept
+                  expressionType: resource
+                  specs: PID.35
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: breed
+                valueCodeableConcept:
+                  valueOf: datatypes/CWE/CodeableConcept
+                  expressionType: resource
+                  specs: PID.36
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: strain
+                valueString:
+                  type: STRING
+                  valueOf: PID.37
+                  expressionType: HL7Spec
+    - expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: studentStatus
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PD1.5
+    - expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: patient-disability
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PD1.6
+    - expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: livingWill
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PD1.7
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: patient-congregation
+        valueString:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PD1.14
