@@ -87,48 +87,56 @@ fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
     )
 }
 
-// TODO: https://github.com/CDCgov/prime-reportstream/issues/12427 fix resource consumption
 /**
  * Deletes a [resource] from a bundle, removes all references to the [resource] and any orphaned children.
  * If the [resource] being deleted is an [Observation] and that results in diagnostic reports having no
  * observations, the [DiagnosticReport] will be deleted
- *
  */
 fun Bundle.deleteResource(resource: Base) {
-    if (this.entry.find { it.fullUrl == resource.idBase } == null) {
-        throw IllegalStateException("Cannot delete resource. FHIR bundle does not contain this resource")
-    }
-    // First remove the resource from the bundle
-    this.entry.removeIf { it.fullUrl == resource.idBase }
-
-    // Get the resource children references
-    val resourceChildren = resource.getResourceReferences()
-    // get all resources except the resource being removed
-    val allResources = this.entry
-    // get all references for every resource
-    val allReferences = allResources.flatMap { it.getResourceReferences() }
-
-    // remove orphaned children
-    resourceChildren.forEach { child ->
-        if (!allReferences.contains(child)) {
-            allResources.firstOrNull { it.fullUrl == child }?.let { this.deleteResource(it.resource) }
+    fun deleteResourceInternal(resource: Base, referencesMap: Map<String, List<String>>) {
+        if (this.entry.find { it.fullUrl == resource.idBase } == null) {
+            throw IllegalStateException("Cannot delete resource. FHIR bundle does not contain this resource")
         }
-    }
 
-    // Go through every resource and check if the resource has a reference to the resource being deleted
-    // if there is remove the reference
-    allResources.forEach { res ->
-        res.resource::class.memberProperties.forEach { it ->
-            it.isAccessible = true
-            val value = it.getter.call(res.resource)
-            if (value is MutableList<*>) {
-                value.removeIf { it is Reference && it.reference == resource.idBase }
-            } else if (value is Reference && value.reference == resource.idBase) {
-                value.reference = null
+        // First remove the resource from the bundle
+        this.entry.removeIf { it.fullUrl == resource.idBase }
+
+        // Get the resource children references
+        val resourceChildren = resource.getResourceReferences()
+        // get all resources except the resource being removed
+        val allResources = this.entry
+        // get all references for every remaining resource
+        val remainingReferences = referencesMap - resource.idBase
+        val flatRemainingReferences = remainingReferences.flatMap { it.value }
+
+        // remove orphaned children
+        resourceChildren.forEach { child ->
+            if (!flatRemainingReferences.contains(child)) {
+                allResources
+                    .firstOrNull { it.fullUrl == child }
+                    ?.let { deleteResourceInternal(it.resource, remainingReferences) }
+            }
+        }
+
+        // Go through every resource and check if the resource has a reference to the resource being deleted
+        // if there is remove the reference
+        allResources.forEach { res ->
+            res.resource::class.memberProperties.forEach { it ->
+                it.isAccessible = true
+                val value = it.getter.call(res.resource)
+                if (value is MutableList<*>) {
+                    value.removeIf { it is Reference && it.reference == resource.idBase }
+                } else if (value is Reference && value.reference == resource.idBase) {
+                    value.reference = null
+                }
             }
         }
     }
 
+    val allReferencesMap = this.entry.associate {
+        it.fullUrl to it.getResourceReferences()
+    }
+    deleteResourceInternal(resource, allReferencesMap)
     this.deleteChildlessResource(resource)
 }
 
@@ -331,8 +339,11 @@ class FHIRBundleHelpers {
          * @return a list containing only the references in [properties]
          */
         fun filterReferenceProperties(properties: List<Property>): List<String> {
-            return properties.filter { it.hasValues() }.flatMap { it.values }
-                .filterIsInstance<Reference>().map { it.reference }
+            return properties
+                .filter { it.hasValues() }
+                .flatMap { it.values }
+                .filterIsInstance<Reference>()
+                .map { it.reference }
         }
 
         /**
