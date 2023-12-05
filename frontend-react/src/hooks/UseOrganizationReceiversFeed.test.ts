@@ -4,6 +4,7 @@ import { renderHook } from "../utils/CustomRenderUtils";
 import {
     dummyActiveReceiver,
     dummyReceivers,
+    receiversGeneratorBase,
 } from "../__mocks__/OrganizationMockServer";
 
 import {
@@ -53,14 +54,14 @@ describe("useOrganizationReceiversFeed", () => {
         const { result } = renderHook(() => useOrganizationReceiversFeed());
         await waitFor(() => expect(result.current.activeService).toBeDefined());
         expect(result.current.activeService).toEqual({
+            ...receiversGeneratorBase,
             name: "abc-1",
-            organizationName: "testOrg",
         });
         expect(result.current.data).toBeDefined();
         act(() => result.current.setActiveService(result.current.data!![1]));
         expect(result.current.activeService).toEqual({
+            ...receiversGeneratorBase,
             name: "elr-0",
-            organizationName: "testOrg",
         });
     });
 });

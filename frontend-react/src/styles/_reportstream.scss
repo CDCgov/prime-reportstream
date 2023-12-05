@@ -283,115 +283,6 @@ ul.rb li .timestamp {
     }
 }
 
-.rs-compare-modal {
-    max-width: calc(var(--rs-compare-modal-width));
-    height: var(--rs-compare-modal-height + 12em);
-    .usa-modal__main {
-        width: 100%;
-        max-width: 90em;
-        padding: 0;
-    }
-    .usa-modal__content {
-        padding: 1em;
-    }
-    .usa-modal__heading {
-        margin: 0;
-    }
-    .usa-modal__close {
-        margin: 0;
-        position: absolute;
-        top: 0;
-    }
-}
-
-.rs-editable-compare-container {
-    max-width: calc(var(--rs-compare-modal-width) - 2em);
-    height: calc(var(--rs-compare-modal-height) - 12em);
-    display: flex;
-    position: relative;
-}
-
-/* both left and right sides need to look the same */
-.rs-editable-compare-base {
-    width: 100%;
-    height: calc(var(--rs-compare-modal-height) - 14em);
-    overflow: auto;
-    margin: 0.5em;
-    line-height: 1.5em;
-    white-space: pre-wrap;
-    tab-size: 2;
-    font-family: monospace;
-    font-size: 105%;
-    color: black;
-    background-color: rgba(0, 0, 0, 0); /* show the highlight behind it */
-}
-
-/* just the right side (has two child divs overlapping aligned) */
-.rs-editable-stacked-container {
-    display: grid; /* positioning the background and edit on top of each other */
-    grid-template-areas: "inner-div";
-    place-items: center;
-    width: 50%;
-    -webkit-text-size-adjust: none;
-}
-
-.rs-editable-compare-background {
-    grid-area: inner-div;
-    color: transparent; /* hide font we only want background colors */
-    border: 2px rgba(0, 0, 0, 0) solid; /* takes up same exact same space, just invisible */
-
-    // enable these to debug alignment.
-    // color: rgba(255,0,0,0.5); /* hide font we only want background colors */
-    // border: 2px rgba(255,0,0,0.5) solid;    /* takes up same exact same space, just invisible */
-    width: 100%;
-    z-index: 2;
-    pointer-events: none;
-    mark,
-    s {
-        color: transparent;
-    }
-}
-
-.differ-marks {
-    mark {
-        border-radius: 3px;
-        background-color: rgba(
-            255,
-            200,
-            0,
-            0.25
-        ); /* transparent allows nested tags to be darker */
-    }
-    /* the `<s>` tag is used for errors, technically it's strikethrough but shouldn't used for that.
-       alternate could be `<var>`?  `<del>` and `<ins>` have paragraph issues
-     */
-    s {
-        text-decoration: none; /* not required, but adding makes it clear we're not using strikethrough */
-        border-radius: 3px;
-        background-color: rgba(
-            255,
-            0,
-            0,
-            0.25
-        ); /* transparent allows nested tags to be darker */
-    }
-}
-
-/* just the left side */
-.rs-editable-compare-static {
-    grid-area: inner-div;
-    border: 2px #8d8d8dff solid;
-    width: 100%;
-    z-index: 3;
-}
-
-.rs-editable-compare-edit {
-    grid-area: inner-div;
-    border: 2px #0087ff solid;
-    width: 100%;
-    z-index: 3;
-}
-
 .rs-alert-toast {
     z-index: var(--rs-zindex-top + 1);
 }
@@ -445,11 +336,6 @@ ul.rb li .timestamp {
     color: #005ea2;
     overflow: visible !important;
     zoom: 0.5;
-}
-
-.rs-input {
-    word-break: break-all;
-    max-width: 100vw;
 }
 
 .rs-full-width-form {
@@ -705,7 +591,7 @@ pre {
     width: max-content;
     min-width: 60vw;
     .rs-static-compare-base {
-        @extend .rs-editable-compare-base;
+        //@extend .rs-editable-compare-base;
         margin: 0;
         height: calc(var(--rs-compare-modal-height) - 11em);
     }

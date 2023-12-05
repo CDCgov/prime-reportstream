@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { ProcessingType } from "../../../utils/TemporarySettingsAPITypes";
 
-import { DropdownComponent, DropdownProps } from "./SettingFormFields";
+import { DropdownComponent, DropdownProps } from "./SettingFormField";
 
 const DropdownComponentHelper = () => {
     const [state, setState] = useState("");

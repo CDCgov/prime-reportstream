@@ -159,7 +159,7 @@ const DeliveriesPage = React.lazy(
     () => import("./pages/deliveries/Deliveries"),
 );
 const AdminSettingFormPage = React.lazy(
-    () => import("./pages/admin/AdminSettingForm"),
+    () => import("./pages/admin/SettingForm/SettingFormPage"),
 );
 const AdminRevHistoryPage = React.lazy(
     () => import("./pages/admin/AdminRevHistory"),

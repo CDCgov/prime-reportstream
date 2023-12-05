@@ -16,35 +16,61 @@ export const splitOn: {
 } = <T>(slicable: string | T[], ...indices: number[]) =>
     [0, ...indices].map((n, i, m) => slicable.slice(n, m[i + 1]));
 
+export interface CheckJsonError {
+    offset: number;
+    msg: string;
+    jsonTextSplit: [string, string, string];
+}
+
+export interface CheckJsonResult<T extends {}> {
+    obj?: T;
+    error?: CheckJsonError;
+}
+
 /**
  * @param jsonTextValue
  * @return { valid: boolean; offset: number; errorMsg: string}  If valid = false, then offset is where the error is.
  *  valid=true, offset: -1, errorMsg: "" - this is to keep typechecking simple for the caller. offset is always a number
  */
-export const checkJson = (
+export const checkJson = <T extends {}>(
     jsonTextValue: string,
-): { valid: boolean; offset: number; errorMsg: string } => {
+): CheckJsonResult<T> => {
+    if (typeof jsonTextValue !== "string")
+        throw TypeError(`Expected string but received: ${jsonTextValue}`);
     try {
-        JSON.parse(jsonTextValue);
-        return { valid: true, offset: -1, errorMsg: "" };
+        const obj = JSON.parse(jsonTextValue);
+        return {
+            obj,
+        };
     } catch (err: any) {
         // message like `'Unexpected token _ in JSON at position 164'`
         // or           `Unexpected end of JSON input`
-        const errorMsg = err?.message || "unknown error";
+        const msg = err?.message || "unknown error";
 
         // parse out the position and try to select it for them.
         // NOTE: if "at position N" string not found, then assume mistake is at the end
         let offset = jsonTextValue.length;
-        const findPositionMatch = errorMsg
-            ?.matchAll(/position (\d+)/gi)
-            ?.next();
+        const findPositionMatch = msg?.matchAll(/position (\d+)/gi)?.next();
         if (findPositionMatch?.value?.length === 2) {
             const possibleOffset = parseInt(findPositionMatch.value[1] || -1);
             if (!isNaN(possibleOffset) && possibleOffset !== -1) {
                 offset = possibleOffset;
             }
         }
-        return { valid: false, offset, errorMsg };
+        // show where the error is:
+        const start = Math.max(offset - 4, 0); // don't let go negative
+        const end = Math.min(offset + 4, jsonTextValue.length); // don't let go past len
+        const beforeText = jsonTextValue.slice(0, start);
+        const errantText = jsonTextValue.slice(start, end);
+        const afterText = jsonTextValue.slice(end);
+
+        return {
+            error: {
+                offset,
+                msg,
+                jsonTextSplit: [beforeText, errantText, afterText],
+            },
+        };
     }
 };
 

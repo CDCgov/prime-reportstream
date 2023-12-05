@@ -1,14 +1,14 @@
 /* All enums are case sensitive and created to match 1:1
  * with an enum class in the prime-router project. */
 
-enum Jurisdiction {
+export enum Jurisdiction {
     FEDERAL = "FEDERAL",
     STATE = "STATE",
     COUNTY = "COUNTY",
 }
 
 // TODO: Consolidate with FileType in UseFileHandler.ts
-enum Format {
+export enum Format {
     CSV = "CSV",
     HL7 = "HL7",
     FHIR = "FHIR",
@@ -24,18 +24,18 @@ export enum ContentType {
     "HL7" = "application/hl7-v2",
 }
 
-enum CustomerStatus {
+export enum CustomerStatus {
     INACTIVE = "inactive",
     TESTING = "testing",
     ACTIVE = "active",
 }
 
-enum ProcessingType {
+export enum ProcessingType {
     SYNC = "sync",
     ASYNC = "async",
 }
 
-enum ReportStreamFilterDefinition {
+export enum ReportStreamFilterDefinition {
     BY_COUNTY = "filterByCounty",
     MATCHES = "matches",
     NO_MATCH = "doesNotMatch",
@@ -48,17 +48,17 @@ enum ReportStreamFilterDefinition {
     DATE_INTERVAL = "inDateInterval",
 }
 
-enum BatchOperation {
+export enum BatchOperation {
     NONE = "NONE",
     MERGE = "MERGE",
 }
 
-enum EmptyOperation {
+export enum EmptyOperation {
     NONE = "NONE",
     SEND = "SEND",
 }
 
-enum USTimeZone {
+export enum USTimeZone {
     ARIZONA = "ARIZONA",
     CENTRAL = "CENTRAL",
     CHAMORRO = "CHAMORRO",
@@ -73,48 +73,30 @@ enum USTimeZone {
     UTC = "UTC",
 }
 
-enum DateTimeFormat {
+export enum DateTimeFormat {
     DATE_ONLY = "DATE_ONLY",
     HIGH_PRECISION_OFFSET = "HIGH_PRECISION_OFFSET",
     LOCAL = "LOCAL",
     OFFSET = "OFFSET",
 }
 
-enum GAENUUIDFormat {
+export enum GAENUUIDFormat {
     PHONE_DATE = "PHONE_DATE",
     REPORT_ID = "REPORT_ID",
     WA_NOTIFY = "WA_NOTIFY",
 }
 
-type ReportStreamSettingsEnum =
-    | "jurisdiction"
-    | "format"
-    | "customerStatus"
-    | "processingType"
-    | "reportStreamFilterDefinition"
-    | "dateTimeFormat"
-    | "timeZone";
+export const customerStatusChoices = Array.from(Object.values(CustomerStatus));
+export const formatChoices = Array.from(Object.values(Format));
+export const jurisdictionChoices = Array.from(Object.values(Jurisdiction));
+export const processingTypeChoices = Array.from(Object.values(ProcessingType));
+export const reportStreamFilterDefinitionChoices = Array.from(
+    Object.values(ReportStreamFilterDefinition),
+);
+export const dateTimeFormatChoices = Array.from(Object.values(DateTimeFormat));
+export const usTimeZoneChoices = Array.from(Object.values(USTimeZone));
 
-const getListOfEnumValues = (e: ReportStreamSettingsEnum): string[] => {
-    switch (e) {
-        case "customerStatus":
-            return Array.from(Object.values(CustomerStatus));
-        case "format":
-            return Array.from(Object.values(Format));
-        case "jurisdiction":
-            return Array.from(Object.values(Jurisdiction));
-        case "processingType":
-            return Array.from(Object.values(ProcessingType));
-        case "reportStreamFilterDefinition":
-            return Array.from(Object.values(ReportStreamFilterDefinition));
-        case "dateTimeFormat":
-            return Array.from(Object.values(DateTimeFormat));
-        case "timeZone":
-            return Array.from(Object.values(USTimeZone));
-    }
-};
-
-abstract class SampleObject {
+export abstract class SampleObject {
     stringify() {
         return JSON.stringify(this, null, 6);
     }
@@ -122,7 +104,7 @@ abstract class SampleObject {
     abstract description(): string;
 }
 
-class SampleFilterObject extends SampleObject {
+export class SampleFilterObject extends SampleObject {
     filters = [
         {
             topic: "covid-19",
@@ -151,7 +133,7 @@ class SampleFilterObject extends SampleObject {
     }
 }
 
-class SampleJwkSet {
+export class SampleJwkSet {
     scope = "scope";
     keys = {
         kty: "",
@@ -176,7 +158,7 @@ class SampleJwkSet {
     };
 }
 
-class SampleKeysObj extends SampleObject {
+export class SampleKeysObj extends SampleObject {
     listOfKeys = [new SampleJwkSet()];
     stringify(): string {
         return JSON.stringify(this.listOfKeys, null, 6);
@@ -189,7 +171,7 @@ class SampleKeysObj extends SampleObject {
     }
 }
 
-class SampleTimingObj extends SampleObject {
+export class SampleTimingObj extends SampleObject {
     initialTime = "00:00";
     maxReportCount = 365;
     numberPerDay = 1;
@@ -213,7 +195,7 @@ class SampleTimingObj extends SampleObject {
     }
 }
 
-class SampleTranslationObj extends SampleObject {
+export class SampleTranslationObj extends SampleObject {
     defaults = new Map<string, string>([["", ""]]);
     format = Format.CSV;
     nameFormat = "";
@@ -231,7 +213,7 @@ class SampleTranslationObj extends SampleObject {
     }
 }
 
-class SampleTransportObject extends SampleObject {
+export class SampleTransportObject extends SampleObject {
     SFTP = {
         host: "",
         port: "",
@@ -274,19 +256,3 @@ class SampleTransportObject extends SampleObject {
         return "This field can take one of these TransportType objects.";
     }
 }
-
-export {
-    Jurisdiction,
-    Format,
-    ProcessingType,
-    CustomerStatus,
-    SampleFilterObject,
-    SampleKeysObj,
-    SampleTranslationObj,
-    SampleTimingObj,
-    SampleTransportObject,
-    SampleObject,
-    getListOfEnumValues,
-};
-
-export type { ReportStreamSettingsEnum };

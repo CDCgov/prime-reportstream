@@ -62,6 +62,14 @@ export const sendersGenerator = (count: number) => {
     return senders;
 };
 
+export const receiversGeneratorBase = {
+    organizationName: "testOrg",
+    customerStatus: "",
+    translation: undefined,
+    topic: "",
+    version: 0,
+} satisfies Partial<RSReceiver>;
+
 export const dummySenders = sendersGenerator(5);
 
 /** TEST UTILITY - generates `RSReceiver[]`, each with a unique `name` (starting from "elr-0")
@@ -71,32 +79,21 @@ export const receiversGenerator = (count: number) => {
     const receiverServices: RSReceiver[] = [];
     for (let i = 0; i < count; i++) {
         receiverServices.push({
+            ...receiversGeneratorBase,
             name: `elr-${i}`,
-            organizationName: "testOrg",
-            customerStatus: "",
-            translation: undefined,
-            topic: "",
-            version: 0,
         });
     }
     // Used to test sorting
     receiverServices.push({
+        ...receiversGeneratorBase,
         name: `abc-1`,
-        organizationName: "testOrg",
-        customerStatus: "",
-        translation: undefined,
-        topic: "",
-        version: 0,
     });
 
     // Used to test filter
     receiverServices.push({
+        ...receiversGeneratorBase,
         name: `abc-2`,
-        organizationName: "testOrg",
         customerStatus: CustomerStatusType.INACTIVE,
-        translation: undefined,
-        topic: "",
-        version: 0,
     });
 
     return receiverServices;
@@ -104,8 +101,8 @@ export const receiversGenerator = (count: number) => {
 
 export const dummyReceivers = receiversGenerator(5);
 export const dummyActiveReceiver = {
+    ...receiversGeneratorBase,
     name: `abc-1`,
-    organizationName: "testOrg",
 };
 
 export const publicKeysGenerator = (apiKeyCount: number) => {

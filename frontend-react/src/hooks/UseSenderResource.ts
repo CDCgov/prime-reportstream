@@ -18,7 +18,7 @@ export default function useSenderResource(initialData?: RSSender) {
             authorizedFetch(senderDetail, {
                 segments: {
                     orgId: activeMembership?.parsedName!!,
-                    sender: activeMembership?.service!!,
+                    entityId: activeMembership?.service!!,
                 },
             }),
         [
