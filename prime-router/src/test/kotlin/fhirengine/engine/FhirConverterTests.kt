@@ -124,6 +124,53 @@ class FhirConverterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
+            FhirConvertMessage(
+                UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
+                SCHEMA_NAME
+            )
+        )
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "https://anyblob.com"
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(validHl7)
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.HL7
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
+        every { transformer.transform(any()) } returnsArgument (0)
+
+        // act
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
+
+        // assert
+        verify(exactly = 1) {
+            engine.getContentFromHL7(any(), any())
+            actionHistory.trackExistingInputReport(any())
+            transformer.transform(any())
+            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
+        }
+    }
+
+    // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
+    @Test
+    fun `legacy - test processHl7 happy path`() {
+        mockkObject(BlobAccess)
+        mockkObject(Report)
+
+        // set up
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+        val transformer = mockk<FhirTransformer>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val message = spyk(
             RawSubmission(
                 UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
                 SCHEMA_NAME
@@ -170,7 +217,7 @@ class FhirConverterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_FHIR_URL,
                 "test",
@@ -214,7 +261,7 @@ class FhirConverterTests {
         val actionLogger = mockk<ActionLogger>()
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -234,7 +281,7 @@ class FhirConverterTests {
         val actionLogger = spyk(ActionLogger())
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -259,7 +306,7 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message =
             spyk(
-                RawSubmission(
+                FhirConvertMessage(
                     UUID.randomUUID(),
                     BLOB_FHIR_URL,
                     "test",
@@ -300,7 +347,7 @@ class FhirConverterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(), BLOB_FHIR_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
                 SCHEMA_NAME
             )
