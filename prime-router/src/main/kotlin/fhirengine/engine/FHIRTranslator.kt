@@ -108,37 +108,30 @@ class FHIRTranslator(
                     }
                 }
 
-                return receiverAndEndpoints
-                    .map {
-                        actionHistory.trackActionReceiverInfo(it.second.organizationName, it.second.name)
-                        it
-                    }
-                    .filter {
-                        it.second.topic.isUniversalPipeline
-                    }
-                    .map { (receiverEndpoint, receiver) ->
-                        val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
+                return receiverAndEndpoints.map { (receiverEndpoint, receiver) ->
+                    actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
+                    val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
 
-                        val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
+                    val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
 
-                        // get a Report from the message
-                        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-                            Event.EventAction.BATCH,
-                            bodyBytes,
-                            listOf(message.reportId),
-                            receiver,
-                            this.metadata,
-                            actionHistory,
-                            topic = message.topic,
-                        )
+                    // get a Report from the message
+                    val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+                        Event.EventAction.BATCH,
+                        bodyBytes,
+                        listOf(message.reportId),
+                        receiver,
+                        this.metadata,
+                        actionHistory,
+                        topic = message.topic,
+                    )
 
-                        FHIREngineRunResult(
-                            event,
-                            report,
-                            blobInfo.blobUrl,
-                            null
-                        )
-                    }
+                    FHIREngineRunResult(
+                        event,
+                        report,
+                        blobInfo.blobUrl,
+                        null
+                    )
+                }
             }
             else -> {
                 throw RuntimeException(
