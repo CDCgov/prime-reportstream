@@ -23,7 +23,13 @@ export function ReportDetailsSummary(props: Props) {
                 <div className="font-sans-2xl text-bold">Report Details</div>
                 {!isDateExpired(report!.expires) && (
                     <div className="font-sans-lg display-flex flex-align-end">
-                        Download as <ReportLink report={report} button />
+                        Download as{" "}
+                        <ReportLink
+                            reportId={report!.reportId}
+                            reportExpires={report!.expires}
+                            fileType={report?.fileType}
+                            button
+                        />
                     </div>
                 )}
             </div>

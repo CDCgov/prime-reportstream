@@ -43,7 +43,7 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.17.5"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
-    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.16"
+    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.19"
 }
 
 group = "gov.cdc.prime"
@@ -168,6 +168,8 @@ tasks.test {
 
     // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    minHeapSize = "2g"
+    maxHeapSize = "3g"
     dependsOn("compileKotlin")
     finalizedBy("jacocoTestReport")
     // Run the test task if specified configuration files are changed
@@ -568,8 +570,9 @@ tasks.azureFunctionsRun {
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
-            "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
-            "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+            "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;" +
+            "BlobEndpoint=http://localhost:10000/devstoreaccount1;" +
+            "QueueEndpoint=http://localhost:10001/devstoreaccount1;"
 
     val env = mutableMapOf<String, Any>(
         "AzureWebJobsStorage" to devAzureConnectString,
@@ -813,7 +816,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.10.3") {
+    implementation("com.azure:azure-identity:1.11.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -846,7 +849,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.25")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.9.3")
+    implementation("com.sendgrid:sendgrid-java:4.10.1")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
@@ -896,7 +899,7 @@ dependencies {
     implementation("org.jsoup:jsoup:1.16.2")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
     implementation("io.swagger:swagger-annotations:1.6.12")
-    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.15")
+    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.19")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
     // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
@@ -906,6 +909,8 @@ dependencies {
 
     // TODO: move this to a test dependency when CompareFhirData lives under src/test
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.14")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     // pin com.squareup.okio:okio@3.4.0
@@ -924,14 +929,18 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.13.8")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.27.0")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testImplementation("org.testcontainers:testcontainers:1.19.1")
     testImplementation("org.testcontainers:junit-jupiter:1.19.1")
     testImplementation("org.testcontainers:postgresql:1.19.1")
 
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
+    testImplementation("com.wolpl.clikt-testkit:clikt-testkit:1.0.0")
+    testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
     implementation(kotlin("script-runtime"))
 }

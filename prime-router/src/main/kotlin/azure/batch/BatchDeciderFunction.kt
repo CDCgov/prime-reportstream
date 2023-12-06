@@ -1,10 +1,14 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.azure.batch
 
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.microsoft.azure.functions.annotation.TimerTrigger
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.azure.BatchEvent
+import gov.cdc.prime.router.azure.DataAccessTransaction
+import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
@@ -46,7 +50,13 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                         repeat(queueMessages) {
                             // build 'batch' event
                             val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, isEmpty)
-                            workflowEngine.queue.sendMessage(event)
+                            val queueName = if (rec.topic.isUniversalPipeline) {
+                                BatchConstants.Queue.UNIVERSAL_BATCH_QUEUE
+                            } else {
+                                BatchConstants.Queue.COVID_BATCH_QUEUE
+                            }
+
+                            workflowEngine.queue.sendMessageToQueue(event, queueName)
                         }
                     }
             }
@@ -69,7 +79,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
         // Calculate how far to look back based on how often this receiver batches.
         val backstopTime = OffsetDateTime.now().minusMinutes(
             BaseEngine.getBatchLookbackMins(
-                receiver.timing?.numberPerDay ?: 1, NUM_BATCH_RETRIES
+                receiver.timing?.numberPerDay ?: 1, BatchConstants.NUM_BATCH_RETRIES
             )
         )
         // get the number of messages outstanding for this receiver

@@ -108,7 +108,12 @@
       organizationName: test
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/CDC-ELIMS/elims-sender-transform
+      format: HL7
+    - name: dev-hci
+      organizationName: test
+      topic: full-elr
+      customerStatus: active
+      schemaName: metadata/fhir_transforms/senders/HCI/hci-sender-transform
       format: HL7
   receivers:
     - name: DEV_FULL_ELR
@@ -172,7 +177,6 @@
       organizationName: "elims"
       format: "HL7"
       customerStatus: "testing"
-      schemaName: "metadata/fhir_transforms/senders/default-sender-transform"
       processingType: "sync"
       allowDuplicates: true
       topic: "elr-elims"
