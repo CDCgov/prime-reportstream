@@ -6,7 +6,6 @@ import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-import { FeatureName } from "../../utils/FeatureName";
 
 import SubmissionTable from "./SubmissionTable";
 
@@ -18,7 +17,11 @@ function SubmissionHistoryContent() {
         <GridContainer>
             <article className="padding-top-5">
                 <Helmet>
-                    <title>{FeatureName.SUBMISSIONS}</title>
+                    <title>Submission history</title>
+                    <meta
+                        name="description"
+                        content="The Submission History dashboard provides the status of data you sent through ReportStream."
+                    />
                 </Helmet>
                 <Title title="Submission History" preTitle={description} />
                 <SubmissionTable />
