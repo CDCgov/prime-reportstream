@@ -1,6 +1,6 @@
 ---
 name: UP Migrating Receiver - Validate Test Data
-about: This is the third step in migrating a STLT to the UP 
+about: This is the fourth step in migrating a STLT to the UP 
 title: "[name of STLT] - UP Migration - Validate Test Data"
 labels: onboarding-ops, receiver
 assignees: ''
