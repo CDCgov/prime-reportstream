@@ -31,7 +31,7 @@ elements:
     constants:
       hl7PLField: '%{hl7Order}-13'
 
-  - name: order-status
+  - name: order-effective-date
     hl7Spec: [ '%{hl7Order}-15' ]
     value: [ '%resource.extension.where(url = "orc-15-order-effective-date").value' ]
 

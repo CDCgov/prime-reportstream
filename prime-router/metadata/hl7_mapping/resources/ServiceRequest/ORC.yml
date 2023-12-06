@@ -63,14 +63,14 @@ elements:
 
   - name: ordering-facility-address
     condition: '%context.requester.resolve().is(PractitionerRole)'
-    resource: '%resource.requester.resolve().organization.resolve().contact.address'
+    resource: '%resource.requester.resolve().organization.resolve().address'
     schema: ../../datatypes/Address/XAD
     constants:
       hl7SpecXADField: '%{hl7Order}-22'
 
   - name: ordering-facility-phone-number
     condition: '%context.requester.resolve().is(PractitionerRole)'
-    resource: '%resource.requester.resolve().organization.resolve().contact.telecom'
+    resource: '%resource.requester.resolve().organization.resolve().telecom'
     schema: ../../datatypes/contactPoint/XTN
     resourceIndex: telecomIndex
     constants:

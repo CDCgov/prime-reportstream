@@ -43,6 +43,9 @@ intent:
       value: "reflex-order"
 _intent:
   expressionType: nested
+  vars:
+    obr11: OBR.11
+  condition: $obr11 NOT_NULL
   expressionsMap:
     extension:
       generateList: true

@@ -65,10 +65,6 @@ elements:
     value: [ '%resource.extension.where(url = "obr-21-filler-field-2").value' ]
     hl7Spec: [ '%{obrFieldPath}-21' ]
 
-  - name: results-rpt-status-change-datetime
-    value: [ '%resource.extension.where(url = "obr-22-results-rpt-status-change-datetime").value' ]
-    hl7Spec: [ '%{obrFieldPath}-22' ]
-
   - name: charge-to-practice
     resource: '%resource.extension.where(url = "obr-23-charge-to-practice")'
     schema: ../../datatypes/extensionMOC/MOC

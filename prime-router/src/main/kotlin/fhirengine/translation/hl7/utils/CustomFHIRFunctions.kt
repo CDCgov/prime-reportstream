@@ -37,6 +37,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
         HasPhoneNumberExtension,
         ChangeTimezone,
         ConvertDateToAge,
+        GetPrimitiveValue,
         ;
 
         companion object {
@@ -122,6 +123,14 @@ object CustomFHIRFunctions : FhirPathFunctions {
                 )
             }
 
+            CustomFHIRFunctionNames.GetPrimitiveValue -> {
+                FunctionDetails(
+                    "",
+                    0,
+                    0
+                )
+            }
+
             else -> additionalFunctions?.resolveFunction(functionName)
         }
     }
@@ -183,6 +192,10 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
                 CustomFHIRFunctionNames.ConvertDateToAge -> {
                     convertDateToAge(focus, parameters)
+                }
+
+                CustomFHIRFunctionNames.GetPrimitiveValue -> {
+                    getPrimitiveValue(focus)
                 }
 
                 else -> additionalFunctions?.executeFunction(focus, functionName, parameters)
@@ -390,6 +403,16 @@ object CustomFHIRFunctions : FhirPathFunctions {
             else -> null
         }
         return if (type != null) mutableListOf(StringType(type)) else mutableListOf()
+    }
+
+    fun getPrimitiveValue(focus: MutableList<Base>): MutableList<Base> {
+        return focus.map {
+            if (it.isPrimitive) {
+                it.copy()
+            } else {
+                it
+            }
+        }.toMutableList()
     }
 
     /**
