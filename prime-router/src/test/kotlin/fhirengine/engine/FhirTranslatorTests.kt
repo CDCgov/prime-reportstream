@@ -51,7 +51,6 @@ private const val BODY_URL = "http://anyblob.com"
 private const val VALID_DATA_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
 private const val MSH_11_1 = "MSH-11-1"
 
-@Ignore
 class FhirTranslatorTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
@@ -167,6 +166,7 @@ class FhirTranslatorTests {
         }
     }
 
+    @Ignore // TODO: is it me?
     @Test
     fun `legacy - test full elr translation happy path, one receiver RawSubmission message`() {
         mockkObject(BlobAccess)
