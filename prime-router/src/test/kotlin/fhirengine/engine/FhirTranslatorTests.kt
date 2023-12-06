@@ -26,7 +26,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -37,8 +36,6 @@ import org.hl7.fhir.r4.model.Bundle
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.TestInstance
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
@@ -53,7 +50,6 @@ private const val BODY_URL = "http://anyblob.com"
 private const val VALID_DATA_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
 private const val MSH_11_1 = "MSH-11-1"
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FhirTranslatorTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
@@ -117,11 +113,6 @@ class FhirTranslatorTests {
 
     private fun getResource(bundle: Bundle, resource: String) =
         FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType($resource)")
-
-    @BeforeEach
-    fun reset() {
-        clearAllMocks()
-    }
 
     // valid fhir, read file, one destination (hard coded for phase 1), generate output file, no message on queue
     @Test
