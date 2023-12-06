@@ -19,13 +19,13 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-3-4-1' ]
 
   - name: patient-assigning-authority-type
-    condition: '%resource.identifier.count() = 1 and %resource.identifier.type.empty()'
-    value: [ '%patientOrganization.identifier.value' ]
+    condition: '%resource.identifier.type.empty()'
+    value: [ '%patientOrganization.identifier.where(value.exists()).value' ]
     hl7Spec: [ '%{hl7PIDField}-3-4-2' ]
 
   - name: patient-assigning-authority-type-code
-    condition: '%resource.identifier.count() = 1 and %resource.identifier.type.empty()'
-    value: [ '%patientOrganization.identifier.type.coding.code' ]
+    condition: '%resource.identifier.type.empty()'
+    value: [ '%patientOrganization.identifier.where(value.exists()).type.coding.code' ]
     hl7Spec: [ '%{hl7PIDField}-3-4-3' ]
 
   - name: patient-name
