@@ -19,10 +19,10 @@ As a developer, I want to compare the messages generated from the Covid and Univ
 ### Dev Notes:
 
 - [ ] Fetch [STLT] organization settings from production and load them locally
-- [ ] Use the attached SimpleReport covid postman collection and make sure the message gets routed to [STLTS] locally. Modify the message to meet [STLT] filter if needed [Simple Report Covid 2.postman_collection.txt](https://api.zenhub.com/attachedFiles/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBeC9MQVE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--9517e4d1ea972b7e03cc38450783ad1bba79f4d5/Simple%20Report%20Covid%202.postman_collection.txt)
+- [ ] Use the covid message at the bottom of sheet 2 in this spreadsheet to s of Modify the message to meet [STLT] filter if needed [Simple Report Covid 3.postman_collection.txt](https://api.zenhub.com/attachedFiles/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBNFU2QWc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--1d3699f4819e80309b51b02e7d4fad05048c28d8/Simple%20Report%20Covid%203.postman_collection.txt)
 
 - [ ] Make a copy of the [STLT] organization settings to onboard them to the UP. See How to Onboard a receiver to the UP here: https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/receivers.md
-- [ ] Use this Postman collection to send a FHIR bundle the UP and make sure the message gets routed to the new UP [STLT] receiver. You may need to update the Simple Report sender to use the simple-report-sender-transform.yml if it's not using it. [Simple Report UP.postman_collection.txt](https://api.zenhub.com/attachedFiles/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBeUhMQVE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--bf97c2a3a91539d80ebc8766bf8b1ffa4d0a24ec/Simple%20Report%20UP.postman_collection.txt)
+- [ ] Use this Postman collection to send a FHIR bundle the UP and make sure the message gets routed to the new UP [STLT] receiver. You may need to update the Simple Report sender to use the simple-report-sender-transform.yml if it's not using it. [Simple Report UP 2.postman_collection.txt](https://api.zenhub.com/attachedFiles/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBNFk2QWc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--dfab4aacbbb0df15ad1e97bb3328f29bd71ff86b/Simple%20Report%20UP%202.postman_collection.txt)
 
 - [ ] Use a diff tool of your choice and compare the two messages generated between the two pipelines and document the differences. You can find an example here [RI/SR UP vs Covid](https://docs.google.com/spreadsheets/d/197AeFMvozqUGRE1BuvOSMiUL_r2EEkyQv4l8D_OhhZk/edit#gid=492389121)
 
