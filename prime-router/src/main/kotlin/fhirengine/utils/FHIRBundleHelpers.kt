@@ -116,8 +116,8 @@ fun Bundle.deleteResource(resource: Base) {
         // Get the resource children references
         val resourceChildren = resourceInternal.getResourceReferences()
 
-        // get all resources except the resource being removed
-        val allResources = this.entry
+        // get all resources except the resource being removed and stick it in a map keyed off the fullUrl
+        val allResources = this.entry.associateBy { it.fullUrl }
 
         // get all references for every remaining resource
         val remainingReferences = referencesMap - resourceInternal.idBase
@@ -126,11 +126,9 @@ fun Bundle.deleteResource(resource: Base) {
         // remove orphaned children
         resourceChildren.forEach { child ->
             if (!flatRemainingReferences.contains(child)) {
-                allResources
-                    .find { it.fullUrl == child }
-                    ?.let { entryToDelete ->
-                        deleteResourceInternal(entryToDelete.resource, remainingReferences)
-                    }
+                allResources[child]?.let { entryToDelete ->
+                    deleteResourceInternal(entryToDelete.resource, remainingReferences)
+                }
             }
         }
     }
