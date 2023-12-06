@@ -19,6 +19,13 @@ import java.net.URI
  * Read schema configuration.
  */
 object ConfigSchemaReader : Logging {
+
+    private val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
+
+    init {
+        mapper.registerSubtypes(LookupTableValueSet::class.java)
+    }
+
     /**
      * Read a schema [schemaName] of type [schemaClass] from a file given the root [folder].
      * @return the validated schema
@@ -206,8 +213,6 @@ object ConfigSchemaReader : Logging {
         inputStream: InputStream,
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java,
     ): ConfigSchema<*> {
-        val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
-        mapper.registerSubtypes(LookupTableValueSet::class.java)
         val rawSchema = mapper.readValue(inputStream, schemaClass)
         // Are there any null elements?  This may mean some unknown array value in the YAML
         if (rawSchema.elements.any { false }) {
