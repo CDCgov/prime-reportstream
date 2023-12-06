@@ -57,10 +57,6 @@ class FHIRConverter(
             is FhirConvertMessage -> {
                 fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
             }
-            // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
-            is RawSubmission -> {
-                fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
-            }
             else -> {
                 throw RuntimeException(
                     "Message was not a FhirConvert or RawSubmission and cannot be processed: $message"

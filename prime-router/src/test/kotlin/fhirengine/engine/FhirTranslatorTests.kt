@@ -412,46 +412,6 @@ class FhirTranslatorTests {
         assertThat(terser.get(MSH_11_1)).isEqualTo("T")
     }
 
-    // TODO: test can be removed after deploy ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
-    @Test
-    fun `legacy- test full elr translation happy path, receiver with condition filter so extensions`() {
-        mockkObject(BlobAccess)
-
-        // set up
-        val actionHistory = mockk<ActionHistory>()
-        val actionLogger = mockk<ActionLogger>()
-
-        val message = spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, Topic.FULL_ELR))
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
-
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }
-            .returns(File("src/test/resources/fhirengine/engine/valid_data_with_extensions.fhir").readText())
-        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
-
-        val engine = spyk(makeFhirEngine())
-
-        // act
-        accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        verify(exactly = 1) {
-            actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any(), any())
-            accessSpy.insertTask(any(), any(), any(), any(), any())
-            engine.pruneBundleForReceiver(any(), any())
-        }
-    }
-
     @Test
     fun `test full elr translation hl7 translation exception`() {
         mockkObject(BlobAccess)
