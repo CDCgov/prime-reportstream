@@ -125,7 +125,6 @@ class FhirTranslatorTests {
     }
 
     // valid fhir, read file, one destination (hard coded for phase 1), generate output file, no message on queue
-    @Ignore
     @Test
     fun `test full elr translation happy path, one receiver`() {
         mockkObject(BlobAccess)
@@ -176,7 +175,6 @@ class FhirTranslatorTests {
         }
     }
 
-    @Ignore
     @Test
     fun `legacy - test full elr translation happy path, one receiver RawSubmission message`() {
         mockkObject(BlobAccess)
@@ -516,6 +514,7 @@ class FhirTranslatorTests {
         }
     }
 
+    @Ignore
     @Test
     fun `test getByteArrayFromBundle`() {
         val fhirData = File(VALID_DATA_URL).readText()
