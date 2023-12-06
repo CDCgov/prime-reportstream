@@ -51,7 +51,8 @@ jobs:
           frontend:
             - 'frontend-react/**'
           python:
-            - 'prime-router/src/scripts**'
+            - 'prime-router/src/scripts/**/*.py'
+            - 'operations/**/*.py'
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
