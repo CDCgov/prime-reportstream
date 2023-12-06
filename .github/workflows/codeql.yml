@@ -32,7 +32,7 @@ jobs:
       contents: read
       security-events: write
     outputs:
-			# This needs to match your step's id and name parameters
+# This needs to match your step's id and name parameters
       matrix: ${{ steps.set-matrix.outputs.matrix }}
 
     steps:
