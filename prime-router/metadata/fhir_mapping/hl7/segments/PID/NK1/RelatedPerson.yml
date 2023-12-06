@@ -1,0 +1,237 @@
+patient:
+  valueOf: datatype/Reference
+  expressionType: resource
+  generateList: true
+  specs: $Patient
+
+name:
+  expressionTpe: nested
+  generareList: true
+  expressions:
+    - valueOf: datatypes/XPN/HumanName
+      expressionType: resource
+      specs: NK1.2
+    - valueOf: datatypes/XPN/HumanName
+      expressionType: resource
+      specs: NK1.30
+
+relationship:
+  expressionType: nested
+  generareList: true
+  expressions:
+    - valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: NK1.3
+    - valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: NK1.7
+
+address:
+  expressionType: nested
+  generareList: true
+  expressions:
+    - valueOf: datatypes/XAD/Address
+      expressionType: resource
+      specs: NK1.4
+    - valueOf: datatypes/XAD/Address
+      expressionType: resource
+      specs: NK1.32
+
+
+telecom:
+  expressionType: nested
+  expressions:
+    - condition: $valueIn NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.5
+      vars:
+        valueIn: NK1.5
+      constants:
+        hl7v2Name: "phone-number"
+    - condition: $valueIn NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.6
+      vars:
+        valueIn: NK1.6
+      constants:
+        useCode: work
+        hl7v2Name: "business-phone-number"
+    - condition: $valueIn NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.31
+      vars:
+        valueIn: NK1.31
+      constants:
+        hl7v2Name: "contact-person-telephone-number"
+    - condition: $valueIn NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.40
+      vars:
+        valueIn: NK1.40
+      constants:
+        hl7v2Name: "next-of-kin-telecomm-info"
+    - condition: $valueIn NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.41
+      vars:
+        valueIn: NK1.41
+      constants:
+        hl7v2Name: "contact-person-telecomm-info"
+
+period:
+  vars:
+    startDate: NK1.8
+    endDate: NK1.9
+  condition: $startDate NOT_NULL || $endDate NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(startDate,ZONEID)"
+      expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $startDate NOT_NULL
+      expressionsMap:
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $startDate
+              expressionType: HL7Spec
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $endDate NOT_NULL
+      expressionsMap:
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
+
+identifier:
+  expressionType: nested
+  expressions:
+    - valueOf: datatypes/CX/Identifier
+      generareList: true
+      expressionType: resource
+      specs: NK1.12
+      constants:
+        identifierIndexName: next-of-kin-employee-number
+    - valueOf: datatypes/CX/Identifier
+      generareList: true
+      expressionType: resource
+      specs: NK1.33
+      constants:
+        identifierIndexName: next-of-kin-identifier
+    - expressionType: nested
+      generareList: true
+      expressionsMap:
+        value:
+          type: STRING
+          valueOf: NK1.37
+          expressionType: HL7Spec
+        system:
+          type: URI
+          value: http://hl7.org/fhir/sid/us-ssn
+
+organization:
+  condition: $XONOrganization NOT_NULL
+  generareList: true
+  expressionType: reference
+  valueOf: datatypes/XON/Organization
+  specs: NK1.13
+  vars:
+    XONOrganization: NK1.13
+    XPNHumanName: NK1.30
+    XTNContactPoint: NK1.31
+    XADAddress: NK1.32
+
+gender:
+  expressionType: nested
+  expressions:
+    - condition: $adminSexID NOT_NULL
+      vars:
+        adminSexID: NK1.15.1
+      valueOf: NK1.15.1
+      type: ADMINISTRATIVE_GENDER_CODE_FHIR
+      expressionType: HL7Spec
+    - condition: $adminSexID NULL
+      vars:
+        adminSexID: NK1.15.1
+        adminSexAltID: NK1.15.4
+      valueOf: NK1.15.4
+      type: ADMINISTRATIVE_GENDER_CODE_FHIR
+      expressionType: HL7Spec
+
+_gender:
+  expressionType: nested
+  expressionsMap:
+    extension:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: 'cwe-administrative-sex'
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: NK1.15
+
+birthDate:
+  type: DATE
+  valueOf: NK1.16
+  expressionType: HL7Spec
+
+communication:
+  expressionType: nested
+  expressionsMap:
+    language:
+      generareList: true
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: NK1.20
+
+extension:
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: nk1-related-person
+    extension:
+      expressionType: nested
+      expressions:
+        - expressionType: nested
+          generareList: true
+          expressionsMap:
+            url:
+              type: STRING
+              value: nk1-birth-date
+            valueString:
+              type: STRING
+              valueOf: NK1.16
+              expressionType: HL7Spec
