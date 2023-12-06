@@ -21,6 +21,7 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -105,7 +106,8 @@ class FhirTranslatorTests {
                 name = "None",
                 topic = Topic.FULL_ELR,
                 elements = emptyList()
-            )
+            ),
+            tableDbAccess = DatabaseLookupTableAccess(accessSpy)
         ),
         settings: SettingsProvider = FileSettings().loadOrganizations(oneOrganization),
     ): FHIRTranslator {
