@@ -20,8 +20,6 @@ import org.hl7.fhir.r4.model.Provenance
 import org.hl7.fhir.r4.model.Reference
 import java.util.stream.Collectors
 import java.util.stream.Stream
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.isAccessible
 
 /**
  * A collection of helper functions that modify an existing FHIR bundle.
@@ -93,9 +91,18 @@ fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
  * observations, the [DiagnosticReport] will be deleted
  */
 fun Bundle.deleteResource(resource: Base) {
-    val referencesToClean = mutableSetOf<Base>()
+    val referencesToClean = mutableSetOf<String>()
 
-    fun deleteResourceInternal(resourceInternal: Base, referencesMap: Map<String, List<String>>) {
+    // build up all resources and their references in a map as a starting point
+    fun generateAllReferencesMap() = this.entry.associate {
+        it.fullUrl to it.getResourceReferences()
+    }
+
+    // recursive function to delete resource and orphaned children
+    fun deleteResourceInternal(
+        resourceInternal: Base,
+        referencesMap: Map<String, List<String>> = generateAllReferencesMap(),
+    ) {
         if (this.entry.find { it.fullUrl == resourceInternal.idBase } == null) {
             throw IllegalStateException("Cannot delete resource. FHIR bundle does not contain this resource")
         }
@@ -104,12 +111,14 @@ fun Bundle.deleteResource(resource: Base) {
         this.entry.removeIf { it.fullUrl == resourceInternal.idBase }
 
         // add resource to set of references to clean up after recursion
-        referencesToClean.add(resourceInternal)
+        referencesToClean.add(resourceInternal.idBase)
 
         // Get the resource children references
         val resourceChildren = resourceInternal.getResourceReferences()
+
         // get all resources except the resource being removed
         val allResources = this.entry
+
         // get all references for every remaining resource
         val remainingReferences = referencesMap - resourceInternal.idBase
         val flatRemainingReferences = remainingReferences.flatMap { it.value }.toSet()
@@ -127,30 +136,39 @@ fun Bundle.deleteResource(resource: Base) {
     }
 
     // Go through every resource and check if the resource has a reference to the resource being deleted
-    // if there is remove the reference
-    fun cleanUpReferences(resource: Base) {
-        this.entry.forEach { res ->
-            res.resource::class.memberProperties.forEach { it ->
-                it.isAccessible = true
-                val value = it.getter.call(res.resource)
-                if (value is MutableList<*>) {
-                    value.removeIf { it is Reference && it.reference == resource.idBase }
-                } else if (value is Reference && value.reference == resource.idBase) {
-                    value.reference = null
+    fun cleanUpReferences() {
+        this.entry
+            .map { it.resource }
+            .forEach { res ->
+                res.children().forEach { child ->
+                    child
+                        .values
+                        .filterIsInstance<Reference>()
+                        .filter { referencesToClean.contains(it.reference) }
+                        .forEach { it.reference = null }
                 }
             }
-        }
+
+        referencesToClean.clear()
     }
 
-    // build up all resources and their references in a map as a starting point
-    val allReferencesMap = this.entry.associate {
-        it.fullUrl to it.getResourceReferences()
-    }
-    deleteResourceInternal(resource, allReferencesMap)
+    // find diagnostic reports without any observations contained in the result field and delete
+    fun cleanUpEmptyDiagnosticReports() {
+        val diagnosticReportsToDelete = this.entry
+            .map { it.resource }
+            .filterIsInstance<DiagnosticReport>()
+            .filter { it.result.none { it.reference != null } }
 
-    // clean up all references to deleted resources
-    referencesToClean.forEach { cleanUpReferences(it) }
-    this.deleteChildlessResource(resource)
+        diagnosticReportsToDelete.forEach { deleteResourceInternal(it) }
+    }
+
+    // delete provided resource and all references to it
+    deleteResourceInternal(resource)
+    cleanUpReferences()
+
+    // clean up empty Diagnostic Reports and references to them
+    cleanUpEmptyDiagnosticReports()
+    cleanUpReferences()
 }
 
 /**
