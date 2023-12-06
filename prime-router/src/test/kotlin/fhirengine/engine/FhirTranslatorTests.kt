@@ -416,6 +416,7 @@ class FhirTranslatorTests {
     }
 
     // TODO: test can be removed after deploy ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
+    @Ignore
     @Test
     fun `legacy- test full elr translation happy path, receiver with condition filter so extensions`() {
         mockkObject(BlobAccess)
@@ -541,7 +542,6 @@ class FhirTranslatorTests {
         assertFailure { engine.getByteArrayFromBundle(csvReceiver, fhirBundle) }
     }
 
-    @Ignore
     @Test
     fun `test encodePreserveEncodingChars`() {
         val fhirData = File("src/test/resources/fhirengine/engine/valid_data_five_encoding_chars.fhir").readText()
