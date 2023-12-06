@@ -22,16 +22,10 @@ import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.deleteResource
-import gov.cdc.prime.router.fhirengine.utils.getResourceReferences
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.DiagnosticReport
-import org.hl7.fhir.r4.model.Endpoint
-import org.hl7.fhir.r4.model.Provenance
 import org.jooq.Field
 import java.time.OffsetDateTime
 
@@ -96,7 +90,7 @@ class FHIRTranslator(
             }
             else -> {
                 throw RuntimeException(
-                    "Message was not a FhirConvert or RawSubmission and cannot be processed: $message"
+                    "Message was not a FhirConvert and cannot be processed: $message"
                 )
             }
         }

@@ -59,7 +59,7 @@ class FHIRConverter(
             }
             else -> {
                 throw RuntimeException(
-                    "Message was not a FhirConvert or RawSubmission and cannot be processed: $message"
+                    "Message was not a FhirConvert and cannot be processed: $message"
                 )
             }
         }
