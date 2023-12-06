@@ -67,7 +67,8 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix: ${{fromJSON(needs.build_matrix.outputs.matrix)}}
+      matrix: ${{needs.build_matrix.outputs.matrix}}
+      #matrix: ${{fromJSON(needs.build_matrix.outputs.matrix)}}
       #matrix:
         #language: [ 'javascript', 'python' ]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
