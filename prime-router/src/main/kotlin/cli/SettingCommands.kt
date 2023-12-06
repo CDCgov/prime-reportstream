@@ -19,6 +19,15 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.outputStream
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FuelError
+import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
+import com.github.kittinunf.fuel.core.Response
+import com.github.kittinunf.fuel.core.extensions.authentication
+import com.github.kittinunf.fuel.json.FuelJson
+import com.github.kittinunf.fuel.json.responseJson
+import com.github.kittinunf.result.Result
+import com.google.common.net.HttpHeaders
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
 import gov.cdc.prime.router.DeepOrganization
@@ -30,13 +39,8 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.lastModified
-import org.json.JSONArray
-import org.json.JSONObject
+import org.apache.http.HttpStatus
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
@@ -133,7 +137,7 @@ abstract class SettingCommand(
             OktaCommand.fetchAccessToken(environment.oktaApp)
                 ?: abort(
                     "Invalid access token. " +
-                            "Run ./prime login to fetch/refresh your access token for the $env environment."
+                        "Run ./prime login to fetch/refresh your access token for the $env environment."
                 )
         }
     }
@@ -150,27 +154,25 @@ abstract class SettingCommand(
     ): String {
         val path = formPath(environment, Operation.PUT, settingType, settingName)
         verbose("PUT $path :: $payload")
-        val (response, respStr) = HttpClientUtils.putWithStringResponse(
-            url = path.toString(),
-            tokens = BearerTokens(accessToken, refreshToken = ""),
-            jsonPayload = payload
-        )
-
-        return when (response.status) {
-            HttpStatusCode.OK -> {
-                // need to account for an older version of the API PUT method which only returned the "meta"
-                // object- whereas now we're returning the full JSON response
-
-                val versionInfo = if (respStr.contains("version")) {
-                    "find version in: $respStr"
-                } else {
-                    "[unknown - legacy data]"
+        val output = SettingsUtilities.put(path, accessToken, payload)
+        val (_, response, result) = output
+        return when (result) {
+            is Result.Failure -> handleHttpFailure(settingName, response, result)
+            is Result.Success ->
+                when (response.statusCode) {
+                    HttpStatus.SC_OK -> {
+                        // need to account for an older version of the API PUT method which only returned the "meta"
+                        // object- whereas now we're returning the full JSON response
+                        val version = if (result.value.obj().has("version")) {
+                            result.value.obj().getInt("version")
+                        } else {
+                            "[unknown - legacy data]"
+                        }
+                        "Success. Setting $settingName at version $version"
+                    }
+                    HttpStatus.SC_CREATED -> "Success. Created $settingName\n"
+                    else -> error("Unexpected successful status code")
                 }
-                "Success. Setting $settingName at version $versionInfo"
-            }
-
-            HttpStatusCode.Created -> "Success. Created $settingName\n"
-            else -> handleHttpFailure(settingName, response.status.value, respStr)
         }
     }
 
@@ -180,16 +182,12 @@ abstract class SettingCommand(
     fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
         verbose("DELETE $path")
-        val (response, respStr) = HttpClientUtils.deleteWithStringResponse(
-            url = path.toString(),
-            tokens = BearerTokens(accessToken, refreshToken = ""),
-        )
-
-        return when (response.status) {
-            HttpStatusCode.OK -> "Success $settingName: $respStr"
-            else -> {
-                abort("Error on delete of $settingName: response.status: ${response.status.value} body: $respStr")
-            }
+        val (_, response, result) = SettingsUtilities.delete(path, accessToken)
+        return when (result) {
+            is Result.Failure ->
+                abort("Error on delete of $settingName: ${response.responseMessage} ${String(response.data)}")
+            is Result.Success ->
+                "Success $settingName: ${result.value}"
         }
     }
 
@@ -205,22 +203,19 @@ abstract class SettingCommand(
     ): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
         verbose("GET $path")
-        val (response, respStr) = HttpClientUtils.getWithStringResponse(
-            url = path.toString(),
-            tokens = BearerTokens(accessToken, refreshToken = "")
-        )
-
-        return if (response.status == HttpStatusCode.OK) {
-            respStr
-        } else {
-            if (abortOnError) {
-                abort(
-                    "Error getting $settingName in the $env environment:" +
-                            " HTTP status code: ${response.status.value} response body: $respStr"
-                )
-            } else {
-                respStr
+        val (_, response, result) = SettingsUtilities.get(path, accessToken)
+        return when (result) {
+            is Result.Failure -> {
+                if (abortOnError) {
+                    abort(
+                        "Error getting $settingName in the $env environment:" +
+                            " ${response.responseMessage} ${String(response.data)}"
+                    )
+                } else {
+                    ""
+                }
             }
+            is Result.Success -> result.value
         }
     }
 
@@ -230,15 +225,16 @@ abstract class SettingCommand(
     fun getMany(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
-        val (response, respStr) = HttpClientUtils.getWithStringResponse(
-            url = path.toString(),
-            tokens = BearerTokens(accessToken, refreshToken = "")
-        )
-
-        if (response.status == HttpStatusCode.OK) {
-            return respStr
-        } else {
-            handleHttpFailure(settingName, response.status.value, respStr)
+        val (_, response, result) = Fuel
+            .get(path)
+            .authentication()
+            .bearer(accessToken)
+            .header(CONTENT_TYPE to jsonMimeType)
+            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
+            .responseJson()
+        return when (result) {
+            is Result.Failure -> handleHttpFailure(settingName, response, result)
+            is Result.Success -> "[${result.value.array().join(",\n")}]"
         }
     }
 
@@ -253,28 +249,28 @@ abstract class SettingCommand(
     ): List<String> {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
-        val (response, respStr) = HttpClientUtils.getWithStringResponse(
-            url = path.toString(),
-            tokens = BearerTokens(accessToken, refreshToken = ""),
-            timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
-        )
-        if (response.status == HttpStatusCode.OK) {
-            val result = mutableListOf<String>()
-            val jsonList = JSONArray(respStr)
-            if (settingType == SettingType.ORGANIZATION) {
-                jsonList.map {
-                    val e = (it as JSONObject)
-                    result.add(e.get("name").toString())
+        val (_, response, result) = Fuel
+            .get(path)
+            .authentication()
+            .bearer(accessToken)
+            .header(CONTENT_TYPE to jsonMimeType)
+            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
+            .responseJson()
+        return when (result) {
+            is Result.Failure -> handleHttpFailure(settingName, response, result)
+            is Result.Success -> {
+                val resultObjs = result.value.array()
+                val names = if (settingType == SettingType.ORGANIZATION) {
+                    (0 until resultObjs.length())
+                        .map { resultObjs.getJSONObject(it) }
+                        .map { it.getString("name") }
+                } else {
+                    (0 until resultObjs.length())
+                        .map { resultObjs.getJSONObject(it) }
+                        .map { "${it.getString("organizationName")}.${it.getString("name")}" }
                 }
-            } else {
-                jsonList.map {
-                    val e = (it as JSONObject)
-                    result.add(e.get("organizationName").toString() + "." + e.get("name").toString())
-                }
+                names.sorted()
             }
-            return result
-        } else {
-            handleHttpFailure(settingName, response.status.value, respStr)
         }
     }
 
@@ -421,14 +417,15 @@ abstract class SettingCommand(
 
     private fun handleHttpFailure(
         settingName: String,
-        httpStatusCode: Int,
-        respStr: String,
+        response: Response,
+        result: Result<FuelJson, FuelError>,
     ): Nothing {
         abort(
             "Error: \n" +
-                    "  Setting Name: $settingName\n" +
-                    "  HTTP Status Code: ${httpStatusCode}\n" +
-                    "  HTTP Response Data: $respStr"
+                "  Setting Name: $settingName\n" +
+                "  HTTP Result: ${result.component2()?.message}\n" +
+                "  HTTP Response Message: ${response.responseMessage}\n" +
+                "  HTTP Response Data: ${String(response.data)}"
         )
     }
 
@@ -446,12 +443,10 @@ abstract class SettingCommand(
                 val organization = mapper.readValue(input, OrganizationAPI::class.java)
                 Pair(organization.name, jsonMapper.writeValueAsString(organization))
             }
-
             SettingType.SENDER -> {
                 val sender = mapper.readValue(input, Sender::class.java)
                 Pair(sender.fullName, jsonMapper.writeValueAsString(sender))
             }
-
             SettingType.RECEIVER -> {
                 val receiver = mapper.readValue(input, ReceiverAPI::class.java)
                 Pair(receiver.fullName, jsonMapper.writeValueAsString(receiver))
@@ -466,12 +461,10 @@ abstract class SettingCommand(
                 val organization = jsonMapper.readValue(output, OrganizationAPI::class.java)
                 yamlMapper.writeValueAsString(organization)
             }
-
             SettingType.SENDER -> {
                 val sender = jsonMapper.readValue(output, Sender::class.java)
                 return yamlMapper.writeValueAsString(sender)
             }
-
             SettingType.RECEIVER -> {
                 val receiver = jsonMapper.readValue(output, ReceiverAPI::class.java)
                 return yamlMapper.writeValueAsString(receiver)
@@ -574,7 +567,6 @@ abstract class SettingCommand(
                         val (orgName, senderName) = Sender.parseFullName(settingName)
                         "/organizations/$orgName/senders/$senderName"
                     }
-
                     SettingType.RECEIVER -> {
                         val (orgName, receiverName) = Receiver.parseFullName(settingName)
                         "/organizations/$orgName/receivers/$receiverName"
@@ -924,28 +916,28 @@ class PutMultipleSettings : SettingCommand(
      * @return true if the file settings are newer or there is nothing in the database, false otherwise
      */
     private fun isFileUpdated(): Boolean {
-        val (response, respStr) = HttpClientUtils.headWithStringResponse(
-            url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "").toString(),
-            tokens = BearerTokens(oktaAccessToken, refreshToken = ""),
-            timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
-        )
-
-        if (response.status == HttpStatusCode.OK) {
-            return if (response.lastModified() != null) {
-                try {
-                    val apiModifiedTime = OffsetDateTime.parse(
-                        response.lastModified().toString(),
-                        HttpUtilities.lastModifiedFormatter
-                    )
-                    apiModifiedTime.toInstant().toEpochMilli() < inputFile.lastModified()
-                } catch (e: DateTimeParseException) {
-                    error("Unable to decode last modified data from API call. $e")
+        val url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "")
+        val (_, response, result) = Fuel.head(url).authentication()
+            .bearer(oktaAccessToken)
+            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
+            .response()
+        return when (result) {
+            is Result.Success -> {
+                if (response[HttpHeaders.LAST_MODIFIED].isNotEmpty()) {
+                    try {
+                        val apiModifiedTime = OffsetDateTime.parse(
+                            response[HttpHeaders.LAST_MODIFIED].first(),
+                            HttpUtilities.lastModifiedFormatter
+                        )
+                        apiModifiedTime.toInstant().toEpochMilli() < inputFile.lastModified()
+                    } catch (e: DateTimeParseException) {
+                        error("Unable to decode last modified data from API call. $e")
+                    }
+                } else {
+                    true // We have no last modified time, which means the DB is empty
                 }
-            } else {
-                true // We have no last modified time, which means the DB is empty
             }
-        } else {
-            error("Unable to fetch settings last update time from API.  $respStr")
+            else -> error("Unable to fetch settings last update time from API.  $result")
         }
     }
 }
@@ -981,11 +973,10 @@ class GetMultipleSettings : SettingCommand(
     private val loadToLocal by option(
         "-l", "--load-to-local",
         help = "Load settings to local database with transport modified to use SFTP. " +
-                "You will have the chance to approve or decline a diff. " +
-                "If the -a (--append-to-orgs) option is used in conjunction with the " +
-                "load option, the modified results " +
-                "are used when appending to the organizations.yml file. If the -o (--output) option is used, the " +
-                "original, unmodified settings will be output to that file."
+            "You will have the chance to approve or decline a diff. " +
+            "If the -a (--append-to-orgs) option is used in conjunction with the load option, the modified results " +
+            "are used when appending to the organizations.yml file. If the -o (--output) option is used, the " +
+            "original, unmodified settings will be output to that file."
     ).flag(default = false)
 
     private val appendToOrgs by option(

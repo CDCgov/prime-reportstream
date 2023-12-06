@@ -12,7 +12,6 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
-import com.jcraft.jsch.Logger
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -74,7 +73,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             }
         } else {
             val validationContext = ValidationContextFactory.noValidation()
-            val parseError = mutableListOf<Hl7InputStreamMessageStringIterator.ParseFailureError>()
+            var parseError: Hl7InputStreamMessageStringIterator.ParseFailureError? = null
             run modelLoop@{
                 messageModelsToTry.forEach { model ->
                     val context = DefaultHapiContext(CanonicalModelClassFactory(model))
@@ -86,7 +85,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                         }
                     } catch (e: Hl7InputStreamMessageStringIterator.ParseFailureError) {
                         messages.clear()
-                        parseError.add(e)
+                        parseError = e
                     }
 
                     if (messages.isNotEmpty()) {
@@ -96,10 +95,13 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 }
             }
 
-            // if it was able to parse the message through one of the models, then we do not want to log it as an error
-            val parseLogLevel = if (parseError.size == messageModelsToTry.size) Logger.ERROR else Logger.WARN
-            parseError.forEach { currentError ->
-                logHL7ParseFailure(currentError, messages.isEmpty(), parseLogLevel)
+            // This is a known kotlin bug where the compiler does not think parseError can be smart-casted because
+            // it is operated on in multiple forEach closures, the solution is to just reassign
+            // https://youtrack.jetbrains.com/issue/KT-19446/False-positive-Smart-cast-to-Foo-is-impossible-due-to-same-variable-names-in-different-closures
+            val parseErrorToLog = parseError
+            if (parseErrorToLog != null) {
+                // Only log a parse failure if all the model classes have been tried and no messages have been parsed
+                logHL7ParseFailure(parseErrorToLog, messages.isEmpty())
             }
         }
 
@@ -163,14 +165,8 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     private fun logHL7ParseFailure(
         exception: Hl7InputStreamMessageStringIterator.ParseFailureError,
         isError: Boolean = true,
-        logLevel: Int = Logger.ERROR,
     ) {
-        if (logLevel == Logger.ERROR) {
-            logger.error("Failed to parse message", exception)
-        } else {
-            logger.warn("Failed to parse message", exception)
-        }
-
+        logger.error("Failed to parse message", exception)
         // Get the exception root cause and log it accordingly
         when (val rootCause = ExceptionUtils.getRootCause(exception)) {
             is AbstractHL7Exception -> recordError(rootCause, isError)

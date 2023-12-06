@@ -13,9 +13,6 @@ inputs:
   version:
     description: "Version tag"
     required: true
-  checksum-validation:
-    default: false
-    description: Run checksum validation step
 
 runs:
   using: "composite"
@@ -247,15 +244,6 @@ runs:
           AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
           zdd-promote-slot
       shell: bash
-
-    - name: Validate function app checksum
-      if: inputs.checksum-validation == 'true'
-      uses: JosiahSiegel/checksum-validate-action@f7e46678bd1b02cd3cdfa76ac5cb031898b9c46d
-      with:
-        key: backend
-        validate: true
-        fail-invalid: true
-        input: $(sleep 15; az functionapp config appsettings list -g prime-data-hub-${{ inputs.env-name }} -n pdh${{ inputs.env-name }}-functionapp)
 
     - name: Remove GitHub action IP whitelist
       if: ${{ always() }} # This should happen even on a failure

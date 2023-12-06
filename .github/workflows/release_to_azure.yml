@@ -125,24 +125,6 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-      - name: Login to Azure
-        if: |
-          needs.pre_job.outputs.has_router_change == 'true' ||
-          needs.pre_job.outputs.has_react_change == 'true'
-        uses: ./.github/actions/vpn-azure
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-      - name: Get function app checksum
-        env:
-          checksum_validation: ${{ vars.CHECKSUM_VALIDATION }}
-        if: needs.pre_job.outputs.has_router_change == 'true' && env.checksum_validation == 'true'
-        uses: JosiahSiegel/checksum-validate-action@f7e46678bd1b02cd3cdfa76ac5cb031898b9c46d
-        with:
-          key: backend
-          input: $(az functionapp config appsettings list -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -n pdh${{ needs.pre_job.outputs.env_name }}-functionapp)
-
   approve_frontend_release:
     name: "Approve Frontend Release: ${{ needs.pre_job.outputs.env_name }}"
     needs:
@@ -189,15 +171,12 @@ jobs:
           dns-ip: ${{ needs.pre_job.outputs.dns_ip }}
 
       - name: Deploy backend
-        env:
-          checksum_validation: ${{ vars.CHECKSUM_VALIDATION }}
         uses: ./.github/actions/deploy-backend
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
           dct-root-pass: ${{ secrets.DCT_ROOT_PASS }}
           dct-repo-pass: ${{ secrets.DCT_REPO_PASS }}
           version: ${{ needs.pre_job.outputs.version }}
-          checksum-validation: ${{ env.checksum_validation }}
 
   deploy_frontend_release:
     name: "Deploy Frontend Release: ${{ needs.pre_job.outputs.env_name }}"

@@ -71,6 +71,26 @@ class HistoryFunctionsTests {
         }
 
         @Test
+        fun `test get report wrong organization`() {
+            val request = MockHttpRequestMessage()
+            request.httpHeaders["organization"] = "test1"
+            val jwt = mapOf("organization" to listOf("DHSender_test1Admins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.authenticate(any()) } returns claims
+            val context = mockkClass(ExecutionContext::class)
+            val reportFile = ReportFile()
+            reportFile.reportId = UUID.randomUUID()
+            reportFile.receivingOrg = "test2"
+            val mockDb = mockk<DatabaseAccess>()
+            every { mockDb.fetchReportFile(any()) } returns reportFile
+            mockkConstructor(WorkflowEngine::class)
+            every { anyConstructed<WorkflowEngine>().db } returns mockDb
+            val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
+            assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+        }
+
+        @Test
         fun `test get report missing organization header`() {
             val request = MockHttpRequestMessage()
             val jwt = mapOf("organization" to listOf("DHSender_test1Admins"), "sub" to "test@cdc.gov")

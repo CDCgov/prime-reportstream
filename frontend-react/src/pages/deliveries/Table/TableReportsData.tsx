@@ -12,7 +12,7 @@ interface Props {
     reports: ReportResource[];
 }
 
-/*
+/* 
     TableData maps the reports (passed in via props) to a list item and returns all rows
     as a <tbody>
 */
@@ -43,11 +43,7 @@ function TableReportsData(props: Props) {
                     </th>
                     <th scope="row">{report.total}</th>
                     <th scope="row">
-                        <ReportLink
-                            reportId={report.reportId}
-                            reportExpires={report.expires}
-                            fileType={report.fileType}
-                        />
+                        <ReportLink report={report} />
                     </th>
                 </tr>
             ))}
