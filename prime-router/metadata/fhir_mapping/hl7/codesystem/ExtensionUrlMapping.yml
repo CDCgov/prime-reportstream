@@ -548,3 +548,30 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-24-hd-extension"
 - id: "msh-25-hd-extension"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-25-hd-extension"
+# CQ Quantity
+- id: "cq-units"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cq-units"
+# Entity identifier
+- id: "entity-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier"
+# Assigning jurisdiction
+- id: "assigning-jurisdiction"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-jurisdiction"
+# Assigning Agency or Department
+- id: "assigning-agency-or-department"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-agency-or-department"
+# Security Check
+- id: "security-check"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/security-check"
+# Security Check Scheme
+- id: "security-check-scheme"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/security-check-scheme"
+# Identifier Check Digit
+- id: "identifier-check-digit"
+  url: "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit"
+# Naming System Check Digit
+- id: "naming-system-check-digit"
+  url: "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit"
+# cx-5 identifier type code
+- id: "identifier-type-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type-code"

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
 
 import Spinner from "../Spinner";
 import { USLink } from "../USLink";
@@ -161,54 +162,63 @@ export function ManagePublicKeyPage() {
     }
 
     return (
-        <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
-            {!isUploading && (
-                <h1 className="margin-top-0 margin-bottom-5">
-                    Manage public key
-                </h1>
-            )}
-            {showUploadMsg && (
-                <>
-                    <p className="font-sans-md">
-                        Send your public key to begin the REST API
-                        authentication process.
-                    </p>
-                    <Alert type="tip" className="margin-bottom-6">
-                        <span className="padding-left-1">
-                            Learn more about{" "}
-                            <USLink href="/developer-resources/api/getting-started#set-up-authentication">
-                                generating your public key
-                            </USLink>{" "}
-                            and setting up authentication.
-                        </span>
-                    </Alert>
-                </>
-            )}
-            {!sender && (
-                <ManagePublicKeyChooseSender
-                    senders={senders || []}
-                    onSenderSelect={handleSenderSelect}
+        <>
+            <Helmet>
+                <title>ReportStream API - Manage public key</title>
+                <meta
+                    name="description"
+                    content="Send your public key to begin the REST API authentication process."
                 />
-            )}
-            {showPublicKeyConfigured && <ManagePublicKeyConfigured />}
-            {isUploadEnabled && (
-                <ManagePublicKeyUpload
-                    onPublicKeySubmit={handlePublicKeySubmit}
-                    onFileChange={handleFileChange}
-                    onBack={handleOnBack}
-                    hasBack={hasBack}
-                    publicKey={hasPublicKey ?? file}
-                    file={file}
-                />
-            )}
-            {(isUploading || isSendersLoading) && <Spinner />}
-            {isSuccess && <ManagePublicKeyUploadSuccess />}
-            {hasUploadError && (
-                <ManagePublicKeyUploadError
-                    onTryAgain={() => setFileSubmitted(false)}
-                />
-            )}
-        </GridContainer>
+            </Helmet>
+            <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
+                {!isUploading && (
+                    <h1 className="margin-top-0 margin-bottom-5">
+                        Manage public key
+                    </h1>
+                )}
+                {showUploadMsg && (
+                    <>
+                        <p className="font-sans-md">
+                            Send your public key to begin the REST API
+                            authentication process.
+                        </p>
+                        <Alert type="tip" className="margin-bottom-6">
+                            <span className="padding-left-1">
+                                Learn more about{" "}
+                                <USLink href="/developer-resources/api/getting-started#set-up-authentication">
+                                    generating your public key
+                                </USLink>{" "}
+                                and setting up authentication.
+                            </span>
+                        </Alert>
+                    </>
+                )}
+                {!sender && (
+                    <ManagePublicKeyChooseSender
+                        senders={senders || []}
+                        onSenderSelect={handleSenderSelect}
+                    />
+                )}
+                {showPublicKeyConfigured && <ManagePublicKeyConfigured />}
+                {isUploadEnabled && (
+                    <ManagePublicKeyUpload
+                        onPublicKeySubmit={handlePublicKeySubmit}
+                        onFileChange={handleFileChange}
+                        onBack={handleOnBack}
+                        hasBack={hasBack}
+                        publicKey={hasPublicKey ?? file}
+                        file={file}
+                    />
+                )}
+                {(isUploading || isSendersLoading) && <Spinner />}
+                {isSuccess && <ManagePublicKeyUploadSuccess />}
+                {hasUploadError && (
+                    <ManagePublicKeyUploadError
+                        onTryAgain={() => setFileSubmitted(false)}
+                    />
+                )}
+            </GridContainer>
+        </>
     );
 }
 

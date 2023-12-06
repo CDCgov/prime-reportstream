@@ -1,8 +1,9 @@
-extends: ../default-sender-transform
+extends: ../original-pipeline-transforms
 constants:
   serviceRequest: 'Bundle.entry.resource.ofType(ServiceRequest)'
   diagnosticReport: 'Bundle.entry.resource.ofType(DiagnosticReport)'
   patient: 'Bundle.entry.resource.ofType(Patient)'
+  specimen: 'Bundle.entry.resource.ofType(Specimen)'
 elements:
 
   # MSH
@@ -276,3 +277,50 @@ elements:
     resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom.where(system = "phone")'
     resourceIndex: telecomIndex
     schema: datatypes/simple-report-telecom
+
+  # To populate SPM-2 appropriately, we need to overwrite the existing specimen.identifier[0]
+  # The value that exists in there is not used anywhere in the expected HL7 while the expected
+  # values can be found in the diagnostic report and its referenced organization
+  - name: sr-specimen-placer-assigned-identifier-value
+    bundleProperty: '%specimen.identifier[0].value'
+    value: [ '%diagnosticReport.id' ]
+
+  - name: sr-specimen-placer-assigned-identifier-type-coding-code
+    bundleProperty: '%specimen.identifier[0].type.coding[0].code'
+    value: [ '"PGN"' ]
+
+  - name: sr-specimen-placer-assigned-identifier-type-coding-system
+    bundleProperty: '%specimen.identifier[0].type.coding[0].system'
+    value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
+
+  - name: sr-specimen-placer-assigned-identifier-namespace-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-specimen-placer-assigned-identifier-universal-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].value' ]
+
+  - name: sr-specimen-placer-assigned-identifier-universal-id-type
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].type.coding[0].code' ]
+
+  - name: sr-specimen-placer-assigned-identifier-hl7-use
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
+    value: [ '"specimen-id-placer"' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-value
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier").value[x]'
+    value: [ '%diagnosticReport.id' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-namespace-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-universal-id
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].value' ]
+
+  - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-universal-id-type
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].type.coding[0].code' ]

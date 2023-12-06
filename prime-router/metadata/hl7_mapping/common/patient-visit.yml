@@ -104,6 +104,10 @@ elements:
     value: [ '%resource.period.end' ]
     hl7Spec: [ '%{hl7PV1Field}-45' ]
 
+  - name: actual-length-of-inpatient-stay
+    value: [ '%resource.length.value' ]
+    hl7Spec: [ '%{hl7PV2Field}-11' ]
+
   - name: visit-protection-indicator
     value: [ '%resource.meta.security.code' ]
     hl7Spec: [ '%{hl7PV2Field}-22' ]
