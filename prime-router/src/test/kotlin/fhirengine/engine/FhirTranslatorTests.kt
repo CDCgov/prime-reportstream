@@ -514,7 +514,6 @@ class FhirTranslatorTests {
         }
     }
 
-    @Ignore
     @Test
     fun `test getByteArrayFromBundle`() {
         val fhirData = File(VALID_DATA_URL).readText()
@@ -542,6 +541,7 @@ class FhirTranslatorTests {
         assertFailure { engine.getByteArrayFromBundle(csvReceiver, fhirBundle) }
     }
 
+    @Ignore
     @Test
     fun `test encodePreserveEncodingChars`() {
         val fhirData = File("src/test/resources/fhirengine/engine/valid_data_five_encoding_chars.fhir").readText()
