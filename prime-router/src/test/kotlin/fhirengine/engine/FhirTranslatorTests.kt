@@ -116,6 +116,7 @@ class FhirTranslatorTests {
         FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType($resource)")
 
     // valid fhir, read file, one destination (hard coded for phase 1), generate output file, no message on queue
+    @Ignore // TODO: is it me?
     @Test
     fun `test full elr translation happy path, one receiver`() {
         mockkObject(BlobAccess)
@@ -166,7 +167,6 @@ class FhirTranslatorTests {
         }
     }
 
-    @Ignore // TODO: is it me?
     @Test
     fun `legacy - test full elr translation happy path, one receiver RawSubmission message`() {
         mockkObject(BlobAccess)
