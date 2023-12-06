@@ -22,6 +22,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -60,7 +61,7 @@ class FhirConverterTests {
 
     val settings = FileSettings().loadOrganizations(oneOrganization)
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-    val metadata = Metadata(schema = one)
+    val metadata = createMetadata(schema = one)
 
     private val validHl7 = "" +
         "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH FL " +

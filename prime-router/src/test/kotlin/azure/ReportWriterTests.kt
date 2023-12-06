@@ -6,7 +6,6 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -16,6 +15,7 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.every
 import io.mockk.mockkObject
 import org.junit.jupiter.api.Test
@@ -23,7 +23,7 @@ import java.io.ByteArrayOutputStream
 
 class ReportWriterTests {
     val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-    val metadata = Metadata(schema = one)
+    val metadata = createMetadata(schema = one)
     val oneOrganization = DeepOrganization(
         "phd",
         "test",

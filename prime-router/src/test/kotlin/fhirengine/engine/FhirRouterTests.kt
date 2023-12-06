@@ -39,6 +39,7 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -233,7 +234,7 @@ class FhirRouterTests {
 
     private val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+    val metadata = createMetadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
     val receiver = Receiver(
         "myRcvr",

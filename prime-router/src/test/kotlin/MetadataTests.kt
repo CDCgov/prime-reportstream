@@ -21,6 +21,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.every
 import io.mockk.mockk
 import org.jooq.JSONB
@@ -388,10 +389,10 @@ class MetadataTests {
     @Test
     fun `test schema validation`() {
         var schema = Schema("name", Topic.TEST, listOf(Element("a", type = Element.Type.TEXT)))
-        assertThat(Metadata(schema).validateSchemas())
+        assertThat(createMetadata(schema).validateSchemas())
 
         schema = Schema("name", Topic.TEST, listOf(Element("a")))
-        assertFailure { Metadata(schema).validateSchemas() }
+        assertFailure { createMetadata(schema).validateSchemas() }
 
         schema = Schema(
             "name", Topic.TEST,
@@ -400,6 +401,6 @@ class MetadataTests {
                 Element("name")
             )
         )
-        assertFailure { Metadata(schema).validateSchemas() }
+        assertFailure { createMetadata(schema).validateSchemas() }
     }
 }

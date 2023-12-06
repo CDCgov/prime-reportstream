@@ -15,6 +15,7 @@ import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
+import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkClass
@@ -387,7 +388,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
@@ -430,7 +431,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
@@ -472,7 +473,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
@@ -515,7 +516,7 @@ class SubmissionReceiverTests {
         mockkObject(BaseEngine)
         // setup
         val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -566,7 +567,7 @@ class SubmissionReceiverTests {
         mockkObject(BaseEngine)
         // setup
         val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -618,7 +619,7 @@ class SubmissionReceiverTests {
     fun `test COVID receiver validateAndMoveToProcessing, async`() {
         // setup
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -681,7 +682,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -750,7 +751,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -833,7 +834,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -903,7 +904,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -973,7 +974,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -1043,7 +1044,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -1116,7 +1117,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -1183,7 +1184,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.none))
@@ -1242,7 +1243,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.none))
@@ -1300,7 +1301,7 @@ class SubmissionReceiverTests {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.none))
@@ -1354,7 +1355,7 @@ class SubmissionReceiverTests {
     @Test
     fun `test getSubmissionReceiver`() {
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))

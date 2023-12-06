@@ -27,6 +27,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.clearAllMocks
 import io.mockk.clearMocks
 import io.mockk.every
@@ -87,7 +88,7 @@ class UniversalBatchFunctionTests {
         every { timing1.maxReportCount } returns 500
         every { timing1.numberPerDay } returns 1440
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
 

@@ -6,10 +6,14 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.Hl7TranslationFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
+import gov.cdc.prime.router.metadata.LookupTable
+import io.mockk.mockk
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 
@@ -31,7 +35,26 @@ object UnitTestUtils {
      * Metadata instance is created each time this [simpleMetadata] variable is referenced, so unit tests do not
      * interfere with each other.
      */
-    val simpleMetadata get() = Metadata(simpleSchema)
+    val simpleMetadata get() = Metadata(
+        schema = simpleSchema,
+        tableDbAccess = mockk()
+    )
+
+    fun createMetadata(
+        schema: Schema? = null,
+        valueSet: ValueSet? = null,
+        tableName: String? = null,
+        table: LookupTable? = null,
+        tableDbAccess: DatabaseLookupTableAccess = mockk(),
+    ): Metadata {
+        return Metadata(
+            schema,
+            valueSet,
+            tableName,
+            table,
+            tableDbAccess
+        )
+    }
 
     /** returns a "mocked" hl7Config class */
     fun createConfig(

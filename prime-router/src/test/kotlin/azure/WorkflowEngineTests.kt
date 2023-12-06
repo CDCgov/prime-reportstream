@@ -21,6 +21,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.clearAllMocks
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -68,7 +69,7 @@ class WorkflowEngineTests {
         mockkObject(BaseEngine)
 
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID(), false)
@@ -110,7 +111,7 @@ class WorkflowEngineTests {
         mockkObject(ReportWriter)
         mockkObject(BaseEngine)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID(), false)
@@ -153,7 +154,7 @@ class WorkflowEngineTests {
         mockkObject(BlobAccess.Companion)
 
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val event = ReportEvent(Event.EventAction.NONE, report1.id, false)
@@ -200,7 +201,7 @@ class WorkflowEngineTests {
         mockkObject(BlobAccess.Companion)
 
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings()
         val report1 = Report(
             one,
@@ -236,7 +237,7 @@ class WorkflowEngineTests {
     @Test
     fun `test handleReportEvent`() {
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(
             one,
@@ -296,7 +297,7 @@ class WorkflowEngineTests {
     fun `test handleProcessEvent queue vs task table mismatch error`() {
         // This only tests an error case in handleProcessEvent, not the 'happy path'.
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = createMetadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(
             one,

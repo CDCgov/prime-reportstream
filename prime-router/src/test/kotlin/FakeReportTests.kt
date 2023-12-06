@@ -7,6 +7,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.every
 import io.mockk.mockkClass
 import java.io.ByteArrayInputStream
@@ -15,7 +16,7 @@ import kotlin.test.fail
 
 class FakeReportTests {
     private val schemaName = "test"
-    private val metadata = Metadata(
+    private val metadata = createMetadata(
         schema = UnitTestUtils.simpleSchema,
         valueSet = ValueSet("fake", ValueSet.SetSystem.LOCAL, values = listOf(ValueSet.Value(code = "AZ"))),
     ).loadSchemas(

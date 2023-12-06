@@ -40,6 +40,7 @@ import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -317,7 +318,7 @@ class DeliveryFunctionTests : Logging {
         facade: DeliveryFacade,
     ): DeliveryFunction {
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
-        val metadata = Metadata(schema = Schema(name = "one", topic = Topic.TEST))
+        val metadata = createMetadata(schema = Schema(name = "one", topic = Topic.TEST))
         val settings = MockSettings()
         val sender = CovidSender(
             name = "default",
