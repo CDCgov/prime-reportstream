@@ -190,6 +190,12 @@
             }
           ]
         },
+        "identifier" : [
+          {
+            "system" : "urn:id:extID",
+            "value" : "20230501102531-0400"
+          }
+        ],
         "valueQuantity" : {
           "extension" : [
             {

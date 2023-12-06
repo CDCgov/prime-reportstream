@@ -139,6 +139,12 @@
             }
           }
         ],
+        "identifier" : [
+          {
+            "system" : "urn:id:extID",
+            "value" : "3015822725_04204575"
+          }
+        ],
         "status" : "final",
         "code" : {
           "coding" : [
