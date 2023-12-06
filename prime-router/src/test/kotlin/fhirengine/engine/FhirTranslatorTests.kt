@@ -153,56 +153,6 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-
-        every { actionHistory.trackActionReceiverInfo(any(), any()) }
-            .returns(Unit)
-
-        // act
-        accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        verify(exactly = 1) {
-            actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any(), any())
-            accessSpy.insertTask(any(), any(), any(), any(), any())
-            actionHistory.trackActionReceiverInfo(any(), any())
-        }
-    }
-
-    @Test
-    fun `legacy - test full elr translation happy path, one receiver RawSubmission message`() {
-        mockkObject(BlobAccess)
-
-        // set up
-        val actionHistory = mockk<ActionHistory>()
-        val actionLogger = mockk<ActionLogger>()
-        val engine = makeFhirEngine()
-
-        val message =
-            spyk(
-                RawSubmission(
-                    UUID.randomUUID(),
-                    BLOB_URL,
-                    "test",
-                    BLOB_SUB_FOLDER,
-                    topic = Topic.FULL_ELR
-                )
-            )
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
-
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }
-            .returns(File(VALID_DATA_URL).readText())
-        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-
         every { actionHistory.trackActionReceiverInfo(any(), any()) }
             .returns(Unit)
 
