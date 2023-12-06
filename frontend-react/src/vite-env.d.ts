@@ -6,6 +6,8 @@ interface Frontmatter {
     breadcrumbs?: Array<{ label: string; href: string }>;
     title?: string;
     subtitle?: string | string[];
+    metaTitle?: string;
+    metaDescription?: string;
     callToAction?: Array<{
         label: string;
         href: string;
