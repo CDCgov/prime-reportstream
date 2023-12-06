@@ -142,7 +142,7 @@ identifier:
         identifierIndexName: "obr-53-alternate-placer-order-number"
 
 code:
-  valueOf: datatypes/cwe/CodeableConcept
+  valueOf: datatypes/CWE/CodeableConcept
   expressionType: resource
   specs: OBR.4
 
@@ -276,14 +276,14 @@ locationCode:
     orc29: STRING_ALL, ORC.29
   condition: $orc29 NOT_NULL
   expressionType: resource
-  valueOf: datatypes/cwe/CodeableConcept
+  valueOf: datatypes/CWE/CodeableConcept
   specs: ORC.29
 
 reasonCode:
   vars:
     obr31: STRING_ALL, OBR.31
   condition: $obr31 NOT_NULL
-  valueOf: datatypes/cwe/CodeableConcept
+  valueOf: datatypes/CWE/CodeableConcept
   generateList: true
   expressionType: resource
   specs: OBR.31
@@ -296,7 +296,7 @@ orderDetail:
       vars:
         obr46: STRING_ALL, OBR.46
       condition: $obr46 NOT_NULL
-      valueOf: datatypes/cwe/CodeableConcept
+      valueOf: datatypes/CWE/CodeableConcept
       specs: OBR.46
       constants:
         hl7v2Name: placer-supplemental-service-information
@@ -304,7 +304,7 @@ orderDetail:
       vars:
         obr47: STRING_ALL, OBR.47
       condition: $obr47 NOT_NULL
-      valueOf: datatypes/cwe/CodeableConcept
+      valueOf: datatypes/CWE/CodeableConcept
       specs: OBR.47
       constants:
         hl7v2Name: filler-supplemental-service-information
