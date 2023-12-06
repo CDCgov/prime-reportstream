@@ -129,12 +129,16 @@ identifier:
       expressionType: resource
       specs: ORC.33
       constants:
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+        code: "PLAC"
         identifierIndexName: "orc-33-alternate-placer-order-number"
     - condition: $orc33 NULL && $obr53 NOT_NULL
       valueOf: datatypes/CX/Identifier
       expressionType: resource
       specs: OBR.53
       constants:
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+        code: "PLAC"
         identifierIndexName: "obr-53-alternate-placer-order-number"
 
 code:

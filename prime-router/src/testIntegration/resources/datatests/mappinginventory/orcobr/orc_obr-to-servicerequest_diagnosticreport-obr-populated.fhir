@@ -383,12 +383,6 @@
                 "valueString" : "relevent info"
               },
               {
-                "url" : "obr-16-ordering-provider",
-                "valueReference" : {
-                  "reference" : "Practitioner/1701727938054036000.920d04db-80b5-44ba-95f6-e3dcf7d5410a"
-                }
-              },
-              {
                 "url" : "obr-18-placer-field-1",
                 "valueString" : "placer1"
               },
@@ -481,18 +475,18 @@
                 "valueString" : "obr-53-alternate-placer-order-number"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-agency-or-department",
-                "valueCodeableConcept" : {}
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-jurisdiction",
-                "valueCodeableConcept" : {}
-              },
-              {
                 "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
                 "valueString" : "Placer Order"
               }
             ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PLAC"
+                }
+              ]
+            },
             "value" : "Alt",
             "assigner" : {
               "reference" : "Organization/1701727938026347000.283c1481-b1cb-4183-bc91-25c3d72351f1"

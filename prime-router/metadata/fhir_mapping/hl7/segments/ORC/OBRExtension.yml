@@ -84,7 +84,7 @@ extension:
       vars:
         orc12: STRING_ALL, ORC.12
         obr16: STRING_ALL, OBR.16
-        condition: $orc12 NOT_NULL && $obr16 NOT_NULL
+      condition: $orc12 NOT_NULL && $obr16 NOT_NULL
       expressionsMap:
         url:
           type: STRING

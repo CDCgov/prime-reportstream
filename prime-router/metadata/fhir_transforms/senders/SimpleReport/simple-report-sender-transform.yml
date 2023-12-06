@@ -411,6 +411,8 @@ elements:
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
     value: [ '%diagnosticReport.issued' ]
 
+
+
   - name: sr-diagnostic-report-effective-date-time
     resource: '%diagnosticReport.effective'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'

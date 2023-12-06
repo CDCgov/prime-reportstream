@@ -326,12 +326,6 @@
               {
                 "url" : "obr-22-results-rpt-status-change-datetime",
                 "valueString" : "2023"
-              },
-              {
-                "url" : "obr-16-ordering-provider",
-                "valueReference" : {
-                  "reference" : "Practitioner/1701809815605690000.6e964cdb-1b86-4126-b44d-1cea28f8877a"
-                }
               }
             ]
           }
@@ -486,18 +480,18 @@
                 "valueString" : "orc-33-alternate-placer-order-number"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-agency-or-department",
-                "valueCodeableConcept" : {}
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-jurisdiction",
-                "valueCodeableConcept" : {}
-              },
-              {
                 "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
                 "valueString" : "Placer Order"
               }
             ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PLAC"
+                }
+              ]
+            },
             "value" : "Alt",
             "assigner" : {
               "reference" : "Organization/1701809815591162000.3f81cdcb-966c-42b7-869b-1cb1d48145ac"
@@ -505,13 +499,6 @@
           }
         ],
         "status" : "completed",
-        "_intent" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-11-specimen-action-code"
-            }
-          ]
-        },
         "code" : {
           "coding" : [
             {
