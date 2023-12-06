@@ -247,7 +247,7 @@ elements:
 
   - name: sr-ordering-facility-telecom
     condition: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact.empty()'
-    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom.where(system = "phone")'
+    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom'
     resourceIndex: telecomIndex
     schema: datatypes/simple-report-telecom
 
