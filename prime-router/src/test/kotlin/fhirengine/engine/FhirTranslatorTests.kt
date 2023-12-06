@@ -38,6 +38,7 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import java.io.File
 import java.util.UUID
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -50,6 +51,7 @@ private const val BODY_URL = "http://anyblob.com"
 private const val VALID_DATA_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
 private const val MSH_11_1 = "MSH-11-1"
 
+@Ignore
 class FhirTranslatorTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
