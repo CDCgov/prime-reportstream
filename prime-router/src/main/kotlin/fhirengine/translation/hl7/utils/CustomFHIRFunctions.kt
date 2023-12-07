@@ -10,7 +10,7 @@ import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
-import org.hl7.fhir.r4.utils.FHIRPathEngine
+import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
 import java.time.DateTimeException
 import java.time.ZoneId
 import java.util.TimeZone
@@ -62,42 +62,42 @@ object CustomFHIRFunctions : FhirPathFunctions {
     override fun resolveFunction(
         functionName: String?,
         additionalFunctions: FhirPathFunctions?,
-    ): FHIRPathEngine.IEvaluationContext.FunctionDetails? {
+    ): FunctionDetails? {
         return when (CustomFHIRFunctionNames.get(functionName)) {
             CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails("extract country code from FHIR phone number", 0, 0)
+                FunctionDetails("extract country code from FHIR phone number", 0, 0)
             }
 
             CustomFHIRFunctionNames.GetPhoneNumberAreaCode -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails("extract country code from FHIR phone number", 0, 0)
+                FunctionDetails("extract country code from FHIR phone number", 0, 0)
             }
 
             CustomFHIRFunctionNames.GetPhoneNumberLocalNumber -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails("extract country code from FHIR phone number", 0, 0)
+                FunctionDetails("extract country code from FHIR phone number", 0, 0)
             }
 
             CustomFHIRFunctionNames.GetPhoneNumberExtension -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails("extract extension from FHIR phone number", 0, 0)
+                FunctionDetails("extract extension from FHIR phone number", 0, 0)
             }
 
             CustomFHIRFunctionNames.HasPhoneNumberExtension -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails("see if extension exists in FHIR phone number", 0, 0)
+                FunctionDetails("see if extension exists in FHIR phone number", 0, 0)
             }
 
             CustomFHIRFunctionNames.GetCodingSystemMapping -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails("convert FHIR coding system url to HL7 ID", 0, 0)
+                FunctionDetails("convert FHIR coding system url to HL7 ID", 0, 0)
             }
 
             CustomFHIRFunctionNames.Split -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails("splits a string by provided delimiter", 1, 1)
+                FunctionDetails("splits a string by provided delimiter", 1, 1)
             }
 
             CustomFHIRFunctionNames.GetId -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails("extracts an ID from a resource property", 0, 0)
+                FunctionDetails("extracts an ID from a resource property", 0, 0)
             }
 
             CustomFHIRFunctionNames.GetIdType -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails(
+                FunctionDetails(
                     "determines the ID type from a resource property",
                     0,
                     0
@@ -105,7 +105,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
             }
 
             CustomFHIRFunctionNames.ChangeTimezone -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails(
+                FunctionDetails(
                     "changes the timezone of a dateTime, instant, or date resource to the timezone passed in",
                     1,
                     1
@@ -113,7 +113,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
             }
 
             CustomFHIRFunctionNames.ConvertDateToAge -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails(
+                FunctionDetails(
                     "returns the age of a person from the comparison date (defaulted to current time) in " +
                         "the unit specified or in a default unit. Params can be as follows:" +
                         "(time unit), (comparison date), (timeUnit, comparisonDate), or (comparisonDate, timeUnit)",
@@ -390,6 +390,16 @@ object CustomFHIRFunctions : FhirPathFunctions {
             else -> null
         }
         return if (type != null) mutableListOf(StringType(type)) else mutableListOf()
+    }
+
+    fun getPrimitiveValue(focus: MutableList<Base>): MutableList<Base> {
+        return focus.map {
+            if (it.isPrimitive) {
+                it.copy()
+            } else {
+                it
+            }
+        }.toMutableList()
     }
 
     /**

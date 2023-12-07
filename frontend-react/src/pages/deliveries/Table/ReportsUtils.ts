@@ -9,13 +9,13 @@ export const reportDetailURL = (id: string, base?: string) =>
     `${base ? base : RS_API_URL}/api/history/report/${id}`;
 
 export const getReportAndDownload = (
-    id: string,
+    reportId: string,
     oktaToken: string,
     org: string,
 ): RSReportInterface | undefined => {
     let report = undefined;
     axios
-        .get<RSReportInterface>(reportDetailURL(id), {
+        .get<RSReportInterface>(reportDetailURL(reportId), {
             headers: {
                 Authorization: `Bearer ${oktaToken}`,
                 Organization: org,

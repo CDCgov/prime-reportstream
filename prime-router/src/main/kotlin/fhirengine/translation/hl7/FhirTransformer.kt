@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
@@ -67,7 +68,11 @@ class FhirTransformer(
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
         schema.elements.forEach { element ->
-            transformBasedOnElement(element, bundle, focusResource, schemaContext, debug)
+            try {
+                transformBasedOnElement(element, bundle, focusResource, schemaContext, debug)
+            } catch (ex: Exception) {
+                throw ConfigSchemaElementProcessingException(schema, element, ex)
+            }
         }
     }
 
@@ -172,7 +177,8 @@ class FhirTransformer(
         val childrenNames = pathParts.dropLast(1).reversed()
         val missingChildren = mutableListOf<String>()
         childrenNames.forEach { childName ->
-            if (FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluate).isEmpty()) {
+            val pathToEvaluatedFixedForFhirPath = pathToEvaluate.replace(Regex("value[a-zA-Z]*"), "value")
+            if (FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluatedFixedForFhirPath).isEmpty()) {
                 if (childName.contains('%')) {
                     logger.error(
                         "Could not evaluate path '$pathToEvaluate', and cannot dynamically create" +
@@ -191,7 +197,8 @@ class FhirTransformer(
             check(missingChildren.last() != "entry") { "Can't add missing entry." } // We do not need to support entries
         }
         // Now go on reverse and create the needed children
-        val parent = FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluate)
+        val pathToEvaluatedFixedForFhirPath = pathToEvaluate.replace(Regex("value[a-zA-Z]*"), "value")
+        val parent = FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluatedFixedForFhirPath)
         if (parent.size != 1) throw Exception()
         var childResource = parent[0]
         missingChildren.reversed().forEach { childName ->
