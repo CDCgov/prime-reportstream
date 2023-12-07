@@ -32,7 +32,7 @@ import java.util.Properties
 plugins {
     val kotlinVersion by System.getProperties()
     kotlin("jvm") version "$kotlinVersion"
-    id("org.flywaydb.flyway") version "9.22.3"
+    id("org.flywaydb.flyway") version "10.0.1"
     id("nu.studer.jooq") version "8.2.1"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.14.0"
@@ -783,6 +783,8 @@ buildscript {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.5.0")
+        // as per flyway v10 docs the postgres flyway module must be on the project buildpath
+        classpath("org.flywaydb:flyway-database-postgresql:10.0.1")
     }
 }
 
@@ -843,6 +845,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.10.0")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.10.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:6.10.0")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
@@ -866,7 +869,8 @@ dependencies {
     implementation("commons-io:commons-io:2.15.0")
     implementation("org.postgresql:postgresql:42.6.0")
     implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("org.flywaydb:flyway-core:9.22.3")
+    implementation("org.flywaydb:flyway-core:10.0.1")
+    implementation("org.flywaydb:flyway-database-postgresql:10.0.1")
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:32.1.3-jre")
     implementation("com.helger.as2:as2-lib:5.1.1")
