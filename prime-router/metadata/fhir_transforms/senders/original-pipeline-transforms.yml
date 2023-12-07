@@ -113,3 +113,18 @@ elements:
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '"urn:oid:2.16.840.1.113883.9.11"' ]
+
+  - name: sft-2-software-version
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.version'
+    value: [ '"0.2-SNAPSHOT"' ]
+
+  - name: sft-3-software-name
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.software'
+    value: [ '"PRIME ReportStream"' ]
+
+  - name: sft-4-software-id
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id").value[x]'
+    value: [ '"0.2-SNAPSHOT"' ]
