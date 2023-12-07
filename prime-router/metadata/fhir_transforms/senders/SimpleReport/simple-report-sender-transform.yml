@@ -143,8 +143,8 @@ elements:
   - name: sr-ordering-provider-name-type-code
     condition: '%resource.name.use.exists().not()'
     resource: 'Bundle.entry.resource.ofType(Practitioner)'
-    bundleProperty: '%resource.name.use'
-    value: [ '"official"' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code").value[x]'
+    value: [ '"L"' ]
 
   # This were being populated as CA Receiver transforms, but should be Sender Transforms
   - name: sr-patient-assigning-facility-name
