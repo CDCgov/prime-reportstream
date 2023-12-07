@@ -155,7 +155,7 @@ elements:
 
   # This is populated as a sender transform in the Covid pipeline
   - name: sr-ordering-provider-name-type-code
-    condition: '%resource.value.empty().not()'
+    condition: '%resource.name.use.exists().not()'
     resource: 'Bundle.entry.resource.ofType(Practitioner)'
     bundleProperty: '%resource.name.use'
     value: [ '"official"' ]
@@ -208,16 +208,16 @@ elements:
   # Covid pipeline populates this by looking at the sender-automation/aoe value-set version
   # But some AOEs have different versions, we need the ability to lookup that version
   # So the current solution is to move the sender-automation/aoe to the sender_automation_value_set_row lookup table
-  - name: sr-observation-code-version
-    resource: 'Bundle.entry.resource.ofType(Observation)'
-    condition: '%resource.code.coding.exists()'
-    bundleProperty: '%resource.code.coding.version'
-    value: [ '%resource.code.coding.code' ]
-    valueSet:
-      lookupTable:
-        tableName: sender_automation_value_set_row
-        keyColumn: code
-        valueColumn: version
+  #- name: sr-observation-code-version
+  #  resource: 'Bundle.entry.resource.ofType(Observation)'
+  #  condition: '%resource.code.coding.exists()'
+  #  bundleProperty: '%resource.code.coding.version'
+  #  value: [ '%resource.code.coding.code' ]
+  #  valueSet:
+  #    lookupTable:
+  #      tableName: sender_automation_value_set_row
+  #      keyColumn: code
+  #      valueColumn: version
 
   # Covid pipeline populates this date using a sender transform
   - name: sr-observation-date
@@ -233,11 +233,17 @@ elements:
     value: [ '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x].getIdType()' ]
 
   # Covid pipeline populates this using a sender transform
-  - name: sr-performing-organization-name-non-pracrole-assigning-authority
-    condition: '%resource.performer.resolve().ofType(Organization).exists()'
-    resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
-    value: [ '"urn:oid:2.16.840.1.113883.4.7"' ]
+#  - name: sr-performing-organization-name-non-pracrole-assigning-authority
+#    condition: '%resource.performer.resolve().ofType(Organization).exists()'
+#    resource: 'Bundle.entry.resource.ofType(Observation)'
+#    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+#    value: [ '"urn:oid:2.16.840.1.113883.4.7"' ]
+
+  - name: sr-blank-orc-21-10-organization-identifier-value
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(Organization)'
+    bundleProperty: '%resource.identifier.value'
+    value: [ '""' ]
 
   - name: sr-observation-code-display
     condition: '%resource.code.coding[0].display.empty() and %resource.code.text.empty().not()'

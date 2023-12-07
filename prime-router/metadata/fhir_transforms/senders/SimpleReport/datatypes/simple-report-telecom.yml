@@ -79,7 +79,7 @@ elements:
     value: [ '%resource.extension(%`rsext-text`).value' ]
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text").value[x]'
 
-  - name: xtn-unformatted-text
-    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number").value.exists().not() and %resource.value.exists() and %resource.system != "email"'
+  - name: xtn1-telephone-number
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number").value.exists().not() and %resource.value.exists() and %resource.system = "phone"'
     value: [ '%deidentifiedValue','%resource.value' ]
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number").value[x]'
