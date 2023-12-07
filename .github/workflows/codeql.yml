@@ -49,7 +49,8 @@ jobs:
 
     - name: Create matrix
       id: set-matrix
-      run: echo "matrix={\"language\":[\"javascript\",\"python\"]}" >> $GITHUB_OUTPUT
+      #run: echo "matrix={\"language\":[\"javascript\",\"python\"]}" >> $GITHUB_OUTPUT
+      run: echo "matrix={\"language\":[]}" >> $GITHUB_OUTPUT
 
   analyze:
     name: Analyze
