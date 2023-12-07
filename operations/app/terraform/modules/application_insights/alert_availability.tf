@@ -135,8 +135,8 @@ resource "azurerm_application_insights_web_test" "sftp_test" {
     "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/Microsoft.Insights/components/${var.resource_prefix}-appinsights" = "Resource"
   }
 }
-resource "azurerm_application_insights_web_test" "lividapi_test" {
-  name                    = "${var.resource_prefix}-lividapi-health-check"
+resource "azurerm_application_insights_web_test" "livdapi_test" {
+  name                    = "${var.resource_prefix}-livdapi-health-check"
   location                = var.location
   resource_group_name     = var.resource_group
   application_insights_id = azurerm_application_insights.app_insights.id
