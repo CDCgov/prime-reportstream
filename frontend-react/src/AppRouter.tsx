@@ -602,16 +602,16 @@ export const appRoutes: RouteObject[] = [
                                                             />
                                                         ),
                                                     },
-                                                    {
-                                                        path: ":entityId",
-                                                        element: (
-                                                            <AdminSettingFormPage
-                                                                entityType="Receiver"
-                                                                mode="new"
-                                                            />
-                                                        ),
-                                                    },
                                                 ],
+                                            },
+                                            {
+                                                path: "clone/:entityId",
+                                                element: (
+                                                    <AdminSettingFormPage
+                                                        entityType="Receiver"
+                                                        mode="clone"
+                                                    />
+                                                ),
                                             },
                                             {
                                                 path: ":entityId",
@@ -650,16 +650,16 @@ export const appRoutes: RouteObject[] = [
                                                             />
                                                         ),
                                                     },
-                                                    {
-                                                        path: ":entityId",
-                                                        element: (
-                                                            <AdminSettingFormPage
-                                                                entityType="Sender"
-                                                                mode="new"
-                                                            />
-                                                        ),
-                                                    },
                                                 ],
+                                            },
+                                            {
+                                                path: "clone/:entityId",
+                                                element: (
+                                                    <AdminSettingFormPage
+                                                        entityType="Sender"
+                                                        mode="clone"
+                                                    />
+                                                ),
                                             },
                                             {
                                                 path: ":entityId",

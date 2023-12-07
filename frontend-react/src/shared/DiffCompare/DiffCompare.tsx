@@ -1,7 +1,7 @@
 import DOMPurify from "dompurify";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
-import "./JsonCompare.scss";
+import "./DiffCompare.scss";
 import useJsonDiff from "../../hooks/UseJsonDiff/UseJsonDiff";
 
 interface DiffCompareBaseProps {

@@ -1,36 +1,34 @@
-import { Textarea } from "@trussworks/react-uswds";
+import { Fieldset, Textarea } from "@trussworks/react-uswds";
 
-import {
-    SettingFormField,
-    SettingFormFieldRow,
-} from "../../SettingFormField/SettingFormField";
+import { SettingFormFieldRow } from "../../SettingFormField/SettingFormField";
+import { SettingFormFieldsetProps } from "../SettingFormFieldset";
+import { useSettingForm } from "../../SettingFormContext/SettingFormContext";
 
-export default function SettingJsonFieldset() {
+export interface SettingJsonFieldsetProps extends SettingFormFieldsetProps {}
+
+export default function SettingJsonFieldset({
+    children,
+}: SettingJsonFieldsetProps) {
+    const { form, mode } = useSettingForm();
     return (
-        <SettingFormField
-            name="json"
-            onChange={(e) => e.currentTarget.value}
-            jsonType="whole"
-            render={({
-                defaultValue,
-                id,
-                name,
-                onChange,
-                className,
-                disabled,
-            }) => (
-                <SettingFormFieldRow>
-                    <Textarea
-                        id={id}
-                        name={name}
-                        defaultValue={defaultValue}
-                        onBlur={onChange}
-                        disabled={disabled}
-                        className={className}
-                        rows={100}
-                    />
-                </SettingFormFieldRow>
-            )}
-        />
+        <Fieldset>
+            <form.Field
+                name="_raw"
+                children={(field) => (
+                    <SettingFormFieldRow>
+                        <Textarea
+                            id={field.name}
+                            name={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
+                        />
+                    </SettingFormFieldRow>
+                )}
+            />
+            {children}
+        </Fieldset>
     );
 }

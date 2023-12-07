@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 
-import { MetaTaggedResource } from "../../resources/OrgSettingsBaseResource";
 import { formatDate } from "../../utils/misc";
+import { RSSetting } from "../../config/endpoints/settings";
 
-type DisplayMetaProps = {
-    metaObj?: MetaTaggedResource;
-};
+export interface DisplayMetaProps {
+    metaObj?: RSSetting;
+}
 
-export const DisplayMeta = ({ metaObj }: DisplayMetaProps) => {
-    const [metaData, setMetaData] = useState<MetaTaggedResource>();
+export default function MetaDisplay({ metaObj }: DisplayMetaProps) {
+    const [metaData, setMetaData] = useState<RSSetting>();
 
     useEffect(() => {
         if (!metaObj) {
@@ -35,4 +35,4 @@ export const DisplayMeta = ({ metaObj }: DisplayMetaProps) => {
     const createdByDisplay = createdBy ?? "";
 
     return <>{`${versionDisplay}${createdAtDisplay}${createdByDisplay}`}</>;
-};
+}

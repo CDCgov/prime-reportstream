@@ -1,61 +1,50 @@
 import {
-    Grid,
+    Fieldset,
     Label,
     Select,
     TextInput,
     Textarea,
 } from "@trussworks/react-uswds";
-import { ChangeEvent, PropsWithChildren } from "react";
+import { useEffect } from "react";
 
-import { DisplayMeta } from "../../../../components/Admin/DisplayMeta";
-import { ObjectTooltip } from "../../../../components/tooltips/ObjectTooltip";
+import { SettingFormFieldRow } from "../../SettingFormField/SettingFormField";
+import { SettingFormFieldsetProps, filterHint } from "../SettingFormFieldset";
 import {
-    SampleFilterObject,
+    RSOrganization,
     jurisdictionChoices,
-} from "../../../../utils/TemporarySettingsAPITypes";
-import {
-    SettingFormField,
-    SettingFormFieldRow,
-} from "../../SettingFormField/SettingFormField";
+} from "../../../../config/endpoints/settings";
+import { useSettingForm } from "../../SettingFormContext/SettingFormContext";
 
-export interface OrganizationFieldsetProps extends PropsWithChildren {}
+export interface OrganizationFieldsetProps extends SettingFormFieldsetProps {}
 
 export default function OrganizationFieldset({
     children,
 }: OrganizationFieldsetProps) {
+    const { form, mode, registerJsonFields } = useSettingForm<
+        RSOrganization,
+        "filters"
+    >();
+
+    useEffect(() => {
+        registerJsonFields("filters");
+    }, [registerJsonFields]);
+
     return (
-        <>
-            <Grid row>
-                <Grid col={3}>Meta:</Grid>
-                <Grid col={9}>
-                    <DisplayMeta metaObj={{} as any} />
-                    <br />
-                </Grid>
-            </Grid>
-            <SettingFormField
+        <Fieldset>
+            <form.Field
                 name="jurisdiction"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
-                        label={<Label htmlFor={id}>Jurisdiction</Label>}
+                        label={<Label htmlFor={field.name}>Jurisdiction</Label>}
                     >
                         <Select
-                            name={name}
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
-                            title="Jurisdiction"
+                            name={field.name}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         >
                             {jurisdictionChoices.map((c) => (
                                 <option key={c} value={c}>
@@ -66,96 +55,75 @@ export default function OrganizationFieldset({
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="countyName"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
-                        label={<Label htmlFor={id}>County Name</Label>}
+                        label={<Label htmlFor={field.name}>County Name</Label>}
                     >
                         <TextInput
-                            name={name}
+                            name={field.name}
                             type="text"
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            id={field.name}
+                            value={field.state.value}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
+                            disabled={mode === "readonly"}
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="stateCode"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
-                        label={<Label htmlFor={id}>State Code</Label>}
+                        label={<Label htmlFor={field.name}>State Code</Label>}
                     >
                         <TextInput
-                            name={name}
+                            name={field.name}
                             type="text"
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            id={field.name}
+                            value={field.state.value}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
+                            disabled={mode === "readonly"}
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="filters"
-                jsonType="field"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                onChangeAsyncDebounceMs={500}
+                onChangeAsync={(value) => {
+                    try {
+                        JSON.parse(value);
+                    } catch (e: any) {
+                        return e.message;
+                    }
+                }}
+                children={(field) => (
                     <SettingFormFieldRow
                         label={
-                            <>
-                                <Label htmlFor={id}>Filters</Label>
-                                <ObjectTooltip obj={new SampleFilterObject()} />
-                            </>
+                            <Label htmlFor={field.name} hint={filterHint}>
+                                Filters
+                            </Label>
                         }
                     >
                         <Textarea
-                            name={name}
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            name={field.name}
+                            value={field.state.value}
+                            id={field.name}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
             {children}
-        </>
+        </Fieldset>
     );
 }

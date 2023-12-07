@@ -1,75 +1,59 @@
-import { Label, TextInput } from "@trussworks/react-uswds";
-import { ChangeEvent } from "react";
+import { Fieldset, Label, TextInput } from "@trussworks/react-uswds";
 
-import {
-    SettingFormField,
-    SettingFormFieldRow,
-} from "../../SettingFormField/SettingFormField";
+import { SettingFormFieldRow } from "../../SettingFormField/SettingFormField";
+import { RSSetting } from "../../../../config/endpoints/settings";
+import { SettingFormFieldsetProps } from "../SettingFormFieldset";
+import { useSettingForm } from "../../SettingFormContext/SettingFormContext";
 
-export default function SettingFieldset() {
+export interface SettingFieldsetProps extends SettingFormFieldsetProps {}
+
+export default function SettingFieldset({ children }: SettingFieldsetProps) {
+    const { form, mode } = useSettingForm<RSSetting>();
     return (
-        <>
-            <SettingFormField
+        <Fieldset>
+            <form.Field
                 name="name"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    mode,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
                         label={
-                            <Label htmlFor={id} requiredMarker>
+                            <Label htmlFor={field.name} requiredMarker>
                                 Name
                             </Label>
                         }
                     >
                         <TextInput
-                            name={name}
+                            name={field.name}
                             type="text"
-                            id={id}
-                            defaultValue={defaultValue}
-                            disabled={disabled && mode === "edit"}
-                            onBlur={onChange}
-                            className={className}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly" || mode === "edit"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="description"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
-                        label={<Label htmlFor={id}>Description</Label>}
+                        label={<Label htmlFor={field.name}>Description</Label>}
                     >
                         <TextInput
-                            name={name}
+                            name={field.name}
                             type="text"
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-        </>
+            {children}
+        </Fieldset>
     );
 }

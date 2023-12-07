@@ -1,20 +1,29 @@
+import { FormApi } from "@tanstack/react-form";
 import { createContext, useContext } from "react";
 
-export type SettingFormMode = "edit" | "clone" | "new";
-export type SettingFormFieldJsonType = "whole" | "field";
+import { RSSetting } from "../../../config/endpoints/settings";
+import type { SettingFormMode } from "../SettingForm/SettingForm";
+import { ObjectJsonHybrid } from "../../../hooks/UseObjectJsonHybridEdit/UseObjectJsonHybridEdit";
 
-export interface SettingFormCtx {
+export type JsonFormValue<T> = T & {
+    _raw: string;
+};
+
+export interface SettingFormCtx<
+    T extends RSSetting = RSSetting,
+    K extends (string & keyof T) | undefined = undefined,
+> {
     mode: SettingFormMode;
-    defaultValues: any;
-    onFieldChange: (k: string, v: unknown) => void;
     getId: (v: string) => string;
-    registerField: (k: string, jsonType?: SettingFormFieldJsonType) => void;
-    json: string;
-    isReadonly?: boolean;
+    registerJsonFields: (...args: (string & keyof T)[]) => void;
+    form: FormApi<JsonFormValue<ObjectJsonHybrid<T, K>>, unknown>;
 }
 
 export const SettingFormContext = createContext<SettingFormCtx>({} as any);
 
-export function useSettingForm() {
-    return useContext(SettingFormContext);
+export function useSettingForm<
+    T extends RSSetting = RSSetting,
+    K extends (string & keyof T) | undefined = undefined,
+>() {
+    return useContext(SettingFormContext) as unknown as SettingFormCtx<T, K>;
 }

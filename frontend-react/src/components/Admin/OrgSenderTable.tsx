@@ -1,12 +1,10 @@
 import { useResource } from "rest-hooks";
 import { ButtonGroup, Table } from "@trussworks/react-uswds";
-import React from "react";
 
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import Spinner from "../Spinner";
 import { USLink, USNavLink } from "../USLink";
-
-import { DisplayMeta } from "./DisplayMeta";
+import MetaDisplay from "../../shared/MetaDisplay/MetaDisplay";
 
 interface OrgSettingsTableProps {
     orgId: string;
@@ -71,7 +69,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                                 <td>{eachOrgSetting.topic || ""}</td>
                                 <td>{eachOrgSetting.customerStatus || ""}</td>
                                 <td>
-                                    <DisplayMeta metaObj={eachOrgSetting} />
+                                    <MetaDisplay metaObj={eachOrgSetting} />
                                 </td>
                                 <td colSpan={2}>
                                     <ButtonGroup type="segmented">

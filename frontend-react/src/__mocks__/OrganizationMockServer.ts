@@ -3,11 +3,12 @@ import { setupServer } from "msw/node";
 
 import config from "../config";
 import {
-    ApiKey,
-    ApiKeySet,
+    Jwk,
+    ScopedJwks,
     RSApiKeysResponse,
     RSReceiver,
     RSSender,
+    CustomerStatus,
 } from "../config/endpoints/settings";
 import { CustomerStatusType } from "../utils/DataDashboardUtils";
 
@@ -22,11 +23,13 @@ export const dummySender = {
     organizationName: "testOrg",
     format: "CSV",
     topic: "covid-19",
-    customerStatus: "testing",
+    customerStatus: CustomerStatus.TESTING,
     schemaName: "test/covid-19-test",
     allowDuplicates: false,
     processingType: "sync",
     version: 1,
+    createdAt: "",
+    createdBy: "",
 } satisfies RSSender;
 
 export const fakeOrg = {
@@ -64,7 +67,7 @@ export const sendersGenerator = (count: number) => {
 
 export const receiversGeneratorBase = {
     organizationName: "testOrg",
-    customerStatus: "",
+    customerStatus: CustomerStatus.TESTING,
     translation: undefined,
     topic: "",
     version: 0,
@@ -107,8 +110,8 @@ export const dummyActiveReceiver = {
 
 export const publicKeysGenerator = (apiKeyCount: number) => {
     let publicKey: RSApiKeysResponse;
-    const apiKey: ApiKey[] = [];
-    const apiKeySet: ApiKeySet[] = [];
+    const apiKey: Jwk[] = [];
+    const apiKeySet: ScopedJwks[] = [];
 
     for (let j = 0; j < apiKeyCount; j++) {
         apiKey.push({

@@ -1,92 +1,201 @@
-import { PropsWithChildren, useMemo, useState } from "react";
-import {
-    GridContainer,
-    Button,
-    Grid,
-    ButtonGroup,
-} from "@trussworks/react-uswds";
+import { PropsWithChildren, useEffect, useMemo, useState } from "react";
+import { Button, Grid, ButtonGroup } from "@trussworks/react-uswds";
+import { useForm } from "@tanstack/react-form";
 
-import {
-    RSOrganizationSettings,
-    RSReceiver,
-    RSSender,
-} from "../../../config/endpoints/settings";
-import {
-    SettingFormContext,
-    SettingFormCtx,
-} from "../SettingFormContext/SettingFormContext";
+import { RSSetting } from "../../../config/endpoints/settings";
 import OrganizationFieldSet from "../Fieldsets/OrganizationFieldSet/OrganizationFieldSet";
 import ReceiverFieldSet from "../Fieldsets/ReceiverFieldSet/ReceiverFieldSet";
 import SenderFieldset from "../Fieldsets/SenderFieldSet/SenderFieldSet";
 import SettingFieldset from "../Fieldsets/SettingFieldset/SettingFieldset";
 import ServiceSettingFieldset from "../Fieldsets/ServiceSettingFieldSet/ServiceSettingFieldset";
 import SettingJsonFieldset from "../Fieldsets/SettingJsonFieldset/SettingJsonFieldset";
-import useObjectJsonHybridEdit from "../../../hooks/UseObjectJsonHybridEdit/UseObjectJsonHybridEdit";
+import {
+    checkJsonHybrid,
+    createJsonHybrid,
+} from "../../../hooks/UseObjectJsonHybridEdit/UseObjectJsonHybridEdit";
 import { DiffCompare } from "../../DiffCompare/DiffCompare";
+import {
+    SettingFormContext,
+    SettingFormCtx,
+} from "../SettingFormContext/SettingFormContext";
 
-export type SettingFormMode = "edit" | "new" | "clone";
+import styles from "./SettingForm.module.scss";
+
+export type SettingFormMode = "edit" | "new" | "clone" | "readonly";
 export type SettingFormView = "form" | "document" | "compare";
 
 export interface SettingFormSharedProps extends PropsWithChildren {
-    onDelete?: () => void;
-    onCancel?: () => void;
-    isSave?: boolean;
-    mode: SettingFormMode;
+    isSubmitDisabled?: boolean;
 }
 
-export interface SettingFormBaseProps<T extends object = any>
+export interface SettingFormBaseProps<T extends RSSetting = RSSetting>
     extends SettingFormSharedProps {
-    ctx: SettingFormCtx;
-    onSave?: () => void;
-    onChangeView: (v: SettingFormView) => void;
-    formView: SettingFormView;
-    isInvalid?: boolean;
+    ctx: SettingFormCtx<T>;
 }
 
-export function SettingFormBase({
+export function SettingFormBase<T extends RSSetting>({
     ctx,
     children,
-    onDelete,
-    onCancel,
-    onSave,
-    isSave,
-    onChangeView,
-    formView,
-    isInvalid,
-}: SettingFormBaseProps) {
+}: SettingFormBaseProps<T>) {
     return (
-        <GridContainer containerSize={"desktop"}>
-            <SettingFormContext.Provider value={ctx}>
-                {children}
-                <Grid row className="margin-top-2">
-                    <Grid col={6}>
-                        {onDelete && (
-                            <Button
-                                type={"button"}
-                                secondary={true}
-                                onClick={onDelete}
-                            >
-                                Delete...
-                            </Button>
-                        )}
-                    </Grid>
-                    <Grid col={6} className={"text-right"}>
-                        <ButtonGroup>
-                            <Button
-                                type="button"
-                                outline={true}
-                                onClick={onCancel}
-                            >
-                                Cancel
-                            </Button>
-                            {onChangeView && (
+        <SettingFormContext.Provider value={ctx}>
+            {children}
+        </SettingFormContext.Provider>
+    );
+}
+
+export interface SettingFormProps<T extends RSSetting = RSSetting>
+    extends SettingFormSharedProps {
+    isReadonly?: boolean;
+    initialValues?: T;
+    documentType?: "JSON"; // | "yaml"
+    isCompare?: boolean;
+    onSubmit: (v: T) => void;
+    mode: SettingFormMode;
+    isReset?: boolean;
+    leftButtons?: JSX.Element;
+    rightButtons?: JSX.Element;
+}
+
+function stringify(obj: object, type: "json" /*| "yaml"*/ = "json") {
+    switch (type) {
+        case "json":
+            return JSON.stringify(obj, undefined, 2);
+    }
+}
+
+export function SettingForm<T extends RSSetting = RSSetting>({
+    initialValues = {} as any,
+    isReadonly,
+    documentType,
+    isCompare,
+    isSubmitDisabled: _isSubmitDisabled,
+    children,
+    mode,
+    isReset,
+    onSubmit,
+    leftButtons,
+    rightButtons,
+    ...props
+}: SettingFormProps<T>) {
+    const [jsonKeys, setJsonKeys] = useState<(string & keyof T)[]>([]);
+    const defaultValues = useMemo(
+        () => ({
+            ...createJsonHybrid<RSSetting>(initialValues, jsonKeys as any),
+            _raw: stringify(initialValues),
+        }),
+        [initialValues, jsonKeys],
+    );
+
+    const form = useForm({
+        defaultValues: defaultValues,
+        onSubmit: (v) => {
+            const {
+                obj: { _raw, ...finalObj },
+                errors,
+            } = checkJsonHybrid(v, []);
+            if (errors.length === 0) onSubmit(finalObj as any);
+        },
+    });
+    const isFormValid = form.useStore((s) => s.isFormValid);
+    const ctx = useMemo<SettingFormCtx<T>>(
+        () => ({
+            form,
+            mode,
+            getId: (v: string) => `settingform-${v}`,
+            registerJsonFields: (...fields) => {
+                setJsonKeys((k) => [...k, ...fields]);
+            },
+        }),
+        [form, mode],
+    );
+    const isSubmitDisabled = _isSubmitDisabled && !isFormValid;
+    const [formView, setFormView] = useState<"form" | "document" | "compare">(
+        "form",
+    );
+    const test = form.useStore(({ fieldMeta, values }) => ({
+        fieldMeta,
+        values,
+    }));
+
+    // [ document -> form / form -> document ] logic
+    useEffect(() => {
+        // ALWAYS reset `isTouched` on fields being updated or face pain by recursion
+        const {
+            fieldMeta,
+            values: { _raw, ...obj },
+        } = test;
+        let isRawStale = false;
+        for (const [k, v] of Object.entries(fieldMeta)) {
+            // Iterate through valid touched fields
+            if (
+                v.isTouched &&
+                !v.isValidating &&
+                v.touchedErrors.length === 0
+            ) {
+                // document field updated, immediately update form from parse
+                if (k === "_raw") {
+                    const rawObj = createJsonHybrid(JSON.parse(_raw), jsonKeys);
+                    form.store.setState((s) => ({
+                        ...s,
+                        values: { ...rawObj, _raw },
+                        fieldMeta: {
+                            ...s.fieldMeta,
+                            _raw: {
+                                ...s.fieldMeta._raw,
+                                isTouched: false,
+                            },
+                        },
+                    }));
+                    return;
+                }
+
+                // other form field updated
+                isRawStale = true;
+            }
+        }
+        // document field is stale, create original shape from current state and store string form
+        if (isRawStale) {
+            const { obj: fullObj } = checkJsonHybrid(obj, jsonKeys);
+            if (fullObj)
+                form.store.setState((s) => ({
+                    ...s,
+                    values: {
+                        ...s.values,
+                        _raw: stringify(fullObj),
+                    },
+                    fieldMeta: Object.fromEntries(
+                        Object.entries(s.fieldMeta).map(([k, v]) =>
+                            k === "_raw"
+                                ? [k, v]
+                                : [k, { ...v, isTouched: false }],
+                        ),
+                    ) as typeof s.fieldMeta,
+                }));
+        }
+    }, [form, jsonKeys, test]);
+
+    return (
+        <SettingFormBase ctx={ctx}>
+            <form.Provider>
+                <form
+                    className={styles.SettingForm}
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        form.handleSubmit();
+                    }}
+                >
+                    <Grid row>
+                        <Grid col={2}>
+                            {(documentType || isCompare) && (
                                 <ButtonGroup type="segmented">
                                     <Button
                                         type="button"
                                         base={formView === "form"}
                                         outline
-                                        onClick={() => onChangeView("form")}
-                                        disabled={isInvalid}
+                                        onClick={() => setFormView("form")}
+                                        disabled={!isFormValid}
                                     >
                                         Form
                                     </Button>
@@ -94,137 +203,57 @@ export function SettingFormBase({
                                         type="button"
                                         outline
                                         base={formView === "document"}
-                                        onClick={() => onChangeView("document")}
-                                        disabled={isInvalid}
+                                        onClick={() => setFormView("document")}
+                                        disabled={!isFormValid}
                                     >
-                                        JSON
+                                        {documentType}
                                     </Button>
                                     <Button
                                         type="button"
                                         base={formView === "compare"}
                                         outline
-                                        onClick={() => onChangeView("compare")}
-                                        disabled={isInvalid}
+                                        onClick={() => setFormView("compare")}
+                                        disabled={!isFormValid}
                                     >
                                         Compare
                                     </Button>
                                 </ButtonGroup>
                             )}
-                            {onSave && (
-                                <Button
-                                    form="edit-setting"
-                                    type="submit"
-                                    disabled={!isSave}
-                                    onClick={onSave}
-                                >
-                                    Save
+                        </Grid>
+                    </Grid>
+                    <section hidden={formView !== "form"}>
+                        <SettingFieldset />
+                        {children}
+                    </section>
+                    <section hidden={formView !== "document"}>
+                        <SettingJsonFieldset />
+                    </section>
+                </form>
+                {formView === "compare" && (
+                    <DiffCompare a={initialValues} b={{}} />
+                )}
+                <Grid row>
+                    <Grid col={6}>{leftButtons}</Grid>
+                    <Grid col={6} className="text-right">
+                        <ButtonGroup>
+                            {rightButtons}
+                            {isReset && (
+                                <Button type="reset" outline>
+                                    Reset
                                 </Button>
                             )}
+                            <Button type="submit" disabled={isSubmitDisabled}>
+                                Submit
+                            </Button>
                         </ButtonGroup>
                     </Grid>
                 </Grid>
-            </SettingFormContext.Provider>
-        </GridContainer>
-    );
-}
-
-export interface SettingFormProps<T extends object = any>
-    extends SettingFormSharedProps {
-    isReadonly?: boolean;
-    onSave?: (v: T) => void;
-    initialValues: T;
-}
-
-export function SettingForm<T extends object>({
-    initialValues,
-    isReadonly,
-    children,
-    onSave,
-    isSave: _isSave,
-    mode,
-    ...props
-}: SettingFormProps<T>) {
-    const [formView, setFormView] = useState<SettingFormView>("form");
-    const [jsonKey, setJsonKey] = useState<string>();
-    const [jsonFieldKeys, setJsonFieldKeys] = useState<string[]>([]);
-    const { hybrid, hybridResult, json, jsonResult, setHybrid, setJson } =
-        useObjectJsonHybridEdit(initialValues, jsonFieldKeys);
-    const ctx = useMemo<SettingFormCtx>(() => {
-        return {
-            mode,
-            isReadonly,
-            defaultValues: hybrid,
-            json,
-            onFieldChange: (k, v: any) => {
-                if (jsonKey === k) {
-                    setJson(v);
-                    return;
-                }
-                setHybrid((s) => ((s as any)[k] !== v ? { ...s, [k]: v } : s));
-            },
-            getId: (v) => `settingform-${v}`,
-            registerField: (v, jsonType) => {
-                if (jsonType) {
-                    switch (jsonType) {
-                        case "field":
-                            setJsonFieldKeys((a) => {
-                                return !a.includes(v) ? [...a, v] : a;
-                            });
-                            break;
-                        case "whole":
-                            setJsonKey(v);
-                            break;
-                    }
-                }
-            },
-        };
-    }, [hybrid, isReadonly, json, jsonKey, mode, setHybrid, setJson]);
-    let isViewValid = true;
-    let render;
-
-    switch (formView) {
-        case "form":
-            render = (
-                <>
-                    <SettingFieldset />
-                    {children}
-                </>
-            );
-            isViewValid = hybridResult.errors.length === 0;
-            break;
-        case "document":
-            render = <SettingJsonFieldset />;
-            isViewValid = !jsonResult.error;
-            break;
-        case "compare":
-            render = <DiffCompare a={initialValues} b={jsonResult.obj ?? {}} />;
-            break;
-    }
-    const isSave = _isSave && isViewValid;
-
-    return (
-        <SettingFormBase
-            mode={"edit"}
-            ctx={ctx}
-            onSave={
-                onSave
-                    ? () => jsonResult.obj && onSave(jsonResult.obj)
-                    : undefined
-            }
-            onChangeView={setFormView}
-            isSave={isSave}
-            formView={formView}
-            {...props}
-        >
-            {render}
+            </form.Provider>
         </SettingFormBase>
     );
 }
 
-export function ReceiverForm({
-    children,
-    ...props
-}: SettingFormProps<RSReceiver>) {
+export function ReceiverForm({ children, ...props }: SettingFormProps) {
     return (
         <SettingForm {...props}>
             <ServiceSettingFieldset />
@@ -234,7 +263,7 @@ export function ReceiverForm({
     );
 }
 
-export function SenderForm({ children, ...props }: SettingFormProps<RSSender>) {
+export function SenderForm({ children, ...props }: SettingFormProps) {
     return (
         <SettingForm {...props}>
             <ServiceSettingFieldset />
@@ -244,10 +273,7 @@ export function SenderForm({ children, ...props }: SettingFormProps<RSSender>) {
     );
 }
 
-export function OrganizationForm({
-    children,
-    ...props
-}: SettingFormProps<RSOrganizationSettings>) {
+export function OrganizationForm({ children, ...props }: SettingFormProps) {
     return (
         <SettingForm {...props}>
             <OrganizationFieldSet />

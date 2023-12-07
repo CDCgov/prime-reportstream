@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createQuery } from "react-query-kit";
 
 import {
-    RSOrganizationSettings,
+    RSOrganization,
     servicesEndpoints,
 } from "../config/endpoints/settings";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
@@ -39,7 +39,7 @@ export const useOrganizationSettings = () => {
     const { activeMembership } = useSessionContext();
     const parsedName = activeMembership?.parsedName;
 
-    const authorizedFetch = useAuthorizedFetch<RSOrganizationSettings>();
+    const authorizedFetch = useAuthorizedFetch<RSOrganization>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(settings, {
@@ -57,8 +57,7 @@ export const useOrganizationSettings = () => {
     });
 };
 
-const { authFetch, authMiddleware } =
-    getAuthFetchProps<RSOrganizationSettings>();
+const { authFetch, authMiddleware } = getAuthFetchProps<RSOrganization>();
 
 /**
  * Experimental replacement hook using middleware for controlling enablement

@@ -1,349 +1,259 @@
-import { ChangeEvent, PropsWithChildren } from "react";
 import { Checkbox, Label, TextInput, Textarea } from "@trussworks/react-uswds";
+import { useEffect } from "react";
 
+import { SettingFormFieldRow } from "../../SettingFormField/SettingFormField";
+import { SettingFormFieldsetProps, filterHint } from "../SettingFormFieldset";
 import {
-    ObjectTooltip,
-    EnumTooltip,
-} from "../../../../components/tooltips/ObjectTooltip";
-import {
-    SampleTranslationObj,
-    SampleTimingObj,
-    SampleTransportObject,
-    reportStreamFilterDefinitionChoices,
-} from "../../../../utils/TemporarySettingsAPITypes";
-import {
-    SettingFormField,
-    SettingFormFieldRow,
-} from "../../SettingFormField/SettingFormField";
+    RSReceiver,
+    SampleTiming,
+    SampleTranslation,
+    SampleTransports,
+} from "../../../../config/endpoints/settings";
+import ObjectExampleTooltip from "../../Tooltips/ObjectExampleTooltip";
+import { useSettingForm } from "../../SettingFormContext/SettingFormContext";
 
-export interface ReceiverFieldsetProps extends PropsWithChildren {}
+export interface ReceiverFieldsetProps extends SettingFormFieldsetProps {}
 
 export default function ReceiverFieldset({ children }: ReceiverFieldsetProps) {
+    const { form, mode, registerJsonFields } = useSettingForm<
+        RSReceiver,
+        | "translation"
+        | "jurisdictionalFilter"
+        | "qualityFilter"
+        | "routingFilter"
+        | "conditionFilter"
+        | "processingModeFilter"
+        | "timing"
+        | "transport"
+    >();
+
+    useEffect(() => {
+        registerJsonFields(
+            "translation",
+            "jurisdictionalFilter",
+            "qualityFilter",
+            "routingFilter",
+            "conditionFilter",
+            "processingModeFilter",
+            "timing",
+            "transport",
+        );
+    }, [registerJsonFields]);
     return (
         <>
-            <SettingFormField
+            <form.Field
                 name="translation"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                jsonType="field"
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
                         label={
                             <>
-                                <Label htmlFor={id}>Translation</Label>
-                                <ObjectTooltip
-                                    obj={new SampleTranslationObj()}
-                                />
+                                <Label htmlFor={field.name}>Translation</Label>
+                                <ObjectExampleTooltip obj={SampleTranslation} />
                             </>
                         }
                     >
                         <Textarea
-                            name={name}
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            name={field.name}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="jurisdictionalFilter"
-                jsonType="field"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
                         label={
-                            <>
-                                <Label htmlFor={id}>
-                                    Jurisdictional Filter
-                                </Label>
-                                <EnumTooltip
-                                    vals={reportStreamFilterDefinitionChoices}
-                                />
-                            </>
+                            <Label htmlFor={field.name} hint={filterHint}>
+                                Jurisdictional Filter
+                            </Label>
                         }
                     >
                         <Textarea
-                            name={name}
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            name={field.name}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="qualityFilter"
-                jsonType="field"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
                         label={
-                            <>
-                                <Label htmlFor={id}>Quality Filter</Label>
-                                <EnumTooltip
-                                    vals={reportStreamFilterDefinitionChoices}
-                                />
-                            </>
+                            <Label htmlFor={field.name} hint={filterHint}>
+                                Quality Filter
+                            </Label>
                         }
                     >
                         <Textarea
-                            name={name}
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            name={field.name}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="reverseTheQualityFilter"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.checked
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow>
                         <Checkbox
                             label={"Reverse the Quality Filter"}
-                            name={name}
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            name={field.name}
+                            id={field.name}
+                            checked={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.checked)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="routingFilter"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
                         label={
-                            <>
-                                <Label htmlFor={id}>Routing Filter</Label>
-                                <EnumTooltip
-                                    vals={reportStreamFilterDefinitionChoices}
-                                />
-                            </>
+                            <Label htmlFor={field.name} hint={filterHint}>
+                                Routing Filter
+                            </Label>
                         }
                     >
                         <TextInput
-                            name={name}
+                            name={field.name}
                             type="text"
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="processingModeFilter"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
                         label={
-                            <>
-                                <Label htmlFor={id}>
-                                    Processing Mode Filter
-                                </Label>
-                                <EnumTooltip
-                                    vals={reportStreamFilterDefinitionChoices}
-                                />
-                            </>
+                            <Label htmlFor={field.name} hint={filterHint}>
+                                Processing Mode Filter
+                            </Label>
                         }
                     >
                         <TextInput
-                            name={name}
+                            name={field.name}
                             type="text"
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="deidentify"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.checked
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow>
                         <Checkbox
                             label={"De-identify"}
-                            name={name}
-                            id={id}
-                            defaultChecked={!!defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            name={field.name}
+                            id={field.name}
+                            checked={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.checked)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="timing"
-                jsonType="field"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
                         label={
                             <>
-                                <Label htmlFor={id}>Timing</Label>
-                                <ObjectTooltip obj={new SampleTimingObj()} />
+                                <Label htmlFor={field.name}>Timing</Label>
+                                <ObjectExampleTooltip obj={SampleTiming} />
                             </>
                         }
                     >
                         <Textarea
-                            name={name}
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            name={field.name}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="transport"
-                jsonType="field"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
                         label={
                             <>
-                                <Label htmlFor={id}>Transport</Label>
-                                <ObjectTooltip
-                                    obj={new SampleTransportObject()}
+                                <Label htmlFor={field.name}>Transport</Label>
+                                <ObjectExampleTooltip
+                                    obj={SampleTransports}
+                                    description="Field accepts ONE of allowed types from sample."
                                 />
                             </>
                         }
                     >
                         <Textarea
-                            name={name}
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            name={field.name}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="externalName"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
-                        label={<Label htmlFor={id}>External Name</Label>}
+                        label={
+                            <Label htmlFor={field.name}>External Name</Label>
+                        }
                     >
                         <TextInput
-                            name={name}
+                            name={field.name}
                             type="text"
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
+                            id={field.name}
+                            value={field.state.value ?? ""}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}

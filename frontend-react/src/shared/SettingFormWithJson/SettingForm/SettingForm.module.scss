@@ -1,0 +1,12 @@
+.SettingForm {
+    input,
+    textarea,
+    select {
+        word-break: break-all;
+        max-width: 100vw;
+    }
+
+    textarea[name="_raw"] {
+        min-height: 25rem;
+    }
+}

@@ -1,4 +1,4 @@
-import { RSOrganizationSettings } from "../../../../config/endpoints/settings";
+import { RSOrganization } from "../../../../config/endpoints/settings";
 import { renderApp, screen } from "../../../../utils/CustomRenderUtils";
 
 import OrganizationFieldset from "./OrganizationFieldSet";
@@ -8,7 +8,7 @@ const fields = [
     "countyName",
     "stateCode",
     "filters",
-] satisfies (keyof RSOrganizationSettings)[];
+] satisfies (keyof RSOrganization)[];
 
 describe("OrganizationFieldset", () => {
     describe("renders fields", () => {

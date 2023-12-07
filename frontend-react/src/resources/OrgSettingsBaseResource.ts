@@ -1,11 +1,5 @@
 import AuthResource from "./AuthResource";
 
-export interface MetaTaggedResource {
-    version: number;
-    createdBy: string;
-    createdAt: string;
-}
-
 /**
  * This is an ABSTRACT base class for all the fields that are common to all the various "settings" api calls.
  */

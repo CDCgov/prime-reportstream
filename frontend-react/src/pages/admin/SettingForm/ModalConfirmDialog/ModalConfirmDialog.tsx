@@ -19,6 +19,7 @@ import {
 interface ModalConfirmDialogProps extends ComponentProps<typeof Modal> {
     actionButton: JSX.Element;
     heading: JSX.Element;
+    onCancel?: () => void;
 }
 
 /**
@@ -31,6 +32,7 @@ export const ModalConfirmDialog = forwardRef(
             actionButton,
             heading,
             children,
+            onCancel,
             ...props
         }: ModalConfirmDialogProps,
         ref: Ref<ModalRef | null>,
@@ -61,6 +63,7 @@ export const ModalConfirmDialog = forwardRef(
                             type="button"
                             outline={true}
                             className="padding-105 text-center"
+                            onClick={() => onCancel?.()}
                         >
                             Cancel
                         </ModalToggleButton>

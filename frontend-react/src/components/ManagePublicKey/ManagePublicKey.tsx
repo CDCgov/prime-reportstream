@@ -4,7 +4,7 @@ import { GridContainer } from "@trussworks/react-uswds";
 import Spinner from "../Spinner";
 import { USLink } from "../USLink";
 import { showToast } from "../../contexts/Toast";
-import { ApiKey } from "../../config/endpoints/settings";
+import { Jwk } from "../../config/endpoints/settings";
 import { useSessionContext } from "../../contexts/Session";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
@@ -124,7 +124,7 @@ export function ManagePublicKeyPage() {
             // check if kid already exists for the selected org.sender
             const kid = `${activeMembership?.parsedName}.${sender}`;
             for (const apiKeys of orgPublicKeys.keys) {
-                if (apiKeys.keys.some((k: ApiKey) => k.kid === kid)) {
+                if (apiKeys.keys.some((k: Jwk) => k.kid === kid)) {
                     setHasPublicKey(true);
                 }
             }

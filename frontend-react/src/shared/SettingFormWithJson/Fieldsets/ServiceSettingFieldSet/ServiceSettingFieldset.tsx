@@ -1,76 +1,61 @@
-import { ChangeEvent, PropsWithChildren } from "react";
 import { Label, Select, TextInput } from "@trussworks/react-uswds";
 
+import { SettingFormFieldRow } from "../../SettingFormField/SettingFormField";
+import { SettingFormFieldsetProps } from "../SettingFormFieldset";
 import {
-    SettingFormField,
-    SettingFormFieldRow,
-} from "../../SettingFormField/SettingFormField";
-import { customerStatusChoices } from "../../../../utils/TemporarySettingsAPITypes";
+    RSService,
+    customerStatusChoices,
+} from "../../../../config/endpoints/settings";
+import { useSettingForm } from "../../SettingFormContext/SettingFormContext";
 
-export interface ServiceSettingFieldsetProps extends PropsWithChildren {}
+export interface ServiceSettingFieldsetProps extends SettingFormFieldsetProps {}
 
 export default function ServiceSettingFieldset({
     children,
 }: ServiceSettingFieldsetProps) {
+    const { form, mode } = useSettingForm<RSService>();
     return (
         <>
-            <SettingFormField
+            <form.Field
                 name="topic"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    mode,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
                         label={
-                            <Label htmlFor={id} requiredMarker>
+                            <Label htmlFor={field.name} requiredMarker>
                                 Topic
                             </Label>
                         }
                     >
                         <TextInput
-                            name={name}
+                            name={field.name}
                             type="text"
-                            id={id}
-                            defaultValue={defaultValue}
-                            disabled={mode === "edit"}
-                            onBlur={onChange}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "edit" || mode === "readonly"}
                             required
-                            className={className}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value)
+                            }
                         />
                     </SettingFormFieldRow>
                 )}
             />
-            <SettingFormField
+            <form.Field
                 name="customerStatus"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    e.currentTarget.value
-                }
-                render={({
-                    defaultValue,
-                    id,
-                    name,
-                    onChange,
-                    disabled,
-                    className,
-                }) => (
+                children={(field) => (
                     <SettingFormFieldRow
-                        label={<Label htmlFor={id}>Customer Status</Label>}
+                        label={
+                            <Label htmlFor={field.name}>Customer Status</Label>
+                        }
                     >
                         <Select
-                            name={name}
-                            id={id}
-                            defaultValue={defaultValue}
-                            onBlur={onChange}
-                            disabled={disabled}
-                            className={className}
-                            title="Customer Status"
+                            name={field.name}
+                            id={field.name}
+                            value={field.state.value}
+                            disabled={mode === "readonly"}
+                            onChange={(e) =>
+                                field.handleChange(e.currentTarget.value as any)
+                            }
                         >
                             {customerStatusChoices.map((c) => (
                                 <option key={c} value={c}>

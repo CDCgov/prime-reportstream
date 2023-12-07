@@ -1,6 +1,3 @@
-/// <reference types="vite/client" />
-/// <reference types="vite-plugin-svgr/client" />
-
 interface Frontmatter {
     sidenav?: string;
     breadcrumbs?: Array<{ label: string; href: string }>;
@@ -47,10 +44,4 @@ interface CitationItem {
     quote?: string;
     author?: string;
     authorTitle?: string;
-}
-
-declare module "*.mdx" {
-    export const frontmatter: Frontmatter;
-
-    export const toc: TocEntry[];
 }
