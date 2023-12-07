@@ -32,7 +32,6 @@ jobs:
       contents: read
       security-events: write
     outputs:
-# This needs to match your step's id and name parameters
       matrix: ${{ steps.set-matrix.outputs.matrix }}
 
     steps:
@@ -50,6 +49,9 @@ jobs:
             - 'prime-router/src/scripts/**/*.py'
             - 'operations/**/*.py'
 
+    - name: Build matrix
+      #if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.changed-files-yaml.outputs.python_any_changed == 'true'
+
     - name: Create matrix
       id: set-matrix
       run: echo "matrix={\"language\":[\"javascript\",\"python\"]}" >> $GITHUB_OUTPUT
@@ -66,7 +68,6 @@ jobs:
 
     strategy:
       fail-fast: false
-      ##matrix: ${{needs.build_matrix.outputs.matrix}}
       matrix: ${{ fromJson(needs.build_matrix.outputs.matrix) }}
       #matrix:
         #language: [ 'javascript', 'python' ]
@@ -74,26 +75,11 @@ jobs:
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 
     steps:
-    - name: debug
-      run: echo ${{matrix.language}}
-      
     - name: Checkout repository
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-    #- name: "Get changed files with yaml"
-    #  id: changed-files-yaml
-    #  uses: tj-actions/changed-files@25ef3926d147cd02fc7e931c1ef50772bbb0d25d
-    #  with:
-    #    files_yaml: |
-    #      frontend:
-    #        - 'frontend-react/**'
-    #      python:
-    #        - 'prime-router/src/scripts/**/*.py'
-    #        - 'operations/**/*.py'
-
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      #if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.changed-files-yaml.outputs.python_any_changed == 'true'
       uses: github/codeql-action/init@df32e399139a3050671466d7d9b3cbacc1cfd034
       with:
         languages: ${{ matrix.language }}
@@ -122,7 +108,6 @@ jobs:
     #   ./location_of_script_within_repo/buildscript.sh
 
     - name: Perform CodeQL Analysis
-      #if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.changed-files-yaml.outputs.python_any_changed == 'true'
       uses: github/codeql-action/analyze@df32e399139a3050671466d7d9b3cbacc1cfd034
       with:
         category: "/language:${{matrix.language}}"
