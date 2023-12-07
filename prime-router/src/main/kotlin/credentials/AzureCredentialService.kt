@@ -24,18 +24,13 @@ internal object AzureCredentialService : CredentialService() {
             .buildClient()
     }
 
-    override fun fetchCredential(
-        connectionId: String,
-    ): Credential? {
+    override fun fetchCredential(connectionId: String): Credential? {
         return secretClient.getSecret("$connectionId")?.let {
             return Credential.fromJSON(it.value)
         }
     }
 
-    override fun saveCredential(
-        connectionId: String,
-        credential: Credential,
-    ) {
+    override fun saveCredential(connectionId: String, credential: Credential) {
         secretClient.setSecret("$connectionId", credential.toJSON())
             ?: throw Exception("Failed to save credentials for: $connectionId")
     }

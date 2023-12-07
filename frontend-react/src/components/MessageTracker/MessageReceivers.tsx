@@ -4,7 +4,6 @@ import classnames from "classnames";
 import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { parseFileLocation } from "../../utils/misc";
 import { Table } from "../../shared/Table/Table";
-import ReportLink from "../../pages/deliveries/Table/ReportLink";
 
 const NO_DATA_STRING = "N/A";
 
@@ -21,6 +20,23 @@ export interface NormalizedReceiverData {
     sub: string;
     fileName: string;
     transportResults: string;
+}
+
+export interface MessageReceiversRowProps {
+    receiver: NormalizedReceiverData;
+    activeColumn?: NormalizedReceiverKey;
+    activeColumnSortOrder: string;
+    handleCellClick: (title: string, body: string) => void;
+}
+
+export interface MessageReceiversColProps {
+    columnKey: NormalizedReceiverKey;
+    columnHeaderTitle: ColumnDataTitle;
+    activeColumn?: NormalizedReceiverKey;
+    setActiveColumn: (col: NormalizedReceiverKey) => void;
+    activeColumnSortOrder: FilterOption;
+    setActiveColumnSortOrder: (sortOrder: FilterOption) => void;
+    rowSpan: number;
 }
 
 export const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
@@ -123,14 +139,8 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
             {
                 columnKey: "fileLocationFileName",
                 columnHeader: "File Name",
-                content: (
-                    <ReportLink reportId={row?.reportId}>
-                        {
-                            parseFileLocation(row?.fileUrl || NO_DATA_STRING)
-                                .fileName
-                        }
-                    </ReportLink>
-                ),
+                content: parseFileLocation(row?.fileUrl || NO_DATA_STRING)
+                    .fileName,
             },
             {
                 columnKey: "transportResults",
