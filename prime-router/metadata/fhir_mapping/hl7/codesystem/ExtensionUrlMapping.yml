@@ -590,3 +590,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-11-specimen-action-code"
 - id: callback-number
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number"
+# internal indicator of sender, usable for filtering
+- id: "sender-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id"
