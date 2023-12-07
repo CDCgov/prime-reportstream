@@ -3,6 +3,7 @@ data "azurerm_client_config" "current" {}
 
 resource "azurerm_postgresql_server" "postgres_server" {
   #checkov:skip=CKV_AZURE_68: "Ensure that PostgreSQL server disables public network access"
+  #checkov:skip=CKV2_AZURE_42: "Ensure Azure PostgreSQL server is configured with private endpoint"
   name                         = "${var.resource_prefix}-pgsql"
   location                     = var.location
   resource_group_name          = var.resource_group
@@ -63,6 +64,7 @@ module "postgres_private_endpoint" {
 # Replicate Server
 
 resource "azurerm_postgresql_server" "postgres_server_replica" {
+  #checkov:skip=CKV2_AZURE_42: "Ensure Azure PostgreSQL server is configured with private endpoint"
   count                        = var.db_replica ? 1 : 0
   name                         = "${azurerm_postgresql_server.postgres_server.name}-replica"
   location                     = "westus"
