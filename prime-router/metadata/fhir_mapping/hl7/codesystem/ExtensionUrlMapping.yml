@@ -361,6 +361,11 @@
 # CWE Coding System
 - id: "cwe-coding-system"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system"
+- id: "cne-coding"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding"
+# CNE Coding System
+- id: "cne-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding-system"
 # patient-citizenship
 - id: "patient-citizenship"
   url: "http://hl7.org/fhir/StructureDefinition/patient-citizenship"
@@ -575,6 +580,16 @@
 # cx-5 identifier type code
 - id: "identifier-type-code"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type-code"
+- id: "orc-common-order"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order"
+- id: "obr-observation-request"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request"
+- id: "status-modifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/status-modifier"
+- id: obr-11-specimen-action-code
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-11-specimen-action-code"
+- id: callback-number
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number"
 # internal indicator of sender, usable for filtering
 - id: "sender-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id"

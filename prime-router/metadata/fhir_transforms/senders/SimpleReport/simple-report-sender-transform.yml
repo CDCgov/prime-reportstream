@@ -31,51 +31,9 @@ elements:
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
     value: [ '"sending-application"' ]
 
-  # Order Filler identifier - this was being populated in CA receiver transforms
-  #                           should've been a sender transform in the first place since
-  #                           this is needed for NY too
-  - name: sr-order-identifier-filler
-    bundleProperty: '%serviceRequest.identifier[0].type.coding.code'
-    value: [ '"FILL"' ]
-
-  - name: sr-order-identifier-filler-system
-    bundleProperty: '%serviceRequest.identifier[0].system'
-    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
-
-  - name: sr-order-identifier-filler-system-url
-    bundleProperty: '%serviceRequest.identifier[0].type.coding.system'
-    value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
-
-  - name: sr-order-identifier-filler-value
-    bundleProperty: '%serviceRequest.identifier[0].value'
-    value: [ '%diagnosticReport.identifier[0].value' ]
-
-  - name: sr-order-identifier-filler-id
-    bundleProperty: '%serviceRequest.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
-    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
-
-  # Order Placer identifier - this was being populated in CA receiver transforms
-  #                           should've been a sender transform in the first place since
-  #                           this is needed for NY too
-  - name: sr-order-identifier-placer
-    bundleProperty: '%serviceRequest.identifier[1].type.coding.code'
-    value: [ '"PLAC"' ]
-
-  - name: sr-order-identifier-placer-system
-    bundleProperty: '%serviceRequest.identifier[1].system'
-    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
-
-  - name: sr-order-identifier-placer-system-url
-    bundleProperty: '%serviceRequest.identifier[1].type.coding.system'
-    value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
-
-  - name: sr-order-identifier-placer-value
-    bundleProperty: '%serviceRequest.identifier[1].value'
-    value: [ '%diagnosticReport.identifier[0].value' ]
-
-  - name: sr-order-identifier-placer-id
-    bundleProperty: '%serviceRequest.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
-    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
+  - name: sr-order-control-business-event
+    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/business-event").value[x]'
+    value: [ '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-control").value.coding[0].code' ]
 
   # Order Observation Request filler identifier - this was being populated in CA receiver transforms
   #                                               should've been a sender transform in the first place since
@@ -84,17 +42,25 @@ elements:
     bundleProperty: '%diagnosticReport.identifier[0].type.coding.code'
     value: [ '"FILL"' ]
 
-  - name: sr-observation-request-identifier-filler-system
-    bundleProperty: '%diagnosticReport.identifier[0].system'
-    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
-
   - name: sr-observation-request-identifier-filler-value
     bundleProperty: '%diagnosticReport.identifier[0].value'
     value: [ '%diagnosticReport.identifier[0].value' ]
 
-  - name: sr-observation-request-identifier-filler-id
-    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+  - name: sr-observation-request-identifier-filler-namespace-id
+    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-observation-request-identifier-filler-universal-id
+    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
+
+  - name: sr-observation-request-identifier-filler-universal-id-type
+    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.type.coding[0].code' ]
+
+  - name: sr-diagnostic-report-identifier-filler-hl7-use
+    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
+    value: [ '"orc-3-filler-order-number"' ]
 
   # Order Observation Request placer identifier - this was being populated in CA receiver transforms
   #                                               should've been a sender transform in the first place since
@@ -105,7 +71,7 @@ elements:
 
   - name: sr-observation-request-identifier-placer-hl7-use
     bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
-    value: [ '"placer-order-number"' ]
+    value: [ '"orc-2-placer-order-number"' ]
 
   - name: sr-observation-request-identifier-placer-namespace-id
     bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
@@ -236,8 +202,15 @@ elements:
   - name: sr-performing-organization-name-non-pracrole-assigning-authority-value
     condition: '%resource.performer.resolve().ofType(Organization).exists()'
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
-    value: [ '"urn:oid:2.16.840.1.113883.4.7"' ]
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '"2.16.840.1.113883.4.7"' ]
+
+  - name: sr-performing-organization-name-non-pracrole-assigning-authority-id-type
+    condition: '%resource.performer.resolve().ofType(Organization).exists()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '"ISO"' ]
+
 
   - name: sr-performing-organization-name-non-pracrole-namespace
     condition: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).exists()'
@@ -298,7 +271,7 @@ elements:
 
   - name: sr-ordering-facility-telecom
     condition: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact.empty()'
-    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom.where(system = "phone")'
+    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom'
     resourceIndex: telecomIndex
     schema: datatypes/simple-report-telecom
 

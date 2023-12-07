@@ -208,6 +208,9 @@ period:
 extension_4:
   generateList: true
   expressionType: nested
+  vars:
+    cx9: STRING_ALL, CX.9
+  condition: $cx9 NOT_NULL
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -220,6 +223,9 @@ extension_4:
 extension_5:
   generateList: true
   expressionType: nested
+  vars:
+    cx10: STRING_ALL, CX.10
+  condition: $cx10 NOT_NULL
   expressionsMap:
     url:
       type: SYSTEM_URL
