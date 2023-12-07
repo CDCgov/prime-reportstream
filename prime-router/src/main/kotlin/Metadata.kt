@@ -148,9 +148,9 @@ class Metadata : Logging {
         valueSet: ValueSet? = null,
         tableName: String? = null,
         table: LookupTable? = null,
-        tableDbAccess: DatabaseLookupTableAccess,
+        tableDbAccess: DatabaseLookupTableAccess? = null,
     ) {
-        this.tableDbAccess = tableDbAccess
+        this.tableDbAccess = tableDbAccess ?: DatabaseLookupTableAccess()
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
         schema?.let { loadSchemas(it) }

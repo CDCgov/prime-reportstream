@@ -8,11 +8,11 @@ import assertk.assertions.isNull
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.NPIUtilities
-import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertFails
@@ -44,7 +44,7 @@ class MapperTests {
                 Element("c", type = Element.Type.TABLE, table = "test", tableColumn = "c")
             )
         )
-        val metadata = createMetadata(schema = schema, table = table, tableName = "test")
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
         val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
         val lookupElement = metadata.findSchema("test")?.findElement("c") ?: fail("")
         val mapper = LookupMapper()
@@ -71,7 +71,7 @@ class MapperTests {
                 Element("c", type = Element.Type.TABLE, table = "test", tableColumn = "c")
             )
         )
-        val metadata = createMetadata(schema = schema, table = table, tableName = "test")
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
         val lookupElement = metadata.findSchema("test")?.findElement("c") ?: fail("")
         val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
         val index2Element = metadata.findSchema("test")?.findElement("b") ?: fail("")
@@ -418,7 +418,7 @@ class MapperTests {
             tableName, topic = Topic.TEST,
             elements = elements
         )
-        val metadata = createMetadata(schema = schema, table = table, tableName = tableName)
+        val metadata = Metadata(schema = schema, table = table, tableName = tableName)
         val npiElement = metadata.findSchema(tableName)?.findElement("ordering_provider_id")
             ?: fail("Did not find Ordering_provider_id in test schema")
         val cliaElement = metadata.findSchema(tableName)?.findElement("testing_lab_clia")
@@ -674,7 +674,7 @@ class MapperTests {
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
             )
         )
-        val metadata = createMetadata(schema = schema, table = table, tableName = "test")
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
         val lookupElement = metadata.findSchema("test")?.findElement("a") ?: fail("Schema element missing")
         val values = listOf(
             ElementAndValue(Element("patient_zip_code"), "32303-4509")
@@ -701,7 +701,7 @@ class MapperTests {
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "state_abbr"),
             )
         )
-        val metadata = createMetadata(schema = schema, table = table, tableName = "test")
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
         val lookupElement = metadata.findSchema("test")?.findElement("a") ?: fail("Schema element missing")
 
         // Test when value has a hyphen and extension
@@ -923,12 +923,12 @@ class MapperTests {
                 )
             )
         )
-        val genderMetadata = createMetadata(
+        val genderMetadata = Metadata(
             schema = genderSchema,
             table = genderTable,
             tableName = "gender"
         )
-        val testResultMetadata = createMetadata(
+        val testResultMetadata = Metadata(
             schema = testResultSchema,
             table = testResultTable,
             tableName = "test_result"

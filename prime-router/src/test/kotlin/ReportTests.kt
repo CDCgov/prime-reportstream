@@ -16,7 +16,6 @@ import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -99,7 +98,7 @@ class ReportTests {
     @Test
     fun `test filter`() {
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = createMetadata(schema = one)
+        val metadata = Metadata(schema = one)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         assertThat(report1.itemCount).isEqualTo(2)
@@ -125,7 +124,7 @@ class ReportTests {
     @Test
     fun `test multiarg matches filter`() {
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = createMetadata(schema = one)
+        val metadata = Metadata(schema = one)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         // each sublist is a row.
         val report1 = Report(
@@ -547,7 +546,7 @@ class ReportTests {
     @Test
     fun `test item lineage after jurisdictional filter`() {
         val schema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")), trackingElement = "a")
-        val metadata = createMetadata(schema = schema)
+        val metadata = Metadata(schema = schema)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         // each sublist is a row.
         val report1 = Report(
@@ -624,7 +623,7 @@ class ReportTests {
             source = TestSource,
             metadata = metadata
         )
-        val metadata = createMetadata(schema = schema)
+        val metadata = Metadata(schema = schema)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
 
         // split, merge, split, merge, copy, copy, then filter.

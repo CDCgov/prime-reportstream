@@ -20,12 +20,12 @@ import com.azure.storage.blob.models.BlobDownloadContentResponse
 import com.azure.storage.blob.models.BlobDownloadResponse
 import com.azure.storage.blob.models.BlobItem
 import gov.cdc.prime.router.BlobStoreTransportType
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -53,7 +53,7 @@ class BlobAccessTests {
     }
 
     @Nested
-    inner class BlobAccessIntegrationTests {
+    class BlobAccessIntegrationTests {
         val azuriteContainer1 =
             GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
                 .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
@@ -435,7 +435,7 @@ class BlobAccessTests {
         val testBytes = "testbytes".toByteArray()
 
         val one = Schema(name = "one", topic = Topic.TEST)
-        val metadata = createMetadata(schema = one)
+        val metadata = Metadata(schema = one)
         val report1 = Report(
             one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource,
             bodyFormat = testFormat, metadata = metadata

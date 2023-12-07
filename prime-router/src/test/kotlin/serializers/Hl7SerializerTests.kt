@@ -44,7 +44,6 @@ import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import gov.cdc.prime.router.unittest.UnitTestUtils.createConfig
-import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -878,7 +877,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
             receivers = listOf(Receiver("elr", "phd", Topic.TEST, CustomerStatus.INACTIVE, "one"))
         )
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = createMetadata(schema = one)
+        val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val serializer = Hl7Serializer(metadata, settings)
@@ -924,7 +923,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
             )
         )
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = createMetadata(schema = one)
+        val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val serializer = Hl7Serializer(metadata, settings)
 

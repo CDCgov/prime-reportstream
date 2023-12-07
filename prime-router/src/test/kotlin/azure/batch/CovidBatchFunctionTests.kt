@@ -19,7 +19,6 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
@@ -77,7 +76,7 @@ class CovidBatchFunctionTests {
         every { timing1.maxReportCount } returns 500
         every { timing1.numberPerDay } returns 1440
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = createMetadata(schema = one)
+        val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
 

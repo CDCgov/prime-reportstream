@@ -8,12 +8,12 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import gov.cdc.prime.router.unittest.UnitTestUtils.createMetadata
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
@@ -36,7 +36,7 @@ class CsvSerializerTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertThat(result.actionLogs.isEmpty()).isTrue()
         assertThat(result.report.itemCount).isEqualTo(1)
@@ -59,7 +59,7 @@ class CsvSerializerTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertThat(result.actionLogs.isEmpty()).isTrue()
         assertThat(result.report.itemCount).isEqualTo(1)
@@ -82,7 +82,7 @@ class CsvSerializerTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val report = csvConverter.readExternal(
             "one",
             ByteArrayInputStream(csv.toByteArray()),
@@ -108,7 +108,7 @@ class CsvSerializerTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val report = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource).report
         assertThat(report.itemCount).isEqualTo(1)
         assertThat(report.getString(0, 0)).isEqualTo("1")
@@ -129,7 +129,7 @@ class CsvSerializerTests {
             2,1
         """.trimIndent()
 
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val report = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource).report
         assertThat(report.itemCount).isEqualTo(1)
         assertThat(report.getString(0, 0)).isEqualTo("1")
@@ -151,7 +151,7 @@ class CsvSerializerTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertThat(result.actionLogs.isEmpty()).isTrue()
         assertThat(result.report.itemCount).isEqualTo(1)
@@ -174,7 +174,7 @@ class CsvSerializerTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val report = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource).report
         assertThat(report.itemCount).isEqualTo(1)
         assertThat(report.getString(0, 2)).isEqualTo("3")
@@ -201,7 +201,7 @@ class CsvSerializerTests {
             
         """.trimIndent()
         val output = ByteArrayOutputStream()
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         csvConverter.write(report1, output)
         assertThat(output.toString(StandardCharsets.UTF_8)).isEqualTo(expectedCsv)
     }
@@ -223,7 +223,7 @@ class CsvSerializerTests {
             
         """.trimIndent()
         val output = ByteArrayOutputStream()
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         csvConverter.write(report1, output)
         val csv = output.toString(StandardCharsets.UTF_8)
         assertThat(csv).isEqualTo(expectedCsv)
@@ -249,7 +249,7 @@ class CsvSerializerTests {
             yyyy/M/d HH:mm,2021/12/05 10:00
         """.trimIndent()
 
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertThat(result.actionLogs.hasErrors()).isFalse()
         assertThat(result.report.getString(0, 1)).isEqualTo("20211201000000+0000")
@@ -285,7 +285,7 @@ class CsvSerializerTests {
             yyyy/M/d,2021/13/3
         """.trimIndent()
 
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertThat(result.actionLogs.errors.size).isEqualTo(3)
     }
@@ -305,7 +305,7 @@ class CsvSerializerTests {
             a
             1,2
         """.trimIndent()
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         // Run it
         assertFailsWith<ActionError> {
             csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
@@ -328,7 +328,7 @@ class CsvSerializerTests {
             
             1,2
         """.trimIndent()
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         // Run it
         val err = assertFailsWith<ActionError> {
             csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
@@ -350,7 +350,7 @@ class CsvSerializerTests {
             a,c
             1,2
         """.trimIndent()
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertThat(result.actionLogs.warnings.size).isEqualTo(2) // one for not present and one for ignored
     }
@@ -367,7 +367,7 @@ class CsvSerializerTests {
         )
         val csv = """
         """.trimIndent()
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertThat(result.actionLogs.isEmpty()).isFalse()
         assertThat(result.actionLogs.hasErrors()).isFalse()
@@ -404,7 +404,7 @@ class CsvSerializerTests {
                 ),
             )
         )
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
 
         // Should just warn about column d, but convert because of cardinality and defaults
         val csv1 = """
@@ -455,7 +455,7 @@ class CsvSerializerTests {
                 Element("d", cardinality = Element.Cardinality.ONE, default = "D"),
             )
         )
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
 
         val csv4 = """
             a,b,c
@@ -503,7 +503,7 @@ class CsvSerializerTests {
                 ),
             )
         )
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
 
         val csv4 = """
             a,b,c
@@ -548,7 +548,7 @@ class CsvSerializerTests {
             $koreanString,$greekString
         """.trimIndent()
 
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertThat(result.actionLogs.isEmpty()).isTrue()
         assertThat(result.report.itemCount).isEqualTo(1)
@@ -566,7 +566,7 @@ class CsvSerializerTests {
                 Element("b", csvFields = Element.csvFields("b"))
             )
         )
-        val serializer = CsvSerializer(createMetadata(schema = schema))
+        val serializer = CsvSerializer(Metadata(schema = schema))
 
         val emptyCSV = ByteArrayInputStream("".toByteArray())
         var result = serializer.readExternal(schema.name, emptyCSV, TestSource)
@@ -606,7 +606,7 @@ class CsvSerializerTests {
                 Element("c", csvFields = Element.csvFields("c"))
             )
         )
-        val serializer = CsvSerializer(createMetadata(schema))
+        val serializer = CsvSerializer(Metadata(schema))
 
         // Internal CSV with extra fields.
         var internalCsv = """
@@ -657,7 +657,7 @@ class CsvSerializerTests {
             
         """.trimIndent()
         val output = ByteArrayOutputStream()
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         csvConverter.write(report1, output)
         assertThat(output.toString(StandardCharsets.UTF_8)).isEqualTo(expectedCsv)
     }
@@ -680,7 +680,7 @@ class CsvSerializerTests {
             
         """.trimIndent()
         val output = ByteArrayOutputStream()
-        val csvConverter = CsvSerializer(createMetadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         csvConverter.write(report1, output)
         assertThat(output.toString(StandardCharsets.UTF_8)).isEqualTo(expectedCsv)
     }
