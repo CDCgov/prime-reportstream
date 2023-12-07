@@ -6,14 +6,22 @@ constants:
   hl7ObservationNotes: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
   hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
 elements:
-  - name: order-segment
-    # Only create the segment if we have data for it
-    condition: '%service.extension(%`rsext-order-control`).exists()'
-    schema: order
 
-  - name: observation-request
-    # Condition from ORU_RO1 covers this schema as well
-    schema: observation-request
+  - name: common-order-service-request
+    resource: '%service'
+    schema: ../../resources/ServiceRequest/ORC
+
+  - name: common-order-diagnostic-report
+    resource: '%diagnostic'
+    schema: ../../resources/DiagnosticReport/ORC
+
+  - name: observation-request-service-request
+    resource: '%service'
+    schema: ../../resources/ServiceRequest/OBR
+
+  - name: observation-request-diagnostic-report
+    resource: '%diagnostic'
+    schema: ../../resources/DiagnosticReport/OBR
 
   - name: specimen
     resource: '%specimen'
