@@ -495,14 +495,6 @@
         ],
         "status" : "unknown",
         "intent" : "order",
-        "_intent" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-11-specimen-action-code",
-              "valueId" : "G"
-            }
-          ]
-        },
         "code" : {
           "coding" : [
             {

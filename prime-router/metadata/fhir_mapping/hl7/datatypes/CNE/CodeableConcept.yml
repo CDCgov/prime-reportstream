@@ -94,6 +94,54 @@ coding_alt:
         valueString:
           value: $coding-system
 
+coding_secondary-alt:
+  generateList: true
+  expressionType: nested
+  vars:
+    secondaryAltCode: String, CWE.10
+    secondaryAltDisplay: String, CWE.11
+    secondaryAltSystem: SYSTEM_URL, CWE.12
+    secondaryAltVersion: String, CWE.13
+  expressionsMap:
+    code:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.10
+    display:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.11
+    system:
+      type: SYSTEM_URL
+      expressionType: HL7Spec
+      valueOf: CWE.12
+    version:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.13
+    extension_cne-coding:
+      condition: $secondaryAltCode NOT_NULL || $secondaryAltDisplay NOT_NULL || $secondaryAltSystem NOT_NULL || $secondaryAltVersion NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: cne-coding
+        valueString:
+          value: secondary-alt-coding
+    extension_cne-coding-system:
+      condition: $coding-system NOT_NULL
+      generateList: true
+      expressionType: nested
+      vars:
+        coding-system: String, CWE.12
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: cne-coding-system
+        valueString:
+          value: $coding-system
+
 text:
   type: STRING
   expressionType: HL7Spec

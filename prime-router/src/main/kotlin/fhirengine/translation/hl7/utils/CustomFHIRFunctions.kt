@@ -37,7 +37,6 @@ object CustomFHIRFunctions : FhirPathFunctions {
         HasPhoneNumberExtension,
         ChangeTimezone,
         ConvertDateToAge,
-        GetPrimitiveValue,
         ;
 
         companion object {
@@ -123,14 +122,6 @@ object CustomFHIRFunctions : FhirPathFunctions {
                 )
             }
 
-            CustomFHIRFunctionNames.GetPrimitiveValue -> {
-                FunctionDetails(
-                    "",
-                    0,
-                    0
-                )
-            }
-
             else -> additionalFunctions?.resolveFunction(functionName)
         }
     }
@@ -192,10 +183,6 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
                 CustomFHIRFunctionNames.ConvertDateToAge -> {
                     convertDateToAge(focus, parameters)
-                }
-
-                CustomFHIRFunctionNames.GetPrimitiveValue -> {
-                    getPrimitiveValue(focus)
                 }
 
                 else -> additionalFunctions?.executeFunction(focus, functionName, parameters)

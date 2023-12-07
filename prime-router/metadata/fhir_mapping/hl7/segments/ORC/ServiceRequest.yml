@@ -1,19 +1,18 @@
 resourceType: ServiceRequest
 
 # Not Implementing
-# ORC.7 deprecated in the NIST spec
-# ORC.26 deprecated in the NIST spec
-# ORC.32 not mapped, not in NIST spec
-# ORC.34 not mapped, not in NIST spec
-# OBR.5 deprecated in NIST spec
-# OBR.6 deprecated in NIST spec
-# OBR.30 deprecated in NIST spec
-# OBR.37 deprecated in NIST spec
-# OBR.38 deprecated in NIST spec
-# OBR.40 deprecated in NIST spec
-# OBR.41 deprecated in NIST spec
-# OBR.42 deprecated in NIST spec
-# OBR.43 deprecated in NIST spec
+# ORC.7 not mapped, deprecated in the NIST spec
+# ORC.26 not mapped, deprecated in the NIST spec
+# ORC.32 not mapped, deprecated in NIST spec
+# ORC.34 not mapped, deprecated in NIST spec
+# OBR.5 not mapped, deprecated in NIST spec
+# OBR.30 not mapped, deprecated in NIST spec
+# OBR.37 not mapped, deprecated in NIST spec
+# OBR.38 not mapped, deprecated in NIST spec
+# OBR.40 not mapped, deprecated in NIST spec
+# OBR.41 not mapped, deprecated in NIST spec
+# OBR.42 not mapped, deprecated in NIST spec
+# OBR.43 not mapped, deprecated in NIST spec
 # OBR.54 not mapped, not in NIST
 
 id:
@@ -41,24 +40,6 @@ intent:
     - condition: $obr11 EQUALS G
       type: STRING
       value: "reflex-order"
-_intent:
-  expressionType: nested
-  vars:
-    obr11: OBR.11
-  condition: $obr11 NOT_NULL
-  expressionsMap:
-    extension:
-      generateList: true
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: obr-11-specimen-action-code
-        valueId:
-          type: STRING
-          valueOf: OBR.11
-          expressionType: HL7Spec
-
 
 identifier:
   expressionType: nested
