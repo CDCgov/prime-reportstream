@@ -363,7 +363,7 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system"
 - id: "cne-coding"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding"
-# CWE Coding System
+# CNE Coding System
 - id: "cne-coding-system"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding-system"
 # patient-citizenship
