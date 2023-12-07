@@ -2,6 +2,7 @@ import React, { Suspense, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 import { ErrorPage } from "../error/ErrorPage";
 import {
@@ -53,6 +54,9 @@ export function AdminOrgNewPage() {
 
     return (
         <NetworkErrorBoundary fallbackComponent={fallbackPage}>
+            <Helmet>
+                <title>New organization - Admin</title>
+            </Helmet>
             <section className="grid-container margin-bottom-5">
                 <Suspense
                     fallback={

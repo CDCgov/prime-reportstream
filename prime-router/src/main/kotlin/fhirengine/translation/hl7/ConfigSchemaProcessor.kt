@@ -72,6 +72,9 @@ abstract class ConfigSchemaProcessor : Logging {
                 logger.trace("Evaluated value expression '$it' to '$value'")
                 if (value.isNotEmpty()) {
                     retVal = value[0]
+                    if (retVal != null && retVal!!.isPrimitive) {
+                        retVal = retVal!!.copy()
+                    }
                     return@findValue
                 }
             }
