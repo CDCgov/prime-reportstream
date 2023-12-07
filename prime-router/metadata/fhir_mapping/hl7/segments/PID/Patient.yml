@@ -16,7 +16,7 @@ identifier:
       valueOf: datatypes/CX/Identifier
       vars:
         identifierIndexName: patient-id
-        pid2: PID.2
+        pid2: STRING_ALL, PID.2
     - condition: $pid3 NOT_NULL
       expressionType: resource
       specs: PID.3
@@ -24,14 +24,14 @@ identifier:
       generateList: true
       vars:
         identifierIndexName: patient-identifier-list
-        pid3: PID.3
+        pid3: STRING_ALL, PID.3
     - condition: $pid4 NOT_NULL
       expressionType: resource
       specs: PID.4
       valueOf: datatypes/CX/Identifier
       vars:
         identifierIndexName: alternate-patient-id
-        pid4: PID.4
+        pid4: STRING_ALL, PID.4
 
 name:
   expressionType: nested
@@ -43,53 +43,52 @@ name:
       valueOf: datatypes/XPN/HumanName
       vars:
         hl7Use: patient-name
-        pid9: PID.9
+        pid9: STRING_ALL, PID.9
     - condition: $pid9 NOT_NULL
       expressionType: resource
       specs: PID.9
       valueOf: datatypes/XPN/HumanName
       vars:
         hl7Use: patient-alias
-        pid9: PID.9
+        pid9: STRING_ALL, PID.9
 
 birthDate:
+  type: DATE
+  valueOf: PID.7
+  expressionType: HL7Spec
+
+_birthDate:
+  condition: $pid7 NOT_NULL
+  vars:
+    pid7: PID.7
+    dateTimeIn: PID.7, GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)
+    isTime: PID.7, GeneralUtils.dateTimeWithZoneId(isTime,ZONEID).length() > 10
   expressionType: nested
-  expressions:
-    - type: DATE
-      valueOf: PID.7
-      expressionType: HL7Spec
-    - condition: $pid7 NOT_NULL
-      vars:
-        pid7: PID.7
-        dateTimeIn: PID.7, GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)
-        isTime: PID.7, GeneralUtils.dateTimeWithZoneId(isTime,ZONEID).length() > 10
-        # util adds dashes between year and month and day extending length to 10 (yyyy-mm-dd)
+  expressionsMap:
+    # this extension is needed to comply with the official HL7v2-to-FHIR mapping
+    extension_1:
+      condition: $dateTimeIn NOT_NULL && $isTime EQUALS "true"
+      generateList: true
       expressionType: nested
       expressionsMap:
-        # this extension is needed to comply with the official HL7v2-to-FHIR mapping
-        extension_1:
-          condition: $dateTimeIn NOT_NULL && $isTime EQUALS "true"
-          generateList: true
-          expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: birthTime
-            valueDateTime:
-              valueOf: $dateTimeIn
-              expressionType: HL7Spec
-        # this extension is needed to reliably translate back to HL7 from FHIR
-        extension_2:
-          generateList: true
-          expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: hl7v2-date-time
-            valueString:
-              type: STRING
-              valueOf: $pid7
-              expressionType: HL7Spec
+        url:
+          type: SYSTEM_URL
+          value: birthTime
+        valueDateTime:
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
+    # this extension is needed to reliably translate back to HL7 from FHIR
+    extension_2:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $pid7
+          expressionType: HL7Spec
 
 gender:
   type: ADMINISTRATIVE_GENDER
@@ -103,7 +102,7 @@ address:
   expressionType: resource
   specs: PID.11
   vars:
-    pid11: PID.11
+    pid11: STRING_ALL, PID.11
 
 telecom:
   expressionType: nested
@@ -114,7 +113,7 @@ telecom:
       expressionType: resource
       specs: PID.13
       vars:
-        pid13: PID.13
+        pid13: STRING_ALL, PID.13
       constants:
         useCode: home
     - condition: $pid14 NOT_NULL
@@ -123,7 +122,7 @@ telecom:
       expressionType: resource
       specs: PID.14
       vars:
-        pid14: PID.14
+        pid14: STRING_ALL, PID.14
       constants:
         useCode: work
     - condition: $pid40 NOT_NULL
@@ -132,13 +131,13 @@ telecom:
       expressionType: resource
       specs: PID.40
       vars:
-        pid40: PID.40
+        pid40: STRING_ALL, PID.40
 
 communication:
   expressionType: nested
   condition: $pid15 NOT_NULL
   vars:
-    pid15: PID.15
+    pid15: STRING_ALL, PID.15
   expressionsMap:
     language:
       valueOf: datatypes/CWE/CodeableConcept
@@ -148,13 +147,15 @@ communication:
 maritalStatus:
   condition: $pid16 NOT_NULL
   vars:
-    pid16: PID.16
+    pid16: STRING_ALL, PID.16
   valueOf: datatypes/CWE/CodeableConcept
   expressionType: resource
   specs: PID.16
 
 link:
   expressionType: nested
+  vars:
+    pid21: STRING_ALL, PID.21
   expressionsMap:
     other:
       valueOf: datatypes/CX/RelatedPerson-mother
@@ -202,7 +203,7 @@ _deceasedDateTime:
   expressionType: nested
   condition: pid29 NOT_NULL
   vars:
-    pid29: PID.29
+    pid29: STRING, PID.29
   expressionsMap:
     extension_1:
       generateList: true
@@ -213,19 +214,23 @@ _deceasedDateTime:
           value: hl7v2-date-time
         valueString:
           type: STRING
-          valueOf: pid29
+          valueOf: $pid29
           expressionType: HL7Spec
 
 meta:
   expressionType: nested
   expressionsMap:
     lastupdated:
+      condition: $dateTimeIn NOT_NULL
       type: STRING
       valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
       expressionType: JEXL
       vars:
         dateTimeIn: PID.33
     extension:
+      condition: $pid34 NOT_NULL
+      vars:
+        pid34: STRING_ALL, PID.34
       expressionType: nested
       expressionsMap:
         url:
@@ -255,22 +260,21 @@ extension:
     - condition: $pid6 NOT_NULL
       expressionType: nested
       vars:
-        pid6: PID.6
+        pid6: STRING_ALL, PID.6
       expressionMap:
         url:
           type: SYSTEM_URL
           value: mothersMaidenName
-        valueString:
-      valueHumanName:
-        valueOf: datatypes/XPN/HumanName
-        expressionType: resource
-        specs: PID.6
+        valueHumanName:
+          valueOf: datatypes/XPN/HumanName
+          expressionType: resource
+          specs: PID.6
     - condition: $pid10 NOT_NULL
       expressionType: nested
       specs: PID.10
       generateList: true
       vars:
-        pid10: PID.10
+        pid10: STRING_ALL, PID.10
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -283,7 +287,7 @@ extension:
       expressionType: nested
       generateList: true
       vars:
-        pid17: PID.17
+        pid17: STRING_ALL, PID.17
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -296,7 +300,7 @@ extension:
       expressionType: nested
       generateList: true
       vars:
-        pid22: PID.22
+        pid22: STRING_ALL, PID.22
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -309,7 +313,7 @@ extension:
       expressionType: nested
       generateList: true
       vars:
-        pid23: PID.23
+        pid23: STRING_ALL, PID.23
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -321,10 +325,10 @@ extension:
               valueOf: PID.23
               type: STRING
     - expressionType: nested
-      condition: $citizenship NOT_NULL
+      condition: $pid26 NOT_NULL
       generateList: true
       vars:
-        citizenship: STRING_ALL, PID.26
+        PID26: STRING_ALL, PID.26
       constants:
         hl7v2Name: "citizenship"
       expressionsMap:
@@ -343,10 +347,10 @@ extension:
               expressionType: resource
               specs: PID.26
     - expressionType: nested
-      condition: $tribalCitizenship NOT_NULL
+      condition: $pid39 NOT_NULL
       generateList: true
       vars:
-        tribalCitizenship: STRING_ALL, PID.39
+        pid39: STRING_ALL, PID.39
       constants:
         hl7v2Name: "tribal-citizenship"
       expressionsMap:
@@ -364,7 +368,10 @@ extension:
               valueOf: datatypes/CWE/CodeableConcept
               expressionType: resource
               specs: PID.39
-    - expressionType: nested
+    - condition: $pid27 NOT_NULL
+      vars:
+        pid27: STRING_ALL, PID.27
+      expressionType: nested
       generateList: true
       expressionsMap:
         url:
@@ -375,10 +382,10 @@ extension:
           expressionType: resource
           specs: PID.27
     - expressionType: nested
-      condition: $nationality NOT_NULL
+      condition: $pid28 NOT_NULL
       generateList: true
       vars:
-        nationality: STRING_ALL, PID.28
+        pid18: STRING_ALL, PID.28
       constants:
         hl7v2Name: "nationality"
       expressionsMap:
@@ -396,7 +403,10 @@ extension:
               valueOf: datatypes/CWE/CodeableConcept
               expressionType: resource
               specs: PID.28
-    - expressionType: nested
+    - condition: $pid31 NOT_NULL
+      vars:
+        pid31: STRING_ALL, PID.31
+      expressionType: nested
       expressionsMap:
         url:
           type: STRING
@@ -405,7 +415,12 @@ extension:
           type: STRING
           valueOf: PID.31
           expressionType: HL7Spec
-    - expressionType: nested
+    - condition: $pid35 NOT_NULL || $pid36 NOT_NULL || $pid37 NOT_NULL
+      vars:
+        pid35: STRING_ALL, PID.35
+        pid36: STRING_ALL, PID.36
+        pid37: STRING, PID.37
+      expressionType: nested
       generateList: true
       constants:
         hl7v2Name: "patient-animal"
@@ -417,7 +432,8 @@ extension:
           generateList: true
           expressionType: nested
           expressions:
-            - expressionType: nested
+            - condition: $pid35 NOT_NULL
+              expressionType: nested
               expressionsMap:
                 url:
                   type: STRING
@@ -426,7 +442,8 @@ extension:
                   valueOf: datatypes/CWE/CodeableConcept
                   expressionType: resource
                   specs: PID.35
-            - expressionType: nested
+            - condition: $pid36 NOT_NULL
+              expressionType: nested
               expressionsMap:
                 url:
                   type: STRING
@@ -435,7 +452,8 @@ extension:
                   valueOf: datatypes/CWE/CodeableConcept
                   expressionType: resource
                   specs: PID.36
-            - expressionType: nested
+            - condition: $pid37 NOT_NULL
+              expressionType: nested
               expressionsMap:
                 url:
                   type: SYSTEM_URL
@@ -444,7 +462,10 @@ extension:
                   type: STRING
                   valueOf: PID.37
                   expressionType: HL7Spec
-    - expressionType: nested
+    - condition: $pd15 NOT_NULL
+      vars:
+        pd15: STRING_ALL, PD1.5
+      expressionType: nested
       generateList: true
       expressionsMap:
         url:
@@ -454,7 +475,10 @@ extension:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: PD1.5
-    - expressionType: nested
+    - condition: $pd16 NOT_NULL
+      vars:
+        pd16: STRING_ALL, PD1.6
+      expressionType: nested
       generateList: true
       expressionsMap:
         url:
@@ -464,7 +488,10 @@ extension:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: PD1.6
-    - expressionType: nested
+    - condition: $pd17 NOT_NULL
+      vars:
+        pd17: STRING_ALL, PD1.7
+      expressionType: nested
       generateList: true
       expressionsMap:
         url:
@@ -474,7 +501,10 @@ extension:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: PD1.7
-    - expressionType: nested
+    - condition: $pd114 NOT_NULL
+      vars:
+        pd114: STRING_ALL, PD1.14
+      expressionType: nested
       expressionsMap:
         url:
           type: STRING
