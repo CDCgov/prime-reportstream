@@ -44,7 +44,7 @@ jobs:
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@6c999acf206f5561e19f46301bb310e9e70d8815
+        uses: tj-actions/branch-names@6b29454859d080290fc5e9c05ee4e82b9156404b
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
