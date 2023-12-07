@@ -55,16 +55,22 @@ elements:
     value: [ '%resource.collection.collected + 6 seconds' ]
 
   - name: msh-15-accept-acknowledgement-type
-    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-15-accept-acknowledgement-type").value[x].exists().not()'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-15-accept-acknowledgement-type").value.exists().not()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-15-accept-acknowledgement-type").value[x]'
     value: [ '"NE"' ]
 
   - name: msh-16-application-acknowledgement-type
-    condition: true
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-16-application-acknowledgement-type").value.exists().not()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-16-application-acknowledgement-type").value[x]'
     value: [ '"NE"' ]
+
+  - name: msh-18-character-set
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/character-set").value.exists().not()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/character-set").value[x]'
+    value: [ '"UNICODE UTF-8"' ]
 
   - name: msh-19-principal-language-of-message
     condition: true
@@ -89,3 +95,21 @@ elements:
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-19-principal-language-of-message").value.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
     value: [ '"ISO"' ]
+
+  - name: msh-21-1-message-profile-identifier
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id").value.value.exists().not()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id").valueIdentifier.value'
+    value: [ '"PHLabReport-NoAck"' ]
+
+  - name: msh-21-2-message-profile-identifier-namespace-id
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value.exists().not() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id").value.system.getId().exists().not() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id").value.system.exists().not()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '"ELR_Receiver"' ]
+
+  - name: msh-21-3-message-profile-identifier-universal-id
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value.getId().exists().not()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '"urn:oid:2.16.840.1.113883.9.11"' ]
