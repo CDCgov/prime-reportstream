@@ -9,7 +9,7 @@ export function AdminReceiverDashPage() {
     return (
         <GridContainer>
             <Helmet>
-                <title>Admin Destination Dashboard</title>
+                <title>Receiver status dashboard - Admin</title>
             </Helmet>
             <article>
                 <AdminReceiverDashboard />

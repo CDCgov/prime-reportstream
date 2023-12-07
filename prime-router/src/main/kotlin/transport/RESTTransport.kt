@@ -151,8 +151,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             // to worry about capturing and parsing out the return value from the response
             // because Ktor treats errors as exceptions
             val msg = "FAILED POST of inputReportId ${header.reportFile.reportId} to " +
-                "$restTransportInfo (orgService = ${header.receiver.fullName})" +
-                ", Exception: ${t.localizedMessage}"
+                    "$restTransportInfo (orgService = ${header.receiver.fullName})" +
+                    ", Exception: ${t.localizedMessage}"
             logger.severe(msg)
             logger.severe(t.stackTraceToString())
             // do some additional handling of the error here. if we are dealing with a 400 error, we
@@ -163,13 +163,14 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     (t).let {
                         logger.severe(
                             "Received ${it.response.status.value}: ${it.response.status.description} " +
-                                "requesting ${it.response.request.url}. This is not recoverable. Will not retry."
+                                    "requesting ${it.response.request.url}. This is not recoverable. Will not retry."
                         )
                     }
                     actionHistory.setActionType(TaskAction.send_error)
                     actionHistory.trackActionResult(t.response.status, msg)
                     null
                 }
+
                 is ServerResponseException -> {
                     // this is largely duplicated code as below, but we may want to add additional
                     // instrumentation based on the specific error type we're getting. One benefit
@@ -178,14 +179,15 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     (t).let {
                         logger.severe(
                             "Received ${it.response.status.value}: ${it.response.status.description} " +
-                                "from the server ${it.response.request.url}, ${it.response.version}." +
-                                " This may be recoverable. Will retry."
+                                    "from the server ${it.response.request.url}, ${it.response.version}." +
+                                    " This may be recoverable. Will retry."
                         )
                     }
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult(t.response.status, msg)
                     RetryToken.allItems
                 }
+
                 else -> {
                     // this is an unknown exception, and maybe not one related to ktor, so we should
                     // track, but try again
@@ -303,6 +305,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 // if successful, add the token returned to the token storage
                 bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
             }
+
             is UserPassCredential -> {
                 tokenInfo = getAuthTokenWithUserPass(
                     restTransportInfo.authTokenUrl,
@@ -313,6 +316,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 // if successful, add token as "Authorization:" header
                 httpHeaders = httpHeaders + Pair("Authorization", tokenInfo.accessToken)
             }
+
             is UserAssertionCredential -> {
                 tokenInfo = getAuthTokenWithAssertion(
                     restTransportInfo.authTokenUrl,
@@ -323,6 +327,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 // if successful, add token as "Authorization:" header
                 bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
             }
+
             else -> error("UserApiKey or UserPass credential required")
         }
         return Pair(httpHeaders, bearerTokens)
@@ -490,6 +495,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         "demographics" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
                         }
+
                         "orders" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
                         }
@@ -499,6 +505,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
                             JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
                         }
+
                         else -> {
                             // NY
                             MultiPartFormDataContent(
