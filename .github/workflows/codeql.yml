@@ -67,15 +67,15 @@ jobs:
     strategy:
       fail-fast: false
       ##matrix: ${{needs.build_matrix.outputs.matrix}}
-      #matrix: ${{fromJSON(needs.build_matrix.outputs.matrix)}}
-      matrix:
-        language: [ 'javascript', 'python' ]
+      matrix: ${{ fromJson(needs.build_matrix.outputs.matrix) }}
+      #matrix:
+        #language: [ 'javascript', 'python' ]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 
     steps:
     - name: debug
-      run: echo ${{ fromJson(needs.build_matrix.outputs.matrix) }}
+      run: echo ${{matrix.language}}
       
     - name: Checkout repository
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
