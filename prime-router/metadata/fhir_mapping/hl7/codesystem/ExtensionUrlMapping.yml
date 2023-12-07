@@ -575,3 +575,6 @@
 # cx-5 identifier type code
 - id: "identifier-type-code"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type-code"
+# internal indicator of sender, usable for filtering
+- id: "sender-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id"
