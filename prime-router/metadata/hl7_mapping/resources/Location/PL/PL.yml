@@ -29,11 +29,11 @@ elements:
       physicalTypeCode: '"si"'
 
   - name: pl-status
-    value: [ '%resource.location.resolve().status' ]
+    value: [ '%resource.status' ]
     hl7Spec: [ '%{hl7PLField}-5' ]
 
   - name: pl-location-type
-    value: [ '%resource.location.resolve().extension(%`rsext-pl6-person-location-type`).value' ]
+    value: [ '%resource.extension(%`rsext-pl6-person-location-type`).value' ]
     hl7Spec: [ '%{hl7PLField}-6' ]
 
   - name: pl-building
@@ -52,18 +52,18 @@ elements:
 
 
   - name: pl-description
-    value: [ '%resource.location.resolve().description' ]
+    value: [ '%resource.description' ]
     hl7Spec: [ '%{hl7PLField}-9' ]
 
 
   - name: pl-comprehensive-location-identifier
-    resource: '%resource.location.resolve().identifier.where(extension(%`rsext-ei-assigner-organization-type`).exists())'
+    resource: '%resource.identifier.where(extension(%`rsext-ei-assigner-organization-type`).exists())'
     schema: ../../../datatypes/identifier/EI
     constants:
       hl7EIField: '%{hl7PLField}-10'
 
   - name: pl-assigning-authority-for-location
-    resource: '%resource.location.resolve().identifier.where(extension(%`rsext-ei-assigner-organization-type`).value = "organization").assigner.resolve()'
+    resource: '%resource.identifier.where(extension(%`rsext-ei-assigner-organization-type`).value = "organization").assigner.resolve()'
     schema: ../../Organization/HD
     constants:
       hl7HDField: '%{hl7PLField}-11'

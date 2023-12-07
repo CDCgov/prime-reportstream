@@ -162,7 +162,7 @@ elements:
     condition: false
 
   # OBR-4
-  - name: universal-service
+  - name: universal-service-identifier
     condition: false
 
 
@@ -235,8 +235,8 @@ elements:
   - name: use
     value: [ '%resource.use', '"official"' ]
 
-  # OBX-10
-  - name: order-entered-by
+  # OBR-10
+  - name: entered-by
     condition: false
 
   # XTN
