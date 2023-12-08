@@ -32,7 +32,7 @@ import java.util.Properties
 plugins {
     val kotlinVersion by System.getProperties()
     kotlin("jvm") version "$kotlinVersion"
-    id("org.flywaydb.flyway") version "9.22.3"
+    id("org.flywaydb.flyway") version "10.2.0"
     id("nu.studer.jooq") version "8.2.1"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.14.0"
@@ -867,7 +867,7 @@ dependencies {
     implementation("commons-io:commons-io:2.15.0")
     implementation("org.postgresql:postgresql:42.6.0")
     implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("org.flywaydb:flyway-core:9.22.3")
+    implementation("org.flywaydb:flyway-core:10.2.0")
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:32.1.3-jre")
     implementation("com.helger.as2:as2-lib:5.1.1")
