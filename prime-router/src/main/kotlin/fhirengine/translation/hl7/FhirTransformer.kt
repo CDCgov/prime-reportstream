@@ -177,7 +177,7 @@ class FhirTransformer(
         val childrenNames = pathParts.dropLast(1).reversed()
         val missingChildren = mutableListOf<String>()
         childrenNames.forEach { childName ->
-            val pathToEvaluatedFixedForFhirPath = pathToEvaluate.replace(Regex("value[a-zA-Z]*"), "value")
+            val pathToEvaluatedFixedForFhirPath = convertToValidFhirPath(pathToEvaluate)
             if (FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluatedFixedForFhirPath).isEmpty()) {
                 if (childName.contains('%')) {
                     logger.error(
@@ -197,7 +197,7 @@ class FhirTransformer(
             check(missingChildren.last() != "entry") { "Can't add missing entry." } // We do not need to support entries
         }
         // Now go on reverse and create the needed children
-        val pathToEvaluatedFixedForFhirPath = pathToEvaluate.replace(Regex("value[a-zA-Z]*"), "value")
+        val pathToEvaluatedFixedForFhirPath = convertToValidFhirPath(pathToEvaluate)
         val parent = FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluatedFixedForFhirPath)
         if (parent.size != 1) throw Exception()
         var childResource = parent[0]
@@ -222,6 +222,9 @@ class FhirTransformer(
             logger.error("Could not find property '${pathParts.last()}'.")
         }
     }
+
+    private fun convertToValidFhirPath(pathToEvaluate: String) =
+        pathToEvaluate.replace(Regex("value[a-zA-Z]*"), "value")
 
     /**
      * Returns a non-empty list of path parts represented by the `bundleProperty`,
