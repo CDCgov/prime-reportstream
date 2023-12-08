@@ -98,6 +98,8 @@ extension:
         orc14: STRING_ALL, ORC.14
         obr17: STRING_ALL, OBR.17
       expressionType: nested
+      specs: OBR.17 *
+      generateList: true
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -105,7 +107,6 @@ extension:
         valueContactPoint:
           valueOf: datatypes/XTN/ContactPoint
           expressionType: resource
-          specs: OBR.17
           constants:
             hl7v2Name: obr-17-order-callback-phone-number
     - expressionType: nested
