@@ -250,7 +250,7 @@ runs:
 
     - name: Validate function app checksum
       if: inputs.checksum-validation == 'true'
-      uses: JosiahSiegel/checksum-validate-action@a4fc693fc9e773138602e88c0f478295a9635426
+      uses: JosiahSiegel/checksum-validate-action@308d3f14df6a7bb76a5494706d3780068f09b87b
       with:
         key: backend
         validate: true
