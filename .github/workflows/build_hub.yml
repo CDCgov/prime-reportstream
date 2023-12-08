@@ -36,6 +36,7 @@ jobs:
 
     steps:
       - name: Add swapfile
+        working-directory: /
         run: |
           sudo swapoff -a
           sudo fallocate -l 15G /swapfile
