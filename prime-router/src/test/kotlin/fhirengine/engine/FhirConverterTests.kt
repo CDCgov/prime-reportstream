@@ -143,6 +143,11 @@ class FhirConverterTests {
         val bodyUrl = "https://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
+        every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
+        every { actionLogger.log(any<ActionLogDetail>(), any()) } just runs
+        every { actionLogger.log(any<List<ActionLogDetail>>(), any()) } just runs
+        every { actionLogger.log(emptyList(), any()) } just runs
+        every { actionLogger.error(any<ActionLogDetail>()) } just runs
         every { message.downloadContent() }.returns(validHl7)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.HL7
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
@@ -193,6 +198,11 @@ class FhirConverterTests {
         val bodyUrl = "https://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
+        every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
+        every { actionLogger.log(any<ActionLogDetail>(), any()) } just runs
+        every { actionLogger.log(any<List<ActionLogDetail>>(), any()) } just runs
+        every { actionLogger.log(emptyList(), any()) } just runs
+        every { actionLogger.error(any<ActionLogDetail>()) } just runs
         every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())
         every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
