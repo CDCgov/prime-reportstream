@@ -90,8 +90,8 @@ class FHIRConverter(
                 transformer?.transform(bundle)
 
                 bundle.entry.filter { it.resource is Observation }.forEach {
-                    (it.resource as Observation).addMappedCondition(metadata).run { // TODO: double check tracked ID
-                        actionLogger.getItemLogger(bundleIndex, it.resource.id).log(this, ActionLogLevel.mapping)
+                    (it.resource as Observation).addMappedCondition(metadata).run {
+                        actionLogger.getItemLogger(bundleIndex + 1, it.resource.id).log(this, ActionLogLevel.mapping)
                     }
                 }
 

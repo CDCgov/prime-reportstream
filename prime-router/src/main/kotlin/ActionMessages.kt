@@ -84,7 +84,7 @@ class UnmappableConditionMessage(
     override val message = if (unmappableCodes.isNullOrEmpty()) {
         "Observation missing code"
     } else {
-        "Missing mapping for $fieldMapping:" + unmappableCodes.joinToString(",")
+        "Missing mapping for code(s): " + unmappableCodes.joinToString(",")
     }
     override val errorCode = ErrorCode.INVALID_MSG_CONDITION_MAPPING
 }

@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.utils
 import ca.uhn.hl7v2.model.Message
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogDetail
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
@@ -34,15 +33,21 @@ const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDe
 const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
 
 private fun lookupCondition(code: Coding, metadata: Metadata): Coding? {
-    val mappingTable = metadata.findLookupTable("observation-mapping")!! // TODO graceful?
-    val condition = mappingTable.dataRowsMap.find { it[ObservationMappingConstants.TEST_CODE_KEY] == code.code }
+    val mappingTable = metadata.findLookupTable("observation-mapping").also {
+        if (it == null) {
+            return null // TODO: better error if table is missing? log vs throw?
+        }
+    }!!
+    val condition = mappingTable.dataRowsMap.find {
+        it[ObservationMappingConstants.TEST_CODE_KEY.lowercase()] == code.code // TODO: why lower
+    }
     return if (condition.isNullOrEmpty()) {
         null
     } else {
         Coding(
-            condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
-            condition[ObservationMappingConstants.CONDITION_CODE_KEY],
-            condition[ObservationMappingConstants.CONDITION_NAME_KEY]
+            condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY.lowercase()], // TODO: why lower
+            condition[ObservationMappingConstants.CONDITION_CODE_KEY.lowercase()], // TODO: why lower
+            condition[ObservationMappingConstants.CONDITION_NAME_KEY.lowercase()] // TODO: why lower
         )
     }
 }
