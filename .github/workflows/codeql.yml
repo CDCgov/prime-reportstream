@@ -3,11 +3,14 @@ name: "CodeQL"
 on: 
   push:
     branches: 
-     - master
-     - production
+      - master
   pull_request:
     branches: 
-     - master
+      - master
+    paths:
+      - "frontend-react/**"
+      - "prime-router/src/scripts/**"
+      - "/operations/app/functions/admin/**"
   schedule:
     - cron: '20 4 * * 1'
 
@@ -35,11 +38,11 @@ jobs:
           frontend:
             - 'frontend-react/**'
           python:
-            - 'prime-router/src/scripts/**/*.py'
-            - 'operations/**/*.py'
+            - 'prime-router/src/scripts/**'
+            - 'operations/app/functions/admin/**'
 
     #- name: Build matrix
-      #  "matrix={\"language\":[]}"     null
+      #  "matrix={\"language\":[]}"     null   <==== DOES NOT WORK (maybe set a variable to test for the "analyze" job?)
       #if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true'
       #  "matrix={\"language\":[\"javascript\"]}"
       #if: steps.changed-files-yaml.outputs.python_any_changed == 'true'
@@ -49,8 +52,8 @@ jobs:
 
     - name: Create matrix
       id: set-matrix
-      #run: echo "matrix={\"language\":[\"javascript\",\"python\"]}" >> $GITHUB_OUTPUT
-      run: echo "matrix={\"language\":[]}" >> $GITHUB_OUTPUT
+      run: echo "matrix={\"language\":[\"javascript\",\"python\"]}" >> $GITHUB_OUTPUT
+      #run: echo "matrix={\"language\":[]}" >> $GITHUB_OUTPUT   <==== DOES NOT WORK
 
   analyze:
     name: Analyze
