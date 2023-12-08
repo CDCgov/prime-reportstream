@@ -18,3 +18,11 @@ export function SettingFormFieldRow({
         </Grid>
     );
 }
+
+export function validateJsonField(value, field) {
+    try {
+        JSON.parse(value);
+    } catch (e: any) {
+        return e.message;
+    }
+}

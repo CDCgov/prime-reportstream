@@ -1,29 +1,36 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-
-import { CheckJsonError, checkJson } from "../../utils/misc";
 import { Simplify } from "type-fest";
 
+import { CheckJsonError, checkJson } from "../../utils/misc";
+
 export type ObjectJsonHybrid<
-    T,
-    K extends (string & keyof T) | undefined = undefined,
+    T extends Record<string, any>,
+    K extends keyof T | undefined = undefined,
 > = {
-    [k in keyof T]: k extends K ? string : T[k];
+    [k in keyof T]: K extends undefined
+        ? T[k] | string
+        : k extends K
+        ? string
+        : T[k];
+};
+
+export type ObjectJsonHybridParse<
+    T extends Record<string, any>,
+    K extends keyof T | undefined = undefined,
+> = {
+    [k in keyof T]: k extends K ? any : T[k];
 };
 
 function stringify(v: any) {
     return JSON.stringify(v, undefined, 2);
 }
 
-export function createJsonHybrid<T extends {} = any>(
+export function createJsonHybrid<T extends Record<string, any>>(
     obj: T,
-    jsonKeys?: (string & keyof T)[],
-): Simplify<
-    ObjectJsonHybrid<
-        T,
-        typeof jsonKeys extends (string & keyof T)[]
-            ? (typeof jsonKeys)[number]
-            : undefined
-    >
+    jsonKeys?: (keyof T)[],
+): ObjectJsonHybrid<
+    T,
+    typeof jsonKeys extends (keyof T)[] ? (typeof jsonKeys)[number] : undefined
 > {
     return {
         ...Object.fromEntries(
@@ -35,7 +42,7 @@ export function createJsonHybrid<T extends {} = any>(
                     }
                     return [k, s];
                 }
-                return [k, v];
+                return [k, v === null ? undefined : v];
             }),
         ),
     } as any;
@@ -46,15 +53,23 @@ export interface CheckJsonHybridError {
     error: string | CheckJsonError;
 }
 
-export interface CheckJsonHybridResult<T = any> {
-    obj: T;
+export interface CheckJsonHybridResult<
+    T extends Record<string, any> = any,
+    K extends keyof T | undefined = undefined,
+> {
+    obj: ObjectJsonHybridParse<T, K>;
     errors: CheckJsonHybridError[];
 }
 
-export function checkJsonHybrid<T extends object = any>(
-    hybrid: T,
-    jsonKeys: string[],
-): CheckJsonHybridResult<T> {
+export function checkJsonHybrid<
+    H extends Record<string, any>,
+    T extends Record<string, any> = H extends ObjectJsonHybrid<infer t>
+        ? t
+        : never,
+>(
+    hybrid: H,
+    jsonKeys: (keyof T)[],
+): CheckJsonHybridResult<T, (typeof jsonKeys)[number]> {
     const errors: CheckJsonHybridError[] = [];
     const obj = Object.fromEntries(
         Object.entries(hybrid).map(([k, v]) => {
@@ -67,7 +82,7 @@ export function checkJsonHybrid<T extends object = any>(
                     }
                     const { obj, error } = checkJson(v);
                     if (error) {
-                        errors.push({ name: k, error });
+                        errors.push({ name: k, error: error.msg });
                         return [k, undefined];
                     }
                     return [k, obj];
@@ -76,7 +91,7 @@ export function checkJsonHybrid<T extends object = any>(
             }
             return [k, v];
         }),
-    ) as typeof hybrid;
+    ) as T;
     return { obj, errors };
 }
 
@@ -87,24 +102,21 @@ export function checkJsonHybrid<T extends object = any>(
  * shape of the edited object is stringified in `json` for editing itself. If changes to `json` are
  * valid, it is converted and set as the hybrid object.
  */
-export default function useObjectJsonHybridEdit<T extends object = any>(
-    initialValue: T,
-    jsonKeys: (string & keyof T)[],
-) {
-    const _createJsonHybrid = useCallback(
-        (v: T) => createJsonHybrid(v, jsonKeys),
-        [jsonKeys],
+export default function useObjectJsonHybridEdit<
+    T extends Record<string, any> = any,
+>(initialValue: T, jsonKeys: (keyof T)[]) {
+    const [hybrid, setHybrid] = useState(() =>
+        createJsonHybrid(initialValue, jsonKeys),
     );
-    const [hybrid, setHybrid] = useState(() => _createJsonHybrid(initialValue));
     const [json, setJson] = useState(() => stringify(initialValue));
     const hybridResult = useMemo(
-        () => checkJsonHybrid(hybrid, jsonKeys),
+        () => checkJsonHybrid<T>(hybrid, jsonKeys),
         [hybrid, jsonKeys],
     );
     const jsonResult = useMemo(() => checkJson<T>(json), [json]);
 
     useEffect(() => {
-        setHybrid((h) => createJsonHybrid(h as any, jsonKeys));
+        setHybrid((h) => createJsonHybrid(h, jsonKeys));
     }, [jsonKeys]);
 
     useEffect(() => {

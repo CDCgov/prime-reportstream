@@ -2,7 +2,11 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 
 import config from "../config";
-import { RSReceiver } from "../config/endpoints/settings";
+import {
+    CustomerStatus,
+    Format,
+    RSReceiver,
+} from "../config/endpoints/settings";
 import {
     RSReceiverDelivery,
     RSReceiverDeliveryResponse,
@@ -21,10 +25,18 @@ export const receiverServicesGenerator = (count: number) => {
         receiverServices.push({
             name: `elr-${i}`,
             organizationName: "testOrg",
-            customerStatus: "",
-            translation: undefined,
+            customerStatus: CustomerStatus.TESTING,
+            translation: {
+                defaults: {},
+                format: Format.CSV,
+                nameFormat: "",
+                receivingOrganization: "",
+                schemaName: "",
+            },
             topic: "",
             version: 0,
+            createdAt: "",
+            createdBy: "",
         });
     }
     return receiverServices;

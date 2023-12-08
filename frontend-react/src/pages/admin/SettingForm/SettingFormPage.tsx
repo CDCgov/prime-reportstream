@@ -7,9 +7,9 @@ import { Button, Grid, ModalRef } from "@trussworks/react-uswds";
 import OrgReceiverSettingsResource from "../../../resources/OrgReceiverSettingsResource";
 import { RSSetting } from "../../../config/endpoints/settings";
 import {
-    ReceiverForm,
-    SenderForm,
-    OrganizationForm,
+    ReceiverFormInner,
+    SenderFormInner,
+    OrganizationFormInner,
     SettingFormProps,
     SettingFormMode,
 } from "../../../shared/SettingFormWithJson/SettingForm/SettingForm";
@@ -28,11 +28,14 @@ import {
     getErrorDetailFromResponse,
 } from "../../../utils/misc";
 import MetaDisplay from "../../../shared/MetaDisplay/MetaDisplay";
+import { useSettingFormCreate } from "../../../shared/SettingFormWithJson/SettingFormContext/SettingFormContext";
 
 import {
     ModalConfirmButton,
     ModalConfirmDialog,
 } from "./ModalConfirmDialog/ModalConfirmDialog";
+
+import styles from "../../../shared/SettingFormWithJson/SettingForm/SettingForm.module.scss";
 
 export type SettingFormPageParams = {
     orgId: string;
@@ -45,7 +48,7 @@ export interface SettingFormPageSharedProps {
 }
 
 export interface SettingFormPageBaseProps extends SettingFormPageSharedProps {
-    Form: (props: SettingFormProps) => JSX.Element;
+    FormInner: (props: SettingFormProps) => JSX.Element;
     setting?: RSSetting;
     orgId: string;
     entityId?: string;
@@ -69,7 +72,7 @@ export function SettingFormPageBase({
     entityId,
     onError,
     onDelete,
-    Form,
+    FormInner,
     onCancel,
     onSubmit,
     isSubmitDisabled,
@@ -133,6 +136,13 @@ export function SettingFormPageBase({
         else modalRef.current?.toggleModal(undefined, false);
     }, [settingAction]);
 
+    const form = useSettingFormCreate({
+        initialValues: setting,
+        documentType: "JSON",
+        isCompareAllowed: true,
+        mode,
+    });
+
     return (
         <>
             <Helmet>
@@ -156,38 +166,40 @@ export function SettingFormPageBase({
             {setting && (
                 <>
                     <section className="grid-container margin-top-0"></section>
-                    <Form
-                        documentType="JSON"
-                        isCompare={true}
-                        mode={mode}
-                        initialValues={setting}
-                        onSubmit={onSubmitHandler}
-                        isSubmitDisabled={isSubmitDisabled}
-                        leftButtons={
-                            <>
-                                {onDelete && (
+                    <form.Form
+                        className={styles.SettingForm}
+                        onSubmit={(v) => {
+                            console.log("submit", v);
+                        }}
+                    >
+                        <FormInner
+                            leftButtons={
+                                <>
+                                    {onDelete && (
+                                        <Button
+                                            type={"button"}
+                                            secondary={true}
+                                            onClick={onDeleteHandler}
+                                        >
+                                            Delete...
+                                        </Button>
+                                    )}
+                                </>
+                            }
+                            rightButtons={
+                                <>
                                     <Button
                                         type={"button"}
-                                        secondary={true}
-                                        onClick={onDeleteHandler}
+                                        outline
+                                        onClick={onCancel}
                                     >
-                                        Delete...
+                                        Cancel
                                     </Button>
-                                )}
-                            </>
-                        }
-                        rightButtons={
-                            <>
-                                <Button
-                                    type={"button"}
-                                    outline
-                                    onClick={onCancel}
-                                >
-                                    Cancel
-                                </Button>
-                            </>
-                        }
-                    ></Form>
+                                </>
+                            }
+                        ></FormInner>
+                        <Button type="submit">Submit</Button>
+                    </form.Form>
 
                     <Grid row>
                         <Grid col={3}>Meta:</Grid>
@@ -272,22 +284,22 @@ export default function SettingFormPage({
             | typeof OrgReceiverSettingsResource
             | typeof OrgSenderSettingsResource
             | typeof OrgSettingsResource,
-        Form;
+        FormInner;
 
     switch (entityType) {
         case "Receiver": {
             resource = OrgReceiverSettingsResource;
-            Form = ReceiverForm;
+            FormInner = ReceiverFormInner;
             break;
         }
         case "Sender": {
             resource = OrgSenderSettingsResource;
-            Form = SenderForm;
+            FormInner = SenderFormInner;
             break;
         }
         case "Organization": {
             resource = OrgSettingsResource;
-            Form = OrganizationForm;
+            FormInner = OrganizationFormInner;
             break;
         }
         default:
@@ -426,7 +438,7 @@ export default function SettingFormPage({
                 <SettingFormPageBase
                     orgId={orgId!}
                     entityId={entityId}
-                    Form={Form}
+                    FormInner={FormInner}
                     setting={setting}
                     entityType={entityType}
                     mode={mode}

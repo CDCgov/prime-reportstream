@@ -249,7 +249,7 @@ export default function ReceiverFieldset({ children }: ReceiverFieldsetProps) {
                             name={field.name}
                             type="text"
                             id={field.name}
-                            value={field.state.value ?? ""}
+                            value={field.state.value}
                             disabled={mode === "readonly"}
                             onChange={(e) =>
                                 field.handleChange(e.currentTarget.value)

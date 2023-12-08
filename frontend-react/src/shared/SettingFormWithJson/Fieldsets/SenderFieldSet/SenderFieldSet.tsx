@@ -21,14 +21,7 @@ import { useSettingForm } from "../../SettingFormContext/SettingFormContext";
 export interface SenderFieldsetProps extends SettingFormFieldsetProps {}
 
 export default function SenderFieldset({ children }: SenderFieldsetProps) {
-    const { form, mode, registerJsonFields } = useSettingForm<
-        RSSender,
-        "keys"
-    >();
-
-    useEffect(() => {
-        registerJsonFields("keys");
-    }, [registerJsonFields]);
+    const { form } = useSettingForm();
 
     return (
         <>
