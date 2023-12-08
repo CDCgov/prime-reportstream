@@ -19,7 +19,7 @@ identifier:
         pid2: STRING_ALL, PID.2
     - condition: $pid3 NOT_NULL
       expressionType: resource
-      specs: PID.3
+      specs: PID.3 *
       valueOf: datatypes/CX/Identifier
       generateList: true
       vars:
@@ -39,14 +39,14 @@ name:
   expressions:
     - condition: $pid9 NOT_NULL
       expressionType: resource
-      specs: PID.5
+      specs: PID.5 *
       valueOf: datatypes/XPN/HumanName
       vars:
         hl7Use: patient-name
         pid9: STRING_ALL, PID.9
     - condition: $pid9 NOT_NULL
       expressionType: resource
-      specs: PID.9
+      specs: PID.9 *
       valueOf: datatypes/XPN/HumanName
       vars:
         hl7Use: patient-alias
@@ -100,7 +100,7 @@ address:
   valueOf: datatypes/XAD/Address
   generateList: true
   expressionType: resource
-  specs: PID.11
+  specs: PID.11 *
   vars:
     pid11: STRING_ALL, PID.11
 
@@ -111,7 +111,7 @@ telecom:
       valueOf: datatypes/XTN/ContactPoint
       generateList: true
       expressionType: resource
-      specs: PID.13
+      specs: PID.13 *
       vars:
         pid13: STRING_ALL, PID.13
       constants:
@@ -120,7 +120,7 @@ telecom:
       valueOf: datatypes/XTN/ContactPoint
       generateList: true
       expressionType: resource
-      specs: PID.14
+      specs: PID.14 *
       vars:
         pid14: STRING_ALL, PID.14
       constants:
@@ -129,7 +129,7 @@ telecom:
       valueOf: datatypes/XTN/ContactPoint
       generateList: true
       expressionType: resource
-      specs: PID.40
+      specs: PID.40 *
       vars:
         pid40: STRING_ALL, PID.40
 
@@ -156,11 +156,11 @@ link:
   expressionType: nested
   vars:
     pid21: STRING_ALL, PID.21
+  specs: PID.21 *
   expressionsMap:
     other:
       valueOf: datatypes/CX/RelatedPerson-mother
       expressionType: reference
-      specs: PID.21
     type:
       type: STRING
       valueOf: "seealso"
@@ -242,13 +242,22 @@ meta:
           specs: PID.34
 
 generalPractitioner:
-  condition: $patientPrimaryFacility NOT_NULL
-  valueOf: datatypes/XON/Organization
-  generateList: true
-  expressionType: reference
-  specs: PD1.3
-  vars:
-    patientPrimaryFacility: PD1.3
+  expressionType: nested
+  expressions:
+    - condition: $patientPrimaryFacility NOT_NULL
+      valueOf: datatypes/XON/Organization
+      generateList: true
+      expressionType: reference
+      specs: PD1.3 *
+      vars:
+        patientPrimaryFacility: PD1.3
+    - condition: $patientPrimaryFacility NOT_NULL
+      valueOf: datatypes/XCN/Practitioner
+      generateList: true
+      expressionType: reference
+      specs: PD1.4 *
+      vars:
+        patientPrimaryProvider: PD1.4
 
 extension:
   expressionType: nested
@@ -261,6 +270,7 @@ extension:
       expressionType: nested
       vars:
         pid6: STRING_ALL, PID.6
+      specs: PID.6 *
       expressionMap:
         url:
           type: SYSTEM_URL
@@ -268,10 +278,9 @@ extension:
         valueHumanName:
           valueOf: datatypes/XPN/HumanName
           expressionType: resource
-          specs: PID.6
     - condition: $pid10 NOT_NULL
       expressionType: nested
-      specs: PID.10
+      specs: PID.10 *
       generateList: true
       vars:
         pid10: STRING_ALL, PID.10
@@ -301,6 +310,7 @@ extension:
       generateList: true
       vars:
         pid22: STRING_ALL, PID.22
+      specs: PID.22 *
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -308,7 +318,6 @@ extension:
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
-          specs: PID.22
     - condition: $pid23 NOT_NULL
       expressionType: nested
       generateList: true
@@ -338,6 +347,7 @@ extension:
         extension:
           generateList: true
           expressionType: nested
+          specs: PID.26 *
           expressionsMap:
             url:
               type: SYSTEM_URL
@@ -345,7 +355,6 @@ extension:
             valueCodeableConcept:
               valueOf: datatypes/CWE/CodeableConcept
               expressionType: resource
-              specs: PID.26
     - expressionType: nested
       condition: $pid39 NOT_NULL
       generateList: true
@@ -360,6 +369,7 @@ extension:
         extension:
           generateList: true
           expressionType: nested
+          specs: PID.39 *
           expressionsMap:
             url:
               type: SYSTEM_URL
@@ -367,7 +377,6 @@ extension:
             valueCodeableConcept:
               valueOf: datatypes/CWE/CodeableConcept
               expressionType: resource
-              specs: PID.39
     - condition: $pid27 NOT_NULL
       vars:
         pid27: STRING_ALL, PID.27
@@ -505,6 +514,7 @@ extension:
       vars:
         pd114: STRING_ALL, PD1.14
       expressionType: nested
+      specs: PD1.14 *
       expressionsMap:
         url:
           type: STRING
@@ -512,4 +522,3 @@ extension:
         valueString:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
-          specs: PD1.14

@@ -6,18 +6,18 @@ patient:
 
 name:
   expressionTpe: nested
-  generareList: true
+  generateList: true
   expressions:
     - valueOf: datatypes/XPN/HumanName
       expressionType: resource
-      specs: NK1.2
+      specs: NK1.2 *
     - valueOf: datatypes/XPN/HumanName
       expressionType: resource
-      specs: NK1.30
+      specs: NK1.30 *
 
 relationship:
   expressionType: nested
-  generareList: true
+  generateList: true
   expressions:
     - valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
@@ -28,14 +28,14 @@ relationship:
 
 address:
   expressionType: nested
-  generareList: true
+  generateList: true
   expressions:
     - valueOf: datatypes/XAD/Address
       expressionType: resource
-      specs: NK1.4
+      specs: NK1.4 *
     - valueOf: datatypes/XAD/Address
       expressionType: resource
-      specs: NK1.32
+      specs: NK1.32 *
 
 
 telecom:
@@ -45,7 +45,7 @@ telecom:
       valueOf: datatypes/XTN/ContactPoint
       generateList: true
       expressionType: resource
-      specs: NK1.5
+      specs: NK1.5 *
       vars:
         valueIn: NK1.5
       constants:
@@ -54,7 +54,7 @@ telecom:
       valueOf: datatypes/XTN/ContactPoint
       generateList: true
       expressionType: resource
-      specs: NK1.6
+      specs: NK1.6 *
       vars:
         valueIn: NK1.6
       constants:
@@ -64,7 +64,7 @@ telecom:
       valueOf: datatypes/XTN/ContactPoint
       generateList: true
       expressionType: resource
-      specs: NK1.31
+      specs: NK1.31 *
       vars:
         valueIn: NK1.31
       constants:
@@ -136,19 +136,19 @@ identifier:
   expressionType: nested
   expressions:
     - valueOf: datatypes/CX/Identifier
-      generareList: true
+      generateList: true
       expressionType: resource
       specs: NK1.12
       constants:
         identifierIndexName: next-of-kin-employee-number
     - valueOf: datatypes/CX/Identifier
-      generareList: true
+      generateList: true
       expressionType: resource
-      specs: NK1.33
+      specs: NK1.33 *
       constants:
         identifierIndexName: next-of-kin-identifier
     - expressionType: nested
-      generareList: true
+      generateList: true
       expressionsMap:
         value:
           type: STRING
@@ -160,10 +160,10 @@ identifier:
 
 organization:
   condition: $XONOrganization NOT_NULL
-  generareList: true
+  generateList: true
   expressionType: reference
   valueOf: datatypes/XON/Organization
-  specs: NK1.13
+  specs: NK1.13 *
   vars:
     XONOrganization: NK1.13
     XPNHumanName: NK1.30
@@ -211,7 +211,7 @@ communication:
   expressionType: nested
   expressionsMap:
     language:
-      generareList: true
+      generateList: true
       valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
       specs: NK1.20
@@ -226,7 +226,7 @@ extension:
       expressionType: nested
       expressions:
         - expressionType: nested
-          generareList: true
+          generateList: true
           expressionsMap:
             url:
               type: STRING

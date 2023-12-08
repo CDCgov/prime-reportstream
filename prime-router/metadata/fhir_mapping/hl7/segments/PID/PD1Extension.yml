@@ -6,6 +6,7 @@ extension:
   expressionType: nested
   expressions:
     - expressionType: nested
+      specs: PD1.1 *
       expressionsMap:
         url:
           type: STRING
@@ -42,6 +43,7 @@ extension:
           valueOf: PD1.9
           expressionType: HL7Spec
     - expressionType: nested
+      specs: PD1.10 *
       expressionsMap:
         url:
           type: STRING
@@ -78,6 +80,7 @@ extension:
           valueOf: PD1.13
           expressionType: HL7Spec
     - expressionType: nested
+      specs: PD1.15 *
       expressionsMap:
         url:
           type: STRING

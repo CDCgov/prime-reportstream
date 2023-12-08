@@ -1,7 +1,7 @@
 url:
   type: STRING
   value: pid-patient
-  
+
 extension:
   expressionType: nested
   expressions:
@@ -15,6 +15,7 @@ extension:
           valueOf: PID.24
           expressionType: HL7Spec
     - expressionType: nested
+      specs: PID.32 *
       expressionsMap:
         url:
           type: STRING
@@ -22,8 +23,8 @@ extension:
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
-          specs: PID.32
     - expressionType: nested
+      specs: PID.38 *
       expressionsMap:
         url:
           type: STRING
@@ -31,4 +32,3 @@ extension:
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
-          specs: PID.38
