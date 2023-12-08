@@ -81,7 +81,7 @@ const ValueSetsIndexPage = () => {
     return (
         <>
             <Helmet>
-                <title>Value Sets | Admin</title>
+                <title>Value sets - Admin</title>
             </Helmet>
             <section className="grid-container">
                 {withCatchAndSuspense(<ValueSetsTable />)}

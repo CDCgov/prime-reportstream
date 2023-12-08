@@ -63,7 +63,7 @@ export function FeatureFlagsPage() {
     return (
         <>
             <Helmet>
-                <title>Feature Flags</title>
+                <title>Feature flags - Admin</title>
             </Helmet>
             <section className="grid-container margin-top-0">
                 <h3>List of feature flags</h3>

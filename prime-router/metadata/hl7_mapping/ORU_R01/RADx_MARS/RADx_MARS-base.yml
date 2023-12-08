@@ -94,7 +94,7 @@ elements:
     condition: false
 
   # OBR-4
-  - name: universal-service
+  - name: universal-service-identifier
     condition: false
 
   # XTN
