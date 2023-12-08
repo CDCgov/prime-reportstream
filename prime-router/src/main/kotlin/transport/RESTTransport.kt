@@ -11,6 +11,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.RestCredential
@@ -107,7 +108,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         // parse headers for any dynamic values, OK needs the report ID
                         var (httpHeaders, bearerTokens: BearerTokens?) = getOAuthToken(
                             restTransportInfo,
-                            reportId,
+                            header.reportFile,
                             jksCredential,
                             credential,
                             logger
@@ -276,18 +277,28 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      */
     suspend fun getOAuthToken(
         restTransportInfo: RESTTransportType,
-        reportId: String,
+        reportId: ReportFile,
         jksCredential: UserJksCredential?,
         credential: RestCredential,
         logger: Logger,
     ): Pair<Map<String, String>, BearerTokens?> {
         var httpHeaders = restTransportInfo.headers.mapValues {
             if (it.value == "header.reportFile.reportId") {
-                reportId
+                reportId.reportId?.toString().orEmpty()
+            } else if (it.value == "header.reportFile.sendingOrg") {
+                reportId.sendingOrg?.toString().orEmpty()
+            } else if (it.value == "header.reportFile.sendingOrgClient") {
+                reportId.sendingOrgClient?.toString().orEmpty()
+            } else if (it.value == "header.reportFile.actionId") {
+                reportId.actionId?.toString().orEmpty()
             } else {
                 it.value
             }
         }
+
+//        val reportProperties = reportId::class.memberProperties.associate { it.name to it.call(reportId).toString() }
+//        httpHeaders = httpHeaders.plus(reportProperties)
+
         val tokenClient = httpClient ?: createDefaultHttpClient(jksCredential, null)
         // get the credential and use it to request an OAuth token
         // Usually credential is a UserApiKey, with an apiKey field (NY)

@@ -14,6 +14,7 @@ import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -344,7 +345,9 @@ class CheckFunction : Logging {
         responseBody.add("${receiver.fullName}: REST Transport")
         try {
             val theRESTTransport = RESTTransport()
-            val reportId = UUID.randomUUID().toString()
+            val report = ReportFile()
+//            val reportId = UUID.randomUUID().toString()
+            report.reportId = UUID.randomUUID()
             // REST transport throws exception with error method to handle fails
             // get the username/password to authenticate with OAuth, fail throws exception
             val (credential, jksCredential) = theRESTTransport.getCredential(restTransportType, receiver)
@@ -356,7 +359,7 @@ class CheckFunction : Logging {
                     var (httpHeaders, bearerTokens: io.ktor.client.plugins.auth.providers.BearerTokens?) =
                         theRESTTransport.getOAuthToken(
                             restTransportType,
-                            reportId,
+                            report,
                             jksCredential,
                             credential,
                             aLogger

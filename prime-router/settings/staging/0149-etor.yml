@@ -82,12 +82,12 @@
         useBatching: false
         type: "FHIR"
       transport: !<REST>
-        reportUrl: "https://cdcti-stg-api.azurewebsites.net/v1/etor/orders"
-        authTokenUrl: "https://cdcti-stg-api.azurewebsites.net/v1/auth/token"
+#        reportUrl: "https://cdcti-stg-api.azurewebsites.net/v1/etor/orders"
+#        authTokenUrl: "https://cdcti-stg-api.azurewebsites.net/v1/auth/token"
         authType: "two-legged"
 # Uncomment below for local Trusted-Intermediary server
-        # reportUrl: "http://host.docker.internal:8080/v1/etor/orders"
-        # authTokenUrl: "http://host.docker.internal:8080/v1/auth/token"
+        reportUrl: "http://host.docker.internal:8080/v1/etor/orders"
+        authTokenUrl: "http://host.docker.internal:8080/v1/auth/token"
         type: "REST"
         tlsKeystore: null
         parameters:
@@ -95,5 +95,8 @@
           client_assertion: "client_secret"
         headers:
           RecordId: 'header.reportFile.reportId'
+          sendingOrg: 'header.reportFile.sendingOrg'
+          sendingOrgClient: 'header.reportFile.sendingOrgClient'
+          actionId: 'header.reportFile.actionId'
           senderLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-the-sending-user-belongs-to
           sourceLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
