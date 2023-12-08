@@ -1,17 +1,16 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasClass
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNotSameAs
 import assertk.assertions.isNull
 import assertk.assertions.isSameAs
-import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.Metadata
@@ -80,16 +79,16 @@ class ConstantResolverTests {
         assertThat(result).isEqualTo(expectedString)
 
         inputString = "Lorem ipsum %{const2} sit amet, consectetur adipiscing"
-        assertThat { resolver.replace(inputString, context) }.isFailure()
-        assertThat { resolver.replace(inputString, null) }.isFailure()
+        assertFailure { resolver.replace(inputString, context) }
+        assertFailure { resolver.replace(inputString, null) }
     }
 
     @Test
     fun `test fhir path resolver`() {
         mockkObject(FhirPathUtils)
-        assertThat { FhirPathCustomResolver().resolveConstant(null, null, false) }.isFailure()
-        assertThat { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
-            .isFailure().hasClass(PathEngineException::class.java)
+        assertFailure { FhirPathCustomResolver().resolveConstant(null, null, false) }
+        assertFailure { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
+            .hasClass(PathEngineException::class.java)
 
         val integerValue = 99
         val urlPrefix = "https://reportstream.cdc.gov/fhir/StructureDefinition/"
@@ -162,27 +161,27 @@ class ConstantResolverTests {
         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
 
         val context = CustomContext(Bundle(), Bundle())
-        assertThat {
+        assertThat(
             FhirPathCustomResolver(CustomFhirPathFunctions()).executeFunction(
                 context,
                 mutableListOf(Observation()),
                 "livdTableLookup",
                 null
             )
-        }.isSuccess()
+        )
     }
 
     @Test
     fun `test execute additional FHIR functions unknown function`() {
         val context = CustomContext(Bundle(), Bundle())
-        assertThat {
+        assertFailure {
             FhirPathCustomResolver(CustomFhirPathFunctions()).executeFunction(
                 context,
                 mutableListOf(Observation()),
                 "unknown",
                 null
             )
-        }.isFailure()
+        }
     }
 
     @Test

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapOperation>
+    <automaticForward>false</automaticForward>
+    <currentResponseSequenceIndex>0</currentResponseSequenceIndex>
+    <defaultBody>&lt;soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="https://www.healthy.arkansas.gov/STAGEService"&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;web:SubmitMessageResponse&gt;?&lt;/web:SubmitMessageResponse&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</defaultBody>
+    <forwardedEndpoint>https://rhapstage.adh.arkansas.gov:443/services/ADH_STAGEService.ADH_STAGEServiceHttpsSoap12Endpoint</forwardedEndpoint>
+    <httpMethod>POST</httpMethod>
+    <id>I3hfFO</id>
+    <identifyStrategy>ELEMENT_NAMESPACE</identifyStrategy>
+    <mockOnFailure>false</mockOnFailure>
+    <name>SubmitMessage</name>
+    <networkDelay>0</networkDelay>
+    <operationIdentifier>
+        <name>SubmitMessage</name>
+        <namespace>https://www.healthy.arkansas.gov/STAGEService</namespace>
+    </operationIdentifier>
+    <originalEndpoint>https://rhapstage.adh.arkansas.gov:443/services/ADH_STAGEService.ADH_STAGEServiceHttpsSoap12Endpoint</originalEndpoint>
+    <portId>qBIz6q</portId>
+    <responseStrategy>RANDOM</responseStrategy>
+    <simulateNetworkDelay>false</simulateNetworkDelay>
+    <soapVersion>SOAP12</soapVersion>
+    <status>MOCKED</status>
+</soapOperation>

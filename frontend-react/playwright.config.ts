@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import dotenvflow from "dotenv-flow";
 
-import type { TestOptions } from "./e2e/rs-test";
+import type { TestOptions } from "./e2e/helpers/rs-test";
 
 dotenvflow.config();
 
