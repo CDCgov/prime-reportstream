@@ -910,7 +910,7 @@ dependencies {
     // TODO: move this to a test dependency when CompareFhirData lives under src/test
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.14")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     // pin com.squareup.okio:okio@3.4.0
