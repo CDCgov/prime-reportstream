@@ -15476,7 +15476,7 @@ __metadata:
     react-dom: ^18.2.0
     react-helmet-async: ^1.3.0
     react-idle-timer: ^5.7.2
-    react-loader-spinner: ^5.4.5
+    react-loader-spinner: ^6.1.0
     react-markdown: ^9.0.0
     react-query-kit: ^2.0.8
     react-router: ^6.17.0
@@ -15569,9 +15569,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-loader-spinner@npm:^5.4.5":
-  version: 5.4.5
-  resolution: "react-loader-spinner@npm:5.4.5"
+"react-loader-spinner@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "react-loader-spinner@npm:6.1.0"
   dependencies:
     react-is: ^18.2.0
     styled-components: ^5.3.5
@@ -15579,7 +15579,7 @@ __metadata:
   peerDependencies:
     react: ^16.0.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 3b0cdb0e9d5da579f7f9f9b816d6e2b3a1b8b247532cc944598eb337cee6696fd0f52c46d0049e9bdfab49e5c200285fb84fe5eb6fb7b374bb9aa704c68de8a1
+  checksum: 4df35afcfc04f0fe4bc370ba797a39488c8d8bbb7db41fbef5a1b5ac7a81b98a7d103cbb60f9096f1b5518016be732f0bfb75f045496594d53cfaa1c147cc58d
   languageName: node
   linkType: hard
 
