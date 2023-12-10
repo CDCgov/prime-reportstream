@@ -940,7 +940,7 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
-    testImplementation("com.wolpl.clikt-testkit:clikt-testkit:1.0.0")
+    testImplementation("com.wolpl.clikt-testkit:clikt-testkit:2.0.0")
     testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
     implementation(kotlin("script-runtime"))
 }
