@@ -839,7 +839,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
-            branch = "master"
+            branch = "platform/jessica/12289-support-complicated-boolean-expressions"
         }
     }
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.10.0")
