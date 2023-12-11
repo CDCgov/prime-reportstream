@@ -29,5 +29,5 @@ As a developer, I want to compare the messages generated from the Covid and Univ
 
 ### Acceptance Criteria 
 - [ ] Created and sent data to [STLT] through the covid pipeline locally
-- [ ] Created and sent data to [STLTS] through the universal pipeline locally
+- [ ] Created and sent data to [STLT] through the universal pipeline locally
 - [ ] Compared messages from the covid and universal pipelines and documented differences
