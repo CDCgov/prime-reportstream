@@ -11,7 +11,7 @@ assignees: ''
 As a developer, I want the [STLT] to validate test messages in staging, so that they can receive data in the format they expect.
 
 ### Description/Use Case
-[STLT] is already receiving data from the covid pipeline they will be onboarded to the UP where they will be receiving data from SimpleReport including Covid, Flu and RSV. We need to make sure the message we generate from the UP passes teh STLTs validation. We can use SimpleReport to submit test messages to the STLT.
+[STLT] is already receiving data from the covid pipeline they will be onboarded to the UP where they will be receiving data from SimpleReport including Covid, Flu and RSV. We need to make sure the message we generate from the UP passes the STLTs validation. We can use SimpleReport to submit test messages to the STLT.
 
 
 ### Risks/Impacts/Considerations
