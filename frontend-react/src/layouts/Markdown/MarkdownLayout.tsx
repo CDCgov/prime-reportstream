@@ -88,6 +88,8 @@ export function MarkdownLayout({
     mdx,
     frontmatter: {
         title,
+        metaTitle,
+        metaDescription,
         breadcrumbs,
         subtitle,
         callToAction,
@@ -123,9 +125,12 @@ export function MarkdownLayout({
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
-            {title && (
+            {(metaTitle || metaDescription) && (
                 <Helmet>
-                    <title>{title}</title>
+                    {metaTitle && <title>{metaTitle}</title>}
+                    {metaDescription && (
+                        <meta name="description" content={metaDescription} />
+                    )}
                 </Helmet>
             )}
             {sidenavContent ? (
