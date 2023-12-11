@@ -1,5 +1,5 @@
 ---
-name: UP Migrating Receiver Tranlsation Settings Template
+name: Receiver UP Onboarding Receiver Settings Template
 about: This is the first step in migrating a STLT to the UP
 title: "[name of STLT] - UP Migration-Receiver Translation Settings"
 labels: onboarding-ops, receiver
@@ -19,7 +19,7 @@ As a developer, I want to compare the messages generated from the Covid and Univ
 ### Dev Notes:
 
 - [ ] Fetch [STLT] organization settings from production and load them locally
-- [ ] Use the covid message at the bottom of sheet 2 in this spreadsheet to s of Modify the message to meet [STLT] filter if needed [Simple Report Covid 3.postman_collection.txt](https://api.zenhub.com/attachedFiles/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBNFU2QWc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--1d3699f4819e80309b51b02e7d4fad05048c28d8/Simple%20Report%20Covid%203.postman_collection.txt)
+- [ ] Use the attached SimpleReport covid postman collection and make sure the message gets routed to [STLT] locally. Modify the message to meet [STLT] filter if needed [Simple Report Covid 3.postman_collection.txt](https://api.zenhub.com/attachedFiles/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBNFU2QWc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--1d3699f4819e80309b51b02e7d4fad05048c28d8/Simple%20Report%20Covid%203.postman_collection.txt)
 
 - [ ] Make a copy of the [STLT] organization settings to onboard them to the UP. See How to Onboard a receiver to the UP here: https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/receivers.md
 - [ ] Use this Postman collection to send a FHIR bundle the UP and make sure the message gets routed to the new UP [STLT] receiver. You may need to update the Simple Report sender to use the simple-report-sender-transform.yml if it's not using it. [Simple Report UP 2.postman_collection.txt](https://api.zenhub.com/attachedFiles/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBNFk2QWc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--dfab4aacbbb0df15ad1e97bb3328f29bd71ff86b/Simple%20Report%20UP%202.postman_collection.txt)
@@ -31,4 +31,3 @@ As a developer, I want to compare the messages generated from the Covid and Univ
 - [ ] Created and sent data to [STLT] through the covid pipeline locally
 - [ ] Created and sent data to [STLTS] through the universal pipeline locally
 - [ ] Compared messages from the covid and universal pipelines and documented differences
-
