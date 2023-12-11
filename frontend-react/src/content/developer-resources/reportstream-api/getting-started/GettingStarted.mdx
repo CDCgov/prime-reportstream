@@ -1,10 +1,9 @@
 ---
-metaTitle: Getting started with ReportStream's API 
+metaTitle: Getting started with ReportStream's API
 metaDescription: Resources and support to set up your connection and format your data. Our onboarding guide will walk you through the steps needed to get started.
 ---
 
 import Method1 from "./Method1.mdx";
-import Method2 from "./Method2.mdx";
 import Sidenav from "../Sidenav.mdx";
 
 <LayoutSidenav><Sidenav /></LayoutSidenav>
@@ -17,7 +16,7 @@ import Sidenav from "../Sidenav.mdx";
 Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system.
 You can also use a program like Postman to test submissions.
 
-<p className="text-base">**Last updated:** 9/21/23</p>
+<p className="text-base">**Last updated:** 11/14/23</p>
 
 ***
 
@@ -63,14 +62,11 @@ ReportStream will use the client-id to look up the associated data model and for
 
 Your first step in this phase is to set up your authentication.
 
-### Set up authentication
+### Set up authentication with a public/private key pair
 
-There are two methods of authenticating to ReportStream’s REST API:
+    ReportStream uses token-based authentication with a public/private key pair.
 
-* **Method 1:** Token-based authentication with a public/private key pair (Note: This method is the recommended best practice.)
-* **Method 2:** Shared secret API key
-
-The examples below use the fake `client-id healthy-labs` that you will change for your submissions.
+    The examples below uses the fake `client-id healthy-labs` that you will change for your submissions.
 The examples submit the payload contained in the file `./healthy-labs-nonPII-data.csv` (or .hl7).
 In the examples, data are submitted via an HTTP POST to the ReportStream staging system `reports` endpoint.
 The data submitted are sent as the payload of the POST, as is, with no changes.
@@ -81,12 +77,6 @@ The data submitted are sent as the payload of the POST, as is, with no changes.
         title: "Method 1: Token-based authentication with public/private key pair (Recommended)",
         content: <Method1 />,
         id: 1
-    },
-    {
-        headingLevel: "h3",
-        title: "Method 2: Shared secret key authorization",
-        content: <Method2 />,
-        id: 2
     },
 ]} />
 
