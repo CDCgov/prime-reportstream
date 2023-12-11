@@ -3,7 +3,10 @@ metaTitle: Getting started with ReportStream's API
 metaDescription: Resources and support to set up your connection and format your data. Our onboarding guide will walk you through the steps needed to get started.
 ---
 
-import Method1 from "./Method1.mdx";
+import Step1 from "./Step1.mdx";
+import Step2 from "./Step2.mdx";
+import Step3 from "./Step3.mdx";
+import Step4 from "./Step4.mdx";
 import Sidenav from "../Sidenav.mdx";
 
 <LayoutSidenav><Sidenav /></LayoutSidenav>
@@ -74,9 +77,27 @@ The data submitted are sent as the payload of the POST, as is, with no changes.
 <Accordion bordered multiselectable items={[
     {
         headingLevel: "h3",
-        title: "Method 1: Token-based authentication with public/private key pair (Recommended)",
-        content: <Method1 />,
+        title: "Step 1: Prior to submission, send your public key to ReportStream.",
+        content: <Step1 />,
         id: 1
+    },
+    {
+        headingLevel: "h3",
+        title: "Step 2: At the time of submission, generate a signed JWT using your private key",
+        content: <Step2 />,
+        id: 2
+    },
+    {
+        headingLevel: "h3",
+        title: "Step 3: Send the signed JWT to ReportStream to get a temporary bearer token",
+        content: <Step3 />,
+        id: 3
+    },
+    {
+        headingLevel: "h3",
+        title: "Step 4: Submit data to ReportStream using the bearer token",
+        content: <Step4 />,
+        id: 4
     },
 ]} />
 
