@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 /**
- * An event represents a function call, either one that has just happened or on that will happen in the future.
+ * An event represents a function call, either one that has just happened or one that will happen in the future.
  * Events are sent to queues as messages or stored in a DB as columns of the Task table.
  */
 const val messageDelimiter = "&"
@@ -107,7 +107,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
             return when (message.eventType) {
                 ReportEvent.eventType -> {
                     if (message.reportId == null || message.emptyBatch == null) {
-                        error("Internal Error: Report events require a report id and is Empty Batch")
+                        error("Internal Error: Report events require a report id and is Empty Batch. Event: $event")
                     }
                     ReportEvent(
                         message.eventAction,
@@ -118,7 +118,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 }
                 BatchEvent.eventType -> {
                     if (message.emptyBatch == null || message.receiverName.isNullOrEmpty()) {
-                        error("Internal Error: Batch events require a receiver name and is empty batch")
+                        error("Internal Error: Batch events require a receiver name and is empty batch. Event: $event")
                     }
                     BatchEvent(
                         message.eventAction,
@@ -131,7 +131,10 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                     if (message.reportId == null || message.options == null || message.defaults.isNullOrEmpty() ||
                         message.routeTo.isNullOrEmpty()
                     ) {
-                        error("Internal Error: Process events require a reportId, options, defaults, and routeTo")
+                        error(
+                            "Internal Error: Process events require a reportId, options, defaults, and routeTo. " +
+                                "Event: $event"
+                        )
                     }
                     ProcessEvent(
                         message.eventAction,
@@ -168,7 +171,6 @@ class ProcessEvent(
     val retryToken: RetryToken? = null,
 ) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
-        // turn the defaults and route to into strings that can go on the process queue
         val afterClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
         val queueMessage = QueueMessage(
             eventType, eventAction, null, null, reportId, options, defaults, routeTo, afterClause
