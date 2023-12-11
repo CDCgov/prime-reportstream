@@ -6,6 +6,17 @@ extension:
   expressionType: nested
   expressions:
     - expressionType: nested
+      specs: PID.18 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: pid-18-patient-account-number
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+          vars:
+            identifierIndexName: patient-account-number
+    - expressionType: nested
       expressionsMap:
         url:
           type: STRING
