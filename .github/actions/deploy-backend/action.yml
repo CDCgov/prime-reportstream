@@ -250,12 +250,12 @@ runs:
 
     - name: Validate function app checksum
       if: inputs.checksum-validation == 'true'
-      uses: JosiahSiegel/checksum-validate-action@f7e46678bd1b02cd3cdfa76ac5cb031898b9c46d
+      uses: JosiahSiegel/checksum-validate-action@90b0a2d0fd8bbbb9d314522c409b3fcbd907ef2b
       with:
         key: backend
         validate: true
         fail-invalid: true
-        input: $(sleep 30; az functionapp config appsettings list -g prime-data-hub-${{ inputs.env-name }} -n pdh${{ inputs.env-name }}-functionapp)
+        input: $(az functionapp config appsettings list -g prime-data-hub-${{ inputs.env-name }} -n pdh${{ inputs.env-name }}-functionapp)
 
     - name: Remove GitHub action IP whitelist
       if: ${{ always() }} # This should happen even on a failure
