@@ -7,6 +7,9 @@ extension:
   expressions:
     - expressionType: nested
       specs: PD1.1 *
+      condition: $pd11 NOT_NULL
+      vars:
+        pd11: STRING_ALL, PD1.1
       expressionsMap:
         url:
           type: STRING
@@ -16,6 +19,9 @@ extension:
           valueOf: PD1.1
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd12 NOT_NULL
+      vars:
+        pd12: STRING_ALL, PD1.2
       expressionsMap:
         url:
           type: STRING
@@ -25,6 +31,9 @@ extension:
           valueOf: PD1.2
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd18 NOT_NULL
+      vars:
+        pd18: STRING_ALL, PD1.8
       expressionsMap:
         url:
           type: STRING
@@ -34,6 +43,9 @@ extension:
           valueOf: PD1.8
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd19 NOT_NULL
+      vars:
+        pd19: STRING_ALL, PD1.9
       expressionsMap:
         url:
           type: STRING
@@ -44,6 +56,9 @@ extension:
           expressionType: HL7Spec
     - expressionType: nested
       specs: PD1.10 *
+      condition: $pd110 NOT_NULL
+      vars:
+        pd110: STRING_ALL, PD1.10
       expressionsMap:
         url:
           type: STRING
@@ -53,6 +68,9 @@ extension:
           valueOf: PD1.10
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd111 NOT_NULL
+      vars:
+        pd111: STRING_ALL, PD1.11
       expressionsMap:
         url:
           type: STRING
@@ -62,6 +80,9 @@ extension:
           valueOf: PD1.11
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd112 NOT_NULL
+      vars:
+        pd112: STRING_ALL, PD1.12
       expressionsMap:
         url:
           type: STRING
@@ -71,6 +92,9 @@ extension:
           valueOf: PD1.12
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd113 NOT_NULL
+      vars:
+        pd113: STRING_ALL, PD1.13
       expressionsMap:
         url:
           type: STRING
@@ -81,6 +105,9 @@ extension:
           expressionType: HL7Spec
     - expressionType: nested
       specs: PD1.15 *
+      condition: $pd115 NOT_NULL
+      vars:
+        pd115: STRING_ALL, PD1.15
       expressionsMap:
         url:
           type: STRING
@@ -90,6 +117,9 @@ extension:
           valueOf: PD1.15
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd116 NOT_NULL
+      vars:
+        pd116: STRING_ALL, PD1.16
       expressionsMap:
         url:
           type: STRING
@@ -99,6 +129,9 @@ extension:
           valueOf: PD1.16
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd117 NOT_NULL
+      vars:
+        pd117: STRING_ALL, PD1.17
       expressionsMap:
         url:
           type: STRING
@@ -108,6 +141,9 @@ extension:
           valueOf: PD1.17
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd118 NOT_NULL
+      vars:
+        pd118: STRING_ALL, PD1.18
       expressionsMap:
         url:
           type: STRING
@@ -117,6 +153,9 @@ extension:
           valueOf: PD1.18
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd119 NOT_NULL
+      vars:
+        pd119: STRING_ALL, PD1.19
       expressionsMap:
         url:
           type: STRING
@@ -126,6 +165,9 @@ extension:
           valueOf: PD1.19
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd120 NOT_NULL
+      vars:
+        pd120: STRING_ALL, PD1.20
       expressionsMap:
         url:
           type: STRING
@@ -135,6 +177,9 @@ extension:
           valueOf: PD1.20
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd121 NOT_NULL
+      vars:
+        pd121: STRING_ALL, PD1.21
       expressionsMap:
         url:
           type: STRING
@@ -144,6 +189,9 @@ extension:
           valueOf: PD1.21
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $pd122 NOT_NULL
+      vars:
+        pd122: STRING_ALL, PD1.22
       expressionsMap:
         url:
           type: STRING

@@ -1,5 +1,10 @@
 resourceType: RelatedPerson
 
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
 identifier:
   expressionType: resource
   specs: CX

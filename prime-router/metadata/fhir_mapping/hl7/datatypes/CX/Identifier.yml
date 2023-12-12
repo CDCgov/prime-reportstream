@@ -130,8 +130,10 @@ type:
           expressionType: nested
           expressionsMap:
             code:
+              type: STRING
               valueOf: $code
             system:
+              type: STRING
               valueOf: $system
 
 extension_type:
@@ -152,6 +154,9 @@ extension_type:
 extension_assigningFacility:
   generateList: true
   expressionType: nested
+  condition: $cx6 NOT_NULL
+  vars:
+    cx6: STRING_ALL, CX.6
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -236,8 +241,11 @@ extension_5:
       specs: CX.10
 
 extension_6:
+  condition: $cx NOT_NULL
   generateList: true
   expressionType: nested
+  vars:
+    cx: STRING_ALL, CX
   expressionsMap:
     url:
       type: SYSTEM_URL

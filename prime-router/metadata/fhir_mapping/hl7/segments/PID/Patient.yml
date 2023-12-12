@@ -15,36 +15,41 @@ identifier:
       specs: PID.2
       valueOf: datatypes/CX/Identifier
       vars:
-        identifierIndexName: patient-id
         pid2: STRING_ALL, PID.2
+      constants:
+        identifierIndexName: patient-id
     - condition: $pid3 NOT_NULL
       expressionType: resource
       specs: PID.3 *
       valueOf: datatypes/CX/Identifier
       generateList: true
       vars:
-        identifierIndexName: patient-identifier-list
         pid3: STRING_ALL, PID.3
+      constants:
+        identifierIndexName: patient-identifier-list
     - condition: $pid4 NOT_NULL
       expressionType: resource
       specs: PID.4
       valueOf: datatypes/CX/Identifier
       vars:
-        identifierIndexName: alternate-patient-id
         pid4: STRING_ALL, PID.4
+      constants:
+        identifierIndexName: alternate-patient-id
 
 name:
   expressionType: nested
   generateList: true
   expressions:
-    - condition: $pid9 NOT_NULL
+    - condition: $pid5 NOT_NULL
       expressionType: resource
-      specs: PID.5 *
+      generateList: true
+      specs: PID.5
       valueOf: datatypes/XPN/HumanName
       vars:
         hl7Use: patient-name
-        pid9: STRING_ALL, PID.9
+        pid5: STRING_ALL, PID.5
     - condition: $pid9 NOT_NULL
+      generateList: true
       expressionType: resource
       specs: PID.9 *
       valueOf: datatypes/XPN/HumanName
@@ -106,6 +111,7 @@ address:
 
 telecom:
   expressionType: nested
+  generateList: true
   expressions:
     - condition: $pid13 NOT_NULL
       valueOf: datatypes/XTN/ContactPoint
@@ -153,10 +159,12 @@ maritalStatus:
   specs: PID.16
 
 link:
+  condition: $pid21 NOT_NULL
   expressionType: nested
   vars:
     pid21: STRING_ALL, PID.21
   specs: PID.21 *
+  generateList: true
   expressionsMap:
     other:
       valueOf: datatypes/CX/RelatedPerson-mother
@@ -201,11 +209,11 @@ deceasedDateTime:
 
 _deceasedDateTime:
   expressionType: nested
-  condition: pid29 NOT_NULL
+  condition: $pid29 NOT_NULL
   vars:
     pid29: STRING, PID.29
   expressionsMap:
-    extension_1:
+    extension:
       generateList: true
       expressionType: nested
       expressionsMap:
@@ -214,20 +222,38 @@ _deceasedDateTime:
           value: hl7v2-date-time
         valueString:
           type: STRING
-          valueOf: $pid29
+          valueOf: PID.29
           expressionType: HL7Spec
 
 meta:
   expressionType: nested
+  generateList: true
   expressionsMap:
-    lastupdated:
-      condition: $dateTimeIn NOT_NULL
+    lastUpdated:
       type: STRING
       valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
       expressionType: JEXL
       vars:
         dateTimeIn: PID.33
+    _lastUpdated:
+      expressionType: nested
+      condition: $pid33 NOT_NULL
+      vars:
+        pid33: STRING, PID.33
+      expressionsMap:
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: PID.33
+              expressionType: HL7Spec
     extension:
+      generateList: true
       condition: $pid34 NOT_NULL
       vars:
         pid34: STRING_ALL, PID.34
@@ -261,6 +287,7 @@ generalPractitioner:
 
 extension:
   expressionType: nested
+  generateList: true
   expressions:
     - expressionType: resource
       valueOf: segments/PID/PIDExtension
@@ -268,10 +295,11 @@ extension:
       valueOf: segments/PID/PD1Extension
     - condition: $pid6 NOT_NULL
       expressionType: nested
+      generateList: true
       vars:
         pid6: STRING_ALL, PID.6
       specs: PID.6 *
-      expressionMap:
+      expressionsMap:
         url:
           type: SYSTEM_URL
           value: mothersMaidenName
@@ -326,18 +354,20 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: patient-birthPlace
+          value: birthPlace
         valueAddress:
           expressionType: nested
+          generateList: true
           expressionsMap:
             text:
               valueOf: PID.23
               type: STRING
+              expressionType: HL7Spec
     - expressionType: nested
       condition: $pid26 NOT_NULL
       generateList: true
       vars:
-        PID26: STRING_ALL, PID.26
+        pid26: STRING_ALL, PID.26
       constants:
         hl7v2Name: "citizenship"
       expressionsMap:
@@ -514,6 +544,7 @@ extension:
       vars:
         pd114: STRING_ALL, PD1.14
       expressionType: nested
+      generateList: true
       specs: PD1.14 *
       expressionsMap:
         url:
