@@ -44,16 +44,16 @@ private fun lookupCondition(code: Coding, metadata: Metadata): Coding? {
             throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
         }
     }!!
-    val condition = mappingTable.dataRowsMap.find { // search for the code
-        it[ObservationMappingConstants.TEST_CODE_KEY.lowercase()] == code.code // TODO: why lower
+    val condition = mappingTable.caseSensitiveDataRowsMap.find { // search for the code
+        it[ObservationMappingConstants.TEST_CODE_KEY] == code.code
     }
     return if (condition.isNullOrEmpty()) { // could not find the code
         null
     } else { // code found; create Coding instance to return
         Coding(
-            condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY.lowercase()], // TODO: why lower
-            condition[ObservationMappingConstants.CONDITION_CODE_KEY.lowercase()], // TODO: why lower
-            condition[ObservationMappingConstants.CONDITION_NAME_KEY.lowercase()] // TODO: why lower
+            condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
+            condition[ObservationMappingConstants.CONDITION_CODE_KEY],
+            condition[ObservationMappingConstants.CONDITION_NAME_KEY]
         )
     }
 }
