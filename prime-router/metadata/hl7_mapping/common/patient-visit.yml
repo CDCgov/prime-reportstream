@@ -29,7 +29,7 @@ elements:
     hl7Spec: [ '%{hl7PV1Field}-4' ]
 
   - name: prior-patient-location
-    resource: '%resource.location.where(extension(%`rsext-hl7-use`).value = "prior-patient-location")'
+    resource: '%resource.location.where(extension(%`rsext-hl7-use`).value = "prior-patient-location").location.resolve()'
     constants:
       hl7PLField: '%{hl7PV1Field}-6'
     schema: ../resources/Location/PL/PL

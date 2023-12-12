@@ -6,6 +6,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
+import assertk.assertions.isNotSameAs
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
@@ -37,6 +38,7 @@ import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.StringType
 import java.io.File
 import java.text.SimpleDateFormat
+import java.util.Date
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -76,6 +78,24 @@ class FhirTransformerTests {
 
         element = FhirTransformSchemaElement("name", value = listOf("Bundle.timestamp", "Bundle.timestamp"))
         assertThat(converter.getValue(element, bundle, bundle, customContext)).isNull()
+    }
+
+    @Test
+    fun `test get value from primitive type`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val diagnosticReport = DiagnosticReport()
+        diagnosticReport.issued = Date()
+        bundle.addEntry().resource = diagnosticReport
+        val customContext = CustomContext(bundle, bundle)
+        val element = FhirTransformSchemaElement(
+            "name",
+            value = listOf("Bundle.entry.resource.ofType(DiagnosticReport).issued")
+        )
+        val transformer = FhirTransformer(FhirTransformSchema())
+
+        val value = transformer.getValue(element, bundle, bundle, customContext)
+        assertThat(value).isNotSameAs(diagnosticReport.issued)
     }
 
     @Test
@@ -476,6 +496,29 @@ class FhirTransformerTests {
         assertThat(resource.name[0].text).isEqualTo("ghi789")
         assertThat(resource2.name[0].text).isEqualTo("")
         assertThat(resource3.name[0].text).isEqualTo("jkl369")
+    }
+
+    @Test
+    fun `test set bundle property in nested extension`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val serviceRequest = ServiceRequest()
+        bundle.addEntry().resource = serviceRequest
+        val transformer = FhirTransformer(FhirTransformSchema())
+        transformer.setBundleProperty(
+            "Bundle.entry.resource.ofType(ServiceRequest).requester.extension('callback-number')" +
+                ".valueString.extension('hl7v2Name').value[x]",
+            StringType("hl7v2 use"),
+            CustomContext(bundle, bundle), bundle, bundle
+        )
+
+        assertThat(
+            serviceRequest
+                .requester
+                .getExtensionByUrl("callback-number").value
+                .getExtensionByUrl("hl7v2Name")
+                .value.primitiveValue()
+        ).isEqualTo("hl7v2 use")
     }
 
     @Test

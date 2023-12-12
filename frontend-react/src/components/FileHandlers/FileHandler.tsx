@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
 
 import { showError } from "../AlertNotifications";
 import useFileHandler, {
@@ -134,85 +135,97 @@ export default function FileHandler() {
     };
 
     return (
-        <GridContainer>
-            <article>
-                <h1 className="margin-y-4">ReportStream File Validator</h1>
+        <>
+            <Helmet>
+                <title>ReportStream file validator</title>
+                <meta
+                    name="description"
+                    content="Check that public health entities can receive your data through ReportStream by validating your file format."
+                />
+            </Helmet>
 
-                {organization?.description && (
-                    <h2 className="font-sans-lg">{organization.description}</h2>
-                )}
+            <GridContainer>
+                <article>
+                    <h1 className="margin-y-4">ReportStream File Validator</h1>
 
-                {fileName && (
-                    <div className="margin-bottom-3">
-                        <p className="margin-bottom-1 text-normal text-base">
-                            File name
-                        </p>
-                        <p className="margin-top-0">{fileName}</p>
+                    {organization?.description && (
+                        <h2 className="font-sans-lg">
+                            {organization.description}
+                        </h2>
+                    )}
+
+                    {fileName && (
+                        <div className="margin-bottom-3">
+                            <p className="margin-bottom-1 text-normal text-base">
+                                File name
+                            </p>
+                            <p className="margin-top-0">{fileName}</p>
+                        </div>
+                    )}
+
+                    <div className="margin-bottom-4">
+                        {(() => {
+                            // The File Validate tool now has 4 discrete steps,
+                            // Schema Select, File Select, [optional]Show Errors, Success Page
+                            // The stages can be seen here: https://figma.fun/fGCeo4
+                            //
+                            // TODO: generalize the reducer state so we can just render <StepComponent>
+                            switch (StepComponent) {
+                                case FileHandlerSchemaSelectionStep:
+                                    return (
+                                        <FileHandlerSchemaSelectionStep
+                                            {...commonStepProps}
+                                            onSchemaChange={handleSchemaChange}
+                                        />
+                                    );
+                                case FileHandlerFileUploadStep:
+                                    return (
+                                        <FileHandlerFileUploadStep
+                                            {...commonStepProps}
+                                            onFileChange={handleFileChange}
+                                            onFileSubmitError={
+                                                handleResetToFileSelection
+                                            }
+                                            onFileSubmitSuccess={
+                                                handleFileSubmitSuccess
+                                            }
+                                        />
+                                    );
+                                case FileHandlerErrorsWarningsStep:
+                                    return (
+                                        <FileHandlerErrorsWarningsStep
+                                            {...commonStepProps}
+                                            onTestAnotherFileClick={
+                                                handleResetToFileSelection
+                                            }
+                                        />
+                                    );
+                                case FileHandlerSuccessStep:
+                                    return <FileHandlerSuccessStep />;
+                                default:
+                                    return null;
+                            }
+                        })()}
                     </div>
-                )}
-
-                <div className="margin-bottom-4">
-                    {(() => {
-                        // The File Validate tool now has 4 discrete steps,
-                        // Schema Select, File Select, [optional]Show Errors, Success Page
-                        // The stages can be seen here: https://figma.fun/fGCeo4
-                        //
-                        // TODO: generalize the reducer state so we can just render <StepComponent>
-                        switch (StepComponent) {
-                            case FileHandlerSchemaSelectionStep:
-                                return (
-                                    <FileHandlerSchemaSelectionStep
-                                        {...commonStepProps}
-                                        onSchemaChange={handleSchemaChange}
-                                    />
-                                );
-                            case FileHandlerFileUploadStep:
-                                return (
-                                    <FileHandlerFileUploadStep
-                                        {...commonStepProps}
-                                        onFileChange={handleFileChange}
-                                        onFileSubmitError={
-                                            handleResetToFileSelection
-                                        }
-                                        onFileSubmitSuccess={
-                                            handleFileSubmitSuccess
-                                        }
-                                    />
-                                );
-                            case FileHandlerErrorsWarningsStep:
-                                return (
-                                    <FileHandlerErrorsWarningsStep
-                                        {...commonStepProps}
-                                        onTestAnotherFileClick={
-                                            handleResetToFileSelection
-                                        }
-                                    />
-                                );
-                            case FileHandlerSuccessStep:
-                                return <FileHandlerSuccessStep />;
-                            default:
-                                return null;
-                        }
-                    })()}
-                </div>
-                {StepComponent !== FileHandlerSuccessStep && (
-                    <Alert headingLevel="h3" type="tip">
-                        Reference{" "}
-                        <USLink href="/developer-resources/api/documentation/data-model">
-                            the data model
-                        </USLink>{" "}
-                        for the information needed to validate your file
-                        successfully. Pay special attention to which fields are
-                        required and common mistakes.
-                    </Alert>
-                )}
-                <p className="text-base-darker margin-top-10">
-                    Questions or feedback? Please email{" "}
-                    <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
-                        {site.orgs.RS.email}
-                    </USExtLink>
-                </p>
-            </article>
-        </GridContainer>
+                    {StepComponent !== FileHandlerSuccessStep && (
+                        <Alert headingLevel="h3" type="tip">
+                            Reference{" "}
+                            <USLink href="/developer-resources/api/documentation/data-model">
+                                the data model
+                            </USLink>{" "}
+                            for the information needed to validate your file
+                            successfully. Pay special attention to which fields
+                            are required and common mistakes.
+                        </Alert>
+                    )}
+                    <p className="text-base-darker margin-top-10">
+                        Questions or feedback? Please email{" "}
+                        <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
+                            {site.orgs.RS.email}
+                        </USExtLink>
+                    </p>
+                </article>
+            </GridContainer>
+        </>
     );
 }
