@@ -17,6 +17,8 @@ import org.hl7.fhir.r4.model.TypeDetails
 import org.hl7.fhir.r4.model.ValueSet
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
+import java.lang.IllegalArgumentException
+import java.lang.NumberFormatException
 
 /**
  * Context used for resolving [constants] and custom FHIR functions. The class is for us to add our customer function
@@ -166,8 +168,10 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
                     if (it is StringType && StringUtils.isNumeric(it.primitiveValue())) {
                         try {
                             IntegerType(it.primitiveValue())
-                        } catch (e: NumberFormatException) {
-                            it // fallback to string; see https://github.com/CDCgov/prime-reportstream/issues/12609
+                        } catch (e: IllegalArgumentException) {
+                            // fallback to string; see https://github.com/CDCgov/prime-reportstream/issues/12609
+                            if (e.cause !is NumberFormatException) throw e
+                            it
                         }
                     } else {
                         it
