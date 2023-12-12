@@ -1,6 +1,3 @@
-constants:
-  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
-
 elements:
   # This can be overridden in sender transforms to flag the messages as coming from that sender
   # This can simplify the filtering of receivers by keying off of this field to either allow or
@@ -8,5 +5,5 @@ elements:
   - name: sender-identifier
     condition: false
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    bundleProperty: '%resource.extension(%`rsext-sender-id").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value[x]'
     value: [ 'sender-id' ]

@@ -6,9 +6,9 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.kittinunf.fuel.util.decodeBase64
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyType
+import io.ktor.util.decodeBase64Bytes
 import io.mockk.every
 import io.mockk.mockkObject
 import java.math.BigInteger
@@ -122,7 +122,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
         assertNotNull(rsaPublicKey)
         assertEquals("RSA", rsaPublicKey.algorithm)
         assertNotNull(rsaPublicKey) // lame test
-        assertEquals(BigInteger(exponent.decodeBase64()), rsaPublicKey.publicExponent)
+        assertEquals(BigInteger(exponent.decodeBase64Bytes()), rsaPublicKey.publicExponent)
         // not so straightforward as this
         // assertEquals(BigInteger(modulus.decodeBase64()), rsaPublicKey.modulus)
     }
@@ -178,7 +178,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
         assertNotNull(rsaPublicKey)
         assertEquals("RSA", rsaPublicKey.algorithm)
         assertNotNull(rsaPublicKey) // lame test
-        assertEquals(BigInteger(exponent.decodeBase64()), rsaPublicKey.publicExponent)
+        assertEquals(BigInteger(exponent.decodeBase64Bytes()), rsaPublicKey.publicExponent)
     }
 
     @Test
