@@ -32,18 +32,24 @@ import java.util.stream.Stream
 const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
 const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
 
+/**
+ * Looks up a condition code for the passed in [code] (typically a test) using the given [metadata] object
+ * @param code test (or other type) code to look up a condition for
+ * @param metadata metadata containing an observation-mapping lookup table
+ * @return the condition code or null if no code was found
+ */
 private fun lookupCondition(code: Coding, metadata: Metadata): Coding? {
     val mappingTable = metadata.findLookupTable("observation-mapping").also {
-        if (it == null) {
-            return null // TODO: better error if table is missing? log vs throw?
+        if (it == null) { // could not load the table
+            throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
         }
     }!!
-    val condition = mappingTable.dataRowsMap.find {
+    val condition = mappingTable.dataRowsMap.find { // search for the code
         it[ObservationMappingConstants.TEST_CODE_KEY.lowercase()] == code.code // TODO: why lower
     }
-    return if (condition.isNullOrEmpty()) {
+    return if (condition.isNullOrEmpty()) { // could not find the code
         null
-    } else {
+    } else { // code found; create Coding instance to return
         Coding(
             condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY.lowercase()], // TODO: why lower
             condition[ObservationMappingConstants.CONDITION_CODE_KEY.lowercase()], // TODO: why lower
@@ -52,24 +58,30 @@ private fun lookupCondition(code: Coding, metadata: Metadata): Coding? {
     }
 }
 
+/**
+ * For every snomed/loinc code in code or valueCodeableConcept, lookup a condition code and add it as an extension
+ * @param metadata metadata containing an observation-mapping lookup table
+ * @return a list of ActionLogDetail objects with information on any mapping failures
+ */
 fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
     val codeSourcesMap = mapOf(
         ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER to this.code.coding,
         ObservationMappingConstants.BUNDLE_CODEABLE_IDENTIFIER to this.valueCodeableConcept.coding
-    ).filterValues { it.isNotEmpty() }
-    if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage())
+    ).filterValues { it.isNotEmpty() } // a map of all codes keyed by their source as a loggable string
+    if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
 
     return codeSourcesMap.mapNotNull { codeSourceEntry ->
         codeSourceEntry.value.mapNotNull { code ->
             lookupCondition(code, metadata).let { conditionCode ->
-                if (conditionCode == null) {
+                if (conditionCode == null) { // no code found, track this unmapped code
                     code.code
-                } else {
+                } else { // code found, add extension and return null to avoid mapping this as an error
                     code.addExtension(conditionCodeExtensionURL, conditionCode)
                     null
                 }
             }
         }.let {
+            // create log message for any unmapped codes
             if (it.isEmpty()) null else UnmappableConditionMessage(it, codeSourceEntry.key)
         }
     }

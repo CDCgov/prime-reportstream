@@ -788,7 +788,7 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
-            val queueMessage = "{\"type\":\"raw\",\"reportId\":\"${report.id}\"," +
+            val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
                 "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
                 "None-${report.id}.fhir\",\"digest\":" +
                 "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(fhirRecordBytes))}\"," +
@@ -862,7 +862,7 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
-            val queueMessage = "{\"type\":\"raw\",\"reportId\":\"${report.id}\"," +
+            val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
                 "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
                 "None-${report.id}.fhir\",\"digest\":" +
                 "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(fhirRecordBytes))}\"," +

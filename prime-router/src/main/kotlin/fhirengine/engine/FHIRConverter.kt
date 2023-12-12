@@ -89,6 +89,7 @@ class FHIRConverter(
                 // conduct FHIR Transform
                 transformer?.transform(bundle)
 
+                // 'stamp' observations with their condition code
                 bundle.entry.filter { it.resource is Observation }.forEach {
                     (it.resource as Observation).addMappedCondition(metadata).run {
                         actionLogger.getItemLogger(bundleIndex + 1, it.resource.id).log(this, ActionLogLevel.mapping)
