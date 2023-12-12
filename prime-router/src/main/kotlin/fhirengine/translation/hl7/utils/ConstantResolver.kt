@@ -164,7 +164,11 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
                 // Convert string constants that are whole integers to Integer type to facilitate math operations
                 values.map {
                     if (it is StringType && StringUtils.isNumeric(it.primitiveValue())) {
-                        IntegerType(it.primitiveValue())
+                        try {
+                            IntegerType(it.primitiveValue())
+                        } catch (e: NumberFormatException) {
+                            it // fallback to string; see https://github.com/CDCgov/prime-reportstream/issues/12609
+                        }
                     } else {
                         it
                     }
