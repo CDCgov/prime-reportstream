@@ -392,6 +392,16 @@ object CustomFHIRFunctions : FhirPathFunctions {
         return if (type != null) mutableListOf(StringType(type)) else mutableListOf()
     }
 
+    fun getPrimitiveValue(focus: MutableList<Base>): MutableList<Base> {
+        return focus.map {
+            if (it.isPrimitive) {
+                it.copy()
+            } else {
+                it
+            }
+        }.toMutableList()
+    }
+
     /**
      * Applies a timezone given by [parameters] to a dateTime in [focus] and returns the result.
      * @return a date in the new timezone

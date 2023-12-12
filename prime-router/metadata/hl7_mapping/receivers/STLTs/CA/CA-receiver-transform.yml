@@ -145,7 +145,7 @@ elements:
     schema: ca-order-observation
     resourceIndex: orderIndex
 
-  # California requirement: suppress AOEs from being mapped to OBR segments
+  # California requirement: suppress AOEs from being mapped to OBX segments
   # This makes sure only observations under diagnostic reports are mapped
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve()'
@@ -162,7 +162,7 @@ elements:
     condition: false
 
   # OBR-4
-  - name: universal-service
+  - name: universal-service-identifier
     condition: false
 
 
@@ -235,8 +235,8 @@ elements:
   - name: use
     value: [ '%resource.use', '"official"' ]
 
-  # OBX-10
-  - name: order-entered-by
+  # OBR-10
+  - name: entered-by
     condition: false
 
   # XTN
