@@ -1,3 +1,6 @@
+constants:
+  cweFieldPath: '%{cweField}(%{cweIndex})'
+
 elements:
   - name: identifier
     condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").exists()'

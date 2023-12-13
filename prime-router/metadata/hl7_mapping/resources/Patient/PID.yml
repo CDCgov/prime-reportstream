@@ -140,6 +140,7 @@ elements:
 
   - name: patient-ethnicity
     resource: '%resource.extension(%`rsext-ethnic-group`).value'
+    resourceIndex: cweIndex
     constants:
       cweFieldPath: '%{hl7PIDField}-22'
     schema: ../../datatypes/codeableConcept/CWE

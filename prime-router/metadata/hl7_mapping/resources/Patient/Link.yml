@@ -1,4 +1,6 @@
 elements:
   - name: related-person
-    resource: '%resource[%linkIndex].other.resolve().identifier'
+    resource: '%resource.other.resolve().identifier'
     schema: ../../datatypes/identifier/cx
+    constants:
+      cxIndex: '%{linkIndex}'
