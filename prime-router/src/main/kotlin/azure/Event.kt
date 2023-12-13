@@ -135,7 +135,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 }
                 ProcessEvent.eventType -> {
                     if (message.reportId == null || message.options == null || message.defaults == null ||
-                        message.routeTo.isNullOrEmpty()
+                        message.routeTo == null
                     ) {
                         error(
                             "Internal Error: Process events require a reportId, options, defaults, and routeTo. " +
