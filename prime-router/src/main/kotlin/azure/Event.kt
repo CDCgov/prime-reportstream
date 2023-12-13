@@ -8,6 +8,7 @@ import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -101,7 +102,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
             // validate incoming queue message is in the expected format. This will error out with an
             //  IllegalStateException and message if it is not valid
             val message = try {
-                ObjectMapper().readValue<QueueMessage>(event)
+                JacksonMapperUtilities.defaultMapper.readValue<QueueMessage>(event)
             } catch (e: Exception) {
                 return parseAndValidateOldQueueMessage(event)
             }
