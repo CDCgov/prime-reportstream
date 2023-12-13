@@ -134,7 +134,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                     )
                 }
                 ProcessEvent.eventType -> {
-                    if (message.reportId == null || message.options == null || message.defaults.isNullOrEmpty() ||
+                    if (message.reportId == null || message.options == null || message.defaults == null ||
                         message.routeTo.isNullOrEmpty()
                     ) {
                         error(
@@ -162,7 +162,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         fun parseAndValidateOldQueueMessage(event: String): Event {
             val parts = parseAndValidateEvent(event)
 
-            val action = Event.EventAction.parseQueueMessage(parts[1])
+            val action = EventAction.parseQueueMessage(parts[1])
             return when (parts[0]) {
                 ReportEvent.eventType -> {
                     val after = parts.getOrNull(4)?.let { OffsetDateTime.parse(it) }
