@@ -21,9 +21,7 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Patient)'
     condition: '%resource.count() = 1'
     required: true
-    constants:
-      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
-    schema: ../common/patient
+    schema: base/patient
 
   - name: patient-note
     resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value.text.split(''\n'')'

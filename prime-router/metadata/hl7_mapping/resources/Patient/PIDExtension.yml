@@ -1,0 +1,10 @@
+constants:
+  hl7PIDField: '%{hl7SegmentGroup}/PID'
+
+elements:
+  - name: patient-account-number
+    resource: '%resource.extension.where(url = "pid-18-patient-account-number").value'
+    constants:
+      cxField: '%{hl7PIDField}-18'
+    schema: ../../datatypes/identifier/cx
+    resourceIndex: cxIndex

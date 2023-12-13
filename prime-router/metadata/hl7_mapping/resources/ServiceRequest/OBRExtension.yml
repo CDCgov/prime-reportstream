@@ -142,4 +142,4 @@ elements:
     resource: '%resource.extension.where(url = "obr-53-alternate-placer-order-number").value'
     schema: ../../datatypes/identifier/CX
     constants:
-      cxFieldPath: '%{obrFieldPath}-53'
+      cxField: '%{obrFieldPath}-53'

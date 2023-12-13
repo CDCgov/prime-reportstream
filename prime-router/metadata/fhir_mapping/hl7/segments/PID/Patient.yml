@@ -138,6 +138,8 @@ telecom:
       specs: PID.40 *
       vars:
         pid40: STRING_ALL, PID.40
+      constants:
+        hl7v2Name: patient-telecommunication-information
 
 communication:
   expressionType: nested

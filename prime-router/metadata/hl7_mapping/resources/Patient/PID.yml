@@ -1,0 +1,218 @@
+constants:
+  hl7PIDField: '%{hl7SegmentGroup}/PID'
+
+elements:
+  - name: patient-set-id
+    value: [ '"1"' ]
+    hl7Spec: [ '%{hl7PIDField}-1' ]
+
+  - name: patient-identifier-list
+    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "patient-identifier-list")'
+    constants:
+      cxField: '%{hl7PIDField}-3'
+    schema: ../../datatypes/identifier/cx
+    resourceIndex: cxIndex
+
+  #  - name: patient-assigning-authority
+  #    condition: '%resource.identifier.count() = 1 and %resource.identifier.type.empty()'
+  #    value: [ '%patientOrganization.name' ]
+  #    hl7Spec: [ '%{hl7PIDField}-3-4-1' ]
+  #
+  #  - name: patient-assigning-authority-type
+  #    condition: '%resource.identifier.count() = 1 and %resource.identifier.type.empty()'
+  #    value: [ '%patientOrganization.identifier.value' ]
+  #    hl7Spec: [ '%{hl7PIDField}-3-4-2' ]
+  #
+  #  - name: patient-assigning-authority-type-code
+  #    condition: '%resource.identifier.count() = 1 and %resource.identifier.type.empty()'
+  #    value: [ '%patientOrganization.identifier.type.coding.code' ]
+  #    hl7Spec: [ '%{hl7PIDField}-3-4-3' ]
+
+  - name: patient-name
+    resource: '%resource.name'
+    condition: '%resource.exists()'
+    constants:
+      hl7xpnField: '%{hl7PIDField}-5'
+    schema: ../../datatypes/HumanName/XPN
+    resourceIndex: xpnIndex
+
+  - name: patient-mothers-maiden-name
+    resource: '%resource.extension(%`ext-patient-mothersMaidenName`).value'
+    condition: '%resource.exists()'
+    constants:
+      hl7xpnField: '%{hl7PIDField}-6'
+    schema: ../../datatypes/HumanName/XPN
+    resourceIndex: xpnIndex
+
+  - name: patient-dob
+    resource: '%resource.birthDate'
+    constants:
+      dtmFieldPath: '%{hl7PIDField}-7'
+    schema: ../../datatypes/dateTime/DTMorDT
+
+  - name: patient-sex
+    value: [ '%resource.gender' ]
+    hl7Spec: [ '%{hl7PIDField}-8' ]
+    valueSet:
+      values:
+        unknown: U
+        female: F
+        male: M
+        other: O
+
+  #race
+  - name: patient-race-codeable-concept
+    condition: '%resource.exists()'
+    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-10'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  #  - name: patient-race-identifier
+  #    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
+  #    value:
+  #      - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.code'
+  #    hl7Spec: [ '%{hl7PIDField}-10-1' ]
+  #
+  #  - name: patient-race-display
+  #    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
+  #    value:
+  #      - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("text").value'
+  #      - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.display'
+  #    hl7Spec: [ '%{hl7PIDField}-10-2' ]
+  #
+  #  # this value just confirms that this segment part is HL7-Race
+  #  - name: patient-race-coding-system
+  #    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
+  #    value:
+  #      - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.system'
+  #      - '"HL70005"'
+  #    hl7Spec: [ '%{hl7PIDField}-10-3' ]
+
+  - name: patient-address
+    resource: '%resource.address'
+    condition: '%resource.exists()'
+    constants:
+      hl7xadField: '%{hl7PIDField}-11'
+    schema: ../../datatypes/Address/XAD
+    resourceIndex: xadIndex
+
+  - name: phone-number-home-mobile-email
+    resource: '%resource.telecom.where(use = "home" and extension(%`rsext-hl7v2Name`).exists().not())'
+    constants:
+      hl7TelecomField: '%{hl7PIDField}-13'
+    schema: ../../datatypes/contactPoint/XTN
+    resourceIndex: telecomIndex
+
+  - name: phone-number-business
+    resource: '%resource.telecom.where(use = "work")'
+    constants:
+      hl7TelecomField: '%{hl7PIDField}-14'
+    schema: ../../datatypes/contactPoint/XTN
+    resourceIndex: telecomIndex
+
+  - name: patient-primary-language
+    condition: '%resource.exists()'
+    resource: '%resource.communication.language'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-15'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: patient-marital-status
+    condition: '%resource.exists()'
+    resource: '%resource.maritalStatus'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-16'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: patient-religion
+    resource: '%resource.extension(%`ext-patient-religion`).value'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-17'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: mothers-identifier
+    resource: '%resource.link'
+    resourceIndex: linkIndex
+    constants:
+      cxField: '%{hl7PIDField}-21'
+    schema: ./Link
+
+  - name: patient-ethnicity
+    resource: '%resource.extension(%`rsext-ethnic-group`).value'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-22'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: patient-multiple-birth-indicator
+    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is boolean'
+    value: [ '%resource.multipleBirth' ]
+    hl7Spec: [ '%{hl7PIDField}-24' ]
+    valueSet:
+      values:
+        true: Y
+        false: N
+
+  - name: patient-multiple-birth-order
+    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is integer'
+    value: [ '%resource.multipleBirth' ]
+    hl7Spec: [ '%{hl7PIDField}-25' ]
+
+  - name: patient-death-date-time
+    condition: '%context.deceased.exists() and %context.deceased is dateTime'
+    resource: '%resource.deceased'
+    constants:
+      dtmFieldPath: '%{hl7PIDField}-29'
+    schema: ../../datatypes/dateTime/DTMorDT
+
+  - name: patient-death-indicator-1
+    condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
+    value: [ '"Y"' ]
+    hl7Spec: [ '%{hl7PIDField}-30' ]
+
+  - name: patient-death-indicator-2
+    condition: '%resource.deceased.exists() and %resource.deceased is boolean'
+    value: [ '%resource.deceased' ]
+    hl7Spec: [ '%{hl7PIDField}-30' ]
+    valueSet:
+      values:
+        true: Y
+        false: N
+
+  - name: patient-last-updated-at
+    value: [ '%resource.meta.lastUpdated' ]
+    hl7Spec: [ '%{hl7PIDField}-33' ]
+
+  - name: last-update-facility-namespace-id
+    resource: '%resource.meta.extension(%`rsext-last-updated-facility-namespace-id`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getId()' ]
+    hl7Spec: [ '%{hl7PIDField}-34-1' ]
+
+  - name: last-update-facility-universal-id
+    resource: '%resource.meta.extension(%`rsext-last-updated-facility-universal-id`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getId()' ]
+    hl7Spec: [ '%{hl7PIDField}-34-2' ]
+
+  - name: last-update-facility-universal-type
+    resource: '%resource.meta.extension(%`rsext-last-updated-facility-universal-id`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getIdType()' ]
+    hl7Spec: [ '%{hl7PIDField}-34-3' ]
+
+  - name: patient-species-identifier
+    resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-39'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: patient-tribal-citizenship
+    condition: >
+      %context.extension(%`ext-patient-citizenship`).exists() and
+      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).exists() and
+      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "tribal-citizenship").exists()
+    resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-39'
+    schema: ../../datatypes/codeableConcept/CWE

@@ -66,7 +66,7 @@ elements:
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "obr-53-alternate-placer-order-number")'
     schema: ../../datatypes/identifier/CX
     constants:
-      cxFieldPath: '%{obrFieldPath}-53'
+      cxField: '%{obrFieldPath}-53'
 
   - name: obr-extension
     resource: '%resource.extension(%`rsext-obr-observation-request`)'

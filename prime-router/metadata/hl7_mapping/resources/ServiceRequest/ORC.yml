@@ -106,7 +106,7 @@ elements:
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "orc-33-alternate-placer-order-number")'
     schema: ../../datatypes/identifier/CX
     constants:
-      cxFieldPath: '%{hl7Order}-33'
+      cxField: '%{hl7Order}-33'
 
   - name: orc-extension
     resource: '%resource.extension(%`rsext-orc-common-order`)'

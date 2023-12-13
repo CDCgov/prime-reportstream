@@ -1,3 +1,6 @@
+constants:
+  cxFieldPath: '%{cxField}(%{cxIndex})'
+
 elements:
   - name: id-number
     value: [ '%resource.value' ]
