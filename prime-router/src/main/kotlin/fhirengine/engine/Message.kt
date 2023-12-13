@@ -22,7 +22,6 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(RawSubmission::class, name = "raw"),
     JsonSubTypes.Type(FhirConvertMessage::class, name = "convert"),
     JsonSubTypes.Type(FhirRouteMessage::class, name = "route"),
     JsonSubTypes.Type(FhirTranslateMessage::class, name = "translate")
@@ -36,7 +35,7 @@ abstract class Message {
     abstract val topic: Topic
 
     /**
-     * Download the file associated with a RawSubmission message
+     * Download the file associated with a Fhir Convert/Translate/Route message
      */
     fun downloadContent(): String {
         val blobContent = BlobAccess.downloadBlobAsByteArray(this.blobURL)
@@ -71,21 +70,6 @@ abstract class Message {
         return mapper.writeValueAsString(this)
     }
 }
-
-/**
- * The Message representation of a raw submission to the system, tracking the [reportId], [blobURL],
- * [blobSubFolderName] (which is derived from the sender name), and [schemaName] from the sender settings.
- * A [digest] is also provided for checksum verification.
- */
-@JsonTypeName("raw")
-data class RawSubmission(
-    override val reportId: ReportId,
-    override val blobURL: String,
-    override val digest: String,
-    override val blobSubFolderName: String,
-    override val topic: Topic,
-    val schemaName: String = "",
-) : Message()
 
 @JsonTypeName("convert")
 data class FhirConvertMessage(

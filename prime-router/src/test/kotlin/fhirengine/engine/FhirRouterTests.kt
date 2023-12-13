@@ -471,7 +471,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -515,7 +515,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -561,7 +561,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -607,7 +607,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -653,7 +653,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -701,7 +701,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -757,7 +757,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -813,7 +813,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -871,7 +871,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -928,7 +928,7 @@ class FhirRouterTests {
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message =
             spyk(
-                RawSubmission(
+                FhirConvertMessage(
                     UUID.randomUUID(),
                     BLOB_URL,
                     "test",
@@ -1075,7 +1075,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
