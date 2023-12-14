@@ -94,11 +94,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         // get the username/password to authenticate with OAuth
         val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
 
-//         restTransportInfo.headers = restTransportInfo.headers + Pair("Content-Length", header.content.size.toLong())
-
-        // get the TLS/SSL cert in a JKS if needed, NY uses a specific one
-//        val jksCredential = restTransportInfo.tlsKeystore?.let { lookupJksCredentials(it) }
-
         return try {
             // run our call to the endpoint in a blocking fashion
             runBlocking {
@@ -305,7 +300,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             }
             is UserPassCredential -> {
                 tokenInfo = getAuthTokenWithUserPass(
-                    restTransportInfo.authTokenUrl,
+                    restTransportInfo,
                     credential,
                     logger,
                     tokenClient
@@ -315,7 +310,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             }
             is UserAssertionCredential -> {
                 tokenInfo = getAuthTokenWithAssertion(
-                    restTransportInfo.authTokenUrl,
+                    restTransportInfo,
                     credential,
                     logger,
                     tokenClient
@@ -338,14 +333,14 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * @param httpClient the HTTP client to make the call
      */
     suspend fun getAuthTokenWithAssertion(
-        restUrl: String,
+        restTransportInfo: RESTTransportType,
         credential: UserAssertionCredential,
         logger: Logger,
         httpClient: HttpClient,
     ): TokenInfo {
         httpClient.use { client ->
             val tokenInfo: TokenInfo = client.submitForm(
-                restUrl,
+                restTransportInfo.authTokenUrl,
                 formParameters = Parameters.build {
                     append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer") // as specified by WA
                     append("assertion", credential.assertion)
@@ -413,36 +408,72 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * @param httpClient the HTTP client to make the call
      */
     suspend fun getAuthTokenWithUserPass(
-        restUrl: String,
+        restTransportInfo: RESTTransportType,
         credential: UserPassCredential,
         logger: Logger,
         httpClient: HttpClient,
     ): TokenInfo {
         httpClient.use { client ->
-            if (restUrl.contains("dataingestion.test.nbspreview.com")) {
-                val idTokenInfoString: String = client.post(restUrl) {
-                    val credentialString = credential.user + ":" + credential.pass
-                    val basicAuth = "Basic " + Base64.getEncoder().encodeToString(credentialString.encodeToByteArray())
-                    expectSuccess = true // throw an exception if not successful
-                    postHeaders(
-                        mapOf(
-                            "Authorization" to basicAuth,
-                            "Host" to "dataingestion.test.nbspreview.com"
-                        )
-                    )
-                }.body()
-                logger.info("Got Token with UserPass")
-                return TokenInfo(accessToken = "Bearer " + idTokenInfoString, expiresIn = 3600)
-            } else {
-                val idTokenInfoString: String = client.post(restUrl) {
-                    expectSuccess = true // throw an exception if not successful
-                    contentType(ContentType.Application.Json)
+            val restUrl = restTransportInfo.authTokenUrl
+            val idTokenInfoString: String = client.post(restUrl) {
+                expectSuccess = true // throw an exception if not successful
+                postHeaders(
+                    if (restTransportInfo.authHeaders["Authorization-Type"] == "Basic Auth") {
+                        // Authorization-Type: "Basic Auth" requires the following:
+                        // Header:
+                        //  Authorization : "Basic + base64(username+password)"
+                        // Body:
+                        //  None
+                        // TODO: Add Authorization-Type: "Basic Auth" to DATAINGESTION (NBS) RESTTransport.authHeaders
+                        restTransportInfo.authHeaders.map { (key, value) ->
+                            if (key == "Authorization-Type" && value == "Basic Auth") {
+                                val credentialString = credential.user + ":" + credential.pass
+                                Pair(
+                                    "Authorization",
+                                    "Basic " + Base64.getEncoder().encodeToString(credentialString.encodeToByteArray())
+                                )
+                            } else {
+                                Pair(key, value)
+                            }
+                        }.toMap()
+                    } else {
+                        restTransportInfo.authHeaders
+                    }
+                )
+
+                // Authorization-Type: username/password requires the following:
+                // Header:
+                //  Content-Type: application/json
+                //  Authorization: username/password
+                // Body:
+                // { "username": "<username>", "password": "<password>"
+                    // LA-PHL.
+                    // TODO: Add Authorization-Type: "username/password" to LA-PHL RESTTransport.authHeaders
+                if (restTransportInfo.authHeaders["Authorization-Type"] == "username/password") {
+                    setBody(mapOf("username" to credential.user, "password" to credential.pass))
+                } else if (restTransportInfo.authHeaders["Authorization-Type"] == "email/password") {
+                        // Authorization-Type: email/password requires the following:
+                // Header:
+                //  Content-Type: application/json
+                //  Authorization: username/password
+                // Body:
+                // { "email": "<email@domain.com>", "password": "<password>"
+                    // OK-PHD.
+                    // TODO: Add Authorization-Type: "email/password" to OK-PHD RESTTransport.authHeaders
+                    //
                     setBody(mapOf("email" to credential.user, "password" to credential.pass))
-                }.body()
-                logger.info("Got Token with UserPass")
-                val idTokenInfo = Json.decodeFromString<IdToken>(idTokenInfoString)
-                return TokenInfo(accessToken = idTokenInfo.idToken, expiresIn = 3600)
+                }
+            }.body()
+
+            logger.info("Got Token with UserPass")
+
+            val idTokenInfoAccessToken: String = try {
+                Json.decodeFromString<IdToken>(idTokenInfoString).idToken
+            } catch (e: Exception) {
+                "Bearer " + idTokenInfoString
             }
+
+            return TokenInfo(accessToken = idTokenInfoAccessToken, expiresIn = 3600)
         }
     }
 
@@ -470,41 +501,44 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 logger.info("posting report to rest API")
                 expectSuccess = true // throw an exception if not successful
 
-                // NBS requires the Content-Length to be set
-                val newHeaders = if (restUrl.contains("dataingestion.test.nbspreview.com")) {
-                    headers.plus(mapOf("Content-Length" to message.size.toString()))
-                } else {
-                    headers
-                }
-
+                // Calculate Content-Length if needed.
                 postHeaders(
-                    newHeaders
+                    // Calculate Content-Length if needed.
+                    headers.map { (key, value) ->
+                        if (key == "Content-Length" && value == "<calculated when request is sent>") {
+                            Pair(key, message.size.toString())
+                        } else {
+                            Pair(key, value)
+                        }
+                    }.toMap()
                 )
+
                 setBody(
-                    when (restUrl.substringAfterLast('/')) {
-                        // OK or NBS
-                        "hl7", "reports" -> {
+                    when (headers["Content-Type"]) {
+                        // OK or NBS Content-Type: text/plain
+                        // TODO: Add Content-Type: text/plain to OK-PHD, NBS (DATAINGESTION) payload header of RESTTransport
+                        "text/plain" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
                         }
-                        // Flexion
-                        "demographics" -> {
+                        // Flexion Content-Type: text/fhir+ndjson
+                        // TODO: Add Content-Type: text/fhir+ndjson to Flexion.etor-service-receiver payload header of RESTTransport
+                        "text/fhir+ndjson" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
                         }
-                        "orders" -> {
-                            TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
-                        }
-                        // WA
-                        "elr" -> {
+                        // WA Content-Type: application/json
+                        // TODO: Add Content-Type: application/json to WA-PHD payload header of RESTTransport
+                        "application/json" -> {
                             contentType(ContentType.Application.Json)
                             // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
                             JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
                         }
-                        else -> {
-                            // NY
+                        // NY Content-Type: multipart/form-data
+                        // TODO: Add Content-Type: multipart/form-data to NY-PHD.ELR, NY-PHD.FULL-ELR-TEST, LA-PHL (Natus) payload header of RESTTransport
+                        "multipart/form-data" -> {
                             MultiPartFormDataContent(
                                 formData {
                                     append(
-                                        "payload", message,
+                                        headers["Key"] ?: "payload", message,
                                         Headers.build {
                                             append(HttpHeaders.ContentType, "text/plain")
                                             append(HttpHeaders.ContentDisposition, "filename=\"${fileName}\"")
@@ -512,6 +546,15 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                                     )
                                 },
                                 boundary
+                            )
+                        }
+                        else -> {
+                            // Note: It is here for default content-type.  It is used for integration test
+                            contentType(ContentType.Text.Plain)
+                            val headerContentType = headers["Content-Type"]
+                            logger.warning(
+                                "Unsupported Content-Type: " +
+                                "$headerContentType - please check your REST Transport setting"
                             )
                         }
                     }
