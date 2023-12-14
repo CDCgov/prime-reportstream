@@ -7783,12 +7783,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress-localstorage-commands@npm:^2.2.4":
-  version: 2.2.4
-  resolution: "cypress-localstorage-commands@npm:2.2.4"
+"cypress-localstorage-commands@npm:^2.2.5":
+  version: 2.2.5
+  resolution: "cypress-localstorage-commands@npm:2.2.5"
   peerDependencies:
     cypress: ">=2.1.0"
-  checksum: 8969bcb6ee63e13c6f7ddea4dd31d32a39bc6e41f6bca9c28335919838b7df8e80aa6a1efd8165a3d50fbac45b67647e4d29b2ecd2eb59be68729a5a1c07f5a2
+  checksum: 6003e4165496676edd37a12572caf7b6360421103c9e5a803d2f73ccc744493a852ca3c82fca4cd6990165338952a25a0edd3912e8e855a33b01c3d42ff85f8e
   languageName: node
   linkType: hard
 
@@ -7801,9 +7801,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:^13.3.1":
-  version: 13.3.1
-  resolution: "cypress@npm:13.3.1"
+"cypress@npm:^13.6.1":
+  version: 13.6.1
+  resolution: "cypress@npm:13.6.1"
   dependencies:
     "@cypress/request": ^3.0.0
     "@cypress/xvfb": ^1.2.4
@@ -7850,7 +7850,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 51798ecc6c5a33860012ecf39c428540911c3cf4df6ee63ea950cafea4a6c415d18da87951721f45b8601637e9731af4cf1464d37d62a36ce7243f8bfc8a59d2
+  checksum: b701d61f7aadb478fcbe12f114dcbf19657b762592d0feb94d65702862c5156b30686b01104bb6b82b3f48aa7635a5db8fa5b4ca4706515d38ffe655baf0939c
   languageName: node
   linkType: hard
 
@@ -15428,9 +15428,9 @@ __metadata:
     classnames: ^2.3.2
     confusing-browser-globals: ^1.0.11
     cross-env: ^7.0.3
-    cypress: ^13.3.1
+    cypress: ^13.6.1
     cypress-each: ^1.13.3
-    cypress-localstorage-commands: ^2.2.4
+    cypress-localstorage-commands: ^2.2.5
     cypress-plugin-tab: ^1.0.5
     dompurify: ^3.0.5
     downloadjs: ^1.4.7
