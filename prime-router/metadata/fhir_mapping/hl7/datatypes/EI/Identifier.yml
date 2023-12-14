@@ -4,7 +4,7 @@ value:
   expressionType: HL7Spec
 
 type:
-  condition: $code NOT_NULL && $system NOT_NULL
+  condition: $code NOT_NULL || $system NOT_NULL
   expressionType: nested
   expressionsMap:
     coding:
