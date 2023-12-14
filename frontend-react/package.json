@@ -210,7 +210,7 @@
         "vite": "^4.4.11",
         "vite-plugin-checker": "^0.6.2",
         "vite-plugin-svgr": "^4.1.0",
-        "whatwg-fetch": "^3.6.19"
+        "whatwg-fetch": "^3.6.20"
     },
     "resolutions": {
         "@babel/traverse": ">=7.23.2",
