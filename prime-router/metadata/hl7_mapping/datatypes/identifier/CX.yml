@@ -56,10 +56,10 @@ elements:
     resource: '%resource.extension(%`rsext-assigning-jurisdiction`).value'
     schema: ../codeableConcept/CWE
     constants:
-      cweFieldPath: '%{cxFieldPath}-9'
+      cweField: '%{cxFieldPath}-9'
 
   - name: assigning-agency-or-department
     resource: '%resource.extension(%`rsext-assigning-agency-or-department`).value'
     schema: ../codeableConcept/CWE
     constants:
-      cweFieldPath: '%{cxFieldPath}-10'
+      cweField: '%{cxFieldPath}-10'

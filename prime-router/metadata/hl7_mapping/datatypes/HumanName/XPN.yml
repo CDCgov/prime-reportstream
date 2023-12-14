@@ -40,7 +40,7 @@ elements:
   - name: xpn-name-context
     resource: '%resource.extension(%`rsext-xpn9-name-context`).value'
     constants:
-      cweFieldPath: '%{hl7xpnPath}-9'
+      cweField: '%{hl7xpnPath}-9'
     schema: ../codeableConcept/CWE
 
   - name: xpn-name-validity-range-start

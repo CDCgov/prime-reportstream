@@ -156,6 +156,7 @@ elements:
       %specimen.note.where(extension(%`rsext-cwe-annotation`)).exists() and
       %specimen.note.extension(%`rsext-cwe-annotation`).value.where(extension(%`rsext-hl7v2Name`).value = "collectors-comment").exists()
     resource: '%specimen.note.extension(%`rsext-cwe-annotation`).value.where(extension(%`rsext-hl7v2Name`).value = "collectors-comment")'
+    resourceIndex: cweIndex
     constants:
       cweFieldPath: '%{fieldPath}-39'
     schema: ../../datatypes/codeableConcept/CWE

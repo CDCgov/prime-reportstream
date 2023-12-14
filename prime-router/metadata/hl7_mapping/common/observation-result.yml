@@ -105,7 +105,7 @@ elements:
       %context.value.extension(%`rsext-cwe-quantity`).value.where(extension(%`rsext-hl7v2Name`).value = "units").exists()
     resource: '%resource.value.extension(%`rsext-cwe-quantity`).value'
     constants:
-      cweFieldPath: '%{hl7OBXField}-6'
+      cweField: '%{hl7OBXField}-6'
     schema: ../datatypes/codeableConcept/CWE
 
   - name: observation-reference-range

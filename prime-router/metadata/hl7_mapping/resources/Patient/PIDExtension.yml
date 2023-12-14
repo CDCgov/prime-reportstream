@@ -8,3 +8,29 @@ elements:
       cxField: '%{hl7PIDField}-18'
     schema: ../../datatypes/identifier/cx
     resourceIndex: cxIndex
+
+  - name: multiple-birth-indicator
+    hl7Spec: [ '%{hl7PIDField}-6' ]
+    value: [ '%resource.extension.where(url = "pid-24-multiple-birth-indicator").value' ]
+
+  - name: patient-death-indicator
+    hl7Spec: [ '%{hl7PIDField}-24' ]
+    value: [ '%resource.extension.where(url = "pid-24-multiple-birth-indicator").value' ]
+
+  - name: multiple-birth-indicator
+    hl7Spec: [ '%{hl7PIDField}-30' ]
+    value: [ '%resource.extension.where(url = "pid-30-patient-death-indicator").value' ]
+
+  - name: identity-reliability-code
+    resource: '%resource.extension.where(url = "pid-32-identity-reliability-code").value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PIDField}-32'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: production-class-code
+    resource: '%resource.extension.where(url = "pid-38-production-class-code").value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PIDField}-38'
+    schema: ../../datatypes/codeableConcept/CWE

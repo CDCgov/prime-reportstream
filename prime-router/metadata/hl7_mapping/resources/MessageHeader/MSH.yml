@@ -105,8 +105,9 @@ elements:
   - name: principal-lanuage-of-message
     resource: '%resource.extension(%`rsext-msh-19-principal-language-of-message`).value'
     schema: ../../datatypes/codeableConcept/CWE
+    resourceIndex: cweIndex
     constants:
-      cweFieldPath: MSH-19
+      cweField: MSH-19
 
   - name: alternate-character-set
     value: [ '%resource.extension(%`rsext-msh-20-alternate-character-set-handling-scheme`).value' ]

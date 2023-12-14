@@ -28,8 +28,9 @@ elements:
   - name: collector-identifier
     resource: '%resource.extension.where(url = "obr-12-danger-code").value'
     schema: ../../datatypes/codeableConcept/CWE
+    resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{obrFieldPath}-12'
+      cweField: '%{obrFieldPath}-12'
 
   - name: clinical-information
     value: [ '%resource.extension.where(url = "obr-13-clinical-information").value' ]
@@ -106,8 +107,9 @@ elements:
   - name: collectors-comment
     resource: '%resource.extension.where(url = "obr-39-collectors-comment").value'
     schema: ../../datatypes/codeableConcept/CWE
+    resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{obrFieldPath}-39'
+      cweField: '%{obrFieldPath}-39'
 
   - name: procedure-code
     resource: '%resource.extension.where(url = "obr-44-procedure-code").value'
@@ -125,8 +127,9 @@ elements:
   - name: medically-necessary-duplicate-procedure
     resource: '%resource.extension.where(url = "obr-48-medically-necessary-duplicate-procedure").value'
     schema: ../../datatypes/codeableConcept/CWE
+    resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{obrFieldPath}-48'
+      cweField: '%{obrFieldPath}-48'
 
   - name: result-handling
     value: [ '%resource.extension.where(url = "obr-49-result-handling").value' ]
@@ -135,8 +138,9 @@ elements:
   - name: parent-universal-service-identifier
     resource: '%resource.extension.where(url = "obr-50-parent-universal-service-identifier").value'
     schema: ../../datatypes/codeableConcept/CWE
+    resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{obrFieldPath}-50'
+      cweField: '%{obrFieldPath}-50'
 
   - name: alternate-placer-order-number-from-identifier
     resource: '%resource.extension.where(url = "obr-53-alternate-placer-order-number").value'

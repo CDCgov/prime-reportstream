@@ -9,8 +9,9 @@ elements:
       %context.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).exists() and
       %context.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).value.where(extension(%`rsext-hl7v2Name`).value = "organization-name-type-code").exists()
     resource: '%resource.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).value'
+    resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{hl7XONField}-2'
+      cweField: '%{hl7XONField}-2'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: id-number
