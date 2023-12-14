@@ -44,6 +44,7 @@ import gov.cdc.prime.router.messageTracker.MessageActionLog
 import org.apache.logging.log4j.ThreadContext
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
+import org.flywaydb.database.postgresql.PostgreSQLConfigurationExtension
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.Field
@@ -1444,10 +1445,12 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             config.maxLifetime = 180000
             val dataSource = HikariDataSource(config)
 
+            val flywayConfig = Flyway.configure()
+            val pgConfig = flywayConfig.pluginRegister.getPlugin(PostgreSQLConfigurationExtension::class.java)
             // This setting makes flyway fall back to session locks as concurrent index creation cannot be done
             // within a transaction. This setting is needed as of flyway 9.19.4.
-            val flyway = Flyway.configure().configuration(mapOf(Pair("flyway.postgresql.transactional.lock", "false")))
-                .dataSource(dataSource).load()
+            pgConfig.setTransactionalLock(false)
+            val flyway = flywayConfig.dataSource(dataSource).load()
             if (isFlywayMigrationOK) {
                 // TODO https://github.com/CDCgov/prime-reportstream/issues/10526
                 // Investigate why this is required
