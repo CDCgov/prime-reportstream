@@ -96,7 +96,7 @@ runs:
       shell: bash
       run: echo "USE_DCT=true" >> $GITHUB_ENV
 
-    - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+    - uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router
