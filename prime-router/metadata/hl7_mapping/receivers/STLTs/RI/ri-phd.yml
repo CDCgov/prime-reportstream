@@ -80,7 +80,12 @@
           onlyOncePerDay: false
       description: ""
       # TODO: Fill in transport before applying
-      transport: null
+      transport: !<SFTP>
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
       externalName: null
       timeZone: null
       dateTimeFormat: "OFFSET"
