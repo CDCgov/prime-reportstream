@@ -262,7 +262,7 @@ meta:
       expressionType: nested
       expressionsMap:
         url:
-          type: STRING
+          type: SYSTEM_URL
           value: last-updated-facility-namespace-id
         valueReference:
           valueOf: datatypes/HD/Organization
@@ -426,13 +426,13 @@ extension:
       condition: $pid28 NOT_NULL
       generateList: true
       vars:
-        pid18: STRING_ALL, PID.28
+        pid28: STRING_ALL, PID.28
       constants:
         hl7v2Name: "nationality"
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: nationality
+          value: patient-nationality
         extension:
           generateList: true
           expressionType: nested
@@ -450,7 +450,7 @@ extension:
       expressionType: nested
       expressionsMap:
         url:
-          type: STRING
+          type: SYSTEM_URL
           value: identity-unknown
         valueString:
           type: STRING

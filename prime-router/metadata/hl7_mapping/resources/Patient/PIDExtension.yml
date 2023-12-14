@@ -10,10 +10,6 @@ elements:
     resourceIndex: cxIndex
 
   - name: multiple-birth-indicator
-    hl7Spec: [ '%{hl7PIDField}-6' ]
-    value: [ '%resource.extension.where(url = "pid-24-multiple-birth-indicator").value' ]
-
-  - name: patient-death-indicator
     hl7Spec: [ '%{hl7PIDField}-24' ]
     value: [ '%resource.extension.where(url = "pid-24-multiple-birth-indicator").value' ]
 

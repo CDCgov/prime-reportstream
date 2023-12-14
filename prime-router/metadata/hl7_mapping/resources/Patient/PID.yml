@@ -136,11 +136,11 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: mothers-identifier
-    resource: '%resource.link'
-    resourceIndex: linkIndex
+    resource: '%resource.link.other.resolve().identifier'
+    resourceIndex: cxIndex
     constants:
       cxField: '%{hl7PIDField}-21'
-    schema: ./Link
+    schema: ../../datatypes/identifier/cx
 
   - name: patient-ethnicity
     resource: '%resource.extension(%`rsext-ethnic-group`).value'
@@ -170,6 +170,32 @@ elements:
       cweField: '%{hl7PIDField}-26'
     schema: ../../datatypes/codeableConcept/CWE
 
+  - name: patient-veteran-military-status
+    condition: '%context.extension(%`rsext-veteran-military-status`).exists()'
+    resource: '%resource.extension(%`rsext-veteran-military-status`).value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PIDField}-27'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: patient-veteran-military-status
+    condition: '%context.extension(%`rsext-veteran-military-status`).exists()'
+    resource: '%resource.extension(%`rsext-veteran-military-status`).value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PIDField}-27'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: patient-nationality
+    condition: >
+      %context.extension(%`ext-patient-nationality`).exists() and
+      %context.extension(%`ext-patient-nationality`).extension(%`rsext-code`).exists()
+    resource: '%resource.extension(%`ext-patient-nationality`).extension(%`rsext-code`).value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PIDField}-28'
+    schema: ../../datatypes/codeableConcept/CWE
+
   - name: patient-death-date-time
     condition: '%context.deceased.exists() and %context.deceased is dateTime'
     resource: '%resource.deceased'
@@ -177,47 +203,31 @@ elements:
       dtmFieldPath: '%{hl7PIDField}-29'
     schema: ../../datatypes/dateTime/DTMorDT
 
-  - name: patient-death-indicator-1
-    condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
-    value: [ '"Y"' ]
-    hl7Spec: [ '%{hl7PIDField}-30' ]
-
-  - name: patient-death-indicator-2
-    condition: '%resource.deceased.exists() and %resource.deceased is boolean'
-    value: [ '%resource.deceased' ]
-    hl7Spec: [ '%{hl7PIDField}-30' ]
-    valueSet:
-      values:
-        true: Y
-        false: N
+  - name: identity-unknown-indicator
+    condition: '%resource.extension(%`rsext-identity-unknown`).exists()'
+    value: [ '%resource.extension(%`rsext-identity-unknown`).value' ]
+    hl7Spec: [ '%{hl7PIDField}-31' ]
 
   - name: patient-last-updated-at
-    value: [ '%resource.meta.lastUpdated' ]
-    hl7Spec: [ '%{hl7PIDField}-33' ]
+    condition: '%context.meta.lastUpdated.exists() and %context.meta.lastUpdated is instant'
+    resource: '%resource.meta.lastUpdated'
+    constants:
+      dtmFieldPath: '%{hl7PIDField}-33'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: last-update-facility-namespace-id
-    resource: '%resource.meta.extension(%`rsext-last-updated-facility-namespace-id`)'
-    condition: '%resource.exists()'
-    value: [ '%resource.value.getId()' ]
-    hl7Spec: [ '%{hl7PIDField}-34-1' ]
-
-  - name: last-update-facility-universal-id
-    resource: '%resource.meta.extension(%`rsext-last-updated-facility-universal-id`)'
-    condition: '%resource.exists()'
-    value: [ '%resource.value.getId()' ]
-    hl7Spec: [ '%{hl7PIDField}-34-2' ]
-
-  - name: last-update-facility-universal-type
-    resource: '%resource.meta.extension(%`rsext-last-updated-facility-universal-id`)'
-    condition: '%resource.exists()'
-    value: [ '%resource.value.getIdType()' ]
-    hl7Spec: [ '%{hl7PIDField}-34-3' ]
+    resource: '%resource.meta.extension(%`rsext-last-updated-facility-namespace-id`).value.resolve().identifier'
+    condition: '%context.meta.extension(%`rsext-last-updated-facility-namespace-id`).exists()'
+    constants:
+      hl7HDField: '%{hl7PIDField}-34'
+    schema: ../../datatypes/identifier/hd
 
   - name: patient-species-identifier
-    resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value'
+    condition: '%context.extension(%`ext-patient-animal`).exists()'
+    resource: '%resource.extension(%`ext-patient-animal`).extension.where(url = "species").value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-39'
+      cweField: '%{hl7PIDField}-35'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-tribal-citizenship
@@ -225,8 +235,15 @@ elements:
       %context.extension(%`ext-patient-citizenship`).exists() and
       %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).exists() and
       %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "tribal-citizenship").exists()
-    resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value'
+    resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "tribal-citizenship")'
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7PIDField}-39'
     schema: ../../datatypes/codeableConcept/CWE
+
+  - name: patient-telecommunication-information
+    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "patient-telecommunication-information")'
+    constants:
+      hl7TelecomField: '%{hl7PIDField}-40'
+    schema: ../../datatypes/contactPoint/XTN
+    resourceIndex: telecomIndex

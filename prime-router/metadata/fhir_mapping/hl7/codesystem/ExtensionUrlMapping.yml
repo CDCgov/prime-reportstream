@@ -607,7 +607,7 @@
 # Student Status
 - id: "studentStatus"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/studentStatus"
-# Living Willa
+# Living Will
 - id: "livingWill"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/livingWill"
 - id: "orc-common-order"
