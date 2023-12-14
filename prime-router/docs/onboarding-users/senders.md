@@ -166,8 +166,8 @@ There are two methods of authenticating to ReportStream’s REST API:
 1. Token-based authentication with a public/private key pair
    Note: This method is the recommended best practice.
 
-**Note: This is legacy authentication and is no longer used for onboarding new users. This information is here to support legacy senders**
 2. Using a shared secret API key
+**Note: This is legacy authentication and is no longer used for onboarding new users. This information is here to support legacy senders**
 
 The examples below use the fake client-id healthy-labs, that you will change for your
 submissions. The examples submit the payload contained in the file
