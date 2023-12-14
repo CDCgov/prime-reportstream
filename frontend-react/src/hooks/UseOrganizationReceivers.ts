@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { RSReceiver, servicesEndpoints } from "../config/endpoints/settings";
+import { RsReceiver, servicesEndpoints } from "../config/endpoints/settings";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
 import { useSessionContext } from "../contexts/Session";
 
@@ -13,7 +13,7 @@ export const useOrganizationReceivers = () => {
     const { activeMembership } = useSessionContext();
     const parsedName = activeMembership?.parsedName;
 
-    const authorizedFetch = useAuthorizedFetch<RSReceiver[]>();
+    const authorizedFetch = useAuthorizedFetch<RsReceiver[]>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(receivers, {

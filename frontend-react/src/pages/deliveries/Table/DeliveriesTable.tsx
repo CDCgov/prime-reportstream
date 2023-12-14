@@ -18,12 +18,11 @@ import { PaginationProps } from "../../../components/Table/Pagination";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import usePagination from "../../../hooks/UsePagination";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
-import { RSReceiver } from "../../../config/endpoints/settings";
+import { CustomerStatus, RsReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
-import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import {
     EventName,
     useAppInsightsContext,
@@ -39,8 +38,8 @@ const ServiceDisplay = ({
     activeService,
     handleSetActive,
 }: {
-    services: RSReceiver[];
-    activeService: RSReceiver | undefined;
+    services: RsReceiver[];
+    activeService: RsReceiver | undefined;
     handleSetActive: (v: string) => void;
 }) => {
     return (
@@ -167,9 +166,9 @@ const DeliveriesTableWithNumberedPagination = ({
     activeService,
     setActiveService,
 }: {
-    services: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+    services: RsReceiver[];
+    activeService: RsReceiver | undefined;
+    setActiveService: Dispatch<SetStateAction<RsReceiver | undefined>>;
 }) => {
     const handleSetActive = (name: string) => {
         setActiveService(services.find((item) => item.name === name));
@@ -241,7 +240,7 @@ export const DeliveriesTable = () => {
     if (
         !isLoading &&
         (!activeService ||
-            activeService?.customerStatus === CustomerStatusType.INACTIVE)
+            activeService?.customerStatus === CustomerStatus.INACTIVE)
     )
         return (
             <div className="usa-section margin-bottom-5">

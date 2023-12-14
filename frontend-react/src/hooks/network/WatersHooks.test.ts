@@ -6,7 +6,7 @@ import {
 } from "../../__mocks__/WatersMockServer";
 import { renderHook } from "../../utils/CustomRenderUtils";
 import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
-import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
+import { ContentType, FileType } from "../../config/endpoints/settings";
 
 import { useWatersUploader } from "./WatersHooks";
 

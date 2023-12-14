@@ -4,7 +4,7 @@ import type {
     UserClaims,
 } from "@okta/okta-auth-js";
 
-import type { RSService } from "../config/endpoints/settings";
+import type { IRsService } from "../config/endpoints/settings";
 
 import { PERMISSIONS } from "./UsefulTypes";
 
@@ -85,7 +85,7 @@ export interface MembershipSettings {
     // Optional service name (i.e. "elr", "default")
     service?: string;
     // List of available services for the current org
-    allServices?: RSService[];
+    allServices?: IRsService[];
 }
 
 export const getTypeOfGroup = (org: string) => {

@@ -19,7 +19,6 @@ import {
     useCheckSettingsCmd,
 } from "../../network/api/CheckSettingCmd";
 import { USLink, USNavLink } from "../USLink";
-
 import MetaDisplay from "../../shared/MetaDisplay/MetaDisplay";
 
 interface OrgSettingsTableProps {
@@ -131,7 +130,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                                 <td>{eachOrgSetting.topic || ""}</td>
                                 <td>{eachOrgSetting.customerStatus || ""}</td>
                                 <td>
-                                    <MetaDisplay metaObj={eachOrgSetting} />
+                                    <MetaDisplay {...eachOrgSetting} />
                                 </td>
                                 <td colSpan={2}>
                                     <ButtonGroup type="segmented">

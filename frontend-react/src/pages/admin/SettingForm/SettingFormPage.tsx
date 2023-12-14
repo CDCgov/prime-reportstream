@@ -2,17 +2,11 @@ import { useNavigate, useParams } from "react-router";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Button, Grid, ModalRef } from "@trussworks/react-uswds";
+import { ModalRef } from "@trussworks/react-uswds";
 
 import OrgReceiverSettingsResource from "../../../resources/OrgReceiverSettingsResource";
-import { RSSetting } from "../../../config/endpoints/settings";
-import {
-    ReceiverFormInner,
-    SenderFormInner,
-    OrganizationFormInner,
-    SettingFormProps,
-    SettingFormMode,
-} from "../../../shared/SettingFormWithJson/SettingForm/SettingForm";
+import { IRsSetting, RsSettingType } from "../../../config/endpoints/settings";
+import { SettingForm } from "../../../shared/SettingFormWithJson/SettingForm/SettingForm";
 import { useToast } from "../../../contexts/Toast";
 import OrgSenderSettingsResource from "../../../resources/OrgSenderSettingsResource";
 import OrgSettingsResource from "../../../resources/OrgSettingsResource";
@@ -27,15 +21,12 @@ import {
     VersionWarningType,
     getErrorDetailFromResponse,
 } from "../../../utils/misc";
-import MetaDisplay from "../../../shared/MetaDisplay/MetaDisplay";
-import { useSettingFormCreate } from "../../../shared/SettingFormWithJson/SettingFormContext/SettingFormContext";
+import { FormMode } from "../../../shared/SettingFormWithJson/SettingFormContext/SettingFormContext";
 
 import {
     ModalConfirmButton,
     ModalConfirmDialog,
 } from "./ModalConfirmDialog/ModalConfirmDialog";
-
-import styles from "../../../shared/SettingFormWithJson/SettingForm/SettingForm.module.scss";
 
 export type SettingFormPageParams = {
     orgId: string;
@@ -44,24 +35,23 @@ export type SettingFormPageParams = {
 
 export interface SettingFormPageSharedProps {
     entityType: "Receiver" | "Sender" | "Organization";
-    mode: SettingFormMode;
+    mode: FormMode;
 }
 
 export interface SettingFormPageBaseProps extends SettingFormPageSharedProps {
-    FormInner: (props: SettingFormProps) => JSX.Element;
-    setting?: RSSetting;
+    setting?: RsSettingType;
     orgId: string;
     entityId?: string;
     onError: (e: Error) => void;
     onDelete?: () => void;
-    onSubmit: (v: RSSetting) => void;
+    onSubmit: (v: RsSettingType) => void;
     onCancel: () => void;
     isSubmitDisabled?: boolean;
 }
 
 export interface SettingFormPageAction {
     action: "delete" | "save";
-    setting: RSSetting;
+    setting: RsSettingType;
 }
 
 export function SettingFormPageBase({
@@ -72,7 +62,6 @@ export function SettingFormPageBase({
     entityId,
     onError,
     onDelete,
-    FormInner,
     onCancel,
     onSubmit,
     isSubmitDisabled,
@@ -105,7 +94,7 @@ export function SettingFormPageBase({
         setSettingAction({ action: "delete", setting });
     };
 
-    const onSubmitHandler = async (setting: RSSetting) => {
+    const onSubmitHandler = async (setting: RsSettingType) => {
         setSettingAction({ action: "save", setting });
     };
 
@@ -136,13 +125,6 @@ export function SettingFormPageBase({
         else modalRef.current?.toggleModal(undefined, false);
     }, [settingAction]);
 
-    const form = useSettingFormCreate({
-        initialValues: setting,
-        documentType: "JSON",
-        isCompareAllowed: true,
-        mode,
-    });
-
     return (
         <>
             <Helmet>
@@ -165,49 +147,19 @@ export function SettingFormPageBase({
 
             {setting && (
                 <>
-                    <section className="grid-container margin-top-0"></section>
-                    <form.Form
-                        className={styles.SettingForm}
-                        onSubmit={(v) => {
-                            console.log("submit", v);
-                        }}
-                    >
-                        <FormInner
-                            leftButtons={
-                                <>
-                                    {onDelete && (
-                                        <Button
-                                            type={"button"}
-                                            secondary={true}
-                                            onClick={onDeleteHandler}
-                                        >
-                                            Delete...
-                                        </Button>
-                                    )}
-                                </>
-                            }
-                            rightButtons={
-                                <>
-                                    <Button
-                                        type={"button"}
-                                        outline
-                                        onClick={onCancel}
-                                    >
-                                        Cancel
-                                    </Button>
-                                </>
-                            }
-                        ></FormInner>
-                        <Button type="submit">Submit</Button>
-                    </form.Form>
-
-                    <Grid row>
-                        <Grid col={3}>Meta:</Grid>
-                        <Grid col={9}>
-                            <MetaDisplay metaObj={setting} />
-                            <br />
-                        </Grid>
-                    </Grid>
+                    <section className="grid-container margin-top-0">
+                        <SettingForm
+                            setting={setting}
+                            onDelete={onDeleteHandler}
+                            onCancel={onCancel}
+                            onSubmit={onSubmitHandler}
+                            settingType={entityType.toLowerCase()}
+                            isSubmitDisabled={isSubmitDisabled}
+                            mode={mode}
+                            isCompareAllowed={true}
+                            documentType="json"
+                        />
+                    </section>
                     <ModalConfirmDialog
                         id={"actionConfirm"}
                         ref={modalRef}
@@ -281,52 +233,51 @@ export default function SettingFormPage({
     const { toast } = useToast();
 
     let resource:
-            | typeof OrgReceiverSettingsResource
-            | typeof OrgSenderSettingsResource
-            | typeof OrgSettingsResource,
-        FormInner;
+        | typeof OrgReceiverSettingsResource
+        | typeof OrgSenderSettingsResource
+        | typeof OrgSettingsResource;
 
     switch (entityType) {
         case "Receiver": {
             resource = OrgReceiverSettingsResource;
-            FormInner = ReceiverFormInner;
             break;
         }
         case "Sender": {
             resource = OrgSenderSettingsResource;
-            FormInner = SenderFormInner;
             break;
         }
         case "Organization": {
             resource = OrgSettingsResource;
-            FormInner = OrganizationFormInner;
             break;
         }
         default:
             throw new Error("Unknown entityType");
     }
 
-    const [setting, setSetting] = useState<RSSetting | undefined>();
+    const [setting, setSetting] = useState<RsSettingType | undefined>();
     const { fetch: fetchController } = useController();
     const { invalidate } = useController();
 
-    const onErrorHandler = (e: Error) => {
-        toast(e, "error");
-    };
+    const onErrorHandler = useCallback(
+        (e: Error) => {
+            toast(e, "error");
+        },
+        [toast],
+    );
 
-    const getSetting = async () => {
+    const getSetting = useCallback(async () => {
         return (await fetchController(resource.detail(), {
             orgId,
             entityId,
-        })) as Promise<RSSetting>;
-    };
+        })) as Promise<RsSettingType>;
+    }, [entityId, fetchController, orgId, resource]);
 
-    const invalidateCache = async () => {
+    const invalidateCache = useCallback(async () => {
         return await invalidate(resource.list(), {
             orgId,
             entityId,
         });
-    };
+    }, [entityId, invalidate, orgId, resource]);
 
     /*async function refresh() {
         const accessToken = authState.accessToken?.accessToken;
@@ -346,63 +297,79 @@ export default function SettingFormPage({
         return (await response.json()) as RSReceiver;
     }*/
 
-    async function refresh() {
+    const refresh = useCallback(async () => {
         await invalidateCache();
         return await getSetting();
-    }
+    }, [getSetting, invalidateCache]);
 
-    const remove = async () => {
+    const remove = useCallback(async () => {
         return await fetchController(resource.deleteSetting(), {
             orgId,
             entityId,
         });
-    };
+    }, [entityId, fetchController, orgId, resource]);
 
-    const onSubmitHandler = async (setting: RSSetting) => {
-        setIsLoading(true);
+    const onSubmitHandler = useCallback(
+        async (setting: IRsSetting) => {
+            setIsLoading(true);
 
-        if (mode === "edit") {
+            if (mode === "edit") {
+                try {
+                    await refresh();
+                } catch (e: any) {
+                    const errorDetail = await getErrorDetailFromResponse(e);
+                    toast(
+                        new Error(
+                            `Reloading ${entityType} '${setting.name}' failed with: ${errorDetail}`,
+                        ),
+                        "error",
+                    );
+                }
+            }
+
+            const id = mode === "clone" ? setting.name : entityId;
             try {
-                await refresh();
+                await fetchController(
+                    resource.update(),
+                    { orgId, entityId: id },
+                    setting,
+                );
             } catch (e: any) {
-                const errorDetail = await getErrorDetailFromResponse(e);
+                setIsLoading(false);
+                let errorDetail = await getErrorDetailFromResponse(e);
                 toast(
                     new Error(
-                        `Reloading ${entityType} '${setting.name}' failed with: ${errorDetail}`,
+                        `Updating ${entityType} '${setting.name}' failed with: ${errorDetail}`,
                     ),
                     "error",
                 );
+                return;
             }
-        }
 
-        const id = mode === "clone" ? setting.name : entityId;
-        try {
-            await fetchController(
-                resource.update(),
-                { orgId, entityId: id },
-                setting,
-            );
-        } catch (e: any) {
-            setIsLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
             toast(
-                new Error(
-                    `Updating ${entityType} '${setting.name}' failed with: ${errorDetail}`,
-                ),
-                "error",
+                `${entityType} '${setting.name}' has been updated`,
+                "success",
             );
-            return;
-        }
+            navigate(-1);
+        },
+        [
+            entityId,
+            entityType,
+            fetchController,
+            mode,
+            navigate,
+            orgId,
+            refresh,
+            resource,
+            toast,
+        ],
+    );
 
-        toast(`${entityType} '${setting.name}' has been updated`, "success");
+    const onCancelHandler = useCallback(async () => {
         navigate(-1);
-    };
+    }, [navigate]);
 
-    const onCancelHandler = async () => {
-        navigate(-1);
-    };
-
-    const onDeleteHandler = async () => {
+    const onDeleteHandler = useCallback(async () => {
         if (!setting) throw new Error("No setting to delete");
 
         try {
@@ -423,7 +390,7 @@ export default function SettingFormPage({
 
         // navigate back to list since this item was just deleted
         navigate(-1);
-    };
+    }, [entityType, navigate, remove, setting, toast]);
 
     useEffect(() => {
         if (!setting && mode === "edit" && getSetting) {
@@ -438,7 +405,6 @@ export default function SettingFormPage({
                 <SettingFormPageBase
                     orgId={orgId!}
                     entityId={entityId}
-                    FormInner={FormInner}
                     setting={setting}
                     entityType={entityType}
                     mode={mode}

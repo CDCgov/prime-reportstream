@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 
 import { FeatureName } from "../../../utils/FeatureName";
-import { RSReceiver } from "../../../config/endpoints/settings";
+import { CustomerStatus, RsReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
@@ -18,7 +18,6 @@ import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { USLink } from "../../USLink";
-import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import {
     EventName,
     useAppInsightsContext,
@@ -29,9 +28,9 @@ function DashboardFilterAndTable({
     activeService,
     setActiveService,
 }: {
-    receiverServices: RSReceiver[];
-    activeService: RSReceiver;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+    receiverServices: RsReceiver[];
+    activeService: RsReceiver;
+    setActiveService: Dispatch<SetStateAction<RsReceiver | undefined>>;
 }) {
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_FILTER}`;
@@ -180,7 +179,7 @@ export default function DataDashboardTable() {
     if (
         !isLoading &&
         (!activeService ||
-            activeService?.customerStatus === CustomerStatusType.INACTIVE)
+            activeService?.customerStatus === CustomerStatus.INACTIVE)
     )
         return (
             <div className="usa-section margin-bottom-10">

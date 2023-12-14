@@ -4,7 +4,7 @@ import React from "react";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
-import { FileType } from "../../utils/TemporarySettingsAPITypes";
+import { FileType } from "../../config/endpoints/settings";
 
 import {
     RequestLevel,

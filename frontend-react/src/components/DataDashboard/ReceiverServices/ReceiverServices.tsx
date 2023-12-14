@@ -1,11 +1,11 @@
 import React from "react";
 
-import { RSReceiver } from "../../../config/endpoints/settings";
+import { RsReceiver } from "../../../config/endpoints/settings";
 
 interface Props {
     /* REQUIRED
     A list of receiver services gathered by calling fetchReceivers() */
-    receiverServices: RSReceiver[];
+    receiverServices: RsReceiver[];
 
     /* REQUIRED
     The chosen receiver */
@@ -49,8 +49,8 @@ export default function ReceiverServices({
     activeService,
     handleSetActive,
 }: {
-    receiverServices: RSReceiver[];
-    activeService: RSReceiver | undefined;
+    receiverServices: RsReceiver[];
+    activeService: RsReceiver | undefined;
     handleSetActive: (v: string) => void;
 }) {
     return (

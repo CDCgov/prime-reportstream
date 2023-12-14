@@ -5,7 +5,7 @@ import config from "../config";
 import {
     CustomerStatus,
     Format,
-    RSReceiver,
+    RsReceiver,
 } from "../config/endpoints/settings";
 import {
     RSReceiverDelivery,
@@ -20,7 +20,7 @@ const base = `${config.API_ROOT}/v1/receivers`;
  *
  * @param count {number} How many unique receiverServices you want. */
 export const receiverServicesGenerator = (count: number) => {
-    const receiverServices: RSReceiver[] = [];
+    const receiverServices: RsReceiver[] = [];
     for (let i = 0; i < count; i++) {
         receiverServices.push({
             name: `elr-${i}`,

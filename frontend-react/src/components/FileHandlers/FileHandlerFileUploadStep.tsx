@@ -11,13 +11,12 @@ import {
 import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
 import { showToast } from "../../contexts/Toast";
-import { RSSender } from "../../config/endpoints/settings";
+import { FileType, RsSender } from "../../config/endpoints/settings";
 import useSenderResource from "../../hooks/UseSenderResource";
 import Spinner from "../Spinner";
 import { useSessionContext } from "../../contexts/Session";
 import { WatersResponse } from "../../config/endpoints/waters";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
 import { MembershipSettings } from "../../utils/OrganizationUtils";
 
@@ -45,13 +44,13 @@ export const UPLOAD_PROMPT_DESCRIPTIONS = {
  *
  * @param selectedSchemaName { string | undefined }
  * @param activeMembership { MembershipSettings | undefined}
- * @param sender { RSSender | undefined }
+ * @param sender { RsSender | undefined }
  * @returns {string} The value sent as the client header (can be a blank string)
  */
 export function getClientHeader(
     selectedSchemaName: string | undefined,
     activeMembership: MembershipSettings | null | undefined,
-    sender: RSSender | undefined,
+    sender: RsSender | undefined,
 ) {
     const parsedName = activeMembership?.parsedName;
     const senderName = activeMembership?.service;
@@ -216,7 +215,7 @@ export default function FileHandlerFileUploadStep({
                     );
                 }
 
-                const prompt = UPLOAD_PROMPT_DESCRIPTIONS[format];
+                const prompt = (UPLOAD_PROMPT_DESCRIPTIONS as any)[format];
 
                 return (
                     <Form

@@ -1,38 +1,25 @@
-import { useEffect, useState } from "react";
+import { PropsWithChildren } from "react";
 
 import { formatDate } from "../../utils/misc";
-import { RSSetting } from "../../config/endpoints/settings";
+import { RsSettingMeta } from "../../config/endpoints/settings";
 
-export interface DisplayMetaProps {
-    metaObj?: RSSetting;
-}
+export interface MetaDisplayProps extends PropsWithChildren, RsSettingMeta {}
 
-export default function MetaDisplay({ metaObj }: DisplayMetaProps) {
-    const [metaData, setMetaData] = useState<RSSetting>();
-
-    useEffect(() => {
-        if (!metaObj) {
-            return;
-        }
-        setMetaData(metaObj);
-    }, [metaObj]);
-
-    // if there is no object with data to display
-    // we can return early. If the metadata object is present but
-    // version, createdAt, and/or createdBy are missing
-    // that case is handled below
-    if (!metaData) {
-        return null;
-    }
-
-    const { version, createdAt, createdBy } = metaData;
-
+export default function MetaDisplay({
+    createdAt,
+    createdBy,
+    version,
+    children,
+}: MetaDisplayProps) {
     // handle cases where individual metadata are not available
     const versionDisplay = version || version === 0 ? `v${version} ` : "";
-    const createdAtDisplay = createdAt
-        ? `[${formatDate(metaData.createdAt)}] `
-        : "";
+    const createdAtDisplay = createdAt ? `[${formatDate(createdAt)}] ` : "";
     const createdByDisplay = createdBy ?? "";
 
-    return <>{`${versionDisplay}${createdAtDisplay}${createdByDisplay}`}</>;
+    return (
+        <>
+            {`${versionDisplay}${createdAtDisplay}${createdByDisplay}`}
+            {children}
+        </>
+    );
 }

@@ -2,6 +2,7 @@ import {
     Select as _Select,
     TextInput as _TextInput,
     Textarea as _Textarea,
+    Checkbox as _Checkbox,
 } from "@trussworks/react-uswds";
 import { ComponentType, ForwardRefExoticComponent, forwardRef } from "react";
 
@@ -24,3 +25,4 @@ function FixInputComponentRef<
 export const Select = FixInputComponentRef(_Select);
 export const Textarea = FixInputComponentRef(_Textarea);
 export const TextInput = FixInputComponentRef(_TextInput);
+export const Checkbox = FixInputComponentRef(_Checkbox);

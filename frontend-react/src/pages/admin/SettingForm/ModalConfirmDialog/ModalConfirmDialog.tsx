@@ -18,9 +18,11 @@ import {
 
 interface ModalConfirmDialogProps extends ComponentProps<typeof Modal> {
     actionButton: JSX.Element;
-    heading: JSX.Element;
+    heading: string | JSX.Element;
     onCancel?: () => void;
 }
+
+export type ModalConfirmRef = ModalRef;
 
 /**
  * Modal proxy that applies explicit layout and style.

@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction } from "react";
 
 import TableFilters from "../../Table/TableFilters";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
-import { RSReceiver } from "../../../config/endpoints/settings";
+import { CustomerStatus, RsReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
@@ -17,7 +17,6 @@ import Pagination from "../../Table/Pagination";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { getSlots } from "../../../hooks/UsePagination";
 import {
-    CustomerStatusType,
     transformFacilityTypeClass,
     transformFacilityTypeLabel,
 } from "../../../utils/DataDashboardUtils";
@@ -32,9 +31,9 @@ function FacilitiesProvidersFilterAndTable({
     activeService,
     setActiveService,
 }: {
-    receiverServices: RSReceiver[];
-    activeService: RSReceiver;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+    receiverServices: RsReceiver[];
+    activeService: RsReceiver;
+    setActiveService: Dispatch<SetStateAction<RsReceiver | undefined>>;
 }) {
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
@@ -187,7 +186,7 @@ export default function FacilitiesProvidersTable() {
     if (
         !isLoading &&
         (!activeService ||
-            activeService?.customerStatus === CustomerStatusType.INACTIVE)
+            activeService?.customerStatus === CustomerStatus.INACTIVE)
     )
         return (
             <div className="usa-section margin-bottom-10">

@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import * as useCreateOrganizationPublicKeyExports from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import { UseCreateOrganizationPublicKeyResult } from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
-import { RSSender } from "../../config/endpoints/settings";
+import { RsSender } from "../../config/endpoints/settings";
 import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
 import * as useOrganizationPublicKeysExports from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import { UseOrganizationPublicKeysResult } from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
@@ -15,7 +15,7 @@ import { MemberType } from "../../utils/OrganizationUtils";
 
 import { ManagePublicKeyPage } from "./ManagePublicKey";
 
-const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
+const DEFAULT_SENDERS: RsSender[] = sendersGenerator(2);
 
 const contentString = "This is the fake file text";
 const fakeFile = new File([new Blob([contentString])], "file.pem", {

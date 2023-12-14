@@ -115,21 +115,30 @@ export interface Translation {
     schemaName: string;
 }
 
-export interface RSService extends RSSetting {
+export interface IRsService {
     customerStatus: CustomerStatus;
     organizationName: string;
     topic: string;
 }
 
-export interface RSSetting {
+export interface RsService extends IRsService, RsSetting {}
+export interface RsServiceEdit extends IRsService, RsSettingEdit {}
+
+export interface RsSettingMeta {
     createdAt: string;
     createdBy: string;
-    name: string;
-    description?: string;
     version: number;
 }
 
-export interface RSOrganization extends RSSetting {
+export interface IRsSetting {
+    name: string;
+    description?: string;
+}
+
+export interface RsSetting extends IRsSetting, RsSettingMeta {}
+export interface RsSettingEdit extends IRsSetting {}
+
+export interface IRsOrganization {
     filters: string[];
     jurisdiction: string;
     name: string;
@@ -137,7 +146,11 @@ export interface RSOrganization extends RSSetting {
     countyName?: string;
 }
 
-export interface RSSender extends RSService {
+export interface RsOrganization extends IRsOrganization, RsSetting {}
+
+export interface RsOrganizationEdit extends IRsOrganization, RsSettingEdit {}
+
+export interface IRsSender {
     allowDuplicates: boolean;
     format: string;
     keys?: ScopedJsonWebKeySet;
@@ -146,8 +159,10 @@ export interface RSSender extends RSService {
     schemaName: string;
     senderType?: string;
 }
+export interface RsSender extends IRsSender, RsService {}
+export interface RsSenderEdit extends IRsSender, RsServiceEdit {}
 
-export interface RSReceiver extends RSService {
+export interface IRsReceiver {
     translation: Translation;
     jurisdictionalFilter?: object;
     qualityFilter?: object;
@@ -163,8 +178,16 @@ export interface RSReceiver extends RSService {
     transport?: Transport;
     externalName?: string;
 }
+export interface RsReceiver extends IRsReceiver, RsService {}
+export interface RsReceiverEdit extends IRsReceiver, RsServiceEdit {}
 
-export interface ScopedJsonWebKeySet extends JsonWebKeySet {
+export type RsSettingType = RsOrganization | RsReceiver | RsSender;
+export type RsSettingEditType =
+    | RsOrganizationEdit
+    | RsReceiverEdit
+    | RsSenderEdit;
+
+export interface ScopedJsonWebKeySet extends RsJsonWebKeySet {
     scope: string;
 }
 

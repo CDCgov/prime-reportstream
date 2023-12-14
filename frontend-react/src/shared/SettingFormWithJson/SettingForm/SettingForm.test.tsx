@@ -1,13 +1,13 @@
 import { renderApp, screen } from "../../../utils/CustomRenderUtils";
 
-import { SettingFormBase, SettingFormBaseProps } from "./SettingForm";
+import { SettingFormBase } from "./SettingForm";
 
 describe("SettingForm", () => {
     const mockOnCancel = jest.fn();
     const mockOnDelete = jest.fn();
     const mockOnChangeView = jest.fn();
     const mockOnSave = jest.fn();
-    function renderSettingForm(props?: Partial<SettingFormBaseProps>) {
+    function renderSettingForm(props?: Partial<any>) {
         renderApp(
             <SettingFormBase
                 ctx={{} as any}

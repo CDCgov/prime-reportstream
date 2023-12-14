@@ -5,7 +5,7 @@ import { ResponseError, WatersResponse } from "../config/endpoints/waters";
 import { Destination } from "../resources/ActionDetailsResource";
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
-import { ContentType, FileType } from "../utils/TemporarySettingsAPITypes";
+import { ContentType, FileType } from "../config/endpoints/settings";
 
 export enum ErrorType {
     SERVER = "server",

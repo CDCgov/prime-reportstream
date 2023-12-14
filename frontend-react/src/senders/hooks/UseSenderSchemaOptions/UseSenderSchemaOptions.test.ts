@@ -1,8 +1,11 @@
 import { renderHook } from "../../../utils/CustomRenderUtils";
-import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 import * as useSenderResourceExports from "../../../hooks/UseSenderResource";
 import { UseSenderResourceHookResult } from "../../../hooks/UseSenderResource";
-import { RSSender } from "../../../config/endpoints/settings";
+import {
+    CustomerStatus,
+    FileType,
+    RsSender,
+} from "../../../config/endpoints/settings";
 import { dummySender } from "../../../__mocks__/OrganizationMockServer";
 
 import useSenderSchemaOptions, {
@@ -11,16 +14,18 @@ import useSenderSchemaOptions, {
 } from "./";
 
 describe("useSenderSchemaOptions", () => {
-    const DEFAULT_SENDER: RSSender = {
+    const DEFAULT_SENDER: RsSender = {
         name: "testSender",
         organizationName: "testOrg",
         format: "CSV",
         topic: "covid-19",
-        customerStatus: "testing",
+        customerStatus: CustomerStatus.TESTING,
         schemaName: StandardSchema.CSV,
         allowDuplicates: false,
         processingType: "sync",
         version: 0,
+        createdAt: "",
+        createdBy: "",
     };
 
     function doRenderHook({ data = DEFAULT_SENDER, isLoading = false }) {

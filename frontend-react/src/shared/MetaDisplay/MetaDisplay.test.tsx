@@ -11,7 +11,7 @@ describe("MetaDisplay rendering object", () => {
             createdBy: "McTest@example.com",
             createdAt: "1/1/2000 00:00",
         } as any;
-        renderApp(<MetaDisplay metaObj={metaobj} />);
+        renderApp(<MetaDisplay {...metaobj} />);
     }
 
     test("Check data as object rendered", () => {

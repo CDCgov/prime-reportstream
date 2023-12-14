@@ -32,12 +32,12 @@ interface SymmetricJsonWebKey extends JsonWebKeyBase {
     k: string;
 }
 
-type JsonWebKey =
+type RsJsonWebKey =
     | JsonWebKeyBase
     | RSAPublicJsonWebKey
     | RSAPrivateJsonWebKey
     | SymmetricJsonWebKey;
 
-interface JsonWebKeySet {
-    keys: JsonWebKey[];
+interface RsJsonWebKeySet {
+    keys: RsJsonWebKey[];
 }

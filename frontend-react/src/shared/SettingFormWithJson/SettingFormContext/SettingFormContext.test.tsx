@@ -1,11 +1,11 @@
 import { renderHook } from "@testing-library/react";
 
-import { useSettingForm } from "./SettingFormContext";
+import { useFormContext } from "./SettingFormContext";
 
 describe("SettingFormContext", () => {
     describe("useSettingForm", () => {
         test("returns context", () => {
-            const ctx = renderHook(() => useSettingForm());
+            const ctx = renderHook(() => useFormContext());
             expect(ctx).not.toBeUndefined();
         });
     });

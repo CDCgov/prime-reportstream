@@ -69,7 +69,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                                 <td>{eachOrgSetting.topic || ""}</td>
                                 <td>{eachOrgSetting.customerStatus || ""}</td>
                                 <td>
-                                    <MetaDisplay metaObj={eachOrgSetting} />
+                                    <MetaDisplay {...eachOrgSetting} />
                                 </td>
                                 <td colSpan={2}>
                                     <ButtonGroup type="segmented">

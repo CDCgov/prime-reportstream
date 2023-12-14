@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Form, Select, Button, FormGroup } from "@trussworks/react-uswds";
 
-import { RSSender } from "../../config/endpoints/settings";
+import { RsSender } from "../../config/endpoints/settings";
 
 export interface ManagePublicKeyChooseSenderProps {
-    senders: RSSender[];
+    senders: RsSender[];
     onSenderSelect: (sender: string, hasBack: boolean) => void;
 }
 

@@ -1,17 +1,16 @@
 import { useState, useEffect } from "react";
 
-import type { RSReceiver } from "../config/endpoints/settings";
-import { CustomerStatusType } from "../utils/DataDashboardUtils";
+import { CustomerStatus, type RsReceiver } from "../config/endpoints/settings";
 
 import { useOrganizationReceivers } from "./UseOrganizationReceivers";
 
 export type ReceiverFeeds = ReturnType<typeof useOrganizationReceiversFeed>;
 
 export function sortAndFilterInactiveServices(
-    services: RSReceiver[],
-): RSReceiver[] {
+    services: RsReceiver[],
+): RsReceiver[] {
     const filteredServices = services.filter(
-        (service) => service.customerStatus !== CustomerStatusType.INACTIVE,
+        (service) => service.customerStatus !== CustomerStatus.INACTIVE,
     );
     return filteredServices?.sort((a, b) => a.name.localeCompare(b.name)) || [];
 }
@@ -23,8 +22,8 @@ export const useOrganizationReceiversFeed = () => {
         isDisabled,
         ...query
     } = useOrganizationReceivers();
-    const [active, setActive] = useState<RSReceiver | undefined>();
-    const [data, setData] = useState<RSReceiver[]>();
+    const [active, setActive] = useState<RsReceiver | undefined>();
+    const [data, setData] = useState<RsReceiver[]>();
 
     useEffect(() => {
         if (receivers?.length) {

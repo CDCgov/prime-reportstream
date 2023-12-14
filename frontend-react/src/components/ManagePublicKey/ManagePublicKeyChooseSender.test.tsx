@@ -1,34 +1,38 @@
 import { screen } from "@testing-library/react";
 
-import { RSSender } from "../../config/endpoints/settings";
+import { CustomerStatus, RsSender } from "../../config/endpoints/settings";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 import ManagePublicKeyChooseSender, {
     ManagePublicKeyChooseSenderProps,
 } from "./ManagePublicKeyChooseSender";
 
-const DEFAULT_SENDERS: RSSender[] = [
+const DEFAULT_SENDERS: RsSender[] = [
     {
         name: "default",
         organizationName: "ignore",
         format: "CSV",
-        customerStatus: "inactive",
+        customerStatus: CustomerStatus.INACTIVE,
         schemaName: "primedatainput/pdi-covid-19",
         processingType: "sync",
         allowDuplicates: true,
         topic: "covid-19",
         version: 0,
+        createdAt: "",
+        createdBy: "",
     },
     {
         name: "ignore-full-elr",
         organizationName: "ignore",
         format: "HL7",
-        customerStatus: "active",
+        customerStatus: CustomerStatus.ACTIVE,
         schemaName: "strac/strac-covid-19",
         processingType: "sync",
         allowDuplicates: true,
         topic: "full-elr",
         version: 0,
+        createdAt: "",
+        createdBy: "",
     },
 ];
 

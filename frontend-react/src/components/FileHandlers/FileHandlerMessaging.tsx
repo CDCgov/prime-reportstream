@@ -6,9 +6,9 @@ import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { USExtLink } from "../USLink";
-import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { saveToCsv } from "../../utils/FileUtils";
 import { removeHTMLFromString } from "../../utils/misc";
+import { FileType } from "../../config/endpoints/settings";
 
 const HL7_PRODUCT_MATRIX_URL =
     "https://www.hl7.org/implement/standards/product_brief.cfm";

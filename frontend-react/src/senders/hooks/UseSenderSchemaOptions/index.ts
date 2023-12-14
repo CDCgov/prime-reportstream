@@ -1,5 +1,5 @@
+import { FileType } from "../../../config/endpoints/settings";
 import useSenderResource from "../../../hooks/UseSenderResource";
-import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 
 export enum StandardSchema {
     CSV = "upload-covid-19",

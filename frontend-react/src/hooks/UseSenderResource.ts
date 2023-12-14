@@ -2,15 +2,15 @@ import { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { useSessionContext } from "../contexts/Session";
-import { RSSender, servicesEndpoints } from "../config/endpoints/settings";
+import { RsSender, servicesEndpoints } from "../config/endpoints/settings";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
 
 const { senderDetail } = servicesEndpoints;
 
 export type UseSenderResourceHookResult = ReturnType<typeof useSenderResource>;
 
-export default function useSenderResource(initialData?: RSSender) {
-    const authorizedFetch = useAuthorizedFetch<RSSender>();
+export default function useSenderResource(initialData?: RsSender) {
+    const authorizedFetch = useAuthorizedFetch<RsSender>();
     /* Access the session. */
     const { activeMembership } = useSessionContext();
     const memoizedDataFetch = useCallback(

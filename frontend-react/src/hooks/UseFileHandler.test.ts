@@ -4,8 +4,8 @@ import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { Destination } from "../resources/ActionDetailsResource";
 import { ErrorCode, ResponseError } from "../config/endpoints/waters";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
-import { FileType } from "../utils/TemporarySettingsAPITypes";
 import { renderHook } from "../utils/CustomRenderUtils";
+import { FileType } from "../config/endpoints/settings";
 
 import useFileHandler, {
     INITIAL_STATE,

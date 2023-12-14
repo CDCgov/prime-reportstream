@@ -6,8 +6,8 @@ import {
     CustomerStatus,
     FileType,
     Format,
-} from "../../utils/TemporarySettingsAPITypes";
-import { RSSender } from "../../config/endpoints/settings";
+    RsSender,
+} from "../../config/endpoints/settings";
 import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import * as useSenderResourceExports from "../../hooks/UseSenderResource";
@@ -38,7 +38,7 @@ describe("FileHandlerFileUploadStep", () => {
         onPrevStepClick: jest.fn(),
         onNextStepClick: jest.fn(),
     };
-    const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
+    const DEFAULT_SENDERS: RsSender[] = sendersGenerator(2);
 
     function mockUseSenderResource(
         result: Partial<UseSenderResourceHookResult> = {},
@@ -348,7 +348,7 @@ describe("getClientHeader", () => {
         memberType: MemberType.SENDER,
     };
 
-    const DEFAULT_SENDER: RSSender = {
+    const DEFAULT_SENDER: RsSender = {
         allowDuplicates: true,
         customerStatus: CustomerStatus.ACTIVE,
         format: Format.CSV,
@@ -358,6 +358,8 @@ describe("getClientHeader", () => {
         schemaName: DEFAULT_SCHEMA_NAME,
         topic: "covid-19",
         version: 0,
+        createdAt: "",
+        createdBy: "",
     };
 
     describe("when selectedSchemaName is falsy", () => {

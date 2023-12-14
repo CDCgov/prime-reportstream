@@ -27,8 +27,11 @@ describe("ConfirmDialog", () => {
                 <ModalConfirmDialog
                     ref={modalRef}
                     id={id}
-                    onConfirm={confirmCallback}
-                ></ModalConfirmDialog>
+                    heading={"Test"}
+                    actionButton={<button type="button">Action</button>}
+                >
+                    Test body
+                </ModalConfirmDialog>
             </div>,
         );
 

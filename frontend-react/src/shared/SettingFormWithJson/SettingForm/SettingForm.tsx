@@ -1,135 +1,319 @@
-import { PropsWithChildren, useEffect, useMemo, useState } from "react";
-import { Button, Grid, ButtonGroup } from "@trussworks/react-uswds";
-import { useForm } from "react-hook-form";
+import { ButtonGroup, Button, Grid } from "@trussworks/react-uswds";
+import { ComponentType, useMemo } from "react";
 
 import {
-    CustomerStatus,
-    Format,
-    RSReceiver,
-    RSSetting,
+    RsOrganizationEdit,
+    RsReceiverEdit,
+    RsSenderEdit,
+    IRsService,
+    IRsSetting,
+    SampleScopedJwks,
+    SampleTiming,
+    SampleTranslation,
+    SampleTransports,
+    customerStatusChoices,
+    formatChoices,
+    jurisdictionChoices,
+    processingTypeChoices,
 } from "../../../config/endpoints/settings";
-import OrganizationFieldSet from "../Fieldsets/OrganizationFieldSet/OrganizationFieldSet";
-import ReceiverFieldSet from "../Fieldsets/ReceiverFieldSet/ReceiverFieldSet";
-import SenderFieldset from "../Fieldsets/SenderFieldSet/SenderFieldSet";
-import SettingFieldset from "../Fieldsets/SettingFieldset/SettingFieldset";
-import ServiceSettingFieldset from "../Fieldsets/ServiceSettingFieldSet/ServiceSettingFieldset";
-import SettingJsonFieldset from "../Fieldsets/SettingJsonFieldset/SettingJsonFieldset";
+import MetaDisplay from "../../MetaDisplay/MetaDisplay";
 import {
-    ObjectJsonHybrid,
-    checkJsonHybrid,
-    createJsonHybrid,
-} from "../../../hooks/UseObjectJsonHybridEdit/UseObjectJsonHybridEdit";
-import { DiffCompare } from "../../DiffCompare/DiffCompare";
+    FormFieldDefault,
+    FormFieldMap,
+    FormFieldShorthand,
+    FormFieldset,
+} from "../Fieldsets/SettingFormFieldset";
+import { FormField } from "../SettingFormField/SettingFormField";
 import {
-    JsonFormValue,
-    SettingFormContext,
-    SettingFormCtx,
-    useSettingForm,
-    useSettingFormCreate,
+    useForm,
+    useFormState,
 } from "../SettingFormContext/SettingFormContext";
+import Alert from "../../Alert/Alert";
 
 import styles from "./SettingForm.module.scss";
 
-export type SettingFormMode = "edit" | "new" | "clone" | "readonly";
-export type SettingFormView = "form" | "document" | "compare";
-
-export interface SettingFormSharedProps extends PropsWithChildren {
-    isSubmitDisabled?: boolean;
+export interface ObjectJsonHybridFormFieldDefault<
+    M extends Record<string, any> = any,
+> extends FormFieldDefault<M> {
+    isJson?: boolean;
 }
 
-export interface SettingFormBaseProps<T extends RSSetting = RSSetting>
-    extends SettingFormSharedProps {
-    ctx: SettingFormCtx<T>;
+export interface ObjectJsonHybridFormShorthand<
+    M extends Record<string, any> = any,
+> extends FormFieldShorthand<M> {}
+
+export type ObjectJsonHybridFormField<M extends Record<string, any> = any> =
+    | ObjectJsonHybridFormFieldDefault<M>
+    | ObjectJsonHybridFormShorthand<M>;
+
+const settingFieldset = [
+    { name: "name", input: { type: "text" } },
+    { name: "description", input: { type: "text" } },
+] satisfies ObjectJsonHybridFormField<IRsSetting>[];
+const serviceFieldset = [
+    { name: "topic", input: { type: "text" } },
+    {
+        name: "customerStatus",
+        input: { type: "select", choices: customerStatusChoices },
+    },
+] satisfies ObjectJsonHybridFormField<IRsService>[];
+const organizationFieldset = [
+    {
+        name: "jurisdiction",
+        input: { type: "select", choices: jurisdictionChoices },
+    },
+    { name: "countyName", input: { type: "text" } },
+    { name: "stateCode", input: { type: "text" } },
+    {
+        name: "filters",
+        input: { type: "textarea" },
+        opts: { isJson: true },
+    },
+] satisfies ObjectJsonHybridFormField<RsOrganizationEdit>[];
+const receiverFieldset = [
+    {
+        name: "translation",
+        input: { type: "textarea" },
+        objTooltip: { obj: SampleTranslation },
+        opts: { isJson: true },
+    },
+    {
+        name: "jurisdictionalFilter",
+        input: { type: "textarea" },
+        opts: { isJson: true },
+    },
+    {
+        name: "qualityFilter",
+        input: { type: "textarea" },
+        opts: { isJson: true },
+    },
+    { name: "reverseTheQualityFilter", input: { type: "checkbox" } },
+    { name: "routingFilter", input: { type: "text" } },
+    { name: "processingModeFilter", input: { type: "text" } },
+    { name: "deidentify", input: { type: "checkbox" } },
+    {
+        name: "timing",
+        input: { type: "textarea" },
+        objTooltip: { obj: SampleTiming },
+        opts: { isJson: true },
+    },
+    {
+        name: "transport",
+        input: { type: "textarea" },
+        objTooltip: {
+            obj: SampleTransports,
+            description: "Field accepts ONE of allowed types from sample.",
+        },
+        opts: { isJson: true },
+    },
+    { name: "externalName", input: { type: "text" } },
+] satisfies ObjectJsonHybridFormField<RsReceiverEdit>[];
+const senderFieldset = [
+    {
+        name: "format",
+        input: { type: "select", choices: formatChoices },
+        objTooltip: { obj: SampleTranslation },
+    },
+    { name: "schemaName", input: { type: "text" } },
+    {
+        name: "keys",
+        input: { type: "textarea" },
+        objTooltip: { obj: SampleScopedJwks },
+        opts: { isJson: true },
+    },
+    {
+        name: "processingType",
+        input: { type: "select", choices: processingTypeChoices },
+    },
+    { name: "allowDuplicates", input: { type: "checkbox" } },
+] satisfies ObjectJsonHybridFormField<RsSenderEdit>[];
+
+export const organizationFields = new FormFieldMap<RsOrganizationEdit>([
+    ...settingFieldset,
+    ...organizationFieldset,
+]);
+
+export function OrganizationFieldset() {
+    return <FormFieldset fields={organizationFields.list()} />;
+}
+export const receiverFields = new FormFieldMap<RsReceiverEdit>([
+    ...settingFieldset,
+    ...serviceFieldset,
+    ...receiverFieldset,
+]);
+
+export function ReceiverFieldset() {
+    return <FormFieldset fields={receiverFields.list()} />;
 }
 
-export function SettingFormBase<T extends RSSetting>({
-    ctx,
-    children,
-}: SettingFormBaseProps<T>) {
+export const senderFields = new FormFieldMap<RsSenderEdit>([
+    ...settingFieldset,
+    ...serviceFieldset,
+    ...senderFieldset,
+]);
+
+export function SenderFieldset() {
+    return <FormFieldset fields={senderFields.list()} />;
+}
+
+export const SettingTypes = ["organization", "sender", "receiver"];
+export const SettingTypeFieldsetMap = {
+    organization: OrganizationFieldset,
+    sender: SenderFieldset,
+    receiver: ReceiverFieldset,
+} satisfies Record<(typeof SettingTypes)[number], ComponentType<any>>;
+
+export function SettingFormViewButtonGroupBase({
+    view,
+    documentType,
+    isInvalid,
+    onViewChange,
+}: any) {
     return (
-        <SettingFormContext.Provider value={ctx}>
-            {children}
-        </SettingFormContext.Provider>
+        <ButtonGroup type="segmented">
+            <Button
+                type="button"
+                base={view === "form"}
+                outline
+                onClick={() => onViewChange("form")}
+                disabled={isInvalid}
+            >
+                Form
+            </Button>
+            {documentType && (
+                <Button
+                    type="button"
+                    outline
+                    base={view === "document"}
+                    onClick={() => onViewChange("document")}
+                    disabled={isInvalid}
+                >
+                    {documentType}
+                </Button>
+            )}
+            <Button
+                type="button"
+                base={view === "compare"}
+                outline
+                onClick={() => onViewChange("compare")}
+                disabled={isInvalid}
+            >
+                Compare
+            </Button>
+        </ButtonGroup>
     );
 }
 
-export interface SettingFormProps<T> extends SettingFormSharedProps {
-    form: SettingFormCtx;
-    leftButtons?: JSX.Element;
-    rightButtons?: JSX.Element;
+export function SettingFormViewButtonGroup(props: any) {
+    const { isValid } = useFormState();
+    return <SettingFormViewButtonGroupBase {...props} isInvalid={!isValid} />;
 }
 
-export function SettingFormDiffCompare() {
-    const form = useSettingForm();
-    const { _raw, ...obj } = form.formState.defaultValues ?? {};
-    const current = form.watch();
-    return <DiffCompare a={obj} b={current} />;
-}
-
-export function SettingForm<T extends RSSetting = RSSetting>({
-    form,
-    children,
-    ...props
-}: SettingFormProps<T>) {
-    let leftButtons, rightButtons, isReset, isSubmitDisabled;
+export function SettingFormErrorAlertBase({ errors }: any) {
     return (
-        <SettingFormBase ctx={form}>
-            <form
-                className={styles.SettingForm}
-                onSubmit={form.handleSubmit((v) => {
-                    console.log("submit", v);
-                })}
-            >
+        <Alert type="error">
+            <ul>
+                {Object.entries(errors).map(([k, v]) => (
+                    <li key={k}>
+                        {k} ({v.type}): {v.message}
+                    </li>
+                ))}
+            </ul>
+        </Alert>
+    );
+}
+
+export function SettingFormErrorAlert() {
+    const { errors, isValid } = useFormState();
+    return (
+        !isValid &&
+        Object.keys(errors).length > 0 && (
+            <SettingFormErrorAlertBase errors={errors} />
+        )
+    );
+}
+
+export function SettingFormBase({
+    setting,
+    mode,
+    settingType,
+    onSubmit,
+    onDelete,
+    onCancel,
+    onReset,
+    onViewChange,
+    isSubmitDisabled,
+    isResetAllowed,
+    view,
+    documentType,
+    isCompareAllowed,
+}: any) {
+    const FormFields = (SettingTypeFieldsetMap as any)[settingType];
+    const { createdAt, createdBy, version } = setting;
+    const settingMeta = { createdAt, createdBy, version };
+    return (
+        <>
+            <SettingFormErrorAlert />
+            <Grid row>
+                <Grid col={2}>
+                    {(documentType || isCompareAllowed) && (
+                        <SettingFormViewButtonGroup
+                            documentType={documentType}
+                            view={view}
+                            onViewChange={onViewChange}
+                        />
+                    )}
+                </Grid>
+            </Grid>
+            <section hidden={view !== "form"}>
+                <FormFields />
+            </section>
+            <section hidden={view !== "document"}>
+                <FormField
+                    name="_json"
+                    input={{ type: "textarea" }}
+                    opts={{
+                        deps: Object.keys(setting),
+                        documentType: "json",
+                        validate: (v) => {
+                            try {
+                                JSON.parse(v);
+                                return true;
+                            } catch (e: any) {
+                                return e.message;
+                            }
+                        },
+                    }}
+                />
+            </section>
+
+            {mode === "readonly" && (
                 <Grid row>
-                    <Grid col={2}>
-                        {(form.documentType || form.isCompareAllowed) && (
-                            <ButtonGroup type="segmented">
-                                <Button
-                                    type="button"
-                                    base={form.view === "form"}
-                                    outline
-                                    onClick={() => form.setView("form")}
-                                    disabled={!form.formState.isValid}
-                                >
-                                    Form
-                                </Button>
-                                <Button
-                                    type="button"
-                                    outline
-                                    base={form.view === "document"}
-                                    onClick={() => form.view("document")}
-                                    disabled={!form.formState.isValid}
-                                >
-                                    {form.documentType}
-                                </Button>
-                                <Button
-                                    type="button"
-                                    base={form.view === "compare"}
-                                    outline
-                                    onClick={() => form.setView("compare")}
-                                    disabled={!form.formState.isValid}
-                                >
-                                    Compare
-                                </Button>
-                            </ButtonGroup>
-                        )}
+                    <Grid col={3}>Meta:</Grid>
+                    <Grid col={9}>
+                        <MetaDisplay {...settingMeta} />
+                        <br />
                     </Grid>
                 </Grid>
-                <section hidden={form.view !== "form"}>
-                    <SettingFieldset />
-                    {children}
-                </section>
-                <section hidden={form.view !== "document"}>
-                    <SettingJsonFieldset />
-                </section>
-            </form>
-            {form.view === "compare" && <SettingFormDiffCompare />}
+            )}
             <Grid row>
-                <Grid col={6}>{leftButtons}</Grid>
+                <Grid col={6}>
+                    {onDelete && (
+                        <Button
+                            type={"button"}
+                            secondary={true}
+                            onClick={onDelete}
+                        >
+                            Delete...
+                        </Button>
+                    )}
+                </Grid>
                 <Grid col={6} className="text-right">
                     <ButtonGroup>
-                        {rightButtons}
-                        {isReset && (
+                        <Button type={"button"} outline onClick={onCancel}>
+                            Cancel
+                        </Button>
+                        {isResetAllowed && (
                             <Button type="reset" outline>
                                 Reset
                             </Button>
@@ -140,44 +324,54 @@ export function SettingForm<T extends RSSetting = RSSetting>({
                     </ButtonGroup>
                 </Grid>
             </Grid>
-        </SettingFormBase>
-    );
-}
-
-export function ReceiverFormInner({
-    children,
-    ...props
-}: SettingFormProps<RSReceiver>) {
-    return (
-        <>
-            <SettingFieldset />
-            <ServiceSettingFieldset />
-            <ReceiverFieldSet />
-            {children}
         </>
     );
 }
 
-export function SenderFormInner({ children, ...props }: SettingFormProps) {
-    return (
-        <>
-            <SettingFieldset />
-            <ServiceSettingFieldset />
-            <SenderFieldset />
-            {children}
-        </>
+export function SettingForm({
+    mode,
+    setting,
+    isCompareAllowed,
+    documentType,
+    onSubmit,
+    onCancel,
+    onDelete,
+    settingType,
+}: any) {
+    // exclude metadata from form object
+    const settingWrite = useMemo(
+        () =>
+            Object.fromEntries(
+                Object.entries(setting).filter(
+                    ([k]) => !["createdAt", "createdBy", "version"].includes(k),
+                ),
+            ),
+        [setting],
     );
-}
-
-export function OrganizationFormInner({
-    children,
-    ...props
-}: SettingFormProps) {
+    const form = useForm({
+        initialValues: settingWrite,
+        isCompareAllowed,
+        mode,
+    });
     return (
-        <>
-            <SettingFieldset />
-            <OrganizationFieldSet />
-            {children}
-        </>
+        <form.Form
+            className={styles.SettingForm}
+            onSubmit={(v) => {
+                onSubmit(v);
+            }}
+        >
+            <SettingFormBase
+                setting={setting}
+                isCompareAllowed={isCompareAllowed}
+                isResetAllowed={false}
+                mode={mode}
+                documentType={documentType}
+                onCancel={onCancel}
+                onDelete={onDelete}
+                settingType={settingType}
+                onViewChange={form.setView}
+                view={form.view}
+            />
+        </form.Form>
     );
 }

@@ -2,9 +2,9 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import { fakeError, fakeWarning } from "../../hooks/UseFileHandler.test";
+import { FileType } from "../../config/endpoints/settings";
 
 import type { RequestLevel } from "./FileHandlerMessaging";
 import FileHandlerErrorsWarningsStep, {

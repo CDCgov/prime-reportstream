@@ -3,14 +3,13 @@ import { setupServer } from "msw/node";
 
 import config from "../config";
 import {
-    Jwk,
-    ScopedJwks,
     RSApiKeysResponse,
-    RSReceiver,
-    RSSender,
+    RsReceiver,
+    RsSender,
     CustomerStatus,
+    ScopedJsonWebKeySet,
+    Format,
 } from "../config/endpoints/settings";
-import { CustomerStatusType } from "../utils/DataDashboardUtils";
 
 const base = `${config.API_ROOT}/settings/organizations`;
 const getSender = (org: string, sender: string) =>
@@ -30,7 +29,7 @@ export const dummySender = {
     version: 1,
     createdAt: "",
     createdBy: "",
-} satisfies RSSender;
+} satisfies RsSender;
 
 export const fakeOrg = {
     countyName: "Testing County",
@@ -48,18 +47,20 @@ export const fakeOrg = {
  *
  * @param count {number} How many unique senders you want. */
 export const sendersGenerator = (count: number) => {
-    const senders: RSSender[] = [];
+    const senders: RsSender[] = [];
     for (let i = 0; i < count; i++) {
         senders.push({
             name: `elr-${i}`,
             organizationName: "testOrg",
             format: "CSV",
             topic: "covid-19",
-            customerStatus: "testing",
+            customerStatus: CustomerStatus.TESTING,
             schemaName: "test/covid-19-test",
             allowDuplicates: false,
             processingType: "sync",
             version: 1,
+            createdAt: "",
+            createdBy: "",
         });
     }
     return senders;
@@ -71,7 +72,7 @@ export const receiversGeneratorBase = {
     translation: undefined,
     topic: "",
     version: 0,
-} satisfies Partial<RSReceiver>;
+} satisfies Partial<RsReceiver>;
 
 export const dummySenders = sendersGenerator(5);
 
@@ -79,24 +80,51 @@ export const dummySenders = sendersGenerator(5);
  *
  * @param count {number} How many unique receiverServices you want. */
 export const receiversGenerator = (count: number) => {
-    const receiverServices: RSReceiver[] = [];
+    const receiverServices: RsReceiver[] = [];
     for (let i = 0; i < count; i++) {
         receiverServices.push({
             ...receiversGeneratorBase,
             name: `elr-${i}`,
+            createdAt: "",
+            createdBy: "",
+            translation: {
+                defaults: {},
+                format: Format.CSV,
+                nameFormat: "",
+                receivingOrganization: "",
+                schemaName: "",
+            },
         });
     }
     // Used to test sorting
     receiverServices.push({
         ...receiversGeneratorBase,
         name: `abc-1`,
+        createdAt: "",
+        createdBy: "",
+        translation: {
+            defaults: {},
+            format: Format.CSV,
+            nameFormat: "",
+            receivingOrganization: "",
+            schemaName: "",
+        },
     });
 
     // Used to test filter
     receiverServices.push({
         ...receiversGeneratorBase,
         name: `abc-2`,
-        customerStatus: CustomerStatusType.INACTIVE,
+        customerStatus: CustomerStatus.INACTIVE,
+        createdAt: "",
+        createdBy: "",
+        translation: {
+            defaults: {},
+            format: Format.CSV,
+            nameFormat: "",
+            receivingOrganization: "",
+            schemaName: "",
+        },
     });
 
     return receiverServices;
@@ -110,8 +138,8 @@ export const dummyActiveReceiver = {
 
 export const publicKeysGenerator = (apiKeyCount: number) => {
     let publicKey: RSApiKeysResponse;
-    const apiKey: Jwk[] = [];
-    const apiKeySet: ScopedJwks[] = [];
+    const apiKey: RsJsonWebKey[] = [];
+    const apiKeySet: ScopedJsonWebKeySet[] = [];
 
     for (let j = 0; j < apiKeyCount; j++) {
         apiKey.push({
