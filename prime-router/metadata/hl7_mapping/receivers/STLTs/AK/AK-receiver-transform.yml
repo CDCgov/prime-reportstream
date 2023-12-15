@@ -25,6 +25,26 @@ elements:
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-5-7 ]
 
+#  - name: ak-patient-race-display
+#    condition: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.code = "ASKU"'
+#    value: [ '"Asked, but unknown"' ]
+#    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-2 ]
+
+  - name: ak-patient-race-system
+    condition: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.system.contains("v3-NullFlavor")'
+    value: [ '"NULLFL"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-3 ]
+
+  - name: ak-patient-race-text
+    condition: true
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-9 ]
+
+  - name: ak-patient-ethnic-group-text
+    condition: true
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-9 ]
+
   - name: ak-ordering-provider-person-identifier
     condition: true
     value: [ '""' ]
@@ -34,6 +54,16 @@ elements:
     condition: true
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/OBR-16-1' ]
+
+  - name: ak-specimen-source-site-text
+    condition: true
+    value: [ 'Bundle.entry.resource.ofType(Specimen).collection.bodySite.text' ]
+    hl7Spec: ['/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-2']
+
+  - name: ak-specimen-source-site-original-text
+    condition: true
+    value: [ '""' ]
+    hl7Spec: ['/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-9']
 
   - name: ak-receiving-facility
     condition: true
