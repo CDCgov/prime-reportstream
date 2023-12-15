@@ -5,6 +5,6 @@ export class Security {
 
     async onLoad() {
         await expect(this.page).toHaveURL(/security/);
-        await expect(this.page).toHaveTitle(/Security/);
+        await expect(this.page).toHaveTitle(/ReportStream security/);
     }
 }

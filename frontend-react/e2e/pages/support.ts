@@ -5,6 +5,6 @@ export class Support {
 
     async onLoad() {
         await expect(this.page).toHaveURL(/support/);
-        await expect(this.page).toHaveTitle(/Support/);
+        await expect(this.page).toHaveTitle(/ReportStream support/);
     }
 }

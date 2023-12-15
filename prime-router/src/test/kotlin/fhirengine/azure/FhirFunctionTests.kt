@@ -34,8 +34,9 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirRouteMessage
 import gov.cdc.prime.router.fhirengine.engine.Message
-import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.metadata.LookupTable
@@ -211,7 +212,7 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = RawSubmission(
+        val message = FhirConvertMessage(
             report.id,
             "",
             "BlobAccess.digestToString(blobInfo.digest)",
@@ -296,7 +297,7 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = RawSubmission(
+        val message = FhirRouteMessage(
             report.id,
             "",
             "",
@@ -700,7 +701,7 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
-            val queueMessage = "{\"type\":\"raw\",\"reportId\":\"${report.id}\"," +
+            val queueMessage = "{\"type\":\"translate\",\"reportId\":\"${report.id}\"," +
                 "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
                 "None-${report.id}.hl7\",\"digest\":\"${
                     BlobAccess.digestToString(
@@ -709,7 +710,8 @@ class FhirFunctionTests {
                         )
                     )
                 }\",\"blobSubFolderName\":" +
-                "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
+                "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"," +
+                "\"receiverFullName\":\"phd.elr2\"}"
 
             val fhirFunc = FHIRFunctions(
                 workflowEngine,

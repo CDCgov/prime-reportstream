@@ -13922,11 +13922,11 @@ __metadata:
   linkType: hard
 
 "otpauth@npm:^9.1.4":
-  version: 9.2.0
-  resolution: "otpauth@npm:9.2.0"
+  version: 9.2.1
+  resolution: "otpauth@npm:9.2.1"
   dependencies:
     jssha: ~3.3.1
-  checksum: 6b612ae4b6613806a89abe0d307b6698472b5dc4cf34c04f03b47f57b13d77c914622da2773a67e7a5ae3fb9382746f262cf9e51d47bb8225f8775377d8b8977
+  checksum: 34e179388a4721ac38c7e0058148729d4be2103a9b35d8150629a8cdaef00840676557d9f00c4bf0df2e765aaac6a3d21ca495ca4032fe267ad564f7350553df
   languageName: node
   linkType: hard
 

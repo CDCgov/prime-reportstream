@@ -138,7 +138,7 @@ jobs:
         env:
           checksum_validation: ${{ vars.CHECKSUM_VALIDATION }}
         if: needs.pre_job.outputs.has_router_change == 'true' && env.checksum_validation == 'true'
-        uses: JosiahSiegel/checksum-validate-action@f7e46678bd1b02cd3cdfa76ac5cb031898b9c46d
+        uses: JosiahSiegel/checksum-validate-action@90b0a2d0fd8bbbb9d314522c409b3fcbd907ef2b
         with:
           key: backend
           input: $(az functionapp config appsettings list -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -n pdh${{ needs.pre_job.outputs.env_name }}-functionapp)

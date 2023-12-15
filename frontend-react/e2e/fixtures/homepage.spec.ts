@@ -15,7 +15,9 @@ test.describe("Homepage", () => {
     });
 
     test("Has correct title", async ({ page }) => {
-        await expect(page).toHaveTitle(/CDC Prime ReportStream/);
+        await expect(page).toHaveTitle(
+            /CDC's free, interoperable data transfer platform - ReportStream/,
+        );
     });
 
     test("has About link and dropdown menu items", async ({ page }) => {
