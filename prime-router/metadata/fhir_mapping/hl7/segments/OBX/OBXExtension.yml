@@ -20,6 +20,18 @@ extension:
           valueOf: OBX.2
     - expressionType: nested
       vars:
+        obx6: STRING_ALL, OBX.6
+      condition: $obx6 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: obx-6-units
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: OBX.6
+          expressionType: resource
+    - expressionType: nested
+      vars:
         obx9: STRING_ALL, OBX.9
       condition: $obx9 NOT_NULL
       expressionsMap:
@@ -30,6 +42,18 @@ extension:
           type: STRING
           expressionType: HL7Spec
           valueOf: OBX.9
+    - expressionType: nested
+      vars:
+        obx11: STRING_ALL, OBX.11
+      condition: $obx11 NOT_NULL
+      expressionsMap:
+        url:
+          value: obx-11-observation-status
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.11
     - expressionType: nested
       vars:
         obx12: STRING_ALL, OBX.12
@@ -53,7 +77,7 @@ extension:
         valueString:
           type: STRING
           expressionType: HL7Spec
-        specs: OBX.13
+          specs: OBX.13
     - expressionType: nested
       vars:
         obx15: STRING_ALL, OBX.15
@@ -61,11 +85,54 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: producers-id
+          value: obx-15-producers-id
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           specs: OBX.15
           expressionType: resource
+    - expressionType: nested
+      vars:
+        obx17: STRING_ALL, OBX.17
+      condition: $obx17 NOT_NULL
+      generateList: true
+      specs: OBX.17 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: obx-17-observation-method
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        obx18: STRING_ALL, OBX.18
+      condition: $obx18 NOT_NULL
+      generateList: true
+      specs: OBX.18 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: obx-18-equipment-instance-identifier
+        valueReference:
+          valueOf: segments/OBX/Device
+          expressionType: reference
+    - expressionType: nested
+      vars:
+        obx20: STRING_ALL, OBX.20
+      condition: $obx20 NOT_NULL
+      generateList: true
+      specs: OBX.20 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: obx-20-observation-site
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+
+
+
+
 
 
 

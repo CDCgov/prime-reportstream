@@ -593,3 +593,18 @@
 # internal indicator of sender, usable for filtering
 - id: "sender-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id"
+- id: "sn-1-comparator"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sn-1-comparator"
+- id: "sn-3-separator"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sn-3-separator"
+- id: "sn-4-num2"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sn-4-num2"
+- id: "observation-value-attachment"
+  url: "https://hl7.org/fhir/R5/StructureDefinition/extension-ObservationvalueAttachment"
+- id: "nature-of-abnormal-test"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nature-of-abnormal-test"
+- id: "analysis-date-time"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time"
+- id: "obx-observation"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation"
+

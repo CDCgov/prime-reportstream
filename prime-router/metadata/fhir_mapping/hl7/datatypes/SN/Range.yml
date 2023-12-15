@@ -9,16 +9,15 @@ low:
       condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
       type: STRING
       expressionType: HL7Spec
-      valueOf: CWERangeUnits.1
+      valueOf: $CWERangeUnits.1
       vars:
-        identifier: CWERangeUnits.1
-        nameOfCodingSystem: CWERangeUnits.3
+        identifier: $CWERangeUnits.1
+        nameOfCodingSystem: $CWERangeUnits.3
     unit:
       expressionType: nested
-      condition:
       vars:
-        identifier: CWERangeUnits.1
-        text: CWERangeUnits.2
+        identifier: $CWERangeUnits.1
+        text: $CWERangeUnits.2
       expressions:
         - condition: $text NULL && $identifier NOT_NULL
           type: STRING
@@ -32,21 +31,10 @@ low:
       condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
       type: SYSTEM_URL
       expressionType: HL7Spec
-      valueOf: CWERangeUnits.1
+      valueOf: $CWERangeUnits.1
       vars:
-        identifier: CWERangeUnits.1
-        nameOfCodingSystem: CWERangeUnits.3
-    extension:
-      generateList: true
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: 'cwe-quantity'
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-          specs: CWERangeUnits
+        identifier: $CWERangeUnits.1
+        nameOfCodingSystem: $CWERangeUnits.3
 
 high:
   expressionType: nested
@@ -59,44 +47,32 @@ high:
       condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
       type: STRING
       expressionType: HL7Spec
-      valueOf: CWERangeUnits.1
+      valueOf: $CWERangeUnits.1
       vars:
-        identifier: CWERangeUnits.1
-        nameOfCodingSystem: CWERangeUnits.3
+        identifier: $CWERangeUnits.1
+        nameOfCodingSystem: $CWERangeUnits.3
     unit:
       expressionType: nested
-      condition:
       vars:
-        identifier: CWERangeUnits.1
-        text: CWERangeUnits.2
+        identifier: $CWERangeUnits.1
+        text: $CWERangeUnits.2
       expressions:
         - condition: $text NULL && $identifier NOT_NULL
           type: STRING
-          valueOf: CWERangeUnits.1
+          valueOf: $CWERangeUnits.1
           expressionType: HL7Spec
         - condition: $text NOT_NULL
           type: STRING
-          valueOf: CWERangeUnits.2
+          valueOf: $CWERangeUnits.2
           expressionType: HL7Spec
     system:
       condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
       type: SYSTEM_URL
       expressionType: HL7Spec
-      valueOf: CWERangeUnits.1
+      valueOf: $CWERangeUnits.1
       vars:
-        identifier: CWERangeUnits.1
-        nameOfCodingSystem: CWERangeUnits.3
-    extension:
-      generateList: true
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: 'cwe-quantity'
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-          specs: CWERangeUnits
+        identifier: $CWERangeUnits.1
+        nameOfCodingSystem: $CWERangeUnits.3
 
 extension:
   expressionType: nested

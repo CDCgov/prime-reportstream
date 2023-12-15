@@ -43,14 +43,21 @@ elements:
     schema: timing-quantity
 
   - name: observation-result-with-aoe
-    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
     resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not())'
-    schema: ../../common/observation-result
+    schema: ../../resources/Observation/OBX
     resourceIndex: resultIndex
     constants:
-      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
       hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
-      observation: '%diagnostic.result[%resultIndex].resolve()'
+
+  #  - name: observation-result-with-aoe
+  #    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
+  #    resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not())'
+  #    schema: ../../common/observation-result
+  #    resourceIndex: resultIndex
+  #    constants:
+  #      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
+  #      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
+  #      observation: '%diagnostic.result[%resultIndex].resolve()'
 
   - name: order-note
     resource: '%service.note.text.split(''\n'')'

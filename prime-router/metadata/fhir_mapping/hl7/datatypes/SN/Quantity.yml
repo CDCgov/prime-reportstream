@@ -16,9 +16,9 @@ code:
   vars:
     identifier: $CWEQuantityUnits.1
     nameOfCodingSystem: $CWEQuantityUnits.3
+
 unit:
   expressionType: nested
-  condition:
   vars:
     identifier: $CWEQuantityUnits.1
     text: $CWEQuantityUnits.2
@@ -31,6 +31,7 @@ unit:
       type: STRING
       valueOf: $CWEQuantityUnits.2
       expressionType: HL7Spec
+
 system:
   condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
   type: SYSTEM_URL
@@ -39,19 +40,11 @@ system:
   vars:
     identifier: $CWEQuantityUnits.1
     nameOfCodingSystem: $CWEQuantityUnits.3
+    
 extension:
   generateList: true
   expressionType: nested
   expressions:
-    - expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: 'cwe-quantity'
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-          specs: $CWEQuantityUnits
     - vars:
         sn3: STRING, SN.3
       condition: $sn3 NOT_NULL
@@ -71,7 +64,7 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: sn-4-separator
+          value: sn-4-num2
         valueString:
           type: STRING
           expressionType: HL7Spec

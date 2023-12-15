@@ -1,0 +1,33 @@
+elements:
+
+  - name: value-type
+    value: [ '%resource.extension.where(url = "obx-2-value-type").value' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
+  - name: producers-id
+    resource: '%resource.extension.where(url = "obx-6-units").value'
+    schema: ../../datatypes/codeableConcept/CWE
+    constants:
+      cweFieldPath: '%{hl7OBXField}-6'
+
+  - name: probability
+    value: [ '%resource.extension.where(url = "obx-9-probability").value' ]
+    hl7Spec: [ '%{hl7OBXField}-9' ]
+
+  - name: observation-status
+    value: [ '%resource.extension.where(url = "obx-11-observation-status").value' ]
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
+  - name: effective-date-of-reference-range
+    value: [ '%resource.extension.where(url = "obx-12-effective-date-of-reference-range").value' ]
+    hl7Spec: [ '%{hl7OBXField}-12' ]
+
+  - name: user-defined-access-checks
+    value: [ '%resource.extension.where(url = "obx-13-user-defined-access-checks").value' ]
+    hl7Spec: [ '%{hl7OBXField}-13' ]
+
+  - name: producers-id
+    resource: '%resource.extension.where(url = "obx-15-producers-id").value'
+    schema: ../../datatypes/codeableConcept/CWE
+    constants:
+      cweFieldPath: '%{hl7OBXField}-15'

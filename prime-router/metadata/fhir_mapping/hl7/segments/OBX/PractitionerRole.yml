@@ -11,11 +11,13 @@ practitioner:
   specs: $OBXPractitionerComponent
 
 organization:
+  condition: $roleOrg NOT_NULL
   valueOf: datatypes/XON/Organization
   expressionType: reference
   specs: $OBXPractitionerRoleOrganization
   vars:
     XADAddress: $OBXPractitionerRoleOrganizationAddress
+    roleOrg: STRING_ALL, $OBXPractitionerRoleOrganization
 
 code:
   expressionType: nested
