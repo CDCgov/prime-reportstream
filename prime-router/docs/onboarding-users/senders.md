@@ -63,30 +63,6 @@ The schema provides additional transforms required so that the senders data can 
 
 Note: When creating a transform, please reference [Changing/Updating Sender/Receiver Transforms](../getting-started/standard-operating-procedures/changing-transforms.md) for guidance.
 
-### Authenticating to ReportStream’s REST API
-**Note: This is legacy authentication and should not be used for onboarding new users**
-
-Shared secret key authorization
-
-Prior to connecting to the endpoint, you’ll need a public/private keypair. There are many ways to do this. The steps below show how to create a key pair using `openssl`.
-
-EC
-```
-openssl ecparam -genkey -name secp384r1 -noout -out my-es-keypair.pem
-openssl ec -in my-es-keypair.pem -pubout -out  my-es-public-key.pem
-```
-
-RSA
-```
-openssl genrsa -out my-rsa-keypair.pem 2048
-openssl rsa -in my-rsa-keypair.pem -outform PEM -pubout -out my-rsa-public-key.pem
-```
-
-Send the public key to the ReportStream team using [our public key tool](/manage-public-key).
-Note: you’ll need to login to use that feature. If you do not have a login contact ReportStream support at [reportstream@cdc.gov](mailto:reportstream@cdc.gov). ReportStream will associate the key with your configuration within ReportStream.
-
-You only need to do this step once, not every time you submit reports. If you need to change your keys at any time, contact ReportStream support.
-
 ## Testing
 
 ### Note
