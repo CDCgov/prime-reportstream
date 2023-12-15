@@ -30,7 +30,10 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
     JsonSubTypes.Type(RawSubmission::class, name = "raw"),
     JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
     JsonSubTypes.Type(FhirRouteQueueMessage::class, name = "route"),
-    JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate")
+    JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
+    JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "batch"),
+    JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "process"),
+    JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "report")
 )
 abstract class QueueMessage {
     fun serialize(): String {
@@ -123,13 +126,15 @@ data class FhirTranslateQueueMessage(
 ) : UniversalPipelineQueueMessage()
 
 abstract class MixedPipelineQueueMessage : QueueMessage() {
-    abstract val eventType: String
+    abstract val eventAction: Event.EventAction
+}
+
+abstract class CovidPipelineQueueMessage : QueueMessage() {
     abstract val eventAction: Event.EventAction
 }
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 data class BatchEventQueueMessage(
-    @JsonProperty("eventType") override val eventType: String,
     @JsonProperty("eventAction") override val eventAction: Event.EventAction,
     @JsonProperty("receiverName") val receiverName: String,
     @JsonProperty("emptyBatch") val emptyBatch: Boolean,
@@ -138,20 +143,18 @@ data class BatchEventQueueMessage(
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 data class ReportEventQueueMessage(
-    @JsonProperty("eventType") override val eventType: String,
     @JsonProperty("eventAction") override val eventAction: Event.EventAction,
     @JsonProperty("emptyBatch") val emptyBatch: Boolean,
     @JsonProperty("reportId") val reportId: UUID,
     @JsonProperty("at") val at: String,
-) : MixedPipelineQueueMessage()
+) : CovidPipelineQueueMessage()
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 data class ProcessEventQueueMessage(
-    @JsonProperty("eventType") override val eventType: String,
     @JsonProperty("eventAction") override val eventAction: Event.EventAction,
     @JsonProperty("reportId") val reportId: UUID,
     @JsonProperty("options") val options: Options,
     @JsonProperty("defaults") val defaults: Map<String, String>,
     @JsonProperty("routeTo") val routeTo: List<String>,
     @JsonProperty("at") val at: String,
-) : MixedPipelineQueueMessage()
+) : CovidPipelineQueueMessage()

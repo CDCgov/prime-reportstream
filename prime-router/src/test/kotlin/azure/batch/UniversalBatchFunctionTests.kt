@@ -124,7 +124,8 @@ class UniversalBatchFunctionTests {
         every { engine.generateEmptyReport(any(), any()) } returns Unit
 
         // the message that will be passed to batchFunction
-        val message = "receiver&BATCH&phd.elr&true"
+
+        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", true).toQueueMessage()
 
         // Invoke batch function run
         UniversalBatchFunction(engine).run(message, context = null)

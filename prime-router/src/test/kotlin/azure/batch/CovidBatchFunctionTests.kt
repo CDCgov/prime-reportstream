@@ -220,7 +220,7 @@ class CovidBatchFunctionTests {
         every { engine.db.fetchReportFile(any(), any(), any()) } returns mockReportFile
 
         // the message that will be passed to batchFunction
-        val message = "receiver&BATCH&phd.elr&false"
+        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", false).toQueueMessage()
 
         // invoke batch function run for legacy pipeline
         CovidBatchFunction(engine).run(message, context = null)

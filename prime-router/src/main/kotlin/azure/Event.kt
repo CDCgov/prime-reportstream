@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.Options
@@ -102,22 +103,26 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         fun parseQueueMessage(event: String): Event {
             // validate incoming queue message is in the expected format. This will error out with an
             //  IllegalStateException and message if it is not valid
-            try {
-                val reportEventQueueMessage =
-                    JacksonMapperUtilities.defaultMapper.readValue<ReportEventQueueMessage>(event)
-                val at = if (reportEventQueueMessage.at.isNotEmpty()) {
-                    OffsetDateTime.parse(reportEventQueueMessage.at)
-                } else {
-                    null
+            val node: ObjectNode = JacksonMapperUtilities.defaultMapper.readValue(event)
+            val type = node.get("type").asText()
+
+            return when (type) {
+                "ReportEventQueueMessage" -> {
+                    val reportEventQueueMessage =
+                        JacksonMapperUtilities.defaultMapper.readValue<ReportEventQueueMessage>(event)
+                    val at = if (reportEventQueueMessage.at.isNotEmpty()) {
+                        OffsetDateTime.parse(reportEventQueueMessage.at)
+                    } else {
+                        null
+                    }
+                    ReportEvent(
+                        reportEventQueueMessage.eventAction,
+                        reportEventQueueMessage.reportId,
+                        reportEventQueueMessage.emptyBatch,
+                        at
+                    )
                 }
-                return ReportEvent(
-                    reportEventQueueMessage.eventAction,
-                    reportEventQueueMessage.reportId,
-                    reportEventQueueMessage.emptyBatch,
-                    at
-                )
-            } catch (e: Exception) {
-                try {
+                "BatchEventQueueMessage" -> {
                     val batchEventQueueMessage =
                         JacksonMapperUtilities.defaultMapper.readValue<BatchEventQueueMessage>(event)
                     val at = if (batchEventQueueMessage.at.isNotEmpty()) {
@@ -125,33 +130,31 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                     } else {
                         null
                     }
-                    return BatchEvent(
+                    BatchEvent(
                         batchEventQueueMessage.eventAction,
                         batchEventQueueMessage.receiverName,
                         batchEventQueueMessage.emptyBatch,
                         at
                     )
-                } catch (e: Exception) {
-                    try {
-                        val processEventQueueMessage =
-                            JacksonMapperUtilities.defaultMapper.readValue<ProcessEventQueueMessage>(event)
-                        val at = if (processEventQueueMessage.at.isNotEmpty()) {
-                            OffsetDateTime.parse(processEventQueueMessage.at)
-                        } else {
-                            null
-                        }
-                        return ProcessEvent(
-                            processEventQueueMessage.eventAction,
-                            processEventQueueMessage.reportId,
-                            processEventQueueMessage.options,
-                            processEventQueueMessage.defaults,
-                            processEventQueueMessage.routeTo,
-                            at
-                        )
-                    } catch (e: Exception) {
-                        return parseAndValidateOldQueueMessage(event)
-                    }
                 }
+                "ProcessEventQueueMessage" -> {
+                    val processEventQueueMessage =
+                        JacksonMapperUtilities.defaultMapper.readValue<ProcessEventQueueMessage>(event)
+                    val at = if (processEventQueueMessage.at.isNotEmpty()) {
+                        OffsetDateTime.parse(processEventQueueMessage.at)
+                    } else {
+                        null
+                    }
+                    ProcessEvent(
+                        processEventQueueMessage.eventAction,
+                        processEventQueueMessage.reportId,
+                        processEventQueueMessage.options,
+                        processEventQueueMessage.defaults,
+                        processEventQueueMessage.routeTo,
+                        at
+                    )
+                }
+                else -> error("Internal Error: invalid event type: $event")
             }
         }
 
@@ -262,7 +265,7 @@ class ProcessEvent(
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
         val queueMessage = ProcessEventQueueMessage(
-            eventType, eventAction, reportId, options, defaults, routeTo, afterClause
+            eventAction, reportId, options, defaults, routeTo, afterClause
         )
         return ObjectMapper().writeValueAsString(queueMessage)
     }
@@ -299,7 +302,7 @@ class ReportEvent(
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
         val queueMessage = ReportEventQueueMessage(
-            eventType, eventAction, isEmptyBatch, reportId, afterClause
+            eventAction, isEmptyBatch, reportId, afterClause
         )
         return ObjectMapper().writeValueAsString(queueMessage)
     }
@@ -336,7 +339,7 @@ class BatchEvent(
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
         val queueMessage = BatchEventQueueMessage(
-            eventType, eventAction, receiverName, isEmptyBatch, afterClause
+            eventAction, receiverName, isEmptyBatch, afterClause
         )
         return ObjectMapper().writeValueAsString(queueMessage)
     }
