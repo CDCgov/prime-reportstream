@@ -537,6 +537,11 @@ class FhirFunctionTests {
         @Test
         fun `test successfully processes a convert message`() {
             val report = seedTask(Report.Format.HL7, TaskAction.convert, Event.EventAction.CONVERT)
+            val metadata = Metadata(UnitTestUtils.simpleSchema)
+
+            metadata.lookupTableStore += mapOf(
+                "observation-mapping" to LookupTable("observation-mapping", emptyList())
+            )
 
             mockkObject(BlobAccess.Companion)
             mockkObject(QueueMessage.Companion)
@@ -554,7 +559,7 @@ class FhirFunctionTests {
 
             val settings = FileSettings().loadOrganizations(oneOrganization)
             val fhirEngine = FHIRConverter(
-                UnitTestUtils.simpleMetadata,
+                metadata,
                 settings,
                 ReportStreamTestDatabaseContainer.testDatabaseAccess,
                 blobMock,
