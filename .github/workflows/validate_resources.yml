@@ -100,6 +100,9 @@ jobs:
       matrix:
         env_name: [ demo1, demo2, demo3 ]
     steps:
+      - name: Check Out Changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
       - uses: azure/login@de95379fe4dadc2defb305917eaa7e5dde727294
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
