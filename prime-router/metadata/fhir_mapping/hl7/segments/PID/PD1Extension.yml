@@ -1,9 +1,10 @@
 url:
-  type: STRING
+  type: SYSTEM_URL
   value: pd1-patient
 
 extension:
   expressionType: nested
+  generateList: true
   expressions:
     - expressionType: nested
       specs: PD1.1 *
@@ -14,34 +15,33 @@ extension:
         url:
           type: STRING
           value: pd1-1-living-dependency
-        valueString:
-          type: STRING
-          valueOf: PD1.1
-          expressionType: HL7Spec
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: nested
       condition: $pd12 NOT_NULL
+      specs: PD1.2
       vars:
         pd12: STRING_ALL, PD1.2
       expressionsMap:
         url:
           type: STRING
           value: pd1-2-living-arrangement
-        valueString:
-          type: STRING
-          valueOf: PD1.2
-          expressionType: HL7Spec
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: nested
       condition: $pd18 NOT_NULL
+      specs: PD1.8
       vars:
         pd18: STRING_ALL, PD1.8
       expressionsMap:
         url:
           type: STRING
           value: pd1-8-organ-donor-code
-        valueString:
-          type: STRING
-          valueOf: PD1.8
-          expressionType: HL7Spec
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: nested
       condition: $pd19 NOT_NULL
       vars:
@@ -63,22 +63,23 @@ extension:
         url:
           type: STRING
           value: pd1-10-duplicate-patient
-        valueString:
-          type: STRING
-          valueOf: PD1.10
-          expressionType: HL7Spec
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+          constants:
+            identifierIndexName: duplicate-patient
     - expressionType: nested
       condition: $pd111 NOT_NULL
+      specs: PD1.11
       vars:
         pd111: STRING_ALL, PD1.11
       expressionsMap:
         url:
           type: STRING
           value: pd1-11-publicity-code
-        valueString:
-          type: STRING
-          valueOf: PD1.11
-          expressionType: HL7Spec
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: nested
       condition: $pd112 NOT_NULL
       vars:
@@ -112,22 +113,21 @@ extension:
         url:
           type: STRING
           value: pd1-15-advance-directive-code
-        valueString:
-          type: STRING
-          valueOf: PD1.15
-          expressionType: HL7Spec
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: nested
       condition: $pd116 NOT_NULL
+      specs: PD1.16
       vars:
         pd116: STRING_ALL, PD1.16
       expressionsMap:
         url:
           type: STRING
           value: pd1-16-immunization-registry-status
-        valueString:
-          type: STRING
-          valueOf: PD1.16
-          expressionType: HL7Spec
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: nested
       condition: $pd117 NOT_NULL
       vars:
@@ -154,40 +154,40 @@ extension:
           expressionType: HL7Spec
     - expressionType: nested
       condition: $pd119 NOT_NULL
+      specs: PD1.19
       vars:
         pd119: STRING_ALL, PD1.19
       expressionsMap:
         url:
           type: STRING
           value: pd1-19-military-branch
-        valueString:
-          type: STRING
-          valueOf: PD1.19
-          expressionType: HL7Spec
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: nested
       condition: $pd120 NOT_NULL
+      specs: PD1.20
       vars:
         pd120: STRING_ALL, PD1.20
       expressionsMap:
         url:
           type: STRING
           value: pd1-20-military-rank
-        valueString:
-          type: STRING
-          valueOf: PD1.20
-          expressionType: HL7Spec
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: nested
       condition: $pd121 NOT_NULL
+      specs: PD1.21
       vars:
         pd121: STRING_ALL, PD1.21
       expressionsMap:
         url:
           type: STRING
           value: pd1-21-military-status
-        valueString:
-          type: STRING
-          valueOf: PD1.21
-          expressionType: HL7Spec
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: nested
       condition: $pd122 NOT_NULL
       vars:

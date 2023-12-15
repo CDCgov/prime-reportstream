@@ -1,6 +1,9 @@
 url:
   type: SYSTEM_URL
   value: pid-patient
+  condition: $pid18 NOT_NULL
+  vars:
+    pid18: STRING_ALL, PID.18
 
 extension:
   expressionType: nested

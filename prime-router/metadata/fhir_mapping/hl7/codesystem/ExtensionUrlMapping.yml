@@ -601,6 +601,9 @@
 # PID Patient
 - id: "pid-patient"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient"
+# PD1 Patient
+- id: "pd1-patient"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pd1-patient"
 # NK1 Related Person
 - id: "nk1-related-person"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person"
