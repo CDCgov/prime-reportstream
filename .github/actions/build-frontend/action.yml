@@ -32,7 +32,7 @@ runs:
 
     - name: Build release for production branch (conditional check)
       if: inputs.env-name == 'prod'
-      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+      uses: ./.github/actions/retry
       with:
         timeout_minutes: 40
         max_attempts: 2
@@ -48,7 +48,7 @@ runs:
 
     - name: Build release for non-production branch (conditional check)
       if: inputs.env-name != 'prod'
-      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+      uses: ./.github/actions/retry
       with:
         timeout_minutes: 40
         max_attempts: 2
