@@ -15,7 +15,7 @@ pluginManagement {
 }
 
 sourceControl {
-    gitRepository(URI("https://github.com/focusconsulting/hl7v2-fhir-converter.git")) {
+    gitRepository(URI("https://github.com/CDCgov/hl7v2-fhir-converter.git")) {
         producesModule("io.github.linuxforhealth:hl7v2-fhir-converter")
     }
 }
