@@ -34,9 +34,9 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.FhirConvertMessage
-import gov.cdc.prime.router.fhirengine.engine.FhirRouteMessage
-import gov.cdc.prime.router.fhirengine.engine.Message
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.metadata.LookupTable
@@ -167,7 +167,7 @@ class FhirFunctionTests {
     @Test
     fun `test convert-fhir`() {
         mockkObject(BlobAccess.Companion)
-        mockkObject(Message.Companion)
+        mockkObject(QueueMessage.Companion)
         // setup
         commonSetup()
         val metadata = UnitTestUtils.simpleMetadata
@@ -212,7 +212,7 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = FhirConvertMessage(
+        val message = FhirConvertQueueMessage(
             report.id,
             "",
             "BlobAccess.digestToString(blobInfo.digest)",
@@ -252,7 +252,7 @@ class FhirFunctionTests {
     @Test
     fun `test route-fhir`() {
         mockkObject(BlobAccess.Companion)
-        mockkObject(Message.Companion)
+        mockkObject(QueueMessage.Companion)
         // setup
         commonSetup()
         val metadata = spyk(UnitTestUtils.simpleMetadata)
@@ -297,7 +297,7 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = FhirRouteMessage(
+        val message = FhirRouteQueueMessage(
             report.id,
             "",
             "",
@@ -337,7 +337,7 @@ class FhirFunctionTests {
     @Test
     fun `test translate-fhir`() {
         mockkObject(BlobAccess.Companion)
-        mockkObject(Message.Companion)
+        mockkObject(QueueMessage.Companion)
         // setup
         commonSetup()
         val metadata = UnitTestUtils.simpleMetadata
@@ -461,7 +461,7 @@ class FhirFunctionTests {
             val report = seedTask(Report.Format.HL7, TaskAction.convert, Event.EventAction.CONVERT)
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns hl7_record.toByteArray()
             every {
                 BlobAccess.Companion.uploadBody(
@@ -530,7 +530,7 @@ class FhirFunctionTests {
             val report = seedTask(Report.Format.HL7, TaskAction.convert, Event.EventAction.CONVERT)
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns hl7_record.toByteArray()
             every {
                 BlobAccess.Companion.uploadBody(
@@ -597,7 +597,7 @@ class FhirFunctionTests {
             val report = seedTask(Report.Format.HL7, TaskAction.translate, Event.EventAction.TRANSLATE)
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             val routeFhirBytes =
                 File(VALID_FHIR_PATH).readBytes()
             every {
@@ -667,7 +667,7 @@ class FhirFunctionTests {
             val report = seedTask(Report.Format.FHIR, TaskAction.batch, Event.EventAction.BATCH)
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             val translateFhirBytes = File(
                 MULTIPLE_TARGETS_FHIR_PATH
             ).readBytes()

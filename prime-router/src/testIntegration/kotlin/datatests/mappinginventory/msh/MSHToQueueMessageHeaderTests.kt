@@ -3,7 +3,7 @@ package gov.cdc.prime.router.datatests.mappinginventory.msh
 import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
 import org.junit.jupiter.api.Test
 
-class MSHToMessageHeaderTests {
+class MSHToQueueMessageHeaderTests {
 
     // This differs from the official inventory (which does mention that it's partially up to the implementor
     // since from RS experience MSH3 more often contains values to use

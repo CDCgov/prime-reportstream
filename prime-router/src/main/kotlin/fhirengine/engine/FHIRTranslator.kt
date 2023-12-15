@@ -49,11 +49,13 @@ class FHIRTranslator(
      *  element.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
-    override fun <T : gov.cdc.prime.router.fhirengine.engine.Message> doWork(
+    override fun <T : QueueMessage> doWork(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
+        message as UniversalPipelineQueueMessage
+
         logger.trace("Translating FHIR file for receivers.")
         // pull fhir document and parse FHIR document
         val bundle = FhirTranscoder.decode(message.downloadContent())
@@ -62,7 +64,7 @@ class FHIRTranslator(
         actionHistory.trackExistingInputReport(message.reportId)
 
         when (message) {
-            is FhirTranslateMessage -> {
+            is FhirTranslateQueueMessage -> {
                 val receiver = settings.findReceiver(message.receiverFullName)
                     ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
                 actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)

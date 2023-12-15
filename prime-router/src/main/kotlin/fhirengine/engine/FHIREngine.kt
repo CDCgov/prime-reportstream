@@ -118,7 +118,7 @@ abstract class FHIREngine(
      * be done, tracking with the [actionLogger] and [actionHistory], and making use of [metadata] if present.  It
      * returns the result of the work so that messages can be passed along.
      */
-    abstract fun <T : Message> doWork(
+    abstract fun <T : QueueMessage> doWork(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
@@ -140,14 +140,14 @@ abstract class FHIREngine(
      * @param nextEvent the next event that should be propagated
      * @param report the report generated
      * @param reportUrl the URL for the generated report
-     * @param message optionally a message that should be dispatched to a queue
+     * @param queueMessage optionally a message that should be dispatched to a queue
      *
      */
     data class FHIREngineRunResult(
         val nextEvent: Event,
         val report: Report,
         val reportUrl: String,
-        val message: Message?,
+        val queueMessage: QueueMessage?,
     )
 
     /**
@@ -156,21 +156,21 @@ abstract class FHIREngine(
      * returning any messages that need to be added to the queue
      * If an exception is encountered it is logged and then rethrown in order to rollback the transaction
      *
-     * @param message the message to process
+     * @param queueMessage the message to process
      * @param actionLogger  the action logger to use
      * @param actionHistory the action history to use
      * @param txn the database transaction
      *
      */
     fun run(
-        message: Message,
+        queueMessage: UniversalPipelineQueueMessage,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction,
-    ): List<Message> {
+    ): List<QueueMessage> {
         try {
             // Do the FHIR work (convert, route, translate)
-            val results = doWork(message, actionLogger, actionHistory)
+            val results = doWork(queueMessage, actionLogger, actionHistory)
 
             // Add the next task
             results.forEach {
@@ -179,7 +179,7 @@ abstract class FHIREngine(
 
             // Nullify the previous task
             db.updateTask(
-                message.reportId,
+                queueMessage.reportId,
                 TaskAction.none,
                 null,
                 null,
@@ -188,7 +188,7 @@ abstract class FHIREngine(
             )
 
             // Return the result to commit the transaction and add to the queue
-            return results.mapNotNull { it.message }
+            return results.mapNotNull { it.queueMessage }
         } catch (ex: Exception) {
             logger.error(ex)
             actionLogger.error(InvalidReportMessage(ex.message ?: ""))

@@ -16,7 +16,8 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.Message
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
+import gov.cdc.prime.router.fhirengine.engine.UniversalPipelineQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
@@ -143,7 +144,7 @@ class FHIRFunctions(
         dequeueCount: Int,
         fhirEngine: FHIREngine,
         actionHistory: ActionHistory,
-    ): List<Message> {
+    ): List<QueueMessage> {
         val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
 
         val newMessages = databaseAccess.transactReturning { txn ->
@@ -159,11 +160,12 @@ class FHIRFunctions(
      * Deserializes the [message] into a RawSubmission, verifies it is of the correct type.
      * Logs the [engineType] and [dequeueCount]
      */
-    private fun readMessage(engineType: String, message: String, dequeueCount: Int): Message {
+    private fun readMessage(engineType: String, message: String, dequeueCount: Int): UniversalPipelineQueueMessage {
         logger.debug(
             "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
-        return Message.deserialize(message)
+
+        return QueueMessage.deserialize(message) as UniversalPipelineQueueMessage
     }
 
     /**
