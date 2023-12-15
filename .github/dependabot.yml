@@ -100,6 +100,10 @@ updates:
     directory: "/.github/actions/vpn-azure"
     schedule:
       interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/retry"
+    schedule:
+      interval: "daily"
 
   # Frontend
   - package-ecosystem: "npm"

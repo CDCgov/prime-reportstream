@@ -35,4 +35,7 @@ elements:
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/OBR-16-1' ]
 
-
+  - name: ak-receiving-facility
+    condition: true
+    value: [ '"AKDOH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
