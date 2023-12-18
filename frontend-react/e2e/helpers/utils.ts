@@ -5,7 +5,7 @@ export class Utils {
 
     async scrollToFooter() {
         // Scrolling to the bottom of the page
-        await this.page.locator("footer").click();
+        await this.page.locator("footer").scrollIntoViewIfNeeded();
     }
 
     async scrollToTop() {
