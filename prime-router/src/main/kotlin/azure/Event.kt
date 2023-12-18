@@ -103,8 +103,18 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         fun parseQueueMessage(event: String): Event {
             // validate incoming queue message is in the expected format. This will error out with an
             //  IllegalStateException and message if it is not valid
-            val node: ObjectNode = JacksonMapperUtilities.defaultMapper.readValue(event)
-            val type = node.get("type").asText()
+            val node: ObjectNode =
+                try {
+                    JacksonMapperUtilities.defaultMapper.readValue(event)
+                } catch (e: Exception) {
+                    return parseAndValidateOldQueueMessage(event)
+                }
+
+            val type = try {
+                node.get("type").asText()
+            } catch (e: Exception) {
+                return parseAndValidateOldQueueMessage(event)
+            }
 
             return when (type) {
                 "ReportEventQueueMessage" -> {
