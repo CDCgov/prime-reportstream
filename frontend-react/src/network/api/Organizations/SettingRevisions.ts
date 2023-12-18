@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+
 import {
     HTTPMethods,
     RSApiEndpoints,
@@ -28,6 +30,7 @@ const settingRevisionEndpoints: RSApiEndpoints = {
     getList: new RSEndpoint({
         path: "/waters/org/:org/settings/revs/:settingType",
         method: HTTPMethods.GET,
+        queryKey: "orgSettingRevisions",
     }),
 };
 
@@ -35,13 +38,14 @@ const settingRevisionEndpoints: RSApiEndpoints = {
 export const useSettingRevisionEndpointsQuery = (
     params: SettingRevisionParams,
 ) => {
-    const { authorizedFetch, rsUseQuery } =
-        useAuthorizedFetch<SettingRevision[]>();
+    const authorizedFetch = useAuthorizedFetch<SettingRevision[]>();
 
     // get all lookup tables in order to get metadata
-    return rsUseQuery(["history", params.org, params.settingType], async () =>
-        authorizedFetch(settingRevisionEndpoints.getList, {
-            segments: params,
-        }),
-    );
+    return useQuery({
+        queryKey: ["history", params.org, params.settingType],
+        queryFn: async () =>
+            authorizedFetch(settingRevisionEndpoints.getList, {
+                segments: params,
+            }),
+    });
 };

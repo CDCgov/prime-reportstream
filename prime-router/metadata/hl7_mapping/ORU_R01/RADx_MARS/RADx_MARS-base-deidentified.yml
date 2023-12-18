@@ -33,42 +33,40 @@ elements:
 
   # PID 7.1
   - name: patient-dob
-    value: [ '""' ]
+    resource: '""'
 
   # ORC 3.1
-  - name: order-filler-order-number
+  - name: filler-order-number
     condition: false
 
   # ORC 12
-  - name: order-ordering-provider
+  - name: ordering-provider-from-practitioner
+    condition: false
+
+  - name: ordering-provider-from-practitioner-role
     condition: false
 
   # ORC 22
-  - name: ordering-facility-practitioner-address
+  - name: ordering-facility-address
     condition: false
 
   # ORC 23
-  - name: ordering-facility-phone
+  - name: ordering-facility-phone-number
     condition: false
 
   # ORC 24
-  - name: ordering-facility-practitioner-address
-    condition: false
-
-  # OBR 3.1
-  - name: filler-order
+  - name: ordering-provider-address-from-practitioner
     condition: false
 
   # OBR 7.1
-  - name: observation-request-date-time
+  - name: observation-datetime-start
     condition: false
 
-  # OBR 7.1
-  - name: observation-request-date-time-start
+  - name: observation-datetime
     condition: false
 
   # OBR 16
-  - name: ordering-provider
+  - name: ordering-provider-from-extension
     condition: false
 
   # Suppress all notes as they may contain PII data

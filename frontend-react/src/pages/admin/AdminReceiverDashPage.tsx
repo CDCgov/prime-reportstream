@@ -4,14 +4,12 @@ import { GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import { AdminReceiverDashboard } from "../../components/Admin/AdminReceiverDashboard";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../components/AuthElement";
 
 export function AdminReceiverDashPage() {
     return (
         <GridContainer>
             <Helmet>
-                <title>Admin Destination Dashboard</title>
+                <title>Receiver status dashboard - Admin</title>
             </Helmet>
             <article>
                 <AdminReceiverDashboard />
@@ -21,11 +19,4 @@ export function AdminReceiverDashPage() {
     );
 }
 
-export function AdminReceiverDashWithAuth() {
-    return (
-        <AuthElement
-            element={<AdminReceiverDashPage />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
+export default AdminReceiverDashPage;

@@ -1,21 +1,17 @@
 import download from "downloadjs";
 import { Button, Icon } from "@trussworks/react-uswds";
-import { useOktaAuth } from "@okta/okta-react";
 import React from "react";
 
-import ReportResource from "../../../resources/ReportResource";
-import { getStoredOrg } from "../../../utils/SessionStorageTools";
 import config from "../../../config";
-import { RSDelivery } from "../../../config/endpoints/deliveries";
+import { useSessionContext } from "../../../contexts/SessionContext";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 
 const { RS_API_URL } = config;
 
-interface Props {
-    /* REQUIRED
-    A ReportResource is passed in using this property. This is necessary for download()
-    since that function relies on the content, fileName, and mimeType properties */
-    report: ReportResource | RSDelivery | undefined;
+interface ReportLinkProps {
+    reportId: string;
+    reportExpires?: string | number;
+    fileType?: string;
 
     /* OPTIONAL
     This boolean flag changes the return value from a standard <a> link to a <Button> (USWDS)
@@ -32,18 +28,24 @@ const formatFileType = (fileType: string) => {
     This element provides a download link on each row of the table and on the report
     details page
 */
-function ReportLink(props: Props) {
-    const { authState } = useOktaAuth();
-    const organization = getStoredOrg();
+function ReportLink({
+    reportId,
+    fileType,
+    reportExpires,
+    children,
+    button,
+}: React.PropsWithChildren<ReportLinkProps>) {
+    const { authState } = useSessionContext();
+    const { activeMembership } = useSessionContext();
+    const organization = activeMembership?.parsedName;
 
     const handleClick = (e: any) => {
         e.preventDefault();
-        if (props.report !== undefined && props.report.reportId !== undefined) {
-            let reportId = props.report.reportId;
+        if (reportId !== undefined) {
             fetch(`${RS_API_URL}/api/history/report/${reportId}`, {
                 headers: {
-                    Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
-                    Organization: organization!,
+                    authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+                    organization: organization!,
                 },
             })
                 .then((res) => res.json())
@@ -62,26 +64,25 @@ function ReportLink(props: Props) {
         }
     };
 
-    if (!props.button) {
+    if (!button) {
         return (
             <Button unstyled type="button" onClick={handleClick}>
-                {props.report !== undefined
-                    ? formatFileType(props.report!.fileType)
-                    : ""}
+                {fileType !== undefined ? formatFileType(fileType) : ""}
+                {children}
             </Button>
         );
     } else {
         return (
             <>
-                {props.report !== undefined &&
-                    !isDateExpired(props.report!.expires) && (
+                {fileType !== undefined &&
+                    !isDateExpired(reportExpires || "") && (
                         <Button
                             type="button"
                             outline
                             onClick={handleClick}
                             className="usa-button usa-button--outline float-right display-flex flex-align-center margin-left-1"
                         >
-                            {formatFileType(props.report!.fileType)}{" "}
+                            {formatFileType(fileType)}{" "}
                             <Icon.FileDownload
                                 className="margin-left-1"
                                 size={3}

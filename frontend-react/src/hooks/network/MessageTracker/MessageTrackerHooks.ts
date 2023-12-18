@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
@@ -12,7 +12,7 @@ const { search, getMessageDetails } = messageTrackerEndpoints;
 
 /** Hook consumes the MessageTrackerApi "search" endpoint and delivers the response **/
 export const useMessageSearch = () => {
-    const { authorizedFetch } = useAuthorizedFetch<MessageListResource[]>();
+    const authorizedFetch = useAuthorizedFetch<MessageListResource[]>();
 
     const messagesSearch = (
         messageId: string,
@@ -23,12 +23,7 @@ export const useMessageSearch = () => {
         });
     };
 
-    const mutation = useMutation(messagesSearch);
-    return {
-        search: mutation.mutateAsync,
-        isLoading: mutation.isLoading,
-        error: mutation.error,
-    };
+    return useMutation({ mutationFn: messagesSearch });
 };
 
 /** Hook consumes the MessagesApi "detail" endpoint and delivers the response
@@ -36,8 +31,7 @@ export const useMessageSearch = () => {
  * @param id {string} Pass in the covid_results_metadata_id to query a single message
  * */
 export const useMessageDetails = (id: string) => {
-    const { authorizedFetch, rsUseQuery } =
-        useAuthorizedFetch<RSMessageDetail>();
+    const authorizedFetch = useAuthorizedFetch<RSMessageDetail>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(getMessageDetails, {
@@ -47,10 +41,10 @@ export const useMessageDetails = (id: string) => {
             }),
         [authorizedFetch, id],
     );
-    const { data } = rsUseQuery(
-        [getMessageDetails.queryKey, id],
-        memoizedDataFetch,
-        { enabled: !!id },
-    );
+    const { data } = useQuery({
+        queryKey: [getMessageDetails.queryKey, id],
+        queryFn: memoizedDataFetch,
+        enabled: !!id,
+    });
     return { messageDetails: data };
 };

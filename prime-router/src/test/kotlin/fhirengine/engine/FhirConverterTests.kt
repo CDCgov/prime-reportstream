@@ -124,7 +124,7 @@ class FhirConverterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
                 SCHEMA_NAME
             )
@@ -170,7 +170,7 @@ class FhirConverterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_FHIR_URL,
                 "test",
@@ -214,7 +214,7 @@ class FhirConverterTests {
         val actionLogger = mockk<ActionLogger>()
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -234,7 +234,7 @@ class FhirConverterTests {
         val actionLogger = spyk(ActionLogger())
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -259,7 +259,7 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message =
             spyk(
-                RawSubmission(
+                FhirConvertMessage(
                     UUID.randomUUID(),
                     BLOB_FHIR_URL,
                     "test",
@@ -300,7 +300,7 @@ class FhirConverterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            RawSubmission(
+            FhirConvertMessage(
                 UUID.randomUUID(), BLOB_FHIR_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
                 SCHEMA_NAME
             )

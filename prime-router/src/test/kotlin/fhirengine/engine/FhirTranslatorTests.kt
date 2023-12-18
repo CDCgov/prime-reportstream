@@ -1,10 +1,9 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
-import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogDetail
@@ -34,8 +33,6 @@ import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Endpoint
-import org.hl7.fhir.r4.model.Provenance
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -135,7 +132,16 @@ class FhirTranslatorTests {
         val engine = makeFhirEngine()
 
         val message =
-            spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, topic = Topic.FULL_ELR))
+            spyk(
+                FhirTranslateMessage(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER,
+                    topic = Topic.FULL_ELR,
+                    oneOrganization.receivers[0].fullName
+                )
+            )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
@@ -147,7 +153,6 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-
         every { actionHistory.trackActionReceiverInfo(any(), any()) }
             .returns(Unit)
 
@@ -172,12 +177,21 @@ class FhirTranslatorTests {
         mockkObject(BlobAccess)
 
         // set up
-        val settings = FileSettings().loadOrganizations(colorado)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = makeFhirEngine(settings = settings)
-        val message = spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, Topic.FULL_ELR))
+        val message = spyk(
+            FhirTranslateMessage(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER,
+                Topic.FULL_ELR,
+                oneOrganization.receivers[0].fullName
+            )
+        )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
@@ -189,6 +203,7 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { actionHistory.trackActionReceiverInfo(any(), any()) } returns Unit
 
         // act
         accessSpy.transact { txn ->
@@ -348,45 +363,6 @@ class FhirTranslatorTests {
     }
 
     @Test
-    fun `test full elr translation happy path, receiver with condition filter so extensions`() {
-        mockkObject(BlobAccess)
-
-        // set up
-        val actionHistory = mockk<ActionHistory>()
-        val actionLogger = mockk<ActionLogger>()
-
-        val message = spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, Topic.FULL_ELR))
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
-
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }
-            .returns(File("src/test/resources/fhirengine/engine/valid_data_with_extensions.fhir").readText())
-        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
-
-        val engine = spyk(makeFhirEngine())
-
-        // act
-        accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        verify(exactly = 1) {
-            actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any(), any())
-            accessSpy.insertTask(any(), any(), any(), any(), any())
-            engine.pruneBundleForReceiver(any(), any())
-        }
-    }
-
-    @Test
     fun `test full elr translation hl7 translation exception`() {
         mockkObject(BlobAccess)
 
@@ -410,7 +386,16 @@ class FhirTranslatorTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val message = spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, Topic.FULL_ELR))
+        val message = spyk(
+            FhirTranslateMessage(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER,
+                Topic.FULL_ELR,
+                badSchemaOrganization.receivers[0].fullName
+            )
+        )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
@@ -437,122 +422,6 @@ class FhirTranslatorTests {
     }
 
     @Test
-    fun `Test removing some filtered observations from a DiagnosticReport`() {
-        val actionLogger = ActionLogger()
-        val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_some_filtered_observations.fhir").readText()
-        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
-        assertThat(messages).isNotEmpty()
-        val bundle = messages[0]
-        assertThat(bundle).isNotNull()
-        val engine = makeFhirEngine()
-        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
-
-        var observations = getResource(bundle, "Observation")
-
-        assertThat(observations.count()).isEqualTo(5)
-
-        val updatedBundle = with(engine) { bundle.removeUnwantedConditions(endpoint) }
-
-        observations = getResource(updatedBundle, "Observation")
-
-        assertThat(observations.count()).isEqualTo(2)
-    }
-
-    @Test
-    fun `Test removing all filtered observations from a DiagnosticReport`() {
-        val actionLogger = ActionLogger()
-        val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_all_filtered_observations.fhir").readText()
-        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
-        assertThat(messages).isNotEmpty()
-        val bundle = messages[0]
-        assertThat(bundle).isNotNull()
-        val engine = makeFhirEngine()
-        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        assertThat(provenance).isNotNull()
-        val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
-        assertThat(endpoint).isNotNull()
-        var observations = getResource(bundle, "Observation")
-        var diagnosticReport = getResource(bundle, "DiagnosticReport")
-
-        assertThat(observations.count()).isEqualTo(3)
-        assertThat(diagnosticReport.count()).isEqualTo(3)
-
-        val updatedBundle = with(engine) { bundle.removeUnwantedConditions(endpoint) }
-
-        observations = getResource(updatedBundle, "Observation")
-        diagnosticReport = getResource(updatedBundle, "DiagnosticReport")
-        assertThat(observations.count()).isEqualTo(1)
-        assertThat(diagnosticReport.count()).isEqualTo(1)
-    }
-
-    @Test
-    fun `Test observations are not removed if receiver Endpoint is not populated`() {
-        val actionLogger = ActionLogger()
-        val fhirBundle = File(VALID_DATA_URL).readText()
-        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
-        assertThat(messages).isNotEmpty()
-        val bundle = messages[0]
-        assertThat(bundle).isNotNull()
-        val engine = makeFhirEngine()
-        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        assertThat(provenance).isNotNull()
-        val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
-        assertThat(endpoint).isNotNull()
-        var observations = getResource(bundle, "Observation")
-        var diagnosticReport = getResource(bundle, "DiagnosticReport")
-        val observationsCount = observations.count()
-        val diagnosticReportCount = diagnosticReport.count()
-        assertThat(observationsCount).isEqualTo(3)
-        assertThat(diagnosticReportCount).isEqualTo(3)
-
-        val updatedBundle = with(engine) { bundle.removeUnwantedConditions(endpoint) }
-
-        observations = getResource(updatedBundle, "Observation")
-        diagnosticReport = getResource(updatedBundle, "DiagnosticReport")
-        assertThat(observations.count()).isEqualTo(observationsCount)
-        assertThat(diagnosticReport.count()).isEqualTo(diagnosticReportCount)
-    }
-
-    @Test
-    fun `Test remove provenance targets`() {
-        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data_multiple_targets.fhir").readText()
-        val origBundle = FhirTranscoder.decode(fhirBundle)
-        assertThat(origBundle).isNotNull()
-        val engine = makeFhirEngine()
-        val origProv = origBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        assertThat(origProv).isNotNull()
-        assertThat(origProv.target.size).isEqualTo(4)
-        val origEndpoints = origProv.target.map { it.resource }.filterIsInstance<Endpoint>()
-        assertThat(origEndpoints.size).isEqualTo(3)
-
-        var bundle = origBundle.copy()
-        bundle = with(engine) { bundle.removeUnwantedProvenanceEndpoints(origEndpoints[0]) }
-        var provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        assertThat(provenance.target.size).isEqualTo(2) // Still has all non-endpoint items
-        var endpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
-        assertThat(endpoints.size).isEqualTo(1)
-        assertThat(endpoints[0]).isEqualTo(origEndpoints[0])
-
-        bundle = origBundle.copy()
-        bundle = with(engine) { bundle.removeUnwantedProvenanceEndpoints(origEndpoints[2]) }
-        provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        assertThat(provenance.target.size).isEqualTo(2) // Still has all non-endpoint items
-        endpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
-        assertThat(endpoints.size).isEqualTo(1)
-        assertThat(endpoints[0]).isEqualTo(origEndpoints[2])
-
-        bundle = origBundle.copy()
-        val otherEndpoint = origEndpoints[0].copy()
-        otherEndpoint.name += "other"
-        bundle = with(engine) { bundle.removeUnwantedProvenanceEndpoints(otherEndpoint) }
-        provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        assertThat(provenance.target.size).isEqualTo(1) // Still has all non-endpoint items
-        endpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
-        assertThat(endpoints.size).isEqualTo(0) // Removed all endpoints
-    }
-
-    @Test
     fun `test getByteArrayFromBundle`() {
         val fhirData = File(VALID_DATA_URL).readText()
         val fhirBundle = FhirTranscoder.decode(fhirData)
@@ -576,7 +445,7 @@ class FhirTranslatorTests {
         byteBody = engine.getByteArrayFromBundle(fhirReceiver, fhirBundle)
         assertThat(byteBody).isNotEmpty()
 
-        assertThat { engine.getByteArrayFromBundle(csvReceiver, fhirBundle) }.isFailure()
+        assertFailure { engine.getByteArrayFromBundle(csvReceiver, fhirBundle) }
     }
 
     @Test
@@ -595,6 +464,6 @@ class FhirTranslatorTests {
         assertThat(strBody).isNotEmpty()
         assertThat(strBody.contains("MSH|^~\\&#")).isTrue()
 
-        assertThat { hl7Message.encode() }.isFailure()
+        assertFailure { hl7Message.encode() }
     }
 }

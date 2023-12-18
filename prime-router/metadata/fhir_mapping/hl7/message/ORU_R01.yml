@@ -58,13 +58,14 @@ resources:
     isReferenced: true
     additionalSegments:
       - .OBSERVATION.OBX
+      - .OBR
       - .OBSERVATION.NTE
       - MSH
 
   - resourceName: ServiceRequest
     segment: .OBR
     group: PATIENT_RESULT.ORDER_OBSERVATION
-    resourcePath: resource/ServiceRequest
+    resourcePath: segments/ORC/ServiceRequest
     repeats: true
     isReferenced: true
     additionalSegments:
@@ -72,24 +73,18 @@ resources:
       - .ORC
       - .SPECIMEN.SPECIMEN_OBSERVATION.OBX
       - .SPECIMEN.OBX
-      - PATIENT_RESULT.PATIENT.PID
-      - PATIENT_RESULT.PATIENT.VISIT.PV1
-      - MSH
-      - .TIMING_QTY.TQ1
 
   - resourceName: DiagnosticReport
     segment: .OBR
     group: PATIENT_RESULT.ORDER_OBSERVATION
-    resourcePath: resource/DiagnosticReport
+    resourcePath: segments/ORC/DiagnosticReport
     repeats: true
     additionalSegments:
       - .ORC
-      - .NTE
-      - .TIMING_QTY.TQ1
-      - .OBSERVATION.OBX
-      - MSH
-      - PATIENT_RESULT.PATIENT.PID
-      - PATIENT_RESULT.PATIENT.VISIT.PV1
-      # NOTE:  PID and PV1 are passed because they are used by the created Service Request
+
+  - resourceName: Device
+    segment: .PRT
+    group: PATIENT_RESULT.PATIENT.PATIENT_OBSERVATION
+    resourcePath: segments/PRT/Device
 
 # TODO Add more segments as we develop them

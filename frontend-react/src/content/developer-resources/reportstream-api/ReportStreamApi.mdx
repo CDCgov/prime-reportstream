@@ -1,12 +1,10 @@
-import DOMPurify from "dompurify";
+---
+metaTitle: Guide to connecting with ReportStream's API 
+metaDescription: Learn about our API and how to set up a connection for reporting data to public health entities.
+---
 
 import Sidenav from "./Sidenav.mdx";
 import site from "../../site.json";
-import { trackAppInsightEvent } from "../../../utils/Analytics";
-
-export const handleClick = () => {
-    trackAppInsightEvent("ReportStream API", {});
-};
 
 <LayoutSidenav>
     <Sidenav />
@@ -29,7 +27,7 @@ export const handleClick = () => {
     </CardGroup>
 
 
-    <p>Our API guide and documentation is also available as a <a href={DOMPurify.sanitize(site.assets.programmersGuidePdf.path)} target="_blank" rel="noopener noreferrer" download><Button type="button" unstyled onClick={handleClick}>downloadable PDF</Button></a>.</p>
+    <p>Our API guide and documentation is also available as a <A href={site.assets.programmersGuidePdf.path} trackClick={{name: "ReportStream API"}} download>downloadable PDF</A>.</p>
 
     ***
     <br/>
@@ -37,7 +35,7 @@ export const handleClick = () => {
     ## <a href="#onboarding-overview" className="usa-link usa-link--unstyled">Onboarding overview</a>
     We’ll give you and your team resources and support as you begin connecting with ReportStream’s API. [Learn more](getting-started) about setting up your connection and formatting your data.
 
-    If you haven’t connected with us yet, [contact us](/support/contact) to set up your kickoff call.
+    If you haven’t connected with us yet, [contact us](https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599) to set up your kickoff call.
 
     <ProcessList>
         <ProcessListItem>

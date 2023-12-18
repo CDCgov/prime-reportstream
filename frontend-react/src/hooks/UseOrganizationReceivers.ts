@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { RSReceiver, servicesEndpoints } from "../config/endpoints/settings";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
@@ -12,7 +13,7 @@ export const useOrganizationReceivers = () => {
     const { activeMembership } = useSessionContext();
     const parsedName = activeMembership?.parsedName;
 
-    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSReceiver[]>();
+    const authorizedFetch = useAuthorizedFetch<RSReceiver[]>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(receivers, {
@@ -22,12 +23,14 @@ export const useOrganizationReceivers = () => {
             }),
         [parsedName, authorizedFetch],
     );
-    return rsUseQuery(
-        [receivers.queryKey, activeMembership],
-        memoizedDataFetch,
-        {
-            enabled:
-                Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS,
-        },
-    );
+    const isAdmin =
+        Boolean(parsedName) && parsedName === Organizations.PRIMEADMINS;
+    return {
+        ...useQuery({
+            queryKey: [receivers.queryKey, activeMembership],
+            queryFn: memoizedDataFetch,
+            enabled: !isAdmin,
+        }),
+        isDisabled: isAdmin,
+    };
 };

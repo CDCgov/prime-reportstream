@@ -15,8 +15,6 @@ import {
     LookupTables,
     ValueSet,
 } from "../../../config/endpoints/lookupTables";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../../components/AuthElement";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
@@ -58,19 +56,19 @@ const valueSetColumnConfig: ColumnConfig[] = [
 ];
 
 const toValueSetWithMeta = (
-    valueSetArray: ValueSet[] = [],
     valueSetMeta: LookupTable,
+    valueSetArray: ValueSet[] = [],
 ) => valueSetArray.map((valueSet) => ({ ...valueSet, ...valueSetMeta }));
 
 const ValueSetsTable = () => {
-    const { valueSetMeta } = useValueSetsMeta();
-    const { valueSetArray } = useValueSetsTable<ValueSet[]>(
+    const { data: valueSetMeta } = useValueSetsMeta();
+    const { data: valueSetArray } = useValueSetsTable<ValueSet[]>(
         LookupTables.VALUE_SET,
     );
 
     const tableConfig: TableConfig = {
         columns: valueSetColumnConfig,
-        rows: toValueSetWithMeta(valueSetArray, valueSetMeta),
+        rows: toValueSetWithMeta(valueSetMeta, valueSetArray),
     };
 
     return (
@@ -79,11 +77,11 @@ const ValueSetsTable = () => {
         </>
     );
 };
-const ValueSetsIndex = () => {
+const ValueSetsIndexPage = () => {
     return (
         <>
             <Helmet>
-                <title>Value Sets | Admin</title>
+                <title>Value sets - Admin</title>
             </Helmet>
             <section className="grid-container">
                 {withCatchAndSuspense(<ValueSetsTable />)}
@@ -92,11 +90,4 @@ const ValueSetsIndex = () => {
     );
 };
 
-export default ValueSetsIndex;
-
-export const ValueSetsIndexWithAuth = () => (
-    <AuthElement
-        element={<ValueSetsIndex />}
-        requiredUserType={MemberType.PRIME_ADMIN}
-    />
-);
+export default ValueSetsIndexPage;

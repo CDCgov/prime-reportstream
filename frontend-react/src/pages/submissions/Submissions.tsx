@@ -5,22 +5,23 @@ import { GridContainer } from "@trussworks/react-uswds";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../components/AuthElement";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-import { FeatureName } from "../../utils/FeatureName";
 
 import SubmissionTable from "./SubmissionTable";
 
 function SubmissionHistoryContent() {
     const { data: orgDetails } = useOrganizationSettings();
-    const { description } = orgDetails || {};
+    const { description } = orgDetails ?? {};
 
     return (
         <GridContainer>
             <article className="padding-top-5">
                 <Helmet>
-                    <title>{FeatureName.SUBMISSIONS}</title>
+                    <title>Submission history</title>
+                    <meta
+                        name="description"
+                        content="The Submission History dashboard provides the status of data you sent through ReportStream."
+                    />
                 </Helmet>
                 <Title title="Submission History" preTitle={description} />
                 <SubmissionTable />
@@ -30,11 +31,7 @@ function SubmissionHistoryContent() {
     );
 }
 
-const SubmissionHistory = () =>
+const SubmissionHistoryPage = () =>
     withCatchAndSuspense(<SubmissionHistoryContent />);
-export const SubmissionsWithAuth = () => (
-    <AuthElement
-        element={<SubmissionHistory />}
-        requiredUserType={MemberType.SENDER}
-    />
-);
+
+export default SubmissionHistoryPage;

@@ -20,12 +20,12 @@ elements:
 
   - name: patient-assigning-authority-type
     condition: '%resource.identifier.count() = 1 and %resource.identifier.type.empty()'
-    value: [ '%patientOrganization.identifier.value' ]
+    value: [ '%patientOrganization.identifier[0].value' ]
     hl7Spec: [ '%{hl7PIDField}-3-4-2' ]
 
   - name: patient-assigning-authority-type-code
     condition: '%resource.identifier.count() = 1 and %resource.identifier.type.empty()'
-    value: [ '%patientOrganization.identifier.type.coding.code' ]
+    value: [ '%patientOrganization.identifier[0].type.coding.code' ]
     hl7Spec: [ '%{hl7PIDField}-3-4-3' ]
 
   - name: patient-name
@@ -43,10 +43,10 @@ elements:
     schema: datatype/xpn-person-name
 
   - name: patient-dob
-    value:
-      - '%resource.birthDate.extension("http://hl7.org/fhir/StructureDefinition/patient-birthTime").value'
-      - '%resource.birthDate'
-    hl7Spec: [ '%{hl7PIDField}-7' ]
+    resource: '%resource.birthDate'
+    constants:
+      dtmFieldPath: '%{hl7PIDField}-7'
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: patient-sex
     value: [ '%resource.gender' ]
@@ -100,7 +100,7 @@ elements:
     condition: '%context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7PIDField}-13'
-    schema: datatype/xtn-telecom
+    schema: ../datatypes/contactPoint/XTN
     resourceIndex: telecomIndex
 
   - name: phone-number-business
@@ -108,7 +108,7 @@ elements:
     condition: '%context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7PIDField}-14'
-    schema: datatype/xtn-telecom
+    schema: ../datatypes/contactPoint/XTN
     resourceIndex: telecomIndex
 
   - name: patient-marital-status
@@ -142,9 +142,11 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-25' ]
 
   - name: patient-death-date-time
-    condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
-    value: [ '%resource.deceased' ]
-    hl7Spec: [ '%{hl7PIDField}-29' ]
+    condition: '%context.deceased.exists() and %context.deceased is dateTime'
+    resource: '%resource.deceased'
+    constants:
+      dtmFieldPath: '%{hl7PIDField}-29'
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: patient-death-indicator-1
     condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
@@ -187,4 +189,14 @@ elements:
     constants:
       ceFieldPath: '%{hl7PIDField}-35'
     schema: ../common/datatype/ce-coded-element
+
+  - name: patient-tribal-citizenship
+    condition: >
+      %context.extension(%`ext-patient-citizenship`).exists() and
+      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).exists() and
+      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "tribal-citizenship").exists()
+    resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-39'
+    schema: ../datatypes/codeableConcept/CWE
 

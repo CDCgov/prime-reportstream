@@ -237,26 +237,26 @@ address:
     distPatient: PID
 
 telecom_1:
-  condition: $pid14 NOT_NULL
-  valueOf: datatype/ContactPoint
+  condition: $valueIn NOT_NULL
+  valueOf: datatypes/XTN/ContactPoint
   generateList: true
   expressionType: resource
   specs: PID.14
   vars:
-    pid14: PID.14
+    valueIn: PID.14
   constants:
-    use: work
+    useCode: work
 
 telecom_2:
-  condition: $pid13 NOT_NULL
-  valueOf: datatype/ContactPoint
+  condition: $valueIn NOT_NULL
+  valueOf: datatypes/XTN/ContactPoint
   generateList: true
   expressionType: resource
   specs: PID.13
   vars:
-    pid13: PID.13
+    valueIn: PID.13
   constants:
-    use: home
+    useCode: home
 
 # The yaml is processed in reverse order, therefore
 # Put the PID.13 last in yaml so it is first to be processed
@@ -264,6 +264,39 @@ birthDate:
   type: DATE
   valueOf: PID.7
   expressionType: HL7Spec
+
+_birthDate:
+  condition: $pid7 NOT_NULL
+  vars:
+    pid7: PID.7
+    dateTimeIn: PID.7, GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)
+    isTime: PID.7, GeneralUtils.dateTimeWithZoneId(isTime,ZONEID).length() > 10
+  expressionType: nested
+  expressionsMap:
+    # this extension is needed to comply with the official HL7v2-to-FHIR mapping
+    extension_1:
+      condition: $dateTimeIn NOT_NULL && $isTime EQUALS "true"
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: birthTime
+        valueDateTime:
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
+    # this extension is needed to reliably translate back to HL7 from FHIR
+    extension_2:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $pid7
+          expressionType: HL7Spec
 
 multipleBirthBoolean_1:
   condition: $multBool NOT_NULL && $multInt NULL
@@ -318,6 +351,24 @@ deceasedDateTime:
   vars:
     dateTimeIn: PID.29
 
+_deceasedDateTime:
+  expressionType: nested
+  condition: pid29 NOT_NULL
+  vars:
+    pid29: PID.29
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: pid29
+          expressionType: HL7Spec
+
 maritalStatus:
   valueOf: datatype/CodeableConcept
   expressionType: resource
@@ -327,6 +378,9 @@ maritalStatus:
     text: String, PID.16.2
 
 contact:
+  vars:
+    nk1: NK1
+  condition: $nk1 NOT_NULL
   valueOf: secondary/PatientContact
   expressionType: resource
   generateList: true
@@ -433,6 +487,32 @@ extension:
           condition: $annotationText NOT_NULL
           vars:
             annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
+
+    - expressionType: nested
+      condition: tribalCitizenship NOT_NULL
+      generateList: true
+      vars:
+        tribalCitizenship: STRING_ALL, PID.39
+      constants:
+        hl7v2Name: "tribal-citizenship"
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: patient-citizenship
+        extension:
+          generateList: true
+          expressionType: nested
+          expressions:
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: code
+                valueCodeableConcept:
+                  valueOf: datatypes/CWE/CodeableConcept
+                  expressionType: resource
+                  specs: PID.39
+
 
 extension_mother_identifier:
   generateList: true

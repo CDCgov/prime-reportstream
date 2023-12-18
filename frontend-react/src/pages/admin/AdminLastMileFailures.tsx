@@ -5,15 +5,12 @@ import { GridContainer } from "@trussworks/react-uswds";
 import Spinner from "../../components/Spinner";
 import HipaaNotice from "../../components/HipaaNotice";
 import { AdminLastMileFailuresTable } from "../../components/Admin/AdminLastMileFailuresTable";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../components/AuthElement";
-import { FeatureName } from "../../utils/FeatureName";
 
-export function AdminLastMileFailures() {
+export function AdminLastMileFailuresPage() {
     return (
         <GridContainer>
             <Helmet>
-                <title>{FeatureName.ADMIN}</title>
+                <title>Last mile failures - Admin</title>
             </Helmet>
             <article className="margin-bottom-5">
                 <h3 className="margin-bottom-0">
@@ -26,11 +23,4 @@ export function AdminLastMileFailures() {
     );
 }
 
-export function AdminLMFWithAuth() {
-    return (
-        <AuthElement
-            element={<AdminLastMileFailures />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
+export default AdminLastMileFailuresPage;

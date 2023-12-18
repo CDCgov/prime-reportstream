@@ -22,10 +22,15 @@ locals {
     WEBSITE_CONTENTOVERVNET            = 1
     SCM_DO_BUILD_DURING_DEPLOYMENT     = true
     WEBSITE_HTTPLOGGING_RETENTION_DAYS = 3
+    SFTP_HOST                          = "${var.resource_prefix}-sftp01.eastus.azurecontainer.io"
     POSTGRES_HOST                      = "${var.resource_prefix}-pgsql.postgres.database.azure.com"
     POSTGRES_USER                      = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-postgres-user)"
     POSTGRES_PASSWORD                  = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-postgres-pass)"
     SLACK_WEBHOOK_URL                  = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-slack-webhook-url)"
+    OKTA_clientId                      = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-okta-clientid)"
+    OKTA_authKey                       = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-okta-authkey)"
+    RS_OKTA_clientId                   = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-RS-okta-clientid)"
+    RS_OKTA_authKey                    = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-RS-okta-authkey)"
   }
   # Set app configuration
   config = {
@@ -47,6 +52,7 @@ locals {
     { action = "Allow", name = "AllowVNetTraffic", priority = 100, virtual_network_subnet_id = var.subnets.public_subnets[2], service_tag = null, ip_address = null },
     { action = "Allow", name = "AllowVNetEastTraffic", priority = 100, virtual_network_subnet_id = var.subnets.public_subnets[0], service_tag = null, ip_address = null },
     { action = "Allow", name = "AllowFrontDoorTraffic", priority = 110, virtual_network_subnet_id = null, service_tag = "AzureFrontDoor.Backend", ip_address = null },
+    { action = "Allow", name = "AllowAppInsightsTraffic", priority = 110, virtual_network_subnet_id = null, service_tag = "ApplicationInsightsAvailability", ip_address = null },
     # Administrator access
     { action = "Allow", name = "admin01", priority = 200, virtual_network_subnet_id = null, service_tag = null, ip_address = "24.163.118.70/32" }
   ]

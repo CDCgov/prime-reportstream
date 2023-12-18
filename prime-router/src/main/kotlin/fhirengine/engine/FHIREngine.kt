@@ -118,8 +118,8 @@ abstract class FHIREngine(
      * be done, tracking with the [actionLogger] and [actionHistory], and making use of [metadata] if present.  It
      * returns the result of the work so that messages can be passed along.
      */
-    abstract fun doWork(
-        message: RawSubmission,
+    abstract fun <T : Message> doWork(
+        message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult>
@@ -147,13 +147,13 @@ abstract class FHIREngine(
         val nextEvent: Event,
         val report: Report,
         val reportUrl: String,
-        val message: RawSubmission?,
+        val message: Message?,
     )
 
     /**
      *
      * Responsible for invoking the [doWork] function, inserting any new tasks and updating the previous task and
-     * returning any messages [RawSubmission] that need to be added to the queue
+     * returning any messages that need to be added to the queue
      * If an exception is encountered it is logged and then rethrown in order to rollback the transaction
      *
      * @param message the message to process
@@ -163,11 +163,11 @@ abstract class FHIREngine(
      *
      */
     fun run(
-        message: RawSubmission,
+        message: Message,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction,
-    ): List<RawSubmission> {
+    ): List<Message> {
         try {
             // Do the FHIR work (convert, route, translate)
             val results = doWork(message, actionLogger, actionHistory)

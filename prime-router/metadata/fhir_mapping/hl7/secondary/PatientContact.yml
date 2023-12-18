@@ -1,5 +1,5 @@
 name:
-  valueOf: datatype/HumanName
+  valueOf: datatypes/XPN/HumanName
   generateList: true
   expressionType: resource
   specs: NK1.2
@@ -39,7 +39,8 @@ relationship_3:
     primarySystem: PatientContactRelationship
     primaryDisplay: Unknown
 
-address:
+address_1:
+  generateList: true
   valueOf: datatype/Address
   expressionType: resource
   specs: NK1.4
@@ -64,6 +65,50 @@ telecom_business:
   constants:
     use: work
 
+period:
+  vars:
+    startDate: NK1.8
+    endDate: NK1.9
+  condition: $startDate NOT_NULL || $endDate NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(startDate,ZONEID)"
+      expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $startDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $startDate
+              expressionType: HL7Spec
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $endDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
+
 telecom_3-next-of-kin-telecomm-info:
   condition: $valueIn NOT_NULL
   valueOf: datatypes/XTN/ContactPoint
@@ -76,10 +121,10 @@ telecom_3-next-of-kin-telecomm-info:
     hl7v2Name: "next-of-kin-telecomm-info"
 
 organization:
-  condition: $orgContactPointAddressXAD NOT_NULL || $orgContactPointXTN NOT_NULL || $orgContactName NOT_NULL
-  valueOf: resource/Organization
+  condition: $XADAddress NOT_NULL || $XONOrganization NOT_NULL
   expressionType: reference
+  valueOf: datatypes/XON/Organization
+  specs: NK1.13
   vars:
-    orgContactPointAddressXAD: NK1.32
-    orgContactPointXTN: NK1.31
-    orgContactName: NK1.30
+    XADAddress: NK1.32
+    XONOrganization: NK1.13

@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import {
     RSReceiverDeliveryResponse,
@@ -56,8 +57,7 @@ export default function useReceiverDeliveries(serviceName?: string) {
     const rangeTo = filterManager.rangeSettings.to;
     const rangeFrom = filterManager.rangeSettings.from;
 
-    const { authorizedFetch, rsUseQuery } =
-        useAuthorizedFetch<RSReceiverDeliveryResponse>();
+    const authorizedFetch = useAuthorizedFetch<RSReceiverDeliveryResponse>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(receiverDeliveries, {
@@ -88,19 +88,16 @@ export default function useReceiverDeliveries(serviceName?: string) {
             sortDirection,
         ],
     );
-    const { data, isLoading } = rsUseQuery(
-        [
+    const { data, isLoading } = useQuery({
+        queryKey: [
             receiverDeliveries.queryKey,
             activeMembership,
             orgAndService,
             filterManager,
         ],
-        memoizedDataFetch,
-        {
-            enabled:
-                !!activeMembership?.parsedName && !!activeMembership.service,
-        },
-    );
+        queryFn: memoizedDataFetch,
+        enabled: !!activeMembership?.parsedName,
+    });
 
     return { data, filterManager, isLoading };
 }

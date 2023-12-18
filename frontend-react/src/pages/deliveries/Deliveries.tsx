@@ -4,21 +4,23 @@ import { GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../components/AuthElement";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import { FeatureName } from "../../utils/FeatureName";
 
 import DeliveriesTable from "./Table/DeliveriesTable";
 
-function Deliveries() {
+function DeliveriesPage() {
     const { data: orgDetails } = useOrganizationSettings();
     const { description } = orgDetails || {};
     return (
         <GridContainer>
             <Helmet>
-                <title>{FeatureName.DAILY_DATA}</title>
+                <title>Daily Data - ReportStream</title>
+                <meta
+                    name="description"
+                    content="Daily Data shows what data a public health entity has received with the option to download."
+                />
             </Helmet>
             <article className="padding-bottom-5 tablet:padding-top-6">
                 <Title preTitle={description} title={FeatureName.DAILY_DATA} />
@@ -29,9 +31,4 @@ function Deliveries() {
     );
 }
 
-export const DeliveriesWithAuth = () => (
-    <AuthElement
-        element={<Deliveries />}
-        requiredUserType={MemberType.RECEIVER}
-    />
-);
+export default DeliveriesPage;

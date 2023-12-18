@@ -1,4 +1,5 @@
 import { Alert } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
 
 import { USExtLink, USLink } from "../components/USLink";
 import site from "../content/site.json";
@@ -6,6 +7,13 @@ import site from "../content/site.json";
 export const TermsOfService = () => {
     return (
         <>
+            <Helmet>
+                <title>ReportStream Terms of Service</title>
+                <meta
+                    name="description"
+                    content="The Terms of Service that ReportStream users agree to when they have a ReportStream account or send data through ReportStream."
+                />
+            </Helmet>
             <section
                 className="usa-site-alert usa-site-alert--info desktop:margin-top-0 margin-bottom-3 tablet:margin-bottom-6"
                 id="anchor-top"
@@ -524,3 +532,5 @@ export const TermsOfService = () => {
         </>
     );
 };
+
+export default TermsOfService;

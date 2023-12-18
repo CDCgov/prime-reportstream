@@ -1,6 +1,8 @@
 ---
 title: Release notes
 subtitle: Stay up to date with new features, enhancements, and fixes
+metaTitle: ReportStream release notes
+metaDescription: View monthly updates on new features, enhancements, and fixes.
 backToTop: true
 ---
 import Sidenav from "./sidenav.mdx"
@@ -12,6 +14,45 @@ import Sidenav from "./sidenav.mdx"
 You may also be interested in:
 * [Release notes in GitHub](https://github.com/CDCgov/prime-reportstream/releases)
 
+<ReleaseNote
+    header="November 2023"
+    sections={[
+        {
+            title: "New website navigation, design, and content",
+            tag: "improvement",
+            body: (
+                <p>
+                    The public-facing ReportStream website has recently finished a significant redesign to improve the usefulness and usability of the site. New and updated content in addition to new site sections will make it easier to users to find the information they need.
+                </p>
+            ),
+        },
+        {
+            title: "Updates to ReportStream account login through Okta",
+            tag: "improvement",
+            body: (
+                <p>
+                    ReportStream has migrated to a new Okta instance. The updates will improve the authenticated experience for users by including new features like easier self-serve password reset.
+                </p>
+            ),
+        },
+        {
+            title: "New Data Dashboard is live",
+            tag: "feature",
+            body: (
+                <p>
+                    There is a <a href="/data-dashboard">new dashboard</a> for public health agencies to view information about the facilities who are sending them COVID-19 data. The enhancements include sortable columns and a new view that shows all reporting facilities and when they last sent data. If you are receiving COVID data from ReportStream, you will see the dashboard when you <a href="/login">login</a>. Note: If you are downloading data from ReportStream, you will still use the Daily Data page.
+                </p>
+            ),
+        },
+        {
+            title: "Arkansas now connected with ReportStream",
+            tag: "announcement",
+            body: (
+                <p>We’re excited to announce that ReportStream can now send public health data to Arkansas.</p>
+            ),
+        },
+    ]}
+/>
 <ReleaseNote
     header="July 2023"
     sections={[
@@ -210,7 +251,7 @@ You may also be interested in:
                     Users can now see more data on wider screens. Tables
                     on <a href="/daily-data">Daily Data</a> (for public
                     health departments) and{" "}
-                    <a href="/submission">Submissions</a> (for testing
+                    <a href="/submissions">Submissions</a> (for testing
                     facilities) have been updated with widescreen grid
                     containers.
                 </p>

@@ -18,13 +18,19 @@ elements:
     value: [ '%resource.name.given.tail()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-4' ]
 
-  - name: xcn-suffix
-    value: [ '%resource.name.suffix.toString()' ]
+  - name: xcn-suffix-from-extension
+    condition: '%resource.name.extension(%`rsext-name-suffix`).exists()'
+    value: [ '%resource.name.extension(%`rsext-name-suffix`).value' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-5' ]
 
   - name: xcn-prefix
     value: [ '%resource.name.prefix.toString()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-6' ]
+
+  - name: xcn-suffix-degree
+    condition: '%resource.name.extension(%`rsext-name-suffix-degree`).exists()'
+    value: [ '%resource.name.extension(%`rsext-name-suffix-degree`).value' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-7' ]
 
   - name: xcn-assigning-authority
     resource: '%resource.identifier[0]'
@@ -34,6 +40,7 @@ elements:
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
       namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"'
       universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"'
+      universalIdTypeExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"'
     schema: hd-hierarchic-designator
 
   - name: xcn-name-type-code
@@ -53,4 +60,10 @@ elements:
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
       namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"'
       universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"'
+      universalIdTypeExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"'
     schema: hd-hierarchic-designator
+
+  - name: xcn-suffix-professional
+    condition: '%resource.name.extension(%`rsext-name-suffix-professional`).exists()'
+    value: [ '%resource.name.extension(%`rsext-name-suffix-professional`).value' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-21' ]

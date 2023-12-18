@@ -402,26 +402,11 @@ module.exports = {
                     "error",
                     { eventModules: ["fire-event"] },
                 ],
-                "testing-library/no-render-in-lifecycle": [
-                    "error",
-                    {
-                        allowTestingFrameworkSetupHook: "beforeEach",
-                    },
-                ],
+                "testing-library/no-render-in-lifecycle": "error",
                 "testing-library/no-node-access": "off",
                 "testing-library/prefer-screen-queries": "warn",
                 "testing-library/no-unnecessary-act": "warn",
                 "testing-library/no-await-sync-queries": "warn",
-            },
-        },
-        {
-            plugins: ["chai-friendly"],
-            files: ["**/cypress/**/*.[jt]s?(x)"],
-            extends: ["plugin:cypress/recommended"],
-            rules: {
-                "no-unused-expressions": "off",
-                "@typescript-eslint/no-unused-expressions": "off",
-                "chai-friendly/no-unused-expressions": "error",
             },
         },
     ],

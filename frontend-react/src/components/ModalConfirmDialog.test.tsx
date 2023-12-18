@@ -1,9 +1,9 @@
-import { screen, renderHook } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import React, { useRef } from "react";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
 
-import { renderApp } from "../utils/CustomRenderUtils";
+import { renderApp, renderHook } from "../utils/CustomRenderUtils";
 
 import { ModalConfirmDialog, ModalConfirmRef } from "./ModalConfirmDialog";
 

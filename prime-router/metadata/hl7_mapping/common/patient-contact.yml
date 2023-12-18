@@ -9,8 +9,8 @@ elements:
     resource: '%resource.name'
     condition: '%resource.exists()'
     constants:
-      hl7NameField: '%{hl7NK1Field}-2'
-    schema: datatype/xpn-person-name
+      hl7xpnField: '%{hl7NK1Field}-2'
+    schema: ../datatypes/HumanName/XPN
 
   - name: contact-relationship-id
     resource: '%resource.relationship.where(coding.system != "http://hl7.org/fhir/ValueSet/patient-contactrelationship")'
@@ -42,6 +42,18 @@ elements:
     schema: datatype/xtn-telecom
     resourceIndex: telecomIndex
 
+  - name: contact-start-date
+    resource: '%resource.period.start'
+    constants:
+      dtmFieldPath: '%{hl7NK1Field}-8'
+    schema: ../datatypes/dateTime/DTMorDT
+
+  - name: contact-end-date
+    resource: '%resource.period.end'
+    constants:
+      dtmFieldPath: '%{hl7NK1Field}-9'
+    schema: ../datatypes/dateTime/DTMorDT
+
   - name: contact-persons-phone-number
     resource: '%resource.organization.resolve().contact.telecom'
     condition: '%resource.exists()'
@@ -51,11 +63,11 @@ elements:
     resourceIndex: telecomIndex
 
   - name: contact-persons-address
-    resource: '%resource.organization.resolve().contact.address'
+    resource: '%resource.organization.resolve().address'
     condition: '%resource.exists()'
     constants:
-      hl7AddressField: '%{hl7NK1Field}-32'
-    schema: datatype/xad-extended-address
+      hl7SpecXADField: '%{hl7NK1Field}-32'
+    schema: ../datatypes/Address/XAD
     resourceIndex: orderIndex
 
   - name: next-of-kin-telecomm-info

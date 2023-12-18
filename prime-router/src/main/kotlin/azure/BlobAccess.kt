@@ -134,7 +134,7 @@ class BlobAccess() : Logging {
             blobBytes: ByteArray,
             reportName: String,
             subfolderName: String? = null,
-            action: Event.EventAction = Event.EventAction.NONE,
+            action: Event.EventAction = Event.EventAction.OTHER,
         ): BlobInfo {
             val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
             val blobName = when (action) {

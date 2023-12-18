@@ -35,7 +35,7 @@ Example:
     - name: default
       organizationName: yoyodyne
       topic: full-elr
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/original-pipeline-transforms
       format: HL7
 ```
 
@@ -49,7 +49,7 @@ A few things to note here:
 - The jurisdiction should be FEDERAL since they are not a STLT
 - The organizationName under `senders` must match the name of the org above
 - The format here is `FHIR`, though it is possible it could another format, such as `HL7`
-- The schema name should use `metadata/fhir_transforms/senders/default-sender-transform` by default
+- The schema name should use `metadata/fhir_transforms/senders/original-pipeline-transforms` by default
 - Pay attention to the value in the topic field to make sure it is correct for your use case
 
 ### Set up a New Schema
@@ -86,7 +86,7 @@ the message with no errors and not lose any data while converting it.
 
 #### Testing sender transforms
 ```shell
-./prime fhirdata --input-file "PATH-TO-SAMPLE-FILE.hl7" -s metadata/fhir_transforms/senders/default-sender-transform.yaml --output-format FHIR --output-file "PATH-TO-OUTPUT-FILE.fhir"
+./prime fhirdata --input-file "PATH-TO-SAMPLE-FILE.hl7" -s metadata/fhir_transforms/senders/original-pipeline-transforms.yaml --output-format FHIR --output-file "PATH-TO-OUTPUT-FILE.fhir"
 ```
 
 This call will take in your sample input file, and apply any sender transforms specified in the schema passed in,
@@ -160,11 +160,57 @@ In order to send to the staging environment, the sender will need to authenticat
 using a JWT in combination with a public/private keypair or a shared secret key. Details can be found in the 
 ReportStream Programmer’s Guide (https://staging.reportstream.cdc.gov/resources/programmers-guide).
 
-#### Setting up public/private keypair
+### Authenticating to ReportStream’s REST API
 
-Details on how to set up a keypair can be found in the “how-to-use-token-auth.md” documentation in the repo. Keypair is 
-the preferred authentication method. Shared secret can be used as an alternative in cases where keypair presents a 
-barrier to the sender.
+There are two methods of authenticating to ReportStream’s REST API:
+1. Token-based authentication with a public/private key pair
+   Note: This method is the recommended best practice.
+
+2. Using a shared secret API key
+**Note: This is legacy authentication and is no longer used for onboarding new users. This information is here to support legacy senders**
+
+The examples below use the fake client-id healthy-labs, that you will change for your
+submissions. The examples submit the payload contained in the file
+./healthy-labs-nonPII-data.csv (or .hl7). In the examples, data are submitted via
+an HTTP POST to the ReportStream staging system reports endpoint. The data submitted
+are sent as the payload of the POST, as is, with no changes.
+
+**Token Auth:**
+
+Prior to connecting to the endpoint, the sender needs a public/private keypair. There are many ways to do this. The steps below show how to create a key pair using `openssl`.
+
+EC
+```
+openssl ecparam -genkey -name secp384r1 -noout -out my-es-keypair.pem
+openssl ec -in my-es-keypair.pem -pubout -out  my-es-public-key.pem
+```
+
+RSA
+```
+openssl genrsa -out my-rsa-keypair.pem 2048
+openssl rsa -in my-rsa-keypair.pem -outform PEM -pubout -out my-rsa-public-key.pem
+```
+
+The sender should send **only** the public key to the ReportStream team using either the public key upload functionality on the site or via email to the onboarding ReportStream Engineer.
+Note: Senders will need to login to use the public key upload feature. If they do not have a login see the [okta-account-creation documentation](prime-reportstream/prime-router/docs/onboarding-users/okta-account-creation.md). 
+This step only need to be completed once unless the private key portion is lost or compromised.
+
+**Shared-Secret Authentication**
+**Note: This is legacy authentication and is no longer used for onboarding new users. This information is here to support legacy senders**
+
+Some legacy senders will use azure function keys as shared-secret auth. This is no longer supported for new senders.
+
+Here’s an example bash shell curl command submission to ReportStream using a
+shared secret API key. The example command submits the contents of the file
+‘./healthy-labs-nonPII-data.csv‘ to the endpoint using the client name healthy-labs.
+
+The sender's orgName is the client name and the x-functions-key-value is an azure fucntion key stored under the "reports" function
+
+CSV example:<br>
+"curl -X POST -H “client:healthy-labs” -H “content-type:text/csv” –data-binary “@./healthy-labs-nonPII- data.csv” -H “x functions-key:<place-token-here>” https://staging.prime.cdc.gov/api/waters
+
+HL7 example:<br>
+"curl -X POST -H “client:super-labs” -H “content-type:application/hl7-v2” –data-binary “@./super-labs-nonPII- data.hl7” -H “x-functions-key:<place-token-here>” https://staging.prime.cdc.gov/api/waters
 
 #### Submission status
 
@@ -187,41 +233,3 @@ file contents of the file the sender sent, and how the file looks through the di
 Rhapsody is a health data pipeline that provides a visual interface representing various flows of health data. It uses
 `Communication Points` of various types to interface with external systems.
 
-### Using x-functions-key
-
-The `HTTP Communications Point` uses a standard HTTP request to send data externally. It has been used in conjunction
-with the `x-functions-key` authentication flow to connect clients in the `staging` environment. However, this auth flow is
-deprecated and should not be used to onboard any new clients moving forward (documentation kept for posterity).
-
-It is recommended to use oauth2 or server-to-server auth instead. The observed versions of Rhapsody cannot support the
-OAuth2 authentication flow (javascript version too old).
-
-#### HTTP Communications Point Configuration
-
-| Name                             | Value                                     |
-|----------------------------------|-------------------------------------------|
-| COMMUNICATION POINT              | HTTP CLIENT                               |
-| MODE                             | Out->In                                   |
-| URL                              | https://staging.prime.cdc.gov/api/reports |
-| HTTP METHOD                      | POST                                      |
-| FOLLOW REDIRECTS                 | YES                                       |
-| USE HTTPS                        | YES                                       |
-| SSL PROTOCOL MODE                | TLSv1.2                                   |
-| SPECIFY EXACT TLS VERSION        | YES                                       |
-| HOSTNAME VERIFICATION            | YES                                       |
-| PROTOCOL SUPPORT                 | Standard HTTP Only                        |
-| READ TIMEOUT (MS)                | 10,000                                    |
-| CONNECTION TIMEOUT (MS)          | 60,000                                    |
-| PROXY TYPE                       | System                                    |
-| REFRESH RATE (MS)                | 60,000                                    |
-| MESSAGE CONTENT                  | Message Body                              |
-| CONTENT TYPE                     | application/hl7-v2                        |
-| ON 4xx ERROR RESPONSE            | Mark as connection failed                 |
-| ON 5xx ERROR RESPONSE            | Mark as connection failed                 |
-| DYNAMIC CONNECTION FAILED ACTION | Treat as message error                    |
-
-##### Request Headers
-| Name            | Value         |
-| --------------- | ------------- |
-| x-functions-key | <suppressed>  |
-| client          | CDC-ELIMS-HL7 |

@@ -1,7 +1,7 @@
-import { act, renderHook } from "@testing-library/react";
+import { act } from "@testing-library/react";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
-import { AppWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 
 import { useValueSetActivation } from "./UseValueSets";
 
@@ -17,20 +17,20 @@ describe("useValueSetActivation", () => {
 
     test("returns trigger and loading indicator", () => {
         const { result } = renderWithAppWrapper();
-        const { activateTable, isActivating, activationError } = result.current;
-        expect(isActivating).toEqual(false);
-        expect(activateTable).toBeInstanceOf(Function);
-        expect(activationError).toBeNull();
+        const { mutateAsync, isPending, error } = result.current;
+        expect(isPending).toEqual(false);
+        expect(mutateAsync).toBeInstanceOf(Function);
+        expect(error).toBeNull();
     });
 
     test("mutation trigger returns expected values and tracks loading state", async () => {
         const { result } = renderWithAppWrapper();
-        const { activateTable, isActivating } = result.current;
-        expect(isActivating).toEqual(false);
+        const { mutateAsync, isPending } = result.current;
+        expect(isPending).toEqual(false);
 
         let activateResult;
         await act(async () => {
-            const activationPromise = activateTable({
+            const activationPromise = mutateAsync({
                 tableVersion: 1,
                 tableName: "any",
             });

@@ -2,7 +2,6 @@ package gov.cdc.prime.router.fhirengine.utils
 
 import ca.uhn.hl7v2.model.Message
 import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -13,9 +12,7 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DiagnosticReport
-import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Extension
-import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Property
@@ -23,63 +20,11 @@ import org.hl7.fhir.r4.model.Provenance
 import org.hl7.fhir.r4.model.Reference
 import java.util.stream.Collectors
 import java.util.stream.Stream
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.isAccessible
 
 /**
  * A collection of helper functions that modify an existing FHIR bundle.
  */
 const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
-
-/**
- * Adds [receiverList] to the [fhirBundle] as targets using the [shortHandLookupTable] to evaluate conditions
- * to determine which observation extensions to add to each receiver.
- */
-fun Bundle.addReceivers(
-    receiverList: List<Receiver>,
-    shortHandLookupTable: MutableMap<String, String>,
-) {
-    val provenanceResource = try {
-        this.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-    } catch (e: NoSuchElementException) {
-        this.addProvenanceReference()
-        this.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-    }
-
-    // Create the list of target receivers to be added to the Provenance of the bundle
-    val targetList = mutableListOf<Reference>()
-
-    // check all active customers for receiver data
-    receiverList.filter { it.customerStatus != CustomerStatus.INACTIVE }.forEach { receiver ->
-        val endpoint = Endpoint()
-        getObservationExtensions(this, receiver, shortHandLookupTable).forEach { endpoint.addExtension(it) }
-
-        endpoint.id = Hl7RelatedGeneralUtils.generateResourceId()
-        endpoint.name = receiver.displayName
-        when (receiver.customerStatus) {
-            CustomerStatus.TESTING -> endpoint.status = Endpoint.EndpointStatus.TEST
-            else -> endpoint.status = Endpoint.EndpointStatus.ACTIVE
-        }
-        val rsIdentifier = Identifier()
-        rsIdentifier.value = receiver.fullName
-        rsIdentifier.system = "https://reportstream.cdc.gov/prime-router"
-        endpoint.identifier.add(rsIdentifier)
-        val entry = this.addEntry()
-            .setFullUrl("${endpoint.fhirType()}/${endpoint.id}")
-            .setResource(endpoint)
-
-        val reference = Reference()
-        reference.reference = entry.fullUrl
-        reference.resource = endpoint
-        targetList.add(reference)
-    }
-
-    // Clear out any existing endpoints if they exist
-    provenanceResource.target.map { it.resource }.filterIsInstance<Endpoint>()
-        .forEach { this.deleteResource(it) }
-
-    if (targetList.isNotEmpty()) provenanceResource.target.addAll(targetList)
-}
 
 /**
  * Adds references to diagnostic reports within [fhirBundle] as provenance targets
@@ -144,44 +89,84 @@ fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
  * Deletes a [resource] from a bundle, removes all references to the [resource] and any orphaned children.
  * If the [resource] being deleted is an [Observation] and that results in diagnostic reports having no
  * observations, the [DiagnosticReport] will be deleted
- *
  */
 fun Bundle.deleteResource(resource: Base) {
-    if (this.entry.find { it.fullUrl == resource.idBase } == null) {
-        throw IllegalStateException("Cannot delete resource. FHIR bundle does not contain this resource")
+    val referencesToClean = mutableSetOf<String>()
+
+    // build up all resources and their references in a map as a starting point
+    fun generateAllReferencesMap() = this.entry.associate {
+        it.fullUrl to it.getResourceReferences()
     }
-    // First remove the resource from the bundle
-    this.entry.removeIf { it.fullUrl == resource.idBase }
 
-    // Get the resource children references
-    val resourceChildren = resource.getResourceReferences()
-    // get all resources except the resource being removed
-    val allResources = this.entry
-    // get all references for every resource
-    val allReferences = allResources.flatMap { it.getResourceReferences() }
-
-    // remove orphaned children
-    resourceChildren.forEach { child ->
-        if (!allReferences.contains(child)) {
-            allResources.firstOrNull { it.fullUrl == child }?.let { this.deleteResource(it.resource) }
+    // recursive function to delete resource and orphaned children
+    fun deleteResourceInternal(
+        resourceInternal: Base,
+        referencesMap: Map<String, List<String>> = generateAllReferencesMap(),
+    ) {
+        if (this.entry.find { it.fullUrl == resourceInternal.idBase } == null) {
+            throw IllegalStateException("Cannot delete resource. FHIR bundle does not contain this resource")
         }
-    }
 
-    // Go through every resource and check if the resource has a reference to the resource being deleted
-    // if there is remove the reference
-    allResources.forEach { res ->
-        res.resource::class.memberProperties.forEach { it ->
-            it.isAccessible = true
-            val value = it.getter.call(res.resource)
-            if (value is MutableList<*>) {
-                value.removeIf { it is Reference && it.reference == resource.idBase }
-            } else if (value is Reference && value.reference == resource.idBase) {
-                value.reference = null
+        // First remove the resource from the bundle
+        this.entry.removeIf { it.fullUrl == resourceInternal.idBase }
+
+        // add resource to set of references to clean up after recursion
+        referencesToClean.add(resourceInternal.idBase)
+
+        // Get the resource children references
+        val resourceChildren = resourceInternal.getResourceReferences()
+
+        // get all resources except the resource being removed and stick it in a map keyed off the fullUrl
+        val allResources = this.entry.associateBy { it.fullUrl }
+
+        // get all references for every remaining resource
+        val remainingReferences = referencesMap - resourceInternal.idBase
+        val flatRemainingReferences = remainingReferences.flatMap { it.value }.toSet()
+
+        // remove orphaned children
+        resourceChildren.forEach { child ->
+            if (!flatRemainingReferences.contains(child)) {
+                allResources[child]?.let { entryToDelete ->
+                    deleteResourceInternal(entryToDelete.resource, remainingReferences)
+                }
             }
         }
     }
 
-    this.deleteChildlessResource(resource)
+    // Go through every resource and check if the resource has a reference to the resource being deleted
+    fun cleanUpReferences() {
+        this.entry
+            .map { it.resource }
+            .forEach { res ->
+                res.children().forEach { child ->
+                    child
+                        .values
+                        .filterIsInstance<Reference>()
+                        .filter { referencesToClean.contains(it.reference) }
+                        .forEach { it.reference = null }
+                }
+            }
+
+        referencesToClean.clear()
+    }
+
+    // find diagnostic reports without any observations contained in the result field and delete
+    fun cleanUpEmptyDiagnosticReports() {
+        val diagnosticReportsToDelete = this.entry
+            .map { it.resource }
+            .filterIsInstance<DiagnosticReport>()
+            .filter { it.result.none { it.reference != null } }
+
+        diagnosticReportsToDelete.forEach { deleteResourceInternal(it) }
+    }
+
+    // delete provided resource and all references to it
+    deleteResourceInternal(resource)
+    cleanUpReferences()
+
+    // clean up empty Diagnostic Reports and references to them
+    cleanUpEmptyDiagnosticReports()
+    cleanUpReferences()
 }
 
 /**
@@ -383,8 +368,11 @@ class FHIRBundleHelpers {
          * @return a list containing only the references in [properties]
          */
         fun filterReferenceProperties(properties: List<Property>): List<String> {
-            return properties.filter { it.hasValues() }.flatMap { it.values }
-                .filterIsInstance<Reference>().map { it.reference }
+            return properties
+                .filter { it.hasValues() }
+                .flatMap { it.values }
+                .filterIsInstance<Reference>()
+                .map { it.reference }
         }
 
         /**
