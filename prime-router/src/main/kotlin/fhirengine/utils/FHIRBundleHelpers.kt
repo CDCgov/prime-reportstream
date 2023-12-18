@@ -12,6 +12,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
+import org.hl7.fhir.exceptions.FHIRException
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Coding
@@ -59,15 +60,39 @@ private fun lookupCondition(code: Coding, metadata: Metadata): Coding? {
 }
 
 /**
+ * Retrieves loinc/snomed codes from [this] observation in known locations (code.coding and valueCodeableConcept.coding)
+ * @return a map of lists of codings keyed by their origin as a printable string
+ */
+fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
+    val toReturn = mutableMapOf<String, List<Coding>>()
+    try {
+        toReturn[ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER] = this.code.coding
+    } catch (error: FHIRException) {
+        if (error.message == null ||
+            !error.message!!.startsWith("Type mismatch: the type CodeableConcept was expected")
+            ) {
+            throw error
+        }
+    }
+    try {
+        toReturn[ObservationMappingConstants.BUNDLE_CODEABLE_IDENTIFIER] = this.valueCodeableConcept.coding
+    } catch (error: FHIRException) {
+        if (error.message == null ||
+            !error.message!!.startsWith("Type mismatch: the type CodeableConcept was expected")
+            ) {
+            throw error
+        }
+    }
+    return toReturn
+}
+
+/**
  * For every snomed/loinc code in code or valueCodeableConcept, lookup a condition code and add it as an extension
  * @param metadata metadata containing an observation-mapping lookup table
  * @return a list of ActionLogDetail objects with information on any mapping failures
  */
 fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
-    val codeSourcesMap = mapOf(
-        ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER to this.code.coding,
-        ObservationMappingConstants.BUNDLE_CODEABLE_IDENTIFIER to this.valueCodeableConcept.coding
-    ).filterValues { it.isNotEmpty() } // a map of all codes keyed by their source as a loggable string
+    val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
     if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
 
     return codeSourcesMap.mapNotNull { codeSourceEntry ->

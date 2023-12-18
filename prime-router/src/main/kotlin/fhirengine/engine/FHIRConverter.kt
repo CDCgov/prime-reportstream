@@ -93,7 +93,8 @@ class FHIRConverter(
                 bundle.entry.map { it.resource }.filterIsInstance<Observation>().forEach {
                     it.addMappedCondition(metadata).run {
                         actionLogger.getItemLogger(bundleIndex + 1, it.id)
-                            .log(this, ActionLogLevel.mapping)
+                            .setReportId(message.reportId)
+                            .log(this, ActionLogLevel.warning)
                     }
                 }
 

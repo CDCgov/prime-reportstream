@@ -25,7 +25,6 @@ enum class ActionLogLevel {
     warning,
     error,
     filter,
-    mapping,
 }
 
 /**
