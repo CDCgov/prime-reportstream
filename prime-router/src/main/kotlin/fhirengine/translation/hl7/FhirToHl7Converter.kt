@@ -152,20 +152,21 @@ class FhirToHl7Converter(
         focusResources.forEachIndexed { index, focusResource ->
             // The element context must now get the focus resource
             elementContext.focusResource = focusResource
-            if (canEvaluate(element, bundle, focusResource, schemaResource, elementContext)) {
+            val indexContext = if (element.resourceIndex.isNullOrBlank()) {
+                elementContext
+            } else {
+                CustomContext.addConstant(
+                    element.resourceIndex!!,
+                    index.toString(),
+                    elementContext
+                )
+            }
+            if (canEvaluate(element, bundle, focusResource, schemaResource, indexContext)) {
                 when {
                     // If this is a schema then process it.
                     element.schemaRef != null -> {
                         // Schema references can have new index references
-                        val indexContext = if (element.resourceIndex.isNullOrBlank()) {
-                            elementContext
-                        } else {
-                            CustomContext.addConstant(
-                                element.resourceIndex!!,
-                                index.toString(),
-                                elementContext
-                            )
-                        }
+
                         logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(
                             element.schemaRef!! as ConverterSchema,

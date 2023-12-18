@@ -13,6 +13,9 @@ inputs:
   version:
     description: "Version tag"
     required: true
+  checksum-validation:
+    default: false
+    description: Run checksum validation step
 
 runs:
   using: "composite"
@@ -171,7 +174,7 @@ runs:
       shell: bash
 
     - name: Build Docker image
-      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+      uses: ./.github/actions/retry
       with:
         timeout_minutes: 20
         max_attempts: 3
@@ -236,14 +239,29 @@ runs:
 
     - name: Promote candidate slot
       id: promote-candidate
-      working-directory: operations
-      run: |
-        make \
-          TF_ENV=${{ env.TERRAFORM_ENV }} \
-          AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
-          AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
-          zdd-promote-slot
-      shell: bash
+      if: inputs.destroy == 'false'
+      uses: ./.github/actions/retry
+      with:
+        timeout_minutes: 20
+        max_attempts: 3
+        retry_wait_seconds: 60
+        command: |
+          cd operations
+          make \
+            TF_ENV=${{ env.TERRAFORM_ENV }} \
+            AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
+            AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
+            zdd-promote-slot
+        shell: bash
+
+    - name: Validate function app checksum
+      if: inputs.checksum-validation == 'true'
+      uses: JosiahSiegel/checksum-validate-action@90b0a2d0fd8bbbb9d314522c409b3fcbd907ef2b
+      with:
+        key: backend
+        validate: true
+        fail-invalid: true
+        input: $(az functionapp config appsettings list -g prime-data-hub-${{ inputs.env-name }} -n pdh${{ inputs.env-name }}-functionapp)
 
     - name: Remove GitHub action IP whitelist
       if: ${{ always() }} # This should happen even on a failure

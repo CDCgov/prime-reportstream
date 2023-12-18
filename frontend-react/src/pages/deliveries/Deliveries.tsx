@@ -16,7 +16,11 @@ function DeliveriesPage() {
     return (
         <GridContainer>
             <Helmet>
-                <title>{FeatureName.DAILY_DATA}</title>
+                <title>Daily Data - ReportStream</title>
+                <meta
+                    name="description"
+                    content="Daily Data shows what data a public health entity has received with the option to download."
+                />
             </Helmet>
             <article className="padding-bottom-5 tablet:padding-top-6">
                 <Title preTitle={description} title={FeatureName.DAILY_DATA} />
