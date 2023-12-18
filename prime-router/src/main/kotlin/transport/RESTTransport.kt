@@ -424,7 +424,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         //  Authorization : "Basic + base64(username+password)"
                         // Body:
                         //  None
-                        // TODO: Add Authorization-Type: "Basic Auth" to DATAINGESTION (NBS) RESTTransport.authHeaders
                         restTransportInfo.authHeaders.map { (key, value) ->
                             if (key == "Authorization-Type" && value == "Basic Auth") {
                                 val credentialString = credential.user + ":" + credential.pass
@@ -447,20 +446,15 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 //  Authorization: username/password
                 // Body:
                 // { "username": "<username>", "password": "<password>"
-                    // LA-PHL.
-                    // TODO: Add Authorization-Type: "username/password" to LA-PHL RESTTransport.authHeaders
                 if (restTransportInfo.authHeaders["Authorization-Type"] == "username/password") {
                     setBody(mapOf("username" to credential.user, "password" to credential.pass))
                 } else if (restTransportInfo.authHeaders["Authorization-Type"] == "email/password") {
-                        // Authorization-Type: email/password requires the following:
+                // Authorization-Type: email/password requires the following:
                 // Header:
                 //  Content-Type: application/json
                 //  Authorization: username/password
                 // Body:
                 // { "email": "<email@domain.com>", "password": "<password>"
-                    // OK-PHD.
-                    // TODO: Add Authorization-Type: "email/password" to OK-PHD RESTTransport.authHeaders
-                    //
                     setBody(mapOf("email" to credential.user, "password" to credential.pass))
                 }
             }.body()
@@ -516,24 +510,20 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 setBody(
                     when (headers["Content-Type"]) {
                         // OK or NBS Content-Type: text/plain
-                        // TODO: Add Content-Type: text/plain to OK-PHD, NBS (DATAINGESTION) payload header of RESTTransport
                         "text/plain" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
                         }
                         // Flexion Content-Type: text/fhir+ndjson
-                        // TODO: Add Content-Type: text/fhir+ndjson to Flexion.etor-service-receiver payload header of RESTTransport
                         "text/fhir+ndjson" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
                         }
                         // WA Content-Type: application/json
-                        // TODO: Add Content-Type: application/json to WA-PHD payload header of RESTTransport
                         "application/json" -> {
                             contentType(ContentType.Application.Json)
                             // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
                             JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
                         }
                         // NY Content-Type: multipart/form-data
-                        // TODO: Add Content-Type: multipart/form-data to NY-PHD.ELR, NY-PHD.FULL-ELR-TEST, LA-PHL (Natus) payload header of RESTTransport
                         "multipart/form-data" -> {
                             MultiPartFormDataContent(
                                 formData {

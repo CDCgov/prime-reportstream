@@ -1,7 +1,6 @@
 # To submit this to localhost, run:
 #
 # ./prime multiple-settings set --env staging --input ./settings/staging/0163-ok-phd-staging-new-rest-setting.yml
-# ./prime multiple-settings set --input ./settings/staging/0163-ok-phd-staging-new-rest-setting.yml
 ---
 - name: "ok-phd"
   description: "Oklahoma Public Health Department"
@@ -87,11 +86,11 @@
         senderLabName: "CDC PRIME REPORTSTREAM"
         RecordId: "header.reportFile.reportId"
         sourceLabName: "CDC PRIME REPORTSTREAM"
-        Content-Type: "text/plain"
+        Content-Type: "text/plain"  # Added for sending text/plain format message content
       authHeaders:
-        ExpectSuccess: true
-        Content-Type: "application/json"
-        Authorization-Type: "email/password"
+        ExpectSuccess: true   # Added to auth header to expect success otherwise throw exception.
+        Content-Type: "application/json"  # Added for authentication body as json.
+        Authorization-Type: "email/password"  # Added for using email and password to authenticate and get token
       type: "REST"
     externalName: null
     timeZone: null

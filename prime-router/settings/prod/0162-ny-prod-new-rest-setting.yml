@@ -1,7 +1,6 @@
 # To submit this to localhost, run:
 #
 # ./prime multiple-settings set --env prod --input ./settings/prod/0162-ny-prod-new-rest-setting.yml
-# ./prime multiple-settings set --input ./junk/NY/0162-ny-prod-new-rest-setting.yml
 ---
 - name: "ny-phd"
   description: "New York Public Health Department"
@@ -271,8 +270,8 @@
       headers:
         UPHN-INFOMAP: "{\"properties\":\"labClia=10DRPTSTRM,target=NYS,content=L,format=HL7\"\
           }"
-        Content-Type:  "multipart/form-data"
-        Key: "payload"
+        Content-Type:  "multipart/form-data"  # Added for sending multipart/form-data or file format message content
+        Key: "payload"  # Added for the key value as payload.
       type: "REST"
     externalName: "ELR Primary"
     timeZone: null

@@ -1,7 +1,6 @@
 # To submit this to localhost, run:
 #
 # ./prime multiple-settings set --env staging --input ./settings/staging/0161-flexion-staging-new-rest-setting.yml
-# ./prime multiple-settings set --input ./settings/staging/0161-flexion-staging-new-rest-setting.yml
 ---
 - name: "flexion"
   description: "Flexion, Inc."
@@ -55,7 +54,7 @@
         senderLabName: "CDC PRIME REPORTSTREAM"
         RecordId: "header.reportFile.reportId"
         sourceLabName: "CDC PRIME REPORTSTREAM"
-        Content-Type: "text/fhir+ndjson"
+        Content-Type: "text/fhir+ndjson"  # Added for sending text/fhir+ndjson format message content
       authHeaders:
         Content-Type: "application/x-www-form-urlencoded"
         Host: "cdcti-stg-api.azurewebsites.net"

@@ -1,7 +1,6 @@
 # To submit this to localhost, run:
 #
 # ./prime multiple-settings set --env staging --input ./settings/staging/0165-wa-staging-new-rest-setting.yml
-# ./prime multiple-settings set --input ./settings/staging/0165-wa-staging-new-rest-setting.yml
 ---
 - name: "wa-phd"
   description: "Washington Department of Health"
@@ -121,7 +120,7 @@
         x-ref-id: "header.reportFile.reportId"
         x-doc-type: "ELR"
         x-org-facility-id: "7uycso49"
-        Content-Type: "application/json"
+        Content-Type: "application/json"  # Added for sending application/json format message content
       type: "REST"
     externalName: null
     timeZone: null

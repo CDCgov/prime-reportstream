@@ -1,7 +1,6 @@
 # To submit this to localhost, run:
 #
 # ./prime multiple-settings set --env staging --input ./settings/staging/0160-nbs-staging-new-rest-setting.yml
-# ./prime multiple-settings set --input ./settings/staging/0160-nbs-staging-new-rest-setting.yml
 ---
 - name: "dataingestion"
   description: "Data Ingestion CDC NBS"
@@ -87,16 +86,16 @@
       authTokenUrl: "https://dataingestion.test.nbspreview.com/token"
       headers:
         senderLabName: "CDC PRIME REPORTSTREAM"
-        Content-Type: "text/plain"
-        Content-Length:  "<calculated when request is sent>"
+        Content-Type: "text/plain"  # Added for sending text/plain format message content
+        Content-Length:  "<calculated when request is sent>"  # Added for Calculate message length when sending the message
         RecordId: "header.reportFile.reportId"
         sourceLabName: "CDC PRIME REPORTSTREAM"
         Host: "dataingestion.test.nbspreview.com"
         msgType: "HL7"
         validationActive: true
       authHeaders:
-        Authorization-Type: "Basic Auth"
-        ExpectSuccess: true,
+        Authorization-Type: "Basic Auth"   # Added for Basic Auth to authenticate with NBS
+        ExpectSuccess: true   # Added to auth header to expect success otherwise throw exception.
         Host: "dataingestion.test.nbspreview.com"
       type: "REST"
     externalName: null
