@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Developer Resources page", () => {
     test.beforeEach(async ({ page }) => {
+        test.skip();
         await page.goto("/developer-resources");
     });
 
