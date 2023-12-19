@@ -14,7 +14,7 @@ test.describe("Homepage", () => {
         await page.goto("/");
     });
 
-    test("Has correct title", async ({ page }) => {
+    test("has correct title", async ({ page }) => {
         await expect(page).toHaveTitle(
             /CDC's free, interoperable data transfer platform - ReportStream/,
         );
