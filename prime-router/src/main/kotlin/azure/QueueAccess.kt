@@ -4,7 +4,6 @@ import com.azure.storage.queue.QueueClient
 import com.azure.storage.queue.QueueServiceClientBuilder
 import java.time.Duration
 import java.time.OffsetDateTime
-import java.util.Base64
 
 /**
  * Responsible for storing blobs in Azure containers and messages into Azure queues
@@ -39,10 +38,9 @@ object QueueAccess {
      * The derived queue name from the [event] is ignored purposely.
      */
     fun sendMessageToQueue(event: Event, queueName: String) {
-        val base64Message = String(Base64.getEncoder().encode(event.toQueueMessage().toByteArray()))
         val now = OffsetDateTime.now()
         val invisibleDuration = Duration.between(now, event.at ?: now)
-        sendMessage(queueName, base64Message, invisibleDuration)
+        sendMessage(queueName, event.toQueueMessage(), invisibleDuration)
     }
 
     /**

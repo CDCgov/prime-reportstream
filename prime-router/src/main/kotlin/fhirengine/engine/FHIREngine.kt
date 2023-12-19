@@ -163,7 +163,7 @@ abstract class FHIREngine(
      *
      */
     fun run(
-        queueMessage: WithDownloadableReport,
+        queueMessage: ReportPipelineMessage,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction,

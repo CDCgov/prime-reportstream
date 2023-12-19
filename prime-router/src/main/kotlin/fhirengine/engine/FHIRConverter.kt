@@ -70,7 +70,7 @@ class FHIRConverter(
     }
 
     private fun fhirEngineRunResults(
-        queueMessage: WithDownloadableReport,
+        queueMessage: ReportPipelineMessage,
         schemaName: String,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
