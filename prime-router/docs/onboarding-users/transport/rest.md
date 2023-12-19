@@ -83,7 +83,33 @@ The receiver's RESTTransport includes the following fields:
     - authType:       Authentication type i.e two-legged.  It is default to null (API shared key)
     - tlsKeystore:    The name for the credential manager to get the JKS used in TLS/SSL
     - parameters:     The map of parameters to be sent in the message (use with two-legged OAuth.  See ETOR RESTTransport)
+    - authHeaders:    The key:value of authentication header
+        . Authentication-Type:  Can be as following
+            "Basic Auth" - Authenticates with string "Basic + base64(username+password)" to authentication header
+            "username/password" - Authenticates with json body { "username": "<username>", "password": "<password>" }
+            "email/password" - Authenticates with json body { "email": "<username>", "password": "<password>" }
+        . Content-Type: Can be as following
+            "application/json" - Authentication body as json
+            "text/plain" - Authentication body as text/plain
+            "Subscription" - Given to us by STLT (It is as plublic key and not secrete)
+        . ExpectSuccess: Set to true for expecting success and if not it will throw exception
+        . Host: Set to host domain name.
     - headers:        The map of headers to be sent in the message
+        . Host: Set to host domain name.
+        . Content-Type: Can be as following
+            "application/json" - Content/message body as json
+            "text/plain" - Content/message body as text/plain
+            "multipart/form-data"  - Content/message body as multipart/form-data or file
+            "Subscription" - Given to us by STLT (It is as plublic key and not secrete)
+        . Key: If Content-Type is "multipart/form-data", it Can be as following
+            "payload" - Set "multipart/form-data" key value to payload (uses by NY-PHD)
+            "files" - Set "multipart/form-data" key value to file (uses by LA-PHL/Natus).
+        . Content-Length: "<calculated when request is sent>", it is required by NBS
+        . validationActive: "true",
+        . msgType: "HL7",
+        . RecordId: "header.reportFile.reportId",
+        . senderLabName: "CDC PRIME REPORTSTREAM",
+        . sourceLabName: "CDC PRIME REPORTSTREAM"
     - type:           "REST"
 
     a) See UserPass RESTTransport setting Example below:
@@ -96,11 +122,16 @@ The receiver's RESTTransport includes the following fields:
               authType: null
               tlsKeystore: null
               parameters: {}
-              headers:
-                senderLabName: "CDC PRIME REPORTSTREAM"
-                RecordId: "header.reportFile.reportId"
-                sourceLabName: "CDC PRIME REPORTSTREAM"
-              type: "REST"
+          headers:
+            senderLabName: "CDC PRIME REPORTSTREAM"
+            RecordId: "header.reportFile.reportId"
+            sourceLabName: "CDC PRIME REPORTSTREAM"
+            Content-Type: "text/plain"
+          authHeaders:
+            ExpectSuccess: true
+            Content-Type: "application/json"
+            Authorization-Type: "email/password"
+          type: "REST"
 
     b) See UserApiKey+JKS TLS/SSL RESTTransport setting Example below:
 
@@ -115,6 +146,8 @@ The receiver's RESTTransport includes the following fields:
               headers:
                 UPHN-INFOMAP: "{\"properties\":\"labClia=10DRPTSTRM,target=NYS,content=L,format=HL7\"\
                   }"
+                Content-Type:  "multipart/form-data" 
+                Key: "payload" 
               type: "REST"
 
     c) See UserApiKey+Tow-legged RESTTransport setting Example below:
@@ -133,6 +166,10 @@ The receiver's RESTTransport includes the following fields:
                 senderLabName: "CDC PRIME REPORTSTREAM"
                 RecordId: "header.reportFile.reportId"
                 sourceLabName: "CDC PRIME REPORTSTREAM"
+                Content-Type: "text/fhir+ndjson"
+              authHeaders:
+                Content-Type: "application/x-www-form-urlencoded"
+                Host: "sample.net"
               type: "REST"
 
 ## 4. Final Step is to test/check the receiver's REST transport is connected successfully
