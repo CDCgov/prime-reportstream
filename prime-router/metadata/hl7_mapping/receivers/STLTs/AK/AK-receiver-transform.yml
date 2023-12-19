@@ -50,11 +50,6 @@ elements:
     value: [ 'Bundle.entry.resource.ofType(Specimen).collection.bodySite.text' ]
     hl7Spec: ['/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-2']
 
-  - name: ak-specimen-source-site-original-text
-    condition: true
-    value: [ '""' ]
-    hl7Spec: ['/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-9']
-
   - name: ak-receiving-facility
     condition: true
     value: [ '"AKDOH"' ]
