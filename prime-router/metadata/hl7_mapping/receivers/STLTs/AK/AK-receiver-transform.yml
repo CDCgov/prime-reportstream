@@ -40,6 +40,16 @@ elements:
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-1' ]
 
+  - name: ak-ordering-provider-address-line
+    condition: 'Bundle.entry.resource.ofType(Practitioner).address.line.exists().not()'
+    value: [ '"Unknown"' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-1' ]
+
+  - name: ak-ordering-provider-address-postal-code
+    condition: 'Bundle.entry.resource.ofType(Practitioner).address.postalCode.exists().not()'
+    value: [ '"Unknown"' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-5' ]
+
   - name: ak-ordering-provider-id-number
     condition: true
     value: [ '""' ]
