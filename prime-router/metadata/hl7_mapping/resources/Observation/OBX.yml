@@ -13,10 +13,9 @@ elements:
     value: [ '%resource.extension(%`rsext-sub-id`).value' ]
     hl7Spec: [ '%{hl7OBXField}-4' ]
 
-  - name: obx-value-string
-    condition: '%resource.value.is(string)'
-    value: [ '%resource.value' ]
-    hl7Spec: [ '%{hl7OBXField}-5' ]
+
+  - name: obx-value
+    schema: ./OBXValue
 
   - name: obx-references-range
     value: [ '%resource.referenceRange.text' ]
@@ -29,7 +28,6 @@ elements:
     constants:
       cweFieldPath: '%{hl7OBXField}-8(%{interpretationIndex})'
 
-  # TODO need a schema to handle the repeating
   - name: obx-nature-of-abnormal-test
     resource: '%resource.extension(%`rsext-nature-of-abnormal-test`)'
     schema: ./NatureOfAbnormalTest
@@ -115,4 +113,13 @@ elements:
   - name: obx-extension-values
     resource: '%resource.extension(%`rsext-obx-observation`)'
     schema: ./OBXExtension
+
+  - name: observation-note
+    condition: '%context.note.exists()'
+    resource: '%resource.note.text.split(''\n'')'
+    schema: ../../common/note
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7ObservationPath}'
+      noteDetails: '%observation.note'
 

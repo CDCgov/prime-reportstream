@@ -1,0 +1,17 @@
+elements:
+
+  - name: sn-quantity-comparator
+    value: [ '%resource.comparator' ]
+    hl7Spec: [ '%{hl7SNField}-1' ]
+
+  - name: sn-quantity-num1
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7SNField}-2' ]
+
+  - name: sn-quantity-separator
+    value: [ '%resource.extension(%`rsext-sn-3-separator`).value' ]
+    hl7Spec: [ '%{hl7SNField}-3' ]
+
+  - name: sn-quantity-num2
+    value: [ '%resource.extension(%`rsext-sn-4-num2`).value' ]
+    hl7Spec: [ '%{hl7SNField}-4' ]

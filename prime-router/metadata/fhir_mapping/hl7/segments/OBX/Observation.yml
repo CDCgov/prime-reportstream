@@ -28,7 +28,6 @@ code:
   valueOf: datatypes/CWE/CodeableConcept
   specs: OBX.3
 
-# TODO how to handle repeating OBX.5???
 valueString:
   vars:
     obx2: STRING, OBX.2
@@ -56,19 +55,33 @@ valueString:
         value: $obx51 + $plus + $obx52 + $plus + $obx53 + $plus + $obx54
       constants:
         plus: "+"
+    - condition: $obx51 NULL && $obx52 NOT_NULL && $obx53 NULL && $obx54 NULL
+      vars:
+        obx51: STRING, OBX.5.1
+        obx52: STRING, OBX.5.2
+        obx53: STRING, OBX.5.3
+        obx54: STRING, OBX.5.4
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: OBX.5.2
 
 valueCodeableConcept:
   expressionType: nested
   vars:
     obx2: STRING, OBX.2
-  specs: OBX.5
   expressions:
     - condition: $obx2 EQUALS CNE
       valueOf: datatypes/CNE/CodeableConcept
+      specs: OBX.5
+      expressionType: resource
     - condition: $obx2 EQUALS CWE
       valueOf: datatypes/CWE/CodeableConcept
+      specs: OBX.5
+      expressionType: resource
     - condition: $obx2 EQUALS CE
       valueOf: datatypes/CE/CodeableConcept
+      specs: OBX.5
+      expressionType: resource
     - condition: $obx2 EQUALS IS
       expressionType: nested
       expressionsMap:
@@ -459,7 +472,7 @@ note:
   vars:
     annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
 
-specimen:
+focus:
   valueOf: datatype/Reference
   expressionType: resource
   specs: $Specimen

@@ -43,7 +43,7 @@ denominator:
     value:
       type: STRING
       expressionType: HL7Spec
-      valueOf: SN.2
+      valueOf: SN.4
     code:
       condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
       type: STRING

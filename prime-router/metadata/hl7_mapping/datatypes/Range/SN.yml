@@ -1,0 +1,17 @@
+elements:
+
+  - name: sn-comparator
+    value: [ '%resource.extension(%`rsext-sn-1-comparator`).value' ]
+    hl7Spec: [ '%{hl7SNField}-1' ]
+
+  - name: sn-range-low
+    value: [ '%resource.low.value' ]
+    hl7Spec: [ '%{hl7SNField}-2' ]
+
+  - name: sn-separator
+    value: [ '%resource.extension(%`rsext-sn-3-separator`).value' ]
+    hl7Spec: [ '%{hl7SNField}-3' ]
+
+  - name: sn-range-high
+    value: [ '%resource.high.value' ]
+    hl7Spec: [ '%{hl7SNField}-4' ]
