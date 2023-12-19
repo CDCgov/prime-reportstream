@@ -70,7 +70,7 @@ class FHIRConverter(
     }
 
     private fun fhirEngineRunResults(
-        queueMessage: UniversalPipelineQueueMessage,
+        queueMessage: WithDownloadableReport,
         schemaName: String,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
@@ -177,7 +177,7 @@ class FHIRConverter(
      * @return one or more FHIR bundles
      */
     internal fun getContentFromHL7(
-        queueMessage: UniversalPipelineQueueMessage,
+        queueMessage: WithDownloadableReport,
         actionLogger: ActionLogger,
     ): List<Bundle> {
         // create the hl7 reader
@@ -206,7 +206,7 @@ class FHIRConverter(
      * @return a list containing a FHIR bundle
      */
     internal fun getContentFromFHIR(
-        queueMessage: UniversalPipelineQueueMessage,
+        queueMessage: WithDownloadableReport,
         actionLogger: ActionLogger,
     ): List<Bundle> {
         return FhirTranscoder.getBundles(queueMessage.downloadContent(), actionLogger)

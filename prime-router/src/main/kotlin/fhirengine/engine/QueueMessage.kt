@@ -61,7 +61,7 @@ abstract class QueueMessage {
     }
 }
 
-abstract class UniversalPipelineQueueMessage : QueueMessage() {
+abstract class WithDownloadableReport : QueueMessage() {
     abstract val reportId: ReportId
     abstract val blobURL: String
     abstract val digest: String
@@ -94,7 +94,7 @@ data class RawSubmission(
     override val blobSubFolderName: String,
     override val topic: Topic,
     val schemaName: String = "",
-) : UniversalPipelineQueueMessage()
+) : WithDownloadableReport()
 
 @JsonTypeName("convert")
 data class FhirConvertQueueMessage(
@@ -104,7 +104,7 @@ data class FhirConvertQueueMessage(
     override val blobSubFolderName: String,
     override val topic: Topic,
     val schemaName: String = "",
-) : UniversalPipelineQueueMessage()
+) : WithDownloadableReport()
 
 @JsonTypeName("route")
 data class FhirRouteQueueMessage(
@@ -113,7 +113,7 @@ data class FhirRouteQueueMessage(
     override val digest: String,
     override val blobSubFolderName: String,
     override val topic: Topic,
-) : UniversalPipelineQueueMessage()
+) : WithDownloadableReport()
 
 @JsonTypeName("translate")
 data class FhirTranslateQueueMessage(
@@ -123,33 +123,32 @@ data class FhirTranslateQueueMessage(
     override val blobSubFolderName: String,
     override val topic: Topic,
     val receiverFullName: String,
-) : UniversalPipelineQueueMessage()
+) : WithDownloadableReport()
 
-abstract class MixedPipelineQueueMessage : QueueMessage() {
-    abstract val eventAction: Event.EventAction
-}
-
-abstract class CovidPipelineQueueMessage : QueueMessage() {
+abstract class WithoutDownloadableReport : QueueMessage() {
     abstract val eventAction: Event.EventAction
 }
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonTypeName("BatchEventQueueMessage")
 data class BatchEventQueueMessage(
     @JsonProperty("eventAction") override val eventAction: Event.EventAction,
     @JsonProperty("receiverName") val receiverName: String,
     @JsonProperty("emptyBatch") val emptyBatch: Boolean,
     @JsonProperty("at") val at: String,
-) : MixedPipelineQueueMessage()
+) : WithoutDownloadableReport()
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonTypeName("ReportEventQueueMessage")
 data class ReportEventQueueMessage(
     @JsonProperty("eventAction") override val eventAction: Event.EventAction,
     @JsonProperty("emptyBatch") val emptyBatch: Boolean,
     @JsonProperty("reportId") val reportId: UUID,
     @JsonProperty("at") val at: String,
-) : CovidPipelineQueueMessage()
+) : WithoutDownloadableReport()
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonTypeName("ProcessEventQueueMessage")
 data class ProcessEventQueueMessage(
     @JsonProperty("eventAction") override val eventAction: Event.EventAction,
     @JsonProperty("reportId") val reportId: UUID,
@@ -157,4 +156,4 @@ data class ProcessEventQueueMessage(
     @JsonProperty("defaults") val defaults: Map<String, String>,
     @JsonProperty("routeTo") val routeTo: List<String>,
     @JsonProperty("at") val at: String,
-) : CovidPipelineQueueMessage()
+) : WithoutDownloadableReport()

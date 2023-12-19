@@ -184,7 +184,7 @@ class FHIRRouter(
         logger.trace("Processing HL7 data for FHIR conversion.")
         this.actionLogger = actionLogger
 
-        message as UniversalPipelineQueueMessage
+        message as WithDownloadableReport
 
         // track input report
         actionHistory.trackExistingInputReport(message.reportId)
