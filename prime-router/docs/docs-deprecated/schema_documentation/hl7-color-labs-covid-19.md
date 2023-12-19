@@ -4050,6 +4050,8 @@ Code | Display | System
 39607008|Lung structure (body structure)|SNOMED_CT
 955009|Bronchial structure (body structure)|SNOMED_CT
 1797002|Structure of anterior nares (body structure)|SNOMED_CT
+87100004|Topography unknown (body structure)|SNOMED_CT
+442083009|Anatomical or acquired body structure (body structure)|SNOMED_CT
 
 **Documentation**:
 Refers back to the specimen source site, which is then encoded into the SPM-8 segment

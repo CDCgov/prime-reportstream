@@ -35,6 +35,26 @@ elements:
     bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/business-event").value[x]'
     value: [ '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-control").value.coding[0].code' ]
 
+  - name: sr-sending-application-facility-identifier-extension
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
+    bundleProperty: '%resource.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id").value[x]'
+    value: [ '%resource.name' ]
+  #
+  - name: sr-sending-application-facility-identifier-value
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
+    bundleProperty: '%resource.identifier[1].value'
+    value: [ '%resource.name' ]
+
+  - name: sr-sending-application-universal-id-identifier-extension
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
+    bundleProperty: '%resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id").value[x]'
+    value: [ '%resource.identifier[0].value' ]
+
+
+  - name: sr-message-event-code-code
+    bundleProperty: 'Bundle.entry.resource.ofType(MessageHeader).event.display'
+    value: [ '"ORU^R01^ORU_R01"' ]
+
   # Order Observation Request filler identifier - this was being populated in CA receiver transforms
   #                                               should've been a sender transform in the first place since
   #                                               this is needed for NY too
@@ -121,10 +141,10 @@ elements:
 
   # This is populated as a sender transform in the Covid pipeline
   - name: sr-ordering-provider-name-type-code
-    condition: '%resource.value.empty().not()'
+    condition: '%resource.name.use.exists().not()'
     resource: 'Bundle.entry.resource.ofType(Practitioner)'
-    bundleProperty: '%resource.name.use'
-    value: [ '"official"' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code").value[x]'
+    value: [ '"L"' ]
 
   # This were being populated as CA Receiver transforms, but should be Sender Transforms
   - name: sr-patient-assigning-facility-name
@@ -190,27 +210,45 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.effective.exists().not()'
     bundleProperty: '%resource.effective[x]'
-    value: [ '%resource.specimen.resolve().collection.collected' ]
+    value: [ 'Bundle.entry.resource.ofType(Specimen).collection.collected' ]
 
   - name: sr-performing-organization-name-non-pracrole-assigning-authority
     condition: '%resource.performer.resolve().ofType(Organization).exists()'
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
-    value: [ '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x].getIdType()' ]
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x].getIdType()' ]
 
   # Covid pipeline populates this using a sender transform
   - name: sr-performing-organization-name-non-pracrole-assigning-authority-id
     condition: '%resource.performer.resolve().ofType(Organization).exists()'
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '"2.16.840.1.113883.4.7"' ]
 
   - name: sr-performing-organization-name-non-pracrole-assigning-authority-id-type
     condition: '%resource.performer.resolve().ofType(Organization).exists()'
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
     value: [ '"ISO"' ]
 
+
+  - name: sr-performing-organization-name-non-pracrole-namespace
+    condition: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).exists()'
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority")'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).identifier[0].value.getIdType()' ]
+
+  - name: sr-performing-organization-identifier-type-code-system
+    condition: '%resource.exists() and %resource.identifier.type.where(coding.system = "http://terminology.hl7.org/CodeSystem/v2-0203").exists().not()'
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization)'
+    bundleProperty: '%resource.identifier[1].type.coding.system'
+    value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
+
+  - name: sr-performing-organization-identifier-type-code
+    condition: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).exists() and %resource.coding.code.exists().not()'
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).identifier.type.where(coding.system = "http://terminology.hl7.org/CodeSystem/v2-0203")'
+    bundleProperty: '%resource.coding.code'
+    value: [ '"XX"' ]
 
   - name: sr-observation-code-display
     condition: '%resource.code.coding[0].display.empty() and %resource.code.text.empty().not()'
@@ -223,6 +261,12 @@ elements:
     resource: '%patient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
     bundleProperty: '%resource.coding[0].display'
     value: [ '%resource.text' ]
+
+  - name: sr-patient-deceased-indicator-default
+    condition: '%resource.deceased.exists().not()'
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    bundleProperty: '%resource.deceased[x]'
+    value: [ 'false' ]
 
   # Populating display based on text
   - name: sr-specimen-type-display
@@ -237,8 +281,8 @@ elements:
     value: [ '%diagnosticReport.basedOn.resolve().performer' ]
 
   - name: sr-observation-producer-id-system
-    bundleProperty: '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system").valueCodeableConcept.coding.code'
-    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value.getIdType()' ]
+    bundleProperty: '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system").valueCodeableConcept.coding.code'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].value.getIdType()' ]
 
   - name: sr-ordering-facility-phone
     resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact[0].telecom'
