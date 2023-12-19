@@ -16,8 +16,8 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: ak-patient-ethnicity-group-name-of-code-system
-    condition: true
-    value: [ '"CDCREC"' ]
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code = "U"'
+    value: [ '"NULLFL"' ]
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
 
   - name: ak-patient-name-type-code
@@ -25,25 +25,15 @@ elements:
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-5-7 ]
 
-#  - name: ak-patient-race-display
-#    condition: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.code = "ASKU"'
-#    value: [ '"Asked, but unknown"' ]
-#    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-2 ]
-
   - name: ak-patient-race-system
     condition: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.system.contains("v3-NullFlavor")'
     value: [ '"NULLFL"' ]
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-3 ]
 
-  - name: ak-patient-race-text
-    condition: true
-    value: [ '""' ]
-    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-9 ]
-
-  - name: ak-patient-ethnic-group-text
-    condition: true
-    value: [ '""' ]
-    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-9 ]
+  - name: ak-ordering-provider-address-city
+    condition: 'Bundle.entry.resource.ofType(Organization).address.city.exists().not()'
+    value: [ '"Unknown"' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-22-3 ]
 
   - name: ak-ordering-provider-person-identifier
     condition: true
