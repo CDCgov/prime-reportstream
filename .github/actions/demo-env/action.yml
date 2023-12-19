@@ -76,7 +76,7 @@ runs:
 
     - name: Terraform - destroy
       if: inputs.destroy == 'true'
-      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+      uses: ./.github/actions/retry
       with:
         timeout_minutes: 30
         max_attempts: 3
@@ -125,7 +125,7 @@ runs:
 
     - name: Terraform - init apply
       if: inputs.destroy == 'false'
-      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+      uses: ./.github/actions/retry
       with:
         timeout_minutes: 45
         max_attempts: 2
@@ -143,7 +143,7 @@ runs:
 
     - name: Terraform - apply
       if: inputs.destroy == 'false'
-      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+      uses: ./.github/actions/retry
       with:
         timeout_minutes: 45
         max_attempts: 2
