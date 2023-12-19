@@ -51,7 +51,7 @@ elements:
     resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-10'
+      cweField: '%{hl7PIDField}-10(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-address
@@ -81,7 +81,7 @@ elements:
     resource: '%resource.communication.language'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-15'
+      cweField: '%{hl7PIDField}-15(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-marital-status
@@ -89,14 +89,14 @@ elements:
     resource: '%resource.maritalStatus'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-16'
+      cweField: '%{hl7PIDField}-16(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-religion
     resource: '%resource.extension(%`ext-patient-religion`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-17'
+      cweField: '%{hl7PIDField}-17(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: mothers-identifier
@@ -110,7 +110,7 @@ elements:
     resource: '%resource.extension(%`rsext-ethnic-group`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-22'
+      cweField: '%{hl7PIDField}-22(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-birth-place
@@ -131,7 +131,7 @@ elements:
     resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "citizenship")'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-26'
+      cweField: '%{hl7PIDField}-26(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-veteran-military-status
@@ -139,7 +139,7 @@ elements:
     resource: '%resource.extension(%`rsext-veteran-military-status`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-27'
+      cweField: '%{hl7PIDField}-27(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-veteran-military-status
@@ -147,7 +147,7 @@ elements:
     resource: '%resource.extension(%`rsext-veteran-military-status`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-27'
+      cweField: '%{hl7PIDField}-27(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-nationality
@@ -157,7 +157,7 @@ elements:
     resource: '%resource.extension(%`ext-patient-nationality`).extension(%`rsext-code`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-28'
+      cweField: '%{hl7PIDField}-28(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-death-date-time
@@ -191,7 +191,7 @@ elements:
     resource: '%resource.extension(%`ext-patient-animal`).extension.where(url = "species").value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-35'
+      cweField: '%{hl7PIDField}-35(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-tribal-citizenship
@@ -202,7 +202,7 @@ elements:
     resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "tribal-citizenship")'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PIDField}-39'
+      cweField: '%{hl7PIDField}-39(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-telecommunication-information

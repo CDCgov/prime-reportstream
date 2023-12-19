@@ -2,13 +2,103 @@ constants:
   hl7PD1Field: '%{hl7SegmentGroup}/PD1'
 
 elements:
-  - name:
-    resource: '%resource.extension.where(url = "").value'
+  - name: living-dependency
+    resource: '%resource.extension.where(url = "pd1-1-living-dependency").value'
+    resourceIndex: cweIndex
     constants:
-      cxField: '%{hl7PD1Field}-18'
+      cweField: '%{hl7PD1Field}-1(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: living-arrangement
+    resource: '%resource.extension.where(url = "pd1-2-living-arrangement").value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-2(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: organ-donor-code
+    resource: '%resource.extension.where(url = "pd1-8-organ-donor-code").value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-8(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: separate-bill
+    hl7Spec: [ '%{hl7PD1Field}-9' ]
+    value: [ '%resource.extension.where(url = "pd1-9-separate-bill").value' ]
+
+  - name: duplicate-patient
+    resource: '%resource.extension.where(url = "pd1-10-duplicate-patient").value'
+    constants:
+      cxField: '%{hl7PD1Field}-10'
     schema: ../../datatypes/identifier/cx
     resourceIndex: cxIndex
 
-  - name:
-    hl7Spec: [ '%{hl7PIDField}-24' ]
-    value: [ '%resource.extension.where(url = "pid-24-multiple-birth-indicator").value' ]
+  - name: publicity-code
+    resource: '%resource.extension.where(url = "pd1-11-publicity-code").value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-11(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: protection-indicator
+    hl7Spec: [ '%{hl7PD1Field}-12' ]
+    value: [ '%resource.extension.where(url = "pd1-12-protection-indicator").value' ]
+
+  - name: protection-indicator-effective-date
+    hl7Spec: [ '%{hl7PD1Field}-13' ]
+    value: [ '%resource.extension.where(url = "pd1-13-protection-indicator-effective-date").value' ]
+
+  - name: place-of-worship
+    resource: '%resource.extension.where(url = "pd1-14-patient-congregation").value.resolve()'
+    resourceIndex: xonIndex
+    constants:
+      hl7XONField: '%{hl7PD1Field}-14(%{xonIndex})'
+    schema: ../../resources/organization/XON
+
+  - name: advance-directive-code
+    resource: '%resource.extension.where(url = "pd1-15-advance-directive-code").value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-15(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: immunization-registry-status
+    resource: '%resource.extension.where(url = "pd1-16-immunization-registry-status").value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-16(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: immunization-registry-status-effective-date
+    hl7Spec: [ '%{hl7PD1Field}-17' ]
+    value: [ '%resource.extension.where(url = "pd1-17-immunization-registry-status-effective-date").value' ]
+
+  - name: publicity-code-effective-date
+    hl7Spec: [ '%{hl7PD1Field}-18' ]
+    value: [ '%resource.extension.where(url = "pd1-18-publicity-code-effective-date").value' ]
+
+  - name: military-branch
+    resource: '%resource.extension.where(url = "pd1-19-military-branch").value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-19(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: military-rank
+    resource: '%resource.extension.where(url = "pd1-20-military-rank").value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-20(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: military-status
+    resource: '%resource.extension.where(url = "pd1-21-military-status").value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-21(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: advance-directive-last-verified-date
+    hl7Spec: [ '%{hl7PD1Field}-22' ]
+    value: [ '%resource.extension.where(url = "pd1-22-advance-directive-last-verified-date").value' ]

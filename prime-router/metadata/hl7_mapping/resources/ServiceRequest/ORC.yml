@@ -95,14 +95,14 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7Order}-25'
+      cweField: '%{hl7Order}-25(%{cweIndex})'
 
   - name: order-type
     resource: '%resource.locationCode'
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7Order}-29'
+      cweField: '%{hl7Order}-29(%{cweIndex})'
 
   - name: alternate-placer-order-number
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "orc-33-alternate-placer-order-number")'

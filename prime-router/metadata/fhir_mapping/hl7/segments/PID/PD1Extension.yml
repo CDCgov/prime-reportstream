@@ -7,8 +7,9 @@ extension:
   generateList: true
   expressions:
     - expressionType: nested
-      specs: PD1.1 *
+      specs: PD1.1
       condition: $pd11 NOT_NULL
+      generateList: true
       vars:
         pd11: STRING_ALL, PD1.1
       expressionsMap:
@@ -57,6 +58,7 @@ extension:
     - expressionType: nested
       specs: PD1.10 *
       condition: $pd110 NOT_NULL
+      generateList: true
       vars:
         pd110: STRING_ALL, PD1.10
       expressionsMap:
@@ -105,8 +107,22 @@ extension:
           valueOf: PD1.13
           expressionType: HL7Spec
     - expressionType: nested
+      vars:
+        pd114: STRING_ALL, PD1.14
+      condition: $pd114 NOT_NULL
+      specs: PD1.14 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: pd1-14-patient-congregation
+        valueReference:
+          valueOf: datatypes/XON/Organization
+          expressionType: reference
+    - expressionType: nested
       specs: PD1.15 *
       condition: $pd115 NOT_NULL
+      generateList: true
       vars:
         pd115: STRING_ALL, PD1.15
       expressionsMap:

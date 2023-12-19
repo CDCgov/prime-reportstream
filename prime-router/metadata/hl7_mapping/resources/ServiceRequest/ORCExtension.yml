@@ -40,14 +40,14 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7Order}-17'
+      cweField: '%{hl7Order}-17(%{cweIndex})'
 
   - name: entering-organization
     resource: '%resource.extension.where(url = "orc-18-entering-device").value'
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7Order}-18'
+      cweField: '%{hl7Order}-18(%{cweIndex})'
 
   - name: entered-by
     resource: '%resource.extension.where (url = "orc-19-action-by").value.resolve()'
@@ -64,9 +64,8 @@ elements:
     resource: '%resource.extension.where(url = "orc-28-confidentiality-code").value'
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
-    resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7Order}-28'
+      cweField: '%{hl7Order}-28(%{cweIndex})'
 
   - name: enterer-authorization-mode
     resource: '%resource.extension.where(url = "orc-30-enterer-authorization-mode").value'

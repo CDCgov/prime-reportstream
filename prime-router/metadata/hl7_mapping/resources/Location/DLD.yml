@@ -5,7 +5,7 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7DLDField}-1'
+      cweField: '%{hl7DLDField}-1(%{cweIndex})'
 
   - name: dld-effective-date
     value: [ '%resource.extension(%`rsext-dld2-effective-date`).value' ]

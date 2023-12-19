@@ -1,6 +1,9 @@
 resourceType: Patient
 # Represents data that needs to be extracted for a Patient Resource in FHIR
 # reference: https://www.hl7.org/fhir/patient.html
+
+# PD1.4 Deprecated in NIST, set to NullDT in HAPI. Field not mapped
+
 id:
   type: STRING
   valueOf: "GeneralUtils.generateResourceId()"
@@ -269,23 +272,14 @@ meta:
           expressionType: reference
           specs: PID.34
 
-generalPractitioner:
-  expressionType: nested
-  expressions:
-    - condition: $patientPrimaryFacility NOT_NULL
-      valueOf: datatypes/XON/Organization
-      generateList: true
-      expressionType: reference
-      specs: PD1.3 *
-      vars:
-        patientPrimaryFacility: PD1.3
-    - condition: $patientPrimaryFacility NOT_NULL
-      valueOf: datatypes/XCN/Practitioner
-      generateList: true
-      expressionType: reference
-      specs: PD1.4 *
-      vars:
-        patientPrimaryProvider: PD1.4
+generalPractitioner_Organization:
+  condition: $patientPrimaryFacility NOT_NULL
+  generateList: true
+  specs: PD1.3 *
+  vars:
+    patientPrimaryFacility: PD1.3
+  valueOf: datatypes/XON/Organization
+  expressionType: reference
 
 extension:
   expressionType: nested
@@ -542,16 +536,33 @@ extension:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: PD1.7
-    - condition: $pd114 NOT_NULL
+    #Mapping inventory for XON[string]
+    - condition: $pd1141 NOT_NULL
       vars:
-        pd114: STRING_ALL, PD1.14
+        pd1141: STRING, PD1.14.1
       expressionType: nested
       generateList: true
       specs: PD1.14 *
       expressionsMap:
         url:
-          type: STRING
+          type: SYSTEM_URL
           value: patient-congregation
         valueString:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
+          type: STRING
+          valueOf: $BASE_VALUE.1
+          expressionType: HL7Spec
+    - condition: $pd1141 NULL && $pd11410 NOT_NULL
+      vars:
+        pd1141: STRING, PD1.14.1
+        pd11410: STRING, PD1.14.10
+      expressionType: nested
+      generateList: true
+      specs: PD1.14 *
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: patient-congregation
+        valueString:
+          type: STRING
+          valueOf: $BASE_VALUE.10
+          expressionType: HL7Spec

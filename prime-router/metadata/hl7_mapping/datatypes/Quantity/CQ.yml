@@ -9,5 +9,5 @@ elements:
     resource: '%resource.extension(%`rsext-cq-units`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{cqFieldPath}-2'
+      cweField: '%{cqFieldPath}-2(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE

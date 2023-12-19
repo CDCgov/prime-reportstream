@@ -107,7 +107,7 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
-      cweField: MSH-19
+      cweField: 'MSH-19(%{cweIndex})'
 
   - name: alternate-character-set
     value: [ '%resource.extension(%`rsext-msh-20-alternate-character-set-handling-scheme`).value' ]

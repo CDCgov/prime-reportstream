@@ -7,4 +7,4 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7Order}-16'
+      cweField: '%{hl7Order}-16(%{cweIndex})'

@@ -34,7 +34,7 @@ elements:
     resource: '%resource.extension(%`rsext-xcn8-source-table`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7XCNField}-8'
+      cweField: '%{hl7XCNField}-8(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: xcn-assigning-authority
@@ -73,7 +73,7 @@ elements:
     resource: '%resource.extension(%`rsext-xcn16-name-context`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7XCNField}-16'
+      cweField: '%{hl7XCNField}-16(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: xcn-name-validity-range-start
@@ -104,12 +104,12 @@ elements:
     resource: '%resource.extension(%`rsext-xcn22-assigning-jurisdiction`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7XCNField}-22'
+      cweField: '%{hl7XCNField}-22(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: xcn-assigning-agency-or-department
     resource: '%resource.extension(%`rsext-xcn23-assigning-agency-or-department`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7XCNField}-23'
+      cweField: '%{hl7XCNField}-23(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
