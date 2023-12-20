@@ -21,6 +21,14 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
+contact:
+  vars:
+    nk1: NK1
+  #  condition: $nk1 NOT_NULL
+  valueOf: secondary/PatientContact
+  expressionType: resource
+  generateList: true
+
 identifier:
   expressionType: nested
   generateList: true
@@ -297,6 +305,18 @@ extension:
   expressionType: nested
   generateList: true
   expressions:
+    - expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: patient-notes
+        valueAnnotation:
+          valueOf: datatype/Annotation
+          expressionType: resource
+          condition: $annotationText NOT_NULL
+          vars:
+            annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
     - expressionType: resource
       valueOf: segments/PID/PIDExtension
     - expressionType: resource

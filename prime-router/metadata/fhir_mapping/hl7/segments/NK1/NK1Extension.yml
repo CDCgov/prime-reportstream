@@ -1,0 +1,15 @@
+url:
+  type: STRING
+  value: nk1-related-person
+extension:
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: nk1-birth-date
+        valueString:
+          type: STRING
+          valueOf: NK1.16
+          expressionType: HL7Spec

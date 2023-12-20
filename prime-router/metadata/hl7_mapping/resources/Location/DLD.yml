@@ -3,9 +3,8 @@ elements:
   - name: dld-discharge-location
     resource: '%resource.type'
     schema: ../../datatypes/codeableConcept/CWE
-    resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7DLDField}-1(%{cweIndex})'
+      cweField: '%{hl7DLDField}-1'
 
   - name: dld-effective-date
     value: [ '%resource.extension(%`rsext-dld2-effective-date`).value' ]

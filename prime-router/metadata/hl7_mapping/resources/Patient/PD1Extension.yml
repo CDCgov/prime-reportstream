@@ -30,7 +30,7 @@ elements:
   - name: duplicate-patient
     resource: '%resource.extension.where(url = "pd1-10-duplicate-patient").value'
     constants:
-      cxField: '%{hl7PD1Field}-10'
+      cxField: '%{hl7PD1Field}-10(%{cxIndex})'
     schema: ../../datatypes/identifier/cx
     resourceIndex: cxIndex
 
