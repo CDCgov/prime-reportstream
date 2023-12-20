@@ -20,6 +20,11 @@ elements:
     value: [ '"NULLFL"' ]
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
 
+  - name: ak-patient-ethnicity-group-name-of-code-system
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code != "U"'
+    value: [ '"CDCREC"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
+
   - name: ak-patient-name-type-code
     condition: true
     value: [ '""' ]
