@@ -169,9 +169,9 @@ valueRatio:
 
 valueQuantity:
   vars:
-    obx2: OBX.2
+    obx2: STRING, OBX.2
     CWEQuantityUnits: OBX.6
-    obx53: OBX.5.3
+    obx53: STRING, OBX.5.3
   expressionType: nested
   expressions:
     - condition: $obx2 EQUALS NM
@@ -359,6 +359,8 @@ identifier:
 extension:
   generateList: true
   expressionType: nested
+  vars:
+    obx2: STRING, OBX.2
   expressions:
     - expressionType: nested
       vars:
@@ -372,7 +374,6 @@ extension:
           expressionType: HL7Spec
           type: STRING
           valueOf: OBX.4
-    # TODO: can this be made to work repeatable
     - expressionType: nested
       vars:
         obx10: STRING_ALL, OBX.10
@@ -432,7 +433,6 @@ extension:
           specs: OBX.30
     - expressionType: nested
       vars:
-        obx2: OBX.2
         obx54: OBX.5.4
       condition: $obx2 EQUALS ED && $obx54 EQUALS Base64
       expressionsMap:
@@ -444,7 +444,12 @@ extension:
           expressionType: resource
           specs: OBX.5
     - expressionType: resource
+      condition: $obx2 EQUALS SN
+      valueOf: datatypes/SN/ExtensionSN
+      specs: OBX.5
+    - expressionType: resource
       valueOf: segments/OBX/OBXExtension
+
 
 subject:
   valueOf: datatype/Reference
@@ -464,15 +469,14 @@ encounter:
 #   SPECIMEN
 #     OBX
 # See use here: https://github.com/CDCgov/prime-reportstream/blob/813fe6d15e780af3ea88eb61ddfbdf2a8f4462a9/prime-router/metadata/fhir_mapping/hl7/resource/ServiceRequest.yml#L380
-note:
+note_observation:
   valueOf: datatype/Annotation
-  condition: $annotationText NOT_NULL && $suppressNote NULL
+  condition: $suppressNote NULL
   expressionType: resource
-  useGroup: true
-  vars:
-    annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
+  generateList: true
+  specs: NTE
 
-focus:
+specimen:
   valueOf: datatype/Reference
   expressionType: resource
   specs: $Specimen

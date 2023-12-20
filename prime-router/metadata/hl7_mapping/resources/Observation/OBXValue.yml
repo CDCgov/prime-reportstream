@@ -35,10 +35,12 @@ elements:
     value: [ '%resource.value.split("+")[3]' ]
     hl7Spec: [ '%{hl7OBXField}-5-4' ]
 
-  - name: obx-value-sn-string-no-structure
-    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "SN" and %resource.value.is(string) and %resource.value.contains("+").not()'
-    value: [ '%resource.value' ]
-    hl7Spec: [ '%{hl7OBXField}-5-2' ]
+  - name: obx-value-sn
+    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "SN"'
+    schema: ../../datatypes/extensionSN/SN
+    resource: '%resource.extension(%`rsext-obx-5-value-sn`)'
+    constants:
+      hl7SNField: '%{hl7OBXField}-5'
 
   - name: obx-value-cne
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "CNE"'
@@ -82,31 +84,11 @@ elements:
     constants:
       hl7NRField: '%{hl7OBXField}-5'
 
-  - name: obx-value-sn-range
-    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "SN" and %resource.value.is(Range)'
-    schema: ../../datatypes/Range/SN
-    resource: '%resource.value'
-    constants:
-      hl7SNField: '%{hl7OBXField}-5'
-
-  - name: obx-value-sn-ratio
-    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "SN" and %resource.value.is(Ratio)'
-    schema: ../../datatypes/Ratio/SN
-    resource: '%resource.value'
-    constants:
-      hl7SNField: '%{hl7OBXField}-5'
 
   - name: obx-value-nm
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "NM"'
     value: [ '%resource.value.value' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
-
-  - name: obx-value-sn-quantity
-    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "SN" and %resource.value.is(Quantity)'
-    schema: ../../datatypes/Quantity/SN
-    resource: '%resoure.value'
-    constants:
-      hl7SNField: '%{hl7OBXField}-5'
 
 
 
