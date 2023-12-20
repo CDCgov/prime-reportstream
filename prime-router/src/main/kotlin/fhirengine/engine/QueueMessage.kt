@@ -128,32 +128,32 @@ data class FhirTranslateQueueMessage(
     val receiverFullName: String,
 ) : ReportPipelineMessage()
 
-abstract class WithNextAction : QueueMessage() {
-    abstract val nextAction: Event.EventAction
+abstract class WithEventAction : QueueMessage() {
+    abstract val eventAction: Event.EventAction
 }
 
 @JsonTypeName("batch")
 data class BatchEventQueueMessage(
-    override val nextAction: Event.EventAction,
+    override val eventAction: Event.EventAction,
     val receiverName: String,
     val emptyBatch: Boolean,
     val at: String,
-) : WithNextAction()
+) : WithEventAction()
 
 @JsonTypeName("report")
 data class ReportEventQueueMessage(
-    override val nextAction: Event.EventAction,
+    override val eventAction: Event.EventAction,
     val emptyBatch: Boolean,
     val reportId: UUID,
     val at: String,
-) : WithNextAction()
+) : WithEventAction()
 
 @JsonTypeName("process")
 data class ProcessEventQueueMessage(
-    override val nextAction: Event.EventAction,
+    override val eventAction: Event.EventAction,
     val reportId: UUID,
     val options: Options,
     val defaults: Map<String, String>,
     val routeTo: List<String>,
     val at: String,
-) : WithNextAction()
+) : WithEventAction()

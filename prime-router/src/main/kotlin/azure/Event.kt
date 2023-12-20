@@ -126,7 +126,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         null
                     }
                     ReportEvent(
-                        reportEventQueueMessage.nextAction,
+                        reportEventQueueMessage.eventAction,
                         reportEventQueueMessage.reportId,
                         reportEventQueueMessage.emptyBatch,
                         at
@@ -141,7 +141,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         null
                     }
                     BatchEvent(
-                        batchEventQueueMessage.nextAction,
+                        batchEventQueueMessage.eventAction,
                         batchEventQueueMessage.receiverName,
                         batchEventQueueMessage.emptyBatch,
                         at
@@ -156,7 +156,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         null
                     }
                     ProcessEvent(
-                        processEventQueueMessage.nextAction,
+                        processEventQueueMessage.eventAction,
                         processEventQueueMessage.reportId,
                         processEventQueueMessage.options,
                         processEventQueueMessage.defaults,
