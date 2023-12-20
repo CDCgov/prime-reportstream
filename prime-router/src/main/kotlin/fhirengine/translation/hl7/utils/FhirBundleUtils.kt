@@ -55,14 +55,14 @@ object FhirBundleUtils : Logging {
                 if (sourceType == it || it == "*") {
                     return value
                 }
-                val attemptedValue = getValue(it, value, logger, sourceType)
+                val attemptedValue = getValue(it, value, logger, sourceType, false)
                 if (attemptedValue != null) {
                     return attemptedValue
                 }
             }
             value
         } else if (StringCompatibleType.values().any { it.typeAsString == sourceType }) {
-            getValue(targetType, value, logger, sourceType) ?: value
+            getValue(targetType, value, logger, sourceType, true) ?: value
         } else {
             logger.error("Conversion between $sourceType and $targetType not yet implemented.")
             value
@@ -74,6 +74,7 @@ object FhirBundleUtils : Logging {
         value: Base,
         logger: KotlinLogger,
         sourceType: String,
+        throwErrors: Boolean,
     ) = try {
         when (targetType) {
             StringCompatibleType.Base64Binary.typeAsString -> Base64BinaryType(value.primitiveValue())
@@ -96,6 +97,9 @@ object FhirBundleUtils : Logging {
             }
         }
     } catch (e: Exception) {
+        if (throwErrors) {
+            logger.error("Conversion between $sourceType and $targetType not supported.")
+        }
         null
     }
 }
