@@ -60,8 +60,8 @@ abstract class QueueMessage {
 }
 
 interface WithDownloadableReport {
-    val digest: String
     val blobURL: String
+    val digest: String
 
     /**
      * Download the file associated with a RawSubmission message
