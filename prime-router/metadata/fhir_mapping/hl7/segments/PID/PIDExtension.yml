@@ -49,7 +49,7 @@ extension:
           valueOf: PID.30
           expressionType: HL7Spec
     - expressionType: nested
-      specs: PID.32
+      specs: PID.32 *
       condition: $pid32 NOT_NULL
       vars:
         pid32: STRING_ALL, PID.32

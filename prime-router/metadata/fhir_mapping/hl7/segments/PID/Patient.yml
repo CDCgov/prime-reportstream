@@ -46,7 +46,7 @@ name:
     - condition: $pid5 NOT_NULL
       expressionType: resource
       generateList: true
-      specs: PID.5
+      specs: PID.5 *
       valueOf: datatypes/XPN/HumanName
       vars:
         hl7Use: patient-name
@@ -537,10 +537,11 @@ extension:
           expressionType: resource
           specs: PD1.7
     #Mapping inventory for XON[string]
-    - condition: $pd1141 NOT_NULL
-      vars:
-        pd1141: STRING, PD1.14.1
-      expressionType: nested
+    - expressionType: nested
+      #      vars:
+      #        pd1141: STRING, PD1.14.1
+      #        pd11410: STRING, PD1.14.10
+      #      condition: $pd1141 NOT_NULL || $pd11410 NOT_NULL
       generateList: true
       specs: PD1.14 *
       expressionsMap:
@@ -549,20 +550,5 @@ extension:
           value: patient-congregation
         valueString:
           type: STRING
-          valueOf: $BASE_VALUE.1
-          expressionType: HL7Spec
-    - condition: $pd1141 NULL && $pd11410 NOT_NULL
-      vars:
-        pd1141: STRING, PD1.14.1
-        pd11410: STRING, PD1.14.10
-      expressionType: nested
-      generateList: true
-      specs: PD1.14 *
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: patient-congregation
-        valueString:
-          type: STRING
-          valueOf: $BASE_VALUE.10
+          valueOf: XON.1 |XON.10
           expressionType: HL7Spec

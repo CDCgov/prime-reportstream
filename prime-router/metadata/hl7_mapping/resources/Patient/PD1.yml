@@ -41,4 +41,3 @@ elements:
     constants:
       cweField: '%{hl7PD1Field}-14(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
-

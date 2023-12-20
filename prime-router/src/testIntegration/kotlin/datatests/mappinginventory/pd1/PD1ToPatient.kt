@@ -5,7 +5,12 @@ import org.junit.jupiter.api.Test
 
 class PD1ToPatient {
     @Test
-    fun `test PD1 populated`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("pd1/pd1").passed)
+    fun `test PD1 populated with PD1-14-1 populated`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("pd1/pd1-to-patient-pd1-14-1-populated").passed)
+    }
+
+    @Test
+    fun `test PD1 populated with PD1-14-1 blank and PD1-14-10 populated`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("pd1/pd1-to-patient-pd1-14-1-blank-14-10-populated").passed)
     }
 }

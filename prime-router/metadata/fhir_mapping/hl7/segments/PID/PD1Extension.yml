@@ -7,7 +7,7 @@ extension:
   generateList: true
   expressions:
     - expressionType: nested
-      specs: PD1.1
+      specs: PD1.1 *
       condition: $pd11 NOT_NULL
       generateList: true
       vars:
