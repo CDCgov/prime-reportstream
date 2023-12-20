@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
+import gov.cdc.prime.router.CodeStringConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
@@ -95,7 +96,8 @@ class GetFilterTests {
         qualityFilter = listOf("testQual"),
         routingFilter = listOf("testRouting"),
         processingModeFilter = listOf("testProcMode"),
-        conditionFilter = listOf("testCondition")
+        conditionFilter = listOf("testCondition"),
+        mappedConditionFilter = listOf(CodeStringConditionFilter("1234"))
     )
 
     private val orgFilters = listOf(

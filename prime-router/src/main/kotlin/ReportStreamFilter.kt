@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
@@ -7,6 +9,34 @@ import kotlin.reflect.full.memberProperties
  * A ReportStreamFilter is the use (call) of one or more ReportStreamFilterDefinitions.
  */
 typealias ReportStreamFilter = List<String>
+typealias ReportStreamConditionFilter = List<ConditionFilter>
+
+fun ReportStreamConditionFilter.codes(): List<String> = this.flatMap { it.codes() }
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+    JsonSubTypes.Type(CodeStringConditionFilter::class, name = "codeString"),
+    JsonSubTypes.Type(ConditionLookupConditionFilter::class, name = "conditionLookup"),
+    JsonSubTypes.Type(FHIRExpressionConditionFilter::class, name = "fhirExpression"),
+)
+abstract class ConditionFilter(val value: String) {
+    // TODO: change to .filter() or .passes() method and combine with legacy filter
+    abstract fun codes(): List<String>
+}
+
+class CodeStringConditionFilter(value: String) : ConditionFilter(value) {
+    val codeList = value.split(",")
+
+    override fun codes() = codeList
+}
+
+class ConditionLookupConditionFilter(value: String) : ConditionFilter(value) {
+    override fun codes() = emptyList<String>()
+}
+
+class FHIRExpressionConditionFilter(value: String) : ConditionFilter(value) {
+    override fun codes() = emptyList<String>()
+}
 
 /**
  * Enum of Fields in the ReportStreamFilters, below.  Used to iterate thru all the filters in ReportStreamFilters
@@ -48,6 +78,7 @@ data class ReportStreamFilters(
     val routingFilter: ReportStreamFilter?,
     val processingModeFilter: ReportStreamFilter?,
     val conditionFilter: ReportStreamFilter? = null,
+    val mappedConditionFilter: ReportStreamConditionFilter? = null,
 ) {
 
     companion object {

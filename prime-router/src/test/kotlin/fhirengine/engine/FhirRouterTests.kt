@@ -14,6 +14,8 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.CodeStringConditionFilter
+import gov.cdc.prime.router.ConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
@@ -21,6 +23,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
@@ -57,6 +60,7 @@ import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.UUID
+import kotlin.reflect.KFunction3
 import kotlin.test.Test
 
 private const val ORGANIZATION_NAME = "co-phd"
@@ -178,7 +182,8 @@ class FhirRouterTests {
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "one",
-                conditionFilter = listOf(CONDITION_FILTER)
+                conditionFilter = listOf(CONDITION_FILTER),
+                mappedConditionFilter = listOf(CodeStringConditionFilter("95418-0"))
             ),
             Receiver(
                 "full-elr-hl7-2",
@@ -320,12 +325,14 @@ class FhirRouterTests {
         routingFilter: List<String>,
         processingModeFilter: List<String>,
         conditionFilter: List<String> = emptyList(),
+        mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
     ) {
         every { getJurisFilters(any(), any()) } returns jurisFilter
         every { getQualityFilters(any(), any()) } returns qualFilter
         every { getRoutingFilter(any(), any()) } returns routingFilter
         every { getProcessingModeFilter(any(), any()) } returns processingModeFilter
         every { getConditionFilter(any(), any()) } returns conditionFilter
+        every { getMappedConditionFilter(any(), any()) } returns mappedConditionFilter
     }
 
     @BeforeEach
@@ -345,10 +352,13 @@ class FhirRouterTests {
         val qualFilter = listOf(PROVENANCE_COUNT_EQUAL_TO_TEN)
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val conditionFilter = emptyList<String>()
+        val mappedConditionFilter = emptyList<ConditionFilter>()
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
+        )
 
         // act
         val receivers = engine.findReceiversForBundle(bundle, report.id, actionHistory, Topic.FULL_ELR)
@@ -366,10 +376,13 @@ class FhirRouterTests {
         val qualFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val conditionFilter = emptyList<String>()
+        val mappedConditionFilter = emptyList<ConditionFilter>()
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
+        )
 
         // act
         val receivers = engine.findReceiversForBundle(bundle, report.id, actionHistory, Topic.FULL_ELR)
@@ -388,9 +401,12 @@ class FhirRouterTests {
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val conditionFilter = emptyList<String>()
+        val mappedConditionFilter = emptyList<ConditionFilter>()
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
+        )
 
         // act
         val receivers = engine.findReceiversForBundle(bundle, report.id, actionHistory, Topic.FULL_ELR)
@@ -413,9 +429,12 @@ class FhirRouterTests {
             PROVENANCE_COUNT_GREATER_THAN_ZERO, // true
             "Bundle.entry.resource.ofType(Provenance).count() >= 1" // also true
         )
+        val mappedConditionFilter = emptyList<ConditionFilter>() // TODO: replace
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
+        )
 
         // act
         val receivers = engine.findReceiversForBundle(bundle, report.id, actionHistory, Topic.FULL_ELR)
@@ -438,9 +457,12 @@ class FhirRouterTests {
             PROVENANCE_COUNT_GREATER_THAN_ZERO, // true
             "Bundle.entry.resource.ofType(Provenance).count() > 100" // not true
         )
+        val mappedConditionFilter = emptyList<ConditionFilter>() // TODO: change
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
+        )
 
         // act
         val receivers = engine.findReceiversForBundle(bundle, report.id, actionHistory, Topic.FULL_ELR)
@@ -463,9 +485,12 @@ class FhirRouterTests {
             "Bundle.entry.resource.ofType(Provenance).count() > 50", // not true
             "Bundle.entry.resource.ofType(Provenance).count() > 100" // not true
         )
+        val mappedConditionFilter = emptyList<ConditionFilter>() // TODO: change
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
+        )
 
         // act
         val receivers = engine.findReceiversForBundle(bundle, report.id, actionHistory, Topic.FULL_ELR)
@@ -715,12 +740,15 @@ class FhirRouterTests {
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val conditionFilter = listOf(PROVENANCE_COUNT_EQUAL_TO_TEN)
+        val mappedConditionFilter = emptyList<ConditionFilter>() // TODO: change
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
+        )
 
         // act
         accessSpy.transact { txn ->
@@ -763,15 +791,20 @@ class FhirRouterTests {
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val mappedConditionFilter = emptyList<ConditionFilter>() // TODO: change
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
-        mockkStatic(Bundle::filterObservations)
+        val filterObservations: KFunction3<Bundle, ReportStreamFilter, MutableMap<String, String>, Bundle> =
+            Bundle::filterObservations
+        mockkStatic(filterObservations)
         every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
+        )
 
         // act
         accessSpy.transact { txn ->
@@ -819,15 +852,20 @@ class FhirRouterTests {
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val mappedConditionFilter = emptyList<ConditionFilter>()
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
-        mockkStatic(Bundle::filterObservations)
+        val filterObservations: KFunction3<Bundle, ReportStreamFilter, MutableMap<String, String>, Bundle> =
+            Bundle::filterObservations
+        mockkStatic(filterObservations)
         every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
+        )
 
         // act
         accessSpy.transact { txn ->
@@ -879,13 +917,16 @@ class FhirRouterTests {
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val mappedConditionFilter = emptyList<ConditionFilter>() // TODO: change
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
+        )
 
         // act
         accessSpy.transact { txn ->
@@ -935,13 +976,16 @@ class FhirRouterTests {
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val mappedConditionFilter = emptyList<ConditionFilter>() // TODO: change
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
+        )
 
         // act
         accessSpy.transact { txn ->
@@ -991,7 +1035,9 @@ class FhirRouterTests {
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
-        mockkStatic(Bundle::filterObservations)
+        val filterObservations: KFunction3<Bundle, ReportStreamFilter, MutableMap<String, String>, Bundle> =
+            Bundle::filterObservations
+        mockkStatic(filterObservations)
         every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
 
         // act
@@ -1138,7 +1184,9 @@ class FhirRouterTests {
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
-        mockkStatic(Bundle::filterObservations)
+        val filterObservations: KFunction3<Bundle, ReportStreamFilter, MutableMap<String, String>, Bundle> =
+            Bundle::filterObservations
+        mockkStatic(filterObservations)
         every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
         engine.setFiltersOnEngine(
             jurisFilter,
@@ -1343,8 +1391,9 @@ class FhirRouterTests {
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         // This condition filter evaluates to true
         val condFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val mappedCondFilter = emptyList<ConditionFilter>()
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter)
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, mappedCondFilter)
 
         // act
         val receivers = engine.findReceiversForBundle(bundle, report.id, actionHistory, Topic.FULL_ELR)
@@ -1373,8 +1422,9 @@ class FhirRouterTests {
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_10)
         // This condition filter evaluates to true
         val condFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val mappedCondFilter = emptyList<ConditionFilter>() // TODO: maybe change
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter)
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, mappedCondFilter)
 
         // act
         val receivers = engine.findReceiversForBundle(bundle, report.id, actionHistory, Topic.FULL_ELR)
@@ -1404,8 +1454,11 @@ class FhirRouterTests {
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         // This condition filter evaluates to false
         val condFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_10)
+        val mappedCondFilter = emptyList<ConditionFilter>() // TODO: change
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
-        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter)
+        engine.setFiltersOnEngine(
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, mappedCondFilter
+        )
 
         // act
         val receivers = engine.findReceiversForBundle(bundle, report.id, actionHistory, Topic.FULL_ELR)

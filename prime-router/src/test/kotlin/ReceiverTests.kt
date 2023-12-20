@@ -22,6 +22,7 @@ internal class ReceiverTests {
             topic = Topic.COVID_19,
             customerStatus = CustomerStatus.INACTIVE,
             conditionFilter = listOf("blah"),
+            mappedConditionFilter = listOf(CodeStringConditionFilter("1234")),
             translation = translatorConfig,
             externalName = "Ignore ELR"
         )
@@ -43,6 +44,7 @@ internal class ReceiverTests {
             topic = Topic.FULL_ELR,
             customerStatus = CustomerStatus.INACTIVE,
             conditionFilter = listOf("%testPerformedCodes.intersect('123-0'|'600-7').exists()"),
+            mappedConditionFilter = listOf(CodeStringConditionFilter("130-0,600-7")),
             translation = translatorConfig,
             externalName = "Ignore ELR"
         )

@@ -5,9 +5,11 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.UnmappableConditionMessage
 import gov.cdc.prime.router.cli.ObservationMappingConstants
+import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
@@ -111,6 +113,15 @@ fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
         }
     }
 }
+
+fun Observation.getMappedConditions(): List<String> =
+     this.getCodeSourcesMap().mapNotNull {
+        it.value.flatMap { coding ->
+            coding.extension.mapNotNull { extension ->
+                if (extension.url == conditionCodeExtensionURL) extension.castToCoding(extension.value).code else null
+            }
+        }
+    }.flatten()
 
 /**
  * Adds references to diagnostic reports within [fhirBundle] as provenance targets
@@ -335,6 +346,28 @@ fun Bundle.filterObservations(
     val listToKeep = observationsToKeep.map { it.idBase }
     allObservations.forEach {
         if (it.idBase !in listToKeep) {
+            filteredBundle.deleteResource(it)
+        }
+    }
+    return filteredBundle
+}
+
+/**
+ * Filter out observations that pass the condition filter for a [receiver]
+ * The [bundle] and [shortHandLookupTable] will be used to evaluate whether
+ * the observation passes the filter
+ *
+ * @return copy of the bundle with filtered observations removed
+ */
+fun Bundle.filterObservations(
+    conditionFilter: ReportStreamConditionFilter,
+): Bundle {
+    val codes = conditionFilter.codes()
+    val observations = this.entry.map { it.resource }.filterIsInstance<Observation>()
+    val toKeep = observations.filter { it.getMappedConditions().any(codes::contains) }.map { it.idBase }
+    val filteredBundle = this.copy()
+    observations.forEach {
+        if (it.idBase !in toKeep) {
             filteredBundle.deleteResource(it)
         }
     }

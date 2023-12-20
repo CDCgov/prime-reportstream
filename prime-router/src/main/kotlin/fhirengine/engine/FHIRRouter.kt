@@ -4,6 +4,7 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.ConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.Metadata
@@ -25,11 +26,13 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
+import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
@@ -160,13 +163,10 @@ class FHIRRouter(
                 )
 
                 // If the receiver does not have a condition filter set send the entire bundle to the translate step
-                val receiverBundle = if (receiver.conditionFilter.isEmpty()) {
+                val receiverBundle = if (receiver.mappedConditionFilter.isEmpty()) {
                     bundle
                 } else {
-                    bundle.filterObservations(
-                        receiver.conditionFilter,
-                        shorthandLookupTable
-                    )
+                    bundle.filterObservations(receiver.mappedConditionFilter)
                 }
                 val nextEvent = ProcessEvent(
                     Event.EventAction.TRANSLATE,
@@ -327,6 +327,7 @@ class FHIRRouter(
                 allObservationsExpression
             )
 
+            // TODO: is this handled?
             // Automatically passing if observations are empty is necessary for messages that may not
             // contain any observations but messages that must have observations are now at risk of getting
             // routed if they contain no observations. This case must be handled in one of the filters above
@@ -347,6 +348,20 @@ class FHIRRouter(
                     )
                 }
                 )
+
+            // MAPPED CONDITION FILTER
+            //  default: allowAll
+            val allMappedObservations = bundle.entry.map { it.resource }.filterIsInstance<Observation>()
+            val filteredObservations = if (receiver.conditionFilter.isEmpty()) {
+                allMappedObservations
+            } else {
+                val codes = receiver.mappedConditionFilter.codes()
+                allMappedObservations.filter {
+                    it.getMappedConditions().any(codes::contains)
+                }
+            }
+
+            passes = passes && (allMappedObservations.isEmpty() || filteredObservations.isNotEmpty())
 
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
@@ -637,5 +652,18 @@ class FHIRRouter(
             orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.conditionFilter
                 ?: emptyList()
             ).plus(receiver.conditionFilter)
+    }
+
+    /**
+     * Gets the applicable condition filters for 'FULL_ELR' for a [receiver].
+     */
+    internal fun getMappedConditionFilter(
+        receiver: Receiver,
+        orgFilters: List<ReportStreamFilters>?,
+    ): List<ConditionFilter> {
+        return (
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.mappedConditionFilter
+                ?: emptyList()
+            ).plus(receiver.mappedConditionFilter)
     }
 }
