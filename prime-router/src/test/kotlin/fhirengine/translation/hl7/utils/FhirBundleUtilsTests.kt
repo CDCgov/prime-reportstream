@@ -25,37 +25,43 @@ class FhirBundleUtilsTests {
     @Test
     fun `test convert fhir type`() {
         var convertedValue = FhirBundleUtils.convertFhirType(StringType("testing"), "string", "base64Binary")
-        assertThat(convertedValue).isInstanceOf(Base64BinaryType::class)
+        assertThat(convertedValue!!).isInstanceOf(Base64BinaryType::class)
         convertedValue = FhirBundleUtils.convertFhirType(StringType("testing"), "string", "canonical")
-        assertThat(convertedValue).isInstanceOf(CanonicalType::class)
+        assertThat(convertedValue!!).isInstanceOf(CanonicalType::class)
         convertedValue = FhirBundleUtils.convertFhirType(StringType("testing"), "string", "code")
-        assertThat(convertedValue).isInstanceOf(CodeType::class)
+        assertThat(convertedValue!!).isInstanceOf(CodeType::class)
         convertedValue = FhirBundleUtils.convertFhirType(StringType("1905-08-23"), "string", "date")
-        assertThat(convertedValue).isInstanceOf(DateType::class)
+        assertThat(convertedValue!!).isInstanceOf(DateType::class)
         convertedValue = FhirBundleUtils.convertFhirType(StringType("2015-02-07T13:28:17-05:00"), "string", "dateTime")
-        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
+        assertThat(convertedValue!!).isInstanceOf(DateTimeType::class)
         convertedValue = FhirBundleUtils.convertFhirType(StringType("testing"), "string", "id")
-        assertThat(convertedValue).isInstanceOf(IdType::class)
+        assertThat(convertedValue!!).isInstanceOf(IdType::class)
         convertedValue =
             FhirBundleUtils.convertFhirType(StringType("2015-02-07T13:28:17.239+02:00"), "string", "instant")
-        assertThat(convertedValue).isInstanceOf(InstantType::class)
+        assertThat(convertedValue!!).isInstanceOf(InstantType::class)
         convertedValue = FhirBundleUtils.convertFhirType(StringType("testing"), "string", "markdown")
-        assertThat(convertedValue).isInstanceOf(MarkdownType::class)
+        assertThat(convertedValue!!).isInstanceOf(MarkdownType::class)
         convertedValue = FhirBundleUtils.convertFhirType(StringType("testing"), "string", "oid")
-        assertThat(convertedValue).isInstanceOf(OidType::class)
+        assertThat(convertedValue!!).isInstanceOf(OidType::class)
         convertedValue = FhirBundleUtils.convertFhirType(IdType("123456"), "id", "string")
-        assertThat(convertedValue).isInstanceOf(StringType::class)
+        assertThat(convertedValue!!).isInstanceOf(StringType::class)
         convertedValue = FhirBundleUtils.convertFhirType(StringType("testing"), "string", "time")
-        assertThat(convertedValue).isInstanceOf(TimeType::class)
+        assertThat(convertedValue!!).isInstanceOf(TimeType::class)
         convertedValue = FhirBundleUtils.convertFhirType(StringType("testing"), "string", "uri")
-        assertThat(convertedValue).isInstanceOf(UriType::class)
+        assertThat(convertedValue!!).isInstanceOf(UriType::class)
         convertedValue = FhirBundleUtils.convertFhirType(StringType("testing"), "string", "url")
-        assertThat(convertedValue).isInstanceOf(UrlType::class)
+        assertThat(convertedValue!!).isInstanceOf(UrlType::class)
         convertedValue = FhirBundleUtils.convertFhirType(StringType("testing"), "string", "uuid")
-        assertThat(convertedValue).isInstanceOf(UuidType::class)
+        assertThat(convertedValue!!).isInstanceOf(UuidType::class)
 
         convertedValue = FhirBundleUtils.convertFhirType(BooleanType("true"), "boolean", "boolean")
-        assertThat(convertedValue).isInstanceOf(BooleanType::class)
+        assertThat(convertedValue!!).isInstanceOf(BooleanType::class)
+        if (convertedValue is BooleanType) {
+            assertThat(convertedValue.booleanValue()).isTrue()
+        }
+
+        convertedValue = FhirBundleUtils.convertFhirType(BooleanType("true"), "boolean", "dateTime|boolean")
+        assertThat(convertedValue!!).isInstanceOf(BooleanType::class)
         if (convertedValue is BooleanType) {
             assertThat(convertedValue.booleanValue()).isTrue()
         }
@@ -65,16 +71,23 @@ class FhirBundleUtilsTests {
     fun `test convert to datetime`() {
         var convertedValue =
             FhirBundleUtils.convertFhirType(StringType("2015-02-07T13:28:17-05:00"), "string", "dateTime")
-        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
+        assertThat(convertedValue!!).isInstanceOf(DateTimeType::class)
         convertedValue =
             FhirBundleUtils.convertFhirType(InstantType("2015-02-07T13:28:17.239+02:00"), "instant", "dateTime")
-        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
+        assertThat(convertedValue!!).isInstanceOf(DateTimeType::class)
         convertedValue =
             FhirBundleUtils.convertFhirType(DateTimeType("2015-02-07T13:28:17.239+02:00"), "dateTime", "dateTime")
-        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
+        assertThat(convertedValue!!).isInstanceOf(DateTimeType::class)
         convertedValue =
             FhirBundleUtils.convertFhirType(DateType("2015-02-07"), "date", "dateTime")
-        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
+        assertThat(convertedValue!!).isInstanceOf(DateTimeType::class)
+        convertedValue =
+            FhirBundleUtils.convertFhirType(
+                DateTimeType("2015-02-07T13:28:17.239+02:00"),
+                "dateTime",
+                "boolean|dateTime"
+            )
+        assertThat(convertedValue!!).isInstanceOf(DateTimeType::class)
 
         // Incompatible type
         assertFailure { FhirBundleUtils.convertFhirType(DateType("13:28:17"), "time", "dateTime") }
@@ -83,10 +96,10 @@ class FhirBundleUtilsTests {
     @Test
     fun `test convert incompatible fhir types`() {
         var convertedValue = FhirBundleUtils.convertFhirType(BooleanType("true"), "boolean", "id")
-        assertThat(convertedValue).isInstanceOf(BooleanType::class)
+        assertThat(convertedValue!!).isInstanceOf(BooleanType::class)
 
         convertedValue = FhirBundleUtils.convertFhirType(StringType("testing"), "string", "boolean")
-        assertThat(convertedValue).isInstanceOf(StringType::class)
+        assertThat(convertedValue!!).isInstanceOf(StringType::class)
     }
 
     @Test
