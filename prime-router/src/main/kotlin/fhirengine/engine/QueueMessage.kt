@@ -1,7 +1,5 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
@@ -31,9 +29,9 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
     JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
     JsonSubTypes.Type(FhirRouteQueueMessage::class, name = "route"),
     JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
-    JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "batch"),
-    JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "process"),
-    JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "report")
+    JsonSubTypes.Type(BatchEventQueueMessage::class, name = "batch"),
+    JsonSubTypes.Type(ProcessEventQueueMessage::class, name = "process"),
+    JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report")
 )
 abstract class QueueMessage {
     fun serialize(): String {
@@ -61,12 +59,9 @@ abstract class QueueMessage {
     }
 }
 
-abstract class UniversalPipelineQueueMessage : QueueMessage() {
-    abstract val reportId: ReportId
-    abstract val blobURL: String
-    abstract val digest: String
-    abstract val blobSubFolderName: String
-    abstract val topic: Topic
+interface WithDownloadableReport {
+    val digest: String
+    val blobURL: String
 
     /**
      * Download the file associated with a RawSubmission message
@@ -81,6 +76,14 @@ abstract class UniversalPipelineQueueMessage : QueueMessage() {
     }
 }
 
+interface ReportIdentifyingInformation {
+    val blobSubFolderName: String
+    val reportId: ReportId
+    val topic: Topic
+}
+
+abstract class ReportPipelineMessage : ReportIdentifyingInformation, WithDownloadableReport, QueueMessage()
+
 /**
  * The Message representation of a raw submission to the system, tracking the [reportId], [blobURL],
  * [blobSubFolderName] (which is derived from the sender name), and [schemaName] from the sender settings.
@@ -94,7 +97,7 @@ data class RawSubmission(
     override val blobSubFolderName: String,
     override val topic: Topic,
     val schemaName: String = "",
-) : UniversalPipelineQueueMessage()
+) : ReportPipelineMessage()
 
 @JsonTypeName("convert")
 data class FhirConvertQueueMessage(
@@ -104,7 +107,7 @@ data class FhirConvertQueueMessage(
     override val blobSubFolderName: String,
     override val topic: Topic,
     val schemaName: String = "",
-) : UniversalPipelineQueueMessage()
+) : ReportPipelineMessage()
 
 @JsonTypeName("route")
 data class FhirRouteQueueMessage(
@@ -113,7 +116,7 @@ data class FhirRouteQueueMessage(
     override val digest: String,
     override val blobSubFolderName: String,
     override val topic: Topic,
-) : UniversalPipelineQueueMessage()
+) : ReportPipelineMessage()
 
 @JsonTypeName("translate")
 data class FhirTranslateQueueMessage(
@@ -123,38 +126,34 @@ data class FhirTranslateQueueMessage(
     override val blobSubFolderName: String,
     override val topic: Topic,
     val receiverFullName: String,
-) : UniversalPipelineQueueMessage()
+) : ReportPipelineMessage()
 
-abstract class MixedPipelineQueueMessage : QueueMessage() {
-    abstract val eventAction: Event.EventAction
+abstract class WithNextAction : QueueMessage() {
+    abstract val nextAction: Event.EventAction
 }
 
-abstract class CovidPipelineQueueMessage : QueueMessage() {
-    abstract val eventAction: Event.EventAction
-}
-
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonTypeName("batch")
 data class BatchEventQueueMessage(
-    @JsonProperty("eventAction") override val eventAction: Event.EventAction,
-    @JsonProperty("receiverName") val receiverName: String,
-    @JsonProperty("emptyBatch") val emptyBatch: Boolean,
-    @JsonProperty("at") val at: String,
-) : MixedPipelineQueueMessage()
+    override val nextAction: Event.EventAction,
+    val receiverName: String,
+    val emptyBatch: Boolean,
+    val at: String,
+) : WithNextAction()
 
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonTypeName("report")
 data class ReportEventQueueMessage(
-    @JsonProperty("eventAction") override val eventAction: Event.EventAction,
-    @JsonProperty("emptyBatch") val emptyBatch: Boolean,
-    @JsonProperty("reportId") val reportId: UUID,
-    @JsonProperty("at") val at: String,
-) : CovidPipelineQueueMessage()
+    override val nextAction: Event.EventAction,
+    val emptyBatch: Boolean,
+    val reportId: UUID,
+    val at: String,
+) : WithNextAction()
 
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonTypeName("process")
 data class ProcessEventQueueMessage(
-    @JsonProperty("eventAction") override val eventAction: Event.EventAction,
-    @JsonProperty("reportId") val reportId: UUID,
-    @JsonProperty("options") val options: Options,
-    @JsonProperty("defaults") val defaults: Map<String, String>,
-    @JsonProperty("routeTo") val routeTo: List<String>,
-    @JsonProperty("at") val at: String,
-) : CovidPipelineQueueMessage()
+    override val nextAction: Event.EventAction,
+    val reportId: UUID,
+    val options: Options,
+    val defaults: Map<String, String>,
+    val routeTo: List<String>,
+    val at: String,
+) : WithNextAction()

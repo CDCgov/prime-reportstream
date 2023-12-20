@@ -117,7 +117,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
             }
 
             return when (type) {
-                "ReportEventQueueMessage" -> {
+                "report" -> {
                     val reportEventQueueMessage =
                         JacksonMapperUtilities.defaultMapper.readValue<ReportEventQueueMessage>(event)
                     val at = if (reportEventQueueMessage.at.isNotEmpty()) {
@@ -126,13 +126,13 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         null
                     }
                     ReportEvent(
-                        reportEventQueueMessage.eventAction,
+                        reportEventQueueMessage.nextAction,
                         reportEventQueueMessage.reportId,
                         reportEventQueueMessage.emptyBatch,
                         at
                     )
                 }
-                "BatchEventQueueMessage" -> {
+                "batch" -> {
                     val batchEventQueueMessage =
                         JacksonMapperUtilities.defaultMapper.readValue<BatchEventQueueMessage>(event)
                     val at = if (batchEventQueueMessage.at.isNotEmpty()) {
@@ -141,13 +141,13 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         null
                     }
                     BatchEvent(
-                        batchEventQueueMessage.eventAction,
+                        batchEventQueueMessage.nextAction,
                         batchEventQueueMessage.receiverName,
                         batchEventQueueMessage.emptyBatch,
                         at
                     )
                 }
-                "ProcessEventQueueMessage" -> {
+                "process" -> {
                     val processEventQueueMessage =
                         JacksonMapperUtilities.defaultMapper.readValue<ProcessEventQueueMessage>(event)
                     val at = if (processEventQueueMessage.at.isNotEmpty()) {
@@ -156,7 +156,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         null
                     }
                     ProcessEvent(
-                        processEventQueueMessage.eventAction,
+                        processEventQueueMessage.nextAction,
                         processEventQueueMessage.reportId,
                         processEventQueueMessage.options,
                         processEventQueueMessage.defaults,

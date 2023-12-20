@@ -54,7 +54,7 @@ class FHIRTranslator(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
-        message as UniversalPipelineQueueMessage
+        message as ReportPipelineMessage
 
         logger.trace("Translating FHIR file for receivers.")
         // pull fhir document and parse FHIR document

@@ -17,7 +17,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
-import gov.cdc.prime.router.fhirengine.engine.UniversalPipelineQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
@@ -160,12 +160,12 @@ class FHIRFunctions(
      * Deserializes the [message] into a RawSubmission, verifies it is of the correct type.
      * Logs the [engineType] and [dequeueCount]
      */
-    private fun readMessage(engineType: String, message: String, dequeueCount: Int): UniversalPipelineQueueMessage {
+    private fun readMessage(engineType: String, message: String, dequeueCount: Int): ReportPipelineMessage {
         logger.debug(
             "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
 
-        return QueueMessage.deserialize(message) as UniversalPipelineQueueMessage
+        return QueueMessage.deserialize(message) as ReportPipelineMessage
     }
 
     /**
