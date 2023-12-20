@@ -890,7 +890,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.1")
-    implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.1")
+    implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.2")
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.poi:poi-ooxml:5.2.5")
     implementation("commons-io:commons-io: 2.15.0")
