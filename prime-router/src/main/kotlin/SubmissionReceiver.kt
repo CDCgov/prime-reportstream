@@ -9,7 +9,7 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
@@ -349,7 +349,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
             // move to processing (send to <elrProcessQueueName> queue)
             workflowEngine.queue.sendMessage(
                 elrConvertQueueName,
-                RawSubmission(
+                FhirConvertMessage(
                     report.id,
                     blobInfo.blobUrl,
                     BlobAccess.digestToString(blobInfo.digest),

@@ -12,7 +12,7 @@ object HL7MessageHelpers : Logging {
 
     private const val REPORT_STREAM_UNIVERSAL_ID = "2.16.840.1.114222.4.1.237821"
     private const val REPORT_STREAM_UNIVERSAL_ID_TYPE = "ISO"
-    private const val REPORT_STREAM_APPLICATION_NAME = "CDC PRIME - Atlanta"
+    private const val REPORT_STREAM_APPLICATION_NAME = "CDC PRIME - Atlanta, Georgia (Dekalb)"
 
     /**
      * Encoding characters for the HL7 batch headers.
