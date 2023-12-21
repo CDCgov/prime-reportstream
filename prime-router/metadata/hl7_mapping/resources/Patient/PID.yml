@@ -17,7 +17,7 @@ elements:
     resource: '%resource.name'
     condition: '%resource.exists()'
     constants:
-      hl7xpnField: '%{hl7PIDField}-5(%{xpnIndex})'
+      xpnField: '%{hl7PIDField}-5(%{xpnIndex})'
     schema: ../../datatypes/HumanName/XPN
     resourceIndex: xpnIndex
 
@@ -25,7 +25,7 @@ elements:
     resource: '%resource.extension(%`ext-patient-mothersMaidenName`).value'
     condition: '%resource.exists()'
     constants:
-      hl7xpnField: '%{hl7PIDField}-6(%{xpnIndex})'
+      xpnField: '%{hl7PIDField}-6(%{xpnIndex})'
     schema: ../../datatypes/HumanName/XPN
     resourceIndex: xpnIndex
 

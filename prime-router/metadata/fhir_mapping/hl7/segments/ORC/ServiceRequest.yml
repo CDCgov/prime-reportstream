@@ -344,10 +344,9 @@ subject:
 
 note:
   valueOf: datatype/Annotation
-  condition: $annotationText NOT_NULL
   expressionType: resource
-  vars:
-    annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
+  generateList: true
+  specs: NTE
 
 supportingInfo:
   valueOf: resource/Observation

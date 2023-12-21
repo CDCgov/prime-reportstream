@@ -7,7 +7,6 @@ elements:
   - name: units
     condition: '%context.where(extension(%`rsext-cq-units`).value).exists()'
     resource: '%resource.extension(%`rsext-cq-units`).value'
-    resourceIndex: cweIndex
     constants:
-      cweField: '%{cqFieldPath}-2(%{cweIndex})'
+      cweField: '%{cqFieldPath}-2'
     schema: ../../datatypes/codeableConcept/CWE

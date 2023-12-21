@@ -294,11 +294,10 @@ note_1:
 
 note_2:
   valueOf: datatype/Annotation
-  condition: $annotationText NOT_NULL && $suppressNote NULL
+  condition: $suppressNote NULL
   expressionType: resource
   useGroup: true
-  vars:
-    annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
+  specs: NTE
 
 bodySite:
   valueOf: datatype/CodeableConcept

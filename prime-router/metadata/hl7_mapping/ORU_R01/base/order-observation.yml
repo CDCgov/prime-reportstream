@@ -53,11 +53,8 @@ elements:
       observation: '%diagnostic.result[%resultIndex].resolve()'
 
   - name: order-note
-    resource: '%service.note.text.split(''\n'')'
-    condition: '%service.note.exists()'
+    resource: '%service.note'
     schema: ../../common/note
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7Order}'
-      # Cannot use %resource here as this constant will be resolved in the note schema
-      noteDetails: '%service.note'

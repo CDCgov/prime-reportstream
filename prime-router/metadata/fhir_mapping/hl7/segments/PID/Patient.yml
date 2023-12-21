@@ -307,6 +307,7 @@ extension:
   expressions:
     - expressionType: nested
       generateList: true
+      specs: NTE
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -314,18 +315,15 @@ extension:
         valueAnnotation:
           valueOf: datatype/Annotation
           expressionType: resource
-          condition: $annotationText NOT_NULL
-          vars:
-            annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
     - expressionType: resource
       valueOf: segments/PID/PIDExtension
     - expressionType: resource
       valueOf: segments/PID/PD1Extension
-    - condition: $pid6 NOT_NULL
-      expressionType: nested
+    - expressionType: nested
       generateList: true
+      #      condition: $pid6 NOT_NULL
       vars:
-        pid6: STRING_ALL, PID.6
+        pid6: STRING_ALL, PID.6 *
       specs: PID.6 *
       expressionsMap:
         url:
