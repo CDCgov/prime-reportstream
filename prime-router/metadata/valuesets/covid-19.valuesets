@@ -283,6 +283,12 @@
     - code: 1797002
       display: Structure of anterior nares (body structure)
       version: 2002-01-31
+    - code: 87100004
+      display: Topography unknown (body structure)
+      version: 2020-09-01
+    - code: 442083009
+      display: Anatomical or acquired body structure (body structure)
+      version: 2020-09-01
 
 - name: covid-19/yesno
   # See YES, NO, UNK in the reference URL.

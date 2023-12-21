@@ -25,7 +25,6 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(RawSubmission::class, name = "raw"),
     JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
     JsonSubTypes.Type(FhirRouteQueueMessage::class, name = "route"),
     JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
@@ -83,21 +82,6 @@ interface ReportIdentifyingInformation {
 }
 
 abstract class ReportPipelineMessage : ReportIdentifyingInformation, WithDownloadableReport, QueueMessage()
-
-/**
- * The Message representation of a raw submission to the system, tracking the [reportId], [blobURL],
- * [blobSubFolderName] (which is derived from the sender name), and [schemaName] from the sender settings.
- * A [digest] is also provided for checksum verification.
- */
-@JsonTypeName("raw")
-data class RawSubmission(
-    override val reportId: ReportId,
-    override val blobURL: String,
-    override val digest: String,
-    override val blobSubFolderName: String,
-    override val topic: Topic,
-    val schemaName: String = "",
-) : ReportPipelineMessage()
 
 @JsonTypeName("convert")
 data class FhirConvertQueueMessage(
