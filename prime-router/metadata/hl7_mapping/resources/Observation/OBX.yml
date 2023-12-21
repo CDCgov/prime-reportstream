@@ -39,7 +39,7 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-14' ]
 
   - name: obx-producer-id
-    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7-use`).value = "obx-15-producer-id")'
+    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7-use`).value.join(",").contains("obx-15-producer-id"))'
     schema: ../Organization/CWE
     constants:
       organizationCWEFieldPath: '%{hl7OBXField}-15'
@@ -83,7 +83,7 @@ elements:
       eiFieldPath: '%{hl7OBXField}-21'
 
   - name: obx-performing-organization-name-from-org
-    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7-use`).value = "obx-25-performing-organization")'
+    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7-use`).value.join(",").contains("obx-25-performing-organization"))'
     schema: ../Organization/XON
     constants:
       hl7XONField: '%{hl7OBXField}-23'
@@ -95,7 +95,7 @@ elements:
       hl7XONField: '%{hl7OBXField}-23'
 
   - name: obx-performing-organization-address-from-org
-    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7-use`).value = "obx-25-performing-organization").address'
+    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7-use`).value.join(",").contains("obx-25-performing-organization")).address'
     schema: ../../datatypes/Address/XAD
     constants:
       hl7SpecXADField: '%{hl7OBXField}-24'
@@ -111,6 +111,11 @@ elements:
     schema: ../Practitioner/XCN
     constants:
       hl7XCNField: '%{hl7OBXField}-25'
+
+  - name: observation-aoe-identifier
+    condition: '%resource.meta.tag.code="AOE"'
+    value: [ '"QST"' ]
+    hl7Spec: [ '%{hl7OBXField}-29' ]
 
   - name: obx-observation-sub-type
     value: [ '%resource.extension(%`rsext-observation-sub-type`).value' ]
