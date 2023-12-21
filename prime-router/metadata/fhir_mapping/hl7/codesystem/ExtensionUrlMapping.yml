@@ -611,4 +611,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time"
 - id: "obx-observation"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation"
+- id: "cwe-organization"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization"
 

@@ -49,6 +49,13 @@ elements:
     constants:
       cneFieldPath: '%{hl7OBXField}-5'
 
+  - name: obx-value-ce
+    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "CE"'
+    schema: ../../datatypes/codeableConcept/CE
+    resource: '%resource.value'
+    constants:
+      ceFieldPath: '%{hl7OBXField}-5'
+
   - name: obx-value-cwe
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "CWE"'
     schema: ../../datatypes/codeableConcept/CWE

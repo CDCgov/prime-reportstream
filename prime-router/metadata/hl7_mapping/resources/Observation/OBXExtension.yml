@@ -25,9 +25,3 @@ elements:
   - name: user-defined-access-checks
     value: [ '%resource.extension.where(url = "obx-13-user-defined-access-checks").value' ]
     hl7Spec: [ '%{hl7OBXField}-13' ]
-
-  - name: producers-id
-    resource: '%resource.extension.where(url = "obx-15-producers-id").value'
-    schema: ../../datatypes/codeableConcept/CWE
-    constants:
-      cweFieldPath: '%{hl7OBXField}-15'

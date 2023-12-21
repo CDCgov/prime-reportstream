@@ -80,18 +80,6 @@ extension:
           specs: OBX.13
     - expressionType: nested
       vars:
-        obx15: STRING_ALL, OBX.15
-      condition: $obx15 NOT_NULL
-      expressionsMap:
-        url:
-          type: STRING
-          value: obx-15-producers-id
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          specs: OBX.15
-          expressionType: resource
-    - expressionType: nested
-      vars:
         obx17: STRING_ALL, OBX.17
       condition: $obx17 NOT_NULL
       generateList: true

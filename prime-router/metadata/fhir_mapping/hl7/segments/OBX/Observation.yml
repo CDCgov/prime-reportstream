@@ -316,6 +316,11 @@ performer:
   expressionType: nested
   expressions:
     - expressionType: reference
+      valueOf: datatypes/CWE/Organization
+      constants:
+        cweOrganizationHL7Use: obx-15-producer-id
+      specs: OBX.15
+    - expressionType: reference
       generateList: true
       specs: OBX.16 *
       valueOf: segments/OBX/PractitionerRole
@@ -342,6 +347,8 @@ performer:
       condition: $obx25 NULL
       valueOf: datatypes/XON/Organization
       specs: OBX.23
+      constants:
+        xonOrganizationHL7Use: obx-25-performing-organization
 
 bodySite:
   valueOf: datatypes/CWE/CodeableConcept
