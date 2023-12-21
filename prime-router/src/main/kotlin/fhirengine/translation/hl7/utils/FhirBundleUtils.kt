@@ -69,12 +69,15 @@ object FhirBundleUtils : Logging {
         }
     }
 
+    /**
+    Determines if the [targetType] matches any of the options and, if it does, returns the [value] as that type. If not, uses the [logger] to log the [sourceType] and [targetType]. Will also log this error if there is an issue with compatibility and the [logIncompatibilityErrors] is true.
+     */
     private fun getValue(
         targetType: String,
         value: Base,
         logger: KotlinLogger,
         sourceType: String,
-        throwErrors: Boolean,
+        logIncompatibilityErrors: Boolean,
     ) = try {
         when (targetType) {
             StringCompatibleType.Base64Binary.typeAsString -> Base64BinaryType(value.primitiveValue())
@@ -97,7 +100,7 @@ object FhirBundleUtils : Logging {
             }
         }
     } catch (e: Exception) {
-        if (throwErrors) {
+        if (logIncompatibilityErrors) {
             logger.error("Conversion between $sourceType and $targetType not supported.")
         }
         null
