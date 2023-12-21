@@ -70,7 +70,7 @@ elements:
 
   - name: obx-value-dr
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "DR"'
-    schema: ../Patient/Dr # TODO this should be moved
+    schema: ../Patient/DR # TODO this should be moved
     constants:
       hl7DRField: '%{hl7OBXField}-5'
 

@@ -25,7 +25,7 @@ elements:
     schema: datatype/ce-coded-with-exceptions
 
   - name: note-author
-    condition: '%resource.author.exists() and %resource.author.is(Reference)'
+    condition: '%context.author.exists() and %context.author.is(Reference)'
     resource: '%resource.author.resolve()'
     schema: datatype/xcn-contact
     constants:
