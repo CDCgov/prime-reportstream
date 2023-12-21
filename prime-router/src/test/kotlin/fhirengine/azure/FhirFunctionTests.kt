@@ -34,8 +34,9 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirRouteMessage
 import gov.cdc.prime.router.fhirengine.engine.Message
-import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.metadata.LookupTable
@@ -211,7 +212,7 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = RawSubmission(
+        val message = FhirConvertMessage(
             report.id,
             "",
             "BlobAccess.digestToString(blobInfo.digest)",
@@ -227,7 +228,7 @@ class FhirFunctionTests {
             )
         )
 
-        val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
+        val queueMessage = "{\"type\":\"convert\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
@@ -296,7 +297,7 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = RawSubmission(
+        val message = FhirRouteMessage(
             report.id,
             "",
             "",
@@ -312,7 +313,7 @@ class FhirFunctionTests {
             )
         )
 
-        val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
+        val queueMessage = "{\"type\":\"route\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
@@ -390,12 +391,12 @@ class FhirFunctionTests {
             )
         )
 
-        val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
+        val queueMessage = "{\"type\":\"translate\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
             "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"," +
-            "\"blobSubFolderName\":\"ignore.ignore-full-elr\",\"topic\":\"full-elr\"}"
+            "\"blobSubFolderName\":\"ignore.ignore-full-elr\",\"topic\":\"full-elr\",\"receiverFullName\":\"elr.phd\"}"
 
         // act
         fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
@@ -489,7 +490,7 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
-            val queueMessage = "{\"type\":\"raw\",\"reportId\":\"${report.id}\"," +
+            val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
                 "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
                 "None-${report.id}.hl7\",\"digest\"" +
                 ":\"${BlobAccess.digestToString(BlobAccess.sha256Digest(hl7_record.toByteArray()))}\"," +
@@ -558,7 +559,7 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
-            val queueMessage = "{\"type\":\"raw\",\"reportId\":\"${report.id}\"," +
+            val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
                 "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
                 "None-${report.id}.hl7\",\"digest\":" +
                 "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(hl7_record.toByteArray()))}\"," +
@@ -629,7 +630,7 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
-            val queueMessage = "{\"type\":\"raw\",\"reportId\":\"${report.id}\"," +
+            val queueMessage = "{\"type\":\"route\",\"reportId\":\"${report.id}\"," +
                 "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
                 "None-${report.id}.hl7\",\"digest\":" +
                 "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(routeFhirBytes))}\",\"blobSubFolderName\":" +
@@ -700,7 +701,7 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
-            val queueMessage = "{\"type\":\"raw\",\"reportId\":\"${report.id}\"," +
+            val queueMessage = "{\"type\":\"translate\",\"reportId\":\"${report.id}\"," +
                 "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
                 "None-${report.id}.hl7\",\"digest\":\"${
                     BlobAccess.digestToString(
@@ -709,7 +710,8 @@ class FhirFunctionTests {
                         )
                     )
                 }\",\"blobSubFolderName\":" +
-                "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
+                "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"," +
+                "\"receiverFullName\":\"phd.elr2\"}"
 
             val fhirFunc = FHIRFunctions(
                 workflowEngine,
