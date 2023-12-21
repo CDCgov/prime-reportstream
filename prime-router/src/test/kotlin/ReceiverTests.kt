@@ -44,7 +44,7 @@ internal class ReceiverTests {
             topic = Topic.FULL_ELR,
             customerStatus = CustomerStatus.INACTIVE,
             conditionFilter = listOf("%testPerformedCodes.intersect('123-0'|'600-7').exists()"),
-            mappedConditionFilter = listOf(CodeStringConditionFilter("130-0,600-7")),
+            mappedConditionFilter = listOf(CodeStringConditionFilter("123-0,600-7")),
             translation = translatorConfig,
             externalName = "Ignore ELR"
         )

@@ -24,7 +24,6 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamConditionFilter
-import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Schema
@@ -40,7 +39,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.filterObservations
+import gov.cdc.prime.router.fhirengine.utils.filterObservationsForTest
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -60,7 +59,6 @@ import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.UUID
-import kotlin.reflect.KFunction3
 import kotlin.test.Test
 
 private const val ORGANIZATION_NAME = "co-phd"
@@ -798,10 +796,8 @@ class FhirRouterTests {
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
-        val filterObservations: KFunction3<Bundle, ReportStreamFilter, MutableMap<String, String>, Bundle> =
-            Bundle::filterObservations
-        mockkStatic(filterObservations)
-        every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
+        mockkStatic(Bundle::filterObservationsForTest)
+        every { any<Bundle>().filterObservationsForTest(any(), any()) } returns FhirTranscoder.decode(fhirData)
         engine.setFiltersOnEngine(
             jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
         )
@@ -859,10 +855,8 @@ class FhirRouterTests {
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
-        val filterObservations: KFunction3<Bundle, ReportStreamFilter, MutableMap<String, String>, Bundle> =
-            Bundle::filterObservations
-        mockkStatic(filterObservations)
-        every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
+        mockkStatic(Bundle::filterObservationsForTest)
+        every { any<Bundle>().filterObservationsForTest(any(), any()) } returns FhirTranscoder.decode(fhirData)
         engine.setFiltersOnEngine(
             jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
         )
@@ -906,7 +900,7 @@ class FhirRouterTests {
 
         val originalBundle = FhirTranscoder.decode(fhirData)
         val expectedBundle = originalBundle
-            .filterObservations(listOf(CONDITION_FILTER), engine.loadFhirPathShorthandLookupTable())
+            .filterObservationsForTest(listOf(CONDITION_FILTER), engine.loadFhirPathShorthandLookupTable())
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
@@ -1035,10 +1029,8 @@ class FhirRouterTests {
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
-        val filterObservations: KFunction3<Bundle, ReportStreamFilter, MutableMap<String, String>, Bundle> =
-            Bundle::filterObservations
-        mockkStatic(filterObservations)
-        every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
+        mockkStatic(Bundle::filterObservationsForTest)
+        every { any<Bundle>().filterObservationsForTest(any(), any()) } returns FhirTranscoder.decode(fhirData)
 
         // act
         accessSpy.transact { txn ->
@@ -1184,10 +1176,8 @@ class FhirRouterTests {
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
-        val filterObservations: KFunction3<Bundle, ReportStreamFilter, MutableMap<String, String>, Bundle> =
-            Bundle::filterObservations
-        mockkStatic(filterObservations)
-        every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
+        mockkStatic(Bundle::filterObservationsForTest)
+        every { any<Bundle>().filterObservationsForTest(any(), any()) } returns FhirTranscoder.decode(fhirData)
         engine.setFiltersOnEngine(
             jurisFilter,
             qualFilter = emptyList(),

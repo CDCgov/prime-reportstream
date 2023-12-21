@@ -32,7 +32,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
-import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
+import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
@@ -317,15 +317,21 @@ class FHIRRouter(
                 defaultResponse = true
             )
 
+            // TODO: merge with mapped condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
             // CONDITION FILTER
             //  default: allowAll
             val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
-            val allObservations = FhirPathUtils.evaluate(
+            var allObservations = FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
                 bundle,
                 bundle,
                 allObservationsExpression
             )
+
+            // TODO: merge with condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
+            // MAPPED CONDITION FILTER
+            //  default: allowAll
+            val filteredObservations = bundle.getObservationsWithCondition(receiver.mappedConditionFilter.codes())
 
             // TODO: is this handled?
             // Automatically passing if observations are empty is necessary for messages that may not
@@ -333,7 +339,7 @@ class FHIRRouter(
             // routed if they contain no observations. This case must be handled in one of the filters above
             // while UP validation is still being designed/implemented.
             passes = passes && (
-                allObservations.isEmpty() || allObservations.any { observation ->
+                allObservations.isEmpty() || filteredObservations.isNotEmpty() || allObservations.any { observation ->
                     evaluateFilterAndLogResult(
                         getConditionFilter(receiver, orgFilters),
                         bundle,
@@ -348,20 +354,6 @@ class FHIRRouter(
                     )
                 }
                 )
-
-            // MAPPED CONDITION FILTER
-            //  default: allowAll
-            val allMappedObservations = bundle.entry.map { it.resource }.filterIsInstance<Observation>()
-            val filteredObservations = if (receiver.conditionFilter.isEmpty()) {
-                allMappedObservations
-            } else {
-                val codes = receiver.mappedConditionFilter.codes()
-                allMappedObservations.filter {
-                    it.getMappedConditions().any(codes::contains)
-                }
-            }
-
-            passes = passes && (allMappedObservations.isEmpty() || filteredObservations.isNotEmpty())
 
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {

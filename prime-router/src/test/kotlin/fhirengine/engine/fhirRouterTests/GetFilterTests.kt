@@ -415,4 +415,14 @@ class GetFilterTests {
         assert(filters.size == 1)
         assert(filters.any { it == receiverWithFilters.conditionFilter[0] })
     }
+
+    @Test
+    fun `test getMappedConditionFilter`() {
+        val settings = FileSettings().loadOrganizations(orgNoFilters)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+
+        val filters = engine.getMappedConditionFilter(receiverWithFilters, orgFilters)
+        assert(filters.size == 1)
+        assert(filters.any { it == receiverWithFilters.mappedConditionFilter[0] })
+    }
 }

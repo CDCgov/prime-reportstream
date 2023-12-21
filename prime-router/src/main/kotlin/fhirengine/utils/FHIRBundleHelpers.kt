@@ -123,6 +123,19 @@ fun Observation.getMappedConditions(): List<String> =
         }
     }.flatten()
 
+fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<Observation>()
+
+fun Bundle.getObservationsWithCondition(codes: List<String>): List<Observation> =
+    if (codes.isEmpty()) {
+        // TODO: consider throwing IllegalArgumentException here while implementing
+        //  https://github.com/CDCgov/prime-reportstream/issues/12705
+        emptyList()
+    } else {
+        this.getObservations().filter {
+            it.getMappedConditions().any(codes::contains)
+        }
+    }
+
 /**
  * Adds references to diagnostic reports within [fhirBundle] as provenance targets
  */
@@ -336,7 +349,7 @@ internal fun getObservationExtensions(
  *
  * @return copy of the bundle with filtered observations removed
  */
-fun Bundle.filterObservations(
+fun Bundle.filterObservationsForTest(
     conditionFilter: ReportStreamFilter,
     shortHandLookupTable: MutableMap<String, String>,
 ): Bundle {

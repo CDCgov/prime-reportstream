@@ -26,7 +26,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import gov.cdc.prime.router.fhirengine.utils.filterObservations
+import gov.cdc.prime.router.fhirengine.utils.filterObservationsForTest
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
@@ -467,7 +467,7 @@ class TranslationTests {
             }
 
             if (!config.conditionFiler.isNullOrBlank()) {
-                fhirBundle = fhirBundle.filterObservations(
+                fhirBundle = fhirBundle.filterObservationsForTest(
                     listOf(config.conditionFiler),
                     emptyMap<String, String>().toMutableMap()
                 )

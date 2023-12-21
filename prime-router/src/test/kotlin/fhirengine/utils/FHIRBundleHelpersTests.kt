@@ -463,13 +463,13 @@ class FHIRBundleHelpersTests {
     }
 
     @Test
-    fun `test filterObservations`() {
+    fun `test filterObservationsForTest`() {
         val actionLogger = ActionLogger()
         val fhirBundle = File(MULTIPLE_OBSERVATIONS_URL)
             .readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
 
-        val bundle = messages[0].filterObservations(
+        val bundle = messages[0].filterObservationsForTest(
             listOf(OBSERVATIONS_FILTER),
             emptyMap<String, String>().toMutableMap()
         )
@@ -481,6 +481,8 @@ class FHIRBundleHelpersTests {
         assertThat(observations.size).isEqualTo(1)
         assertThat(observations[0].id).isEqualTo("Observation/1667861767955966000.f3f94c27-e225-4aac-b6f5-2750f45dac4f")
     }
+
+    // TODO: test filterObservations
 
     @Test
     fun `test batchMessages`() {
