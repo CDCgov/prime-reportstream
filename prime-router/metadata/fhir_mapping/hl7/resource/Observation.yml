@@ -296,6 +296,7 @@ note_2:
   valueOf: datatype/Annotation
   condition: $suppressNote NULL
   expressionType: resource
+  generateList: true
   useGroup: true
   specs: NTE
 
