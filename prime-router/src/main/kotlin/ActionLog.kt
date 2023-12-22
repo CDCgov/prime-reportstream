@@ -179,7 +179,7 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
     /**
      * Log a given [actionDetail] and a [level] log level.
      */
-    fun log(
+    private fun log(
         actionDetail: ActionLogDetail,
         level: ActionLogLevel,
     ) {
@@ -189,16 +189,6 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
             }
         }
         logs.add(ActionLog(actionDetail, trackingId, itemIndex, reportId, type = level))
-    }
-
-    /**
-     * Log a list of [actionDetails] with [level] log level.
-     */
-    fun log(
-        actionDetails: List<ActionLogDetail>,
-        level: ActionLogLevel,
-    ) {
-        actionDetails.forEach { log(it, level) }
     }
 
     /**

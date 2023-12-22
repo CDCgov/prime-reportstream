@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -94,7 +93,7 @@ class FHIRConverter(
                     it.addMappedCondition(metadata).run {
                         actionLogger.getItemLogger(bundleIndex + 1, it.id)
                             .setReportId(message.reportId)
-                            .log(this, ActionLogLevel.warning)
+                            .warn(this)
                     }
                 }
 

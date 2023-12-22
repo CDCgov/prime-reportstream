@@ -559,7 +559,7 @@ class ObservationMappingConstants {
         const val VSAC_CODESYSTEM_SNOMEDCT = "http://snomed.info/sct"
 
         const val BUNDLE_CODE_IDENTIFIER = "observation.code.coding.code"
-        const val BUNDLE_CODEABLE_IDENTIFIER = "observation.valueCodeableConcept.coding.code"
+        const val BUNDLE_VALUE_IDENTIFIER = "observation.valueCodeableConcept.coding.code"
         const val MAPPING_CODES_IDENTIFIER = "observation.{code|valueCodeableConcept}.coding.code"
 
         val TEST_KEYS = listOf(

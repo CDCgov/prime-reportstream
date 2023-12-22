@@ -38,6 +38,7 @@ enum class ErrorCode {
     INVALID_MSG_MISSING_FIELD,
     INVALID_MSG_EQUIPMENT_MAPPING,
     INVALID_MSG_CONDITION_MAPPING,
+    INVALID_MSG_CODELESS_OBSERVATION,
     INVALID_HL7_MSG_VALIDATION,
     INVALID_HL7_MSG_TYPE_MISSING,
     INVALID_HL7_MSG_TYPE_UNSUPPORTED,
@@ -87,6 +88,16 @@ class UnmappableConditionMessage(
         "Missing mapping for code(s): " + unmappableCodes.joinToString(",")
     }
     override val errorCode = ErrorCode.INVALID_MSG_CONDITION_MAPPING
+}
+
+/**
+ * Message for an observation with [unmappableCodes] that could not be mapped to a condition
+ */
+class CodelessObservationMessage(
+    fieldMapping: String = ObservationMappingConstants.MAPPING_CODES_IDENTIFIER,
+) : ItemActionLogDetail(fieldMapping) {
+    override val message = "Observation missing code"
+    override val errorCode = ErrorCode.INVALID_MSG_CODELESS_OBSERVATION
 }
 
 /**
