@@ -34,9 +34,9 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.FhirConvertMessage
-import gov.cdc.prime.router.fhirengine.engine.FhirRouteMessage
-import gov.cdc.prime.router.fhirengine.engine.Message
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.metadata.LookupTable
@@ -167,7 +167,7 @@ class FhirFunctionTests {
     @Test
     fun `test convert-fhir`() {
         mockkObject(BlobAccess.Companion)
-        mockkObject(Message.Companion)
+        mockkObject(QueueMessage.Companion)
         // setup
         commonSetup()
         val metadata = UnitTestUtils.simpleMetadata
@@ -212,7 +212,7 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = FhirConvertMessage(
+        val message = FhirConvertQueueMessage(
             report.id,
             "",
             "BlobAccess.digestToString(blobInfo.digest)",
@@ -228,7 +228,7 @@ class FhirFunctionTests {
             )
         )
 
-        val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
+        val queueMessage = "{\"type\":\"convert\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
@@ -252,7 +252,7 @@ class FhirFunctionTests {
     @Test
     fun `test route-fhir`() {
         mockkObject(BlobAccess.Companion)
-        mockkObject(Message.Companion)
+        mockkObject(QueueMessage.Companion)
         // setup
         commonSetup()
         val metadata = spyk(UnitTestUtils.simpleMetadata)
@@ -297,7 +297,7 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = FhirRouteMessage(
+        val message = FhirRouteQueueMessage(
             report.id,
             "",
             "",
@@ -313,7 +313,7 @@ class FhirFunctionTests {
             )
         )
 
-        val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
+        val queueMessage = "{\"type\":\"route\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
@@ -337,7 +337,7 @@ class FhirFunctionTests {
     @Test
     fun `test translate-fhir`() {
         mockkObject(BlobAccess.Companion)
-        mockkObject(Message.Companion)
+        mockkObject(QueueMessage.Companion)
         // setup
         commonSetup()
         val metadata = UnitTestUtils.simpleMetadata
@@ -391,12 +391,12 @@ class FhirFunctionTests {
             )
         )
 
-        val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
+        val queueMessage = "{\"type\":\"translate\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
             "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"," +
-            "\"blobSubFolderName\":\"ignore.ignore-full-elr\",\"topic\":\"full-elr\"}"
+            "\"blobSubFolderName\":\"ignore.ignore-full-elr\",\"topic\":\"full-elr\",\"receiverFullName\":\"elr.phd\"}"
 
         // act
         fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
@@ -461,7 +461,7 @@ class FhirFunctionTests {
             val report = seedTask(Report.Format.HL7, TaskAction.convert, Event.EventAction.CONVERT)
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns hl7_record.toByteArray()
             every {
                 BlobAccess.Companion.uploadBody(
@@ -490,7 +490,7 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
-            val queueMessage = "{\"type\":\"raw\",\"reportId\":\"${report.id}\"," +
+            val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
                 "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
                 "None-${report.id}.hl7\",\"digest\"" +
                 ":\"${BlobAccess.digestToString(BlobAccess.sha256Digest(hl7_record.toByteArray()))}\"," +
@@ -530,7 +530,7 @@ class FhirFunctionTests {
             val report = seedTask(Report.Format.HL7, TaskAction.convert, Event.EventAction.CONVERT)
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns hl7_record.toByteArray()
             every {
                 BlobAccess.Companion.uploadBody(
@@ -559,7 +559,7 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
-            val queueMessage = "{\"type\":\"raw\",\"reportId\":\"${report.id}\"," +
+            val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
                 "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
                 "None-${report.id}.hl7\",\"digest\":" +
                 "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(hl7_record.toByteArray()))}\"," +
@@ -597,7 +597,7 @@ class FhirFunctionTests {
             val report = seedTask(Report.Format.HL7, TaskAction.translate, Event.EventAction.TRANSLATE)
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             val routeFhirBytes =
                 File(VALID_FHIR_PATH).readBytes()
             every {
@@ -630,7 +630,7 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
-            val queueMessage = "{\"type\":\"raw\",\"reportId\":\"${report.id}\"," +
+            val queueMessage = "{\"type\":\"route\",\"reportId\":\"${report.id}\"," +
                 "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
                 "None-${report.id}.hl7\",\"digest\":" +
                 "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(routeFhirBytes))}\",\"blobSubFolderName\":" +
@@ -667,7 +667,7 @@ class FhirFunctionTests {
             val report = seedTask(Report.Format.FHIR, TaskAction.batch, Event.EventAction.BATCH)
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             val translateFhirBytes = File(
                 MULTIPLE_TARGETS_FHIR_PATH
             ).readBytes()

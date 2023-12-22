@@ -14,7 +14,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Topic
 import kotlin.test.Test
 
-class HL7MessageHelpersTests {
+class HL7QueueMessageHelpersTests {
     @Test
     fun `test batch file generation`() {
         var receiver = Receiver(
