@@ -14,7 +14,6 @@ resources:
     additionalSegments:
       - ORC
 
-
   - resourceName: Patient
     segment: .PID
     group: PATIENT_RESULT.PATIENT
@@ -26,13 +25,6 @@ resources:
       - MSH
       - .NTE
       - .NK1
-
-  #  - resourceName: RelatedPerson
-  #    segment: .NK1
-  #    group: PATIENT_RESULT.PATIENT
-  #    resourcePath: segments/NK1
-  #    isReferenced: true
-  #    repeats: false
 
   - resourceName: Encounter
     segment: .PV1

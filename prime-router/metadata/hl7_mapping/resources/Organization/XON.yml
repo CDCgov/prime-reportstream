@@ -44,7 +44,7 @@ elements:
     schema: ../Location/HD
 
   - name: xon-name-representation-code
-    value: [ '%resource.identifier.extension(%`rsext-name-representation-code`).value' ]
+    value: [ '%resource.extension(%`rsext-name-representation-code`).value' ]
     hl7Spec: [ '%{hl7XONField}-9' ]
 
   - name: xon-organization-id
