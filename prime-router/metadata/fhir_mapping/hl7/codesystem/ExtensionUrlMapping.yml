@@ -613,4 +613,8 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation"
 - id: "cwe-organization"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization"
+- id: "ed-2-type-of-data"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ed-2-type-of-data"
+- id: "alternate-codes"
+  url: "https://hl7.org/fhir/StructureDefinition/alternate-codes"
 

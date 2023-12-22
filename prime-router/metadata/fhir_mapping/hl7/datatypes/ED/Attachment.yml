@@ -2,6 +2,24 @@ extension:
   generateList: true
   expressions:
     - expressionType: nested
+      valueOf: datatypes/HD/ExtensionHD
+      specs: ED.1
+      constants:
+        extensionUrl: ed-1-source-application
+    - expressionType: nested
+      vars:
+        ed2: STRING_ALL, ED.2
+        ed3: STRING_ALL, ED.3
+      condition: $ed3 NOT_NULL && $ed2 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: ed-2-type-of-data
+        valueCodeableConcept:
+          valueOf: datatypes/ID/CodeableConcept
+          specs: ED.2
+          expressionType: resource
+    - expressionType: nested
       vars:
         ed2: STRING_ALL, ED.2
         ed3: STRING_ALL, ED.3
@@ -9,7 +27,7 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: "https://hl7.org/fhir/StructureDefinition/alternate-codes"
+          value: alternate-codes
         valueCodeableConcept:
           valueOf: datatypes/ID/CodeableConcept
           specs: ED.2

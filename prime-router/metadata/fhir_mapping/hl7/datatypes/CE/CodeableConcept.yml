@@ -2,22 +2,22 @@ coding:
   generateList: true
   expressionType: nested
   vars:
-    code: String, CWE.1
-    display: String, CWE.2
-    system: SYSTEM_URL, CWE.3
+    code: String, CE.1
+    display: String, CE.2
+    system: SYSTEM_URL, CE.3
   expressionsMap:
     code:
       type: String
       expressionType: HL7Spec
-      valueOf: CWE.1
+      valueOf: CE.1
     display:
       type: String
       expressionType: HL7Spec
-      valueOf: CWE.2
+      valueOf: CE.2
     system:
       type: SYSTEM_URL
       expressionType: HL7Spec
-      valueOf: CWE.3
+      valueOf: CE.3
     extension_cwe-coding:
       generateList: true
       condition: $code NOT_NULL || $display NOT_NULL || $system NOT_NULL
@@ -33,7 +33,7 @@ coding:
       generateList: true
       expressionType: nested
       vars:
-        coding-system: String, CWE.3
+        coding-system: String, CE.3
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -45,22 +45,22 @@ coding_alt:
   generateList: true
   expressionType: nested
   vars:
-    altCode: String, CWE.4
-    altDisplay: String, CWE.5
-    altSystem: SYSTEM_URL, CWE.6
+    altCode: String, CE.4
+    altDisplay: String, CE.5
+    altSystem: SYSTEM_URL, CE.6
   expressionsMap:
     code:
       type: String
       expressionType: HL7Spec
-      valueOf: CWE.4
+      valueOf: CE.4
     display:
       type: String
       expressionType: HL7Spec
-      valueOf: CWE.5
+      valueOf: CE.5
     system:
       type: SYSTEM_URL
       expressionType: HL7Spec
-      valueOf: CWE.6
+      valueOf: CE.6
     extension_cwe-coding:
       condition: $altCode NOT_NULL || $altDisplay NOT_NULL || $altSystem NOT_NULL
       generateList: true
@@ -76,7 +76,7 @@ coding_alt:
       generateList: true
       expressionType: nested
       vars:
-        coding-system: String, CWE.6
+        coding-system: String, CE.6
       expressionsMap:
         url:
           type: SYSTEM_URL

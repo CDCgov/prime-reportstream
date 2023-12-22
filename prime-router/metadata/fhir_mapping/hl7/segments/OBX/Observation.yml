@@ -22,13 +22,25 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
-code:
+code_noCE:
+  vars:
+    obx2: STRING, OBX.2
+  condition: $obx2 NOT_EQUALS CE || $obx2 NULL
   required: true
   expressionType: resource
   valueOf: datatypes/CWE/CodeableConcept
   specs: OBX.3
 
-valueString:
+code_supportsCE:
+  vars:
+    obx2: STRING, OBX.2
+  condition: $obx2 EQUALS CE
+  required: true
+  expressionType: resource
+  valueOf: datatypes/CE/CodeableConcept
+  specs: OBX.3
+
+valueString_obx:
   vars:
     obx2: STRING, OBX.2
   expressionType: nested
@@ -39,31 +51,19 @@ valueString:
       expressionType: HL7Spec
     - condition: $obx2 EQUALS VR
       vars:
-        obx51: OBX.5.1
-        obx52: OBX.5.2
-        vrValue: $obx51 + $dash + $obx52
+        vrValue: OBX.5.1 + $dash + OBX.5.2
       constants:
         dash: "-"
       type: STRING
       valueOf: $vrValue
     - condition: $obx2 EQUALS SN && $obx53 EQUALS +
       vars:
-        obx51: OBX.5.1
-        obx52: OBX.5.2
-        obx53: OBX.5.3
-        obx54: OBX.5.4
-        value: $obx51 + $plus + $obx52 + $plus + $obx53 + $plus + $obx54
+        obx53: STRING, OBX.5.3
+        value: OBX.5.1 + $plus + OBX.5.2 + $plus + OBX.5.3 + $plus + OBX.5.4
       constants:
         plus: "+"
-    - condition: $obx51 NULL && $obx52 NOT_NULL && $obx53 NULL && $obx54 NULL
-      vars:
-        obx51: STRING, OBX.5.1
-        obx52: STRING, OBX.5.2
-        obx53: STRING, OBX.5.3
-        obx54: STRING, OBX.5.4
       type: STRING
-      expressionType: HL7Spec
-      valueOf: OBX.5.2
+      valueOf: $value
 
 valueCodeableConcept:
   expressionType: nested
@@ -103,6 +103,8 @@ valuePeriod:
     obx2: STRING, OBX.2
     start: OBX.5.1
     end: OBX.5.2
+    dateTimeIn: OBX.5.1
+    dateTimeOut: OBX.5.2
 
 valueDateTime:
   condition: $obx2 EQUALS DT || $obx2 EQUALS DTM
@@ -158,11 +160,10 @@ valueRange:
 
 valueRatio:
   vars:
-    obx2: OBX.2
-    obx53: OBX.5.3
+    obx2: STRING, OBX.2
+    obx53: STRING, OBX.5.3
     CWERangeUnits: OBX.6
-  condition: >
-    $obx2 EQUALS SN && ($obx53 EQUALS : || obx53 EQUALS /)
+  condition: $obx2 EQUALS SN && ($obx53 EQUALS / || $obx53 EQUALS :)
   valueOf: datatypes/SN/Ratio
   expressionType: resource
   specs: OBX.5
@@ -185,38 +186,43 @@ valueQuantity:
           condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
           type: STRING
           expressionType: HL7Spec
-          valueOf: $CWEQuantityUnits.1
+          valueOf: CWEQuantityUnits.1
           vars:
-            identifier: $CWEQuantityUnits.1
-            nameOfCodingSystem: $CWEQuantityUnits.3
+            identifier: CWEQuantityUnits.1
+            nameOfCodingSystem: CWEQuantityUnits.3
         unit:
           expressionType: nested
+          condition:
           vars:
-            identifier: $CWEQuantityUnits.1
-            text: $CWEQuantityUnits.2
+            identifier: CWEQuantityUnits.1
+            text: CWEQuantityUnits.2
           expressions:
             - condition: $text NULL && $identifier NOT_NULL
               type: STRING
-              valueOf: $CWEQuantityUnits.1
+              valueOf: CWEQuantityUnits.1
               expressionType: HL7Spec
             - condition: $text NOT_NULL
               type: STRING
-              valueOf: $CWEQuantityUnits.2
+              valueOf: CWEQuantityUnits.2
               expressionType: HL7Spec
         system:
           condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
-          type: SYSTEM_URL
+          type: STRING
           expressionType: HL7Spec
-          valueOf: $CWEQuantityUnits.1
+          valueOf: CWEQuantityUnits.3
           vars:
-            identifier: $CWEQuantityUnits.1
-            nameOfCodingSystem: $CWEQuantityUnits.3
+            identifier: CWEQuantityUnits.1
+            nameOfCodingSystem: CWEQuantityUnits.3
     - condition: >
         $obx2 EQUALS SN && $obx53 NOT_EQUALS : && $obx53 NOT_EQUALS / && $obx53 NOT_EQUALS - && $obx53 NOT_EQUALS +
       expressionType: resource
       valueOf: datatypes/SN/Quantity
+      specs: OBX.5
 
 referenceRange:
+  vars:
+    obx7: STRING_ALL, OBX.7
+  condition: $obx7 NOT_NULL
   expressionType: nested
   generateList: true
   expressionsMap:
@@ -226,6 +232,9 @@ referenceRange:
       valueOf: OBX.7
 
 interpretation:
+  vars:
+    obx8: STRING_ALL, OBX.8
+  condition: $obx8 NOT_NULL
   generateList: true
   valueOf: datatypes/CWE/CodeableConcept
   expressionType: resource
@@ -246,11 +255,12 @@ dataAbsentReason:
     system: http://terminology.hl7.org/CodeSystem/data-absent-reason
   expressionType: nested
   expressions:
-    - condition: $obx11 EQUALS_STRING X
+    - condition: $obx11 EQUALS X
       expressionType: nested
       expressionsMap:
         coding:
           generateList: true
+          expressionType: nested
           expressionsMap:
             code:
               valueOf: cannot-be-obtained
@@ -261,6 +271,7 @@ dataAbsentReason:
       expressionsMap:
         coding:
           generateList: true
+          expressionType: nested
           expressionsMap:
             code:
               valueOf: not-asked
@@ -268,9 +279,12 @@ dataAbsentReason:
               valueOf: $system
     - condition: $obx2 EQUALS ST && $obx5 EQUALS_STRING $emptyString
       expressionType: nested
+      constants:
+        emptyString: ""
       expressionsMap:
         coding:
           generateList: true
+          expressionType: nested
           expressionsMap:
             code:
               valueOf: unknown
@@ -302,11 +316,17 @@ _effectiveDateTime:
           expressionType: HL7Spec
 
 method:
+  vars:
+    obx17: STRING_ALL, OBX.17
+  condition: $obx17 NOT_NuLL
   valueOf: datatypes/CWE/CodeableConcept
   expressionType: resource
   specs: OBX.17
 
 device:
+  vars:
+    obx18: STRING_ALL, OBX.18
+  condition: $obx18 NOT_NULL
   valueOf: segments/OBX/Device
   expressionType: reference
   specs: OBX.18
@@ -316,6 +336,9 @@ performer:
   expressionType: nested
   expressions:
     - expressionType: reference
+      vars:
+        obx15: STRING_ALL, OBX.15
+      condition: $obx15 NOT_NULL
       valueOf: datatypes/CWE/Organization
       constants:
         cweOrganizationHL7Use: obx-15-producer-id
@@ -326,6 +349,8 @@ performer:
       valueOf: segments/OBX/PractitionerRole
       vars:
         OBXPractitionerComponent: $BASE_VALUE
+        obx16: STRING_ALL, OBX.16
+      condition: $obx16 NOT_NULL
       constants:
         OBXPractitionerRoleSystem: "http://terminology.hl7.org/CodeSystem/practitioner-role"
         OBXPractitionerRoleCode: "responsibleObserver"
@@ -343,19 +368,26 @@ performer:
     - expressionType: reference
       vars:
         obx25: STRING_ALL, OBX.25
+        obx23: STRING_ALL, obx23
         XADAddress: OBX.24
-      condition: $obx25 NULL
+      condition: $obx25 NULL && ($obx23 NOT_NULL || XADAddress NOT_NULL)
       valueOf: datatypes/XON/Organization
       specs: OBX.23
       constants:
         xonOrganizationHL7Use: obx-25-performing-organization
 
 bodySite:
+  vars:
+    obx20: STRING_ALL, OBX.20
+  condition: $obx20 NOT_NULL
   valueOf: datatypes/CWE/CodeableConcept
   expressionType: resource
   specs: OBX.20
 
 identifier:
+  vars:
+    obx21: STRING_ALL, OBX.21
+  condition: $obx21 NOT_NULL
   valueOf: datatypes/EI/Identifier
   expressionType: resource
   specs: OBX.21
@@ -440,7 +472,7 @@ extension:
           specs: OBX.30
     - expressionType: nested
       vars:
-        obx54: OBX.5.4
+        obx54: STRING, OBX.5.4
       condition: $obx2 EQUALS ED && $obx54 EQUALS Base64
       expressionsMap:
         url:

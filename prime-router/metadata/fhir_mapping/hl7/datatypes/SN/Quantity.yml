@@ -12,35 +12,36 @@ code:
   condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
   type: STRING
   expressionType: HL7Spec
-  valueOf: $CWEQuantityUnits.1
+  valueOf: CWEQuantityUnits.1
   vars:
-    identifier: $CWEQuantityUnits.1
-    nameOfCodingSystem: $CWEQuantityUnits.3
+    identifier: CWEQuantityUnits.1
+    nameOfCodingSystem: CWEQuantityUnits.3
 
 unit:
   expressionType: nested
+  condition:
   vars:
-    identifier: $CWEQuantityUnits.1
-    text: $CWEQuantityUnits.2
+    identifier: CWEQuantityUnits.1
+    text: CWEQuantityUnits.2
   expressions:
     - condition: $text NULL && $identifier NOT_NULL
       type: STRING
-      valueOf: $CWEQuantityUnits.1
+      valueOf: CWEQuantityUnits.1
       expressionType: HL7Spec
     - condition: $text NOT_NULL
       type: STRING
-      valueOf: $CWEQuantityUnits.2
+      valueOf: CWEQuantityUnits.2
       expressionType: HL7Spec
 
 system:
   condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
-  type: SYSTEM_URL
+  type: STRING
   expressionType: HL7Spec
-  valueOf: $CWEQuantityUnits.1
+  valueOf: CWEQuantityUnits.3
   vars:
-    identifier: $CWEQuantityUnits.1
-    nameOfCodingSystem: $CWEQuantityUnits.3
-    
+    identifier: CWEQuantityUnits.1
+    nameOfCodingSystem: CWEQuantityUnits.3
+
 extension:
   generateList: true
   expressionType: nested
