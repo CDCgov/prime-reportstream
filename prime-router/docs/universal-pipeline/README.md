@@ -97,10 +97,10 @@ messagesToSend.forEach {
 }
 ```
 
-In the Convert case above, `messagesToSend` is a list of `RawSubmission` objects which contain the id of the report and some other information that will get sent to the next step in the pipeline. This allows the next step in the pipeline to know which report to work on (`report.id`) and how to get it (`blobInfo.blobUrl`). In the case of [Convert](./convert.md), this code looks like so:
+In the Convert case above, `messagesToSend` is a list of `FHIRConvertMessage` objects which contain the id of the report and some other information that will get sent to the next step in the pipeline. This allows the next step in the pipeline to know which report to work on (`report.id`) and how to get it (`blobInfo.blobUrl`). In the case of [Convert](./convert.md), this code looks like so:
 ```Kotlin
 messagesToSend.add(  
-    RawSubmission(  
+    FhirConvertMessage(  
         report.id,  
         blobInfo.blobUrl,  
         BlobAccess.digestToString(blobInfo.digest),  
