@@ -100,7 +100,7 @@ function FacilityProviderSubmitterTable(
             <section id="facilities">
                 <h2>Your available reports including {props.senderTypeName}</h2>
                 <TableFilters
-                    startDateLabel="From: (mm/dd/yyy)"
+                    startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}
                     onFilterClick={({
