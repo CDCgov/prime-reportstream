@@ -1,13 +1,13 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.engine.BatchEventQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ProcessEventQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportEventQueueMessage
 import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
@@ -101,53 +101,47 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         fun parseQueueMessage(event: String): Event {
             // validate incoming queue message is in the expected format. This will error out with an
             //  IllegalStateException and message if it is not valid
-            val node: ObjectNode = JacksonMapperUtilities.defaultMapper.readValue(event)
+            val message = JacksonMapperUtilities.defaultMapper.readValue<QueueMessage>(event)
 
-            return when (node.get("type").asText()) {
-                "report" -> {
-                    val reportEventQueueMessage =
-                        JacksonMapperUtilities.defaultMapper.readValue<ReportEventQueueMessage>(event)
-                    val at = if (reportEventQueueMessage.at.isNotEmpty()) {
-                        OffsetDateTime.parse(reportEventQueueMessage.at)
+            return when (message) {
+                is ReportEventQueueMessage -> {
+                    val at = if (message.at.isNotEmpty()) {
+                        OffsetDateTime.parse(message.at)
                     } else {
                         null
                     }
                     ReportEvent(
-                        reportEventQueueMessage.eventAction,
-                        reportEventQueueMessage.reportId,
-                        reportEventQueueMessage.emptyBatch,
+                        message.eventAction,
+                        message.reportId,
+                        message.emptyBatch,
                         at
                     )
                 }
-                "batch" -> {
-                    val batchEventQueueMessage =
-                        JacksonMapperUtilities.defaultMapper.readValue<BatchEventQueueMessage>(event)
-                    val at = if (batchEventQueueMessage.at.isNotEmpty()) {
-                        OffsetDateTime.parse(batchEventQueueMessage.at)
+                is BatchEventQueueMessage -> {
+                    val at = if (message.at.isNotEmpty()) {
+                        OffsetDateTime.parse(message.at)
                     } else {
                         null
                     }
                     BatchEvent(
-                        batchEventQueueMessage.eventAction,
-                        batchEventQueueMessage.receiverName,
-                        batchEventQueueMessage.emptyBatch,
+                        message.eventAction,
+                        message.receiverName,
+                        message.emptyBatch,
                         at
                     )
                 }
-                "process" -> {
-                    val processEventQueueMessage =
-                        JacksonMapperUtilities.defaultMapper.readValue<ProcessEventQueueMessage>(event)
-                    val at = if (processEventQueueMessage.at.isNotEmpty()) {
-                        OffsetDateTime.parse(processEventQueueMessage.at)
+                is ProcessEventQueueMessage -> {
+                    val at = if (message.at.isNotEmpty()) {
+                        OffsetDateTime.parse(message.at)
                     } else {
                         null
                     }
                     ProcessEvent(
-                        processEventQueueMessage.eventAction,
-                        processEventQueueMessage.reportId,
-                        processEventQueueMessage.options,
-                        processEventQueueMessage.defaults,
-                        processEventQueueMessage.routeTo,
+                        message.eventAction,
+                        message.reportId,
+                        message.options,
+                        message.defaults,
+                        message.routeTo,
                         at
                     )
                 }
