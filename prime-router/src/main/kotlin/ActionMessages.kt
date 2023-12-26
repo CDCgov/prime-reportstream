@@ -79,14 +79,10 @@ class MissingFieldMessage(fieldMapping: String) : ItemActionLogDetail(fieldMappi
  * Message for an observation with [unmappableCodes] that could not be mapped to a condition
  */
 class UnmappableConditionMessage(
-    unmappableCodes: List<String>? = null,
+    unmappableCodes: List<String>,
     fieldMapping: String = ObservationMappingConstants.MAPPING_CODES_IDENTIFIER,
 ) : ItemActionLogDetail(fieldMapping) {
-    override val message = if (unmappableCodes.isNullOrEmpty()) {
-        "Observation missing code"
-    } else {
-        "Missing mapping for code(s): " + unmappableCodes.joinToString(",")
-    }
+    override val message = "Missing mapping for code(s): " + unmappableCodes.joinToString(",")
     override val errorCode = ErrorCode.INVALID_MSG_CONDITION_MAPPING
 }
 
