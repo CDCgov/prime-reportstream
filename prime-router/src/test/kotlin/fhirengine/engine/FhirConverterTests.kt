@@ -144,10 +144,7 @@ class FhirConverterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
-        every { actionLogger.log(any<ActionLogDetail>(), any()) } just runs
-        every { actionLogger.log(any<List<ActionLogDetail>>(), any()) } just runs
-        every { actionLogger.log(emptyList(), any()) } just runs
-        every { actionLogger.error(any<ActionLogDetail>()) } just runs
+        every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
         every { message.downloadContent() }.returns(validHl7)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.HL7
@@ -200,10 +197,7 @@ class FhirConverterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
-        every { actionLogger.log(any<ActionLogDetail>(), any()) } just runs
-        every { actionLogger.log(any<List<ActionLogDetail>>(), any()) } just runs
-        every { actionLogger.log(emptyList(), any()) } just runs
-        every { actionLogger.error(any<ActionLogDetail>()) } just runs
+        every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
         every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())
@@ -418,10 +412,7 @@ class FhirConverterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
-        every { actionLogger.log(any<ActionLogDetail>(), any()) } just runs
-        every { actionLogger.log(any<List<ActionLogDetail>>(), any()) } just runs
-        every { actionLogger.log(emptyList(), any()) } just runs
-        every { actionLogger.error(any<ActionLogDetail>()) } just runs
+        every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
         every { message.downloadContent() } returns(fhirRecord)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
