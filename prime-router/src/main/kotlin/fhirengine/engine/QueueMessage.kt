@@ -8,10 +8,13 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.Event
 import java.util.Base64
+import java.util.UUID
 
 // This is a size limit dictated by our infrastructure in azure
 // https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted
@@ -22,31 +25,14 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(RawSubmission::class, name = "raw"),
-    JsonSubTypes.Type(FhirConvertMessage::class, name = "convert"),
-    JsonSubTypes.Type(FhirRouteMessage::class, name = "route"),
-    JsonSubTypes.Type(FhirTranslateMessage::class, name = "translate")
+    JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
+    JsonSubTypes.Type(FhirRouteQueueMessage::class, name = "route"),
+    JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
+    JsonSubTypes.Type(BatchEventQueueMessage::class, name = "batch"),
+    JsonSubTypes.Type(ProcessEventQueueMessage::class, name = "process"),
+    JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report")
 )
-abstract class Message {
-
-    abstract val reportId: ReportId
-    abstract val blobURL: String
-    abstract val digest: String
-    abstract val blobSubFolderName: String
-    abstract val topic: Topic
-
-    /**
-     * Download the file associated with a RawSubmission message
-     */
-    fun downloadContent(): String {
-        val blobContent = BlobAccess.downloadBlobAsByteArray(this.blobURL)
-        val localDigest = BlobAccess.digestToString(BlobAccess.sha256Digest(blobContent))
-        check(this.digest == localDigest) {
-            "FHIR - Downloaded file does not match expected file\n${this.digest} | $localDigest"
-        }
-        return String(blobContent)
-    }
-
+abstract class QueueMessage {
     fun serialize(): String {
         val bytes = mapper.writeValueAsBytes(this)
         check(bytes.size < MESSAGE_SIZE_LIMIT) { "Message is too big for the queue." }
@@ -62,7 +48,7 @@ abstract class Message {
             .activateDefaultTyping(ptv)
             .build()
 
-        fun deserialize(s: String): Message {
+        fun deserialize(s: String): QueueMessage {
             return mapper.readValue(s)
         }
     }
@@ -72,46 +58,86 @@ abstract class Message {
     }
 }
 
-/**
- * The Message representation of a raw submission to the system, tracking the [reportId], [blobURL],
- * [blobSubFolderName] (which is derived from the sender name), and [schemaName] from the sender settings.
- * A [digest] is also provided for checksum verification.
- */
-@JsonTypeName("raw")
-data class RawSubmission(
-    override val reportId: ReportId,
-    override val blobURL: String,
-    override val digest: String,
-    override val blobSubFolderName: String,
-    override val topic: Topic,
-    val schemaName: String = "",
-) : Message()
+interface WithDownloadableReport {
+    val blobURL: String
+    val digest: String
+
+    /**
+     * Download the file associated with a RawSubmission message
+     */
+    fun downloadContent(): String {
+        val blobContent = BlobAccess.downloadBlobAsByteArray(this.blobURL)
+        val localDigest = BlobAccess.digestToString(BlobAccess.sha256Digest(blobContent))
+        check(this.digest == localDigest) {
+            "FHIR - Downloaded file does not match expected file\n${this.digest} | $localDigest"
+        }
+        return String(blobContent)
+    }
+}
+
+interface ReportIdentifyingInformation {
+    val blobSubFolderName: String
+    val reportId: ReportId
+    val topic: Topic
+}
+
+abstract class ReportPipelineMessage : ReportIdentifyingInformation, WithDownloadableReport, QueueMessage()
 
 @JsonTypeName("convert")
-data class FhirConvertMessage(
+data class FhirConvertQueueMessage(
     override val reportId: ReportId,
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
     override val topic: Topic,
     val schemaName: String = "",
-) : Message()
+) : ReportPipelineMessage()
 
 @JsonTypeName("route")
-data class FhirRouteMessage(
+data class FhirRouteQueueMessage(
     override val reportId: ReportId,
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
     override val topic: Topic,
-) : Message()
+) : ReportPipelineMessage()
 
 @JsonTypeName("translate")
-data class FhirTranslateMessage(
+data class FhirTranslateQueueMessage(
     override val reportId: ReportId,
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
     override val topic: Topic,
     val receiverFullName: String,
-) : Message()
+) : ReportPipelineMessage()
+
+abstract class WithEventAction : QueueMessage() {
+    abstract val eventAction: Event.EventAction
+}
+
+@JsonTypeName("batch")
+data class BatchEventQueueMessage(
+    override val eventAction: Event.EventAction,
+    val receiverName: String,
+    val emptyBatch: Boolean,
+    val at: String,
+) : WithEventAction()
+
+@JsonTypeName("report")
+data class ReportEventQueueMessage(
+    override val eventAction: Event.EventAction,
+    val emptyBatch: Boolean,
+    val reportId: UUID,
+    val at: String,
+) : WithEventAction()
+
+@JsonTypeName("process")
+data class ProcessEventQueueMessage(
+    override val eventAction: Event.EventAction,
+    val reportId: UUID,
+    val options: Options,
+    val defaults: Map<String, String>,
+    val routeTo: List<String>,
+    val at: String,
+) : WithEventAction()
