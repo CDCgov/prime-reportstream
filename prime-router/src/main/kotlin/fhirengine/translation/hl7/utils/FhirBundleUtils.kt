@@ -46,7 +46,7 @@ object FhirBundleUtils : Logging {
         sourceType: String,
         targetType: String,
         logger: KotlinLogger = this.logger,
-    ): Base? {
+    ): Base {
         return if (sourceType == targetType || targetType == "*") {
             value
         } else if (targetType.contains("|")) {
