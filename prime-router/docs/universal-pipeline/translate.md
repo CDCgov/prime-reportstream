@@ -20,7 +20,7 @@ applied to change the resulting output report that is passed along to the batch 
 - `customerStatus`: only applies to HL7 receivers; this will value `MSH-11-1` with `T` when present
 - `translation` only applies when converting from FHIR to HL7
     - `useTestProcessingMode`: this will value `MSH-11-1` with `T` when present
-    - `convertPoseitiveDateTimeOffsetToNegative`: when true and a date contains `+0000` as the offset covert it
+    - `convertPositiveDateTimeOffsetToNegative`: when true and a date contains `+0000` as the offset covert it
       to `-0000`
     - `useHighPrecisionHeaderDateTimeFormat`: covert all dates to `yyyyMMddHHmmss.SSSSxx`
     - `truncationConfig`: configures how truncation will be performed for HL7 fields
