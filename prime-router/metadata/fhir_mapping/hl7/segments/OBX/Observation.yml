@@ -142,6 +142,26 @@ valueTime:
   vars:
     obx2: STRING, OBX.2
 
+_valueTime:
+  expressionType: nested
+  condition: $obx2 EQUALS TM
+  vars:
+    obx5: OBX.5
+    obx2: STRING, OBX.2
+  expressionsMap:
+    extension:
+      condition: $obx5 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: OBX.5
+          expressionType: HL7Spec
+
 valueRange:
   vars:
     obx2: STRING, OBX.2
@@ -277,7 +297,7 @@ dataAbsentReason:
               valueOf: not-asked
             system:
               valueOf: $system
-    - condition: $obx2 EQUALS ST && $obx5 EQUALS_STRING $emptyString
+    - condition: $obx2 EQUALS ST && ($obx5 EQUALS_STRING $emptyString || $obx5 NULL)
       expressionType: nested
       constants:
         emptyString: ""

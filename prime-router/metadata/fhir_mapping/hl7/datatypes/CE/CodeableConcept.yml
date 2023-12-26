@@ -18,17 +18,17 @@ coding:
       type: SYSTEM_URL
       expressionType: HL7Spec
       valueOf: CE.3
-    extension_cwe-coding:
+    extension_ce-coding:
       generateList: true
       condition: $code NOT_NULL || $display NOT_NULL || $system NOT_NULL
       expressionType: nested
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cwe-coding
+          value: ce-coding
         valueString:
           value: coding
-    extension_cwe-coding-system:
+    extension_ce-coding-system:
       condition: $coding-system NOT_NULL
       generateList: true
       expressionType: nested
@@ -37,7 +37,7 @@ coding:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cwe-coding-system
+          value: ce-coding-system
         valueString:
           value: $coding-system
 

@@ -5,6 +5,22 @@ elements:
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
+  - name: obx-value-ft
+    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "FT"'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
+  - name: obx-value-tx
+    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "TX"'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
+  - name: obx-value-tm
+    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "TM"'
+    value: [ '%resource.value.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
+
   - name: obx-value-vr-1
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "VR"'
     value: [ '%resource.value.split("-").first()' ]
@@ -65,11 +81,12 @@ elements:
 
   - name: obx-value-is
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "IS"'
-    value: [ '%resource.coding.code' ]
+    value: [ '%resource.value.coding.code' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
   - name: obx-value-dr
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "DR"'
+    resource: '%resource.value'
     schema: ../Patient/DR # TODO this should be moved
     constants:
       hl7DRField: '%{hl7OBXField}-5'
@@ -77,11 +94,6 @@ elements:
   - name: obx-value-dtm-dt
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "DTM" or %context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "DT"'
     value: [ '%resource.value.extension(%`rsext-hl7v2-date-time`).value' ]
-    hl7Spec: [ '%{hl7OBXField}-5' ]
-
-  - name: obx-value-tm
-    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "TM"'
-    value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
   - name: obx-value-nr

@@ -167,7 +167,15 @@
             }
           ]
         },
-        "valueTime" : "2531-0400"
+        "valueTime" : "223100.0000",
+        "_valueTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "223100.0000"
+            }
+          ]
+        }
       }
     },
     {
