@@ -112,13 +112,15 @@ class FHIRRouter(
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
-    override fun <T : Message> doWork(
+    override fun <T : QueueMessage> doWork(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         logger.trace("Processing HL7 data for FHIR conversion.")
         this.actionLogger = actionLogger
+
+        message as ReportPipelineMessage
 
         // track input report
         actionHistory.trackExistingInputReport(message.reportId)
@@ -191,7 +193,7 @@ class FHIRRouter(
                         nextEvent,
                         report,
                         blobInfo.blobUrl,
-                        FhirTranslateMessage(
+                        FhirTranslateQueueMessage(
                             report.id,
                             blobInfo.blobUrl,
                             BlobAccess.digestToString(blobInfo.digest),
