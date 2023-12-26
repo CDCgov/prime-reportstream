@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@pagerduty/pdjs": "^2.2.4"
+  }
+}
