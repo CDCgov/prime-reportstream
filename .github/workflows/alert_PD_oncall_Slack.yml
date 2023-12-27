@@ -18,4 +18,6 @@ jobs:
       with:
         token: ${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}
         schedule-id: ABCDEFG
+    - run: echo ${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }} token
     - run: echo ${{ steps.pagerduty.outputs.person }} is on call
+
