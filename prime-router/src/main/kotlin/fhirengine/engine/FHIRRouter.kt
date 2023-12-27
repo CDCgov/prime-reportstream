@@ -31,6 +31,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
 import org.hl7.fhir.r4.model.Base
@@ -163,11 +164,20 @@ class FHIRRouter(
                 )
 
                 // If the receiver does not have a condition filter set send the entire bundle to the translate step
-                val receiverBundle = if (receiver.mappedConditionFilter.isEmpty()) {
+                var receiverBundle = if (receiver.conditionFilter.isEmpty()) {
                     bundle
                 } else {
-                    bundle.filterObservations(receiver.mappedConditionFilter)
+                    bundle.filterObservations(
+                        receiver.conditionFilter,
+                        shorthandLookupTable
+                    )
                 }
+
+                // If the receiver does not have a mapped condition filter send the entire bundle to the translate step
+                if (receiver.mappedConditionFilter.isNotEmpty()) {
+                    receiverBundle = receiverBundle.filterMappedObservations(receiver.mappedConditionFilter)
+                }
+
                 val nextEvent = ProcessEvent(
                     Event.EventAction.TRANSLATE,
                     report.id,
@@ -328,18 +338,13 @@ class FHIRRouter(
                 allObservationsExpression
             )
 
-            // TODO: merge with condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
-            // MAPPED CONDITION FILTER
-            //  default: allowAll
-            val filteredObservations = bundle.getObservationsWithCondition(receiver.mappedConditionFilter.codes())
-
             // TODO: is this handled?
             // Automatically passing if observations are empty is necessary for messages that may not
             // contain any observations but messages that must have observations are now at risk of getting
             // routed if they contain no observations. This case must be handled in one of the filters above
             // while UP validation is still being designed/implemented.
             passes = passes && (
-                allObservations.isEmpty() || filteredObservations.isNotEmpty() || allObservations.any { observation ->
+                allObservations.isEmpty() || allObservations.any { observation ->
                     evaluateFilterAndLogResult(
                         getConditionFilter(receiver, orgFilters),
                         bundle,
@@ -354,6 +359,26 @@ class FHIRRouter(
                     )
                 }
                 )
+
+            // TODO: merge with condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
+            // MAPPED CONDITION FILTER
+            //  default: allowAll
+            if (receiver.mappedConditionFilter.isNotEmpty()) {
+                val filteredObservations = bundle.getObservationsWithCondition(receiver.mappedConditionFilter.codes())
+                val mappedConditionPasses = allObservations.isEmpty() || filteredObservations.isNotEmpty()
+                if (!mappedConditionPasses) {
+                    logFilterResults(
+                        ReportStreamFilterType.MAPPED_CONDITION_FILTER.field,
+                        bundle,
+                        reportId,
+                        actionHistory,
+                        receiver,
+                        ReportStreamFilterType.MAPPED_CONDITION_FILTER,
+                        bundle
+                    )
+                }
+                passes = passes && mappedConditionPasses
+            }
 
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {

@@ -469,7 +469,7 @@ class FHIRBundleHelpersTests {
             .readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
 
-        val bundle = messages[0].filterObservationsForTest(
+        val bundle = messages[0].filterObservations(
             listOf(OBSERVATIONS_FILTER),
             emptyMap<String, String>().toMutableMap()
         )

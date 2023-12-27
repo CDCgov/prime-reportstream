@@ -349,7 +349,7 @@ internal fun getObservationExtensions(
  *
  * @return copy of the bundle with filtered observations removed
  */
-fun Bundle.filterObservationsForTest(
+fun Bundle.filterObservations(
     conditionFilter: ReportStreamFilter,
     shortHandLookupTable: MutableMap<String, String>,
 ): Bundle {
@@ -372,7 +372,7 @@ fun Bundle.filterObservationsForTest(
  *
  * @return copy of the bundle with filtered observations removed
  */
-fun Bundle.filterObservations(
+fun Bundle.filterMappedObservations(
     conditionFilter: ReportStreamConditionFilter,
 ): Bundle {
     val codes = conditionFilter.codes()

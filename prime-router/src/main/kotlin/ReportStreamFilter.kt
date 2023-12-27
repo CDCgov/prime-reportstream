@@ -47,6 +47,7 @@ enum class ReportStreamFilterType(val field: String) {
     ROUTING_FILTER("routingFilter"),
     PROCESSING_MODE_FILTER("processingModeFilter"),
     CONDITION_FILTER("conditionFilter"),
+    MAPPED_CONDITION_FILTER("mappedConditionFilter"),
     ;
 
     // Reflection, so that we can write a single routine to handle all types of filters.
