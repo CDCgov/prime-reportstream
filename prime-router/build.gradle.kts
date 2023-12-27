@@ -819,9 +819,9 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("org.apache.logging.log4j:log4j-api:[2.17.1,)")
-    implementation("org.apache.logging.log4j:log4j-core:[2.17.1,)")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
+    implementation("org.apache.logging.log4j:log4j-api:2.22.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.22.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.22.0")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.3.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.2")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
