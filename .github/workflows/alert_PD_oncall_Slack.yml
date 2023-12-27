@@ -12,10 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Ask PagerDuty
-      id: pagerduty
-      uses: mxie/pagerduty-oncall-action@main    # replace `main` with release tag
+      uses: ./.github/actions/PagerDutyAlerts/pagerduty-oncall-action
       with:
         token: ${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}
         schedule-id: ABCDEFG
     - run: echo ${{ steps.pagerduty.outputs.person }} is on call
-    ##

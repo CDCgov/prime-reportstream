@@ -1,21 +1,24 @@
-name: Find next person on call
-on:
-  workflow_dispatch:
-  push: 
-    branches:
-      - feature/12568-AddPDRotationSlack
-  # schedule:
-  #   - cron: "0 5 * * MON" #UTC-5
-  #   - cron: '0 11 * * 1-5'
-jobs:
-  run-action:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Ask PagerDuty
-      id: pagerduty
-      uses: mxie/pagerduty-oncall-action@main    # replace `main` with release tag
-      with:
-        token: ${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}
-        schedule-id: ABCDEFG
-    - run: echo ${{ steps.pagerduty.outputs.person }} is on call
-    ##
+name: "PagerDuty On-call"
+description: "Find out who's on call next for a given schedule"
+inputs:
+  token:
+    description: "PagerDuty API token"
+    required: true
+  schedule-id:
+    description: "ID of on-call schedule to look up"
+    required: true
+  start-date:
+    description: "Start date of on-call to query (in ISO8601)"
+    required: false
+  end-date:
+    description: "End date of on-call to query (in ISO8601)"
+    required: false
+outputs:
+  person:
+    description: "The person who's on call"
+runs:
+  using: "node16"
+  main: "dist/index.js"
+branding:
+  icon: "bell"
+  color: "purple"
