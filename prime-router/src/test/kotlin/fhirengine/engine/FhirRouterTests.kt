@@ -1284,7 +1284,7 @@ class FhirRouterTests {
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val conditionFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        val mappedConditionFilter = emptyList<ConditionFilter>() // TODO: change
+        val mappedConditionFilter = emptyList<ConditionFilter>()
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
@@ -1695,7 +1695,7 @@ class FhirRouterTests {
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         // This condition filter evaluates to true
         val condFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        val mappedCondFilter = emptyList<ConditionFilter>() // TODO: change
+        val mappedCondFilter = emptyList<ConditionFilter>()
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, mappedCondFilter)
 
@@ -1726,7 +1726,7 @@ class FhirRouterTests {
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_10)
         // This condition filter evaluates to true
         val condFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        val mappedCondFilter = emptyList<ConditionFilter>() // TODO: maybe change
+        val mappedCondFilter = emptyList<ConditionFilter>()
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, mappedCondFilter)
 
