@@ -3801,6 +3801,7 @@
         core.setFailed("An end date is required when a start date is passed in");
       }
       core.debug(`pager duty token:${pdToken}`);
+      core.debug(`schedule id:${scheduleId}`);
       // set up API client
       const pdClient = pd.api({ token: pdToken });
       const params = {
