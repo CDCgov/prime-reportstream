@@ -3800,7 +3800,7 @@
       if (startDate && !endDate) {
         core.setFailed("An end date is required when a start date is passed in");
       }
-    
+      core.debug(`pager duty token:${pdToken}`);
       // set up API client
       const pdClient = pd.api({ token: pdToken });
       const params = {
