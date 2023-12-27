@@ -27,10 +27,11 @@ async function run() {
   pdClient
     .get(`/oncalls?${queryParams}`)
     .then(({ resource }) => {
+      core.info(pdtoken);
       // `resource` should be a list of oncall entries
       if (resource.length > 0) {
         core.debug(`Oncalls found: ${JSON.stringify(resource)}`);
-
+        
         const person = resource[0]["user"]["summary"];
 
         if (typeof person !== "undefined") {
