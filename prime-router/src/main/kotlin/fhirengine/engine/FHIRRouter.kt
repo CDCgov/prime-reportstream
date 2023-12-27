@@ -33,6 +33,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
+import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -363,7 +364,7 @@ class FHIRRouter(
             // TODO: merge with condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
             // MAPPED CONDITION FILTER
             //  default: allowAll
-            if (allObservations.isNotEmpty() && receiver.mappedConditionFilter.isNotEmpty()) {
+            if (bundle.getObservations().isNotEmpty() && receiver.mappedConditionFilter.isNotEmpty()) {
                 val codes = receiver.mappedConditionFilter.codes()
                 val filteredObservations = bundle.getObservationsWithCondition(codes)
                 if (filteredObservations.isEmpty()) {
