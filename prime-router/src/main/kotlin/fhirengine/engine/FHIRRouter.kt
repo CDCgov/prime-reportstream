@@ -363,12 +363,12 @@ class FHIRRouter(
             // TODO: merge with condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
             // MAPPED CONDITION FILTER
             //  default: allowAll
-            if (receiver.mappedConditionFilter.isNotEmpty()) {
-                val filteredObservations = bundle.getObservationsWithCondition(receiver.mappedConditionFilter.codes())
-                val mappedConditionPasses = allObservations.isEmpty() || filteredObservations.isNotEmpty()
-                if (!mappedConditionPasses) {
+            if (allObservations.isNotEmpty() && receiver.mappedConditionFilter.isNotEmpty()) {
+                val codes = receiver.mappedConditionFilter.codes()
+                val filteredObservations = bundle.getObservationsWithCondition(codes)
+                if (filteredObservations.isEmpty()) {
                     logFilterResults(
-                        ReportStreamFilterType.MAPPED_CONDITION_FILTER.field,
+                        "mappedConditionFilter: $codes",
                         bundle,
                         reportId,
                         actionHistory,
@@ -377,7 +377,7 @@ class FHIRRouter(
                         bundle
                     )
                 }
-                passes = passes && mappedConditionPasses
+                passes = passes && filteredObservations.isNotEmpty()
             }
 
             // if all filters pass, add this receiver to the list of valid receivers
