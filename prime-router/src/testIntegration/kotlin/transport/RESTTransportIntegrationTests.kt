@@ -43,6 +43,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
@@ -598,6 +599,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             "Content-Length" to "<calculated when request is sent>",
             "Content-Type" to "multipart/form-data",
             "Key" to "files",
+            "File-Name" to "cdc-up-reportId-withdate.hl7",
             "Subscription" to "23edf66e1fe14685bb9dfa2cbb14eb3b",
             "Host" to "api.neometrics.com"
         )
@@ -631,6 +633,65 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             runBlocking {
                 mockRestTransport.lookupDefaultCredential(any())
                 mockRestTransport.getAuthTokenWithUserPass(natusRestTransportTypeLive, any(), any(), any())
+            }
+        }
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test  transport postReport with valid file name for Natus`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientStringTokenOk()))
+
+        // Given:
+        //      lookupDefaultCredential returns mock UserPassCredential object to allow
+        //      the getAuthTokenWithUserPass() to be called.
+        val validFileName = if (natusRestTransportTypeLive.headers["File-Name"] != null) {
+            if (natusRestTransportTypeLive.headers["File-Name"]
+                ?.lowercase(Locale.getDefault())?.contains("withdate") == true
+            ) {
+                val ext = if (natusRestTransportTypeLive.headers["File-Name"]?.split(".")!!.size > 1) {
+                    natusRestTransportTypeLive.headers["File-Name"]
+                    ?.lowercase(Locale.getDefault())?.split(".")?.get(1)
+                } else {
+                    "hl7"
+                }
+                val ddHhMm = header.reportFile.createdAt.toString().split("T")[1].split(".")
+                val dateTime = header.reportFile.createdAt.toString().split("T")[0] + "T" + ddHhMm[0]
+                "cdc-up-$reportId-" + dateTime + "." + ext
+            } else {
+                natusRestTransportTypeLive.headers["File-Name"]
+            }
+        } else {
+            "$reportId.hl7"
+        }
+
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential(
+                "test-user",
+                "test-apikey"
+            )
+        )
+
+        // When:
+        //      RESTTransport is called WITH transport.parameters empty
+        val retryItems = mockRestTransport.send(
+            natusRestTransportTypeLive, header, reportId, null,
+            context, actionHistory
+        )
+
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
+        verify {
+            runBlocking {
+                mockRestTransport.postReport(
+                    any(),
+                    validFileName as String,
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
             }
         }
         assertThat(retryItems).isNull()

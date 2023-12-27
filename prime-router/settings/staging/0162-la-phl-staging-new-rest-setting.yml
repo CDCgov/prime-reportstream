@@ -10,7 +10,21 @@
   filters: []
   featureFlags: []
   keys: null
-  senders: []
+  senders:
+    - !<full-elr>
+      name: "etor-nbs-results"
+      organizationName: "la-phl"
+      format: "HL7"
+      customerStatus: "active"
+      schemaName: ""
+      processingType: "sync"
+      allowDuplicates: true
+      senderType: null
+      primarySubmissionMethod: null
+      topic: "etor-ti"
+      version: null
+      createdBy: null
+      createdAt: null
   receivers:
   - name: "etor-nbs-orders"
     organizationName: "la-phl"
@@ -89,6 +103,7 @@
         Content-Length:  "<calculated when request is sent>"
         Content-Type:  "multipart/form-data"  # Added for sending multipart/form-data or file format message content
         Key: "files"    # Added for the key value as file.
+        File-Name: "cdc-up-reportId-withdate.hl7"   # Set file name to cdc-up-<reportId>-yyyy-MM-ddThh:mm:ss.hl7
         Subscription: "23edf66e1fe14685bb9dfa2cbb14eb3b"  # Added the assigned subscription value.
         Host: "api.neometrics.com"
       authHeaders:
