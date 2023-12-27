@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Ask PagerDuty
-      uses: ./.github/actions/PagerDutyAlerts/pagerduty-oncall-action
+      uses: ./.github/actions/PagerDutyAlerts
       with:
         token: ${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}
         schedule-id: ABCDEFG
