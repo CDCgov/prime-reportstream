@@ -18,7 +18,7 @@ outputs:
     description: "The person who's on call"
 runs:
   using: "node16"
-  main: "//.github/scripts/alert_PD_onCall_Slack/dist/index.js"
+  main: "./.github/scripts/alert_PD_onCall_Slack/dist/index.js"
 branding:
   icon: "bell"
   color: "purple"
