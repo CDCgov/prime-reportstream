@@ -136,7 +136,7 @@ elements:
 
   - name: specimen-observation-result-with-aoe
     resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id and (meta.exists().not() or meta.tag.code != "AOE"))'
-    schema: observation-result
+    schema: ../resources/Observation/OBX
     resourceIndex: specimenObservationIndex
     constants:
       hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION'
