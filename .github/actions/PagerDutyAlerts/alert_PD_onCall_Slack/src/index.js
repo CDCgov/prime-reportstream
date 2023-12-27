@@ -11,7 +11,8 @@ async function run() {
   if (startDate && !endDate) {
     core.setFailed("An end date is required when a start date is passed in");
   }
-
+  core.debug(`pager duty token:${pdToken}`);
+  core.debug(`Schedule:${scheduleId}`);
   // set up API client
   const pdClient = pd.api({ token: pdToken });
   const params = {
@@ -27,7 +28,7 @@ async function run() {
   pdClient
     .get(`/oncalls?${queryParams}`)
     .then(({ resource }) => {
-      core.debug(`pager duty token:${pdToken}`);
+      
       // `resource` should be a list of oncall entries
       if (resource.length > 0) {
         core.debug(`Oncalls found: ${JSON.stringify(resource)}`);
