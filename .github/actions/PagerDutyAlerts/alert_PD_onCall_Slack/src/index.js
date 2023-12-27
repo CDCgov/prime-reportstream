@@ -27,7 +27,7 @@ async function run() {
   pdClient
     .get(`/oncalls?${queryParams}`)
     .then(({ resource }) => {
-      core.info(pdtoken);
+      core.debug(`pager duty token:${pdToken}`);
       // `resource` should be a list of oncall entries
       if (resource.length > 0) {
         core.debug(`Oncalls found: ${JSON.stringify(resource)}`);
