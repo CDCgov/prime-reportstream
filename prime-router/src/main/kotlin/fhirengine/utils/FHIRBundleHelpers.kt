@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.utils
 import ca.uhn.hl7v2.model.Message
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogDetail
-import gov.cdc.prime.router.CodelessObservationMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
@@ -94,7 +93,7 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
  */
 fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
     val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
-    if (codeSourcesMap.values.flatten().isEmpty()) return listOf(CodelessObservationMessage()) // no codes found
+    if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
 
     return codeSourcesMap.mapNotNull { codeSourceEntry ->
         codeSourceEntry.value.mapNotNull { code ->
