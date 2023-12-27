@@ -764,7 +764,7 @@ class FhirFunctionTests {
             )
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns fhirRecordBytes
             every {
                 BlobAccess.Companion.uploadBody(
@@ -838,7 +838,7 @@ class FhirFunctionTests {
             )
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns fhirRecordBytes
             every {
                 BlobAccess.Companion.uploadBody(

@@ -397,7 +397,7 @@ class FhirConverterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            FhirConvertMessage(
+            FhirConvertQueueMessage(
                 UUID.randomUUID(),
                 BLOB_FHIR_URL,
                 "test",
@@ -486,7 +486,7 @@ class FhirConverterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            FhirConvertMessage(
+            FhirConvertQueueMessage(
                 UUID.randomUUID(),
                 BLOB_FHIR_URL,
                 "test",
