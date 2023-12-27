@@ -21,7 +21,7 @@ identifier:
 name:
   type: STRING
   expressionType: HL7Spec
-  valueOf: CWE.2
+  valueOf: CWE.2 | CWE.9
 
 extension:
   generateList: true
