@@ -869,7 +869,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:10.2.0")
     implementation("org.flywaydb:flyway-database-postgresql:10.2.0")
     implementation("org.commonmark:commonmark:0.21.0")
-    implementation("com.google.guava:guava:32.1.3-jre")
+    implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.helger.as2:as2-lib:5.1.1")
     implementation("org.bouncycastle:bcprov-jdk15to18:1.76")
     implementation("org.bouncycastle:bcprov-jdk18on:1.76")
