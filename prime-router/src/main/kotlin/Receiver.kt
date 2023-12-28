@@ -10,7 +10,7 @@ import java.time.ZoneId
 
 /**
  * An `Receiver` represents the agent that the data hub sends reports to
- * (minus the credentials used by that agent, of course). It contains information about
+ * (minus the credentials used by that agent, of couZNrse). It contains information about
  * the specific topic and schema that the receiver needs.
  *
  * @param name of the receiver
