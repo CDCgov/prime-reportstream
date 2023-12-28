@@ -3,8 +3,9 @@ $endpoint = "https://api.pagerduty.com/schedules"
 function Get-BasicAuthCreds {
     param([string]$Token)
     $AuthString = "'Token token='{0}" -f $Token
-    $AuthBytes  = [System.Text.Encoding]::Ascii.GetBytes($AuthString)
-    return [Convert]::ToBase64String($AuthBytes)
+    # $AuthBytes  = [System.Text.Encoding]::Ascii.GetBytes($AuthString)
+    #return [Convert]::ToBase64String($AuthBytes)
+    return $AuthString
 }
 
 
