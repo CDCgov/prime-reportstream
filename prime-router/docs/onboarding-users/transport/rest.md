@@ -87,11 +87,11 @@ The receiver's RESTTransport includes the following fields:
         . Authentication-Type:  Can be as following
             "Basic Auth" - Authenticates with string "Basic + base64(username+password)" to authentication header
             "username/password" - Authenticates with json body { "username": "<username>", "password": "<password>" }
-            "email/password" - Authenticates with json body { "email": "<username>", "password": "<password>" }
+            "email/password" - Authenticates with json body { "email": "<email>", "password": "<password>" }
         . Content-Type: Can be as following
             "application/json" - Authentication body as json
             "text/plain" - Authentication body as text/plain
-            "Subscription" - Given to us by STLT (It is as plublic key and not secrete)
+            "Subscription" - Given to us by STLT (It is as public key and not secrete)
         . ExpectSuccess: Set to true for expecting success and if not it will throw exception
         . Host: Set to host domain name.
     - headers:        The map of headers to be sent in the message
@@ -100,10 +100,11 @@ The receiver's RESTTransport includes the following fields:
             "application/json" - Content/message body as json
             "text/plain" - Content/message body as text/plain
             "multipart/form-data"  - Content/message body as multipart/form-data or file
-            "Subscription" - Given to us by STLT (It is as plublic key and not secrete)
+            "Subscription" - Given to us by STLT (It is as public key and not secrete)
         . Key: If Content-Type is "multipart/form-data", it Can be as following
-            "payload" - Set "multipart/form-data" key value to payload (uses by NY-PHD)
-            "files" - Set "multipart/form-data" key value to file (uses by LA-PHL/Natus).
+            "payload" - Set "multipart/form-data" key value to payload (used by NY-PHD)
+            "files" - Set "multipart/form-data" key value to file (used by LA-PHL/Natus).
+        . File-Name: Set customer message's file name.  If the name includes substring "withdate", it will include datetime with the name.
         . Content-Length: "<calculated when request is sent>", it is required by NBS
         . validationActive: "true",
         . msgType: "HL7",
