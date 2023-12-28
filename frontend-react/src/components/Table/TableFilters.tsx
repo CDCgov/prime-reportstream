@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, DateRangePicker } from "@trussworks/react-uswds";
 
 import "./TableFilters.css";
+
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
 import {
     CursorActionType,
@@ -97,9 +98,8 @@ function TableFilters({
         filterManager.resetAll();
         cursorManager && cursorManager.update({ type: CursorActionType.RESET });
 
-        // Clear local state
-        setRangeFrom(FALLBACK_FROM);
-        setRangeTo(FALLBACK_TO);
+        // Not ideal but updating state was not enough to clear out the date fields.
+        window.location.reload();
     };
 
     return (
@@ -120,6 +120,7 @@ function TableFilters({
                             }
                         },
                         defaultValue: rangeFrom,
+                        value: rangeFrom,
                     }}
                     endDateLabel={endDateLabel}
                     endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
@@ -142,7 +143,7 @@ function TableFilters({
                     <div className={StyleClass.DATE_CONTAINER}>
                         <Button
                             disabled={!isFilterEnabled}
-                            onClick={() => applyToFilterManager()}
+                            onClick={applyToFilterManager}
                             type={"button"}
                         >
                             Filter

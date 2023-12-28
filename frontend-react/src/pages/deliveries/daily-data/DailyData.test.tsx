@@ -17,7 +17,7 @@ import {
 } from "../../../contexts/__mocks__/AppInsightsContext";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
-import DeliveriesTable from "./DeliveriesTable";
+import DailyData from "./DailyData";
 
 const mockUsePagination = {
     currentPageResults: makeDeliveryFixtureArray(10),
@@ -104,7 +104,7 @@ describe("DeliveriesTable", () => {
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
             // Render the component
-            renderApp(<DeliveriesTable />);
+            renderApp(<DailyData />);
         }
 
         test("if no activeService display NoServicesBanner", async () => {
@@ -140,7 +140,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 );
 
                 // Render the component
-                renderApp(<DeliveriesTable />);
+                renderApp(<DailyData />);
             }
 
             test("renders with no error", async () => {
@@ -227,7 +227,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 );
 
                 // Render the component
-                renderApp(<DeliveriesTable />);
+                renderApp(<DailyData />);
             }
 
             test("renders the NoServicesBanner message", async () => {
@@ -280,7 +280,7 @@ describe("DeliveriesTableWithNumbered", () => {
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
             // Render the component
-            renderApp(<DeliveriesTable />);
+            renderApp(<DailyData />);
         }
 
         test("renders an error saying admins shouldn't fetch organization data", async () => {
