@@ -108,22 +108,30 @@ class FHIRTranslator(
     internal fun getByteArrayFromBundle(
         receiver: Receiver,
         bundle: Bundle,
-    ) = when (receiver.format) {
-        Report.Format.FHIR -> {
-            if (receiver.schemaName.isNotEmpty()) {
-                val transformer = FhirTransformer(receiver.schemaName)
+    ): ByteArray {
+        if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+            receiver.enrichmentSchemaNames.forEach { enrichemntSchemaName ->
+                val transformer = FhirTransformer(enrichemntSchemaName)
                 transformer.transform(bundle)
             }
-            FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
         }
+        when (receiver.format) {
+            Report.Format.FHIR -> {
+                if (receiver.schemaName.isNotEmpty()) {
+                    val transformer = FhirTransformer(receiver.schemaName)
+                    transformer.transform(bundle)
+                }
+                return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
+            }
 
-        Report.Format.HL7, Report.Format.HL7_BATCH -> {
-            val hl7Message = getHL7MessageFromBundle(bundle, receiver)
-            hl7Message.encodePreserveEncodingChars().toByteArray()
-        }
+            Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                val hl7Message = getHL7MessageFromBundle(bundle, receiver)
+                return hl7Message.encodePreserveEncodingChars().toByteArray()
+            }
 
-        else -> {
-            error("Receiver format ${receiver.format} not supported.")
+            else -> {
+                error("Receiver format ${receiver.format} not supported.")
+            }
         }
     }
 

@@ -52,6 +52,7 @@ open class Receiver(
     val description: String = "",
     val transport: TransportType? = null,
     val externalName: String? = null,
+    val enrichmentSchemaNames: List<String> = emptyList(),
     /**
      * The timezone for the receiver. This is different from the timezone in Timing, which controls the calculation of
      * when and how often to send reports to the receiver. They are distinct ideas. The timeZone for the receiver is
@@ -75,6 +76,7 @@ open class Receiver(
         topic: Topic,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
+        enrichmentSchemaName: List<String>,
         format: Report.Format = Report.Format.CSV,
         timing: Timing? = null,
         timeZone: USTimeZone? = null,
@@ -106,7 +108,8 @@ open class Receiver(
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
-        reverseTheQualityFilter = reverseTheQualityFilter
+        reverseTheQualityFilter = reverseTheQualityFilter,
+        enrichmentSchemaNames = enrichmentSchemaName
     )
 
     /** A copy constructor for the receiver */
@@ -128,6 +131,7 @@ open class Receiver(
         copy.description,
         copy.transport,
         copy.externalName,
+        copy.enrichmentSchemaNames,
         copy.timeZone,
         copy.dateTimeFormat
     )
