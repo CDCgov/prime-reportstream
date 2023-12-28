@@ -76,7 +76,6 @@ open class Receiver(
         topic: Topic,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
-        enrichmentSchemaName: List<String>,
         format: Report.Format = Report.Format.CSV,
         timing: Timing? = null,
         timeZone: USTimeZone? = null,
@@ -94,6 +93,7 @@ open class Receiver(
         processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false,
+        enrichmentSchemaName: List<String> = emptyList(),
     ) : this(
         name,
         organizationName,
