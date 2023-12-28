@@ -13,11 +13,12 @@ jobs:
     steps:
     - name: Check Out Changes
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-    - name: Ask PagerDuty
-      uses: ./.github/actions/PagerDutyAlerts
       with:
-        token: ${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}
-        schedule-id: ABCDEFG
-    - run: echo ${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }} token
-    - run: echo ${{ steps.pagerduty.outputs.person }} is on call
+        fetch-depth: 0
+
+    - name: Get PD oncall schedule
+      id: PD
+      shell: pwsh
+      run: |
+        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1     
 
