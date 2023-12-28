@@ -25,10 +25,15 @@ set -e
 which az
 
 if [ $? -eq 0 ]; then
-  AzureWebJobsStorage="${AzureWebJobsStorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;}"
+  AzureWebJobsStorage=${AzureWebJobsStorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;}
   swagger_ui_dir_in_container="/prime-data-hub-router/swagger-ui"
   swagger_ui_dir_on_host="./build/swagger-ui"
   apidocs_container_name="apidocs"
+
+  temp="${AzureWebJobsStorage%\"}"
+  temp="${temp#\"}"
+  echo "$temp"
+  AzureWebJobsStorage=$temp
 
   # check swagger ui dir location as a pretty good and cheap way to decide if it's 
   # in container or on host

@@ -74,19 +74,24 @@ val KEY_DB_USER = "DB_USER"
 val KEY_DB_PASSWORD = "DB_PASSWORD"
 val KEY_DB_URL = "DB_URL"
 val KEY_PRIME_RS_API_ENDPOINT_HOST = "PRIME_RS_API_ENDPOINT_HOST"
+
 val dbUser = (
     project.properties[KEY_DB_USER]
-        ?: System.getenv(KEY_DB_USER)
+        ?: trimDoubleQuotes(System.getenv(KEY_DB_USER))
         ?: "prime"
     ) as String
+
 val dbPassword = (
+    (
     project.properties[KEY_DB_PASSWORD]
-        ?: System.getenv(KEY_DB_PASSWORD)
+        ?: trimDoubleQuotes(System.getenv(KEY_DB_PASSWORD))
         ?: "changeIT!"
     ) as String
+).replace("^\"|\"$", "")
+
 val dbUrl = (
     project.properties[KEY_DB_URL]
-        ?: System.getenv(KEY_DB_URL)
+        ?: trimDoubleQuotes(System.getenv(KEY_DB_URL))
         ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
     ) as String
 
@@ -99,6 +104,19 @@ val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
 val buildDir = project.layout.buildDirectory.asFile.get()
+
+/**
+ * helper trim double quotes from env var value from system get env
+ */
+fun trimDoubleQuotes(input: String): String? {
+    return if (input != null && input.length >= 2 &&
+        input.startsWith('"') && input.endsWith('"')
+    ) {
+        input.substring(1, input.length - 1)
+    } else {
+        null
+    }
+}
 
 /**
  * Add the `VAULT_TOKEN` in the local vault to the [env] map
@@ -427,6 +445,13 @@ tasks.register("testEnd2End") {
     finalizedBy("primeCLI")
 }
 
+tasks.register("testEnd2EndUP") {
+    group = rootProject.description ?: ""
+    description = "Run the end to end up tests.  Requires running a Docker instance"
+    project.extra["cliArgs"] = listOf("test", "--run", "end2end_up")
+    finalizedBy("primeCLI")
+}
+
 tasks.register("generateDocs") {
     group = rootProject.description ?: ""
     description = "Generate the schema documentation in markup format"
@@ -566,15 +591,17 @@ tasks.azureFunctionsRun {
     dependsOn("uploadSwaggerUI").mustRunAfter("composeUp")
 
     // This storage account key is not a secret, just a dummy value.
-    val devAzureConnectString =
+    val devAzureConnectStringDefault =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
             "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
             "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
 
+    val devAzureConnectString = trimDoubleQuotes(System.getenv("RS_ENV_BLOB_STORAGE_CONN_STR"))
+    val connStr = if (devAzureConnectString == null) devAzureConnectStringDefault else devAzureConnectString
     val env = mutableMapOf<String, Any>(
-        "AzureWebJobsStorage" to devAzureConnectString,
+        "AzureWebJobsStorage" to connStr,
         "AzureBlobDownloadRetryCount" to 5,
-        "PartnerStorage" to devAzureConnectString,
+        "PartnerStorage" to connStr,
         "POSTGRES_USER" to dbUser,
         "POSTGRES_PASSWORD" to dbPassword,
         "POSTGRES_URL" to dbUrl,

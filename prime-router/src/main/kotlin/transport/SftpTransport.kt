@@ -16,25 +16,15 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
-import gov.cdc.prime.router.credentials.UserPemCredential
-import gov.cdc.prime.router.credentials.UserPpkCredential
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
-import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile
-import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
-import net.schmizz.sshj.userauth.method.AuthMethod
-import net.schmizz.sshj.userauth.method.AuthPassword
-import net.schmizz.sshj.userauth.method.AuthPublickey
-import net.schmizz.sshj.userauth.password.PasswordUtils
 import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
-import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
-import java.io.StringReader
 
 class SftpTransport : ITransport, Logging {
 
@@ -113,6 +103,16 @@ class SftpTransport : ITransport, Logging {
             return connect(host, port, credential ?: lookupCredentials(receiver))
         }
 
+        private fun trimDoubleQuotes(input: String): String? {
+            return if (input.isNotBlank() && input.length >= 2 &&
+                input.startsWith('"') && input.endsWith('"')
+            ) {
+                input.substring(1, input.length - 1)
+            } else {
+                null
+            }
+        }
+
         /**
          * Fetch the credentials for a give [receiver].
          * @return the SFTP credential
@@ -144,34 +144,39 @@ class SftpTransport : ITransport, Logging {
             try {
                 sshClient.addHostKeyVerifier(PromiscuousVerifier())
                 sshClient.connect(host, port.toInt())
+                // as show here, the sftp transport creds are from ENV vars, the credential is disconnected (no loner needed)
                 when (credential) {
-                    is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
-                    is UserPemCredential -> {
-                        val key = OpenSSHKeyFile()
-                        val keyContents = StringReader(credential.key)
-                        when (StringUtils.isBlank(credential.keyPass)) {
-                            true -> key.init(keyContents)
-                            false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
-                        }
-                        val authProviders = mutableListOf<AuthMethod>(AuthPublickey(key))
-                        if (StringUtils.isNotBlank(credential.pass) && credential.pass != null) {
-                            authProviders.add(AuthPassword(PasswordUtils.createOneOff(credential.pass.toCharArray())))
-                        }
-                        sshClient.auth(credential.user, authProviders)
-                    }
-                    is UserPpkCredential -> {
-                        val key = PuTTYKeyFile()
-                        val keyContents = StringReader(credential.key)
-                        when (StringUtils.isBlank(credential.keyPass)) {
-                            true -> key.init(keyContents)
-                            false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
-                        }
-                        val authProviders = mutableListOf<AuthMethod>(AuthPublickey(key))
-                        if (StringUtils.isNotBlank(credential.pass) && credential.pass != null) {
-                            authProviders.add(AuthPassword(PasswordUtils.createOneOff(credential.pass.toCharArray())))
-                        }
-                        sshClient.auth(credential.user, authProviders)
-                    }
+//                    is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
+                    is UserPassCredential -> sshClient.authPassword(
+                        trimDoubleQuotes(System.getenv("RS_ENV_SFTP_USER")),
+                        trimDoubleQuotes(System.getenv("RS_ENV_SFTP_PASSWORD"))
+                    )
+//                    is UserPemCredential -> {
+//                        val key = OpenSSHKeyFile()
+//                        val keyContents = StringReader(credential.key)
+//                        when (StringUtils.isBlank(credential.keyPass)) {
+//                            true -> key.init(keyContents)
+//                            false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
+//                        }
+//                        val authProviders = mutableListOf<AuthMethod>(AuthPublickey(key))
+//                        if (StringUtils.isNotBlank(credential.pass) && credential.pass != null) {
+//                            authProviders.add(AuthPassword(PasswordUtils.createOneOff(credential.pass.toCharArray())))
+//                        }
+//                        sshClient.auth(credential.user, authProviders)
+//                    }
+//                    is UserPpkCredential -> {
+//                        val key = PuTTYKeyFile()
+//                        val keyContents = StringReader(credential.key)
+//                        when (StringUtils.isBlank(credential.keyPass)) {
+//                            true -> key.init(keyContents)
+//                            false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
+//                        }
+//                        val authProviders = mutableListOf<AuthMethod>(AuthPublickey(key))
+//                        if (StringUtils.isNotBlank(credential.pass) && credential.pass != null) {
+//                            authProviders.add(AuthPassword(PasswordUtils.createOneOff(credential.pass.toCharArray())))
+//                        }
+//                        sshClient.auth(credential.user, authProviders)
+//                    }
                     else -> error("Unknown SftpCredential ${credential::class.simpleName}")
                 }
                 return sshClient
