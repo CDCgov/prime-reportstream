@@ -2,14 +2,14 @@
 $endpoint = "https://api.pagerduty.com/schedules"
 
 $headers = @{
-    'Authorization' = "Bearer ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }"
+    'Authorization' = "Bearer u+n91AMaeybMj6MzSbSg"
     'Accept'        = 'application/vnd.pagerduty+json;version=2'
     'Content-Type'  = 'application/json'
 }
 
 
 # $BasicCreds = Get-BasicAuthCreds -Token ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }
-# Write-Host $BasicCreds
+ Write-Host $headers
 Write-Host ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }
 $val = Invoke-RestMethod -Uri $endpoint -Headers $headers -Method Get
 
