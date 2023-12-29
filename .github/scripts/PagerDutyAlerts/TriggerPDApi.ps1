@@ -7,7 +7,7 @@ function Get-BasicAuthCreds {
     #return [Convert]::ToBase64String($AuthBytes)
     return $AuthString
 }
-Write-Host @{"Authorization"="Token token=${ secrets.PD_ROTATION_SLACK_NOTIFICATION }"; "Accept"="application/json"}
+Write-Host "Token token=${ secrets.PD_ROTATION_SLACK_NOTIFICATION }"
 
 $BasicCreds = Get-BasicAuthCreds -Token ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }
 Write-Host $BasicCreds
