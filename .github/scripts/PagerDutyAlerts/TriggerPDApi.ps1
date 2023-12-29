@@ -13,6 +13,8 @@ $BasicCreds = Get-BasicAuthCreds -Token ${ secrets.PD_ROTATION_SLACK_NOTIFICATIO
 Write-Host $BasicCreds
 Write-Host ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }
 $val = Invoke-WebRequest -Uri $endpoint -Headers @{"Authorization"="Token token=${ secrets.PD_ROTATION_SLACK_NOTIFICATION }"; "Accept"="application/json"}  -ContentType "application/json"
+Write-Host @{"Authorization"="Token token=${ secrets.PD_ROTATION_SLACK_NOTIFICATION }"; "Accept"="application/json"}
+
 $json = $val | ConvertFrom-JSON
 Write-Host $json
 # $limit = [datetime]::Now.AddDays(-90)
