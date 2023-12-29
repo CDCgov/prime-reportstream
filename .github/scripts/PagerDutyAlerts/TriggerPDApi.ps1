@@ -9,7 +9,7 @@ $headers = @{
 
 
 # $BasicCreds = Get-BasicAuthCreds -Token ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }
- Write-Host $headers.Values()
+ Write-Host $headers.values()
 Write-Host ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }
 $val = Invoke-RestMethod -Uri $endpoint -Headers $headers -Method Get
 
