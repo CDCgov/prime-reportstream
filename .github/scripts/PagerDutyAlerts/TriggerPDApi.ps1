@@ -1,5 +1,5 @@
 
-$endpoint = "api.prime-cdc.pagerduty.com/schedules"
+$endpoint = "https://api.pagerduty.com/schedules"
 
 # $headers = @{
 #     'Authorization' = "Token token=${ secrets.PD_ROTATION_SLACK_NOTIFICATION }"
