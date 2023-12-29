@@ -65,6 +65,12 @@ class ProcessFhirCommands : CliktCommand(
         .choice(Report.Format.HL7.toString(), Report.Format.FHIR.toString()).required()
 
     /**
+     * The file to use for data enrichment.
+     */
+    private val enrichmentSchemaName by option("--enrichment-schema", help = "enrichment schema name")
+        .file()
+
+    /**
      * The message number to use if the file is an HL7 batch message.
      */
     private val hl7ItemIndex by option(
@@ -240,9 +246,17 @@ class ProcessFhirCommands : CliktCommand(
 
     /**
      * @throws CliktError if receiverSchema is present, but unable to be read.
+     * @throws CliktError if enrichmentSchemaName is present, but unable to be read.
      * @return If receiverSchema is present, apply it, otherwise just return the input bundle.
      */
-    private fun applyReceiverTransforms(bundle: Bundle): Bundle {
+    private fun applyReceiverEnrichmentAndTransforms(bundle: Bundle): Bundle {
+        if (enrichmentSchemaName != null) {
+            if (!enrichmentSchemaName!!.canRead()) {
+                throw CliktError("Unable to read enrichment schema file ${enrichmentSchemaName!!.absolutePath}.")
+            }
+            FhirTransformer(enrichmentSchemaName!!.name.split(".")[0], enrichmentSchemaName!!.parent).transform(bundle)
+        }
+
         return when {
             receiverSchema != null -> {
                 if (!receiverSchema!!.canRead()) {
@@ -263,7 +277,7 @@ class ProcessFhirCommands : CliktCommand(
      * @return the FHIR bundle after having sender and/or receiver schemas applied to it.
      */
     private fun handleSenderAndReceiverTransforms(bundle: Bundle): Bundle {
-        return applyReceiverTransforms(applySenderTransforms(bundle))
+        return applyReceiverEnrichmentAndTransforms(applySenderTransforms(bundle))
     }
 
     /**
