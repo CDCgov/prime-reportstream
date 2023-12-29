@@ -2,7 +2,7 @@
 $endpoint = "https://api.pagerduty.com/schedules"
 
 $headers = @{
-    'Authorization' = "Bearer u+n91AMaeybMj6MzSbSg"
+    'Authorization' = "Token token=${ secrets.PD_ROTATION_SLACK_NOTIFICATION }"
     'Accept'        = 'application/vnd.pagerduty+json;version=2'
     'Content-Type'  = 'application/json'
 }
