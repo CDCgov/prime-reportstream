@@ -24,10 +24,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import org.jooq.meta.jaxb.ForcedType
-import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Properties
 
 plugins {
     val kotlinVersion by System.getProperties()
@@ -121,19 +119,19 @@ fun trimDoubleQuotes(input: String): String? {
 /**
  * Add the `VAULT_TOKEN` in the local vault to the [env] map
  */
-fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
-    val vaultFile = File(project.projectDir, ".vault/env/.env.local")
-    if (!vaultFile.exists()) {
-        vaultFile.createNewFile()
-        throw GradleException("Your vault configuration has not been initialized. Start/Restart your vault container.")
-    }
-    val prop = Properties()
-    FileInputStream(vaultFile).use { prop.load(it) }
-    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
-    if (!env.contains("CREDENTIAL_STORAGE_METHOD") || env["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT") {
-        throw GradleException("Your vault configuration is incorrect.  Check your ${vaultFile.absolutePath} file.")
-    }
-}
+// fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
+//    val vaultFile = File(project.projectDir, ".vault/env/.env.local")
+//    if (!vaultFile.exists()) {
+//        vaultFile.createNewFile()
+//        throw GradleException("Your vault configuration has not been initialized. Start/Restart your vault container.")
+//    }
+//    val prop = Properties()
+//    FileInputStream(vaultFile).use { prop.load(it) }
+//    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+//    if (!env.contains("CREDENTIAL_STORAGE_METHOD") || env["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT") {
+//        throw GradleException("Your vault configuration is incorrect.  Check your ${vaultFile.absolutePath} file.")
+//    }
+// }
 
 defaultTasks("package")
 
@@ -154,7 +152,7 @@ tasks.clean {
     group = rootProject.description ?: ""
     description = "Clean the build artifacts"
     // Delete the old Maven build folder
-    dependsOn("composeDownForced")
+//    dependsOn("composeDownForced")
     delete("target")
     // clean up all the old event files in the SOAP set up
     doLast {
@@ -413,7 +411,7 @@ tasks.register<JavaExec>("primeCLI") {
     environment["POSTGRES_USER"] = dbUser
     environment["POSTGRES_PASSWORD"] = dbPassword
     environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
-    addVaultValuesToEnv(environment)
+//    addVaultValuesToEnv(environment)
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
@@ -473,21 +471,21 @@ tasks.register("reloadTables") {
     finalizedBy("primeCLI")
 }
 
-tasks.register("reloadCredentials") {
-    dependsOn("composeUp")
-    group = rootProject.description ?: ""
-    description = "Load the SFTP credentials used for local testing to the vault"
-    project.extra["cliArgs"] = listOf(
-        "create-credential",
-        "--type=UserPass",
-        "--persist=DEFAULT-SFTP",
-        "--user",
-        "foo",
-        "--pass",
-        "pass"
-    )
-    finalizedBy("primeCLI")
-}
+// tasks.register("reloadCredentials") {
+//     dependsOn("composeUp")
+//     group = rootProject.description ?: ""
+//     description = "Load the SFTP credentials used for local testing to the vault"
+//     project.extra["cliArgs"] = listOf(
+//         "create-credential",
+//         "--type=UserPass",
+//         "--persist=DEFAULT-SFTP",
+//         "--user",
+//         "foo",
+//         "--pass",
+//         "pass"
+//     )
+//     finalizedBy("primeCLI")
+// }
 
 /**
  * Packaging and running related tasks
@@ -578,7 +576,8 @@ dockerCompose {
 //    projectName = "prime-router" // docker-composer has this setter broken as of 0.16.4
     setProjectName("prime-router") // this is a workaround for the broken setter for projectName
     useComposeFiles.addAll("docker-compose.yml")
-    startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "vault", "azurite")
+    // startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "vault", "azurite")
+    startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "azurite")
     stopContainers.set(false)
     waitForTcpPorts.set(false)
     // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
@@ -606,14 +605,14 @@ tasks.azureFunctionsRun {
         "POSTGRES_PASSWORD" to dbPassword,
         "POSTGRES_URL" to dbUrl,
         "PRIME_ENVIRONMENT" to "local",
-        "VAULT_API_ADDR" to "http://localhost:8200",
+        // "VAULT_API_ADDR" to "http://localhost:8200",
         "SFTP_HOST_OVERRIDE" to "localhost",
         "SFTP_PORT_OVERRIDE" to "2222",
         "RS_OKTA_baseUrl" to "reportstream.oktapreview.com"
     )
 
     // Load the vault variables
-    addVaultValuesToEnv(env)
+//    addVaultValuesToEnv(env)
 
     environment(env)
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"

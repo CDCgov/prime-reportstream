@@ -14,11 +14,11 @@ services:
         target: /prime-data-hub-router
     # start server regardless of apidocs setup
     command: bash -c "/prime-data-hub-router/upload_swaggerui.sh ; /prime-data-hub-router/start_func.sh"
-    env_file:
+#    env_file:
       # On first run of docker-compose, create this file, it will get populated, but docker-compose doesn't allow optional env_file
       # Example: touch .vault/env/.env.local
       # https://github.com/docker/compose/pull/3955
-      - ./.vault/env/.env.local
+#      - ./.vault/env/.env.local
     environment:
       # this storage account key is not a secret. It just looks like one.
       - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
@@ -31,11 +31,11 @@ services:
       - RS_OKTA_baseUrl=reportstream.oktapreview.com
       - RS_OKTA_clientId=0oa8uvan2i07YXJLk1d7
       - RS_OKTA_redirect=http://localhost:7071/api/download
-      - VAULT_API_ADDR=http://vault:8200
+#      - VAULT_API_ADDR=http://vault:8200
       - FHIR_ENGINE_TEST_PIPELINE=enabled
     depends_on:
       - azurite
-      - vault
+#      - vault
     ports:
       - "7071:7071" # default function port
       - "5005:5005" # Java debug port
@@ -105,29 +105,29 @@ services:
       - prime-router_build
 
   # Secrets management
-  vault:
-    image: hashicorp/vault
-    cap_add:
-      # Allows protected memory
-      - IPC_LOCK
-    volumes:
-      # Contains script for bootstrapping the Docker container
-      - .vault/config:/vault/config
-      # Location to store the vault keys
-      - .vault/env:/vault/env
-      # Vault database persisted as a Docker volume
-      - vault:/vault/file
-    ports:
-      # Vault API
-      - 8200:8200
-    # Override the command with our custom init script
-    command: "/vault/config/init.sh"
-    networks:
-      - prime-router_build
+#  vault:
+#    image: hashicorp/vault
+#    cap_add:
+#      # Allows protected memory
+#      - IPC_LOCK
+#    volumes:
+#      # Contains script for bootstrapping the Docker container
+#      - .vault/config:/vault/config
+#      # Location to store the vault keys
+#      - .vault/env:/vault/env
+#      # Vault database persisted as a Docker volume
+#      - vault:/vault/file
+#    ports:
+#      # Vault API
+#      - 8200:8200
+#    # Override the command with our custom init script
+#    command: "/vault/config/init.sh"
+#    networks:
+#      - prime-router_build
 
-volumes:
-  # For storing a local encrypted secrets database
-  vault:
+#volumes:
+#  # For storing a local encrypted secrets database
+#  vault:
 
 networks:
   prime-router_build:

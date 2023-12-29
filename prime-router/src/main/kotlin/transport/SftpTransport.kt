@@ -12,8 +12,6 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.credentials.CredentialHelper
-import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import net.schmizz.sshj.DefaultConfig
@@ -120,19 +118,23 @@ class SftpTransport : ITransport, Logging {
         fun lookupCredentials(receiver: Receiver): SftpCredential {
             Preconditions.checkNotNull(receiver.transport)
             Preconditions.checkArgument(receiver.transport is SFTPTransportType)
-            val sftpTransportInfo = receiver.transport as SFTPTransportType
+//            val sftpTransportInfo = receiver.transport as SFTPTransportType
 
             // if the transport definition has defined default
             // credentials use them, otherwise go with the
             // standard way by using the receiver full name
-            val credentialName = sftpTransportInfo.credentialName ?: receiver.fullName
-            val credentialLabel = CredentialHelper.formCredentialLabel(credentialName)
+//            val credentialName = sftpTransportInfo.credentialName ?: receiver.fullName
+//            val credentialLabel = CredentialHelper.formCredentialLabel(credentialName)
 
             // Assumes credential will be cast as SftpCredential, if not return null, and thus the error case
-            return CredentialHelper.getCredentialService().fetchCredential(
-                credentialLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
-            ) as? SftpCredential?
-                ?: error("Unable to find SFTP credentials for $credentialName connectionId($credentialLabel)")
+            return UserPassCredential(
+                trimDoubleQuotes(System.getenv("RS_ENV_SFTP_USER")) ?: "dummy",
+                trimDoubleQuotes(System.getenv("RS_ENV_SFTP_PASSWORD")) ?: "dummy"
+            )
+//            return CredentialHelper.getCredentialService().fetchCredential(
+//                credentialLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
+//            ) as? SftpCredential?
+//                ?: error("Unable to find SFTP credentials for $credentialName connectionId($credentialLabel)")
         }
 
         private fun connect(
@@ -148,8 +150,7 @@ class SftpTransport : ITransport, Logging {
                 when (credential) {
 //                    is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
                     is UserPassCredential -> sshClient.authPassword(
-                        trimDoubleQuotes(System.getenv("RS_ENV_SFTP_USER")),
-                        trimDoubleQuotes(System.getenv("RS_ENV_SFTP_PASSWORD"))
+                        credential.user, credential.pass
                     )
 //                    is UserPemCredential -> {
 //                        val key = OpenSSHKeyFile()
