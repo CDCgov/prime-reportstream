@@ -1,18 +1,19 @@
 
 $endpoint = "https://api.pagerduty.com/schedules"
-function Get-BasicAuthCreds {
-    param([string]$Token)
-    $AuthString = "'Token token='{0}" -f $Token
-    # $AuthBytes  = [System.Text.Encoding]::Ascii.GetBytes($AuthString)
-    #return [Convert]::ToBase64String($AuthBytes)
-    return $AuthString
+
+$headers = @{
+    'Authorization' = "Bearer ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }"
+    'Accept'        = 'application/vnd.pagerduty+json;version=2'
+    'Content-Type'  = 'application/json'
 }
+
 Write-Host "Token token=${ secrets.PD_ROTATION_SLACK_NOTIFICATION }"
 
 $BasicCreds = Get-BasicAuthCreds -Token ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }
 Write-Host $BasicCreds
 Write-Host ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }
-$val = Invoke-WebRequest -Uri $endpoint -Headers @{"Authorization"="Token token=${ secrets.PD_ROTATION_SLACK_NOTIFICATION }"; "Accept"="application/json"}  -ContentType "application/json"
+$val = Invoke-RestMethod -Uri $endpoint -Headers $headers -Method Get
+
 
 
 $json = $val | ConvertFrom-JSON
