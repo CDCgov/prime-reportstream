@@ -1,0 +1,16 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: ../../../ORU_R01/ORU_R01-base
+
+elements:
+
+
+  - name: nv-sending-facility-namespace-id
+    condition: true
+    value: [ '"CDC PRIME"' ]
+    hl7Spec: [ 'MSH-4-1' ]
+
+  - name: nv-sending-facility-universal-id
+    condition: true
+    value: [ '"11D2030855"' ]
+    hl7Spec: [ 'MSH-4-2' ]
