@@ -15,7 +15,7 @@
         "@trussworks/react-uswds": "^5.4.0",
         "@uswds/uswds": "3.4.1",
         "axios": "^1.6.1",
-        "classnames": "^2.3.2",
+        "classnames": "^2.5.1",
         "dompurify": "^3.0.5",
         "downloadjs": "^1.4.7",
         "export-to-csv-fix-source-map": "^0.2.1",
