@@ -156,7 +156,7 @@
         "babel-jest": "^29.7.0",
         "bfj": "8.0.0",
         "browserslist": "^4.22.1",
-        "browserslist-useragent-regexp": "^4.1.0",
+        "browserslist-useragent-regexp": "^4.1.1",
         "camelcase": "^6.3.0",
         "chromatic": "^7.4.0",
         "confusing-browser-globals": "^1.0.11",
