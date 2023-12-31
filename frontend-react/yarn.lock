@@ -6392,14 +6392,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.6.1":
-  version: 1.6.1
-  resolution: "axios@npm:1.6.1"
+"axios@npm:^1.6.3":
+  version: 1.6.3
+  resolution: "axios@npm:1.6.3"
   dependencies:
     follow-redirects: ^1.15.0
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
-  checksum: 573f03f59b7487d54551b16f5e155d1d130ad4864ed32d1da93d522b78a57123b34e3bde37f822a65ee297e79f1db840f9ad6514addff50d3cbf5caeed39e8dc
+  checksum: 07ef3bb83fc2dacc1ae2c97f2bbd04ef7701f5655f9037789d79ee78b698ffa50eaa8465c2017d4d3e9ce7d94cb779f730acaab32ce9036d0a4933c1e89df4da
   languageName: node
   linkType: hard
 
@@ -14873,7 +14873,7 @@ __metadata:
     "@uswds/uswds": 3.4.1
     "@vitejs/plugin-react": ^4.1.0
     autoprefixer: ^10.4.16
-    axios: ^1.6.1
+    axios: ^1.6.3
     babel-jest: ^29.7.0
     bfj: 8.0.0
     browserslist: ^4.22.1
