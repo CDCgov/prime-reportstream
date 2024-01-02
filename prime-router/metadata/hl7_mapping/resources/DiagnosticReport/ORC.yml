@@ -1,0 +1,9 @@
+constants:
+  hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/ORC
+
+elements:
+  - name: order-control-reason
+    resource: '%resource.extension(%`ext-event-statusReason`).value'
+    schema: ../../datatypes/codeableConcept/CWE
+    constants:
+      cweFieldPath: '%{hl7Order}-16'

@@ -18,14 +18,20 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.UnmappableConditionMessage
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
 import io.mockk.spyk
+import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Extension
@@ -670,5 +676,47 @@ class FHIRBundleHelpersTests {
         assertThat(bundle.timestamp).isNull()
         assertThat(bundle.identifier.value).isNull()
         assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
+    }
+
+    @Test
+    fun `Ensure a partially mapped observation is stamped and logs the unmapped code`() {
+        val metadata = Metadata(UnitTestUtils.simpleSchema)
+
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                listOf(
+                    listOf(
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY
+                    ),
+                    listOf(
+                        "80382-5",
+                        "6142004",
+                        "SNOMEDCT",
+                        "Influenza (disorder)"
+                    ),
+                    listOf(
+                        "260373001",
+                        "Some Condition Code",
+                        "Condition Code System",
+                        "Condition Name"
+                    )
+                )
+            )
+        )
+
+        val entry = Observation()
+        val code = CodeableConcept()
+        code.addCoding(Coding("system", "80382-5", "display"))
+        code.addCoding(Coding("system", "some-unmapped-code", "display"))
+        entry.setCode(code)
+
+        val logs = entry.addMappedCondition(metadata)
+        assertThat(logs.size).isEqualTo(1)
+        assertThat(logs[0].message).isEqualTo("Missing mapping for code(s): some-unmapped-code")
+        assertThat((logs[0] as UnmappableConditionMessage).fieldMapping).isEqualTo("observation.code.coding.code")
     }
 }

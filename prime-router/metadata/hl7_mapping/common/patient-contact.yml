@@ -63,7 +63,7 @@ elements:
     resourceIndex: telecomIndex
 
   - name: contact-persons-address
-    resource: '%resource.organization.resolve().contact.address'
+    resource: '%resource.organization.resolve().address'
     condition: '%resource.exists()'
     constants:
       hl7SpecXADField: '%{hl7NK1Field}-32'

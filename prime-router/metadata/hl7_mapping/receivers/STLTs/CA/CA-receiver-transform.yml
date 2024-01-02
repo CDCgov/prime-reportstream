@@ -145,24 +145,21 @@ elements:
     schema: ca-order-observation
     resourceIndex: orderIndex
 
-  # California requirement: suppress AOEs from being mapped to OBR segments
+  # California requirement: suppress AOEs from being mapped to OBX segments
   # This makes sure only observations under diagnostic reports are mapped
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve()'
 
   # OBX-2
-  - name: result-value-type-ce
-    condition: '%resource is CodeableConcept'
-
-  - name: result-value-type-cwe
-    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
+  - name: obx-2-value-type
+    condition: false
 
   # OBX-3
-  - name: observation-identifier-code
+  - name: obx-code
     condition: false
 
   # OBR-4
-  - name: universal-service
+  - name: universal-service-identifier
     condition: false
 
 
@@ -212,10 +209,6 @@ elements:
   - name: note-source
     value: [ '%noteDetails.extension(%`rsext-note-source`).value.coding.code', '"L"' ]
 
-  # Simple report puts the code in a different spot than what we generate in HL7 -> FHIR conversion
-  - name: xon-organization-name-type
-    value: [ '%resource.value.coding[0].code' ]
-
   # Simple report sends a different format that what we generate in the HL7 -> FHIR conversion
   # See https://github.com/CDCgov/prime-reportstream/blob/829a2e297785864d65813d7f248e9b2de9a5b0d2/prime-router/src/testIntegration/resources/datatests/FHIR_to_FHIR/sample_AOE_1_20230220-0001.fhir#L1133
   # vs
@@ -235,8 +228,8 @@ elements:
   - name: use
     value: [ '%resource.use', '"official"' ]
 
-  # OBX-10
-  - name: order-entered-by
+  # OBR-10
+  - name: entered-by
     condition: false
 
   # XTN

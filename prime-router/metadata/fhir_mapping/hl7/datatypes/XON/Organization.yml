@@ -154,12 +154,15 @@ extension_hl7Use:
       type: STRING
       valueOf: $xonOrganizationHL7Use
 
-contact:
-  expressionType: nested
-  expressionsMap:
-    address:
-      condition: $XADAddress NOT_NULL
-      valueOf: datatypes/XAD/Address
-      expressionType: resource
-      generateList: true
-      specs: $XADAddress
+address:
+  condition: $XADAddress NOT_NULL
+  valueOf: datatypes/XAD/Address
+  expressionType: resource
+  specs: $XADAddress
+
+telecom:
+  expressionType: resource
+  condition: $XTNTelecom NOT_NULL
+  valueOf: datatypes/XTN/ContactPoint
+  generateList: true
+  specs: $XTNTelecom *

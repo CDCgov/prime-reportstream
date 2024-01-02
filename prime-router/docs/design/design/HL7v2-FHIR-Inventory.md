@@ -12,16 +12,13 @@ deterministically
 create an HL7 message. A few examples on when this can occur:
 
 - the inventory does not map a field
-    -
-    see [MSH.2](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=J4)
+  - see [MSH.2](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=J4)
 - the inventory does not map a field if it does not meet certain conditions
-    -
-    see [MSH.5.1](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0&range=G3)
+  - see [MSH.5.1](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0&range=G3)
 - the inventory inserts different HL7 components into the same array
     - see [XAD](https://docs.google.com/spreadsheets/d/1hSTEur557TIKPEKZRoprVw-uNpw12JZtri-iQsc4uQ0/edit#gid=0&range=J4)
 - the inventory specifies preferring one HL7 field over the other
-    -
-    see [MSH.6](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=G11)
+  - see [MSH.6](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=G11)
 
 These cases are all handled by adding custom extensions that can then be read when converting to HL7. These extensions
 either store
@@ -52,6 +49,21 @@ implementation differs from what is in the spreadsheets.
   as it is more specific
 - The inventory specifies that MessageHeader.destination should have a reference to a device, but there is no mapping so
   that is not implemented
-- XCN.18: The inventory places this extension within `name.family`, but per the definition of
-  the [humanname-assembly-order](http://hl7.org/fhir/StructureDefinition/humanname-assembly-order) extension, `name` is
-  the correct location
+
+### OBR/ORC -> ServiceRequest
+
+- There is a discrepancy on where to pull identifiers from, for ORC/OBR 2,3 the mapping contradictorily states that both
+  should be preferred over the other.
+  The implementation opts to operate with the same logic for mapping to DiagnosticReport and to prefer ORC when
+  available
+- The inventory believes that ORC.4 will sometimes be an EIP rather than EI, but the NIST spec and the HAPI structures
+  all indicate that it is EI, the implementation will map it ORC.4 twice with different constants
+- ORC.7 does have a mapping, but is withdrawn/deprecated and is not mapped
+- The inventory doesn't specify how resolve ORC.1 and OBR.11 which both target `intent`, the implementation favors the
+  mapping in OBR since it is more specific
+- The inventory specifies that OBR.13 should be added as an extension to supportingInfo which is an array, the
+  implementation simply adds it as an extension on ServiceRequest
+- The inventory mentions OBR.29, ORC.8 and ORC.31 mention that they should be mapped onto a `basedOn` value which is not
+  defined in the mapping, the implementation maps them to extensions
+- The inventory specifies to prefer OBR.53 over ORC.33 as an identifier which does not align with any of the other
+  identifiers, the implementations prefer ORC in all casses

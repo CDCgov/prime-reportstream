@@ -7,12 +7,16 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.Headers
+import com.github.kittinunf.fuel.core.extensions.authentication
+import com.github.kittinunf.result.map
+import com.github.kittinunf.result.onError
+import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.SenderFilesFunction
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messages.ReportFileMessage
-import io.ktor.client.plugins.auth.providers.BearerTokens
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -87,7 +91,7 @@ class SenderFilesCommand : CliktCommand(
             OktaCommand.fetchAccessToken(environment.value.oktaApp)
                 ?: abort(
                     "Invalid access token. " +
-                            "Run ./prime login to fetch/refresh your access token for the $env environment."
+                        "Run ./prime login to fetch/refresh your access token for the $env environment."
                 )
         }
     }
@@ -111,26 +115,26 @@ class SenderFilesCommand : CliktCommand(
         val path = environment.value.formUrl("api/sender-files")
         val params = buildParameters()
         verbose("GET $path with $params")
-        val (response, respStr) = HttpClientUtils.getWithStringResponse(
-            url = path.toString(),
-            tokens = BearerTokens(accessToken.value, refreshToken = ""),
-            queryParameters = params.associate {
-                Pair(it.first, it.second.toString())
-            },
-            timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
-        )
-        try {
-            return jsonMapper.readValue(respStr, Array<ReportFileMessage>::class.java)?.toList()
-                ?: abort("Could not deserialize, Status Code: ${response.status.value},. Response Body: $respStr")
-        } catch (e: Exception) {
+        val (_, response, result) = Fuel
+            .get(path.toString(), params)
+            .authentication()
+            .bearer(accessToken.value)
+            .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
+            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
+            .responseString()
+        return result.map {
+            jsonMapper.readValue(response.data, Array<ReportFileMessage>::class.java)?.toList()
+                ?: abort("Could not deserialize")
+        }.onError {
             abort(
                 """
                 Error using the report-files API 
-                Status Code: ${response.status.value}
-                Response Body: $respStr
+                Status Code: ${response.statusCode}
+                Message: ${response.responseMessage}
+                Details: ${String(response.data)}
                 """.trimIndent()
             )
-        }
+        }.get()
     }
 
     /**
