@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import gov.cdc.prime.router.ActionLog
@@ -34,9 +35,9 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.FhirConvertMessage
-import gov.cdc.prime.router.fhirengine.engine.FhirRouteMessage
-import gov.cdc.prime.router.fhirengine.engine.Message
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.metadata.LookupTable
@@ -58,6 +59,8 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 import java.time.OffsetDateTime
+import gov.cdc.prime.router.azure.db.tables.ActionLog as ActionLogTable
+import gov.cdc.prime.router.azure.db.tables.pojos.ActionLog as ActionLogModel
 
 private const val MULTIPLE_TARGETS_FHIR_PATH = "src/test/resources/fhirengine/engine/valid_data_multiple_targets.fhir"
 
@@ -134,6 +137,12 @@ class FhirFunctionTests {
         "42&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^" +
         "SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
 
+    @Suppress("ktlint:standard:max-line-length")
+    val fhirRecord = """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+
+    @Suppress("ktlint:standard:max-line-length")
+    val codelessFhirRecord = """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+
     private fun makeWorkflowEngine(
         metadata: Metadata,
         settings: SettingsProvider,
@@ -167,7 +176,7 @@ class FhirFunctionTests {
     @Test
     fun `test convert-fhir`() {
         mockkObject(BlobAccess.Companion)
-        mockkObject(Message.Companion)
+        mockkObject(QueueMessage.Companion)
         // setup
         commonSetup()
         val metadata = UnitTestUtils.simpleMetadata
@@ -212,7 +221,7 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = FhirConvertMessage(
+        val message = FhirConvertQueueMessage(
             report.id,
             "",
             "BlobAccess.digestToString(blobInfo.digest)",
@@ -252,7 +261,7 @@ class FhirFunctionTests {
     @Test
     fun `test route-fhir`() {
         mockkObject(BlobAccess.Companion)
-        mockkObject(Message.Companion)
+        mockkObject(QueueMessage.Companion)
         // setup
         commonSetup()
         val metadata = spyk(UnitTestUtils.simpleMetadata)
@@ -297,7 +306,7 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = FhirRouteMessage(
+        val message = FhirRouteQueueMessage(
             report.id,
             "",
             "",
@@ -337,7 +346,7 @@ class FhirFunctionTests {
     @Test
     fun `test translate-fhir`() {
         mockkObject(BlobAccess.Companion)
-        mockkObject(Message.Companion)
+        mockkObject(QueueMessage.Companion)
         // setup
         commonSetup()
         val metadata = UnitTestUtils.simpleMetadata
@@ -461,7 +470,7 @@ class FhirFunctionTests {
             val report = seedTask(Report.Format.HL7, TaskAction.convert, Event.EventAction.CONVERT)
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns hl7_record.toByteArray()
             every {
                 BlobAccess.Companion.uploadBody(
@@ -528,9 +537,14 @@ class FhirFunctionTests {
         @Test
         fun `test successfully processes a convert message`() {
             val report = seedTask(Report.Format.HL7, TaskAction.convert, Event.EventAction.CONVERT)
+            val metadata = Metadata(UnitTestUtils.simpleSchema)
+
+            metadata.lookupTableStore += mapOf(
+                "observation-mapping" to LookupTable("observation-mapping", emptyList())
+            )
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns hl7_record.toByteArray()
             every {
                 BlobAccess.Companion.uploadBody(
@@ -545,7 +559,7 @@ class FhirFunctionTests {
 
             val settings = FileSettings().loadOrganizations(oneOrganization)
             val fhirEngine = FHIRConverter(
-                UnitTestUtils.simpleMetadata,
+                metadata,
                 settings,
                 ReportStreamTestDatabaseContainer.testDatabaseAccess,
                 blobMock,
@@ -597,7 +611,7 @@ class FhirFunctionTests {
             val report = seedTask(Report.Format.HL7, TaskAction.translate, Event.EventAction.TRANSLATE)
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             val routeFhirBytes =
                 File(VALID_FHIR_PATH).readBytes()
             every {
@@ -667,7 +681,7 @@ class FhirFunctionTests {
             val report = seedTask(Report.Format.FHIR, TaskAction.batch, Event.EventAction.BATCH)
 
             mockkObject(BlobAccess.Companion)
-            mockkObject(Message.Companion)
+            mockkObject(QueueMessage.Companion)
             val translateFhirBytes = File(
                 MULTIPLE_TARGETS_FHIR_PATH
             ).readBytes()
@@ -736,6 +750,148 @@ class FhirFunctionTests {
             }
             verify(exactly = 0) {
                 queueMock.sendMessage(any(), any())
+            }
+        }
+
+        @Test
+        fun `test unmapped observation error messages`() {
+            val report = seedTask(Report.Format.FHIR, TaskAction.convert, Event.EventAction.CONVERT)
+            val metadata = Metadata(UnitTestUtils.simpleSchema)
+            val fhirRecordBytes = fhirRecord.toByteArray()
+
+            metadata.lookupTableStore += mapOf(
+                "observation-mapping" to LookupTable("observation-mapping", emptyList())
+            )
+
+            mockkObject(BlobAccess.Companion)
+            mockkObject(QueueMessage.Companion)
+            every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns fhirRecordBytes
+            every {
+                BlobAccess.Companion.uploadBody(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns BlobAccess.BlobInfo(Report.Format.FHIR, "", "".toByteArray())
+            every { queueMock.sendMessage(any(), any()) } returns Unit
+
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            val fhirEngine = FHIRConverter(
+                metadata,
+                settings,
+                ReportStreamTestDatabaseContainer.testDatabaseAccess,
+                blobMock,
+            )
+
+            val actionHistory = spyk(ActionHistory(TaskAction.receive))
+            val workflowEngine =
+                makeWorkflowEngine(
+                    metadata,
+                    settings,
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
+                )
+
+            val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
+                "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
+                "None-${report.id}.fhir\",\"digest\":" +
+                "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(fhirRecordBytes))}\"," +
+                "\"blobSubFolderName\":" +
+                "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
+
+            val fhirFunc = FHIRFunctions(
+                workflowEngine,
+                queueAccess = queueMock,
+                databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
+            )
+            fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+
+            val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
+            assertThat(processTask.processedAt).isNotNull()
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+                val actionLogs = DSL
+                    .using(txn)
+                    .select(ActionLogTable.ACTION_LOG.asterisk())
+                    .from(ActionLogTable.ACTION_LOG)
+                    .fetchMany()
+                    .map { it.into(ActionLogModel::class.java) }
+                assertThat(actionLogs.size).isEqualTo(1)
+                assertThat(actionLogs[0].size).isEqualTo(2)
+                assertThat(actionLogs[0].map { it.detail.message }).isEqualTo(
+                    listOf(
+                        "Missing mapping for code(s): 80382-5",
+                        "Missing mapping for code(s): 260373001"
+                    )
+                )
+            }
+        }
+
+        @Test
+        fun `test codeless observation error message`() {
+            val report = seedTask(Report.Format.FHIR, TaskAction.convert, Event.EventAction.CONVERT)
+            val metadata = Metadata(UnitTestUtils.simpleSchema)
+            val fhirRecordBytes = codelessFhirRecord.toByteArray()
+
+            metadata.lookupTableStore += mapOf(
+                "observation-mapping" to LookupTable("observation-mapping", emptyList())
+            )
+
+            mockkObject(BlobAccess.Companion)
+            mockkObject(QueueMessage.Companion)
+            every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns fhirRecordBytes
+            every {
+                BlobAccess.Companion.uploadBody(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns BlobAccess.BlobInfo(Report.Format.FHIR, "", "".toByteArray())
+            every { queueMock.sendMessage(any(), any()) } returns Unit
+
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            val fhirEngine = FHIRConverter(
+                metadata,
+                settings,
+                ReportStreamTestDatabaseContainer.testDatabaseAccess,
+                blobMock,
+            )
+
+            val actionHistory = spyk(ActionHistory(TaskAction.receive))
+            val workflowEngine =
+                makeWorkflowEngine(
+                    metadata,
+                    settings,
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
+                )
+
+            val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
+                "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
+                "None-${report.id}.fhir\",\"digest\":" +
+                "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(fhirRecordBytes))}\"," +
+                "\"blobSubFolderName\":" +
+                "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
+
+            val fhirFunc = FHIRFunctions(
+                workflowEngine,
+                queueAccess = queueMock,
+                databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
+            )
+            fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+
+            val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
+            assertThat(processTask.processedAt).isNotNull()
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+                val actionLogs = DSL
+                    .using(txn)
+                    .select(ActionLogTable.ACTION_LOG.asterisk())
+                    .from(ActionLogTable.ACTION_LOG).fetchMany()
+                    .map { it.into(ActionLogModel::class.java) }
+                assertThat(actionLogs.size).isEqualTo(1)
+                assertThat(actionLogs[0].size).isEqualTo(1)
+                assertThat(actionLogs[0][0].detail.message).isEqualTo("Observation missing code")
             }
         }
     }
