@@ -153,6 +153,20 @@ open class LookupTable : Logging {
     }
 
     /**
+     * Returns the table as a sequence of map, where each key in the map is the column name. If you have multiple
+     * columns with the same name in a table, the last one wins. So don't do that.
+     */
+    val caseSensitiveDataRowsMap: Sequence<Map<String, String>> = sequence {
+        table.forEach { row ->
+            val rowMap: MutableMap<String, String> = mutableMapOf()
+            table.columnNames().forEach { colName ->
+                rowMap[colName] = row.getString(colName)
+            }
+            yield(rowMap)
+        }
+    }
+
+    /**
      * Test if a [column] name exists in the table.  The search is case-insensitive.
      * @return true if the column exists, false otherwise
      */
