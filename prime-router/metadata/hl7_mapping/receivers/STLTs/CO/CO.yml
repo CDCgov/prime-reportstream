@@ -65,7 +65,7 @@ elements:
     condition: false
 
   # Always replace OBX-17 with NULL for all OBX segments
-  - name: observation-method
+  - name: obx-observation-method
     condition: false
 
   # Always replace SPM-5 with NULL for all Specimen segments
