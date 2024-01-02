@@ -1,11 +1,11 @@
 locals {
-  environment = "staging"
-  address_id  = 6
+  environment = "bcr"
+  address_id  = 8
   init = {
     environment           = local.environment
     location              = "eastus"
     is_metabase_env       = true
-    resource_group_name   = "prime-data-hub-${local.environment}"
+    resource_group_name   = "ddphss-prim-trn-moderate-rg"
     resource_prefix       = "pdh${local.environment}"
     okta_redirect_url     = "https://${local.environment}.prime.cdc.gov/download"
     okta_base_url         = "hhs-prime.oktapreview.com"
