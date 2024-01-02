@@ -20,5 +20,5 @@ jobs:
       id: PD
       shell: pwsh
       run: |
-        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1     
+        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}"    
 
