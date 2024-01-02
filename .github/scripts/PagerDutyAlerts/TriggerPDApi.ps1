@@ -1,5 +1,5 @@
 
-$endpoint = "https://api.pagerduty.com/schedules"
+$endpoint = "https://api.pagerduty.com/schedules?Accept=application/vnd.pagerduty+json;version=2&Content-Type=application/json"
 
 # $headers = @{
 #     'Authorization' = "Token token=${ secrets.PD_ROTATION_SLACK_NOTIFICATION }"
@@ -7,10 +7,10 @@ $endpoint = "https://api.pagerduty.com/schedules"
 #     'Content-Type'  = 'application/json'
 # }
 
-$headers = @{}
+$headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 $headers.Add("Authorization","Token token=${ secrets.PD_ROTATION_SLACK_NOTIFICATION }")
-$headers.Add("Accept", "application/vnd.pagerduty+json;version=2")
-$headers.Add("Content-Type", "application/json")
+# $headers.Add("Accept", "application/vnd.pagerduty+json;version=2")
+# $headers.Add("Content-Type", "application/json")
 
 # $BasicCreds = Get-BasicAuthCreds -Token ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }
 
