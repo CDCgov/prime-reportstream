@@ -463,7 +463,7 @@ class FHIRBundleHelpersTests {
     }
 
     @Test
-    fun `test filterObservationsForTest`() {
+    fun `test filterObservations`() {
         val actionLogger = ActionLogger()
         val fhirBundle = File(MULTIPLE_OBSERVATIONS_URL)
             .readText()
@@ -482,7 +482,7 @@ class FHIRBundleHelpersTests {
         assertThat(observations[0].id).isEqualTo("Observation/1667861767955966000.f3f94c27-e225-4aac-b6f5-2750f45dac4f")
     }
 
-    // TODO: test filterObservations
+    // TODO: test filterMappedObservations
 
     @Test
     fun `test batchMessages`() {
