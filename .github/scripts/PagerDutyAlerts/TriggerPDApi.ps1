@@ -1,7 +1,7 @@
 param (
     [string]$PD_KEY
 )
-$endpoint = "https://api.pagerduty.com//oncalls?include[]=users&schedule_ids[]=PE8NLRU&earliest=true?Accept=application/vnd.pagerduty+json;version=2&Content-Type=application/json"
+$endpoint = "https://api.pagerduty.com//oncalls?include[]=users&schedule_ids[]=PE8NLRU&earliest=true&Accept=application/vnd.pagerduty+json;version=2&Content-Type=application/json"
 
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 $headers.Add("Authorization","Token token=$PD_KEY")
