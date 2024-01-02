@@ -4,6 +4,7 @@ on:
   push: 
     branches:
       - feature/12568-AddPDRotationSlack
+      - josiahsiegel/test/feature/12568-AddPDRotationSlack
   # schedule:
   #   - cron: "0 5 * * MON" #UTC-5
   #   - cron: '0 11 * * 1-5'
@@ -20,5 +21,5 @@ jobs:
       id: PD
       shell: pwsh
       run: |
-        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1     
+        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}"
 

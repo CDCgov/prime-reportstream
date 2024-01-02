@@ -1,3 +1,6 @@
+param (
+    [string]$PD_KEY
+)
 
 $endpoint = "https://api.pagerduty.com/schedules?Accept=application/vnd.pagerduty+json;version=2&Content-Type=application/json"
 
@@ -8,9 +11,9 @@ $endpoint = "https://api.pagerduty.com/schedules?Accept=application/vnd.pagerdut
 # }
 
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-$headers.Add("Authorization","Token token=${ secrets.PD_ROTATION_SLACK_NOTIFICATION }")
-# $headers.Add("Accept", "application/vnd.pagerduty+json;version=2")
-# $headers.Add("Content-Type", "application/json")
+$headers.Add("Authorization","Token token=$PD_KEY")
+$headers.Add("Accept", "application/vnd.pagerduty+json;version=2")
+$headers.Add("Content-Type", "application/json")
 
 # $BasicCreds = Get-BasicAuthCreds -Token ${ secrets.PD_ROTATION_SLACK_NOTIFICATION }
 
@@ -18,8 +21,8 @@ $val = Invoke-RestMethod -Uri $endpoint -Headers $headers -Method Get
 
 
 
-$json = $val | ConvertFrom-JSON
-Write-Host $json
+#$json = $val | ConvertFrom-JSON
+#Write-Host $json
 # $limit = [datetime]::Now.AddDays(-90)
 
 # #Write-Host $val
@@ -55,8 +58,8 @@ Write-Host $json
 
 # $json1 = $data | ConvertTo-Json
 
-$jsonstring=$json1 | ConvertFrom-Json | ConvertTo-Json -Compress -Depth 100
- Write-Host $jsonstring
+$jsonstring=$val.schedules | ConvertTo-Json -Compress -Depth 100
+Write-Host $jsonstring
 
  
 echo "Stale_Branches=$jsonstring"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
