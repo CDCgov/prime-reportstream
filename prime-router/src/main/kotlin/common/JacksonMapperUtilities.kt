@@ -57,7 +57,7 @@ object JacksonMapperUtilities {
     val objectMapper: ObjectMapper = ObjectMapper()
 
     /**
-     * jacksonObjectMapper using library defaults (no kotlin, java modules).
+     * jacksonObjectMapper using library defaults.
      */
     val jacksonObjectMapper: ObjectMapper = jacksonObjectMapper()
 

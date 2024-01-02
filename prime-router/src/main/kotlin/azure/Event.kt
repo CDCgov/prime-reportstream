@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-// import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
