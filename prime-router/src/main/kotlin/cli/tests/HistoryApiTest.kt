@@ -2,7 +2,6 @@ package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.result.Result
@@ -11,6 +10,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import java.net.HttpURLConnection
 import java.time.OffsetDateTime
@@ -296,7 +296,7 @@ class SubmissionListChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker
         testCase: HistoryApiTestCase,
         json: String,
     ): Boolean {
-        val jsonMapper = jacksonObjectMapper()
+        val jsonMapper = jacksonObjectMapper
         jsonMapper.registerModule(JavaTimeModule())
         val submissionsHistories = jsonMapper.readValue(json, Array<ExpectedSubmissionList>::class.java)
             ?: return testBeingRun.bad("Bad submission list returned")
@@ -342,7 +342,7 @@ class ReportDetailsChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker(
         testCase: HistoryApiTestCase,
         json: String,
     ): Boolean {
-        val jsonMapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        val jsonMapper = jacksonObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         jsonMapper.registerModule(JavaTimeModule())
         val submissionDetails = jsonMapper.readValue(json, ExpectedSubmissionDetails::class.java)
             ?: return testBeingRun.bad("Bad submission details obj returned: $json")

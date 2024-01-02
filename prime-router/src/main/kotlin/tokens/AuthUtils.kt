@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.tokens
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import io.jsonwebtoken.Jwts
 import java.io.File
 import java.security.PrivateKey
@@ -102,7 +102,7 @@ class AuthUtils {
 
         fun readPublicKeyPem(pem: String): Jwk {
             val nimbusdsJwk = JWK.parseFromPEMEncodedObjects(pem)
-            val jwk = jacksonObjectMapper().readValue(nimbusdsJwk.toJSONString(), Jwk::class.java)
+            val jwk = jacksonObjectMapper.readValue(nimbusdsJwk.toJSONString(), Jwk::class.java)
             // All the rest of this is sanity checks
             if (jwk.kty.isNullOrEmpty()) error("Key must have a kty keytype")
             if (nimbusdsJwk.keyType == KeyType.EC) {
@@ -139,7 +139,7 @@ class AuthUtils {
 
         fun readPrivateKeyPem(pem: String): PrivateKey {
             val nimbusdsJwk = JWK.parseFromPEMEncodedObjects(pem)
-            val jwk = jacksonObjectMapper().readValue(nimbusdsJwk.toJSONString(), Jwk::class.java)
+            val jwk = jacksonObjectMapper.readValue(nimbusdsJwk.toJSONString(), Jwk::class.java)
             // All the rest of this is sanity checks
             when (nimbusdsJwk.keyType) {
                 KeyType.EC -> {
