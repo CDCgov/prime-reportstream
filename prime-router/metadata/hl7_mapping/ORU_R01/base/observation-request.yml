@@ -158,5 +158,5 @@ elements:
     resource: '%specimen.note.extension(%`rsext-cwe-annotation`).value.where(extension(%`rsext-hl7v2Name`).value = "collectors-comment")'
     resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{fieldPath}-39(%{cweIndex})'
+      cweField: '%{fieldPath}-39(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE

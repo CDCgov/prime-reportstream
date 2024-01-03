@@ -172,11 +172,6 @@ elements:
     value: [ '%resource.extension(%`rsext-identity-unknown`).value' ]
     hl7Spec: [ '%{hl7PIDField}-31' ]
 
-  - name: patient-death-indicator-1
-    condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
-    value: [ '"Y"' ]
-    hl7Spec: [ '%{hl7PIDField}-30' ]
-
   - name: patient-death-indicator-2
     condition: '%resource.deceased.exists() and %resource.deceased is boolean'
     value: [ '%resource.deceased' ]

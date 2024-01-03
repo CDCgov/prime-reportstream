@@ -237,19 +237,19 @@ elements:
     bundleProperty: '%resource.type.coding.version'
     value: [ '"2.67"' ]
 
-  # Covid pipeline populates this by looking at the sender-automation/aoe value-set version
-  # But some AOEs have different versions, we need the ability to lookup that version
-  # So the current solution is to move the sender-automation/aoe to the sender_automation_value_set_row lookup table
-  #  - name: sr-observation-code-version
-  #    resource: 'Bundle.entry.resource.ofType(Observation)'
-  #    condition: '%resource.code.coding.exists()'
-  #    bundleProperty: '%resource.code.coding.version'
-  #    value: [ '%resource.code.coding.code' ]
-  #    valueSet:
-  #      lookupTable:
-  #        tableName: sender_automation_value_set_row
-  #        keyColumn: code
-  #        valueColumn: version
+  #   Covid pipeline populates this by looking at the sender-automation/aoe value-set version
+  #   But some AOEs have different versions, we need the ability to lookup that version
+  #   So the current solution is to move the sender-automation/aoe to the sender_automation_value_set_row lookup table
+  - name: sr-observation-code-version
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.code.coding.exists()'
+    bundleProperty: '%resource.code.coding.version'
+    value: [ '%resource.code.coding.code' ]
+    valueSet:
+      lookupTable:
+        tableName: sender_automation_value_set_row
+        keyColumn: code
+        valueColumn: version
 
   # Covid pipeline populates this date using a sender transform
   - name: sr-observation-date
