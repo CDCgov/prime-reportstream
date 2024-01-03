@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { FormEvent, useCallback, useRef, useState } from "react";
 import { Button, DateRangePicker } from "@trussworks/react-uswds";
 
 import "./TableFilters.css";
@@ -10,7 +10,9 @@ import {
 } from "../../hooks/filters/UseCursorManager";
 import {
     FALLBACK_FROM,
+    FALLBACK_FROM_STRING,
     FALLBACK_TO,
+    FALLBACK_TO_STRING,
     getEndOfDay,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
@@ -68,43 +70,89 @@ function TableFilters({
     const isFilterEnabled = Boolean(
         rangeFrom && rangeTo && rangeFrom < rangeTo,
     );
+    const formRef = useRef<HTMLFormElement>(null);
 
-    const updateRange = () => {
-        filterManager.updateRange({
-            type: RangeSettingsActionType.RESET,
-            payload: { from: rangeFrom, to: rangeTo },
-        });
-        cursorManager &&
-            cursorManager.update({
+    const updateRange = useCallback(
+        (from: string, to: string) => {
+            filterManager.updateRange({
+                type: RangeSettingsActionType.RESET,
+                payload: { from, to },
+            });
+            cursorManager?.update({
                 type: CursorActionType.RESET,
                 payload:
-                    filterManager.sortSettings.order === "DESC"
-                        ? rangeTo
-                        : rangeFrom,
+                    filterManager.sortSettings.order === "DESC" ? to : from,
             });
-    };
+        },
+        [cursorManager, filterManager],
+    );
 
     /* Pushes local state to context and resets cursor to page 1 */
-    const applyToFilterManager = () => {
-        updateRange();
+    const applyToFilterManager = useCallback(
+        (from: string, to: string) => {
+            updateRange(from, to);
 
-        // call onFilterClick with the specified range
-        if (onFilterClick) onFilterClick({ from: rangeFrom, to: rangeTo });
-    };
+            // call onFilterClick with the specified range
+            if (onFilterClick) onFilterClick({ from, to });
+        },
+        [onFilterClick, updateRange],
+    );
 
     /* Clears manager and local state values */
-    const clearAll = () => {
-        // Clears manager state
-        filterManager.resetAll();
-        cursorManager && cursorManager.update({ type: CursorActionType.RESET });
+    const resetHandler = useCallback(
+        (e: FormEvent) => {
+            e.preventDefault();
+            if (formRef.current) {
+                /*
+                 * can't use refs with DateRangePicker, so we go through
+                 * form. we set values manaully and also manually have to
+                 * invoke an input event (programatic value setting doesn't
+                 * trigger). the input event will allow DateRangePicker to
+                 * properly update internal state while we update the
+                 * filtermanager with our manual reset values.
+                 */
+                const startDateEle = formRef.current.elements.namedItem(
+                    "start-date",
+                ) as HTMLInputElement;
+                const endDateEle = formRef.current.elements.namedItem(
+                    "end-date",
+                ) as HTMLInputElement;
 
-        // Not ideal but updating state was not enough to clear out the date fields.
-        window.location.reload();
-    };
+                startDateEle.value = FALLBACK_FROM_STRING;
+                startDateEle.dispatchEvent(
+                    new InputEvent("input", {
+                        bubbles: true,
+                    }),
+                );
+                endDateEle.value = FALLBACK_TO_STRING;
+                endDateEle.dispatchEvent(
+                    new InputEvent("input", {
+                        bubbles: true,
+                    }),
+                );
+
+                applyToFilterManager(FALLBACK_FROM, FALLBACK_TO);
+            }
+        },
+        [applyToFilterManager],
+    );
+
+    const submitHandler = useCallback(
+        (e: FormEvent) => {
+            e.preventDefault();
+            applyToFilterManager(rangeFrom, rangeTo);
+        },
+        [applyToFilterManager, rangeFrom, rangeTo],
+    );
 
     return (
         <div data-testid="filter-container" className={StyleClass.CONTAINER}>
-            <div className="grid-row display-flex flex-align-end">
+            <form
+                className="grid-row display-flex flex-align-end"
+                ref={formRef}
+                onSubmit={submitHandler}
+                onReset={resetHandler}
+            >
                 <DateRangePicker
                     className={StyleClass.DATE_CONTAINER}
                     startDateLabel={startDateLabel}
@@ -120,7 +168,6 @@ function TableFilters({
                             }
                         },
                         defaultValue: rangeFrom,
-                        value: rangeFrom,
                     }}
                     endDateLabel={endDateLabel}
                     endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
@@ -141,26 +188,17 @@ function TableFilters({
                 />
                 <div className="button-container">
                     <div className={StyleClass.DATE_CONTAINER}>
-                        <Button
-                            disabled={!isFilterEnabled}
-                            onClick={applyToFilterManager}
-                            type={"button"}
-                        >
+                        <Button disabled={!isFilterEnabled} type={"submit"}>
                             Filter
                         </Button>
                     </div>
                     <div className={StyleClass.DATE_CONTAINER}>
-                        <Button
-                            onClick={clearAll}
-                            type={"button"}
-                            name="clear-button"
-                            unstyled
-                        >
+                        <Button type={"reset"} name="clear-button" unstyled>
                             Clear
                         </Button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     );
 }
