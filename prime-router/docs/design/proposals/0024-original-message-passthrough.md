@@ -162,12 +162,13 @@ The overall design of the sendOriginal feature is as follows:
 ### Issues to be created
 
 * Add header to `receive` step to allow sender to supply original filename and store in database
-  field `report_file.external_name`. Additionally, implement sendOriginal Topic setting and reject submissions
-  containing more than one report under a sendOriginal Topic.
-* Write function to look up original filename and blob URL for a given report ID, and add step to `translate` function
-  to check message topic, copy the original blob with original filename (with report ID appended), and insert into send
-  queue.
+  field `report_file.external_name`.
+* Implement the sendOriginal Topic setting, write function to look up original filename and blob URL for a given report
+  ID, add step to `translate` function to check message topic, copy the original blob with original filename (with
+  report ID appended), and insert into send queue.
     * The database currently requires blobURLs to be unique. Appending the report ID to the original filename should
       satisfy this requirement. Another approach to guaranteeing the blobURL remains unique is to add a virtual
       directory to the blobURL that uniquely identifies the receiver. The existing process to retrieve the filename
       based on blobURL should still function as expected.
+* Optionally, add a check to the `receive` step to reject submissions in cases where only one report is expected but
+  multiple reports are received.
