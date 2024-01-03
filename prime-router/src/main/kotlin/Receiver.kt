@@ -247,7 +247,7 @@ open class Receiver(
     fun consistencyErrorMessage(metadata: Metadata): String? {
         if (conditionFilter.isNotEmpty() || mappedConditionFilter.isNotEmpty()) {
             if (!topic.isUniversalPipeline) {
-                return "Condition filters not allowed for receivers with topic '${topic.jsonVal}'"
+                return "Condition filter(s) not allowed for receivers with topic '${topic.jsonVal}'"
             }
         }
 

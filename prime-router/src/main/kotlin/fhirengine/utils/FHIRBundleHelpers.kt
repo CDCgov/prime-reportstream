@@ -376,7 +376,7 @@ fun Bundle.filterMappedObservations(
     conditionFilter: ReportStreamConditionFilter,
 ): Bundle {
     val codes = conditionFilter.codes()
-    val observations = this.entry.map { it.resource }.filterIsInstance<Observation>()
+    val observations = this.getObservations()
     val toKeep = observations.filter { it.getMappedConditions().any(codes::contains) }.map { it.idBase }
     val filteredBundle = this.copy()
     observations.forEach {

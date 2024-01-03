@@ -9,8 +9,10 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import ca.uhn.fhir.context.FhirContext
 import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.CodeStringConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Metadata
@@ -30,6 +32,7 @@ import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
 import io.mockk.spyk
+import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DiagnosticReport
@@ -53,6 +56,7 @@ import kotlin.test.assertFailsWith
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
+private const val VALID_ROUTING_DATA_URL = "src/test/resources/fhirengine/engine/routing/valid.fhir"
 private const val VALID_DATA_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
 private const val DIAGNOSTIC_REPORT_EXPRESSION = "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
 private const val MULTIPLE_OBSERVATIONS_URL = "src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir"
@@ -474,15 +478,29 @@ class FHIRBundleHelpersTests {
             emptyMap<String, String>().toMutableMap()
         )
 
-        val observations = bundle.entry.map {
-            it.resource
-        }.filterIsInstance<Observation>()
+        val observations = bundle.getObservations()
 
         assertThat(observations.size).isEqualTo(1)
         assertThat(observations[0].id).isEqualTo("Observation/1667861767955966000.f3f94c27-e225-4aac-b6f5-2750f45dac4f")
     }
 
-    // TODO: test filterMappedObservations
+    @Test
+    fun `test filterMappedObservations`() {
+        val fhirRecord = File(VALID_ROUTING_DATA_URL).readText()
+        val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
+        bundle.getObservations()[0].code.coding[0].addExtension(
+            conditionCodeExtensionURL, Coding("SOMESYSTEM", "840539006", "SOMECONDITION")
+        )
+
+        val filteredBundle = bundle.filterMappedObservations(
+            listOf(CodeStringConditionFilter("840539006"))
+        )
+
+        val filteredObservations = filteredBundle.getObservations()
+        assertThat(filteredObservations.size).isEqualTo(1)
+        assertThat(filteredObservations[0].id)
+            .isEqualTo("Observation/1667861767955966000.f3f94c27-e225-4aac-b6f5-2750f45dac4f")
+    }
 
     @Test
     fun `test batchMessages`() {

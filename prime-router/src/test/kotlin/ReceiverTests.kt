@@ -32,7 +32,7 @@ internal class ReceiverTests {
                 UnitTestUtils.simpleMetadata
             )
         ).isEqualTo(
-            "Condition filter not allowed for receivers with topic 'covid-19'"
+            "Condition filter(s) not allowed for receivers with topic 'covid-19'"
         )
     }
 
