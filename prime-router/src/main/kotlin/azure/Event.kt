@@ -1,16 +1,23 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.engine.BatchEventQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.ProcessEventQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.ReportEventQueueMessage
 import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 /**
- * A event represents a function call, either one that has just happened or on that will happen in the future.
+ * An event represents a function call, either one that has just happened or one that will happen in the future.
  * Events are sent to queues as messages or stored in a DB as columns of the Task table.
  */
 const val messageDelimiter = "&"
@@ -96,6 +103,76 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         fun parseQueueMessage(event: String): Event {
             // validate incoming queue message is in the expected format. This will error out with an
             //  IllegalStateException and message if it is not valid
+            val node: ObjectNode =
+                try {
+                    JacksonMapperUtilities.defaultMapper.readValue(event)
+                } catch (e: Exception) {
+                    return parseAndValidateOldQueueMessage(event)
+                }
+
+            val type = try {
+                node.get("type").asText()
+            } catch (e: Exception) {
+                return parseAndValidateOldQueueMessage(event)
+            }
+
+            return when (type) {
+                "report" -> {
+                    val reportEventQueueMessage =
+                        JacksonMapperUtilities.defaultMapper.readValue<ReportEventQueueMessage>(event)
+                    val at = if (reportEventQueueMessage.at.isNotEmpty()) {
+                        OffsetDateTime.parse(reportEventQueueMessage.at)
+                    } else {
+                        null
+                    }
+                    ReportEvent(
+                        reportEventQueueMessage.eventAction,
+                        reportEventQueueMessage.reportId,
+                        reportEventQueueMessage.emptyBatch,
+                        at
+                    )
+                }
+                "batch" -> {
+                    val batchEventQueueMessage =
+                        JacksonMapperUtilities.defaultMapper.readValue<BatchEventQueueMessage>(event)
+                    val at = if (batchEventQueueMessage.at.isNotEmpty()) {
+                        OffsetDateTime.parse(batchEventQueueMessage.at)
+                    } else {
+                        null
+                    }
+                    BatchEvent(
+                        batchEventQueueMessage.eventAction,
+                        batchEventQueueMessage.receiverName,
+                        batchEventQueueMessage.emptyBatch,
+                        at
+                    )
+                }
+                "process" -> {
+                    val processEventQueueMessage =
+                        JacksonMapperUtilities.defaultMapper.readValue<ProcessEventQueueMessage>(event)
+                    val at = if (processEventQueueMessage.at.isNotEmpty()) {
+                        OffsetDateTime.parse(processEventQueueMessage.at)
+                    } else {
+                        null
+                    }
+                    ProcessEvent(
+                        processEventQueueMessage.eventAction,
+                        processEventQueueMessage.reportId,
+                        processEventQueueMessage.options,
+                        processEventQueueMessage.defaults,
+                        processEventQueueMessage.routeTo,
+                        at
+                    )
+                }
+                else -> error("Internal Error: invalid event type: $event")
+            }
+        }
+
+        /**
+         * todo: remove in
+         * https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/12614
+         */
+        private fun parseAndValidateOldQueueMessage(event: String): Event {
             val parts = parseAndValidateEvent(event)
 
             val action = EventAction.parseQueueMessage(parts[1])
@@ -142,6 +219,8 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         }
 
         /**
+         * todo: remove in
+         *    https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/12614
          * Receives incoming [event] string from the queue, breaks it into segments, verifies the correct number
          * of segments are present based on event type, and returns the list of parts.
          */
@@ -194,18 +273,11 @@ class ProcessEvent(
     val retryToken: RetryToken? = null,
 ) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
-        // turn the defaults and route to into strings that can go on the process queue
-        val routeToQueueParam = routeTo.joinToString(",")
-        val defaultsQueueParam = defaults.map { pair -> "${pair.key}:${pair.value}" }.joinToString(",")
-
-        // determine if these parts of the queue message are present
-        val atClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
-        val defaultClause = if (defaultsQueueParam.isEmpty()) "" else defaultsQueueParam
-        val routeToClause = if (routeToQueueParam.isEmpty()) "" else routeToQueueParam
-
-        // generate the process queue message
-        return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId$messageDelimiter$options" +
-            "$messageDelimiter$defaultClause$messageDelimiter$routeToClause$messageDelimiter$atClause"
+        val afterClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
+        val queueMessage = ProcessEventQueueMessage(
+            eventAction, reportId, options, defaults, routeTo, afterClause
+        )
+        return ObjectMapper().writeValueAsString(queueMessage)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -238,9 +310,11 @@ class ReportEvent(
 ) : Event(eventAction, at) {
 
     override fun toQueueMessage(): String {
-        val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId" +
-            "$messageDelimiter$isEmptyBatch$afterClause"
+        val afterClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
+        val queueMessage = ReportEventQueueMessage(
+            eventAction, isEmptyBatch, reportId, afterClause
+        )
+        return ObjectMapper().writeValueAsString(queueMessage)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -273,9 +347,11 @@ class BatchEvent(
     at: OffsetDateTime? = null,
 ) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
-        val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        return "$eventType$messageDelimiter$eventAction$messageDelimiter$receiverName" +
-            "$messageDelimiter$isEmptyBatch$afterClause"
+        val afterClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
+        val queueMessage = BatchEventQueueMessage(
+            eventAction, receiverName, isEmptyBatch, afterClause
+        )
+        return ObjectMapper().writeValueAsString(queueMessage)
     }
 
     override fun equals(other: Any?): Boolean {

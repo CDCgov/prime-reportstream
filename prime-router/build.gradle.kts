@@ -801,8 +801,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.45.0")
-    implementation("com.azure:azure-core-http-netty:1.13.10")
+    implementation("com.azure:azure-core:1.45.1")
+    implementation("com.azure:azure-core-http-netty:1.13.11")
     // pin io.projectreactor.netty:reactor-netty-http@1.0.39
     implementation("io.projectreactor.netty:reactor-netty-http:1.0.39")
     implementation("com.azure:azure-storage-blob:12.25.1") {
@@ -815,21 +815,21 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.11.0") {
+    implementation("com.azure:azure-identity:1.11.1") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("org.apache.logging.log4j:log4j-api:[2.17.1,)")
-    implementation("org.apache.logging.log4j:log4j-core:[2.17.1,)")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
+    implementation("org.apache.logging.log4j:log4j-api:2.22.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.22.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.22.0")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.3.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.2")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.4")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
