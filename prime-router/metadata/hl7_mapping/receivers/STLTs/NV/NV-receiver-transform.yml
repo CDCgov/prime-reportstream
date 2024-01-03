@@ -14,3 +14,19 @@ elements:
     condition: true
     value: [ '"11D2030855"' ]
     hl7Spec: [ 'MSH-4-2' ]
+
+  - name: nv-receiving-application
+    condition: true
+    value: [ '"NVDOH"' ]
+    hl7Spec: [ 'MSH-5' ]
+
+  - name: nv-receiving-facility
+    condition: true
+    value: [ '"NVDOH"' ]
+    hl7Spec: [ 'MSH-6' ]
+
+  - name: nv-receiving-facility
+    condition: '%resource.where(basedOn.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date")).exists()'
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    value: [ '%resource.basedOn.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date").value.toString()' ]
+    hl7Spec: [ '/ORDER/OBSERVATION_REQUEST/OBR-8' ]
