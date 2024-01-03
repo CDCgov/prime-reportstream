@@ -483,13 +483,13 @@ class TranslationTests {
          * @return returns the updated bundle as a byte input stream
          */
         private fun runSenderTransformOrEnrichment(bundle: InputStream, schema: String?): InputStream {
-            val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
-            val transformedBundle = if (!schema.isNullOrEmpty()) {
-                FhirTransformer(schema).transform(fhirBundle)
-            } else {
-                fhirBundle
+            var fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
+            if (!schema.isNullOrEmpty()) {
+                schema.split(",").forEach { currentEnrichmentSchema ->
+                    fhirBundle = FhirTransformer(currentEnrichmentSchema).transform(fhirBundle)
+                }
             }
-            val fhirJson = FhirTranscoder.encode(transformedBundle)
+            val fhirJson = FhirTranscoder.encode(fhirBundle)
             return fhirJson.byteInputStream()
         }
 
