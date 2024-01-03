@@ -477,6 +477,7 @@ extension:
 
     - expressionType: nested
       generateList: true
+      specs: NTE
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -484,9 +485,6 @@ extension:
         valueAnnotation:
           valueOf: datatype/Annotation
           expressionType: resource
-          condition: $annotationText NOT_NULL
-          vars:
-            annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
 
     - expressionType: nested
       condition: tribalCitizenship NOT_NULL
