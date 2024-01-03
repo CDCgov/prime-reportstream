@@ -609,7 +609,11 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/message-details/:id",
-                element: <MessageDetailsPage />,
+                element: (
+                    <RequireGate auth>
+                        <MessageDetailsPage />
+                    </RequireGate>
+                ),
             },
             /* Handles any undefined route */
             {
