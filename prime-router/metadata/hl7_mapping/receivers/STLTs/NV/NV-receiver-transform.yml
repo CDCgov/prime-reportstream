@@ -25,8 +25,8 @@ elements:
     value: [ '"NVDOH"' ]
     hl7Spec: [ 'MSH-6' ]
 
-  - name: nv-receiving-facility
-    condition: '%resource.where(basedOn.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date")).exists()'
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
-    value: [ '%resource.basedOn.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date").value.toString()' ]
-    hl7Spec: [ '/ORDER/OBSERVATION_REQUEST/OBR-8' ]
+#  - name: nv-receiving-facility
+#    condition: '%resource.where(basedOn.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date")).exists()'
+#    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+#    value: [ '%resource.basedOn.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date").value.toString()' ]
+#    hl7Spec: [ '/ORDER/OBSERVATION_REQUEST/OBR-8' ]
