@@ -31,12 +31,12 @@ a `send` task for the item, bypassing the `batch` step.
 The following proposed implementations can be grouped into two major approaches: storing the HL7v2 data within the FHIR
 bundle (in the case of an HL7v2 input message), or utilizing the blobURL of the original item upload. In summary:
 
-| Feature Implementation                               | Original message available to FHIR (non sendOriginal) receivers | Requires additional storage | Requires convert step changes | Requires translate step changes 
-|------------------------------------------------------|-----------------------------------------------------------------|-----------------------------|-------------------------------|---------------------------------
-| Store body in bundle (add feature to FHIR converter) | Yes                                                             | Yes                         | Yes                           | Yes                             
-| Store body in bundle (bundle enhancement)            | Yes                                                             | Yes                         | Yes                           | Yes                             
-| Store blobURL in bundle (bundle enhancement)         | No                                                              | Yes                         | No                            | Yes                             
-| Retrieve blobURL from database                       | No                                                              | No                          | No                            | Yes                             
+| Feature Implementation                               | Original message available to FHIR (non sendOriginal) receivers | Requires additional storage | Requires convert step changes | Requires translate step changes |
+|------------------------------------------------------|-----------------------------------------------------------------|-----------------------------|-------------------------------|---------------------------------|
+| Store body in bundle (add feature to FHIR converter) | Yes                                                             | Yes                         | Yes                           | Yes                             |
+| Store body in bundle (bundle enhancement)            | Yes                                                             | Yes                         | Yes                           | Yes                             |
+| Store blobURL in bundle (bundle enhancement)         | No                                                              | Yes                         | No                            | Yes                             |
+| Retrieve blobURL from database                       | No                                                              | No                          | No                            | Yes                             |
 
 ### Store body of file in custom FHIR extension
 
@@ -162,10 +162,11 @@ The overall design of the sendOriginal feature is as follows:
 ### Issues to be created
 
 * Add header to `receive` step to allow sender to supply original filename and store in database
-  field `report_file.external_name`
-* Write function to look up original filename and blob URL for a given report ID
-* Add step to `translate` function to check message topic, copy the original blob with original filename (with report ID
-  appended), and insert into send queue
+  field `report_file.external_name`. Additionally, implement sendOriginal Topic setting and reject submissions
+  containing more than one report under a sendOriginal Topic.
+* Write function to look up original filename and blob URL for a given report ID, and add step to `translate` function
+  to check message topic, copy the original blob with original filename (with report ID appended), and insert into send
+  queue.
     * The database currently requires blobURLs to be unique. Appending the report ID to the original filename should
       satisfy this requirement. Another approach to guaranteeing the blobURL remains unique is to add a virtual
       directory to the blobURL that uniquely identifies the receiver. The existing process to retrieve the filename
