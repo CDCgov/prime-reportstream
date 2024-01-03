@@ -185,12 +185,6 @@ elements:
       - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text'
     hl7Spec: [ '%{hl7PIDField}-10-2' ]
 
-  # PID-10-3 for default value
-  - name: patient-race-coding-system
-    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
-    value: [ '"HL70005"' ]
-    hl7Spec: [ '%{hl7PIDField}-10-3' ]
-
   # PID-22 use coded element mapping
   - name: patient-ethnicity
     constants:

@@ -15,7 +15,8 @@ elements:
 
   - name: multiple-birth-indicator
     hl7Spec: [ '%{hl7PIDField}-30' ]
-    value: [ '%resource.extension.where(url = "pid-30-patient-death-indicator").value' ]
+    value: [ '%resource.extension.where(url = "pid-30-patient-death-indicator").value',
+    ]
 
   - name: identity-reliability-code
     resource: '%resource.extension.where(url = "pid-32-identity-reliability-code").value'

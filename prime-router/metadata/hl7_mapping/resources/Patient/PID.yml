@@ -63,7 +63,7 @@ elements:
     resourceIndex: xadIndex
 
   - name: phone-number-home-mobile-email
-    resource: '%resource.telecom.where(use = "home" and extension(%`rsext-hl7v2Name`).exists().not())'
+    resource: '%resource.telecom.where((use = "home" or use = "mobile") and extension(%`rsext-hl7v2Name`).exists().not())'
     constants:
       hl7TelecomField: '%{hl7PIDField}-13'
     schema: ../../datatypes/contactPoint/XTN
@@ -171,6 +171,20 @@ elements:
     condition: '%resource.extension(%`rsext-identity-unknown`).exists()'
     value: [ '%resource.extension(%`rsext-identity-unknown`).value' ]
     hl7Spec: [ '%{hl7PIDField}-31' ]
+
+  - name: patient-death-indicator-1
+    condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
+    value: [ '"Y"' ]
+    hl7Spec: [ '%{hl7PIDField}-30' ]
+
+  - name: patient-death-indicator-2
+    condition: '%resource.deceased.exists() and %resource.deceased is boolean'
+    value: [ '%resource.deceased' ]
+    hl7Spec: [ '%{hl7PIDField}-30' ]
+    valueSet:
+      values:
+        true: Y
+        false: N
 
   - name: patient-last-updated-at
     condition: '%context.meta.lastUpdated.exists() and %context.meta.lastUpdated is instant'
