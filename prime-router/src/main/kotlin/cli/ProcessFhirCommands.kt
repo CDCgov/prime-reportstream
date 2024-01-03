@@ -65,10 +65,12 @@ class ProcessFhirCommands : CliktCommand(
         .choice(Report.Format.HL7.toString(), Report.Format.FHIR.toString()).required()
 
     /**
-     * The file to use for data enrichment.
+     * String of file names
      */
-    private val enrichmentSchemaName by option("--enrichment-schema", help = "enrichment schema name")
-        .file()
+    private val enrichmentSchemaName by option(
+        "--enrichment-schema",
+        help = "comma separated enrichment schema name(s) from current directory"
+    )
 
     /**
      * The message number to use if the file is an HL7 batch message.
@@ -277,11 +279,11 @@ class ProcessFhirCommands : CliktCommand(
      * Applies the enrichment schema to the bundle.
      */
     private fun applyEnrichmentSchema(bundle: Bundle) {
-        if (enrichmentSchemaName != null) {
-            if (!enrichmentSchemaName!!.canRead()) {
-                throw CliktError("Unable to read enrichment schema file ${enrichmentSchemaName!!.absolutePath}.")
+        if (!enrichmentSchemaName.isNullOrEmpty()) {
+            enrichmentSchemaName!!.split(",").forEach { currentEnrichmentSchemaName ->
+                val fileNamePieces = currentEnrichmentSchemaName.split(".")
+                FhirTransformer(fileNamePieces.first()).transform(bundle)
             }
-            FhirTransformer(enrichmentSchemaName!!.name.split(".")[0], enrichmentSchemaName!!.parent).transform(bundle)
         }
     }
 

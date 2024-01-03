@@ -113,6 +113,7 @@ class FHIRTranslator(
             receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
                 val transformer = FhirTransformer(enrichmentSchemaName)
                 transformer.transform(bundle)
+                logger.info("Applying enrichment schema $enrichmentSchemaName")
             }
         }
         when (receiver.format) {
