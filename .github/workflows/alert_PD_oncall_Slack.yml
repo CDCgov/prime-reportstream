@@ -28,20 +28,14 @@ jobs:
       run: |
         echo  ${env:OnCallPerson}
 
-    - name: Get PD onCall Details
-      id: PDOnCallTest
-      shell: pwsh
-      run: |
-        echo   ${{ steps.PDOnCall }}
-
-    # - name: Slack Notification
-    #   uses: ./.github/actions/notifications
-    #   with:
-    #     method: slack
-    #     title: Pagerduty 
-    #     message: |
-    #       ${{ steps.PDOnCall.outputs.LIST }}
-    #     icon-emoji: ':bell:'
-    #     channel: pagerduty-alert-dump
-    #     webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-    #     color: warning
+    - name: Slack Notification
+      uses: ./.github/actions/notifications
+      with:
+        method: slack
+        title: Pagerduty 
+        message: |
+          ${{ steps.PDOnCall }}
+        icon-emoji: ':bell:'
+        channel: pagerduty-alert-dump
+        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        color: warning
