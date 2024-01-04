@@ -20,7 +20,7 @@ jobs:
       id: PD
       shell: pwsh
       run: |
-        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}"    
+        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}" -ScheduleId "${{ secrets.PD_ReportStream_ScheduleId }}"
     
     - name: Get PD onCall Details
       id: PDOnCall
