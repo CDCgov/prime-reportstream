@@ -1,5 +1,5 @@
 locals {
-  environment = "bcr"
+  environment = "bcr01"
   address_id  = 8
   init = {
     environment           = local.environment
