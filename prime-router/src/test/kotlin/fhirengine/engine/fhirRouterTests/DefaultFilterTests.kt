@@ -259,7 +259,7 @@ class DefaultFilterTests {
     }
 
     @Test
-    fun `test processModeFilter default pass (bundle mode = 'P')`() {
+    fun `test processingIdFilter default pass (bundle mode = 'P')`() {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -279,7 +279,7 @@ class DefaultFilterTests {
     }
 
     @Test
-    fun `test processModeFilter default fail (mode = 'T')`() {
+    fun `test processingIdFilter default fail (mode = 'T')`() {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -504,7 +504,7 @@ class DefaultFilterTests {
     }
 
     @Test
-    fun `9 test qualFilter default - succeed, full first line, patient street, occurrence`() {
+    fun `9 test qualityFilter default - succeed, full first line, patient street, occurrence`() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_9.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
 

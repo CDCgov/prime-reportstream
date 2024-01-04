@@ -15,7 +15,7 @@ enum class ReportStreamFilterType(val field: String) {
     JURISDICTIONAL_FILTER("jurisdictionalFilter"),
     QUALITY_FILTER("qualityFilter"),
     ROUTING_FILTER("routingFilter"),
-    PROCESSING_MODE_FILTER("processingIdFilter"),
+    PROCESSING_ID_FILTER("processingIdFilter"),
     CONDITION_FILTER("conditionFilter"),
     ;
 

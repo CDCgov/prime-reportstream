@@ -138,7 +138,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             routingFilteredReport,
             receiver,
             organization,
-            ReportStreamFilterType.PROCESSING_MODE_FILTER,
+            ReportStreamFilterType.PROCESSING_ID_FILTER,
             trackingElement,
             doLogging = true
         )

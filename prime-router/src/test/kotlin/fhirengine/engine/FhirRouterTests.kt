@@ -486,7 +486,7 @@ class FhirRouterTests {
         val qualFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         // This routing filter evaluates to true
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        // This processing mode filter evaluates to true
+        // This processing id filter evaluates to true
         val processingIdFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingIdFilter)
@@ -681,7 +681,7 @@ class FhirRouterTests {
             assertThat(messages).isEmpty()
             assertThat(actionHistory.actionLogs).hasSize(1)
             val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
-            assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+            assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_ID_FILTER)
         }
     }
 
@@ -1339,7 +1339,7 @@ class FhirRouterTests {
         val qualFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         // This routing filter evaluates to false
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_10)
-        // This processing mode filter evaluates to true
+        // This processing id filter evaluates to true
         val processingIdFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         // This condition filter evaluates to true
         val condFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
@@ -1359,7 +1359,7 @@ class FhirRouterTests {
     }
 
     @Test
-    fun `test applyFilters logs results for processing mode filters`() {
+    fun `test applyFilters logs results for processing id filters`() {
         val fhirData = File(QUALITY_TEST_URL).readText()
         val bundle = FhirTranscoder.decode(fhirData)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -1369,7 +1369,7 @@ class FhirRouterTests {
         val qualFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         // This routing filter evaluates to true
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        // This processing mode filter evaluates to false
+        // This processing id filter evaluates to false
         val processingIdFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_10)
         // This condition filter evaluates to true
         val condFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
@@ -1379,12 +1379,12 @@ class FhirRouterTests {
         // act
         val receivers = engine.findReceiversForBundle(bundle, report.id, actionHistory, Topic.FULL_ELR)
 
-        // assert only the processing mode filter didn't pass
+        // assert only the processing id filter didn't pass
 
         assertThat(actionHistory.actionLogs).isNotEmpty()
         assertThat(actionHistory.actionLogs.count()).isEqualTo(1)
         val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
-        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_ID_FILTER)
         assertThat(receivers).isEmpty()
     }
 
@@ -1400,7 +1400,7 @@ class FhirRouterTests {
         val qualFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         // This routing filter evaluates to true
         val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        // This processing mode filter evaluates to true
+        // This processing id filter evaluates to true
         val processingIdFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         // This condition filter evaluates to false
         val condFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_10)
@@ -1425,7 +1425,7 @@ class FhirRouterTests {
         // content is not important, just get a Bundle
         val bundle = Bundle()
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        // This processing mode filter evaluates to false, is equivalent to the default processindModeFilter
+        // This processing id filter evaluates to false, is equivalent to the default processingIdFilter
         val processingIdFilter = listOf("%processingId = 'P'")
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         every { engine.evaluateFilterConditionAsAnd(any(), any(), any(), any(), any()) } returns Pair<Boolean, String?>(
@@ -1440,7 +1440,7 @@ class FhirRouterTests {
             report.id,
             actionHistory,
             oneOrganization.receivers[0],
-            ReportStreamFilterType.PROCESSING_MODE_FILTER,
+            ReportStreamFilterType.PROCESSING_ID_FILTER,
             false,
         )
 
@@ -1448,7 +1448,7 @@ class FhirRouterTests {
         assertThat(actionHistory.actionLogs).isNotEmpty()
         assertThat(actionHistory.actionLogs.count()).isEqualTo(1)
         val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
-        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_ID_FILTER)
         assertThat(reportStreamFilterResult.message).doesNotContain("default filter")
 
         actionHistory.actionLogs.clear()
@@ -1459,7 +1459,7 @@ class FhirRouterTests {
             report.id,
             actionHistory,
             oneOrganization.receivers[0],
-            ReportStreamFilterType.PROCESSING_MODE_FILTER,
+            ReportStreamFilterType.PROCESSING_ID_FILTER,
             false,
         )
 
@@ -1467,7 +1467,7 @@ class FhirRouterTests {
         assertThat(actionHistory.actionLogs).isNotEmpty()
         assertThat(actionHistory.actionLogs.count()).isEqualTo(1)
         val reportStreamFilterResult2 = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
-        assertThat(reportStreamFilterResult2.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(reportStreamFilterResult2.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_ID_FILTER)
         assertThat(reportStreamFilterResult2.message).contains("")
     }
 
@@ -1476,7 +1476,7 @@ class FhirRouterTests {
         // content is not important, just get a Bundle
         val bundle = Bundle()
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        // This processing mode filter evaluates to false, is equivalent to the default processindModeFilter
+        // This processing id filter evaluates to false, is equivalent to the default processingIdFilter
         val nonBooleanFilter = listOf("'Non-Boolean Filter'")
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
@@ -1493,7 +1493,7 @@ class FhirRouterTests {
             report.id,
             actionHistory,
             oneOrganization.receivers[0],
-            ReportStreamFilterType.PROCESSING_MODE_FILTER,
+            ReportStreamFilterType.PROCESSING_ID_FILTER,
             false,
         )
 
@@ -1501,7 +1501,7 @@ class FhirRouterTests {
         assertThat(actionHistory.actionLogs).isNotEmpty()
         assertThat(actionHistory.actionLogs.count()).isEqualTo(1)
         val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
-        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.PROCESSING_ID_FILTER)
         assertThat(reportStreamFilterResult.message).contains(EXCEPTION_FOUND)
 
         val result2 = engine.evaluateFilterConditionAsAnd(
