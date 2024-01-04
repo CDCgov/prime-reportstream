@@ -21,4 +21,9 @@ jobs:
       shell: pwsh
       run: |
         ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}"    
-
+    
+    - name: Get PD onCall Details
+      id: PDOnCall
+      shell: pwsh
+      run: |
+        echo  ${env:OnCallPerson}
