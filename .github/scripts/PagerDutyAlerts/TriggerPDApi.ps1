@@ -42,5 +42,7 @@ $json1 = $data | ConvertTo-Json
 $jsonstring=$json1 | ConvertFrom-Json | ConvertTo-Json -Compress -Depth 100
  Write-Host $jsonstring
 
-echo "PersonName=$val.oncalls.user.name"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-echo "NextPersonName=$Nextoncallval.oncalls.user.name"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+ $Name =$val.oncalls.user.name
+$NextPersonName=$Nextoncallval.oncalls.user.name
+echo "PersonName=$Name"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+echo "NextPersonName=$NextPersonName"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
