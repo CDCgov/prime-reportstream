@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -99,18 +98,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
 
     companion object {
         fun parseQueueMessage(event: String): Event {
-            // validate incoming queue message is in the expected format. This will error out with an
-            //  IllegalStateException and message if it is not valid
-<<<<<<< HEAD
-            val node: ObjectNode =
-                try {
-                    JacksonMapperUtilities.objectMapper.readValue(event)
-                } catch (e: Exception) {
-                    return parseAndValidateOldQueueMessage(event)
-                }
-=======
             val message = JacksonMapperUtilities.defaultMapper.readValue<QueueMessage>(event)
->>>>>>> origin/master
 
             return when (message) {
                 is ReportEventQueueMessage -> {
