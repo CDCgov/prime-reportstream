@@ -1,14 +1,13 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.Options
-import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.engine.BatchEventQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ProcessEventQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportEventQueueMessage
 import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
@@ -102,152 +101,61 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         fun parseQueueMessage(event: String): Event {
             // validate incoming queue message is in the expected format. This will error out with an
             //  IllegalStateException and message if it is not valid
+<<<<<<< HEAD
             val node: ObjectNode =
                 try {
                     JacksonMapperUtilities.objectMapper.readValue(event)
                 } catch (e: Exception) {
                     return parseAndValidateOldQueueMessage(event)
                 }
+=======
+            val message = JacksonMapperUtilities.defaultMapper.readValue<QueueMessage>(event)
+>>>>>>> origin/master
 
-            val type = try {
-                node.get("type").asText()
-            } catch (e: Exception) {
-                return parseAndValidateOldQueueMessage(event)
-            }
-
-            return when (type) {
-                "report" -> {
-                    val reportEventQueueMessage =
-                        JacksonMapperUtilities.defaultMapper.readValue<ReportEventQueueMessage>(event)
-                    val at = if (reportEventQueueMessage.at.isNotEmpty()) {
-                        OffsetDateTime.parse(reportEventQueueMessage.at)
+            return when (message) {
+                is ReportEventQueueMessage -> {
+                    val at = if (message.at.isNotEmpty()) {
+                        OffsetDateTime.parse(message.at)
                     } else {
                         null
                     }
                     ReportEvent(
-                        reportEventQueueMessage.eventAction,
-                        reportEventQueueMessage.reportId,
-                        reportEventQueueMessage.emptyBatch,
+                        message.eventAction,
+                        message.reportId,
+                        message.emptyBatch,
                         at
                     )
                 }
-                "batch" -> {
-                    val batchEventQueueMessage =
-                        JacksonMapperUtilities.defaultMapper.readValue<BatchEventQueueMessage>(event)
-                    val at = if (batchEventQueueMessage.at.isNotEmpty()) {
-                        OffsetDateTime.parse(batchEventQueueMessage.at)
+                is BatchEventQueueMessage -> {
+                    val at = if (message.at.isNotEmpty()) {
+                        OffsetDateTime.parse(message.at)
                     } else {
                         null
                     }
                     BatchEvent(
-                        batchEventQueueMessage.eventAction,
-                        batchEventQueueMessage.receiverName,
-                        batchEventQueueMessage.emptyBatch,
+                        message.eventAction,
+                        message.receiverName,
+                        message.emptyBatch,
                         at
                     )
                 }
-                "process" -> {
-                    val processEventQueueMessage =
-                        JacksonMapperUtilities.defaultMapper.readValue<ProcessEventQueueMessage>(event)
-                    val at = if (processEventQueueMessage.at.isNotEmpty()) {
-                        OffsetDateTime.parse(processEventQueueMessage.at)
+                is ProcessEventQueueMessage -> {
+                    val at = if (message.at.isNotEmpty()) {
+                        OffsetDateTime.parse(message.at)
                     } else {
                         null
                     }
                     ProcessEvent(
-                        processEventQueueMessage.eventAction,
-                        processEventQueueMessage.reportId,
-                        processEventQueueMessage.options,
-                        processEventQueueMessage.defaults,
-                        processEventQueueMessage.routeTo,
+                        message.eventAction,
+                        message.reportId,
+                        message.options,
+                        message.defaults,
+                        message.routeTo,
                         at
                     )
                 }
                 else -> error("Internal Error: invalid event type: $event")
             }
-        }
-
-        /**
-         * todo: remove in
-         * https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/12614
-         */
-        private fun parseAndValidateOldQueueMessage(event: String): Event {
-            val parts = parseAndValidateEvent(event)
-
-            val action = EventAction.parseQueueMessage(parts[1])
-            return when (parts[0]) {
-                ReportEvent.eventType -> {
-                    val after = parts.getOrNull(4)?.let { OffsetDateTime.parse(it) }
-                    val reportId = UUID.fromString(parts[2])
-                    val isEmpty = parts[3] == "true"
-                    ReportEvent(action, reportId, isEmpty, after)
-                }
-                BatchEvent.eventType -> {
-                    val after = parts.getOrNull(4)?.let { OffsetDateTime.parse(it) }
-                    val isEmpty = parts[3] == "true"
-                    BatchEvent(action, parts[2], isEmpty, after)
-                }
-                ProcessEvent.eventType -> {
-                    // since process event type has multiple optional parameters, they will be either populated
-                    //  or a blank string
-                    val after = if (parts[6].isNotEmpty()) OffsetDateTime.parse(parts[6]) else null
-                    val reportId = UUID.fromString(parts[2])
-                    val options = Options.valueOfOrNone(parts[3])
-
-                    // convert incoming serialized routeTo string into List<String>
-                    val routeTo = if (parts[5].isNotEmpty()) {
-                        parts[5].split(ROUTE_TO_SEPARATOR)
-                    } else {
-                        emptyList()
-                    }
-
-                    // convert incoming defaults serialized string to Map<String,String>
-                    val defaults = if (parts[4].isNotEmpty()) {
-                        parts[4].split(',').associate { pair ->
-                            val defaultParts = pair.split(DEFAULT_SEPARATOR)
-                            Pair(defaultParts[0], defaultParts[1])
-                        }
-                    } else {
-                        emptyMap()
-                    }
-
-                    ProcessEvent(action, reportId, options, defaults, routeTo, after)
-                }
-                else -> error("Internal Error: invalid event type: $event")
-            }
-        }
-
-        /**
-         * todo: remove in
-         *    https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/12614
-         * Receives incoming [event] string from the queue, breaks it into segments, verifies the correct number
-         * of segments are present based on event type, and returns the list of parts.
-         */
-        private fun parseAndValidateEvent(event: String): List<String> {
-            val parts = event.split(messageDelimiter)
-            // verify the action has at least event type, action, and report id
-            if (parts.size < 3) error("Internal Error: Queue events require eventType, action, and reportId.")
-            when (parts[0]) {
-                // Report event requires 'event type', 'action', and 'report id'. 'at' is optional
-                ReportEvent.eventType -> {
-                    if (parts.size > 5) error("Internal Error: Report events can have no more than 4 parts.")
-                }
-                // Receiver event requires 'event type', 'action', 'receiver name'. 'at' is optional
-                BatchEvent.eventType -> {
-                    if (parts.size > 5) error("Internal Error: Batch events can have no more than 5 parts.")
-                }
-                // Process event requires 'event type', 'action', 'report id', and 'options'.
-                //  'route to', 'default' and 'at are optional but must be present (even if a blank string).
-                ProcessEvent.eventType -> {
-                    if (parts.size != 7) {
-                        error(
-                            "Internal Error: Process event requires 7 parts."
-                        )
-                    }
-                }
-                else -> error("Internal Error: invalid event type: $event")
-            }
-            return parts
         }
     }
 }
