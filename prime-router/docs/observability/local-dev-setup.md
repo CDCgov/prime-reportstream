@@ -2,8 +2,7 @@
 
 ## Prerequisites
  - CDC account 
- - SU access 
- - Azure portal access
+ - Azure Portal CDC Super User Access
 
 ## Steps
 1. Download the latest [Application Insights JAR](https://github.com/microsoft/ApplicationInsights-Java/releases)
@@ -27,15 +26,3 @@
 ## Extra Resources
 
 - [Official Microsoft Documentation](https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-enable?tabs=java)
-
-
-
-
-
-
-
-
-
-
-
-
