@@ -38,7 +38,6 @@ jobs:
           "Prime ReportStream PagerDuty on-call person Now": "${{ env.PersonName }}"
           "Prime ReportStream PagerDuty on-call person until": "${{ env.Until }}"
           "Prime ReportStream PagerDuty Next person on-call": "${{ env.NextPersonName }}"
-          "Prime ReportStream PagerDuty Next person on-call": "${{ env.NextPersonName }}"
           "Prime ReportStream PagerDuty Next person on-call from": "${{ env.NextFrom }}"
           "Prime ReportStream PagerDuty Next person on-call until": "${{ env.NextUntil }}"
         icon-emoji: ':bell:'
