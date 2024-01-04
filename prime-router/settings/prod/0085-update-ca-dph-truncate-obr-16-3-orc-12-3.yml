@@ -71,7 +71,7 @@
         - "orEquals(ordering_facility_state, CA, patient_state, CA)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "matches(processing_mode_code,T,D)"
       reverseTheQualityFilter: false
       deidentify: false
@@ -157,7 +157,7 @@
         - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id)"
         - "isValidCLIA(testing_lab_clia)"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:

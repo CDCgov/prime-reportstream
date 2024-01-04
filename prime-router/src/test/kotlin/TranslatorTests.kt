@@ -24,7 +24,7 @@ class TranslatorTests {
               jurisdictionalFilter: [ "allowAll()" ]
               qualityFilter: [ "allowAll()" ]
               routingFilter: [ "allowAll()" ]
-              processingModeFilter: [ "allowAll()" ]
+              processingIdFilter: [ "allowAll()" ]
             receivers: 
             - name: elr
               organizationName: phd1

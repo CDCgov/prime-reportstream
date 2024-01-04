@@ -95,7 +95,7 @@
     - "isValidCLIA(testing_lab_clia,reporting_facility_clia)"
     routingFilter:
     - "matches(test_result_status, F, S, P, C, X, I)"
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: false
     conditionFilter: []
     deidentify: false

@@ -73,7 +73,7 @@
         - "matches(ordering_facility_county, Chester, Delaware)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -157,7 +157,7 @@
         - "matches(ordering_facility_county, Montgomery)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -241,7 +241,7 @@
         - "matches(ordering_facility_county, Philadelphia)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -325,7 +325,7 @@
         - "matches(ordering_facility_county, Bucks)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -409,7 +409,7 @@
         - "matches(ordering_facility_county, Allegheny)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:

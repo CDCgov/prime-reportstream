@@ -67,7 +67,7 @@
     qualityFilter:
     - "true"
     routingFilter: []
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: false
     conditionFilter: []
     deidentify: false

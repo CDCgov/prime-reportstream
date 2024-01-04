@@ -189,7 +189,7 @@ components:
             - jurisdictionalFilter
             - qualityFilter
             - routingFilter
-            - processingModeFilter
+            - processingIdFilter
         filterName:
           description: the name of the filter function that removed the rows
           type: string

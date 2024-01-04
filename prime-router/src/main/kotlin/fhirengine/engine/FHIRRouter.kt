@@ -308,7 +308,7 @@ class FHIRRouter(
             // PROCESSING MODE FILTER
             //  default: allowAll
             passes = passes && evaluateFilterAndLogResult(
-                getProcessingModeFilter(receiver, orgFilters),
+                getProcessingIdFilter(receiver, orgFilters),
                 bundle,
                 reportId,
                 actionHistory,
@@ -619,14 +619,14 @@ class FHIRRouter(
      * filters from the parent organization and adds any processing mode filters from the receiver's settings. If there
      * are no filters in that result, returns the default filter instead.
      */
-    internal fun getProcessingModeFilter(
+    internal fun getProcessingIdFilter(
         receiver: Receiver,
         orgFilters: List<ReportStreamFilters>?,
     ): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic == receiver.topic }?.processingModeFilter
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.processingIdFilter
                 ?: emptyList()
-            ).plus(receiver.processingModeFilter)
+            ).plus(receiver.processingIdFilter)
     }
 
     /**

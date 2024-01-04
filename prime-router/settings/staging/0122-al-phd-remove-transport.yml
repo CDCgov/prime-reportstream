@@ -62,7 +62,7 @@
         - "orEquals(ordering_facility_state, AL, patient_state, AL)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       deidentifiedValue: ""
@@ -133,7 +133,7 @@
         - "orEquals(ordering_facility_state, AL, patient_state, AL)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "matches(processing_mode_code,T,D)"
       reverseTheQualityFilter: false
       deidentify: false

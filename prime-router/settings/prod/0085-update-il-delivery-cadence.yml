@@ -10,7 +10,7 @@
         - "orEquals(ordering_facility_state, IL, patient_state, IL)"
       qualityFilter: []
       routingFilter: null
-      processingModeFilter: null
+      processingIdFilter: null
   senders: []
   receivers:
     - name: "elr-secondary"
@@ -55,7 +55,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -112,7 +112,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:

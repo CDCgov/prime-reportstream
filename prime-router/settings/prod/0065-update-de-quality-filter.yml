@@ -53,7 +53,7 @@
         receivingOrganization: null
         type: "HL7"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -109,7 +109,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:

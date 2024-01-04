@@ -97,7 +97,7 @@
         - "isValidCLIA(testing_lab_clia)"
       routingFilter:
         - "DoesNotMatch(sender_id, pmg)"
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       deidentifiedValue: ""
@@ -206,7 +206,7 @@
       qualityFilter: []
       routingFilter:
         - "DoesNotMatch(sender_id, pmg)"
-      processingModeFilter:
+      processingIdFilter:
         - "matches(processing_mode_code,T,D)"
       reverseTheQualityFilter: false
       deidentify: false

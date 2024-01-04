@@ -60,7 +60,7 @@
       qualityFilter: []
       routingFilter:
         - "matches(test_result_status, F, S, P, C, X, I)"
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -134,7 +134,7 @@
       qualityFilter: []
       routingFilter:
         - "matches(test_result_status, F, S, P, C, X, I)"
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:

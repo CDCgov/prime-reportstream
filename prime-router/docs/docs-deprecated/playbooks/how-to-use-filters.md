@@ -42,7 +42,7 @@ As of this writing, ReportStream applies four rounds of filtering rules, in this
 1. jurisdictionalFilter
 2. qualityFilter
 3. routingFilter
-4. processingModeFilter
+4. processingIdFilter
 
 The code that does filtering is in Translator.kt.
 
@@ -85,7 +85,7 @@ receivers:
 - name: "secondary"
   reverseTheQualityFilter: true
 - name: "test"
-  processingModeFilter: [ "matches(processing_mode_code, T)" ]
+  processingIdFilter: [ "matches(processing_mode_code, T)" ]
 ```
 
 #### Explanation
@@ -96,11 +96,11 @@ receivers:
 
 - **routingFilter**.  This is meant for general purpose usage.  The default for topic covid-19 is `allowAll()`, that is, it does no filtering.  Individual Organizations and/or Receivers can override this and apply more stringent rules as desired.  The original use case for routingFilter was when an Organization wants to disallow data from any one particular sender_id, as in the example above.
 
-- **processingModeFilter**.  The default for covid-19 is `doesNotMatch(processing_mode_code, T, D)`.  Generally you should *never* override this, unless you have a receiver that specifically wants test data, as in the `test` receiver in the example.  The default processingModeFilter is a valuable check, and its what allows our senders to safely end junk/test/training PII data to our Production system, knowing it won't be forwarded to receivers.  That's why it gets it own special filter type.
+- **processingIdFilter**.  The default for covid-19 is `doesNotMatch(processing_mode_code, T, D)`.  Generally you should *never* override this, unless you have a receiver that specifically wants test data, as in the `test` receiver in the example.  The default processingIdFilter is a valuable check, and its what allows our senders to safely end junk/test/training PII data to our Production system, knowing it won't be forwarded to receivers.  That's why it gets it own special filter type.
 
 A few subtleties:
 
-- The `elr`, `flaky-baky` and `secondary` receivers will never get Test or Debug data, because they don't override the GlobalDefault processingModeFilter, which is always lurking in the background, to prevent that data from leaking through.
+- The `elr`, `flaky-baky` and `secondary` receivers will never get Test or Debug data, because they don't override the GlobalDefault processingIdFilter, which is always lurking in the background, to prevent that data from leaking through.
 - The `elr` `flaky-baky` and `test` receivers will only get "good" quality data, as determined by the Organization-level qualityFilter.
 - The `secondary` receiver will only get data that fails the qualityFilter.  It'll get all failed data, regardless of whether its for FlakyBakyTestsInc, or not.   
 - The `test` filter will get all the Training/Test data that passes the qualityFilter for the jurisdiction.

@@ -10,7 +10,7 @@ qualityFilter: [ "allowAll()" ]
 routingFilter:
   - matches(sender_fullname, ignore.ignore-empty)
   - matches(sender_orgname, ignore)
-processingModeFilter:
+processingIdFilter:
   - matches(processing_mode_code, T)
 timing:
   operation: MERGE

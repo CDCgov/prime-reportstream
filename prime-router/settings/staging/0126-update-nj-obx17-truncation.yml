@@ -18,7 +18,7 @@
     - "isValidCLIA(testing_lab_clia)"
     routingFilter:
     - "matches(test_result_status, F, C, P)"
-    processingModeFilter: null
+    processingIdFilter: null
   senders: []
   receivers:
   - name: "elr"
@@ -74,7 +74,7 @@
     jurisdictionalFilter: []
     qualityFilter: []
     routingFilter: []
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     deidentifiedValue: ""
@@ -145,7 +145,7 @@
     jurisdictionalFilter: []
     qualityFilter: []
     routingFilter: []
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: true
     deidentify: false
     deidentifiedValue: ""
@@ -216,7 +216,7 @@
     jurisdictionalFilter: []
     qualityFilter: []
     routingFilter: []
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     deidentifiedValue: ""
@@ -287,7 +287,7 @@
     jurisdictionalFilter: []
     qualityFilter: []
     routingFilter: []
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: true
     deidentify: false
     deidentifiedValue: ""

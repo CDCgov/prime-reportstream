@@ -218,7 +218,7 @@
         - "%specimen.type.exists()"
         - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
         - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
-      processingModeFilter:
+      processingIdFilter:
         - "%processingId.exists() and %processingId = 'P'"
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
@@ -245,7 +245,7 @@
       customerStatus: active
       qualityFilter:
         - "%messageId.exists()"
-      processingModeFilter:
+      processingIdFilter:
         - "%processingId.exists() and %processingId = 'P'"
       jurisdictionalFilter:
         - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
@@ -295,15 +295,15 @@
       topic: full-elr
       customerStatus: active
       qualityFilter:
-        - "%messageId.exists()"
-        - "%patient.name.family.exists()"
-        - "%patient.name.given.count() > 0"
-        - "%patient.birthDate.exists()"
-        - "%specimen.type.exists()"
-        - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
-        - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
-      processingModeFilter:
-        - "%processingId.exists() and %processingId = 'P'"
+      - "%messageId.exists()"
+      - "%patient.name.family.exists()"
+      - "%patient.name.given.count() > 0"
+      - "%patient.birthDate.exists()"
+      - "%specimen.type.exists()"
+      - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
+      - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
+      processingIdFilter:
+      - "%processingId.exists() and %processingId = 'P'"
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
         operation: MERGE
@@ -485,9 +485,9 @@
       customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
       qualityFilter:
-        - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
-        - hasAtLeastOneOf(message_id,blankField)
-        - matches(ordering_facility_county, QUALITY_PASS)
+      - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+      - hasAtLeastOneOf(message_id,blankField)
+      - matches(ordering_facility_county, QUALITY_PASS)
       translation:
         type: CUSTOM
         schemaName: empty
@@ -498,9 +498,9 @@
       customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
       qualityFilter:
-        - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
-        - hasAtLeastOneOf(message_id,blankField)
-        - matches(ordering_facility_county, QUALITY_REVERSED)
+      - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+      - hasAtLeastOneOf(message_id,blankField)
+      - matches(ordering_facility_county, QUALITY_REVERSED)
       # Get 'not(qualityFilter)'
       reverseTheQualityFilter: true
       translation:
@@ -628,7 +628,7 @@
       routingFilter:
         - matches(sender_fullname, ignore.ignore-empty)
         - matches(sender_orgname, ignore)
-      processingModeFilter:
+      processingIdFilter:
         # Because ignore.ignore-empty has customerStatus = active
         - matches(processing_mode_code, P)
       timing:
@@ -1063,7 +1063,7 @@
       jurisdictionalFilter: [ "true" ]
       qualityFilter:
         - "true"
-      processingModeFilter: [ "true" ]
+      processingIdFilter: [ "true" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1089,7 +1089,7 @@
       jurisdictionalFilter: [ "true" ]
       qualityFilter:
         - "true"
-      processingModeFilter: [ "true" ]
+      processingIdFilter: [ "true" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

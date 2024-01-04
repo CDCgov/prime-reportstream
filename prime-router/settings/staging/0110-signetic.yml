@@ -39,7 +39,7 @@
 #    qualityFilter:
 #    - "allowAll()"
 #    routingFilter: []
-#    processingModeFilter: []
+#    processingIdFilter: []
 #    reverseTheQualityFilter: false
 #    deidentify: true
 #    timing:

@@ -62,7 +62,7 @@
       \ and %patientState = 'AK')"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "%processingId = 'T'"
       reverseTheQualityFilter: false
       conditionFilter: []

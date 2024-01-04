@@ -71,7 +71,7 @@
         - "filterByCounty(AZ, Pima)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -109,7 +109,7 @@
         - "filterByCounty(AZ, Pima)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -174,7 +174,7 @@
         - "orEquals(ordering_facility_state, FL, patient_state, FL)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -236,7 +236,7 @@
         - "orEquals(ordering_facility_state, FL, patient_state, FL)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -306,7 +306,7 @@
         - "matches(ordering_facility_state, ND)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -376,7 +376,7 @@
         - "matches(ordering_facility_state, OH)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -446,7 +446,7 @@
         - "matches(ordering_facility_state, TX)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -508,7 +508,7 @@
         - "matches(ordering_facility_state, TX)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -569,7 +569,7 @@
         - "matches(ordering_facility_county, Chester, Delaware)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing: null
@@ -601,7 +601,7 @@
         - "matches(ordering_facility_county, Montgomery)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing: null
@@ -664,7 +664,7 @@
         - "matches(ordering_facility_county, RECEIVER1)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -727,7 +727,7 @@
         - "matches(ordering_facility_county, RECEIVER3)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -801,7 +801,7 @@
         - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id,ordering_facility_name)"
         - "isValidCLIA(testing_lab_clia)"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -867,7 +867,7 @@
         - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id,ordering_facility_name)"
         - "isValidCLIA(testing_lab_clia)"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -932,7 +932,7 @@
         - "orEquals(ordering_facility_state, WI, patient_state, WI)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1002,7 +1002,7 @@
         - "orEquals(ordering_facility_state, NC, patient_state, NC)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1072,7 +1072,7 @@
         - "orEquals(ordering_facility_state, DE, patient_state, DE)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1142,7 +1142,7 @@
         - "orEquals(ordering_facility_state, NH, patient_state, NH)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1212,7 +1212,7 @@
         - "orEquals(ordering_facility_state, AK, patient_state, AK)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1282,7 +1282,7 @@
         - "orEquals(ordering_facility_state, AS, patient_state, AS)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1352,7 +1352,7 @@
         - "orEquals(ordering_facility_state, CT, patient_state, CT)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1422,7 +1422,7 @@
         - "orEquals(ordering_facility_state, DC, patient_state, DC)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1492,7 +1492,7 @@
         - "orEquals(ordering_facility_state, FM, patient_state, FM)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1562,7 +1562,7 @@
         - "orEquals(ordering_facility_state, ID, patient_state, ID)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1632,7 +1632,7 @@
         - "orEquals(ordering_facility_state, IN, patient_state, IN)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1702,7 +1702,7 @@
         - "orEquals(ordering_facility_state, IA, patient_state, IA)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1772,7 +1772,7 @@
         - "orEquals(ordering_facility_state, KS, patient_state, KS)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1842,7 +1842,7 @@
         - "orEquals(ordering_facility_state, KY, patient_state, KY)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1912,7 +1912,7 @@
         - "orEquals(ordering_facility_state, ME, patient_state, ME)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -1982,7 +1982,7 @@
         - "orEquals(ordering_facility_state, MH, patient_state, MH)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2052,7 +2052,7 @@
         - "orEquals(ordering_facility_state, MO, patient_state, MO)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2122,7 +2122,7 @@
         - "orEquals(ordering_facility_state, NE, patient_state, NE)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2192,7 +2192,7 @@
         - "orEquals(ordering_facility_state, NV, patient_state, NV)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2262,7 +2262,7 @@
         - "orEquals(ordering_facility_state, NY, patient_state, NY)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2332,7 +2332,7 @@
         - "orEquals(ordering_facility_state, MP, patient_state, MP)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2402,7 +2402,7 @@
         - "orEquals(ordering_facility_state, OK, patient_state, OK)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2472,7 +2472,7 @@
         - "orEquals(ordering_facility_state, OR, patient_state, OR)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2542,7 +2542,7 @@
         - "orEquals(ordering_facility_state, PW, patient_state, PW)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2612,7 +2612,7 @@
         - "orEquals(ordering_facility_state, PR, patient_state, PR)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2682,7 +2682,7 @@
         - "orEquals(ordering_facility_state, RI, patient_state, RI)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2752,7 +2752,7 @@
         - "orEquals(ordering_facility_state, SC, patient_state, SC)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2822,7 +2822,7 @@
         - "orEquals(ordering_facility_state, SD, patient_state, SD)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2892,7 +2892,7 @@
         - "orEquals(ordering_facility_state, UT, patient_state, UT)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -2962,7 +2962,7 @@
         - "orEquals(ordering_facility_state, VI, patient_state, VI)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3032,7 +3032,7 @@
         - "orEquals(ordering_facility_state, VA, patient_state, VA)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3102,7 +3102,7 @@
         - "orEquals(ordering_facility_state, WV, patient_state, WV)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3172,7 +3172,7 @@
         - "orEquals(ordering_facility_state, WY, patient_state, WY)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3232,7 +3232,7 @@
       qualityFilter:
         - "allowAll()"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3269,7 +3269,7 @@
       qualityFilter:
         - "allowAll()"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: true
       timing:
@@ -3306,7 +3306,7 @@
       qualityFilter:
         - "allowAll()"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: true
       timing:
@@ -3343,7 +3343,7 @@
       qualityFilter:
         - "allowAll()"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: true
       timing:
@@ -3411,7 +3411,7 @@
         - "orEquals(ordering_facility_state, MD, patient_state, MD)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3522,7 +3522,7 @@
         - "matches(test_authorized_for_home, Y)"
         - "matches(test_authorized_for_unproctored, Y)"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: true
       timing: null
@@ -3548,7 +3548,7 @@
         - "matches(test_authorized_for_home, Y)"
         - "matches(test_authorized_for_unproctored, Y)"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: true
       timing: null
@@ -3574,7 +3574,7 @@
         - "matches(test_authorized_for_home, UNK)"
         - "matches(test_authorized_for_unproctored, UNK)"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: true
       timing: null
@@ -3597,7 +3597,7 @@
         - "matches(ordering_facility_county, HL7_BATCH)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3633,7 +3633,7 @@
         - "matches(ordering_facility_county, SFTP_FAIL)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3670,7 +3670,7 @@
       qualityFilter:
         - "allowAll()"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing: null
@@ -3695,7 +3695,7 @@
         - "hasValidDataFor(blankField)"
         - "hasAtLeastOneOf(message_id,blankField)"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing: null
@@ -3718,7 +3718,7 @@
         - "matches(ordering_facility_county, HL7)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3757,7 +3757,7 @@
         - "hasAtLeastOneOf(message_id,blankField)"
         - "matches(ordering_facility_county, QUALITY_PASS)"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing: null
@@ -3783,7 +3783,7 @@
         - "hasAtLeastOneOf(message_id,blankField)"
         - "matches(ordering_facility_county, QUALITY_REVERSED)"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing: null
@@ -3806,7 +3806,7 @@
         - "matches(ordering_facility_county, BLOBSTORE)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: true
       timing:
@@ -3840,7 +3840,7 @@
         - "matches(ordering_facility_county, CSV)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3876,7 +3876,7 @@
         - "matches(ordering_facility_county, HL7_NULL)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3936,7 +3936,7 @@
         - "matches(ordering_facility_county, EVERY_5_MINS)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -3999,7 +3999,7 @@
         - "matches(ordering_facility_county, EVERY_15_MINS)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -4037,7 +4037,7 @@
       routingFilter:
         - "matches(sender_fullname, ignore.ignore-empty)"
         - "matches(sender_orgname, ignore)"
-      processingModeFilter:
+      processingIdFilter:
         - "matches(processing_mode_code, P)"
       reverseTheQualityFilter: false
       deidentify: false
@@ -4076,7 +4076,7 @@
       routingFilter:
         - "matches(sender_fullname, ignore.ignore-empty)"
         - "matches(sender_orgname, ignore)"
-      processingModeFilter:
+      processingIdFilter:
         - "matches(processing_mode_code, P)"
       reverseTheQualityFilter: false
       deidentify: false
@@ -4235,7 +4235,7 @@
         - "orEquals(ordering_facility_state, TN, patient_state, TN)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -4297,7 +4297,7 @@
         - "orEquals(ordering_facility_state, TN, patient_state, TN)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -4367,7 +4367,7 @@
         - "orEquals(ordering_facility_state, MI, patient_state, MI)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -4429,7 +4429,7 @@
         - "orEquals(ordering_facility_state, MI, patient_state, MI)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -4477,7 +4477,7 @@
         - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
         - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -4574,7 +4574,7 @@
         - "orEquals(ordering_facility_state, MD, patient_state, MD)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -4636,7 +4636,7 @@
         - "orEquals(ordering_facility_state, MD, patient_state, MD)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -4723,7 +4723,7 @@
         - "matches(ordering_facility_county, Hillsborough)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -4766,7 +4766,7 @@
         - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
         - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -4896,7 +4896,7 @@
       qualityFilter:
         - "allowAll()"
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "allowAll()"
       reverseTheQualityFilter: false
       deidentify: true
@@ -4926,7 +4926,7 @@
         - "orEquals(ordering_facility_state, HI, patient_state, HI)"
       qualityFilter: null
       routingFilter: null
-      processingModeFilter: null
+      processingIdFilter: null
   senders: []
   receivers:
     - name: "elr"
@@ -4970,7 +4970,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -5004,7 +5004,7 @@
         - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
         - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
       routingFilter: null
-      processingModeFilter:
+      processingIdFilter:
         - "allowAll()"
   senders: []
   receivers:
@@ -5049,7 +5049,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -5110,7 +5110,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -5181,7 +5181,7 @@
         - "orEquals(ordering_facility_state, WA, patient_state, WA)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "allowAll()"
       reverseTheQualityFilter: false
       deidentify: false
@@ -5247,7 +5247,7 @@
         - "orEquals(ordering_facility_state, WA, patient_state, WA)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "allowAll()"
       reverseTheQualityFilter: false
       deidentify: false
@@ -5293,7 +5293,7 @@
         - "matches(ordering_facility_state,AZ)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "allowAll()"
       reverseTheQualityFilter: false
       deidentify: false
@@ -5364,7 +5364,7 @@
         - "orEquals(ordering_facility_state, AR, patient_state, AR)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "allowAll()"
       reverseTheQualityFilter: false
       deidentify: false
@@ -5435,7 +5435,7 @@
         - "orEquals(ordering_facility_state, GA, patient_state, GA)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "allowAll()"
       reverseTheQualityFilter: false
       deidentify: false
@@ -5484,7 +5484,7 @@
         - "matches(ordering_facility_county, Clark)"
       qualityFilter: null
       routingFilter: null
-      processingModeFilter: null
+      processingIdFilter: null
   senders: []
   receivers:
     - name: "elr-download"
@@ -5501,7 +5501,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -5532,7 +5532,7 @@
         - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id,ordering_facility_name)"
         - "isValidCLIA(testing_lab_clia)"
       routingFilter: null
-      processingModeFilter: null
+      processingIdFilter: null
   senders: []
   receivers:
     - name: "elr"
@@ -5576,7 +5576,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -5632,7 +5632,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -5688,7 +5688,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -5744,7 +5744,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -5786,7 +5786,7 @@
         - "orEquals(ordering_facility_state, IL, patient_state, IL)"
       qualityFilter: []
       routingFilter: null
-      processingModeFilter: null
+      processingIdFilter: null
   senders: []
   receivers:
     - name: "elr-secondary"
@@ -5830,7 +5830,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -5886,7 +5886,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -5917,7 +5917,7 @@
         - "isValidCLIA(testing_lab_clia,reporting_facility_clia)"
         - "doesNotMatch(processing_mode_code,T,D)"
       routingFilter: null
-      processingModeFilter: null
+      processingIdFilter: null
   senders: []
   receivers:
     - name: "elr"
@@ -5962,7 +5962,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -6024,7 +6024,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -6318,7 +6318,7 @@
         - "orEquals(ordering_facility_state, AL, patient_state, AL)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -6380,7 +6380,7 @@
         - "orEquals(ordering_facility_state, AL, patient_state, AL)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "matches(processing_mode_code,T,D)"
       reverseTheQualityFilter: false
       deidentify: false
@@ -6451,7 +6451,7 @@
         - "matches(patient_state, MT)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -6508,7 +6508,7 @@
         - "matches(patient_state, MT)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -6574,7 +6574,7 @@
       qualityFilter:
         - "allowAll()"
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -6617,7 +6617,7 @@
         - "matches(ordering_facility_state, NM)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "allowAll()"
       reverseTheQualityFilter: false
       deidentify: false
@@ -6675,7 +6675,7 @@
         - "matches(ordering_facility_state, NM)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter:
+      processingIdFilter:
         - "allowAll()"
       reverseTheQualityFilter: false
       deidentify: false
@@ -6762,7 +6762,7 @@
         - "orEquals(ordering_facility_state, MS, patient_state, MS)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -6832,7 +6832,7 @@
         - "orEquals(ordering_facility_state, MA, patient_state, MA)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -6894,7 +6894,7 @@
         - "orEquals(ordering_facility_state, MA, patient_state, MA)"
       qualityFilter: []
       routingFilter: []
-      processingModeFilter: []
+      processingIdFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:

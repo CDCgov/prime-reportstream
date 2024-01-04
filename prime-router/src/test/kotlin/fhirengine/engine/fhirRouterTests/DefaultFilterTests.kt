@@ -225,16 +225,16 @@ class DefaultFilterTests {
         assertThat(useDefaultResponseResult.second!!).contains("defaultResponse")
 
         // act
-        val useDefaultProcessingModeFilterResult = engine.evaluateFilterConditionAsAnd(
-            SampleFilters.processingModeFilterSample,
+        val useDefaultProcessingIdFilterResult = engine.evaluateFilterConditionAsAnd(
+            SampleFilters.processingIdFilterSample,
             bundle,
             defaultResponse = false,
             reverseFilter = true
         )
         // assert
-        assertThat(useDefaultProcessingModeFilterResult.first).isFalse()
-        assertThat(useDefaultProcessingModeFilterResult.second).isNotNull()
-        assertThat(useDefaultProcessingModeFilterResult.second!!).contains("reversed")
+        assertThat(useDefaultProcessingIdFilterResult.first).isFalse()
+        assertThat(useDefaultProcessingIdFilterResult.second).isNotNull()
+        assertThat(useDefaultProcessingIdFilterResult.second!!).contains("reversed")
     }
 
     @Test
@@ -268,7 +268,7 @@ class DefaultFilterTests {
 
         // act
         val procModeResult = engine.evaluateFilterConditionAsAnd(
-            SampleFilters.processingModeFilterSample,
+            SampleFilters.processingIdFilterSample,
             bundle,
             false
         )
@@ -288,7 +288,7 @@ class DefaultFilterTests {
 
         // act
         val procModeResult = engine.evaluateFilterConditionAsAnd(
-            SampleFilters.processingModeFilterSample,
+            SampleFilters.processingIdFilterSample,
             bundle,
             false
         )
@@ -296,7 +296,7 @@ class DefaultFilterTests {
         // assert
         assertThat(procModeResult.first).isFalse()
         assertThat(procModeResult.second).isNotNull()
-        assertThat(procModeResult.second!!).contains(SampleFilters.processingModeFilterSample)
+        assertThat(procModeResult.second!!).contains(SampleFilters.processingIdFilterSample)
     }
 
     @Test

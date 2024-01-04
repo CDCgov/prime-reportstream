@@ -64,7 +64,7 @@
     - "allowNone()"
     qualityFilter: []
     routingFilter: []
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: false
     conditionFilter: []
     deidentify: false

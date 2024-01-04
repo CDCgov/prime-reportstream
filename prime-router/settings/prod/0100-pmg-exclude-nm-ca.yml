@@ -82,7 +82,7 @@
     - "isValidCLIA(testing_lab_clia)"
     routingFilter:
     - "DoesNotMatch(sender_id, pmg)" #do not send PMG until CA completes validation
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     timing:
@@ -173,7 +173,7 @@
     qualityFilter: []
     routingFilter:
     - "DoesNotMatch(sender_id, pmg)" #do not send PMG until CA completes validation
-    processingModeFilter:
+    processingIdFilter:
     - "matches(processing_mode_code,T,D)"
     reverseTheQualityFilter: false
     deidentify: false
@@ -218,7 +218,7 @@
     qualityFilter: []
     routingFilter:
     - "DoesNotMatch(sender_id, pmg)" #do not send PMG until NM completes validation
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     timing:
@@ -279,7 +279,7 @@
     qualityFilter: []
     routingFilter:
     - "DoesNotMatch(sender_id, pmg)" #do not send PMG until NM completes validation
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     timing:

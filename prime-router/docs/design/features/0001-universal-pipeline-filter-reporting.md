@@ -76,7 +76,7 @@ receiver does not have processing mode filters set, the following filters will b
  * Default Rule:
  *  Must have a processing mode id of 'P'
  */
-val processingModeFilterDefault: ReportStreamFilter = listOf(
+val processingIdFilterDefault: ReportStreamFilter = listOf(
         "%processingId = 'P'"
     )
 ```

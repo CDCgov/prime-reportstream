@@ -214,7 +214,7 @@
         - "true"
       routingFilter:
         - "true"
-      processingModeFilter:
+      processingIdFilter:
         - "true"
       reverseTheQualityFilter: false
       conditionFilter: [ ]
@@ -294,7 +294,7 @@
         - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
         - "Bundle.identifier.value.empty().not()"
       routingFilter: [ ]
-      processingModeFilter:
+      processingIdFilter:
         - "%processingId = 'P'"
       reverseTheQualityFilter: false
       conditionFilter:
@@ -372,7 +372,7 @@
         - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
         - "Bundle.identifier.value.empty().not()"
       routingFilter: [ ]
-      processingModeFilter:
+      processingIdFilter:
         - "%processingId = 'T'"
       reverseTheQualityFilter: false
       conditionFilter:

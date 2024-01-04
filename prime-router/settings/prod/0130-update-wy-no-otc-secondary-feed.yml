@@ -58,7 +58,7 @@
     - "orEquals(ordering_facility_state, WY, patient_state, WY)"
     qualityFilter: []
     routingFilter: []
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     deidentifiedValue: ""
@@ -132,7 +132,7 @@
     - "matches(test_authorized_for_home, N)"
     - "matches(test_authorized_for_otc, N)"
     - "matches(test_authorized_for_unproctored, N)"
-    processingModeFilter: []
+    processingIdFilter: []
     reverseTheQualityFilter: true
     deidentify: false
     deidentifiedValue: ""

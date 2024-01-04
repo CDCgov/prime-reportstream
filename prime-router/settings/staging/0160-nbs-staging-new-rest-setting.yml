@@ -65,7 +65,7 @@
     qualityFilter:
     - "allowAll()"
     routingFilter: []
-    processingModeFilter:
+    processingIdFilter:
     - "matches(processing_mode_code,T,D)"
     reverseTheQualityFilter: false
     conditionFilter: []

@@ -267,7 +267,7 @@ Production data should only be accepted by production receivers.
  * Default Rule:
  *  Must have a processing mode id of 'P'
  */
-val processingModeFilterDefault: ReportStreamFilter = listOf(
+val processingIdFilterDefault: ReportStreamFilter = listOf(
         "%processingId = 'P'"
     )
 ```
