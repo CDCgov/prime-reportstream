@@ -20,7 +20,6 @@ import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.lang.IllegalStateException
 import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.Charset
@@ -340,45 +339,21 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Download all blobs located at [fromBlobDirectoryUrl] with container info [fromBlobContainerInfo] to the
-         * [toDirectoryUrl] if a local machine download or [toBlobContainerInfo] if downloading to another place in the
-         * blob store.
+         * Download all blobs located at [sourceBlobDirectoryUrl] with container info [sourceBlobContainerInfo] to the
+         * [destinationDirectoryUrl].
          */
-        fun downloadBlobsInDirectory(
-            fromBlobDirectoryUrl: String,
-            fromBlobContainerInfo: BlobContainerMetadata,
-            toBlobContainerInfo: BlobContainerMetadata?,
-            toDirectoryUrl: String?,
-            blobEndpoint: String,
+        fun downloadBlobsInDirectoryToLocal(
+            sourceBlobDirectoryUrl: String,
+            sourceBlobContainerInfo: BlobContainerMetadata,
+            destinationDirectoryUrl: String,
         ) {
-            val blobs = listBlobs(fromBlobDirectoryUrl, fromBlobContainerInfo, false)
-            if (blobs.isEmpty()) {
-                logger.warn(
-                    "No Blobs to download, aborting."
-                )
-            }
-            blobs.forEach { currentBlob ->
-                val currentBlobFileName = currentBlob.currentBlobItem.name.replace("/", "%2F")
-                val downloadedBlob = downloadBlobAsByteArray(
-                    "$blobEndpoint/${fromBlobContainerInfo.containerName}/$currentBlobFileName",
-                    fromBlobContainerInfo,
-                    3
-                )
-                if (toBlobContainerInfo != null) {
-                    uploadBlob(currentBlobFileName, downloadedBlob, toBlobContainerInfo)
-                } else if (!toDirectoryUrl.isNullOrBlank()) {
-                    val file = File("$toDirectoryUrl/${currentBlob.currentBlobItem.name}")
-                    FileUtils.writeByteArrayToFile(file, downloadedBlob)
-                } else {
-                    logger.error(
-                        "Must specify either a toBlobContainerInfo or toDirectoryUrl in order to " +
-                            "download blobs"
-                    )
-                    throw IllegalStateException(
-                        "Must specify either a toBlobContainerInfo or toDirectoryUrl in " +
-                            "order to download blobs."
-                    )
-                }
+            val sourceContainer = getBlobContainer(sourceBlobContainerInfo)
+            val blobsToCopy = listBlobs(sourceBlobDirectoryUrl, sourceBlobContainerInfo)
+            blobsToCopy.forEach { currentBlob ->
+                val sourceBlobClient = sourceContainer.getBlobClient(currentBlob.currentBlobItem.name)
+                val data = sourceBlobClient.downloadContent()
+                val file = File("$destinationDirectoryUrl/${currentBlob.currentBlobItem.name}")
+                FileUtils.writeByteArrayToFile(file, data.toBytes())
             }
         }
 
