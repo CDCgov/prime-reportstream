@@ -34,7 +34,7 @@ jobs:
         method: slack
         title: Pagerduty 
         message: |
-          ${{ steps.PDOnCall }}
+          ${env:OnCallPerson}
         icon-emoji: ':bell:'
         channel: pagerduty-alert-dump
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
