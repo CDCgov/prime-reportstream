@@ -135,7 +135,7 @@ resource "azurerm_application_insights_web_test" "sftp_test" {
     "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/microsoft.insights/components/${var.resource_prefix}-appinsights" = "Resource"
   }
   lifecycle {
-    ignore_changes = [configuration]
+    ignore_changes = [configuration, tags]
   }
 }
 resource "azurerm_application_insights_web_test" "livdapi_test" {
