@@ -650,57 +650,6 @@ class BlobAccessTests {
         assertThat(resultBinaryData.toString()).isEqualTo(expectedResult)
     }
 
-//    @Test
-//    fun `downloadBlobsInDirectoryToLocal`() {
-//        val testUrl = "http://downloadblob"
-//        val streamSlot = CapturingSlot<ByteArrayOutputStream>()
-//        val fileContent = "This is all of the file content"
-//
-//        mockkClass(BlobAccess::class)
-//        mockkObject(BlobAccess.Companion)
-//        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-//        val mockedBlobClient = mockkClass(BlobClient::class)
-//        every {
-//            mockedBlobClient.downloadStreamWithResponse(capture(streamSlot), any(), any(), any(), any(), any(), any())
-//        } answers
-//            {
-//                streamSlot.captured.writeBytes(fileContent.toByteArray())
-//                mockk<BlobDownloadResponse>()
-//            }
-//        every { mockedBlobClient.downloadContentWithResponse(any(), any(), any(), any()) } answers
-//            {
-//                val response = mockk<BlobDownloadContentResponse>()
-//                every { response.value } returns BinaryData.fromString(fileContent)
-//                response
-//            }
-//        mockkConstructor(BlobClientBuilder::class)
-//        every { anyConstructed<BlobClientBuilder>().connectionString(any()) } answers
-//            { BlobClientBuilder() }
-//        every { anyConstructed<BlobClientBuilder>().endpoint(testUrl) } answers
-//            { BlobClientBuilder() }
-//        every { anyConstructed<BlobClientBuilder>().buildClient() } returns mockedBlobClient
-//        every {
-//            BlobAccess.listBlobs(any(), any(), any())
-//        } returns listOf(BlobAccess.Companion.BlobItemAndPreviousVersions(BlobItem().setName("test.txt"), null))
-//        every {
-//            BlobAccess.uploadBlob(any(), any(), any())
-//        } returns "new/blob/url.txt"
-//
-//        downloadBlobsInDirectoryToLocal(
-//            "test",
-//            BlobAccess.BlobContainerMetadata("containerName", "connectionString"),
-//            ".",
-//            "http://downloadblob"
-//        )
-//
-//        val file = File("./test.txt")
-//        val content =
-//            file.inputStream()
-//                .readBytes().toString(Charsets.UTF_8)
-//        assertEquals(fileContent, content)
-//        file.deleteOnExit()
-//    }
-
     @Test
     fun `copy blob`() {
         mockkClass(BlobAccess::class)
