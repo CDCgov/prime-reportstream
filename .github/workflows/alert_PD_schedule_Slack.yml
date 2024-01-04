@@ -1,0 +1,46 @@
+name: Find next person on call
+on:
+  workflow_dispatch:
+  push: 
+    branches:
+      - feature/12568-PDScheduleNotifications
+  # schedule:
+  #   - cron: "0 5 * * MON" #UTC-5
+  #   - cron: '0 11 * * 1-5'
+jobs:
+  run-action:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Out Changes
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      with:
+        fetch-depth: 0
+
+    - name: Get PD oncall schedule
+      id: PD
+      shell: pwsh
+      run: |
+        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}" -ScheduleId "${{ secrets.PD_ReportStream_ScheduleId }}"
+    
+    - name: Get PD onCall Details
+      id: PDOnCall
+      shell: pwsh
+      run: |
+        echo  ${env:PersonName}
+        echo  ${env:NextPersonName}
+   
+    - name: Slack Notification
+      uses: ./.github/actions/notifications
+      with:
+        method: slack
+        title: Pagerduty 
+        message: |
+          "Prime ReportStream PagerDuty on-call person Now": "${{ env.PersonName }}"
+          "Prime ReportStream PagerDuty on-call person until": "${{ env.Until }}"
+          "Prime ReportStream PagerDuty Next person on-call": "${{ env.NextPersonName }}"
+          "Prime ReportStream PagerDuty Next person on-call from": "${{ env.NextFrom }}"
+          "Prime ReportStream PagerDuty Next person on-call until": "${{ env.NextUntil }}"
+        icon-emoji: ':bell:'
+        channel: pagerduty-alert-dump
+        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        color: warning
