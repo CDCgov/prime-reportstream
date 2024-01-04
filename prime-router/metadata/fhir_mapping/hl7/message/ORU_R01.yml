@@ -40,15 +40,12 @@ resources:
   - resourceName: Observation
     segment: .OBSERVATION.OBX
     group: PATIENT_RESULT.ORDER_OBSERVATION
-    resourcePath: resource/Observation
+    resourcePath: segments/OBX/Observation
     repeats: true
     isReferenced: true
     additionalSegments:
-      - .OBR
       - .OBSERVATION.NTE
       - .SPECIMEN.SPM
-      - MSH
-      - .PID
 
   - resourceName: Specimen
     segment: .SPECIMEN.SPM
