@@ -27,3 +27,16 @@ jobs:
       shell: pwsh
       run: |
         echo  ${env:OnCallPerson}
+
+    - name: Slack Notification
+      if: ${{ steps.PDOnCall.outputs.LIST  != '' }}
+      uses: ./.github/actions/notifications
+      with:
+        method: slack
+        title: Pagerduty 
+        message: |
+          ${{ steps.PDOnCall.outputs.LIST }}
+        icon-emoji: ':bell:'
+        channel: pagerduty-alert-dump
+        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        color: warning
