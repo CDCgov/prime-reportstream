@@ -1,12 +1,12 @@
 package gov.cdc.prime.router.cli
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.io.IOException
@@ -68,7 +68,7 @@ class CommandUtilities {
             }
         }
 
-        private val jsonMapper = jacksonObjectMapper()
+        private val jsonMapper = jacksonObjectMapper
 
         data class DiffRow(val name: String, val baseValue: String, val toValue: String)
 
