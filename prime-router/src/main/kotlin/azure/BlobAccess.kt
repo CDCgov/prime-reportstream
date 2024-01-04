@@ -14,10 +14,13 @@ import com.azure.storage.blob.models.ListBlobsOptions
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.Environment
+import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.lang.IllegalStateException
 import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.Charset
@@ -334,6 +337,49 @@ class BlobAccess() : Logging {
             val toBlobUrl = uploadBlob(toFilename, fromBytes, blobConnInfo)
             logger.info("New blob URL is $toBlobUrl")
             return toBlobUrl
+        }
+
+        /**
+         * Download all blobs located at [fromBlobDirectoryUrl] with container info [fromBlobContainerInfo] to the
+         * [toDirectoryUrl] if a local machine download or [toBlobContainerInfo] if downloading to another place in the
+         * blob store.
+         */
+        fun downloadBlobsInDirectory(
+            fromBlobDirectoryUrl: String,
+            fromBlobContainerInfo: BlobContainerMetadata,
+            toBlobContainerInfo: BlobContainerMetadata?,
+            toDirectoryUrl: String?,
+            blobEndpoint: String,
+        ) {
+            val blobs = listBlobs(fromBlobDirectoryUrl, fromBlobContainerInfo, false)
+            if (blobs.isEmpty()) {
+                logger.warn(
+                    "No Blobs to download, aborting."
+                )
+            }
+            blobs.forEach { currentBlob ->
+                val currentBlobFileName = currentBlob.currentBlobItem.name.replace("/", "%2F")
+                val downloadedBlob = downloadBlobAsByteArray(
+                    "$blobEndpoint/${fromBlobContainerInfo.containerName}/$currentBlobFileName",
+                    fromBlobContainerInfo,
+                    3
+                )
+                if (toBlobContainerInfo != null) {
+                    uploadBlob(currentBlobFileName, downloadedBlob, toBlobContainerInfo)
+                } else if (!toDirectoryUrl.isNullOrBlank()) {
+                    val file = File("$toDirectoryUrl/${currentBlob.currentBlobItem.name}")
+                    FileUtils.writeByteArrayToFile(file, downloadedBlob)
+                } else {
+                    logger.error(
+                        "Must specify either a toBlobContainerInfo or toDirectoryUrl in order to " +
+                            "download blobs"
+                    )
+                    throw IllegalStateException(
+                        "Must specify either a toBlobContainerInfo or toDirectoryUrl in " +
+                            "order to download blobs."
+                    )
+                }
+            }
         }
 
         /**
