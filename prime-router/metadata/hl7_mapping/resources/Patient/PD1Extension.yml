@@ -31,7 +31,7 @@ elements:
     resource: '%resource.extension.where(url = "pd1-10-duplicate-patient").value'
     constants:
       cxField: '%{hl7PD1Field}-10(%{cxIndex})'
-    schema: ../../datatypes/identifier/cx
+    schema: ../../datatypes/identifier/CX
     resourceIndex: cxIndex
 
   - name: publicity-code
