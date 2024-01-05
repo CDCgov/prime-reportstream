@@ -34,7 +34,6 @@ class:
 status:
   vars:
     pv145: STRING, PV1.45
-  required: true
   expressionType: nested
   expressions:
     - condition: $pv145 NOT_NULL
@@ -46,6 +45,9 @@ status:
       specs: PV1.2
 
 _status:
+  vars:
+    pv12: STRING_ALL, PV1.2
+  condition: $pv12 NOT_NULL
   expressionType: nested
   expressionsMap:
     extension:
@@ -411,40 +413,59 @@ participant:
               value: "referrer"
 
 type:
+  vars:
+    pv14: STRING_ALL, PV1.4
+  condition: $pv14 NOT_NULL
   valueOf: datatypes/CWE/CodeableConcept
   generateList: true
   expressionType: resource
   specs: PV1.4
 
 hospitalization:
+  vars:
+    pv15: STRING_ALL, PV1.5
+    pv113: STRING_ALL, PV1.13
+    pv114: STRING_ALL, PV1.14
+    pv116: STRING_ALL, PV1.16
+    pv136: STRING_ALL, PV1.36
+    pv137: STRING_ALL, PV1.37
+    pv138: STRING_ALL, PV1.38
+  condition: $pv15 NOT_NULL || $pv113 NOT_NULL || $pv114 NOT_NULL || $pv116 NOT_NULL || $pv136 NOT_NULL || $pv137 NOT_NULL || $pv138 NOT_NULL
   expressionType: nested
   expressionsMap:
     preAdmissionIdentifier:
+      condition: $pv15 NOT_NULL
       expressionType: resource
       valueOf: datatypes/CX/Identifier
       specs: PV1.5
     reAdmission:
+      condition: $pv113 NOT_NULL
       expressionType: resource
       valueOf: datatypes/CWE/CodeableConcept
       specs: PV1.13
     admitSource:
+      condition: $pv114 NOT_NULL
       expressionType: resource
       valueOf: datatypes/CWE/CodeableConcept
       specs: PV1.14
     specialCourtesy:
+      condition: $pv116 NOT_NULL
       generateList: true
       expressionType: resource
       valueOf: datatypes/CWE/CodeableConcept
       specs: PV1.16 *
     dischargeDisposition:
+      condition: $pv136 NOT_NULL
       expressionType: resource
       valueOf: datatypes/CWE/CodeableConcept
       specs: PV1.36
     destination:
+      condition: $pv137 NOT_NULL
       expressionType: reference
       valueOf: datatypes/DLD/Location
       specs: PV1.37
     dietPreference:
+      condition: $pv138 NOT_NULL
       expressionType: resource
       valueOf: datatypes/CWE/CodeableConcept
       specs: PV1.38
@@ -549,6 +570,9 @@ length:
   specs: PV2.11
 
 text:
+  vars:
+    pv212: STRING_ALL, PV2.12
+  condition: $pv212 NOT_NULL
   expressionType: nested
   expressionsMap:
     div:
@@ -574,7 +598,7 @@ meta:
   expressionsMap:
     security:
       vars:
-        pv222: String, PV2.22
+        pv222: STRING, PV2.22
       expressionType: nested
       expressionsMap:
         code:

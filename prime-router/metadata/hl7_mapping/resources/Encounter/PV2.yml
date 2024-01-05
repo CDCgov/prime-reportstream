@@ -53,6 +53,10 @@ elements:
   - name: pv2-visit-protection-indicator
     value: [ '%resource.meta.security.code' ]
     hl7Spec: [ '%{hl7PV2Field}-22' ]
+    valueSet:
+      values:
+        true: Y
+        false: N
 
   - name: pv2-priority
     resource: '%resource.priority'
