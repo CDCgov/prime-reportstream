@@ -12,13 +12,16 @@ deterministically
 create an HL7 message. A few examples on when this can occur:
 
 - the inventory does not map a field
-  - see [MSH.2](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=J4)
+  -
+  see [MSH.2](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=J4)
 - the inventory does not map a field if it does not meet certain conditions
-  - see [MSH.5.1](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0&range=G3)
+  -
+  see [MSH.5.1](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0&range=G3)
 - the inventory inserts different HL7 components into the same array
     - see [XAD](https://docs.google.com/spreadsheets/d/1hSTEur557TIKPEKZRoprVw-uNpw12JZtri-iQsc4uQ0/edit#gid=0&range=J4)
 - the inventory specifies preferring one HL7 field over the other
-  - see [MSH.6](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=G11)
+  -
+  see [MSH.6](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=G11)
 
 These cases are all handled by adding custom extensions that can then be read when converting to HL7. These extensions
 either store
@@ -67,3 +70,10 @@ implementation differs from what is in the spreadsheets.
   defined in the mapping, the implementation maps them to extensions
 - The inventory specifies to prefer OBR.53 over ORC.33 as an identifier which does not align with any of the other
   identifiers, the implementations prefer ORC in all casses
+
+### PV1/PV2 -> Encounter
+
+- The inventory says PV1.16 should go to a property on an Encounter, but that property exists on
+  Encounter.hospitalization which is wehre the
+- The NIST spec states that PV1.2 is of type `IS` but in both the inventory and the HAPI structures it is a CWE which is
+  how it is mapped

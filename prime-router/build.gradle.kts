@@ -836,7 +836,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
-            branch = "master"
+            branch = "platform/kalish/12413-pv1-to-encounter"
         }
     }
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.10.0")

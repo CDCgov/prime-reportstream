@@ -1,0 +1,38 @@
+resource: EpisodeOfCare
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - vars:
+        CXIdentifier: STRING_ALL, $BASE_VALUE.54
+      condition: $CXIdentifier NOT_NULL
+      expressionType: resource
+      valueOf: datatypes/CX/Identifier
+      specs: $BASE_VALUE.54
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7-use
+        valueString:
+          value: 'service-episode'
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: episode-of-care-name
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: $BASE_VALUE.53
