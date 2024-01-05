@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1701902146373820000.8a72d34a-ad0c-4bd0-a395-c30eb49de0e4",
+  "id" : "1703101528854832000.2f0dbadf-2615-4e1d-84a0-69949262af84",
   "meta" : {
-    "lastUpdated" : "2023-12-06T17:35:46.388-05:00"
+    "lastUpdated" : "2023-12-20T14:45:28.867-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -97,12 +97,12 @@
             ],
             "name" : "NATUS",
             "receiver" : {
-              "reference" : "Organization/1701902146453788000.b4cd7584-77f8-4302-a957-0594c3b1518e"
+              "reference" : "Organization/1703101528933953000.3090f024-4667-4cb7-8da4-d7803727f82b"
             }
           }
         ],
         "sender" : {
-          "reference" : "Organization/1701902146457116000.241aec98-4124-4d32-999b-f981ed9c72bb"
+          "reference" : "Organization/1703101528937339000.87f3c59f-d5a1-4aa9-9b50-2c78a3215c1a"
         },
         "source" : {
           "extension" : [
@@ -128,10 +128,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1701902146453788000.b4cd7584-77f8-4302-a957-0594c3b1518e",
+      "fullUrl" : "Organization/1703101528933953000.3090f024-4667-4cb7-8da4-d7803727f82b",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1701902146453788000.b4cd7584-77f8-4302-a957-0594c3b1518e",
+        "id" : "1703101528933953000.3090f024-4667-4cb7-8da4-d7803727f82b",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
@@ -170,10 +170,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1701902146457116000.241aec98-4124-4d32-999b-f981ed9c72bb",
+      "fullUrl" : "Organization/1703101528937339000.87f3c59f-d5a1-4aa9-9b50-2c78a3215c1a",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1701902146457116000.241aec98-4124-4d32-999b-f981ed9c72bb",
+        "id" : "1703101528937339000.87f3c59f-d5a1-4aa9-9b50-2c78a3215c1a",
         "identifier" : [
           {
             "extension" : [
@@ -205,10 +205,10 @@
       }
     },
     {
-      "fullUrl" : "ServiceRequest/1701902147634317000.1e258ff7-2e6b-4dc9-aafd-43d00f7d20fa",
+      "fullUrl" : "ServiceRequest/1703101530152346000.0ea10fd6-4576-40ca-b552-6457561fd573",
       "resource" : {
         "resourceType" : "ServiceRequest",
-        "id" : "1701902147634317000.1e258ff7-2e6b-4dc9-aafd-43d00f7d20fa",
+        "id" : "1703101530152346000.0ea10fd6-4576-40ca-b552-6457561fd573",
         "identifier" : [
           {
             "type" : {
@@ -266,20 +266,20 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "occurrenceDateTime" : "2023-05-06T05:00:00Z",
         "authoredOn" : "2023-05-06T05:29:13-05:00",
         "requester" : {
-          "reference" : "Practitioner/1701902147630300000.a291c53a-a33d-4b61-82da-cf3fda6bf054"
+          "reference" : "Practitioner/1703101530148658000.9648798c-f5dd-4125-be24-1a469a7be816"
         }
       }
     },
     {
-      "fullUrl" : "Practitioner/1701902147630300000.a291c53a-a33d-4b61-82da-cf3fda6bf054",
+      "fullUrl" : "Practitioner/1703101530148658000.9648798c-f5dd-4125-be24-1a469a7be816",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1701902147630300000.a291c53a-a33d-4b61-82da-cf3fda6bf054",
+        "id" : "1703101530148658000.9648798c-f5dd-4125-be24-1a469a7be816",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
@@ -333,46 +333,10 @@
       }
     },
     {
-      "fullUrl" : "Observation/1701902147795992000.26000f37-e013-4b78-b47a-dfd851206411",
+      "fullUrl" : "Observation/1703101530312610000.22517cd8-cac5-4cd1-a234-bcb5cea2cf17",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147795992000.26000f37-e013-4b78-b47a-dfd851206411",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
-                  "system" : "http://unitsofmeasure.org",
-                  "code" : "g",
-                  "display" : "gram"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "1"
-          }
-        ],
+        "id" : "1703101530312610000.22517cd8-cac5-4cd1-a234-bcb5cea2cf17",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -396,17 +360,9 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueQuantity" : {
           "extension" : [
             {
@@ -414,7 +370,6 @@
               "valueString" : "1769.859285"
             }
           ],
-          "value" : 1769.8593,
           "unit" : "g",
           "system" : "http://unitsofmeasure.org",
           "code" : "g"
@@ -422,46 +377,10 @@
       }
     },
     {
-      "fullUrl" : "Observation/1701902147798564000.6bdd6c14-5d79-4ace-bc69-47d1c00dc5cc",
+      "fullUrl" : "Observation/1703101530315011000.fba5f8da-c02d-4202-ad8d-e8685bfad2ef",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147798564000.6bdd6c14-5d79-4ace-bc69-47d1c00dc5cc",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
-                  "system" : "http://unitsofmeasure.org",
-                  "code" : "wk",
-                  "display" : "week"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "1"
-          }
-        ],
+        "id" : "1703101530315011000.fba5f8da-c02d-4202-ad8d-e8685bfad2ef",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -485,17 +404,9 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueQuantity" : {
           "extension" : [
             {
@@ -503,7 +414,6 @@
               "valueString" : "32"
             }
           ],
-          "value" : 32,
           "unit" : "wk",
           "system" : "http://unitsofmeasure.org",
           "code" : "wk"
@@ -511,28 +421,10 @@
       }
     },
     {
-      "fullUrl" : "Observation/1701902147800640000.48737bee-0c4a-473b-91df-77c2d2e50fcd",
+      "fullUrl" : "Observation/1703101530317182000.420ddb3f-76f6-4edc-b358-cb6eead9654b",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147800640000.48737bee-0c4a-473b-91df-77c2d2e50fcd",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "1"
-          }
-        ],
+        "id" : "1703101530317182000.420ddb3f-76f6-4edc-b358-cb6eead9654b",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -556,17 +448,9 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -585,28 +469,10 @@
       }
     },
     {
-      "fullUrl" : "Observation/1701902147802494000.67d4044b-57c0-48cc-90a0-723a180d0ff7",
+      "fullUrl" : "Observation/1703101530318700000.336fe8e2-1518-49ae-bc33-8251e7093f84",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147802494000.67d4044b-57c0-48cc-90a0-723a180d0ff7",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "1"
-          }
-        ],
+        "id" : "1703101530318700000.336fe8e2-1518-49ae-bc33-8251e7093f84",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -630,17 +496,9 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -659,28 +517,10 @@
       }
     },
     {
-      "fullUrl" : "Observation/1701902147804130000.9cd63b57-73ec-47ac-902b-3d03f00894c6",
+      "fullUrl" : "Observation/1703101530320234000.2e18a372-e95f-4c1b-b1ee-31637cf02123",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147804130000.9cd63b57-73ec-47ac-902b-3d03f00894c6",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "1"
-          }
-        ],
+        "id" : "1703101530320234000.2e18a372-e95f-4c1b-b1ee-31637cf02123",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -704,17 +544,9 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -733,28 +565,10 @@
       }
     },
     {
-      "fullUrl" : "Observation/1701902147805594000.5a014a66-3fc3-4cf6-9b70-f0f76e284eaa",
+      "fullUrl" : "Observation/1703101530322100000.d548c511-c2b8-4fa4-a75a-1b9f0398c8cf",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147805594000.5a014a66-3fc3-4cf6-9b70-f0f76e284eaa",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "1"
-          }
-        ],
+        "id" : "1703101530322100000.d548c511-c2b8-4fa4-a75a-1b9f0398c8cf",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -778,17 +592,9 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -807,28 +613,10 @@
       }
     },
     {
-      "fullUrl" : "Observation/1701902147807054000.ff31cabb-a7c4-4141-b3f2-e9f105e51552",
+      "fullUrl" : "Observation/1703101530325194000.e6e69451-4d96-4302-bcf6-8b7ecd1e1d79",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147807054000.ff31cabb-a7c4-4141-b3f2-e9f105e51552",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "1"
-          }
-        ],
+        "id" : "1703101530325194000.e6e69451-4d96-4302-bcf6-8b7ecd1e1d79",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -852,17 +640,9 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -881,28 +661,10 @@
       }
     },
     {
-      "fullUrl" : "Observation/1701902147809061000.8c0240c7-4853-4b5c-ba4d-f856bef087ab",
+      "fullUrl" : "Observation/1703101530327703000.7df00fb4-ae26-48f7-a6b0-c95e0846111f",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147809061000.8c0240c7-4853-4b5c-ba4d-f856bef087ab",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "2"
-          }
-        ],
+        "id" : "1703101530327703000.7df00fb4-ae26-48f7-a6b0-c95e0846111f",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -926,17 +688,9 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -955,28 +709,10 @@
       }
     },
     {
-      "fullUrl" : "Observation/1701902147810494000.3f63fcfd-4207-4460-9e3e-bf89bd4effc7",
+      "fullUrl" : "Observation/1703101530329326000.874a936b-53ca-44b9-a73d-0acb61959f47",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147810494000.3f63fcfd-4207-4460-9e3e-bf89bd4effc7",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "1"
-          }
-        ],
+        "id" : "1703101530329326000.874a936b-53ca-44b9-a73d-0acb61959f47",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -1000,17 +736,9 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -1027,28 +755,10 @@
       }
     },
     {
-      "fullUrl" : "Observation/1701902147811621000.5dca4f42-1cee-4933-abe5-b2501154ad7d",
+      "fullUrl" : "Observation/1703101530330558000.d652347e-3a22-403a-b77a-8e6ad03d9d7a",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147811621000.5dca4f42-1cee-4933-abe5-b2501154ad7d",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "1"
-          }
-        ],
+        "id" : "1703101530330558000.d652347e-3a22-403a-b77a-8e6ad03d9d7a",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -1072,43 +782,17 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueString" : "Daniel Davis/218-555-1000"
       }
     },
     {
-      "fullUrl" : "Observation/1701902147813247000.eb1a684f-bb93-4b55-8bba-b452b9722dca",
+      "fullUrl" : "Observation/1703101530331896000.b1dffebf-6c88-44fb-ae8a-25143bacc66d",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147813247000.eb1a684f-bb93-4b55-8bba-b452b9722dca",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "1"
-          }
-        ],
+        "id" : "1703101530331896000.b1dffebf-6c88-44fb-ae8a-25143bacc66d",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -1132,43 +816,17 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueString" : "DAVIS, DANIEL, MD"
       }
     },
     {
-      "fullUrl" : "Observation/1701902147814630000.e5616910-0e15-4128-9546-2f7d12d0a3be",
+      "fullUrl" : "Observation/1703101530333134000.d26da460-8e44-4d89-bbad-86fb0424a5f6",
       "resource" : {
         "resourceType" : "Observation",
-        "id" : "1701902147814630000.e5616910-0e15-4128-9546-2f7d12d0a3be",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
-            "valueString" : "AOE"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
-            "valueString" : "QST"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
-            "valueString" : "O"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
-            "valueString" : "1"
-          }
-        ],
+        "id" : "1703101530333134000.d26da460-8e44-4d89-bbad-86fb0424a5f6",
         "identifier" : [
           {
             "system" : "urn:id:extID",
@@ -1192,25 +850,17 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
-        "_effectiveDateTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230506050000-0500"
-            }
-          ]
-        },
         "valueString" : "Lakeridge Health Revere"
       }
     },
     {
-      "fullUrl" : "Specimen/1701902147825014000.30930709-3a43-4a48-9f15-750a257b983e",
+      "fullUrl" : "Specimen/1703101530339730000.3ca85151-484c-4a23-8da1-5b53741cf73c",
       "resource" : {
         "resourceType" : "Specimen",
-        "id" : "1701902147825014000.30930709-3a43-4a48-9f15-750a257b983e",
+        "id" : "1703101530339730000.3ca85151-484c-4a23-8da1-5b53741cf73c",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-collection-method",
@@ -1239,7 +889,7 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0"
+          "reference" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6"
         },
         "collection" : {
           "collectedDateTime" : "2023-05-06T05:00:00Z",
@@ -1255,10 +905,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0",
+      "fullUrl" : "Patient/1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1701902147617056000.34101fe6-20f8-4ed6-98c0-bcc5e29bdba0",
+        "id" : "1703101530134732000.d5b0771a-a80b-4e92-af39-3fbee3ba99d6",
         "extension" : [
           {
             "url" : "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName",

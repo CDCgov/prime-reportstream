@@ -1,4 +1,4 @@
-import ReportLink from "../Table/ReportLink";
+import ReportLink from "../daily-data/ReportLink";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
