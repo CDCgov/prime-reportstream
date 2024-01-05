@@ -580,8 +580,15 @@ elements:
 
   - name: sr-observation-value-coding
     resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.value is CodeableConcept'
     bundleProperty: '%resource.value.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
     value: [ '"coding"' ]
+
+  - name: sr-observation-value-datetime
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.value is dateTime'
+    bundleProperty: '%resource.value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
+    value: [ '%resource.value' ]
 
   - name: sr-observation-value-coding-system
     resource: 'Bundle.entry.resource.ofType(Observation)'

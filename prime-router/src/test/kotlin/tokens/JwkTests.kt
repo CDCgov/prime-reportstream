@@ -5,10 +5,10 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.util.decodeBase64
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyType
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockkObject
 import java.math.BigInteger
@@ -99,7 +99,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
 
     @Test
     fun `test convert json string to Jwk obj`() {
-        val obj: Jwk = jacksonObjectMapper().readValue(jwkString, Jwk::class.java)
+        val obj: Jwk = jacksonObjectMapper.readValue(jwkString, Jwk::class.java)
         assertNotNull(obj)
         assertEquals("ES", obj.kty)
         assertEquals(3, obj.x5c?.size)
@@ -108,9 +108,9 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
 
     @Test
     fun `test covert Jwk obj to json string`() {
-        val json = jacksonObjectMapper().writeValueAsString(jwk)
+        val json = jacksonObjectMapper.writeValueAsString(jwk)
         assertNotNull(json)
-        val tree = jacksonObjectMapper().readTree(json)
+        val tree = jacksonObjectMapper.readTree(json)
         assertEquals("ES", tree["kty"].textValue())
         assertEquals("x", tree["x"].textValue())
         assertEquals("b", (tree["x5c"] as ArrayNode)[1].textValue())
@@ -152,7 +152,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
 
     @Test
     fun `test converting nice example JwkSet string to obj`() {
-        val jwkSet = jacksonObjectMapper().readValue(niceExampleJwkSetString, JwkSet::class.java)
+        val jwkSet = jacksonObjectMapper.readValue(niceExampleJwkSetString, JwkSet::class.java)
         assertEquals("foobar", jwkSet.scope)
         assertEquals(2, jwkSet.keys.size)
         val key1 = jwkSet.keys[0]
@@ -167,7 +167,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
 
     @Test
     fun `test converting nice example JwkSet string to RSA and EC public keys`() {
-        val jwkSet = jacksonObjectMapper().readValue(niceExampleJwkSetString, JwkSet::class.java)
+        val jwkSet = jacksonObjectMapper.readValue(niceExampleJwkSetString, JwkSet::class.java)
         assertEquals("foobar", jwkSet.scope)
         assertEquals(2, jwkSet.keys.size)
         val ecPublicKey = jwkSet.keys[0].toECPublicKey()
@@ -189,7 +189,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
                 "keys": [  $ecPublicKeyStr ]
             }
         """.trimIndent()
-        val jwkSet = jacksonObjectMapper().readValue(jwkSetString, JwkSet::class.java)
+        val jwkSet = jacksonObjectMapper.readValue(jwkSetString, JwkSet::class.java)
         val ecPublicKey = jwkSet.keys[0].toECPublicKey()
         assertNotNull(ecPublicKey)
         assertEquals("EC", ecPublicKey.algorithm)

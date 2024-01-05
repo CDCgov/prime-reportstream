@@ -7,7 +7,7 @@ import ReportLink from "./ReportLink";
 
 interface Props {
     /* REQUIRED
-    To populate the <DeliveriesTable> component with data, you must pass in an array of
+    To populate the <DailyData> component with data, you must pass in an array of
     ReportResource items to be mapped with the TableReportsData (this) component. */
     reports: ReportResource[];
 }
