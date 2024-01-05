@@ -1,12 +1,12 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.base.Preconditions
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import org.jooq.JSONB
 import org.jooq.impl.DSL
 import java.lang.IllegalArgumentException
@@ -254,7 +254,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
          */
         internal fun extractTableHeadersFromJson(row: JSONB): List<String> {
             try {
-                val rows = jacksonObjectMapper().readValue<Map<String, String>>(row.data())
+                val rows = jacksonObjectMapper.readValue<Map<String, String>>(row.data())
                 Preconditions.checkArgument(rows.isNotEmpty())
                 return rows.keys.toList()
             } catch (e: MismatchedInputException) {
