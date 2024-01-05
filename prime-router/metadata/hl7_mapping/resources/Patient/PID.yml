@@ -193,7 +193,7 @@ elements:
     condition: '%context.meta.extension(%`rsext-last-updated-facility-namespace-id`).exists()'
     constants:
       hl7HDField: '%{hl7PIDField}-34'
-    schema: ../../datatypes/identifier/hd
+    schema: ../../datatypes/identifier/HD
 
   - name: patient-species-identifier
     condition: '%context.extension(%`ext-patient-animal`).exists()'
