@@ -242,6 +242,7 @@ testlogger {
         showPassed = false
         showSkipped = false
     }
+    showStandardStreams = true
 }
 
 // Add the testIntegration tests
@@ -424,6 +425,20 @@ tasks.register("testEnd2End") {
     group = rootProject.description ?: ""
     description = "Run the end to end tests.  Requires running a Docker instance"
     project.extra["cliArgs"] = listOf("test", "--run", "end2end")
+    finalizedBy("primeCLI")
+}
+
+tasks.register("testEnd2EndUP") {
+    group = rootProject.description ?: ""
+    description = "Run the end to end UP tests.  Requires running a Docker instance"
+    project.extra["cliArgs"] = listOf("test", "--run", "end2end_up")
+    finalizedBy("primeCLI")
+}
+
+tasks.register("testS2S") {
+    group = rootProject.description ?: ""
+    description = "Run the s2s auth tests.  Requires running a Docker instance"
+    project.extra["cliArgs"] = listOf("test", "--run", "server2serverauth")
     finalizedBy("primeCLI")
 }
 
@@ -827,7 +842,7 @@ dependencies {
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.4")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.github.javafaker:javafaker:1.0.2") {

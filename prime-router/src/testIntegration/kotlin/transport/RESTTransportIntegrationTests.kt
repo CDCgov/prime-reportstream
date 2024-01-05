@@ -497,7 +497,6 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
     @Test
     fun `test flexion rest transport`() {
-        val mockHttpClient = mockk<HttpClient>()
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
