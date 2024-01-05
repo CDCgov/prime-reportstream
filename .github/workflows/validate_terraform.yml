@@ -8,6 +8,7 @@ on:
        - test
      paths:
        - '**.tf'
+       - '.github/workflows/validate_terraform.yml'
 
 jobs:
   pre_job:
