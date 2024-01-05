@@ -33,6 +33,8 @@ import java.time.ZoneId
  * @param externalName an external display name for the receiver. useful for display in the website
  * @param timeZone the timezone the receiver operates under
  * @param dateTimeFormat the format to use for date and datetime values, either Offset or Local
+ * @param enrichmentSchemaNames the paths to schema(s) used to enrich the bundle before translating it to its final
+ *  format
  */
 open class Receiver(
     val name: String,

@@ -193,7 +193,7 @@ class TranslationTests {
                     val receiver = it[ConfigColumns.RECEIVER.colName].trimToNull()
                     var senderTransform = it[ConfigColumns.SENDER_TRANSFORM.colName].trimToNull()
                     val conditionFilter = it[ConfigColumns.RECEIVER_CONDITION_FILTER.colName].trimToNull()
-                    val enrichmentSchema = it[ConfigColumns.ENRICHMENT_SCHEMA.colName].trimToNull()
+                    var enrichmentSchema = it[ConfigColumns.ENRICHMENT_SCHEMA.colName].trimToNull()
                     val ignoreFields = it[ConfigColumns.IGNORE_FIELDS.colName].let { colNames ->
                         colNames?.split(",") ?: emptyList()
                     }
@@ -211,6 +211,13 @@ class TranslationTests {
                                 .lowercase() == receiver.lowercase()
                         }
                         outputSchema = receiverSettings?.schemaName
+                    }
+                    if (enrichmentSchema.isNullOrEmpty() && !receiver.isNullOrEmpty()) {
+                        val receiverSettings = settings.receivers.firstOrNull { potentialReceiver ->
+                            potentialReceiver.organizationName.plus(".").plus(potentialReceiver.name)
+                                .lowercase() == receiver.lowercase()
+                        }
+                        enrichmentSchema = receiverSettings?.enrichmentSchemaNames?.joinToString()
                     }
 
                     val shouldPass = !it[ConfigColumns.RESULT.colName].isNullOrBlank() &&
