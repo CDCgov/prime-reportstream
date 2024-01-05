@@ -289,7 +289,7 @@ class FHIRRouter(
                 actionHistory,
                 receiver,
                 ReportStreamFilterType.QUALITY_FILTER,
-                false,
+                true,
                 receiver.reverseTheQualityFilter,
             )
 
