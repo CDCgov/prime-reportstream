@@ -54,7 +54,7 @@ elements:
     resourceIndex: xonIndex
     constants:
       hl7XONField: '%{hl7PD1Field}-14(%{xonIndex})'
-    schema: ../../resources/organization/XON
+    schema: ../../resources/Organization/XON
 
   - name: advance-directive-code
     resource: '%resource.extension.where(url = "pd1-15-advance-directive-code").value'
