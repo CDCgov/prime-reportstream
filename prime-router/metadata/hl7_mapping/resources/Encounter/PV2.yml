@@ -39,7 +39,7 @@ elements:
     hl7Spec: [ '%{hl7PV2Field}-12' ]
 
   - name: pv2-referral-source-code
-    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7-use`).value = "pv2-13-referral-source-code").individual.resolve()'
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv2-13-referral-source-code").individual.resolve()'
     schema: ../Practitioner/XCN
     constants:
       hl7XCNField: '%{hl7PV2Field}-13'

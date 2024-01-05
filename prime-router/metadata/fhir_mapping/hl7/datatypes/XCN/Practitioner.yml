@@ -373,7 +373,7 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7-use
+          value: hl7v2Name
         valueString:
           type: STRING
           valueOf: $XCNHL7Use

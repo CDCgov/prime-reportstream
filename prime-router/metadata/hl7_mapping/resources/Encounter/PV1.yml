@@ -35,19 +35,19 @@ elements:
       hl7PLField: '%{hl7PV1Field}-6'
 
   - name: pv1-attending-doctor
-    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7-use`).value = "pv1-7-attending-doctor").individual.resolve()'
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv1-7-attending-doctor").individual.resolve()'
     schema: ../Practitioner/XCN
     constants:
       hl7XCNField: '%{hl7PV1Field}-7'
 
   - name: pv1-referring-doctor
-    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7-use`).value = "pv1-8-referring-doctor").individual.resolve()'
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv1-8-referring-doctor").individual.resolve()'
     schema: ../Practitioner/XCN
     constants:
       hl7XCNField: '%{hl7PV1Field}-8'
 
   - name: pv1-consulting-doctor
-    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7-use`).value = "pv1-9-referring-doctor").individual.resolve()'
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv1-9-referring-doctor").individual.resolve()'
     schema: ../Practitioner/XCN
     constants:
       hl7XCNField: '%{hl7PV1Field}-9'
@@ -84,7 +84,7 @@ elements:
       cweFieldPath: '%{hl7PV1Field}-16(%{specialCourtesyIndex})'
 
   - name: pv1-consulting-doctor
-    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7-use`).value = "pv1-17-admitting-doctor").individual.resolve()'
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv1-17-admitting-doctor").individual.resolve()'
     schema: ../Practitioner/XCN
     constants:
       hl7XCNField: '%{hl7PV1Field}-17'
@@ -140,7 +140,7 @@ elements:
       cxFieldPath: '%{hl7PV1Field}-50'
 
   - name: pv1-other-healthcare-provider
-    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7-use`).value = "pv1-52-other-healthcare-provider").individual.resolve()'
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv1-52-other-healthcare-provider").individual.resolve()'
     schema: ../Practitioner/XCN
     constants:
       hl7XCNField: '%{hl7PV1Field}-52'
