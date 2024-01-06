@@ -428,20 +428,6 @@ tasks.register("testEnd2End") {
     finalizedBy("primeCLI")
 }
 
-tasks.register("testEnd2EndUP") {
-    group = rootProject.description ?: ""
-    description = "Run the end to end UP tests.  Requires running a Docker instance"
-    project.extra["cliArgs"] = listOf("test", "--run", "end2end_up")
-    finalizedBy("primeCLI")
-}
-
-tasks.register("testS2S") {
-    group = rootProject.description ?: ""
-    description = "Run the s2s auth tests.  Requires running a Docker instance"
-    project.extra["cliArgs"] = listOf("test", "--run", "server2serverauth")
-    finalizedBy("primeCLI")
-}
-
 tasks.register("generateDocs") {
     group = rootProject.description ?: ""
     description = "Generate the schema documentation in markup format"
@@ -583,8 +569,9 @@ tasks.azureFunctionsRun {
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
-            "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
-            "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+            "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;" +
+            "BlobEndpoint=http://localhost:10000/devstoreaccount1;" +
+            "QueueEndpoint=http://localhost:10001/devstoreaccount1;"
 
     val env = mutableMapOf<String, Any>(
         "AzureWebJobsStorage" to devAzureConnectString,
@@ -767,12 +754,12 @@ task<RunSQL>("clearDB") {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://jitpack.io")
-        content {
-            includeModule("com.github.KennethWussmann", "mock-fuel")
-        }
-    }
+    // maven {
+    //     url = uri("https://jitpack.io")
+    //     content {
+    //         includeModule("com.github.KennethWussmann", "mock-fuel")
+    //     }
+    // }
 }
 
 buildscript {
@@ -865,10 +852,10 @@ dependencies {
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.1")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
-    implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
-        exclude(group = "org.json", module = "json")
-    }
-    implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
+    // implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
+    //     exclude(group = "org.json", module = "json")
+    // }
+    // implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20231013")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.37.0")
@@ -925,22 +912,24 @@ dependencies {
     // TODO: move this to a test dependency when CompareFhirData lives under src/test
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.14")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     // pin com.squareup.okio:okio@3.4.0
     runtimeOnly("com.squareup.okio:okio:3.4.0")
-    runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
+    // runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0") {
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
-        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
-        exclude(group = "com.github.kittinunf.fuel", module = "fuel")
-    }
+    // testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0") {
+    //     exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+    //     exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
+    //     exclude(group = "com.github.kittinunf.fuel", module = "fuel")
+    // }
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
+    // testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.27.0")
@@ -951,5 +940,9 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter:1.19.1")
     testImplementation("org.testcontainers:postgresql:1.19.1")
 
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
+    testImplementation("com.wolpl.clikt-testkit:clikt-testkit:1.0.0")
+    testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
     implementation(kotlin("script-runtime"))
 }

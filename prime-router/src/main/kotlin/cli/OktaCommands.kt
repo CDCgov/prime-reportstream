@@ -5,14 +5,12 @@ import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.Headers
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.json.responseJson
-import com.github.kittinunf.result.Result
 import com.sun.net.httpserver.HttpServer
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.http.isSuccess
 import org.apache.commons.codec.binary.Base64
 import org.json.JSONObject
 import java.awt.Desktop
@@ -71,7 +69,11 @@ class LoginCommand : OktaCommand(
             echo("About to launch a browser to log in to Okta...")
             val accessTokenJson = launchSignIn(oktaApp)
             val newAccessTokenFile = writeAccessTokenFile(oktaApp, accessTokenJson)
-            echo("Login valid until ${newAccessTokenFile.expiresAt}")
+            if (newAccessTokenFile != null) {
+                echo("Login valid until ${newAccessTokenFile.expiresAt}")
+            } else {
+                echo("Malformed token detected: access token file not written")
+            }
         }
     }
 
@@ -138,21 +140,16 @@ class LoginCommand : OktaCommand(
         clientId: String,
         oktaBaseUrl: String,
     ): JSONObject {
-        val body = "grant_type=authorization_code&" +
-            "redirect_uri=$redirectHost:$redirectPort$redirectPath&" +
-            "client_id=$clientId&" +
-            "code=$code&" +
-            "code_verifier=$codeVerifier"
-        val (_, _, result) = Fuel.post("$oktaBaseUrl$oktaTokenPath")
-            .header(Headers.CONTENT_TYPE to "application/x-www-form-urlencoded")
-            .body(body)
-            .responseJson()
-        return when (result) {
-            is Result.Failure -> throw result.getException()
-            is Result.Success -> {
-                result.value.obj()
-            }
-        }
+        return HttpClientUtils.submitFormT(
+            url = "$oktaBaseUrl$oktaTokenPath",
+            formParams = mapOf(
+                Pair("grant_type", "authorization_code"),
+                Pair("redirect_uri", "$redirectHost:$redirectPort$redirectPath"),
+                Pair("client_id", clientId),
+                Pair("code", code),
+                Pair("code_verifier", codeVerifier)
+            )
+        )
     }
 
     private fun generateCodeVerifier(): String {
@@ -216,6 +213,11 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
         private val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
 
         /**
+         * timeout for http calls
+         */
+        private const val TIMEOUT = 50_000
+
+        /**
          * Returns the access token saved from the last login if valid given [app].
          * @return the Okta access token, a dummy token if [app] is null. or null if there is no valid token
          */
@@ -251,17 +253,14 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             if (accessTokenFile.expiresAt <= LocalDateTime.now().plusMinutes(5)) return false
             val oktaBaseUrl = getOktaUrlBase(oktaApp)
             // Try out the token with Otka for the final confirmation
-            val (_, _, result) = Fuel.get("$oktaBaseUrl$oktaUserInfoPath")
-                .authentication()
-                .bearer(accessTokenFile.token)
-                .responseJson()
-            return when (result) {
-                is Result.Failure -> throw result.getException()
-                is Result.Success -> true
-            }
+            val response = HttpClientUtils.get(
+                url = "$oktaBaseUrl$oktaUserInfoPath",
+                tokens = BearerTokens(accessTokenFile.token, refreshToken = "")
+            )
+            return response.status.isSuccess()
         }
 
-        fun writeAccessTokenFile(oktaApp: OktaApp, accessTokenJson: JSONObject): AccessTokenFile {
+        fun writeAccessTokenFile(oktaApp: OktaApp, accessTokenJson: JSONObject): AccessTokenFile? {
             val token = accessTokenJson.getString("access_token")
             val expiresIn = accessTokenJson.getLong("expires_in")
             val expiresAt = LocalDateTime.now().plusSeconds(expiresIn)
@@ -284,7 +283,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             }
         }
 
-        fun getOktaUrlBase(oktaApp: OktaApp): String {
+        private fun getOktaUrlBase(oktaApp: OktaApp): String {
             return oktaBaseUrls.getValue(oktaApp)
         }
 

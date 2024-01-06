@@ -1,8 +1,6 @@
 package gov.cdc.prime.router.cli.tests
 
 import com.github.ajalt.clikt.core.PrintMessage
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.authentication
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -22,11 +20,19 @@ import gov.cdc.prime.router.cli.PutOrganizationSetting
 import gov.cdc.prime.router.cli.PutSenderSetting
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Scope
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
@@ -173,7 +179,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 bearer = "",
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -184,7 +190,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 bearer = "x",
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = setOf(reportId1!!),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false
@@ -195,7 +201,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 bearer = "",
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -206,7 +212,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 bearer = "x",
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false
@@ -241,7 +247,7 @@ class OktaAuthTests : CoolTest() {
         val (responseCode, _) = HttpUtilities.postReportFileToWatersApi(
             environment, fakeReportFile, sender1, token = badToken
         )
-        if (responseCode != HttpStatus.UNAUTHORIZED.value()) {
+        if (responseCode != HttpStatusCode.Unauthorized.value) {
             passed = passed and bad("Local auth: Should get a 401 response, but but instead got $responseCode")
         }
         val testCases = listOf(
@@ -251,7 +257,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 bearer = badToken,
-                HttpStatus.UNAUTHORIZED,
+                HttpStatusCode.Unauthorized,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -262,7 +268,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 bearer = badToken,
-                HttpStatus.UNAUTHORIZED,
+                HttpStatusCode.Unauthorized,
                 expectedReports = setOf(reportId1!!),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false
@@ -273,7 +279,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 bearer = badToken,
-                HttpStatus.UNAUTHORIZED,
+                HttpStatusCode.Unauthorized,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -284,7 +290,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 bearer = badToken,
-                HttpStatus.UNAUTHORIZED,
+                HttpStatusCode.Unauthorized,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false
@@ -319,7 +325,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -330,7 +336,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -341,7 +347,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -352,7 +358,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -392,7 +398,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 oktaToken,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -403,7 +409,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 oktaToken,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = setOf(reportId2),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -414,7 +420,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 oktaToken,
-                HttpStatus.NOT_FOUND,
+                HttpStatusCode.NotFound,
                 expectedReports = setOf(UUID.fromString("87a02e0c-5b77-4595-a039-e143fbaadda2")),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -425,7 +431,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 oktaToken,
-                HttpStatus.NOT_FOUND,
+                HttpStatusCode.NotFound,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -988,7 +994,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -999,7 +1005,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -1010,7 +1016,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1,
-                HttpStatus.NOT_FOUND,
+                HttpStatusCode.NotFound,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -1021,7 +1027,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1, // using token for org1 to access org2.  Not allowed.
-                HttpStatus.UNAUTHORIZED,
+                HttpStatusCode.Unauthorized,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -1032,7 +1038,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1,
-                HttpStatus.NOT_FOUND,
+                HttpStatusCode.NotFound,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -1043,7 +1049,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token2, // using token for org2 to access org1.  Not allowed.
-                HttpStatus.UNAUTHORIZED,
+                HttpStatusCode.Unauthorized,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -1078,7 +1084,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token1,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1089,7 +1095,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token2,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = setOf(reportId2),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1100,7 +1106,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token2,
-                HttpStatus.UNAUTHORIZED,
+                HttpStatusCode.Unauthorized,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1111,7 +1117,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token1,
-                HttpStatus.UNAUTHORIZED,
+                HttpStatusCode.Unauthorized,
                 expectedReports = setOf(reportId2),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1122,7 +1128,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token1,
-                HttpStatus.NOT_FOUND,
+                HttpStatusCode.NotFound,
                 expectedReports = setOf(UUID.fromString("87a02e0c-5b77-4595-a039-e143fbaadda2")),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1133,7 +1139,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token1,
-                HttpStatus.NOT_FOUND,
+                HttpStatusCode.NotFound,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1168,74 +1174,111 @@ class Server2ServerAuthTests : CoolTest() {
         )
         val orgEndpoint = "${environment.url}/api/settings/organizations"
 
+        val client = HttpClientUtils.createDefaultHttpClient(
+            BearerTokens(userToken, refreshToken = "")
+        )
+
+        val clientAdmin = HttpClientUtils.createDefaultHttpClient(
+            BearerTokens(adminToken, refreshToken = "")
+        )
+
         // Case: GET All Org Settings (Admin-only endpoint)
         // Unhappy Path: user on admin-only endpoint
-        val (_, responseUserGetAllOrgs) = Fuel.get(orgEndpoint)
-            .authentication()
-            .bearer(userToken)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (responseUserGetAllOrgs.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+        val response = runBlocking {
+            client.get(orgEndpoint) {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
+
+        if (response.status != HttpStatusCode.Unauthorized) {
             bad(
                 "***$name Test settings/organizations Unhappy Path (user-GET All Orgs) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUserGetAllOrgs.statusCode}"
+                        " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${response.status.value}"
             )
             return false
         }
+
         // Happy Path: admin on admin-only endpoint
-        val (_, responseAdminGetAllOrgs) = Fuel.get(orgEndpoint)
-            .authentication()
-            .bearer(adminToken)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (responseAdminGetAllOrgs.statusCode != HttpStatus.OK.value()) {
+        val response2 = runBlocking {
+            clientAdmin.get(orgEndpoint) {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
+
+        if (response2.status != HttpStatusCode.OK) {
             bad(
                 "***$name Test settings/organizations Happy Path (admin-GET All Orgs) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminGetAllOrgs.statusCode}"
+                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response2.status.value}"
             )
             return false
         }
 
         // Case: GET Receivers for an Org (Endpoint allowed for admins and members of the org)
         // Happy Path: user on user-allowed endpoint
-        val (_, responseUserGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
-            .authentication()
-            .bearer(userToken)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (responseUserGet.statusCode != HttpStatus.OK.value()) {
+        val response3 = runBlocking {
+            client.get("$orgEndpoint/${authorizedOrg.name}/receivers") {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
+
+        if (response3.status != HttpStatusCode.OK) {
             bad(
                 "***$name Test settings/organizations Happy Path (user-GET Org Receivers) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseUserGet.statusCode}"
+                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response3.status.value}"
             )
             return false
         }
+
         // Happy Path: admin on user-allowed endpoint
-        val (_, responseAdminGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
-            .authentication()
-            .bearer(adminToken)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (responseAdminGet.statusCode != HttpStatus.OK.value()) {
+        val response4 = runBlocking {
+            clientAdmin.get("$orgEndpoint/${authorizedOrg.name}/receivers") {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
+
+        if (response4.status != HttpStatusCode.OK) {
             bad(
                 "***$name Test settings/organizations Happy Path (admin-GET Org Receivers) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminGet.statusCode}"
+                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response4.status.value}"
             )
             return false
         }
+
         // UnhappyPath: user on an unauthorized org name
-        val (_, responseUnauthorizedOrg) = Fuel.get("$orgEndpoint/${unauthorizedOrg.name}/receivers")
-            .authentication()
-            .bearer(userToken)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (responseUnauthorizedOrg.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+        val response5 = runBlocking {
+            client.get("$orgEndpoint/${unauthorizedOrg.name}/receivers") {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
+
+        if (response5.status != HttpStatusCode.Unauthorized) {
             bad(
                 "***$name Test settings/organizations Unhappy Path (user-GET Unauthorized Org Receivers) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUnauthorizedOrg.statusCode}"
+                        " Expected HttpStatus ${HttpStatusCode.Unauthorized}. Got ${response5.status.value}"
             )
             return false
         }
+
         return true
     }
 }
