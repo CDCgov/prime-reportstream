@@ -3,9 +3,10 @@ package gov.cdc.prime.router.cli.tests
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.SettingCommand
-import gov.cdc.prime.router.cli.SettingsUtilities
 import gov.cdc.prime.router.common.Environment
-import org.apache.http.HttpStatus
+import gov.cdc.prime.router.common.HttpClientUtils
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.http.HttpStatusCode
 import java.net.HttpURLConnection
 
 /**
@@ -93,15 +94,25 @@ class SettingsTest : CoolTest() {
          */
         echo("VERIFY the dummy organization existed or not...")
 
-        val (_, _, result) = SettingsUtilities.get(path, dummyAccessToken)
-        val (_, error) = result
-        if (error?.response?.statusCode != HttpStatus.SC_NOT_FOUND) {
-            val (_, responseDel, resultDel) = SettingsUtilities.delete(path, dummyAccessToken)
-            val (_, errorDel) = resultDel
-            when (errorDel?.response?.statusCode) {
-                HttpStatus.SC_OK -> Unit
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
+            url = path,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
+            timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
+        )
+
+        if (response.status != HttpStatusCode.NotFound) {
+            val (delResp, delRespStr) = HttpClientUtils.deleteWithStringResponse(
+                url = path,
+                tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
+                timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
+            )
+            when (delResp.status) {
+                HttpStatusCode.OK -> Unit
                 else ->
-                    return bad(settingErrorMessage + "Failed Dummy organization - ${responseDel.responseMessage}.")
+                    return bad(
+                        settingErrorMessage +
+                                "Failed Dummy organization - del response: $delRespStr, get response: $respStr."
+                    )
             }
         }
 
@@ -109,12 +120,19 @@ class SettingsTest : CoolTest() {
          * CREATE the dummy organization
          */
         echo("CREATE the new dummy organization...")
-        var output = SettingsUtilities.put(path, dummyAccessToken, newDummyOrganization)
-        val (_, responseCreateNewDummy, _) = output
-        when (responseCreateNewDummy.statusCode) {
-            HttpStatus.SC_CREATED -> Unit
+        val (putResponse, putRespStr) = HttpClientUtils.putWithStringResponse(
+            url = path,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
+            jsonPayload = newDummyOrganization,
+        )
+        when (putResponse.status) {
+            HttpStatusCode.Created -> Unit
             else -> {
-                return bad(settingErrorMessage + "Failed on create new dummy organization.")
+                return bad(
+                    settingErrorMessage +
+                            "Failed on create new dummy organization, put response status: " +
+                            "${putResponse.status.value}, put response body: $putRespStr"
+                )
             }
         }
 
@@ -122,67 +140,103 @@ class SettingsTest : CoolTest() {
          * VERIFY the created dummy organization
          */
         echo("VERITY the new dummy organization was created...")
-        val (_, responseNewDummy, resultNewDummy) = SettingsUtilities.get(path, dummyAccessToken)
-        val (payloadNewDummy, errorNewDummy) = resultNewDummy
-        if (errorNewDummy?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
-            return bad(settingErrorMessage + responseNewDummy.responseMessage)
+        val (getResponse, getRespStr) = HttpClientUtils.getWithStringResponse(
+            url = path,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
+        )
+
+        if (getResponse.status == HttpStatusCode.NotFound) {
+            return bad(
+                settingErrorMessage + " get response status: ${getResponse.status.value}" +
+                        ", response body: $getRespStr"
+            )
         }
 
         /**
          * The payload must contain the known "NEWDUMMYORG" defined
          * in the newDummyOrganization resource above.
          */
-        if (!payloadNewDummy?.contains("NEWDUMMYORG")!!) {
+        if (!getRespStr.contains("NEWDUMMYORG")) {
             return bad(settingErrorMessage + "It is not the created dummy organization.")
         }
 
         /**
          * UPDATE the dummy organization
          */
-        output = SettingsUtilities.put(path, dummyAccessToken, updateDummyOrganization)
-        val (_, responseCreateUpdateDummy, _) = output
-        when (responseCreateUpdateDummy.statusCode) {
-            HttpStatus.SC_OK -> Unit
+        val (updResponse, updRespStr) = HttpClientUtils.putWithStringResponse(
+            url = path,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
+            jsonPayload = updateDummyOrganization
+        )
+
+        when (updResponse.status) {
+            HttpStatusCode.OK -> Unit
             else ->
-                return bad(settingErrorMessage + "Failed on can't create update dummy organization.")
+                return bad(
+                    settingErrorMessage + "Failed on can't create update dummy organization," +
+                            " put response status: ${updResponse.status.value}, body: $updRespStr"
+                )
         }
 
         /**
          * VERIFY the updated dummy organization
          */
         echo("VERIFY it is the new dummy organization is updated...")
-        val (_, _, resultUpdateOrg) = SettingsUtilities.get(path, dummyAccessToken)
-        val (payload, errorUpdateDummy) = resultUpdateOrg
-        if (errorUpdateDummy?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
-            return bad(settingErrorMessage + "Failed on verify the new dummy organization.")
+        val (newDummyResponse, newDummyRespStr) = HttpClientUtils.getWithStringResponse(
+            url = path,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
+        )
+        if (newDummyResponse.status == HttpStatusCode.NotFound) {
+            return bad(
+                settingErrorMessage + "Failed on verify the new dummy organization," +
+                        " get response status: ${newDummyResponse.status.value}, body: $newDummyRespStr"
+            )
         }
 
         /**
          * The payload must contain the known "UPDATEDUMMYORG" defined
          * in the updateDummyOrganization resource above.
          */
-        if (!payload?.contains("UPDATEDUMMYORG")!!) {
-            return bad(settingErrorMessage + "It is not the updated dummy organization.")
+        if (!newDummyRespStr.contains("UPDATEDUMMYORG")) {
+            return bad(
+                settingErrorMessage + "It is not the updated dummy organization, " +
+                        " get response status: ${newDummyResponse.status.value}, body: $newDummyRespStr"
+            )
         }
 
         /**
          * DELETE the updated dummy organization
          */
         echo("DELETE the updated dummy organization...")
-        val (_, responseDelUpdateOrg, resultDelUpdateOrg) = SettingsUtilities.delete(path, dummyAccessToken)
-        val (_, errorDelUpdateOrg) = resultDelUpdateOrg
-        if (errorDelUpdateOrg?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
-            return bad(settingErrorMessage + "Failed on delete - " + responseDelUpdateOrg.responseMessage)
+        val (delNewDummyResponse, delNewDummyRespStr) = HttpClientUtils.deleteWithStringResponse(
+            url = path,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
+            timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
+        )
+
+        if (delNewDummyResponse.status == HttpStatusCode.NotFound) {
+            return bad(
+                settingErrorMessage + "Failed on delete - " +
+                        "delete response status: ${delNewDummyResponse.status.value}, " +
+                        " body: $delNewDummyRespStr"
+            )
         }
 
         /**
          * VERIFY the dummy organization deleted
          */
         echo("VERIFY it is the new dummy organization is deleted...")
-        val (_, responseCleanUpDummyOrg, resultCleanUpDummyOrg) = SettingsUtilities.get(path, dummyAccessToken)
-        val (_, errorDummy) = resultCleanUpDummyOrg
-        if (errorDummy?.response?.statusCode != HttpStatus.SC_NOT_FOUND) {
-            return bad(settingErrorMessage + "Failed cleaned up - " + responseCleanUpDummyOrg.responseMessage)
+        val (getNewDummyDelResp, getNewDummyDelRespStr) = HttpClientUtils.getWithStringResponse(
+            url = path,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
+            timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
+        )
+        if (getNewDummyDelResp.status != HttpStatusCode.NotFound) {
+            return bad(
+                settingErrorMessage + "Failed cleaned up - " +
+                        " get response status: ${getNewDummyDelResp.status.value}, " +
+                        "body: $getNewDummyDelRespStr"
+            )
         }
 
         return good("Test passed: Test GRUD REST API ")
