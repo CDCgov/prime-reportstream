@@ -2,7 +2,7 @@ import React from "react";
 import { Grid } from "@trussworks/react-uswds";
 
 import { RSDelivery } from "../../../config/endpoints/deliveries";
-import ReportLink from "../../../pages/deliveries/Table/ReportLink";
+import ReportLink from "../../../pages/deliveries/daily-data/ReportLink";
 import {
     formatDateWithoutSeconds,
     isDateExpired,
