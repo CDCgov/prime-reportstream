@@ -5176,12 +5176,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dompurify@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "@types/dompurify@npm:3.0.3"
+"@types/dompurify@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "@types/dompurify@npm:3.0.5"
   dependencies:
     "@types/trusted-types": "*"
-  checksum: ff629277db4d19d836b0d878e93efb27d876d1073db81507c39d44d509b30ee3bcdc9e951dbbf9574b1fc6c52e1eaa95abf4279fa45aca281868717f8a7298da
+  checksum: ffc34eca6a4536e1c8c16a47cce2623c5a118a9785492e71230052d92933ff096d14326ff449031e8dfaac509413222372d8f2b28786a13159de6241df716185
   languageName: node
   linkType: hard
 
@@ -8239,10 +8239,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.0.5":
-  version: 3.0.5
-  resolution: "dompurify@npm:3.0.5"
-  checksum: 2d9421570c833ce26ce7022955241749b646d41e8bf453f42ede9f22d0e98af482cedb7dfbf8129419eb48b351c1d677a08fc9f1cd91836ce7f6c1807a0676b2
+"dompurify@npm:^3.0.8":
+  version: 3.0.8
+  resolution: "dompurify@npm:3.0.8"
+  checksum: cac660ccae15a9603f06a85344da868a4c3732d8b57f7998de0f421eb4b9e67d916be52e9bb2a57b2f95b49e994cc50bcd06bb87f2cb2849cf058bdf15266237
   languageName: node
   linkType: hard
 
@@ -15211,7 +15211,7 @@ __metadata:
     "@testing-library/react": ^14.0.0
     "@testing-library/user-event": ^14.5.1
     "@trussworks/react-uswds": ^5.4.0
-    "@types/dompurify": ^3.0.3
+    "@types/dompurify": ^3.0.5
     "@types/dotenv-flow": ^3
     "@types/downloadjs": ^1.4.4
     "@types/github-slugger": ^1.3.0
@@ -15244,7 +15244,7 @@ __metadata:
     classnames: ^2.5.1
     confusing-browser-globals: ^1.0.11
     cross-env: ^7.0.3
-    dompurify: ^3.0.5
+    dompurify: ^3.0.8
     dotenv-flow: ^3.2.0
     downloadjs: ^1.4.7
     eslint: ^8.56.0
