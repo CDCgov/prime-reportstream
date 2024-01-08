@@ -2,14 +2,20 @@ package gov.cdc.prime.router.fhirengine.utils
 
 import ca.uhn.hl7v2.model.Message
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.router.ActionLogDetail
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.UnmappableConditionMessage
+import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
+import org.hl7.fhir.exceptions.FHIRException
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Extension
@@ -25,6 +31,86 @@ import java.util.stream.Stream
  * A collection of helper functions that modify an existing FHIR bundle.
  */
 const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
+const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
+
+/**
+ * Looks up a condition code for the passed in [code] (typically a test) using the given [metadata] object
+ * @param code test (or other type) code to look up a condition for
+ * @param metadata metadata containing an observation-mapping lookup table
+ * @return the condition code or null if no code was found
+ */
+private fun lookupCondition(code: Coding, metadata: Metadata): Coding? {
+    val mappingTable = metadata.findLookupTable("observation-mapping").also {
+        if (it == null) { // could not load the table
+            throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
+        }
+    }!!
+    val condition = mappingTable.caseSensitiveDataRowsMap.find { // search for the code
+        it[ObservationMappingConstants.TEST_CODE_KEY] == code.code
+    }
+    return if (condition.isNullOrEmpty()) { // could not find the code
+        null
+    } else { // code found; create Coding instance to return
+        Coding(
+            condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
+            condition[ObservationMappingConstants.CONDITION_CODE_KEY],
+            condition[ObservationMappingConstants.CONDITION_NAME_KEY]
+        )
+    }
+}
+
+/**
+ * Retrieves loinc/snomed codes from [this] observation in known locations (code.coding and valueCodeableConcept.coding)
+ * @return a map of lists of codings keyed by their origin as a printable string
+ */
+fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
+    val toReturn = mutableMapOf<String, List<Coding>>()
+    try {
+        toReturn[ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER] = this.code.coding
+    } catch (error: FHIRException) {
+        if (error.message == null ||
+            !error.message!!.startsWith("Type mismatch: the type CodeableConcept was expected")
+            ) {
+            throw error
+        }
+    }
+    try {
+        toReturn[ObservationMappingConstants.BUNDLE_VALUE_IDENTIFIER] = this.valueCodeableConcept.coding
+    } catch (error: FHIRException) {
+        if (error.message == null ||
+            !error.message!!.startsWith("Type mismatch: the type CodeableConcept was expected")
+            ) {
+            throw error
+        }
+    }
+    return toReturn
+}
+
+/**
+ * For every snomed/loinc code in code or valueCodeableConcept, lookup a condition code and add it as an extension
+ * @param metadata metadata containing an observation-mapping lookup table
+ * @return a list of ActionLogDetail objects with information on any mapping failures
+ */
+fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
+    val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
+    if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
+
+    return codeSourcesMap.mapNotNull { codeSourceEntry ->
+        codeSourceEntry.value.mapNotNull { code ->
+            lookupCondition(code, metadata).let { conditionCode ->
+                if (conditionCode == null) { // no code found, track this unmapped code
+                    code.code
+                } else { // code found, add extension and return null to avoid mapping this as an error
+                    code.addExtension(conditionCodeExtensionURL, conditionCode)
+                    null
+                }
+            }
+        }.let {
+            // create log message for any unmapped codes
+            if (it.isEmpty()) null else UnmappableConditionMessage(it, codeSourceEntry.key)
+        }
+    }
+}
 
 /**
  * Adds references to diagnostic reports within [fhirBundle] as provenance targets

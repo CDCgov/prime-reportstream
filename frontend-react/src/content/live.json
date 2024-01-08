@@ -162,6 +162,10 @@
         },
         {
             "status": "Live",
+            "state": "Wisconsin"
+        },
+        {
+            "status": "Live",
             "state": "Wyoming"
         }
     ]
