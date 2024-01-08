@@ -1,4 +1,4 @@
-resource: EpisodeOfCare
+resourceType: EpisodeOfCare
 
 id:
   type: STRING
@@ -10,11 +10,11 @@ identifier:
   expressionType: nested
   expressions:
     - vars:
-        CXIdentifier: STRING_ALL, $BASE_VALUE.54
-      condition: $CXIdentifier NOT_NULL
+        pv154: STRING_ALL, PV1.54
+      condition: $pv154 NOT_NULL
       expressionType: resource
       valueOf: datatypes/CX/Identifier
-      specs: $BASE_VALUE.54
+      specs: PV1.54
 
 extension:
   generateList: true
@@ -35,4 +35,4 @@ extension:
         valueString:
           type: STRING
           expressionType: HL7Spec
-          valueOf: $BASE_VALUE.53
+          valueOf: PV1.53

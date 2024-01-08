@@ -651,4 +651,6 @@
   url: "https://hl7.org/fhir/StructureDefinition/temporary-location"
 - id: "pv2-visit-description"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-visit-description"
+- id: "episode-of-care-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/episode-of-care-name"
 

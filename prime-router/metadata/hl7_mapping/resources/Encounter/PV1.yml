@@ -133,24 +133,18 @@ elements:
     value: [ '%resource.period.end.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{hl7PV1Field}-45' ]
 
-  - name: pv1-alternate-visit-it
+  - name: pv1-alternate-visit-id
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "alternate-visit-id")'
     schema: ../../datatypes/identifier/CX
     constants:
       cxFieldPath: '%{hl7PV1Field}-50'
 
-  - name: pv1-other-healthcare-provider
-    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv1-52-other-healthcare-provider").individual.resolve()'
-    schema: ../Practitioner/XCN
-    constants:
-      hl7XCNField: '%{hl7PV1Field}-52'
-
   - name: pv1-service-episode-description
-    value: [ '%resource.episodeOfCare.where(extension(%`rsext-hl7-use`).value = "service-episode").extension(%`rsext-episode-of-care-name`).value' ]
+    value: [ '%resource.episodeOfCare.resolve().where(extension(%`rsext-hl7-use`).value = "service-episode").extension(%`rsext-episode-of-care-name`).value' ]
     hl7Spec: [ '%{hl7PV1Field}-53' ]
 
-  - name: pv1-alternate-visit-it
-    resource: '%resource.episodeOfCare.where(extension(%`rsext-hl7-use`).value = "service-episode").identifier'
+  - name: pv1-service-episode-identifier
+    resource: '%resource.episodeOfCare.resolve().where(extension(%`rsext-hl7-use`).value = "service-episode").identifier'
     schema: ../../datatypes/identifier/CX
     constants:
       cxFieldPath: '%{hl7PV1Field}-54'

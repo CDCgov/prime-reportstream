@@ -1,24 +1,21 @@
 resourceType: Encounter
 
-# Not mapping PV1.15
-# PV1.21-29 not mapping not inventory not nist
-# NOT PV1.40
+# Not mapped because fields are deprecated in NIST and not in the mapping inventory
+# PV1.15
+# PV1.21-29
+# PV1.40
 # PV2.2
-# PV2.4
-# PV2.5
-# PV2.6
+# PV2.4-6
 # PV2.14
-# PV2.16
-# PV2.17
-# PV2.18
-# PV2.19
-# PV2.20 does not map a mapping
+# PV2.16-20
 # PV2.24
 # PV2.27
 # PV2.28
 # PV2.30 - 37
 # PV2.39
 # PV2.41-49
+# PV1.52 is in the inventory and NIST, but is NULLDT in the HAPI structure
+# PV1.20 is not mapped because there is no mapping for the FC datatype
 
 id:
   type: STRING
@@ -356,34 +353,6 @@ participant:
               type: STRING
               value: "admitter"
     - vars:
-        pv152: STRING_ALL, PV1.52
-      condition: $pv152 NOT_NULL
-      expressionType: nested
-      constants:
-        XCNHL7Use: pv1-52-other-healthcare-provider
-      expressionsMap:
-        individual:
-          expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
-          specs: PV1.52
-        type:
-          expressionType: nested
-          generateList: true
-          expressionsMap:
-            coding:
-              generateList: true
-              expressionType: nested
-              expressionsMap:
-                code:
-                  type: STRING
-                  value: "PART"
-                system:
-                  type: STRING
-                  value: "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"
-            text:
-              type: STRING
-              value: "Participation"
-    - vars:
         pv213: STRING_ALL, PV2.13
       condition: $pv213 NOT_NULL
       expressionType: nested
@@ -494,12 +463,14 @@ identifier:
         CXIdentifierText: "visit number"
         identifierIndexName: "visit-number"
     - vars:
-        pv150: STRING_ALL, PV1.150
+        pv150: STRING_ALL, PV1.50
       condition: $pv150 NOT_NULL
       expressionType: resource
+      specs: PV1.50
       valueOf: datatypes/CX/Identifier
       constants:
         identifierIndexName: "alternate-visit-id"
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
 
 period:
   expressionType: nested
