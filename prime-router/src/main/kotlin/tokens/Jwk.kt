@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.tokens
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.RSAKey
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPrivateKey
@@ -58,22 +58,22 @@ class Jwk(
 
     fun toECPublicKey(): ECPublicKey {
         if (kty != "EC") error("Cannot convert key type $kty to ECPublicKey")
-        return generateECPublicKey(jacksonObjectMapper().writeValueAsString(this))
+        return generateECPublicKey(jacksonObjectMapper.writeValueAsString(this))
     }
 
     fun toECPrivateKey(): ECPrivateKey {
         if (kty != "EC") error("Cannot convert key type $kty to ECPrivateKey")
-        return generateECPrivateKey(jacksonObjectMapper().writeValueAsString(this))
+        return generateECPrivateKey(jacksonObjectMapper.writeValueAsString(this))
     }
 
     fun toRSAPublicKey(): RSAPublicKey {
         if (kty != "RSA") error("Cannot convert key type $kty to RSAPublicKey")
-        return generateRSAPublicKey(jacksonObjectMapper().writeValueAsString(this))
+        return generateRSAPublicKey(jacksonObjectMapper.writeValueAsString(this))
     }
 
     fun toRSAPrivateKey(): RSAPrivateKey {
         if (kty != "RSA") error("Cannot convert key type $kty to RSAPrivateKey")
-        return generateRSAPrivateKey(jacksonObjectMapper().writeValueAsString(this))
+        return generateRSAPrivateKey(jacksonObjectMapper.writeValueAsString(this))
     }
 
     companion object {
