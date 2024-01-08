@@ -103,7 +103,6 @@
         Content-Length:  "<calculated when request is sent>"
         Content-Type:  "multipart/form-data"  # Added for sending multipart/form-data or file format message content
         Key: "files"    # Added for the key value as file.
-        File-Name: "cdc-up-reportId-withdate.hl7"   # Set file name to cdc-up-<reportId>-yyyy-MM-ddThh:mm:ss.hl7
         Subscription: "23edf66e1fe14685bb9dfa2cbb14eb3b"  # Added the assigned subscription value.
         Host: "api.neometrics.com"
       authHeaders:

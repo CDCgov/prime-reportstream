@@ -43,7 +43,6 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
-import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
@@ -645,25 +644,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // Given:
         //      lookupDefaultCredential returns mock UserPassCredential object to allow
         //      the getAuthTokenWithUserPass() to be called.
-        val validFileName = if (natusRestTransportTypeLive.headers["File-Name"] != null) {
-            if (natusRestTransportTypeLive.headers["File-Name"]
-                ?.lowercase(Locale.getDefault())?.contains("withdate") == true
-            ) {
-                val ext = if (natusRestTransportTypeLive.headers["File-Name"]?.split(".")!!.size > 1) {
-                    natusRestTransportTypeLive.headers["File-Name"]
-                    ?.lowercase(Locale.getDefault())?.split(".")?.get(1)
-                } else {
-                    "hl7"
-                }
-                val ddHhMm = header.reportFile.createdAt.toString().split("T")[1].split(".")
-                val dateTime = header.reportFile.createdAt.toString().split("T")[0] + "T" + ddHhMm[0]
-                "cdc-up-$reportId-" + dateTime + "." + ext
-            } else {
-                natusRestTransportTypeLive.headers["File-Name"]
-            }
-        } else {
-            "$reportId.hl7"
-        }
+        val validFileName = Report.formFilename(
+            header.reportFile.reportId,
+            header.receiver!!.organizationName,
+            when (header.receiver!!.translation.type) {
+                "HL7" -> Report.Format.HL7
+                "CSV" -> Report.Format.CSV
+                else -> Report.Format.HL7
+            },
+            header.reportFile.createdAt
+        )
 
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential(

@@ -57,7 +57,6 @@ import org.json.JSONObject
 import java.io.InputStream
 import java.security.KeyStore
 import java.util.Base64
-import java.util.Locale
 import java.util.logging.Logger
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
@@ -91,24 +90,16 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         val receiver = header.receiver ?: error("No receiver defined for report $reportId")
         val reportContent: ByteArray = header.content ?: error("No content for report $reportId")
         // get the file name, or create one from the report ID, NY requires a file name in the POST
-        val fileName = if (restTransportInfo.headers["File-Name"] != null) {
-            if (restTransportInfo.headers["File-Name"]
-                    ?.lowercase(Locale.getDefault())?.contains("withdate") == true
-            ) {
-                val ext = if (restTransportInfo.headers["File-Name"]?.split(".")!!.size > 1) {
-                    restTransportInfo.headers["File-Name"]?.lowercase(Locale.getDefault())?.split(".")?.get(1)
-                } else {
-                    "hl7"
-                }
-                val ddHhMm = header.reportFile.createdAt.toString().split("T")[1].split(".")
-                val dateTime = header.reportFile.createdAt.toString().split("T")[0] + "T" + ddHhMm[0]
-                "cdc-up-$reportId-" + dateTime + "." + ext
-            } else {
-                restTransportInfo.headers["File-Name"]
-            }
-        } else {
-            "$reportId.hl7"
-        }
+        val fileName = Report.formFilename(
+            header.reportFile.reportId,
+            receiver.organizationName,
+            when (receiver.translation.type) {
+                "HL7" -> Report.Format.HL7
+                "CSV" -> Report.Format.CSV
+                else -> Report.Format.HL7
+            },
+            header.reportFile.createdAt
+        )
 
         // get the username/password to authenticate with OAuth
         val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
@@ -132,7 +123,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         val reportClient = httpClient ?: createDefaultHttpClient(jksCredential, bearerTokens)
                         val response = postReport(
                             reportContent,
-                            fileName as String,
+                            fileName,
                             restTransportInfo.reportUrl,
                             httpHeaders,
                             logger,
