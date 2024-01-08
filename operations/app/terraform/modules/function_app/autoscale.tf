@@ -6,7 +6,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
   target_resource_id  = var.app_service_plan
 
   profile {
-    name = "ScaleOnHighLoad"
+    name = "Autoscaling event - ScaleOnHighLoad"
 
     capacity {
       default = 6

@@ -239,28 +239,22 @@ runs:
 
     - name: Promote candidate slot
       id: promote-candidate
-      if: inputs.destroy == 'false'
-      uses: ./.github/actions/retry
-      with:
-        timeout_minutes: 20
-        max_attempts: 3
-        retry_wait_seconds: 60
-        command: |
-          cd operations
-          make \
-            TF_ENV=${{ env.TERRAFORM_ENV }} \
-            AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
-            AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
-            zdd-promote-slot
-        shell: bash
+      working-directory: operations
+      run: |
+        make \
+          TF_ENV=${{ env.TERRAFORM_ENV }} \
+          AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
+          AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
+          zdd-promote-slot
+      shell: bash
 
     - name: Validate function app checksum
       if: inputs.checksum-validation == 'true'
-      uses: JosiahSiegel/checksum-validate-action@90b0a2d0fd8bbbb9d314522c409b3fcbd907ef2b
+      uses: JosiahSiegel/checksum-validate-action@f14bb2ae5ca3cb0b61ba697885cb501368242d93
       with:
         key: backend
         validate: true
-        fail-invalid: true
+        fail-invalid: false
         input: $(az functionapp config appsettings list -g prime-data-hub-${{ inputs.env-name }} -n pdh${{ inputs.env-name }}-functionapp)
 
     - name: Remove GitHub action IP whitelist

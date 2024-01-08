@@ -12,8 +12,10 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -83,10 +85,10 @@ class CovidBatchFunctionTests {
         every { engine.generateEmptyReport(any(), any()) } returns Unit
 
         // the message that will be passed to batchFunction
-        val message = "receiver&BATCH&phd.elr&true"
+        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", true)
 
         // Invoke batch function run
-        CovidBatchFunction(engine).run(message, context = null)
+        CovidBatchFunction(engine).run(message.toQueueMessage(), context = null)
 
         // empty pathway should be called
         verify(exactly = 1) { engine.generateEmptyReport(any(), any()) }
@@ -135,10 +137,10 @@ class CovidBatchFunctionTests {
         every { engine.db.fetchReportFile(any(), any(), any()) } returns mockReportFile
 
         // the message that will be passed to batchFunction
-        val message = "receiver&BATCH&phd.elr&false"
+        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", false)
 
         // invoke batch function run for legacy pipeline
-        CovidBatchFunction(engine).run(message, context = null)
+        CovidBatchFunction(engine).run(message.toQueueMessage(), context = null)
 
         // verify that we only download blobs once in legacy pipeline
         verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(bodyURL, any(), any()) }

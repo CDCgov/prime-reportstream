@@ -133,7 +133,7 @@ class FhirTranslatorTests {
 
         val message =
             spyk(
-                FhirTranslateMessage(
+                FhirTranslateQueueMessage(
                     UUID.randomUUID(),
                     BLOB_URL,
                     "test",
@@ -183,7 +183,7 @@ class FhirTranslatorTests {
 
         val engine = makeFhirEngine(settings = settings)
         val message = spyk(
-            FhirTranslateMessage(
+            FhirTranslateQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -387,7 +387,7 @@ class FhirTranslatorTests {
         val actionLogger = mockk<ActionLogger>()
 
         val message = spyk(
-            FhirTranslateMessage(
+            FhirTranslateQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",

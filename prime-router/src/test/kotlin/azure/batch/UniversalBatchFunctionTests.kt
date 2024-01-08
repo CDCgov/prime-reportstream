@@ -17,6 +17,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
@@ -94,10 +95,10 @@ class UniversalBatchFunctionTests {
         every { engine.generateEmptyReport(any(), any()) } returns Unit
 
         // the message that will be passed to batchFunction
-        val message = "receiver&BATCH&phd.elr&true"
+        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", true)
 
         // Invoke batch function run
-        UniversalBatchFunction(engine).run(message, context = null)
+        UniversalBatchFunction(engine).run(message.toQueueMessage(), context = null)
 
         // empty pathway should be called
         verify(exactly = 1) { engine.generateEmptyReport(any(), any()) }
@@ -455,10 +456,10 @@ class UniversalBatchFunctionTests {
         every { Topic.COVID_19.isUniversalPipeline } returns true
 
         // the message that will be passed to batchFunction
-        val message = "receiver&BATCH&phd.elr&false"
+        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", false)
 
         // Invoke batch function run for universal pipeline
-        UniversalBatchFunction(engine).run(message, context = null)
+        UniversalBatchFunction(engine).run(message.toQueueMessage(), context = null)
 
         // verify that we only download blobs once in universal pipeline
         verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(bodyURL, any(), any()) }

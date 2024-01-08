@@ -53,6 +53,7 @@ const useOrgDeliveries = (service?: string) => {
         [adminSafeOrgName, service],
     );
 
+    // Pagination and filter props
     const filterManager = useFilterManager(filterManagerDefaults);
     const sortOrder = filterManager.sortSettings.order;
     const rangeTo = filterManager.rangeSettings.to;

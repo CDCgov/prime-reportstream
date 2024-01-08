@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -18,6 +17,7 @@ import com.sendgrid.SendGrid
 import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.secrets.SecretHelper
 import java.io.IOException
 import java.util.logging.Logger
@@ -128,7 +128,7 @@ class EmailSenderFunction {
      */
     private fun parseBody(requestBody: String, logger: Logger): TosAgreementForm? {
         return try {
-            jacksonObjectMapper().readValue<TosAgreementForm>(requestBody, TosAgreementForm::class.java)
+            jacksonObjectMapper.readValue<TosAgreementForm>(requestBody, TosAgreementForm::class.java)
         } catch (ex: MismatchedInputException) {
             logger.info("There was an exception thrown when parsing your JSON")
             null
