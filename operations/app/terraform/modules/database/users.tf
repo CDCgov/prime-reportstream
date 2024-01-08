@@ -14,14 +14,14 @@ locals {
         -n terraform_runner_${var.resource_prefix} --start-ip-address ${local.public_ip} --end-ip-address ${local.public_ip}
 
       sleep 60;
-      sudo PGPASSWORD=${var.postgres_pass} \
+      PGPASSWORD=${var.postgres_pass} \
       PGSSLMODE=require \
       psql -h ${azurerm_postgresql_server.postgres_server.fqdn} -U ${var.postgres_user}@${azurerm_postgresql_server.postgres_server.name} \
         -d prime_data_hub \
         -c "CREATE ROLE ${var.postgres_readonly_user} WITH LOGIN PASSWORD '${var.postgres_readonly_pass}'" &> /dev/null
 
       sleep 5;
-      sudo PGPASSWORD=${var.postgres_pass} \
+      PGPASSWORD=${var.postgres_pass} \
       PGSSLMODE=require \
       psql -h ${azurerm_postgresql_server.postgres_server.fqdn} -U ${var.postgres_user}@${azurerm_postgresql_server.postgres_server.name} \
         -d prime_data_hub \
