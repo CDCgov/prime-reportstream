@@ -9,10 +9,10 @@ import com.sun.net.httpserver.HttpServer
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.transport.TokenInfo
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.isSuccess
 import org.apache.commons.codec.binary.Base64
-import org.json.JSONObject
 import java.awt.Desktop
 import java.net.InetSocketAddress
 import java.net.URI
@@ -77,7 +77,7 @@ class LoginCommand : OktaCommand(
         }
     }
 
-    private fun launchSignIn(app: OktaApp): JSONObject {
+    private fun launchSignIn(app: OktaApp): TokenInfo {
         val codeVerifier = generateCodeVerifier()
         val codeChallenge = generateCodeChallenge(codeVerifier)
         val state = generateCodeVerifier() // random number
@@ -139,7 +139,7 @@ class LoginCommand : OktaCommand(
         codeVerifier: String,
         clientId: String,
         oktaBaseUrl: String,
-    ): JSONObject {
+    ): TokenInfo {
         return HttpClientUtils.submitFormT(
             url = "$oktaBaseUrl$oktaTokenPath",
             formParams = mapOf(
@@ -260,9 +260,9 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             return response.status.isSuccess()
         }
 
-        fun writeAccessTokenFile(oktaApp: OktaApp, accessTokenJson: JSONObject): AccessTokenFile? {
-            val token = accessTokenJson.getString("access_token")
-            val expiresIn = accessTokenJson.getLong("expires_in")
+        fun writeAccessTokenFile(oktaApp: OktaApp, accessTokenJson: TokenInfo): AccessTokenFile? {
+            val token = accessTokenJson.accessToken
+            val expiresIn = accessTokenJson.expiresIn ?: 0
             val expiresAt = LocalDateTime.now().plusSeconds(expiresIn)
             val clientId = clientIds.getValue(oktaApp)
             val accessTokenFile = AccessTokenFile(token, clientId, expiresAt)

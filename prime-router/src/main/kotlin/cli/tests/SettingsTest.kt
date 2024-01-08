@@ -7,7 +7,6 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.HttpStatusCode
-import java.net.HttpURLConnection
 
 /**
  * Test CRUD of the Setting API.  It is smoke test that does the following steps:
@@ -277,7 +276,7 @@ class SenderSettings : CoolTest() {
             )
         echo("Response to POST: $responseCode")
         if (!options.muted) echo(json)
-        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+        if (responseCode != HttpStatusCode.Created.value) {
             return bad("***$name Test FAILED***:  response code $responseCode")
         }
         val reportId = getReportIdFromResponse(json)

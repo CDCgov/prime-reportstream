@@ -27,13 +27,6 @@ class CommandUtilities {
         const val waitForApiEndpointPath = "api/lookuptables/list"
 
         /**
-         * timeout for http calls
-         */
-//        private const val TIMEOUT = 50_000
-//        const val REQUEST_TIMEOUT_MILLIS: Long = 130000 // need to be public to be used by inline
-//        const val SETTINGS_REQUEST_TIMEOUT_MILLIS = 30000
-
-        /**
          * Waits for the endpoint at [environment] to become available. This function will retry [retries] number of
          * times waiting [pollIntervalSecs] seconds between retries.
          * @throws IOException if a connection was not made

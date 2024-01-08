@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.cli.tests
 
 import com.github.ajalt.clikt.core.PrintMessage
-import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Organization
@@ -1197,7 +1196,7 @@ class Server2ServerAuthTests : CoolTest() {
         if (response.status != HttpStatusCode.Unauthorized) {
             bad(
                 "***$name Test settings/organizations Unhappy Path (user-GET All Orgs) FAILED:" +
-                        " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${response.status.value}"
+                        " Expected HttpStatus ${HttpStatusCode.Unauthorized}. Got ${response.status.value}"
             )
             return false
         }
