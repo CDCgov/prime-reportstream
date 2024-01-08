@@ -12,5 +12,11 @@ class PV1PV2ToEncounterTests {
 
     @Test
     fun `test converts PV1 to Encounter without PV2`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("pv1pv2/PV1-to-Encounter").passed)
+    }
+
+    @Test
+    fun `test sets the status correctly when PV145 is valued`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("pv1pv2/PV1-to-Encounter-pv145-valued").passed)
     }
 }
