@@ -1,7 +1,8 @@
 package gov.cdc.prime.router.cli.tests
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.extensions.authentication
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -21,18 +22,11 @@ import gov.cdc.prime.router.cli.PutOrganizationSetting
 import gov.cdc.prime.router.cli.PutSenderSetting
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Scope
-import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.timeout
-import io.ktor.client.request.accept
-import io.ktor.client.request.get
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
@@ -90,8 +84,8 @@ class OktaAuthTests : CoolTest() {
                 OktaCommand.fetchAccessToken(environment.oktaApp)
                     ?: CommandUtilities.abort(
                         "Cannot run test $testName. Invalid access token. " +
-                                "Run ./prime login to fetch/refresh a PrimeAdmin access token for " +
-                                "the $environment environment."
+                            "Run ./prime login to fetch/refresh a PrimeAdmin access token for " +
+                            "the $environment environment."
 
                     )
             }
@@ -179,7 +173,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 bearer = "",
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -190,7 +184,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 bearer = "x",
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = setOf(reportId1!!),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false
@@ -201,7 +195,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 bearer = "",
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -212,7 +206,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 bearer = "x",
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false
@@ -238,7 +232,7 @@ class OktaAuthTests : CoolTest() {
         ugly("Starting $name Test: try various API paths using a bad token")
         var passed = true
         val advice = "Run   ./prime login --env staging    " +
-                "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
         )
@@ -257,7 +251,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 bearer = badToken,
-                HttpStatusCode.Unauthorized,
+                HttpStatus.UNAUTHORIZED,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -268,7 +262,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 bearer = badToken,
-                HttpStatusCode.Unauthorized,
+                HttpStatus.UNAUTHORIZED,
                 expectedReports = setOf(reportId1!!),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false
@@ -279,7 +273,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 bearer = badToken,
-                HttpStatusCode.Unauthorized,
+                HttpStatus.UNAUTHORIZED,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -290,7 +284,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 bearer = badToken,
-                HttpStatusCode.Unauthorized,
+                HttpStatus.UNAUTHORIZED,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false
@@ -314,7 +308,7 @@ class OktaAuthTests : CoolTest() {
     ): Boolean {
         ugly("Starting $name Test: test list-of-submissions queries using Okta PrimeAdmin token")
         val advice = "Run   ./prime login --env staging    " +
-                "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
         )
@@ -325,7 +319,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -336,7 +330,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -347,7 +341,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -358,7 +352,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -383,7 +377,7 @@ class OktaAuthTests : CoolTest() {
     ): Boolean {
         ugly("Starting $name Test: test report-details-history queries using Okta auth.")
         val advice = "Run   ./prime login --env staging    " +
-                "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
         )
@@ -398,7 +392,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 oktaToken,
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -409,7 +403,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 oktaToken,
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = setOf(reportId2),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -420,7 +414,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 oktaToken,
-                HttpStatusCode.NotFound,
+                HttpStatus.NOT_FOUND,
                 expectedReports = setOf(UUID.fromString("87a02e0c-5b77-4595-a039-e143fbaadda2")),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -431,7 +425,7 @@ class OktaAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 oktaToken,
-                HttpStatusCode.NotFound,
+                HttpStatus.NOT_FOUND,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -495,7 +489,7 @@ class Server2ServerAuthTests : CoolTest() {
                 SettingCommand
                     .SettingType.SENDER,
                 newSender.fullName,
-                jacksonObjectMapper().writeValueAsString(newSender)
+                jacksonObjectMapper.writeValueAsString(newSender)
             )
 
         // query the API get the sender previously written
@@ -534,7 +528,7 @@ class Server2ServerAuthTests : CoolTest() {
                 OktaAuthTests.getOktaAccessToken(settingsEnv),
                 SettingCommand.SettingType.ORGANIZATION,
                 organizationPlusNewKey.name,
-                jacksonObjectMapper().writeValueAsString(organizationPlusNewKey)
+                jacksonObjectMapper.writeValueAsString(organizationPlusNewKey)
             )
         return organizationPlusNewKey
     }
@@ -601,14 +595,14 @@ class Server2ServerAuthTests : CoolTest() {
             passed = false
         }
 
-        val accessToken = jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
+        val accessToken = jacksonObjectMapper.readTree(responseGetToken).get("access_token").textValue()
         val headers = mutableListOf<Pair<String, String>>()
         val clientStr = org1.name
         headers.add("client" to clientStr)
         headers.add("authorization" to "Bearer $accessToken")
         val postUrl =
             "${environment.url}/api/settings/organizations/${org1.name}/" +
-                    "public-keys?scope=${org1.name}.*.report&kid=${org1.name}.reportunique"
+                "public-keys?scope=${org1.name}.*.report&kid=${org1.name}.reportunique"
         val (httpStatusPostKey, postKeyResponse) = HttpUtilities.postHttp(
             postUrl,
             end2EndExampleRSAPublicKeyStr.toByteArray(),
@@ -625,7 +619,7 @@ class Server2ServerAuthTests : CoolTest() {
         val getUrl = "${environment.url}/api/settings/organizations/${org1.name}/public-keys"
         val (httpStatusGeyKey, getKeyResponse) = HttpUtilities.getHttp(getUrl, headers)
         val parsedGetResponse =
-            jacksonObjectMapper().readTree(getKeyResponse).get("keys").flatMap { it.get("keys") }
+            jacksonObjectMapper.readTree(getKeyResponse).get("keys").flatMap { it.get("keys") }
                 .map { it.get("kid").textValue() }
         if (httpStatusGeyKey == 200 && parsedGetResponse.contains("${org1.name}.reportunique")) {
             good("Found the added key")
@@ -635,10 +629,10 @@ class Server2ServerAuthTests : CoolTest() {
         }
 
         val deleteUrl = environment.url.toString() +
-                "/api/settings/organizations/${org1.name}/public-keys/" +
-                URLEncoder.encode("${org1.name}.*.report", "utf-8") +
-                "/" +
-                URLEncoder.encode("${org1.name}.reportunique", "utf-8")
+            "/api/settings/organizations/${org1.name}/public-keys/" +
+            URLEncoder.encode("${org1.name}.*.report", "utf-8") +
+            "/" +
+            URLEncoder.encode("${org1.name}.reportunique", "utf-8")
         val (httpStatusDeleteKey, deleteKeyResponse) = HttpUtilities.deleteHttp(
             deleteUrl,
             byteArrayOf(),
@@ -699,7 +693,8 @@ class Server2ServerAuthTests : CoolTest() {
                 // get a valid private key
                 val (httpStatusGetToken, responseGetToken) =
                     getServer2ServerAccessTok(org1, environment, end2EndExampleECPrivateKeyStr, kid, myScope)
-                val watersAccessTok = jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
+
+                val watersAccessTok = jacksonObjectMapper.readTree(responseGetToken).get("access_token").textValue()
 
                 if (httpStatusGetToken == 200) {
                     good("EC key: Attempt to get a token with valid organization key succeeded.")
@@ -722,7 +717,7 @@ class Server2ServerAuthTests : CoolTest() {
                 } else {
                     bad(
                         "EC key: " +
-                                "Should get a 401 response to tampered token but instead got $responseCode3  " + json3
+                            "Should get a 401 response to tampered token but instead got $responseCode3  " + json3
                     )
                     passed = false
                 }
@@ -764,7 +759,7 @@ class Server2ServerAuthTests : CoolTest() {
                 val (httpStatusGetToken, responseGetToken) =
                     getServer2ServerAccessTok(org1, environment, end2EndExampleRSAPrivateKeyStr, kid, myScope)
                 val server2ServerAccessTok =
-                    jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
+                    jacksonObjectMapper.readTree(responseGetToken).get("access_token").textValue()
 
                 if (httpStatusGetToken == 200) {
                     good("RSA key: Attempt to get a token with valid organization key succeeded.")
@@ -787,7 +782,7 @@ class Server2ServerAuthTests : CoolTest() {
                 } else {
                     bad(
                         "RSA key: " +
-                                "Should get a 401 response to tampered token but instead got $responseCode3  " + json3
+                            "Should get a 401 response to tampered token but instead got $responseCode3  " + json3
                     )
                     passed = false
                 }
@@ -855,7 +850,7 @@ class Server2ServerAuthTests : CoolTest() {
                 bad(submitResponseToken1)
                 return bad("Should get a 200 response to getToken instead got $submitHttpStatus1")
             }
-            val submitToken1 = jacksonObjectMapper().readTree(submitResponseToken1).get("access_token").textValue()
+            val submitToken1 = jacksonObjectMapper.readTree(submitResponseToken1).get("access_token").textValue()
 
             // 1a) Now request 5-minute token for the first org, USING THE GENERAL READ/WRITE Submission SCOPE
             val (httpStatus1, responseToken1) =
@@ -863,7 +858,8 @@ class Server2ServerAuthTests : CoolTest() {
             if (httpStatus1 != 200) {
                 return bad("Should get a 200 response to getToken instead got $httpStatus1")
             }
-            val token1 = jacksonObjectMapper().readTree(responseToken1).get("access_token").textValue()
+
+            val token1 = jacksonObjectMapper.readTree(responseToken1).get("access_token").textValue()
 
             // 2) And a 5-minute token from the second org2
             val (httpStatus2, responseToken2) =
@@ -871,7 +867,8 @@ class Server2ServerAuthTests : CoolTest() {
             if (httpStatus2 != 200) {
                 return bad("Should get a 200 response to getToken instead got $httpStatus2")
             }
-            val token2 = jacksonObjectMapper().readTree(responseToken2).get("access_token").textValue()
+
+            val token2 = jacksonObjectMapper.readTree(responseToken2).get("access_token").textValue()
 
             // Since we're getting tokens, test getting a primeadmin token, which we have no rights to get.
             val (httpStatusBad1, _) =
@@ -991,7 +988,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1,
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -1002,7 +999,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1,
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -1013,7 +1010,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1,
-                HttpStatusCode.NotFound,
+                HttpStatus.NOT_FOUND,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -1024,7 +1021,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1, // using token for org1 to access org2.  Not allowed.
-                HttpStatusCode.Unauthorized,
+                HttpStatus.UNAUTHORIZED,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -1035,7 +1032,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1,
-                HttpStatusCode.NotFound,
+                HttpStatus.NOT_FOUND,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -1046,7 +1043,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token2, // using token for org2 to access org1.  Not allowed.
-                HttpStatusCode.Unauthorized,
+                HttpStatus.UNAUTHORIZED,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -1081,7 +1078,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token1,
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1092,7 +1089,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token2,
-                HttpStatusCode.OK,
+                HttpStatus.OK,
                 expectedReports = setOf(reportId2),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1103,7 +1100,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token2,
-                HttpStatusCode.Unauthorized,
+                HttpStatus.UNAUTHORIZED,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1114,7 +1111,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token1,
-                HttpStatusCode.Unauthorized,
+                HttpStatus.UNAUTHORIZED,
                 expectedReports = setOf(reportId2),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1125,7 +1122,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token1,
-                HttpStatusCode.NotFound,
+                HttpStatus.NOT_FOUND,
                 expectedReports = setOf(UUID.fromString("87a02e0c-5b77-4595-a039-e143fbaadda2")),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1136,7 +1133,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 emptyList(),
                 token1,
-                HttpStatusCode.NotFound,
+                HttpStatus.NOT_FOUND,
                 expectedReports = setOf(reportId1),
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
@@ -1165,117 +1162,80 @@ class Server2ServerAuthTests : CoolTest() {
     ): Boolean {
         ugly("Starting $name Test: test settings/organizations queries using server2server auth.")
         val advice = "Run   ./prime login --env staging    " +
-                "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val adminToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: OktaAuthTests.abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
         )
         val orgEndpoint = "${environment.url}/api/settings/organizations"
 
-        val client = HttpClientUtils.createDefaultHttpClient(
-            BearerTokens(userToken, refreshToken = "")
-        )
-
-        val clientAdmin = HttpClientUtils.createDefaultHttpClient(
-            BearerTokens(adminToken, refreshToken = "")
-        )
-
         // Case: GET All Org Settings (Admin-only endpoint)
         // Unhappy Path: user on admin-only endpoint
-        val response = runBlocking {
-            client.get(orgEndpoint) {
-                timeout {
-                    requestTimeoutMillis = 45000
-                    // default timeout is 15s; raising higher due to slow Function startup issues
-                }
-                accept(ContentType.Application.Json)
-            }
-        }
-
-        if (response.status != HttpStatusCode.Unauthorized) {
+        val (_, responseUserGetAllOrgs) = Fuel.get(orgEndpoint)
+            .authentication()
+            .bearer(userToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseUserGetAllOrgs.statusCode != HttpStatus.UNAUTHORIZED.value()) {
             bad(
                 "***$name Test settings/organizations Unhappy Path (user-GET All Orgs) FAILED:" +
-                        " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${response.status.value}"
+                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUserGetAllOrgs.statusCode}"
             )
             return false
         }
-
         // Happy Path: admin on admin-only endpoint
-        val response2 = runBlocking {
-            clientAdmin.get(orgEndpoint) {
-                timeout {
-                    requestTimeoutMillis = 45000
-                    // default timeout is 15s; raising higher due to slow Function startup issues
-                }
-                accept(ContentType.Application.Json)
-            }
-        }
-
-        if (response2.status != HttpStatusCode.OK) {
+        val (_, responseAdminGetAllOrgs) = Fuel.get(orgEndpoint)
+            .authentication()
+            .bearer(adminToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseAdminGetAllOrgs.statusCode != HttpStatus.OK.value()) {
             bad(
                 "***$name Test settings/organizations Happy Path (admin-GET All Orgs) FAILED:" +
-                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response2.status.value}"
+                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminGetAllOrgs.statusCode}"
             )
             return false
         }
 
         // Case: GET Receivers for an Org (Endpoint allowed for admins and members of the org)
         // Happy Path: user on user-allowed endpoint
-        val response3 = runBlocking {
-            client.get("$orgEndpoint/${authorizedOrg.name}/receivers") {
-                timeout {
-                    requestTimeoutMillis = 45000
-                    // default timeout is 15s; raising higher due to slow Function startup issues
-                }
-                accept(ContentType.Application.Json)
-            }
-        }
-
-        if (response3.status != HttpStatusCode.OK) {
+        val (_, responseUserGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
+            .authentication()
+            .bearer(userToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseUserGet.statusCode != HttpStatus.OK.value()) {
             bad(
                 "***$name Test settings/organizations Happy Path (user-GET Org Receivers) FAILED:" +
-                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response3.status.value}"
+                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseUserGet.statusCode}"
             )
             return false
         }
-
         // Happy Path: admin on user-allowed endpoint
-        val response4 = runBlocking {
-            clientAdmin.get("$orgEndpoint/${authorizedOrg.name}/receivers") {
-                timeout {
-                    requestTimeoutMillis = 45000
-                    // default timeout is 15s; raising higher due to slow Function startup issues
-                }
-                accept(ContentType.Application.Json)
-            }
-        }
-
-        if (response4.status != HttpStatusCode.OK) {
+        val (_, responseAdminGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
+            .authentication()
+            .bearer(adminToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseAdminGet.statusCode != HttpStatus.OK.value()) {
             bad(
                 "***$name Test settings/organizations Happy Path (admin-GET Org Receivers) FAILED:" +
-                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response4.status.value}"
+                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminGet.statusCode}"
             )
             return false
         }
-
         // UnhappyPath: user on an unauthorized org name
-        val response5 = runBlocking {
-            client.get("$orgEndpoint/${unauthorizedOrg.name}/receivers") {
-                timeout {
-                    requestTimeoutMillis = 45000
-                    // default timeout is 15s; raising higher due to slow Function startup issues
-                }
-                accept(ContentType.Application.Json)
-            }
-        }
-
-        if (response5.status != HttpStatusCode.Unauthorized) {
+        val (_, responseUnauthorizedOrg) = Fuel.get("$orgEndpoint/${unauthorizedOrg.name}/receivers")
+            .authentication()
+            .bearer(userToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseUnauthorizedOrg.statusCode != HttpStatus.UNAUTHORIZED.value()) {
             bad(
                 "***$name Test settings/organizations Unhappy Path (user-GET Unauthorized Org Receivers) FAILED:" +
-                        " Expected HttpStatus ${HttpStatusCode.Unauthorized}. Got ${response5.status.value}"
+                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUnauthorizedOrg.statusCode}"
             )
             return false
         }
-
         return true
     }
 }

@@ -22,7 +22,7 @@ runs:
   using: "composite"
   steps:
     - name: Use Node.js with yarn
-      uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65
+      uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8
       with:
         node-version-file: "frontend-react/package.json"
 
@@ -32,7 +32,7 @@ runs:
 
     - name: Build release for production branch (conditional check)
       if: inputs.env-name == 'prod'
-      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+      uses: ./.github/actions/retry
       with:
         timeout_minutes: 40
         max_attempts: 2
@@ -48,7 +48,7 @@ runs:
 
     - name: Build release for non-production branch (conditional check)
       if: inputs.env-name != 'prod'
-      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+      uses: ./.github/actions/retry
       with:
         timeout_minutes: 40
         max_attempts: 2
