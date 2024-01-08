@@ -37,20 +37,23 @@ elements:
   - name: pv1-attending-doctor
     resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv1-7-attending-doctor").individual.resolve()'
     schema: ../Practitioner/XCN
+    resourceIndex: xcnIndex
     constants:
-      hl7XCNField: '%{hl7PV1Field}-7'
+      hl7XCNField: '%{hl7PV1Field}-7(%{xcnIndex})'
 
   - name: pv1-referring-doctor
     resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv1-8-referring-doctor").individual.resolve()'
     schema: ../Practitioner/XCN
+    resourceIndex: xcnIndex
     constants:
-      hl7XCNField: '%{hl7PV1Field}-8'
+      hl7XCNField: '%{hl7PV1Field}-8(%{xcnIndex})'
 
   - name: pv1-consulting-doctor
     resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv1-9-referring-doctor").individual.resolve()'
     schema: ../Practitioner/XCN
+    resourceIndex: xcnIndex
     constants:
-      hl7XCNField: '%{hl7PV1Field}-9'
+      hl7XCNField: '%{hl7PV1Field}-9(%{xcnIndex})'
 
   - name: pv1-assigned-patient-location
     resource: '%resource.serviceType'
@@ -86,14 +89,16 @@ elements:
   - name: pv1-consulting-doctor
     resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv1-17-admitting-doctor").individual.resolve()'
     schema: ../Practitioner/XCN
+    resourceIndex: cxIndex
     constants:
-      hl7XCNField: '%{hl7PV1Field}-17'
+      hl7XCNField: '%{hl7PV1Field}-17(%{cxIndex})'
 
   - name: pv1-visit-number
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "visit-number")'
     schema: ../../datatypes/identifier/CX
+    resourceIndex: cxIndex
     constants:
-      cxFieldPath: '%{hl7PV1Field}-19'
+      cxFieldPath: '%{hl7PV1Field}-19(%{cxIndex})'
 
   - name: pv1-discharge-disposition
     resource: '%resource.hospitalization.dischargeDisposition'
@@ -136,8 +141,9 @@ elements:
   - name: pv1-alternate-visit-id
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "alternate-visit-id")'
     schema: ../../datatypes/identifier/CX
+    resourceIndex: cxIndex
     constants:
-      cxFieldPath: '%{hl7PV1Field}-50'
+      cxFieldPath: '%{hl7PV1Field}-50(%{cxIndex})'
 
   - name: pv1-service-episode-description
     value: [ '%resource.episodeOfCare.resolve().where(extension(%`rsext-hl7-use`).value = "service-episode").extension(%`rsext-episode-of-care-name`).value' ]

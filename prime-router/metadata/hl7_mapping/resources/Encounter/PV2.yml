@@ -15,8 +15,9 @@ elements:
   - name: pv2-visit-user-code
     resource: '%resource.extension(%`rsext-visit-user-code`).value'
     schema: ../../datatypes/codeableConcept/CWE
+    resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{hl7PV2Field}-7'
+      cweFieldPath: '%{hl7PV2Field}-7(%{cweIndex})'
 
   - name: pv2-expected-admit-datetime
     value: [ '%resource.extension(%`rsext-planned-start-date`).value.extension(%`rsext-hl7v2-date-time`).value' ]
@@ -41,8 +42,9 @@ elements:
   - name: pv2-referral-source-code
     resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv2-13-referral-source-code").individual.resolve()'
     schema: ../Practitioner/XCN
+    resourceIndex: xcnIndex
     constants:
-      hl7XCNField: '%{hl7PV2Field}-13'
+      hl7XCNField: '%{hl7PV2Field}-13(%{xcnIndex})'
 
   - name: pv2-publicity-code
     resource: '%resource.extension(%`rsext-publicity-code`).value'

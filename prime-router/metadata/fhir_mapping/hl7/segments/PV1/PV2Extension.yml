@@ -22,6 +22,8 @@ extension:
         pv223: STRING_ALL, PV2.23
       condition: $pv223 NOT_NULL
       expressionType: nested
+      specs: PV2.23 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -29,7 +31,6 @@ extension:
         valueReference:
           expressionType: reference
           valueOf: datatypes/XON/Organization
-          specs: PV2.23
     - vars:
         pv226: STRING_ALL, PV2.26
       condition: $pv226 NOT_NULL

@@ -246,11 +246,12 @@ participant:
       expressionType: nested
       constants:
         XCNHL7Use: pv1-7-attending-doctor
+      specs: PV1.7 *
+      generateList: true
       expressionsMap:
         individual:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: PV1.7
         type:
           expressionType: nested
           generateList: true
@@ -274,11 +275,12 @@ participant:
       expressionType: nested
       constants:
         XCNHL7Use: pv1-8-referring-doctor
+      specs: PV1.8 *
+      generateList: true
       expressionsMap:
         individual:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: PV1.8
         type:
           expressionType: nested
           generateList: true
@@ -302,11 +304,12 @@ participant:
       expressionType: nested
       constants:
         XCNHL7Use: pv1-9-referring-doctor
+      specs: PV1.9 *
+      generateList: true
       expressionsMap:
         individual:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: PV1.9
         type:
           expressionType: nested
           generateList: true
@@ -330,11 +333,12 @@ participant:
       expressionType: nested
       constants:
         XCNHL7Use: pv1-17-admitting-doctor
+      specs: PV1.17 *
+      generateList: true
       expressionsMap:
         individual:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: PV1.17
         type:
           expressionType: nested
           generateList: true
@@ -358,11 +362,12 @@ participant:
       expressionType: nested
       constants:
         XCNHL7Use: pv2-13-referral-source-code
+      specs: PV2.13 *
+      generateList: true
       expressionsMap:
         individual:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: PV2.13
         type:
           expressionType: nested
           generateList: true
@@ -456,7 +461,8 @@ identifier:
       condition: $pv119 NOT_NULL
       expressionType: resource
       valueOf: datatypes/CX/Identifier
-      specs: PV1.19
+      specs: PV1.19 *
+      generateList: true
       constants:
         code: "VN"
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -466,7 +472,8 @@ identifier:
         pv150: STRING_ALL, PV1.50
       condition: $pv150 NOT_NULL
       expressionType: resource
-      specs: PV1.50
+      specs: PV1.50 *
+      generateList: true
       valueOf: datatypes/CX/Identifier
       constants:
         identifierIndexName: "alternate-visit-id"
@@ -601,6 +608,8 @@ extension:
         pv27: STRING_ALL, PV2.7
       condition: $pv27 NOT_NULL
       expressionType: nested
+      specs: PV2.7 *
+      generateList: true
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -608,7 +617,6 @@ extension:
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
-          specs: PV2.7
     - vars:
         pv28: STRING, PV2.8
       condition: $pv28 NOT_NULL

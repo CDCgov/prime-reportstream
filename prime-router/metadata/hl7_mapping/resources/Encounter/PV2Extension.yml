@@ -7,8 +7,9 @@ elements:
   - name: pv2-clinic-organization-name
     resource: '%resource.extension.where(url = "pv2-23-clinic-organization-name").value.resolve()'
     schema: ../Organization/XON
+    resourceIndex: xonIndex
     constants:
-      hl7XONField: '%{hl7PV2Field}-23'
+      hl7XONField: '%{hl7PV2Field}-23(%{xonIndex})'
 
   - name: pv2-previous-treatment-date
     value: [ '%resource.extension.where(url = "pv2-26-previous-treatment-date").value' ]
