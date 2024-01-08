@@ -8,7 +8,7 @@ import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import { FeatureName } from "../../utils/FeatureName";
 
-import DeliveriesTable from "./Table/DeliveriesTable";
+import DailyData from "./daily-data/DailyData";
 
 function DeliveriesPage() {
     const { data: orgDetails } = useOrganizationSettings();
@@ -24,7 +24,7 @@ function DeliveriesPage() {
             </Helmet>
             <article className="padding-bottom-5 tablet:padding-top-6">
                 <Title preTitle={description} title={FeatureName.DAILY_DATA} />
-                {withCatchAndSuspense(<DeliveriesTable />)}
+                {withCatchAndSuspense(<DailyData />)}
                 <HipaaNotice />
             </article>
         </GridContainer>
