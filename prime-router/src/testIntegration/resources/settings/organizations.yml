@@ -404,7 +404,7 @@
       topic: "full-elr"
       customerStatus: "testing"
       enrichmentSchemaNames:
-        - "/metadata/enrichment/testing/testing,/metadata/enrichment/testing/testing2"
+        - "/src/test/resources/enrichments/testing,/src/test/resources/enrichments/testing2"
       translation: !<HL7>
         useTestProcessingMode: false
         useBatchHeaders: true
