@@ -43,6 +43,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import java.time.format.DateTimeFormatter
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
@@ -597,6 +598,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             "Content-Length" to "<calculated when request is sent>",
             "Content-Type" to "multipart/form-data",
             "Key" to "files",
+            "File-Name" to "cdc-up-reportId-withdate.hl7",
             "Subscription" to "23edf66e1fe14685bb9dfa2cbb14eb3b",
             "Host" to "api.neometrics.com"
         )
@@ -630,6 +632,50 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             runBlocking {
                 mockRestTransport.lookupDefaultCredential(any())
                 mockRestTransport.getAuthTokenWithUserPass(natusRestTransportTypeLive, any(), any(), any())
+            }
+        }
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test  transport postReport with valid file name for Natus`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientStringTokenOk()))
+
+        // Given:
+        //      lookupDefaultCredential returns mock UserPassCredential object to allow
+        //      the getAuthTokenWithUserPass() to be called.
+        //      expectedFileName is file name to send to NATUS.
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+        val expectedFileName = "ignore-${header.reportFile.reportId}-" +
+            "${formatter.format(header.reportFile.createdAt)}.hl7"
+
+            every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential(
+                "test-user",
+                "test-apikey"
+            )
+        )
+
+        // When:
+        //      RESTTransport is called WITH transport.parameters empty
+        val retryItems = mockRestTransport.send(
+            natusRestTransportTypeLive, header, reportId, null,
+            context, actionHistory
+        )
+
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
+        verify {
+            runBlocking {
+                mockRestTransport.postReport(
+                    any(),
+                    expectedFileName,
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
             }
         }
         assertThat(retryItems).isNull()
