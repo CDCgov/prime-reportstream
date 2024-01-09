@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1704838202854834000.89fd9093-a1e7-4962-9f06-3ac888f964f9",
+  "id" : "1704841377146644000.39e1c3f5-2618-4bb8-bb90-bc2445990127",
   "meta" : {
-    "lastUpdated" : "2024-01-09T14:10:02.872-08:00"
+    "lastUpdated" : "2024-01-09T15:02:57.160-08:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -36,7 +36,7 @@
           "display" : "ORU^R01^ORU_R01"
         },
         "sender" : {
-          "reference" : "Organization/1704838202942418000.fd31ef06-05d4-4464-9396-7acca0a49f01"
+          "reference" : "Organization/1704841377226399000.0782b356-91e2-4797-a7b3-22a2b5c02843"
         },
         "source" : {
           "_endpoint" : {
@@ -51,10 +51,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1704838202942418000.fd31ef06-05d4-4464-9396-7acca0a49f01",
+      "fullUrl" : "Organization/1704841377226399000.0782b356-91e2-4797-a7b3-22a2b5c02843",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1704838202942418000.fd31ef06-05d4-4464-9396-7acca0a49f01",
+        "id" : "1704841377226399000.0782b356-91e2-4797-a7b3-22a2b5c02843",
         "address" : [
           {
             "country" : "USA"
@@ -63,10 +63,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1704838203239413000.de667702-cba5-4ce8-bb78-162aa0091bbb",
+      "fullUrl" : "Provenance/1704841377521704000.33ab3a49-fa0c-473b-849c-2526c7af9508",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1704838203239413000.de667702-cba5-4ce8-bb78-162aa0091bbb",
+        "id" : "1704841377521704000.33ab3a49-fa0c-473b-849c-2526c7af9508",
         "recorded" : "2023-05-01T10:25:31-04:00",
         "_recorded" : {
           "extension" : [
@@ -113,24 +113,24 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1704838203242053000.4fa1cf1d-7635-4be9-85e0-8ca29f8b858a"
+              "reference" : "Device/1704841377523993000.15de0707-c58a-470e-80a6-4210610bc0db"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1704838203242053000.4fa1cf1d-7635-4be9-85e0-8ca29f8b858a",
+      "fullUrl" : "Device/1704841377523993000.15de0707-c58a-470e-80a6-4210610bc0db",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1704838203242053000.4fa1cf1d-7635-4be9-85e0-8ca29f8b858a"
+        "id" : "1704841377523993000.15de0707-c58a-470e-80a6-4210610bc0db"
       }
     },
     {
-      "fullUrl" : "RelatedPerson/1704838203260819000.87207ca3-eac9-4249-9d5a-19635f8afaf9",
+      "fullUrl" : "RelatedPerson/1704841377543549000.ded2d463-ce58-43ee-a74c-63b1a75b4c40",
       "resource" : {
         "resourceType" : "RelatedPerson",
-        "id" : "1704838203260819000.87207ca3-eac9-4249-9d5a-19635f8afaf9",
+        "id" : "1704841377543549000.ded2d463-ce58-43ee-a74c-63b1a75b4c40",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
@@ -138,7 +138,7 @@
           }
         ],
         "patient" : {
-          "reference" : "Patient/1704838203256363000.2d30d05e-06e4-4d19-91e8-e3da4f825a66"
+          "reference" : "Patient/1704841377539592000.4cd867dd-79f8-474f-8d01-c5ea83f68194"
         },
         "telecom" : [
           {
@@ -162,10 +162,33 @@
       }
     },
     {
-      "fullUrl" : "Patient/1704838203256363000.2d30d05e-06e4-4d19-91e8-e3da4f825a66",
+      "fullUrl" : "Patient/1704841377539592000.4cd867dd-79f8-474f-8d01-c5ea83f68194",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1704838203256363000.2d30d05e-06e4-4d19-91e8-e3da4f825a66"
+        "id" : "1704841377539592000.4cd867dd-79f8-474f-8d01-c5ea83f68194",
+        "contact" : [
+          {
+            "telecom" : [
+              {
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+                    "valueString" : "next-of-kin-telecomm-info"
+                  }
+                ],
+                "_system" : {
+                  "extension" : [
+                    {
+                      "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                      "valueCode" : "unknown"
+                    }
+                  ]
+                },
+                "rank" : -1
+              }
+            ]
+          }
+        ]
       }
     }
   ]

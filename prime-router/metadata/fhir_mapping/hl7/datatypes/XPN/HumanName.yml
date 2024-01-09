@@ -234,6 +234,7 @@ extension:
           expressionType: HL7Spec
           valueOf: XPN.14
     - expressionType: nested
+      condition: $hl7v2Name NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL

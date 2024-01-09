@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1704840605620319000.1d557877-86ee-4399-9c93-74fb18ad0cb0",
+  "id" : "1704841521088847000.46749c9c-3f04-450b-b7d1-fdda8f57a8c9",
   "meta" : {
-    "lastUpdated" : "2024-01-09T14:50:05.640-08:00"
+    "lastUpdated" : "2024-01-09T15:05:21.102-08:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -44,10 +44,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1704840606019926000.da323a8c-499a-4fb8-a16a-8db20fea8c3c",
+      "fullUrl" : "Provenance/1704841521453137000.e0ff596f-d932-4444-8da2-365e9ea4b7e7",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1704840606019926000.da323a8c-499a-4fb8-a16a-8db20fea8c3c",
+        "id" : "1704841521453137000.e0ff596f-d932-4444-8da2-365e9ea4b7e7",
         "recorded" : "2023-05-01T10:25:31-04:00",
         "_recorded" : {
           "extension" : [
@@ -94,24 +94,24 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1704840606023862000.39b0b629-64f1-4d01-995e-f268ee04f29e"
+              "reference" : "Device/1704841521455605000.892777ce-1fea-4e9b-90cd-0b3a74ec4065"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1704840606023862000.39b0b629-64f1-4d01-995e-f268ee04f29e",
+      "fullUrl" : "Device/1704841521455605000.892777ce-1fea-4e9b-90cd-0b3a74ec4065",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1704840606023862000.39b0b629-64f1-4d01-995e-f268ee04f29e"
+        "id" : "1704841521455605000.892777ce-1fea-4e9b-90cd-0b3a74ec4065"
       }
     },
     {
-      "fullUrl" : "RelatedPerson/1704840606056873000.89f8dc9f-897e-4a34-bd52-3ccf2cd3dcd0",
+      "fullUrl" : "RelatedPerson/1704841521495036000.71a0df64-dee3-4a93-8e46-c02ca0a09fa6",
       "resource" : {
         "resourceType" : "RelatedPerson",
-        "id" : "1704840606056873000.89f8dc9f-897e-4a34-bd52-3ccf2cd3dcd0",
+        "id" : "1704841521495036000.71a0df64-dee3-4a93-8e46-c02ca0a09fa6",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
@@ -163,7 +163,7 @@
           }
         ],
         "patient" : {
-          "reference" : "Patient/1704840606038907000.edb2a7eb-de0b-4478-8f46-09b30b467b94"
+          "reference" : "Patient/1704841521483787000.3157fcbc-c13a-4d3e-955e-9abc3413db05"
         },
         "relationship" : [
           {
@@ -582,10 +582,10 @@
       }
     },
     {
-      "fullUrl" : "RelatedPerson/1704840606065312000.f6ad677f-28be-47b3-855e-fa39d3b6562e",
+      "fullUrl" : "RelatedPerson/1704841521500575000.439a07a4-97e3-48f0-a5f6-5108351b3ee8",
       "resource" : {
         "resourceType" : "RelatedPerson",
-        "id" : "1704840606065312000.f6ad677f-28be-47b3-855e-fa39d3b6562e",
+        "id" : "1704841521500575000.439a07a4-97e3-48f0-a5f6-5108351b3ee8",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
@@ -594,7 +594,7 @@
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-13-organization-name",
             "valueReference" : {
-              "reference" : "Organization/1704840606060839000.8a8f9e0f-0103-4e5f-986d-dacdcc6ff4a7"
+              "reference" : "Organization/1704841521497336000.d3ef978a-1c82-4f0c-8718-5e7c819f30c5"
             }
           },
           {
@@ -643,7 +643,7 @@
           }
         ],
         "patient" : {
-          "reference" : "Patient/1704840606038907000.edb2a7eb-de0b-4478-8f46-09b30b467b94"
+          "reference" : "Patient/1704841521483787000.3157fcbc-c13a-4d3e-955e-9abc3413db05"
         },
         "relationship" : [
           {
@@ -919,10 +919,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1704840606060839000.8a8f9e0f-0103-4e5f-986d-dacdcc6ff4a7",
+      "fullUrl" : "Organization/1704841521497336000.d3ef978a-1c82-4f0c-8718-5e7c819f30c5",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1704840606060839000.8a8f9e0f-0103-4e5f-986d-dacdcc6ff4a7",
+        "id" : "1704841521497336000.d3ef978a-1c82-4f0c-8718-5e7c819f30c5",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
@@ -986,10 +986,281 @@
       }
     },
     {
-      "fullUrl" : "Patient/1704840606038907000.edb2a7eb-de0b-4478-8f46-09b30b467b94",
+      "fullUrl" : "Patient/1704841521483787000.3157fcbc-c13a-4d3e-955e-9abc3413db05",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1704840606038907000.edb2a7eb-de0b-4478-8f46-09b30b467b94"
+        "id" : "1704841521483787000.3157fcbc-c13a-4d3e-955e-9abc3413db05",
+        "contact" : [
+          {
+            "relationship" : [
+              {
+                "coding" : [
+                  {
+                    "extension" : [
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                        "valueString" : "identifier"
+                      }
+                    ],
+                    "code" : "U"
+                  }
+                ]
+              },
+              {
+                "coding" : [
+                  {
+                    "extension" : [
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                        "valueString" : "identifier"
+                      }
+                    ],
+                    "system" : "HL70063",
+                    "code" : "OTH",
+                    "display" : "Other"
+                  },
+                  {
+                    "extension" : [
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                        "valueString" : "alternate identifier"
+                      }
+                    ],
+                    "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+                    "code" : "OT",
+                    "display" : "OTHER RELATIONSHIP"
+                  }
+                ]
+              },
+              {
+                "coding" : [
+                  {
+                    "extension" : [
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                        "valueString" : "identifier"
+                      }
+                    ],
+                    "system" : "HL70063",
+                    "code" : "OTH",
+                    "display" : "Other"
+                  },
+                  {
+                    "extension" : [
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                        "valueString" : "alternate identifier"
+                      }
+                    ],
+                    "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+                    "code" : "OT",
+                    "display" : "OTHER RELATIONSHIP"
+                  }
+                ]
+              }
+            ],
+            "name" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
+                  "valueString" : "GENARO"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
+                  "valueString" : "L"
+                }
+              ],
+              "use" : "official",
+              "family" : "SURYAN",
+              "given" : [
+                "GENARO"
+              ]
+            },
+            "telecom" : [
+              {
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
+                    "valueString" : "PRN"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+                    "valueString" : "next-of-kin-telecomm-info"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
+                    "valueString" : "3013454"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                    "valueString" : "123"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                    "valueString" : "3013454"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                    "valueString" : "1"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                    "valueString" : "PH"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+                    "valueString" : "+1 123 301 3454"
+                  }
+                ],
+                "system" : "phone",
+                "value" : "+1 123 301 3454",
+                "use" : "home"
+              },
+              {
+                "system" : "phone",
+                "value" : "+1 720 301 3954",
+                "use" : "home"
+              },
+              {
+                "system" : "phone",
+                "value" : "+1 720 301 3954",
+                "use" : "home"
+              },
+              {
+                "system" : "phone",
+                "value" : "+1 555 467 2293",
+                "use" : "work"
+              },
+              {
+                "system" : "phone",
+                "value" : "+1 555 467 2293",
+                "use" : "work"
+              }
+            ],
+            "address" : {
+              "use" : "home",
+              "line" : [
+                "4861 20TH AVE"
+              ],
+              "city" : "THUNDER MOUNTAIN",
+              "state" : "NV",
+              "postalCode" : "99999",
+              "country" : "USA"
+            },
+            "organization" : {
+              "reference" : "Organization/1704841521477023000.762798f6-a66a-4696-a805-6111015a8ddb"
+            },
+            "period" : {
+              "start" : "2022-05-01T10:25:31-04:00",
+              "_start" : {
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                    "valueString" : "20220501102531-0400"
+                  }
+                ]
+              },
+              "end" : "2023-05-01T10:25:31-04:00",
+              "_end" : {
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                    "valueString" : "20230501102531-0400"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Organization/1704841521477023000.762798f6-a66a-4696-a805-6111015a8ddb",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1704841521477023000.762798f6-a66a-4696-a805-6111015a8ddb",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+            "valueCoding" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueCodeableConcept" : {
+                    "extension" : [
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+                        "valueString" : "organization-name-type-code"
+                      }
+                    ],
+                    "coding" : [
+                      {
+                        "extension" : [
+                          {
+                            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                            "valueString" : "coding"
+                          },
+                          {
+                            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                            "valueString" : "LN"
+                          }
+                        ],
+                        "system" : "http://loinc.org",
+                        "version" : "1",
+                        "code" : "1234-5",
+                        "display" : "TestText"
+                      },
+                      {
+                        "extension" : [
+                          {
+                            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                            "valueString" : "alt-coding"
+                          },
+                          {
+                            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                            "valueString" : "LN"
+                          }
+                        ],
+                        "system" : "http://loinc.org",
+                        "version" : "2",
+                        "code" : "1234-5",
+                        "display" : "TestAltText"
+                      }
+                    ],
+                    "text" : "OriginalText"
+                  }
+                }
+              ],
+              "system" : "LN",
+              "version" : "1",
+              "code" : "1234-5",
+              "display" : "TestText"
+            }
+          }
+        ],
+        "name" : "Org2",
+        "address" : [
+          {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
+                "valueCode" : "H"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
+                "valueString" : "4861 20TH AVE"
+              }
+            ],
+            "use" : "home",
+            "line" : [
+              "4861 20TH AVE"
+            ],
+            "city" : "AURORA",
+            "state" : "IG",
+            "postalCode" : "99999",
+            "country" : "USA"
+          }
+        ]
       }
     }
   ]
