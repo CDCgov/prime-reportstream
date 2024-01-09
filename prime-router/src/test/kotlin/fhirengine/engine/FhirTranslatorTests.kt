@@ -337,7 +337,7 @@ class FhirTranslatorTests {
      * When the receiver is in production mode and sender is in testing mode, output HL7 should be 'T'
      */
     @Test
-    fun `test enrichment`() {
+    fun `test receiver enrichment`() {
         // set up
         val schemaName = ORU_R01_SCHEMA
         val receiver = Receiver(
@@ -347,7 +347,10 @@ class FhirTranslatorTests {
             CustomerStatus.ACTIVE,
             schemaName,
             translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName),
-            enrichmentSchemaName = listOf("metadata/enrichment/testing/testing", "metadata/enrichment/testing/testing2")
+            enrichmentSchemaNames = listOf(
+                "metadata/enrichment/testing/testing",
+                "metadata/enrichment/testing/testing2"
+            )
         )
 
         val testOrg = DeepOrganization(

@@ -129,9 +129,9 @@ class TranslationTests {
         RECEIVER_CONDITION_FILTER("Condition Filter"),
 
         /**
-         * The enrichment schema file name
+         * The enrichment schema file name(s)
          */
-        ENRICHMENT_SCHEMA("Enrichment Schema Name"),
+        ENRICHMENT_SCHEMAS("Enrichment Schema Names"),
     }
 
     /**
@@ -152,7 +152,7 @@ class TranslationTests {
         val senderTransform: String?,
         val receiver: String? = null,
         val conditionFiler: String? = null,
-        val enrichmentSchema: String? = null,
+        val enrichmentSchemas: String? = null,
     )
 
     /**
@@ -193,7 +193,7 @@ class TranslationTests {
                     val receiver = it[ConfigColumns.RECEIVER.colName].trimToNull()
                     var senderTransform = it[ConfigColumns.SENDER_TRANSFORM.colName].trimToNull()
                     val conditionFilter = it[ConfigColumns.RECEIVER_CONDITION_FILTER.colName].trimToNull()
-                    var enrichmentSchema = it[ConfigColumns.ENRICHMENT_SCHEMA.colName].trimToNull()
+                    var enrichmentSchemas = it[ConfigColumns.ENRICHMENT_SCHEMAS.colName].trimToNull()
                     val ignoreFields = it[ConfigColumns.IGNORE_FIELDS.colName].let { colNames ->
                         colNames?.split(",") ?: emptyList()
                     }
@@ -212,12 +212,12 @@ class TranslationTests {
                         }
                         outputSchema = receiverSettings?.schemaName
                     }
-                    if (enrichmentSchema.isNullOrEmpty() && !receiver.isNullOrEmpty()) {
+                    if (enrichmentSchemas.isNullOrEmpty() && !receiver.isNullOrEmpty()) {
                         val receiverSettings = settings.receivers.firstOrNull { potentialReceiver ->
                             potentialReceiver.organizationName.plus(".").plus(potentialReceiver.name)
                                 .lowercase() == receiver.lowercase()
                         }
-                        enrichmentSchema = receiverSettings?.enrichmentSchemaNames?.joinToString()
+                        enrichmentSchemas = receiverSettings?.enrichmentSchemaNames?.joinToString()
                     }
 
                     val shouldPass = !it[ConfigColumns.RESULT.colName].isNullOrBlank() &&
@@ -236,7 +236,7 @@ class TranslationTests {
                         senderTransform,
                         receiver,
                         conditionFilter,
-                        enrichmentSchema
+                        enrichmentSchemas
                     )
                 } else {
                     fail("One or more config columns in $configPathname are empty.")
@@ -297,8 +297,8 @@ class TranslationTests {
                             // Currently only supporting one HL7 message
                             check(config.inputFormat == Report.Format.HL7)
                             val actualStream = translateToFhir(inputStream)
-                            val enrichedStream = if (!config.enrichmentSchema.isNullOrEmpty()) {
-                                runSenderTransformOrEnrichment(actualStream, config.enrichmentSchema)
+                            val enrichedStream = if (!config.enrichmentSchemas.isNullOrEmpty()) {
+                                runSenderTransformOrEnrichment(actualStream, config.enrichmentSchemas)
                             } else {
                                 actualStream
                             }
@@ -315,8 +315,8 @@ class TranslationTests {
                         config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.HL7 -> {
                             check(!config.outputSchema.isNullOrBlank())
                             val bundle = translateToFhir(inputStream)
-                            val afterEnrichment = if (config.enrichmentSchema != null) {
-                                runSenderTransformOrEnrichment(bundle, config.enrichmentSchema)
+                            val afterEnrichment = if (config.enrichmentSchemas != null) {
+                                runSenderTransformOrEnrichment(bundle, config.enrichmentSchemas)
                             } else {
                                 bundle
                             }
@@ -334,8 +334,8 @@ class TranslationTests {
                         }
                         // Compare the output of a FHIR to HL7 conversion
                         config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.FHIR -> {
-                            val afterEnrichment = if (config.enrichmentSchema != null) {
-                                runSenderTransformOrEnrichment(inputStream, config.enrichmentSchema)
+                            val afterEnrichment = if (config.enrichmentSchemas != null) {
+                                runSenderTransformOrEnrichment(inputStream, config.enrichmentSchemas)
                             } else {
                                 inputStream
                             }
@@ -360,9 +360,9 @@ class TranslationTests {
                                 ?: fail("Schema ${config.inputSchema} was not found.")
                             val expectedSchema = metadata.findSchema(config.outputSchema)
                                 ?: fail("Schema ${config.outputSchema} was not found.")
-                            val enrichmentSchema = if (!config.enrichmentSchema.isNullOrEmpty()) {
-                                metadata.findSchema(config.enrichmentSchema)
-                                    ?: fail("Schema ${config.enrichmentSchema} was not found.")
+                            val enrichmentSchema = if (!config.enrichmentSchemas.isNullOrEmpty()) {
+                                metadata.findSchema(config.enrichmentSchemas)
+                                    ?: fail("Schema ${config.enrichmentSchemas} was not found.")
                             } else {
                                 null
                             }

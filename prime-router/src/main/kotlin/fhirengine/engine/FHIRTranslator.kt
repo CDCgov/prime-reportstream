@@ -111,9 +111,9 @@ class FHIRTranslator(
     ): ByteArray {
         if (receiver.enrichmentSchemaNames.isNotEmpty()) {
             receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
+                logger.info("Applying enrichment schema $enrichmentSchemaName")
                 val transformer = FhirTransformer(enrichmentSchemaName)
                 transformer.transform(bundle)
-                logger.info("Applying enrichment schema $enrichmentSchemaName")
             }
         }
         when (receiver.format) {

@@ -95,7 +95,7 @@ open class Receiver(
         processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false,
-        enrichmentSchemaName: List<String> = emptyList(),
+        enrichmentSchemaNames: List<String> = emptyList(),
     ) : this(
         name,
         organizationName,
@@ -111,7 +111,7 @@ open class Receiver(
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
         reverseTheQualityFilter = reverseTheQualityFilter,
-        enrichmentSchemaNames = enrichmentSchemaName
+        enrichmentSchemaNames = enrichmentSchemaNames
     )
 
     /** A copy constructor for the receiver */

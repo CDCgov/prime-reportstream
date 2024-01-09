@@ -25,7 +25,8 @@ interface TranslatorProperties {
     val useBatching: Boolean
 
     /**
-     * [schemaName] is the full name of the schema used in the convert step as well as the translate step when enriching the FHIR
+     * [schemaName] is the full name of the schema used in the convert step as well as the translate step when
+     * translating the internal FHIR bundle to a receiver's preferred format.
      */
     val schemaName: String
 
