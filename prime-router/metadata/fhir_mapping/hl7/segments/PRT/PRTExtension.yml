@@ -1,0 +1,203 @@
+url:
+  type: SYSTEM_URL
+  value: prt-participation
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        prt2: String, PRT.2
+      condition: $prt2 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: prt-2-action-code
+        valueId:
+          valueOf: PRT.2
+          type: STRING
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        prt4: STRING_ALL, PRT.4
+      condition: $prt4 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: prt-4-provider-type
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PRT.4
+    - expressionType: nested
+      vars:
+        prt5: STRING_ALL, PRT.5
+      condition: $prt5 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: prt-5-participation-person
+        valueReference:
+          valueOf: datatypes/XCN/Practitioner
+          expressionType: reference
+          specs: PRT.5
+    - expressionType: nested
+      vars:
+        prt6: STRING_ALL, PRT.6
+      condition: $prt6 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: prt-6-provider-type
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PRT.6
+    - expressionType: nested
+      vars:
+        prt7: STRING_ALL, PRT.7
+      condition: $prt7 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: prt-7-organization-type
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PRT.7
+    - expressionType: nested
+      vars:
+        prt8: STRING_ALL, PRT.8
+      condition: $prt8 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: prt-8-organization
+        valueReference:
+          valueOf: datatypes/XON/Organization
+          expressionType: reference
+          specs: PRT.8
+    - expressionType: nested
+      vars:
+        prt9: STRING_ALL, PRT.9
+      condition: $prt9 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: prt-9-location
+        valueReference:
+          valueOf: datatypes/PL/Location
+          expressionType: reference
+          specs: PRT.9
+    - expressionType: nested
+      vars:
+        prt10: STRING_ALL, PRT.10
+      condition: $prt10 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: prt-10-device
+        valueIdentifier:
+          valueOf: datatypes/EI/Identifier
+          expressionType: resource
+          specs: PRT.10
+    - expressionType: nested
+      vars:
+        prt11: STRING, PRT.11
+      condition: $prt11 NOT_NULL
+      expressionsMap:
+        url:
+          type: String
+          value: prt-11-begin-datetime
+        valueDateTime:
+          type: STRING
+          valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+          expressionType: JEXL
+          vars:
+            dateTimeIn: PRT.11
+        _valueDateTime:
+          expressionType: nested
+          condition: $prt11 NOT_NULL
+          vars:
+            prt11: PRT.11
+          expressionsMap:
+            extension_1:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: $prt11
+                  expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        prt12: STRING, PRT.12
+      condition: $prt12 NOT_NULL
+      expressionsMap:
+        url:
+          type: String
+          value: prt-12-end-datetime
+        valueDateTime:
+          type: STRING
+          valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+          expressionType: JEXL
+          vars:
+            dateTimeIn: PRT.12
+        _valueDateTime:
+          expressionType: nested
+          condition: $prt12 NOT_NULL
+          vars:
+            prt12: PRT.12
+          expressionsMap:
+            extension_1:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: $prt12
+                  expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        prt13: STRING_ALL, PRT.13
+      condition: $prt13 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: prt-13-duration
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PRT.13
+    - expressionType: nested
+      vars:
+        prt14: STRING_ALL, PRT.14
+      condition: $prt14 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: prt-14-address
+        valueReference:
+          valueOf: datatypes/XAD/Address
+          expressionType: reference
+          specs: PRT.14
+    - expressionType: nested
+      vars:
+        prt15: STRING_ALL, PRT.15
+      condition: $prt15 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: prt-15-telecom-address
+        valueReference:
+          valueOf: datatypes/XTN/ContactPoint
+          expressionType: reference
+          specs: PRT.15
+  # Add device specific elements PRT-16 through PRT-22 if needed (likely not needed in extensions)

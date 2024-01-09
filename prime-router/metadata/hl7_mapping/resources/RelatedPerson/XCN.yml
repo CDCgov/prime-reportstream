@@ -1,0 +1,50 @@
+elements:
+  # First get XCN details from the extension if it exists
+  - name: xcn-from-extension
+    resource: '%extension.extension.where(url = "prt-5-participation-person").value.resolve()'
+    constants:
+      hl7XCNField: '%{hl7RelatedPersonXCNField}'
+    schema: ../Practitioner/XCN
+
+  # Then, do specific mappings based on the XCN[RelatedPerson] mapping inventory
+  - name: xcn-person-identifier
+    value: [ '%resource.identifier.value' ]
+    hl7Spec: [ '%{hl7RelatedPersonXCNField}-1' ]
+
+  - name: xcn-family-name
+    resource: '%resource.name.family'
+    constants:
+      hl7fnField: '%{hl7RelatedPersonXCNField}-2'
+    schema: ../../datatypes/HumanName/FN
+
+  - name: xcn-prefix
+    value: [ '%resource.name.prefix' ]
+    hl7Spec: [ '%{hl7RelatedPersonXCNField}-6' ]
+
+  - name: xcn-assigning-authority
+    resource: '%resource.identifier.extension(%`rsext-assigning-authority`)'
+    constants:
+      hl7HDField: '%{hl7RelatedPersonXCNField}-9'
+    schema: ../../datatypes/extensionAssigningAuthority/HD
+
+  - name: xcn-check-digit
+    value: [ '%resource.identifier.extension(%`rsext-check-digit`).value' ]
+    hl7Spec: [ '%{hl7RelatedPersonXCNField}-11' ]
+
+  - name: xcn-check-digit-scheme
+    value: [ '%resource.identifier.extension(%`rsext-check-digit-scheme`).value' ]
+    hl7Spec: [ '%{hl7RelatedPersonXCNField}-12' ]
+
+  - name: xcn-identifier-type-code
+    value: [ '%resource.identifier.type.coding.code' ]
+    hl7Spec: [ '%{hl7RelatedPersonXCNField}-13' ]
+
+  - name: xcn-assigning-facility
+    resource: '%resource.identifier.extension(%`rsext-assigning-facility`).value.resolve()'
+    constants:
+      hl7HDField: '%{hl7RelatedPersonXCNField}-14'
+    schema: ../Location/HD
+
+  - name: xcn-name-assembly-order
+    value: [ '%resource.name.extension(%`ext-humanname-assembly-order`).value' ]
+    hl7Spec: [ '%{hl7RelatedPersonXCNField}-18' ]

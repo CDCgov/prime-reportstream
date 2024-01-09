@@ -62,6 +62,14 @@ elements:
     schema: ../resources/Device/PRT
     resourceIndex: orderIndex
 
+  - name: related-person-prt
+    resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Name`).value = "PRT")'
+    condition: '%resource.patient.exists()'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+    schema: ../resources/RelatedPerson/PRT
+    resourceIndex: relatedPersonIndex
+
   - name: related-person-nk1
     resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Name`).value = "NK1")'
     condition: '%resource.patient.exists()'

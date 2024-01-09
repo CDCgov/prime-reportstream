@@ -1,0 +1,76 @@
+constants:
+  hl7PRTFieldPath: '%{hl7SegmentGroup}/PRT(%{relatedPersonIndex})'
+
+elements:
+  - name: action-code
+    value: [ '%resource.extension(%`rsext-prt-participation`).extension.where(url = "prt-2-action-code").value' ]
+    hl7Spec: [ '%{hl7PRTFieldPath}-2' ]
+
+  - name: role-of-participation
+    resource: '%resource.relationship'
+    constants:
+      cweFieldPath: '%{hl7PRTFieldPath}-4'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: person
+    resource: '%resource'
+    constants:
+      hl7RelatedPersonXCNField: '%{hl7PRTFieldPath}-5'
+      extension: '%resource.extension(%`rsext-prt-participation`)'
+    schema: XCN
+
+  - name: person-provider-type
+    resource: '%resource.extension(%`rsext-prt-participation`).extension.where(url = "prt-6-provider-type").value'
+    constants:
+      cweFieldPath: '%{hl7PRTFieldPath}-6'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: organization-unit-type
+    resource: '%resource.extension(%`rsext-prt-participation`).extension.where(url = "prt-7-organization-type").value'
+    constants:
+      cweFieldPath: '%{hl7PRTFieldPath}-7'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: organization
+    resource: '%resource.extension(%`rsext-prt-participation`).extension.where(url = "prt-8-organization").value.resolve()'
+    constants:
+      hl7XONField: '%{hl7PRTFieldPath}-8'
+    schema: ../Organization/XON
+
+  - name: location
+    resource: '%resource.extension(%`rsext-prt-participation`).extension.where(url = "prt-9-location").value.resolve()'
+    constants:
+      hl7PLField: '%{hl7PRTFieldPath}-9'
+    schema: ../Location/PL/PL
+
+  - name: begin-date
+    resource: '%resource.period.start'
+    constants:
+      dtmFieldPath: '%{hl7PRTFieldPath}-11'
+    schema: ../../datatypes/dateTime/DTMorDT
+
+  - name: end-date
+    resource: '%resource.period.end'
+    constants:
+      dtmFieldPath: '%{hl7PRTFieldPath}-12'
+    schema: ../../datatypes/dateTime/DTMorDT
+
+  - name: qualitative-duration
+    resource: '%resource.extension(%`rsext-prt-participation`).extension.where(url = "prt-13-duration").value'
+    constants:
+      cweFieldPath: '%{hl7PRTFieldPath}-13'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: address
+    resource: '%resource.address'
+    schema: ../../datatypes/Address/XAD
+    constants:
+      hl7SpecXADField: '%{hl7PRTFieldPath}-14'
+
+  - name: telecom
+    resource: '%resource.telecom'
+    condition: '%resource.exists()'
+    constants:
+      hl7TelecomField: '%{hl7PRTFieldPath}-15'
+    schema: ../../datatypes/contactPoint/XTN
+    resourceIndex: telecomIndex
