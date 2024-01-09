@@ -27,6 +27,20 @@ resources:
       - .NTE
       - .NK1
 
+  - resourceName: RelatedPerson
+    segment: .PRT
+    group: PATIENT_RESULT.PATIENT
+    resourcePath: segments/PRT/RelatedPerson
+    isReferenced: false
+    repeats: true
+
+  - resourceName: RelatedPerson
+    segment: .NK1
+    group: PATIENT_RESULT.PATIENT
+    resourcePath: segments/NK1/RelatedPerson
+    isReferenced: false
+    repeats: true
+
   - resourceName: Encounter
     segment: .PV1
     group: PATIENT_RESULT.PATIENT.VISIT

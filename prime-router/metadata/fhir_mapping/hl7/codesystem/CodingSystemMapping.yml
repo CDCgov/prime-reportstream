@@ -4536,3 +4536,6 @@
   description: "The nature of the relationship between the patient and the contact person."
   url: "http://hl7.org/fhir/ValueSet/patient-contactrelationship"
   oid: "urn:oid:2.16.840.1.113883.4.642.3.1130"
+
+- id: "HL70912"
+  url: "https://terminology.hl7.org/5.4.0/CodeSystem-v2-0912.html"
