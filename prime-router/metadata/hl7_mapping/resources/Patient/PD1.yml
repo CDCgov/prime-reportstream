@@ -3,8 +3,7 @@ constants:
 
 elements:
   - name: ordering-facility-name
-    #    condition: '%context.generalPractitioner.resolve().is(Organization)'
-    resource: '%resource.generalPractitioner.resolve()'
+    resource: '%resource.generalPractitioner.resolve().ofType(Organization)'
     schema: ../Organization/XON
     resourceIndex: xonIndex
     constants:
@@ -15,7 +14,7 @@ elements:
     resource: '%resource.extension(%`rsext-studentStatus`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PD1Field}-5(%{cweIndex})'
+      cweField: '%{hl7PD1Field}-5'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: handicap
@@ -23,7 +22,7 @@ elements:
     resource: '%resource.extension(%`ext-patient-disability`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PD1Field}-6(%{cweIndex})'
+      cweField: '%{hl7PD1Field}-6'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: living-will-code
@@ -31,7 +30,7 @@ elements:
     resource: '%resource.extension(%`rsext-livingWill`).value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PD1Field}-7(%{cweIndex})'
+      cweField: '%{hl7PD1Field}-7'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: place-of-worship

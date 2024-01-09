@@ -29,7 +29,7 @@ resources:
   - resourceName: Observation
     segment: .ORDER_DETAIL.OBSERVATION.OBX
     group: ORDER
-    resourcePath: resource/Observation
+    resourcePath: segments/OBX/Observation
     repeats: true
     isReferenced: true
     additionalSegments:

@@ -379,7 +379,6 @@
             ]
           }
         ],
-        "gender": "female",
         "birthDate": "2000-04-05",
         "_birthDate": {
           "extension": [

@@ -293,11 +293,11 @@ meta:
           specs: PID.34
 
 generalPractitioner_Organization:
-  condition: $patientPrimaryFacility NOT_NULL
+  condition: $pd13 NOT_NULL
   generateList: true
   specs: PD1.3 *
   vars:
-    patientPrimaryFacility: PD1.3
+    pd13: STRING_ALL, PD1.3
   valueOf: datatypes/XON/Organization
   expressionType: reference
 

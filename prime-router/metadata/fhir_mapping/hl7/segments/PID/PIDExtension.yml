@@ -7,6 +7,18 @@ extension:
   generateList: true
   expressions:
     - expressionType: nested
+      specs: PID.8
+      condition: $pid8 NOT_NULL
+      vars:
+        pid8: STRING_ALL, PID.8
+      expressionsMap:
+        url:
+          type: STRING
+          value: pid-8-administrative-sex
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
       specs: PID.18
       condition: $pid18 NOT_NULL
       generateList: true

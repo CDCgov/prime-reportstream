@@ -11,16 +11,14 @@ elements:
 
   - name: living-arrangement
     resource: '%resource.extension.where(url = "pd1-2-living-arrangement").value'
-    resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PD1Field}-2(%{cweIndex})'
+      cweField: '%{hl7PD1Field}-2'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: organ-donor-code
     resource: '%resource.extension.where(url = "pd1-8-organ-donor-code").value'
-    resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PD1Field}-8(%{cweIndex})'
+      cweField: '%{hl7PD1Field}-8'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: separate-bill
@@ -38,7 +36,7 @@ elements:
     resource: '%resource.extension.where(url = "pd1-11-publicity-code").value'
     resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PD1Field}-11(%{cweIndex})'
+      cweField: '%{hl7PD1Field}-11'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: protection-indicator
@@ -65,9 +63,8 @@ elements:
 
   - name: immunization-registry-status
     resource: '%resource.extension.where(url = "pd1-16-immunization-registry-status").value'
-    resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PD1Field}-16(%{cweIndex})'
+      cweField: '%{hl7PD1Field}-16'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: immunization-registry-status-effective-date
@@ -80,23 +77,20 @@ elements:
 
   - name: military-branch
     resource: '%resource.extension.where(url = "pd1-19-military-branch").value'
-    resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PD1Field}-19(%{cweIndex})'
+      cweField: '%{hl7PD1Field}-19'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: military-rank
     resource: '%resource.extension.where(url = "pd1-20-military-rank").value'
-    resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PD1Field}-20(%{cweIndex})'
+      cweField: '%{hl7PD1Field}-20'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: military-status
     resource: '%resource.extension.where(url = "pd1-21-military-status").value'
-    resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7PD1Field}-21(%{cweIndex})'
+      cweField: '%{hl7PD1Field}-21'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: advance-directive-last-verified-date
