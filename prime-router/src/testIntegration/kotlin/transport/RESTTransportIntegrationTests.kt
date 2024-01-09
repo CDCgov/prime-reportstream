@@ -43,6 +43,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import java.time.format.DateTimeFormatter
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
@@ -644,18 +645,12 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // Given:
         //      lookupDefaultCredential returns mock UserPassCredential object to allow
         //      the getAuthTokenWithUserPass() to be called.
-        val validFileName = Report.formFilename(
-            header.reportFile.reportId,
-            header.receiver!!.organizationName,
-            when (header.receiver!!.translation.type) {
-                "HL7" -> Report.Format.HL7
-                "CSV" -> Report.Format.CSV
-                else -> Report.Format.HL7
-            },
-            header.reportFile.createdAt
-        )
+        //      expectedFileName is file name to send to NATUS.
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+        val expectedFileName = "ignore-${header.reportFile.reportId}-" +
+            "${formatter.format(header.reportFile.createdAt)}.hl7"
 
-        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential(
                 "test-user",
                 "test-apikey"
@@ -675,7 +670,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             runBlocking {
                 mockRestTransport.postReport(
                     any(),
-                    validFileName as String,
+                    expectedFileName,
                     any(),
                     any(),
                     any(),

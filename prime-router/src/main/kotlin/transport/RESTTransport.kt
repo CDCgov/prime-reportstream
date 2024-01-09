@@ -93,11 +93,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         val fileName = Report.formFilename(
             header.reportFile.reportId,
             receiver.organizationName,
-            when (receiver.translation.type) {
-                "HL7" -> Report.Format.HL7
-                "CSV" -> Report.Format.CSV
-                else -> Report.Format.HL7
-            },
+            Report.Format.valueOf(receiver.translation.type),
             header.reportFile.createdAt
         )
 
