@@ -109,8 +109,8 @@ class ProcessFhirCommands : CliktCommand(
         when {
             // HL7 to FHIR conversion
             inputFileType == "HL7" && outputFormat == Report.Format.FHIR.toString() -> {
-                val fhirMessage = convertHl7ToFhir(contents, actionLogger).first
-                applyEnrichmentSchemas(fhirMessage)
+                var fhirMessage = convertHl7ToFhir(contents, actionLogger).first
+                fhirMessage = applyEnrichmentSchemas(fhirMessage)
                 outputResult(
                     handleSenderAndReceiverTransforms(fhirMessage), actionLogger
                 )
@@ -148,8 +148,8 @@ class ProcessFhirCommands : CliktCommand(
      * @return an HL7 message
      */
     private fun convertFhirToHl7(jsonString: String): Message {
-        val fhirMessage = FhirTranscoder.decode(jsonString)
-        applyEnrichmentSchemas(fhirMessage)
+        var fhirMessage = FhirTranscoder.decode(jsonString)
+        fhirMessage = applyEnrichmentSchemas(fhirMessage)
         return when {
             receiverSchema == null ->
                 // Receiver schema required because if it's coming out as HL7, it would be getting any transform info
@@ -187,8 +187,8 @@ class ProcessFhirCommands : CliktCommand(
      * convert an FHIR message to FHIR message
      */
     private fun convertFhirToFhir(jsonString: String): Bundle {
-        val fhirMessage = FhirTranscoder.decode(jsonString)
-        applyEnrichmentSchemas(fhirMessage)
+        var fhirMessage = FhirTranscoder.decode(jsonString)
+        fhirMessage = applyEnrichmentSchemas(fhirMessage)
         if (receiverSchema == null && senderSchema == null) {
             // Must have at least one schema or else why are you doing this
             throw CliktError("You must specify a schema.")
@@ -258,7 +258,7 @@ class ProcessFhirCommands : CliktCommand(
      * @return If receiverSchema is present, apply it, otherwise just return the input bundle.
      */
     private fun applyReceiverEnrichmentAndTransforms(bundle: Bundle): Bundle {
-        applyEnrichmentSchemas(bundle)
+        val enrichedBundle = applyEnrichmentSchemas(bundle)
 
         return when {
             receiverSchema != null -> {
@@ -268,10 +268,10 @@ class ProcessFhirCommands : CliktCommand(
                     FhirTransformer(
                         receiverSchema!!.name.split(".")[0],
                         receiverSchema!!.parent
-                    ).transform(bundle)
+                    ).transform(enrichedBundle)
                 }
             }
-            else -> bundle
+            else -> enrichedBundle
         }
     }
 
