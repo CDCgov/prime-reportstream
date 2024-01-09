@@ -304,6 +304,7 @@ generalPractitioner_Organization:
 extension:
   expressionType: nested
   generateList: true
+  useGroup: true
   expressions:
     - expressionType: nested
       generateList: true
@@ -321,7 +322,7 @@ extension:
       valueOf: segments/PID/PD1Extension
     - expressionType: nested
       generateList: true
-      #      condition: $pid6 NOT_NULL
+      condition: $pid6 NOT_NULL
       vars:
         pid6: STRING_ALL, PID.6 *
       specs: PID.6 *
