@@ -230,6 +230,15 @@ runs:
           > /dev/null
       shell: bash
 
+    - name: Production slot details
+      id: prod-slot-details
+      run: |
+        SWAP_UTC=$(az functionapp deployment slot list \
+        --name ${{ env.FUNCTION_APP }} --resource-group ${{ env.RESOURCE_GROUP }} \
+        --query "[].{timestampUtc:slotSwapStatus.timestampUtc}" --output tsv)
+        echo "swap_utc=$SWAP_UTC" >> $GITHUB_OUTPUT
+      shell: bash
+
     - uses: Azure/functions-container-action@0aec6197033a72d3ca813f1aebd9391f639c2a8f
       id: deploy-candidate
       with:
@@ -246,6 +255,24 @@ runs:
           AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
           AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
           zdd-promote-slot
+      shell: bash
+
+    - name: New production slot details
+      run: |
+        NEW_SWAP_UTC=$(az functionapp deployment slot list \
+        --name ${{ env.FUNCTION_APP }} --resource-group ${{ env.RESOURCE_GROUP }} \
+        --query "[].{timestampUtc:slotSwapStatus.timestampUtc}" --output tsv)
+
+        if [[ $NEW_SWAP_UTC > ${{ steps.prod-slot-details.outputs.swap_utc }} ]]; then
+          echo "## Function App slot swap successful! ✅" >> $GITHUB_STEP_SUMMARY
+          echo "* Old slot UTC: ${{ steps.prod-slot-details.outputs.swap_utc }}" >> $GITHUB_STEP_SUMMARY
+          echo "* New slot UTC: $NEW_SWAP_UTC" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "## Function App slot swap failed! ❌" >> $GITHUB_STEP_SUMMARY
+          echo "* Old slot UTC: ${{ steps.prod-slot-details.outputs.swap_utc }}" >> $GITHUB_STEP_SUMMARY
+          echo "* New slot UTC: $NEW_SWAP_UTC" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
       shell: bash
 
     - name: Validate function app checksum
