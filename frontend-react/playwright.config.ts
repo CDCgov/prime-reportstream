@@ -43,7 +43,7 @@ export default defineConfig<TestOptions>({
 
     /* Configure projects for major browsers */
     projects: [
-        isAdminTesting ? { name: "setup", testMatch: /.*\.setup\.ts/ } : {},
+        { name: "setup", testMatch: /.*\.setup\.ts/ },
         {
             name: "chromium",
             use: { browserName: "chromium" },
