@@ -1,4 +1,4 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 import dotenvflow from "dotenv-flow";
 
 import type { TestOptions } from "./e2e/helpers/rs-test.ts";
@@ -46,20 +46,30 @@ export default defineConfig<TestOptions>({
         { name: "setup", testMatch: /.*\.setup\.ts/ },
         {
             name: "chromium",
-            use: { browserName: "chromium" },
-            dependencies: [isAdminTesting ? "setup" : ""] as any,
+            use: {
+                ...devices["Desktop Chrome"],
+                bypassCSP: true,
+                launchOptions: {
+                    // Put your chromium-specific args here
+                    args: [
+                        "--disable-web-security",
+                        "--disable-site-isolation-trials",
+                    ],
+                },
+            },
+            dependencies: ["setup"],
         },
 
         {
             name: "firefox",
-            use: { browserName: "firefox" },
-            dependencies: [isAdminTesting ? "setup" : ""] as any,
+            use: { ...devices["Desktop Firefox"] },
+            // dependencies: ["setup"],
         },
 
         {
             name: "webkit",
-            use: { browserName: "webkit" },
-            dependencies: [isAdminTesting ? "setup" : ""] as any,
+            use: { ...devices["Desktop Safari"] },
+            // dependencies: ["setup"],
         },
 
         /* Test against mobile viewports. */
