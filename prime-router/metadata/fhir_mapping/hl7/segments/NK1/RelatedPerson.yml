@@ -37,11 +37,17 @@ name:
   expressions:
     - valueOf: datatypes/XPN/HumanName
       expressionType: resource
+      condition: $nk1-2 NOT_NULL
+      vars:
+        nk1-2: NK1.2
       specs: NK1.2 *
       constants:
         hl7v2Name: "name"
     - valueOf: datatypes/XPN/HumanName
       expressionType: resource
+      condition: $nk1-30 NOT_NULL
+      vars:
+        nk1-30: NK1.30
       specs: NK1.30 *
       constants:
         hl7v2Name: "contact-person-name"
@@ -52,11 +58,17 @@ relationship:
   expressions:
     - valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
+      condition: $nk1-3 NOT_NULL
+      vars:
+        nk1-3: NK1.3
       specs: NK1.3
       constants:
         hl7v2Name: "relationship"
     - valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
+      condition: $nk1-7 NOT_NULL
+      vars:
+        nk1-7: NK1.7
       specs: NK1.7
       constants:
         hl7v2Name: "contact-role"
@@ -67,11 +79,17 @@ address:
   expressions:
     - valueOf: datatypes/XAD/Address
       expressionType: resource
+      condition: $nk1-4 NOT_NULL
+      vars:
+        nk1-4: NK1.4
       specs: NK1.4 *
       constants:
         hl7v2Name: "address"
     - valueOf: datatypes/XAD/Address
       expressionType: resource
+      condition: $nk1-32 NOT_NULL
+      vars:
+        nk1-32: NK1.32
       specs: NK1.32 *
       constants:
         hl7v2Name: "contact-person-address"
@@ -176,12 +194,18 @@ identifier:
   generateList: true
   expressions:
     - valueOf: datatypes/CX/Identifier
+      condition: $nk1-12 NOT_NULL
+      vars:
+        nk1-12: NK1.12
       generateList: true
       expressionType: resource
       specs: NK1.12
       constants:
         identifierIndexName: next-of-kin-employee-number
     - valueOf: datatypes/CX/Identifier
+      condition: $nk1-33 NOT_NULL
+      vars:
+        nk1-33: NK1.33
       generateList: true
       expressionType: resource
       specs: NK1.33 *
@@ -189,6 +213,9 @@ identifier:
         identifierIndexName: next-of-kin-identifier
     - expressionType: nested
       generateList: true
+      condition: $nk1-37 NOT_NULL
+      vars:
+        nk1-37: NK1.37
       expressionsMap:
         value:
           type: STRING
@@ -217,6 +244,9 @@ gender:
 
 _gender:
   expressionType: nested
+  condition: $nk1-15 NOT_NULL
+  vars:
+    nk1-15: NK1.15
   expressionsMap:
     extension:
       generateList: true

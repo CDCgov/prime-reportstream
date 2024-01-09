@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1699027589350383000.5e65aff9-8808-4c4f-a19f-d3583e2b8d0a",
+  "id" : "1704838587962991000.274cdb28-6fb9-42db-a299-4eb377f07426",
   "meta" : {
-    "lastUpdated" : "2023-11-03T12:06:29.368-04:00"
+    "lastUpdated" : "2024-01-09T14:16:27.976-08:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "20230816123358"
   },
   "type" : "message",
-  "timestamp" : "2023-08-16T13:33:58.000-04:00",
+  "timestamp" : "2023-08-16T10:33:58.000-07:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435",
@@ -44,10 +44,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1699027590860756000.9dbbb6dc-d7f7-416e-af46-c8525ebddaa9",
+      "fullUrl" : "Provenance/1704838588331086000.51f03a52-6393-478c-bed8-866d382c4ab1",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1699027590860756000.9dbbb6dc-d7f7-416e-af46-c8525ebddaa9",
+        "id" : "1704838588331086000.51f03a52-6393-478c-bed8-866d382c4ab1",
         "recorded" : "2023-08-16T12:33:58-05:00",
         "_recorded" : {
           "extension" : [
@@ -94,48 +94,60 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1699027590863899000.3556dc9d-48e5-40f5-af29-308fc04fd937"
+              "reference" : "Device/1704838588333912000.1b4e76c9-0c0e-4429-ae39-5707ee9d38ed"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1699027590863899000.3556dc9d-48e5-40f5-af29-308fc04fd937",
+      "fullUrl" : "Device/1704838588333912000.1b4e76c9-0c0e-4429-ae39-5707ee9d38ed",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1699027590863899000.3556dc9d-48e5-40f5-af29-308fc04fd937"
+        "id" : "1704838588333912000.1b4e76c9-0c0e-4429-ae39-5707ee9d38ed"
       }
     },
     {
-      "fullUrl" : "Patient/1699027590881893000.b90ab9e1-2cf2-47fb-8be3-b7c1b568651e",
+      "fullUrl" : "RelatedPerson/1704838588353764000.963143d8-38d4-4e1f-b4f2-9cc6a1449f31",
+      "resource" : {
+        "resourceType" : "RelatedPerson",
+        "id" : "1704838588353764000.963143d8-38d4-4e1f-b4f2-9cc6a1449f31",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "NK1"
+          }
+        ],
+        "patient" : {
+          "reference" : "Patient/1704838588347432000.be39122d-3455-4a5d-8ba6-fad9d6e540ed"
+        },
+        "period" : {
+          "start" : "2021",
+          "_start" : {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "2021"
+              }
+            ]
+          },
+          "end" : "2023",
+          "_end" : {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "2023"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fullUrl" : "Patient/1704838588347432000.be39122d-3455-4a5d-8ba6-fad9d6e540ed",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1699027590881893000.b90ab9e1-2cf2-47fb-8be3-b7c1b568651e",
-        "contact" : [
-          {
-            "period" : {
-              "start" : "2021",
-              "_start" : {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-                    "valueString" : "2021"
-                  }
-                ]
-              },
-              "end" : "2023",
-              "_end" : {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-                    "valueString" : "2023"
-                  }
-                ]
-              }
-            }
-          }
-        ]
+        "id" : "1704838588347432000.be39122d-3455-4a5d-8ba6-fad9d6e540ed"
       }
     }
   ]

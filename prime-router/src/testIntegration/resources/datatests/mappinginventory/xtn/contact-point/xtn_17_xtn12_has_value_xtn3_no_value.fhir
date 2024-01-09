@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1698089650204927000.a38b611f-9eb8-403f-b790-cc87f36f3049",
+  "id" : "1704838191380621000.bab88418-8839-4c39-bab4-92ee50f00c4a",
   "meta" : {
-    "lastUpdated" : "2023-10-23T15:34:10.230-04:00"
+    "lastUpdated" : "2024-01-09T14:09:51.393-08:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "12345"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T10:25:31.000-04:00",
+  "timestamp" : "2023-05-01T07:25:31.000-07:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
@@ -22,18 +22,21 @@
             "valueString" : "^~\\&#"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-            "valueString" : "UNICODE UTF-8"
-          },
-          {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
             "valueString" : "20230501102531-0400"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
+            "valueString" : "UNICODE UTF-8"
           }
         ],
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
           "display" : "ORU^R01^ORU_R01"
+        },
+        "sender" : {
+          "reference" : "Organization/1704838191456682000.bd3af375-c24d-4922-87ea-c40d8c92bc40"
         },
         "source" : {
           "_endpoint" : {
@@ -44,17 +47,14 @@
               }
             ]
           }
-        },
-        "sender" : {
-          "reference" : "Organization/1698089651725688000.7a7e9d08-171f-4bc0-84f8-38c98a42e4b0"
         }
       }
     },
     {
-      "fullUrl" : "Organization/1698089651725688000.7a7e9d08-171f-4bc0-84f8-38c98a42e4b0",
+      "fullUrl" : "Organization/1704838191456682000.bd3af375-c24d-4922-87ea-c40d8c92bc40",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1698089651725688000.7a7e9d08-171f-4bc0-84f8-38c98a42e4b0",
+        "id" : "1704838191456682000.bd3af375-c24d-4922-87ea-c40d8c92bc40",
         "address" : [
           {
             "country" : "USA"
@@ -63,10 +63,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1698089652162262000.31fe1844-dddd-4bf8-a500-665c95481b99",
+      "fullUrl" : "Provenance/1704838191743266000.87c23e9b-e5c8-4846-851a-defb09e0969b",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1698089652162262000.31fe1844-dddd-4bf8-a500-665c95481b99",
+        "id" : "1704838191743266000.87c23e9b-e5c8-4846-851a-defb09e0969b",
         "recorded" : "2023-05-01T10:25:31-04:00",
         "_recorded" : {
           "extension" : [
@@ -113,51 +113,63 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1698089652165989000.b952fecf-e9ce-4aec-837e-5f79f486f613"
+              "reference" : "Device/1704838191745954000.877be223-e9c0-4df6-8ce9-99931fb095ff"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1698089652165989000.b952fecf-e9ce-4aec-837e-5f79f486f613",
+      "fullUrl" : "Device/1704838191745954000.877be223-e9c0-4df6-8ce9-99931fb095ff",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1698089652165989000.b952fecf-e9ce-4aec-837e-5f79f486f613"
+        "id" : "1704838191745954000.877be223-e9c0-4df6-8ce9-99931fb095ff"
       }
     },
     {
-      "fullUrl" : "Patient/1698089652195546000.478cf0da-a232-4c99-8436-921761553d71",
+      "fullUrl" : "RelatedPerson/1704838191765753000.59e7a853-7e78-4762-a7fb-c30785d77580",
       "resource" : {
-        "resourceType" : "Patient",
-        "id" : "1698089652195546000.478cf0da-a232-4c99-8436-921761553d71",
-        "contact" : [
+        "resourceType" : "RelatedPerson",
+        "id" : "1704838191765753000.59e7a853-7e78-4762-a7fb-c30785d77580",
+        "extension" : [
           {
-            "telecom" : [
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "NK1"
+          }
+        ],
+        "patient" : {
+          "reference" : "Patient/1704838191761029000.4618580f-3b17-4b3f-a213-eee852637bf3"
+        },
+        "telecom" : [
+          {
+            "extension" : [
               {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-                    "valueString" : "next-of-kin-telecomm-info"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
-                    "valueString" : "281-3308004"
-                  }
-                ],
-                "_system" : {
-                  "extension" : [
-                    {
-                      "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
-                      "valueCode" : "unknown"
-                    }
-                  ]
-                },
-                "value" : "281-3308004"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+                "valueString" : "next-of-kin-telecomm-info"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+                "valueString" : "281-3308004"
               }
-            ]
+            ],
+            "_system" : {
+              "extension" : [
+                {
+                  "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                  "valueCode" : "unknown"
+                }
+              ]
+            },
+            "value" : "281-3308004"
           }
         ]
+      }
+    },
+    {
+      "fullUrl" : "Patient/1704838191761029000.4618580f-3b17-4b3f-a213-eee852637bf3",
+      "resource" : {
+        "resourceType" : "Patient",
+        "id" : "1704838191761029000.4618580f-3b17-4b3f-a213-eee852637bf3"
       }
     }
   ]

@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1699027595150967000.52a9e645-084d-4ca4-b7b9-d4f476b52f5b",
+  "id" : "1704838584122877000.003b1649-cf22-4879-a8f8-54e9c7cc8db8",
   "meta" : {
-    "lastUpdated" : "2023-11-03T12:06:35.165-04:00"
+    "lastUpdated" : "2024-01-09T14:16:24.136-08:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "20230816123358"
   },
   "type" : "message",
-  "timestamp" : "2023-08-16T13:33:58.000-04:00",
+  "timestamp" : "2023-08-16T10:33:58.000-07:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435",
@@ -44,10 +44,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1699027596340589000.461900a0-e744-4b74-ae42-97f09e30c9fd",
+      "fullUrl" : "Provenance/1704838584496271000.733a7b52-6b90-4b10-958b-658ad43cfc96",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1699027596340589000.461900a0-e744-4b74-ae42-97f09e30c9fd",
+        "id" : "1704838584496271000.733a7b52-6b90-4b10-958b-658ad43cfc96",
         "recorded" : "2023-08-16T12:33:58-05:00",
         "_recorded" : {
           "extension" : [
@@ -94,46 +94,58 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1699027596342871000.61e744ee-ea3c-4078-9d96-638ea4bac0ff"
+              "reference" : "Device/1704838584498807000.e1c03d73-cbde-4a63-88d0-bf90ae246419"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1699027596342871000.61e744ee-ea3c-4078-9d96-638ea4bac0ff",
+      "fullUrl" : "Device/1704838584498807000.e1c03d73-cbde-4a63-88d0-bf90ae246419",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1699027596342871000.61e744ee-ea3c-4078-9d96-638ea4bac0ff"
+        "id" : "1704838584498807000.e1c03d73-cbde-4a63-88d0-bf90ae246419"
       }
     },
     {
-      "fullUrl" : "Patient/1699027596360059000.e6060dd1-cc5d-4bb7-9e0b-c86afa7bd849",
+      "fullUrl" : "RelatedPerson/1704838584518404000.d42174d6-dd4e-4667-baa3-dcf98a3ead95",
+      "resource" : {
+        "resourceType" : "RelatedPerson",
+        "id" : "1704838584518404000.d42174d6-dd4e-4667-baa3-dcf98a3ead95",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "NK1"
+          }
+        ],
+        "patient" : {
+          "reference" : "Patient/1704838584511826000.ceb6adae-d2f4-478f-a42f-d40d87a252f7"
+        },
+        "period" : {
+          "_start" : {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "0000"
+              }
+            ]
+          },
+          "_end" : {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "0000"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fullUrl" : "Patient/1704838584511826000.ceb6adae-d2f4-478f-a42f-d40d87a252f7",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1699027596360059000.e6060dd1-cc5d-4bb7-9e0b-c86afa7bd849",
-        "contact" : [
-          {
-            "period" : {
-              "_start" : {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-                    "valueString" : "0000"
-                  }
-                ]
-              },
-              "_end" : {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-                    "valueString" : "0000"
-                  }
-                ]
-              }
-            }
-          }
-        ]
+        "id" : "1704838584511826000.ceb6adae-d2f4-478f-a42f-d40d87a252f7"
       }
     }
   ]
