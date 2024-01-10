@@ -65,7 +65,7 @@
     /* .vi, Virgin Islands */
     .vt, /* Vermont */
     .wa, /* Washington */
-    /* .wi, Wisconsin */
+    .wi, /* Wisconsin */
     /* .wv, West Virginia */
     .wy /* Wyoming */
     /* NO COMMA AFTER LAST ITEM */

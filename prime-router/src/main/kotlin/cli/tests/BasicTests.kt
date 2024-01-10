@@ -2,7 +2,6 @@ package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.base.CharMatcher
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.Options
@@ -16,6 +15,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.common.SystemExitCodes
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import kotlinx.coroutines.delay
@@ -53,7 +53,7 @@ class Ping : CoolTest() {
             exitProcess(SystemExitCodes.FAILURE.exitCode) // other tests won't work.
         }
         try {
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             if (tree["errorCount"].intValue() != 0 || tree["warningCount"].intValue() != 0) {
                 return bad("***Ping/CheckConnections Test FAILED***")
             } else {
@@ -569,7 +569,7 @@ class TooManyCols : CoolTest() {
         echo("Response to POST: $responseCode")
         echo(json)
         try {
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val firstError = (tree["errors"][0]) as ObjectNode
             if (firstError["message"].textValue().contains("columns")) {
                 return good("toomanycols Test passed.")
@@ -611,7 +611,7 @@ class BadCsv : CoolTest() {
                 passed = false
             }
             try {
-                val tree = jacksonObjectMapper().readTree(json)
+                val tree = jacksonObjectMapper.readTree(json)
                 if (tree["id"] == null || tree["id"].isNull) {
                     good("Test of Bad CSV file $filename passed: No UUID was returned.")
                 } else {
@@ -668,7 +668,7 @@ class Strac : CoolTest() {
             return bad("**Strac Test FAILED***:  response code $responseCode")
         }
         try {
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val reportId = getReportIdFromResponse(json)
                 ?: return bad("***$name Test FAILED***: A report ID came back as null")
             echo("Id of submitted report: $reportId")
@@ -763,7 +763,7 @@ class Garbage : CoolTest() {
         echo("Response to POST: $responseCode")
         echo(json)
         try {
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val reportId = getReportIdFromResponse(json)
             echo("Id of submitted report: $reportId")
             val warningCount = tree["warningCount"].intValue()
@@ -835,7 +835,7 @@ class QualityFilter : CoolTest() {
     private fun checkJsonItemCountForReceiver(receiver: Receiver, expectedCount: Int, json: String): Boolean {
         try {
             echo(json)
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val reportId = ReportId.fromString(tree["reportId"].textValue())
             echo("Id of submitted report: $reportId")
             val destinations = tree["destinations"] as ArrayNode
@@ -1083,7 +1083,7 @@ class DbConnections : CoolTest() {
                 bad("***dbconnections Test FAILED***:  response code $responseCode")
                 return false
             }
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val reportId = ReportId.fromString(tree["id"].textValue())
             echo("Id of submitted report: $reportId")
             reportId
@@ -1290,7 +1290,7 @@ class SantaClaus : CoolTest() {
                 good("Posting of report succeeded with response code $responseCode")
             }
             echo(json)
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val reportId = getReportIdFromResponse(json)
                 ?: return bad("***$name Test FAILED***: A report ID came back as null")
             val destinations = tree["destinations"]
