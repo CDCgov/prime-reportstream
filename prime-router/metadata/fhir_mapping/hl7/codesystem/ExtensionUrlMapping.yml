@@ -637,4 +637,9 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ed-5-data"
 - id: "alternate-codes"
   url: "https://hl7.org/fhir/StructureDefinition/alternate-codes"
-
+- id: "prt-participation"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/prt-participation"
+- id: "comment"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/comment"
+- id: "preferred-method-of-contact"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/preferred-method-of-contact"

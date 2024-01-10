@@ -1,0 +1,111 @@
+resourceType: PractitionerRole
+
+code:
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  specs: PRT.4
+
+practitioner:
+  generateList: true
+  specs: PRT.5 *
+  expressionType: reference
+  valueOf: datatypes/XCN/Practitioner
+
+speciality:
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  specs: PRT.6
+
+organization:
+  expressionType: reference
+  valueOf: datatypes/XON/Organization
+  generateList: true
+  specs: PRT.8 *
+  vars:
+    XONType: PRT.7 # TODO add type to XON/Organization
+
+location:
+  expressionType: reference
+  valueOf: datatypes/PL/Location
+  generateList: true
+  specs: PRT.9 *
+
+period:
+  vars:
+    prt11: PRT.11
+    prt12: PRT.12
+  condition: $prt11 NOT_NULL || $prt12 NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(prt11,ZONEID)"
+      expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $prt11 NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: PRT.11
+              expressionType: HL7Spec
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(prt12,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $prt12 NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: PRT.12
+              expressionType: HL7Spec
+
+telecom:
+  expressionType: resource
+  valueOf: datatypes/XTN/ContactPoint
+  generateList: true
+  specs: PRT.15 *
+
+identifier:
+  generateList: true
+  expressionType: resource
+  valueOf: datatypes/PLN/Identifier
+  specs: PRT.24 *
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        prt23: STRING_ALL, PRT.23
+      condition: $prt23 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: preferred-method-of-contact
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PRT.23
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7-use
+        valueString:
+          value: "prt-practitioner-role"

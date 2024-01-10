@@ -1,0 +1,47 @@
+value:
+  expressionType: HL7Spec
+  type: STRING
+  valueOf: PLN.1
+
+type:
+  expressionType: resource
+  valueOf: datatypes/CWE/CodeableConcept
+  specs: PLN.2
+
+period:
+  expressionType: nested
+  vars:
+    pln4: PLN.4
+  condition: $pln4 NOT_NULL
+  expressionsMap:
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(pln4,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: PLN.4
+              expressionType: HL7Spec
+
+extension:
+  expressionType: nested
+  vars:
+    pln3: STRING, PLN.3
+  condition: $pln3 NOT_NULL
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: comment
+    valueString:
+      expressionType: HL7Spec
+      valueOf: PLN.3
+      type: STRING
