@@ -126,7 +126,7 @@ resource "azurerm_storage_management_policy" "retention_policy" {
 
     filters {
       prefix_match = ["reports/"]
-      blob_types   = ["blockBlob", "appendBlob"]
+      blob_types   = ["blockBlob"]
     }
 
     actions {
@@ -291,7 +291,7 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
 
     filters {
       prefix_match = ["hhsprotect/"]
-      blob_types   = ["blockBlob", "appendBlob"]
+      blob_types   = ["blockBlob"]
     }
 
     actions {

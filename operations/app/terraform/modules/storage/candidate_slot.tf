@@ -246,7 +246,7 @@ resource "azurerm_storage_management_policy" "storage_candidate_partner_retentio
 
     filters {
       prefix_match = ["hhsprotect/"]
-      blob_types   = ["blockBlob", "appendBlob"]
+      blob_types   = ["blockBlob"]
     }
 
     actions {
