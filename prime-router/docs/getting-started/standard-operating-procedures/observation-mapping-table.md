@@ -109,12 +109,16 @@ Sign up for an account, download the CSV, and map the data from it
 ## Checking for mapping failures
 Use the following query:
 ```postgresql
-SELECT detail->>'message' as message, detail->>'fieldMapping' as field, action_log.report_id, report_file.body_url
-    FROM action_log
-    INNER JOIN report_file ON report_file.report_id = action_log.report_id
-    WHERE action_log.detail->>'errorCode' = 'INVALID_MSG_CONDITION_MAPPING'
-    ORDER BY action_log.created_at DESC
-    LIMIT 100;
+SELECT action_log.created_at,
+       detail ->> 'message'      as message,
+       detail ->> 'fieldMapping' as field,
+       action_log.report_id,
+       report_file.body_url
+FROM action_log
+         INNER JOIN report_file ON report_file.report_id = action_log.report_id
+WHERE action_log.detail ->> 'errorCode' = 'INVALID_MSG_CONDITION_MAPPING'
+ORDER BY action_log.created_at DESC
+LIMIT 100;
 ```
 
 Output will include the missing code, its origin, and the URL of the source data. Use the azure storage explorer
