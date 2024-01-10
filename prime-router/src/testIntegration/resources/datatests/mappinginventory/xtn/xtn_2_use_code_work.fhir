@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1704827513494154000.26553224-3fdd-43f4-a1c5-78bcd827d130",
+  "id" : "1704922294719220000.9e030077-4a4e-49b9-a709-6bb366bf8612",
   "meta" : {
-    "lastUpdated" : "2024-01-09T13:11:53.513-06:00"
+    "lastUpdated" : "2024-01-10T15:31:34.740-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,10 +37,10 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1704827514072252000.5560c0b7-1900-47c0-8abf-f698f614f1ba",
+    "fullUrl" : "Provenance/1704922295364588000.a715490d-c128-46ed-92d7-58b8b13f909a",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1704827514072252000.5560c0b7-1900-47c0-8abf-f698f614f1ba",
+      "id" : "1704922295364588000.a715490d-c128-46ed-92d7-58b8b13f909a",
       "recorded" : "2023-05-01T10:25:31-04:00",
       "_recorded" : {
         "extension" : [ {
@@ -74,21 +74,21 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1704827514078806000.f97a75bc-1bff-4e0b-b423-7e2ad3f4c5e5"
+          "reference" : "Device/1704922295370306000.84a781b7-37ab-421b-9998-5e0de74f3d18"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1704827514078806000.f97a75bc-1bff-4e0b-b423-7e2ad3f4c5e5",
+    "fullUrl" : "Device/1704922295370306000.84a781b7-37ab-421b-9998-5e0de74f3d18",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1704827514078806000.f97a75bc-1bff-4e0b-b423-7e2ad3f4c5e5"
+      "id" : "1704922295370306000.84a781b7-37ab-421b-9998-5e0de74f3d18"
     }
   }, {
-    "fullUrl" : "Patient/1704827514130986000.0da81435-d4c0-47f7-9a53-d33fe85b5df1",
+    "fullUrl" : "Patient/1704922295424015000.222a3e93-780a-42bb-8791-96b6a901244a",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1704827514130986000.0da81435-d4c0-47f7-9a53-d33fe85b5df1",
+      "id" : "1704922295424015000.222a3e93-780a-42bb-8791-96b6a901244a",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
         "extension" : [ {
@@ -144,7 +144,7 @@
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
           "valueReference" : {
-            "reference" : "Organization/1704827514099581000.785092e9-ef2f-49be-9726-3180ac0b61c0"
+            "reference" : "Organization/1704922295394418000.8f167c69-4f03-4499-92c7-29082a364fc2"
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
@@ -160,7 +160,7 @@
         },
         "value" : "kc3oy",
         "assigner" : {
-          "reference" : "Organization/1704827514100348000.7505889e-d0a3-482a-9d65-8efd163fff80"
+          "reference" : "Organization/1704922295395432000.87cbaffa-10bf-4aa2-b223-e23d24f94984"
         }
       } ],
       "name" : [ {
@@ -170,6 +170,9 @@
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn3-second-given-name",
           "valueString" : "Davis"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+          "valueString" : "patient-name"
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
           "valueString" : "L"
@@ -231,10 +234,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1704827514099581000.785092e9-ef2f-49be-9726-3180ac0b61c0",
+    "fullUrl" : "Organization/1704922295394418000.8f167c69-4f03-4499-92c7-29082a364fc2",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1704827514099581000.785092e9-ef2f-49be-9726-3180ac0b61c0",
+      "id" : "1704922295394418000.8f167c69-4f03-4499-92c7-29082a364fc2",
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
@@ -244,10 +247,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1704827514100348000.7505889e-d0a3-482a-9d65-8efd163fff80",
+    "fullUrl" : "Organization/1704922295395432000.87cbaffa-10bf-4aa2-b223-e23d24f94984",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1704827514100348000.7505889e-d0a3-482a-9d65-8efd163fff80"
+      "id" : "1704922295395432000.87cbaffa-10bf-4aa2-b223-e23d24f94984"
     }
   } ]
 }

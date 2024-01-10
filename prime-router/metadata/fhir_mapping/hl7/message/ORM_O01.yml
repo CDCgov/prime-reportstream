@@ -9,7 +9,7 @@ resources:
   - resourceName: Patient
     segment: .PID
     group: PATIENT
-    resourcePath: resource/Patient
+    resourcePath: segments/PID/Patient
     isReferenced: true
     repeats: false
 

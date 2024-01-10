@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1703263160683615000.63723ea5-2837-499a-9ff8-0451d55f1316",
+  "id" : "1704923059609204000.bf09133a-8fef-4564-88e5-882fdca6e432",
   "meta" : {
-    "lastUpdated" : "2023-12-22T11:39:20.711-05:00"
+    "lastUpdated" : "2024-01-10T15:44:19.630-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T10:25:31.000-04:00",
+  "timestamp" : "2023-05-01T09:25:31.000-05:00",
   "entry" : [ {
     "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
     "resource" : {
@@ -31,7 +31,7 @@
         "display" : "ORU^R01^ORU_R01"
       },
       "sender" : {
-        "reference" : "Organization/1703263160805501000.7e8c4b88-5523-4701-bdee-6f9ec241964f"
+        "reference" : "Organization/1704923059748731000.298cc7e0-28d3-4618-beae-a6a678aa2fa4"
       },
       "source" : {
         "_endpoint" : {
@@ -43,19 +43,19 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1703263160805501000.7e8c4b88-5523-4701-bdee-6f9ec241964f",
+    "fullUrl" : "Organization/1704923059748731000.298cc7e0-28d3-4618-beae-a6a678aa2fa4",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1703263160805501000.7e8c4b88-5523-4701-bdee-6f9ec241964f",
+      "id" : "1704923059748731000.298cc7e0-28d3-4618-beae-a6a678aa2fa4",
       "address" : [ {
         "country" : "USA"
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1703263161264244000.46cc72cc-316b-4072-aa75-82e62da8ad99",
+    "fullUrl" : "Provenance/1704923060311116000.9c076dcb-6e2f-4cf1-a2e3-c86ada2bdc1a",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1703263161264244000.46cc72cc-316b-4072-aa75-82e62da8ad99",
+      "id" : "1704923060311116000.9c076dcb-6e2f-4cf1-a2e3-c86ada2bdc1a",
       "recorded" : "2023-05-01T10:25:31-04:00",
       "_recorded" : {
         "extension" : [ {
@@ -89,21 +89,21 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1703263161268165000.546f4cec-8a91-448b-961c-a67dcb2e6035"
+          "reference" : "Device/1704923060315103000.0beaa10f-49a9-4c77-a3a0-87cd643cbb7b"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1703263161268165000.546f4cec-8a91-448b-961c-a67dcb2e6035",
+    "fullUrl" : "Device/1704923060315103000.0beaa10f-49a9-4c77-a3a0-87cd643cbb7b",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1703263161268165000.546f4cec-8a91-448b-961c-a67dcb2e6035"
+      "id" : "1704923060315103000.0beaa10f-49a9-4c77-a3a0-87cd643cbb7b"
     }
   }, {
-    "fullUrl" : "Patient/1703263161306159000.e11aff33-bad9-418d-a966-91d48a2130c1",
+    "fullUrl" : "Patient/1704923060364925000.a461cd07-f460-41a9-887e-b75711c55508",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1703263161306159000.e11aff33-bad9-418d-a966-91d48a2130c1",
+      "id" : "1704923060364925000.a461cd07-f460-41a9-887e-b75711c55508",
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
@@ -119,13 +119,16 @@
         },
         "value" : "11102779",
         "assigner" : {
-          "reference" : "Organization/1703263161285145000.7b52434b-cdb9-4f46-9d05-53426649b2e8"
+          "reference" : "Organization/1704923060341736000.6cc174ec-d75f-49e4-93e0-4ff627111192"
         }
       } ],
       "name" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
           "valueString" : "BB SARAH"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+          "valueString" : "patient-name"
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
           "valueString" : "L"
@@ -136,66 +139,68 @@
       } ],
       "contact" : [ {
         "organization" : {
-          "reference" : "Organization/1703263161300241000.97f358cf-3380-410a-819c-de98416cd874"
+          "reference" : "Organization/1704923060357882000.fe0e8803-4bdd-406f-b93b-6acaf9e4897b"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1703263161285145000.7b52434b-cdb9-4f46-9d05-53426649b2e8",
+    "fullUrl" : "Organization/1704923060341736000.6cc174ec-d75f-49e4-93e0-4ff627111192",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1703263161285145000.7b52434b-cdb9-4f46-9d05-53426649b2e8"
+      "id" : "1704923060341736000.6cc174ec-d75f-49e4-93e0-4ff627111192"
     }
   }, {
-    "fullUrl" : "Organization/1703263161300241000.97f358cf-3380-410a-819c-de98416cd874",
+    "fullUrl" : "Organization/1704923060357882000.fe0e8803-4bdd-406f-b93b-6acaf9e4897b",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1703263161300241000.97f358cf-3380-410a-819c-de98416cd874",
-      "address" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
-          "valueCode" : "SH"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
-          "valueString" : "4861"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad3-dwelling-number",
-          "valueString" : "1"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad2-other-designation",
-          "valueString" : "Other Designation"
-        }, {
-          "url" : "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
-          "valueCode" : "6059"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad8-other-geographic-destination",
-          "valueString" : "Other Geographic Designation"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad11-address-representation-code",
-          "valueCode" : "A"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad2-street-name",
-          "valueString" : "20TH AVE"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad13-effective-date",
-          "valueString" : "20220501102531-0400"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad19-addressee",
-          "valueCode" : "Adressee"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad14-expiration-date",
-          "valueString" : "20230501102531-0400"
-        } ],
-        "type" : "postal",
-        "line" : [ "4861", "20TH AVE", "1", "Other Designation", "Adressee" ],
-        "city" : "THUNDER MOUNTAIN",
-        "district" : "County",
-        "state" : "IG",
-        "postalCode" : "99999",
-        "country" : "USA",
-        "period" : {
-          "start" : "2022-05-01T10:25:31-04:00",
-          "end" : "2023-05-01T10:25:31-04:00"
+      "id" : "1704923060357882000.fe0e8803-4bdd-406f-b93b-6acaf9e4897b",
+      "contact" : [ {
+        "address" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
+            "valueCode" : "SH"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
+            "valueString" : "4861"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad3-dwelling-number",
+            "valueString" : "1"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad2-other-designation",
+            "valueString" : "Other Designation"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+            "valueCode" : "6059"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad8-other-geographic-destination",
+            "valueString" : "Other Geographic Designation"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad11-address-representation-code",
+            "valueCode" : "A"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad2-street-name",
+            "valueString" : "20TH AVE"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad13-effective-date",
+            "valueString" : "20220501102531-0400"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad19-addressee",
+            "valueCode" : "Adressee"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad14-expiration-date",
+            "valueString" : "20230501102531-0400"
+          } ],
+          "type" : "postal",
+          "line" : [ "4861", "20TH AVE", "1", "Other Designation", "Adressee" ],
+          "city" : "THUNDER MOUNTAIN",
+          "district" : "County",
+          "state" : "IG",
+          "postalCode" : "99999",
+          "country" : "USA",
+          "period" : {
+            "start" : "2022-05-01T10:25:31-04:00",
+            "end" : "2023-05-01T10:25:31-04:00"
+          }
         }
       } ]
     }

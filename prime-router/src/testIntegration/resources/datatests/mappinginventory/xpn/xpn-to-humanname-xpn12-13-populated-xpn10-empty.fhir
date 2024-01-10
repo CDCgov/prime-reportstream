@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1703267306629650000.7f810b91-c235-4edb-a071-d42fc81b0e4c",
+  "id" : "1704923173973721000.5b771356-f2d1-4df5-9723-e35e831e793f",
   "meta" : {
-    "lastUpdated" : "2023-12-22T12:48:26.657-05:00"
+    "lastUpdated" : "2024-01-10T15:46:13.993-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T10:25:31.000-04:00",
+  "timestamp" : "2023-05-01T09:25:31.000-05:00",
   "entry" : [ {
     "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
     "resource" : {
@@ -37,10 +37,10 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1703267307270626000.d8158468-5fb9-438f-88ce-390399b407a5",
+    "fullUrl" : "Provenance/1704923174624440000.9a0de579-9c74-4dda-be22-81c6e1c997bd",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1703267307270626000.d8158468-5fb9-438f-88ce-390399b407a5",
+      "id" : "1704923174624440000.9a0de579-9c74-4dda-be22-81c6e1c997bd",
       "recorded" : "2023-05-01T10:25:31-04:00",
       "_recorded" : {
         "extension" : [ {
@@ -74,25 +74,28 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1703267307274764000.78f62cfe-6407-4b8e-aa1d-21e444a4a72e"
+          "reference" : "Device/1704923174628441000.dcdf2e9a-b016-405f-b410-1f4f55a0f79a"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1703267307274764000.78f62cfe-6407-4b8e-aa1d-21e444a4a72e",
+    "fullUrl" : "Device/1704923174628441000.dcdf2e9a-b016-405f-b410-1f4f55a0f79a",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1703267307274764000.78f62cfe-6407-4b8e-aa1d-21e444a4a72e"
+      "id" : "1704923174628441000.dcdf2e9a-b016-405f-b410-1f4f55a0f79a"
     }
   }, {
-    "fullUrl" : "Patient/1703267307318347000.8727228a-94f6-44fe-82da-7a86bd25ddf9",
+    "fullUrl" : "Patient/1704923174662211000.156a0254-6ed0-445c-a714-0d93d6a196b7",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1703267307318347000.8727228a-94f6-44fe-82da-7a86bd25ddf9",
+      "id" : "1704923174662211000.156a0254-6ed0-445c-a714-0d93d6a196b7",
       "name" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
           "valueString" : "BB SARAH"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+          "valueString" : "patient-name"
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
           "valueString" : "L"

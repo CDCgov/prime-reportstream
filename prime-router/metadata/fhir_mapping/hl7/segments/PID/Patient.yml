@@ -22,6 +22,9 @@ id:
   expressionType: JEXL
 
 contact:
+  vars:
+    nk1: NK1
+  condition: $nk1 NOT_NULL
   expressionType: nested
   generateList: true
   expressionsMap:
@@ -185,16 +188,18 @@ name:
       specs: PID.5 *
       valueOf: datatypes/XPN/HumanName
       vars:
-        hl7Use: patient-name
         pid5: STRING_ALL, PID.5
+      constants:
+        hl7Use: patient-name
     - condition: $pid9 NOT_NULL
       generateList: true
       expressionType: resource
       specs: PID.9 *
       valueOf: datatypes/XPN/HumanName
       vars:
-        hl7Use: patient-alias
         pid9: STRING_ALL, PID.9
+      constants:
+        hl7Use: patient-alias
 
 birthDate:
   type: DATE

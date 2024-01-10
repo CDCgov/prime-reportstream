@@ -25,7 +25,12 @@ elements:
 
   # override xpn-name-type-code to set a default
   - name: xpn-name-type-code
-    value: [ '%resource.extension(%`rsext-xpn7-name-type-code`).value', '%resource.use', '"official"' ]
+    value: [ '%resource.extension(%`rsext-xpn7-name-type-code`).value', '"official"' ]
+    hl7Spec: [ '%{hl7PIDField}-5-7' ]
+
+  - name: xpn-name-type-code-mapped
+    condition: '%resource.extension(%`rsext-xpn7-name-type-code`).exists().not()'
+    value: [ '%resource.use', '"official"' ]
     hl7Spec: [ '%{hl7PIDField}-5-7' ]
     valueSet:
       values:

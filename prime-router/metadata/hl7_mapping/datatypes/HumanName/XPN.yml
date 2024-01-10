@@ -27,7 +27,12 @@ elements:
     hl7Spec: [ '%{xpnField}-6' ]
 
   - name: xpn-name-type-code
-    value: [ '%resource.extension(%`rsext-xpn7-name-type-code`).value', '%resource.use' ]
+    value: [ '%resource.extension(%`rsext-xpn7-name-type-code`).value' ]
+    hl7Spec: [ '%{xpnField}-7' ]
+
+  - name: xpn-name-type-code-mapped
+    condition: '%resource.extension(%`rsext-xpn7-name-type-code`).exists().not()'
+    value: [ '%resource.use' ]
     hl7Spec: [ '%{xpnField}-7' ]
     valueSet:
       values:

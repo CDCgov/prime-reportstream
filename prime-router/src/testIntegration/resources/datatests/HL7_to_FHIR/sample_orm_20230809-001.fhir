@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1704819329462586000.2395c5bd-2a95-4174-a272-9764dc170254",
+  "id" : "1704921145989249000.cfce278f-0f1d-449d-9d47-895d1c3222e5",
   "meta" : {
-    "lastUpdated" : "2024-01-09T10:55:29.491-06:00"
+    "lastUpdated" : "2024-01-10T15:12:26.010-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -76,11 +76,11 @@
         } ],
         "name" : "NATUS",
         "receiver" : {
-          "reference" : "Organization/1704819329613210000.69dd327c-d7fe-49e6-8637-0cc9085e82d7"
+          "reference" : "Organization/1704921146119083000.5e42aeb3-fdf8-4b0b-9088-760f57c93f93"
         }
       } ],
       "sender" : {
-        "reference" : "Organization/1704819329621852000.aefa2fae-9608-4d77-8b02-7b1b9bcf913e"
+        "reference" : "Organization/1704921146128418000.ef45f026-39ed-455c-9633-c46685a7221f"
       },
       "source" : {
         "extension" : [ {
@@ -100,10 +100,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1704819329613210000.69dd327c-d7fe-49e6-8637-0cc9085e82d7",
+    "fullUrl" : "Organization/1704921146119083000.5e42aeb3-fdf8-4b0b-9088-760f57c93f93",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1704819329613210000.69dd327c-d7fe-49e6-8637-0cc9085e82d7",
+      "id" : "1704921146119083000.5e42aeb3-fdf8-4b0b-9088-760f57c93f93",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
         "valueString" : "receiving-facility"
@@ -130,10 +130,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1704819329621852000.aefa2fae-9608-4d77-8b02-7b1b9bcf913e",
+    "fullUrl" : "Organization/1704921146128418000.ef45f026-39ed-455c-9633-c46685a7221f",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1704819329621852000.aefa2fae-9608-4d77-8b02-7b1b9bcf913e",
+      "id" : "1704921146128418000.ef45f026-39ed-455c-9633-c46685a7221f",
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
@@ -155,10 +155,164 @@
       } ]
     }
   }, {
-    "fullUrl" : "ServiceRequest/1704819331584668000.b68b507f-73c5-46d3-8a9c-1ca1bdae5151",
+    "fullUrl" : "Patient/1704921146637264000.2f54cc3d-ad86-438f-888e-c05cfce3c5c1",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1704921146637264000.2f54cc3d-ad86-438f-888e-c05cfce3c5c1",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
+        "extension" : [ {
+          "url" : "pid-8-administrative-sex"
+        }, {
+          "url" : "pid-24-multiple-birth-indicator",
+          "valueString" : "Y"
+        }, {
+          "url" : "pid-30-patient-death-indicator",
+          "valueString" : "N"
+        } ]
+      }, {
+        "url" : "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName",
+        "valueHumanName" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
+            "valueString" : "BB SARAH"
+          } ],
+          "family" : "SMITH",
+          "given" : [ "BB SARAH" ]
+        }
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+          "valueString" : "patient-identifier-list"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type-code",
+          "valueString" : "MR"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "code" : "MR"
+          } ]
+        },
+        "value" : "11102779",
+        "assigner" : {
+          "reference" : "Organization/1704921146593600000.ca5eadd0-b4d2-48e4-8b5b-a69cd3ea8204"
+        }
+      } ],
+      "name" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
+          "valueString" : "BB SARAH"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+          "valueString" : "patient-name"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
+          "valueString" : "L"
+        } ],
+        "use" : "official",
+        "family" : "SMITH",
+        "given" : [ "BB SARAH" ]
+      } ],
+      "telecom" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text",
+          "valueString" : "(763)555-5555"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
+          "valueString" : "555555"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "763"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "555555"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+          "valueString" : "PH"
+        } ],
+        "system" : "phone",
+        "use" : "home"
+      } ],
+      "gender" : "male",
+      "birthDate" : "2023-05-04",
+      "_birthDate" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+          "valueString" : "20230504131023-0500"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
+          "valueDateTime" : "2023-05-04T13:10:23-05:00"
+        } ]
+      },
+      "deceasedBoolean" : false,
+      "address" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
+          "valueCode" : "H"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
+          "valueString" : "555 STATE HIGHWAY 13"
+        } ],
+        "use" : "home",
+        "line" : [ "555 STATE HIGHWAY 13" ],
+        "city" : "DEER CREEK",
+        "district" : "OTTER TAIL",
+        "state" : "MN",
+        "postalCode" : "56527-9657",
+        "country" : "USA"
+      } ],
+      "multipleBirthInteger" : 2,
+      "link" : [ {
+        "other" : {
+          "reference" : "RelatedPerson/1704921146618879000.ff4c2be1-77de-42cd-98a0-5dc25e98ac0c"
+        },
+        "type" : "seealso"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1704921146593600000.ca5eadd0-b4d2-48e4-8b5b-a69cd3ea8204",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1704921146593600000.ca5eadd0-b4d2-48e4-8b5b-a69cd3ea8204",
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
+          "valueBoolean" : true
+        } ],
+        "value" : "CRPMRN"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1704921146617767000.4ee9b401-c673-43ae-b37e-57bb098b92d9",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1704921146617767000.4ee9b401-c673-43ae-b37e-57bb098b92d9"
+    }
+  }, {
+    "fullUrl" : "RelatedPerson/1704921146618879000.ff4c2be1-77de-42cd-98a0-5dc25e98ac0c",
+    "resource" : {
+      "resourceType" : "RelatedPerson",
+      "id" : "1704921146618879000.ff4c2be1-77de-42cd-98a0-5dc25e98ac0c",
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
+          "valueString" : "S"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
+          "valueString" : "SADIE"
+        } ],
+        "value" : "SMITH",
+        "assigner" : {
+          "reference" : "Organization/1704921146617767000.4ee9b401-c673-43ae-b37e-57bb098b92d9"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/1704921148060284000.ce1950d8-d382-4d0f-aa74-4a6d0bfdb917",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "1704819331584668000.b68b507f-73c5-46d3-8a9c-1ca1bdae5151",
+      "id" : "1704921148060284000.ce1950d8-d382-4d0f-aa74-4a6d0bfdb917",
       "identifier" : [ {
         "type" : {
           "coding" : [ {
@@ -201,19 +355,19 @@
         } ]
       },
       "subject" : {
-        "reference" : "Patient/1704819331542957000.7b528862-db24-4920-afcf-169392460196"
+        "reference" : "Patient/1704921146637264000.2f54cc3d-ad86-438f-888e-c05cfce3c5c1"
       },
       "occurrenceDateTime" : "2023-05-06T05:00:00Z",
       "authoredOn" : "2023-05-06T05:29:13-05:00",
       "requester" : {
-        "reference" : "Practitioner/1704819331578063000.89955bfe-9a2a-49ac-a09e-b2fe1f03f69a"
+        "reference" : "Practitioner/1704921146654043000.8de3d98d-a989-4143-a71d-734732c8be1f"
       }
     }
   }, {
-    "fullUrl" : "Practitioner/1704819331578063000.89955bfe-9a2a-49ac-a09e-b2fe1f03f69a",
+    "fullUrl" : "Practitioner/1704921146654043000.8de3d98d-a989-4143-a71d-734732c8be1f",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1704819331578063000.89955bfe-9a2a-49ac-a09e-b2fe1f03f69a",
+      "id" : "1704921146654043000.8de3d98d-a989-4143-a71d-734732c8be1f",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
         "valueCodeableConcept" : {
@@ -250,10 +404,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Specimen/1704819331834942000.29d3eb4f-ade4-4fe4-b45c-899d98fe5a80",
+    "fullUrl" : "Specimen/1704921148299164000.9f7e7e85-61c5-471d-b543-34447741e011",
     "resource" : {
       "resourceType" : "Specimen",
-      "id" : "1704819331834942000.29d3eb4f-ade4-4fe4-b45c-899d98fe5a80",
+      "id" : "1704921148299164000.9f7e7e85-61c5-471d-b543-34447741e011",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-collection-method",
         "valueString" : "SCT"
@@ -274,7 +428,7 @@
         } ]
       },
       "subject" : {
-        "reference" : "Patient/1704819331542957000.7b528862-db24-4920-afcf-169392460196"
+        "reference" : "Patient/1704921146637264000.2f54cc3d-ad86-438f-888e-c05cfce3c5c1"
       },
       "collection" : {
         "collectedDateTime" : "2023-05-06T05:00:00Z",
@@ -285,84 +439,6 @@
           } ]
         }
       }
-    }
-  }, {
-    "fullUrl" : "Patient/1704819331542957000.7b528862-db24-4920-afcf-169392460196",
-    "resource" : {
-      "resourceType" : "Patient",
-      "id" : "1704819331542957000.7b528862-db24-4920-afcf-169392460196",
-      "extension" : [ {
-        "url" : "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName",
-        "valueHumanName" : {
-          "text" : "BB SARAH SMITH",
-          "family" : "SMITH",
-          "given" : [ "BB SARAH" ]
-        }
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/mothers-identifier",
-        "valueIdentifier" : {
-          "value" : "SMITH"
-        }
-      } ],
-      "identifier" : [ {
-        "type" : {
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code" : "MR",
-            "display" : "Medical record number"
-          } ]
-        },
-        "system" : "CRPMRN",
-        "value" : "11102779"
-      } ],
-      "name" : [ {
-        "use" : "official",
-        "text" : "BB SARAH SMITH",
-        "family" : "SMITH",
-        "given" : [ "BB SARAH" ]
-      } ],
-      "telecom" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text",
-          "valueString" : "(763)555-5555"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
-          "valueString" : "555555"
-        }, {
-          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
-          "valueString" : "763"
-        }, {
-          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
-          "valueString" : "555555"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
-          "valueString" : "PH"
-        } ],
-        "system" : "phone",
-        "use" : "home"
-      } ],
-      "gender" : "male",
-      "birthDate" : "2023-05-04",
-      "_birthDate" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-          "valueString" : "20230504131023-0500"
-        }, {
-          "url" : "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
-          "valueDateTime" : "2023-05-04T13:10:23-05:00"
-        } ]
-      },
-      "deceasedBoolean" : false,
-      "address" : [ {
-        "use" : "home",
-        "line" : [ "555 STATE HIGHWAY 13" ],
-        "city" : "DEER CREEK",
-        "district" : "OTTER TAIL",
-        "state" : "MN",
-        "postalCode" : "56527-9657",
-        "country" : "USA"
-      } ],
-      "multipleBirthInteger" : 2
     }
   } ]
 }
