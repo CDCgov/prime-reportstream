@@ -42,10 +42,13 @@ contact:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
     address:
+      condition: $nk14 NOT_NULL
       valueOf: datatypes/XAD/Address
       generateList: true
       expressionType: resource
       specs: NK1.4 *
+      vars:
+        nk14: STRING_ALL, NK1.4
     telecom:
       expressionType: nested
       generateList: true
@@ -66,14 +69,20 @@ contact:
             nk16: STRING_ALL, NK1.6
           constants:
             useCode: work
-        - valueOf: datatypes/XTN/ContactPoint
+        - condition: $nk140 NOT_NULL
+          valueOf: datatypes/XTN/ContactPoint
           generateList: true
           expressionType: resource
           specs: NK1.40
-        - valueOf: datatypes/XTN/ContactPoint
+          vars:
+            nk140: STRING, NK1.40
+        - condition: $nk141 NOT_NULL
+          valueOf: datatypes/XTN/ContactPoint
           generateList: true
           expressionType: resource
           specs: NK1.41
+          vars:
+            nk141: STRING, NK1.41
     relationship:
       valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
@@ -122,10 +131,10 @@ contact:
                   valueOf: $endDate
                   expressionType: HL7Spec
     organization:
-      condition: $XADAddress NOT_NULL || $XONOrganization NOT_NULL
+      condition: $XONOrganization NOT_NULL || $XPNContactName NOT_NULL || $XPNContactTelecom NOT_NULL || $XADContactAddress NOT_NULL
       expressionType: reference
       valueOf: datatypes/XON/Organization
-      specs: NK1.13 *
+      specs: NK1.13
       vars:
         XONOrganization: NK1.13
         XPNContactName: NK1.30
@@ -135,7 +144,6 @@ contact:
       type: ADMINISTRATIVE_GENDER
       valueOf: NK1.15
       expressionType: HL7Spec
-
 
 identifier:
   expressionType: nested
