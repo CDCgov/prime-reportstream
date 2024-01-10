@@ -10,7 +10,21 @@
   filters: []
   featureFlags: []
   keys: null
-  senders: []
+  senders:
+    - !<full-elr>
+      name: "etor-nbs-results"
+      organizationName: "la-phl"
+      format: "HL7"
+      customerStatus: "active"
+      schemaName: ""
+      processingType: "sync"
+      allowDuplicates: true
+      senderType: null
+      primarySubmissionMethod: null
+      topic: "etor-ti"
+      version: null
+      createdBy: null
+      createdAt: null
   receivers:
   - name: "etor-nbs-orders"
     organizationName: "la-phl"
