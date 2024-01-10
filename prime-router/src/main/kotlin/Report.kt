@@ -1509,7 +1509,7 @@ class Report : Logging {
             fileFormat: Format?,
             createdDateTime: OffsetDateTime,
             translationConfig: TranslatorConfiguration? = null,
-            metadata: Metadata,
+            metadata: Metadata? = null,
         ): String {
             return formFilename(
                 id,
@@ -1529,7 +1529,7 @@ class Report : Logging {
             createdDateTime: OffsetDateTime,
             nameFormat: String = "standard",
             translationConfig: TranslatorConfiguration? = null,
-            metadata: Metadata,
+            metadata: Metadata? = null,
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
@@ -1537,7 +1537,7 @@ class Report : Logging {
                 // This file-naming format is used for all INTERNAL files, and whenever there is no custom format.
                 "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
             } else {
-                metadata.fileNameTemplates[nameFormat.lowercase()].run {
+                metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
                     this?.getFileName(translationConfig, id)
                         ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 }
