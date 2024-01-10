@@ -10,10 +10,14 @@ resource "azurerm_storage_account" "storage_account" {
   allow_blob_public_access  = false
   enable_https_traffic_only = true
 
+  blob_properties {
+        last_access_time_enabled = true
+  }
+
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["AzureServices"]
-
+    ip_rules = var.terraform_caller_ip_address
     virtual_network_subnet_ids = var.subnets.primary_subnets
   }
 
@@ -220,6 +224,10 @@ resource "azurerm_storage_account" "storage_partner" {
   min_tls_version           = "TLS1_2"
   allow_blob_public_access  = false
   enable_https_traffic_only = true
+
+  blob_properties {
+        last_access_time_enabled = true
+  }
 
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"

@@ -10,6 +10,10 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   allow_blob_public_access  = false
   enable_https_traffic_only = true
 
+  blob_properties {
+    last_access_time_enabled = true
+  }
+
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["None"]
@@ -111,7 +115,7 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
 
     filters {
       prefix_match = ["reports/"]
-      blob_types   = ["blockBlob", "appendBlob"]
+      blob_types   = ["blockBlob"]
     }
 
     actions {
@@ -119,6 +123,7 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
         for_each = var.is_temp_env == false ? ["enabled"] : []
         content {
           delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+          tier_to_archive_after_days_since_last_access_time_greater_than = null
         }
       }
       snapshot {
@@ -168,6 +173,10 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
   min_tls_version           = "TLS1_2"
   allow_blob_public_access  = false
   enable_https_traffic_only = true
+
+  blob_properties {
+    last_access_time_enabled = true
+  }
 
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
