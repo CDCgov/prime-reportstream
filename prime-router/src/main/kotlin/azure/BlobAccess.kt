@@ -339,16 +339,19 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Download all blobs located at [sourceBlobDirectoryUrl] with container info [sourceBlobContainerInfo] to the
+         * Download all blobs located at [sourceBlobDirectoryPath] with container info [sourceBlobContainerInfo] to the
          * [destinationDirectoryPath].
          */
         fun downloadBlobsInDirectoryToLocal(
-            sourceBlobDirectoryUrl: String,
+            sourceBlobDirectoryPath: String,
             sourceBlobContainerInfo: BlobContainerMetadata,
             destinationDirectoryPath: String,
         ) {
             val sourceContainer = getBlobContainer(sourceBlobContainerInfo)
-            val blobsToCopy = listBlobs(sourceBlobDirectoryUrl, sourceBlobContainerInfo)
+            val blobsToCopy = listBlobs(sourceBlobDirectoryPath, sourceBlobContainerInfo)
+            if (blobsToCopy.isEmpty()) {
+                logger.warn("No files to copy in directory '$sourceBlobDirectoryPath'")
+            }
             blobsToCopy.forEach { currentBlob ->
                 val sourceBlobClient = sourceContainer.getBlobClient(currentBlob.currentBlobItem.name)
                 val data = sourceBlobClient.downloadContent()

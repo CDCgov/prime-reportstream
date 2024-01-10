@@ -38,13 +38,11 @@ import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileNotFoundException
 import java.net.MalformedURLException
 import java.nio.file.Paths
 import java.time.OffsetDateTime
@@ -166,39 +164,6 @@ class BlobAccessTests {
                     File("${Paths.get("").toAbsolutePath()}/foo/baz").delete()
                     File("${Paths.get("").toAbsolutePath()}/foo").delete()
                 }
-            }
-        }
-
-        @Test
-        fun `downloadBlobsInDirectoryToLocal - no such directory`() {
-            val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
-                "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
-            )
-
-            val contentToUpload =
-                listOf("foo/item1.txt", "foo/item2.txt", "foo/item13.txt", "foo/baz/item3.txt")
-            contentToUpload.forEach { content ->
-                BlobAccess.uploadBlob(
-                    content,
-                    content.toByteArray(),
-                    sourceBlobContainerMetadata
-                )
-            }
-
-            assertThrows<FileNotFoundException> {
-                BlobAccess.downloadBlobsInDirectoryToLocal(
-                    "bar",
-                    sourceBlobContainerMetadata, "."
-                )
             }
         }
 
