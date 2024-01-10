@@ -340,19 +340,19 @@ class BlobAccess() : Logging {
 
         /**
          * Download all blobs located at [sourceBlobDirectoryUrl] with container info [sourceBlobContainerInfo] to the
-         * [destinationDirectoryUrl].
+         * [destinationDirectoryPath].
          */
         fun downloadBlobsInDirectoryToLocal(
             sourceBlobDirectoryUrl: String,
             sourceBlobContainerInfo: BlobContainerMetadata,
-            destinationDirectoryUrl: String,
+            destinationDirectoryPath: String,
         ) {
             val sourceContainer = getBlobContainer(sourceBlobContainerInfo)
             val blobsToCopy = listBlobs(sourceBlobDirectoryUrl, sourceBlobContainerInfo)
             blobsToCopy.forEach { currentBlob ->
                 val sourceBlobClient = sourceContainer.getBlobClient(currentBlob.currentBlobItem.name)
                 val data = sourceBlobClient.downloadContent()
-                val file = File("$destinationDirectoryUrl/${currentBlob.currentBlobItem.name}")
+                val file = File("$destinationDirectoryPath/${currentBlob.currentBlobItem.name}")
                 FileUtils.writeByteArrayToFile(file, data.toBytes())
             }
         }
