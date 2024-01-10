@@ -26,14 +26,14 @@ elements:
 
   - name: phone-number
     resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "phone-number")'
-    schema: ../../datatypes/ContactPoint/XTN
+    schema: ../../datatypes/contactPoint/XTN
     constants:
       hl7TelecomField: '%{hl7NK1FieldPath}-5'
     resourceIndex: telecomIndex
 
   - name: business-phone-number
     resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "business-phone-number")'
-    schema: ../../datatypes/ContactPoint/XTN
+    schema: ../../datatypes/contactPoint/XTN
     constants:
       hl7TelecomField: '%{hl7NK1FieldPath}-6'
     resourceIndex: telecomIndex
@@ -94,7 +94,7 @@ elements:
 
   - name: contact-person-phone-number
     resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "contact-person-telephone-number")'
-    schema: ../../datatypes/ContactPoint/XTN
+    schema: ../../datatypes/contactPoint/XTN
     constants:
       hl7TelecomField: '%{hl7NK1FieldPath}-31'
     resourceIndex: telecomIndex
@@ -119,14 +119,14 @@ elements:
 
   - name: next-of-kin-telecomm-info
     resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "next-of-kin-telecomm-info")'
-    schema: ../../datatypes/ContactPoint/XTN
+    schema: ../../datatypes/contactPoint/XTN
     constants:
       hl7TelecomField: '%{hl7NK1FieldPath}-40'
     resourceIndex: telecomIndex
 
   - name: contact-person-telecomm-info
     resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "contact-person-telecomm-info")'
-    schema: ../../datatypes/ContactPoint/XTN
+    schema: ../../datatypes/contactPoint/XTN
     constants:
       hl7TelecomField: '%{hl7NK1FieldPath}-41'
     resourceIndex: telecomIndex
