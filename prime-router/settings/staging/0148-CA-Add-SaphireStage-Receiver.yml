@@ -63,7 +63,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: true
       conditionFilter: []
       deidentify: false
@@ -177,7 +177,7 @@
         - "isValidCLIA(testing_lab_clia)"
       routingFilter:
         - "DoesNotMatch(sender_id, pmg)"
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter: []
       deidentify: false
@@ -286,7 +286,7 @@
         - "isValidCLIA(testing_lab_clia)"
       routingFilter:
         - "DoesNotMatch(sender_id, pmg)"
-      processingIdFilter:
+      processingModeFilter:
         - "matches(processing_mode_code,T,D)"
       reverseTheQualityFilter: false
       conditionFilter: []

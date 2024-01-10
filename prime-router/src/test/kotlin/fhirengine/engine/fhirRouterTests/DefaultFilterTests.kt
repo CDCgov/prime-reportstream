@@ -225,16 +225,16 @@ class DefaultFilterTests {
         assertThat(useDefaultResponseResult.second!!).contains("defaultResponse")
 
         // act
-        val useDefaultProcessingIdFilterResult = engine.evaluateFilterConditionAsAnd(
-            SampleFilters.processingIdFilterSample,
+        val useDefaultProcessingModeFilterResult = engine.evaluateFilterConditionAsAnd(
+            SampleFilters.processingModeFilterSample,
             bundle,
             defaultResponse = false,
             reverseFilter = true
         )
         // assert
-        assertThat(useDefaultProcessingIdFilterResult.first).isFalse()
-        assertThat(useDefaultProcessingIdFilterResult.second).isNotNull()
-        assertThat(useDefaultProcessingIdFilterResult.second!!).contains("reversed")
+        assertThat(useDefaultProcessingModeFilterResult.first).isFalse()
+        assertThat(useDefaultProcessingModeFilterResult.second).isNotNull()
+        assertThat(useDefaultProcessingModeFilterResult.second!!).contains("reversed")
     }
 
     @Test
@@ -259,7 +259,7 @@ class DefaultFilterTests {
     }
 
     @Test
-    fun `test processingIdFilter default pass (bundle mode = 'P')`() {
+    fun `test processingModeFilter default pass (bundle mode = 'P')`() {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -268,7 +268,7 @@ class DefaultFilterTests {
 
         // act
         val procModeResult = engine.evaluateFilterConditionAsAnd(
-            SampleFilters.processingIdFilterSample,
+            SampleFilters.processingModeFilterSample,
             bundle,
             false
         )
@@ -279,7 +279,7 @@ class DefaultFilterTests {
     }
 
     @Test
-    fun `test processingIdFilter default fail (mode = 'T')`() {
+    fun `test processingModeFilter default fail (mode = 'T')`() {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -288,7 +288,7 @@ class DefaultFilterTests {
 
         // act
         val procModeResult = engine.evaluateFilterConditionAsAnd(
-            SampleFilters.processingIdFilterSample,
+            SampleFilters.processingModeFilterSample,
             bundle,
             false
         )
@@ -296,7 +296,7 @@ class DefaultFilterTests {
         // assert
         assertThat(procModeResult.first).isFalse()
         assertThat(procModeResult.second).isNotNull()
-        assertThat(procModeResult.second!!).contains(SampleFilters.processingIdFilterSample)
+        assertThat(procModeResult.second!!).contains(SampleFilters.processingModeFilterSample)
     }
 
     @Test

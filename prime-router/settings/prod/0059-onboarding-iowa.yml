@@ -49,7 +49,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:

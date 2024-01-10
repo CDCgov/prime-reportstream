@@ -62,7 +62,7 @@
     qualityFilter: []
     routingFilter:
     - "matches(test_result_status, F, S, P, C, X, I)"
-    processingIdFilter: []
+    processingModeFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     timing:
@@ -138,7 +138,7 @@
     qualityFilter: []
     routingFilter:
     - "matches(test_result_status, F, S, P, C, X, I)"
-    processingIdFilter: []
+    processingModeFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     timing:
@@ -176,7 +176,7 @@
     qualityFilter: []
     routingFilter:
     - "matches(test_result_status, F, S, P, C, X, I)"
-    processingIdFilter: []
+    processingModeFilter: []
     reverseTheQualityFilter: true
     deidentify: false
     timing:
@@ -205,7 +205,7 @@
     - "orEquals(ordering_facility_state, WA, patient_state, WA)"
     qualityFilter: []
     routingFilter: []
-    processingIdFilter: []
+    processingModeFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     timing: null

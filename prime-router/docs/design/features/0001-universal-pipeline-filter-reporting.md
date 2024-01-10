@@ -65,18 +65,18 @@ When a routing filter filters out items, it is recorded in the filtered report l
 routing filter is to allow all, so if a receiver does not have routing filters set, then all reports at this stage will
 move on to the next filter without being logged.
 
-### Processing Id Filter
+### Processing Mode Filter
 
 Processing id filters typically restrict received data to be either test or production data. When a processing mode
-filter filters out items, it is recorded in the filtered report logs. There is a default processing id filter, so if a
-receiver does not have processing id filters set, the following filters will be used by default:
+filter filters out items, it is recorded in the filtered report logs. There is a default processing mode filter, so if a
+receiver does not have processing mode filters set, the following filters will be used by default:
 
 ```kotlin
    /**
  * Default Rule:
- *  Must have a processing id of 'P'
+ *  Must have a processing mode of 'P'
  */
-val processingIdFilterDefault: ReportStreamFilter = listOf(
+val processingModeFilterDefault: ReportStreamFilter = listOf(
         "%processingId = 'P'"
     )
 ```

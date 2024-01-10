@@ -10,7 +10,7 @@
         - "orEquals(ordering_facility_state, NM, patient_state, NM)"
       qualityFilter: null
       routingFilter: null
-      processingIdFilter: null
+      processingModeFilter: null
   senders: []
   receivers:
     - name: "elr"
@@ -53,7 +53,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:

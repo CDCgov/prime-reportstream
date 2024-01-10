@@ -64,7 +64,7 @@
         - "%patient.name.given[0] != 'Unknown' and %patient.name.given[0].empty().not()"
         - "%patient.name.family != 'Unknown' and %patient.name.family.empty().not()"
       routingFilter: [ ]
-      processingIdFilter: [ ]
+      processingModeFilter: [ ]
       reverseTheQualityFilter: false
       conditionFilter: [ ]
       deidentify: false

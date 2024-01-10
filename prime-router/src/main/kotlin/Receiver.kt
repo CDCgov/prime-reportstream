@@ -22,7 +22,7 @@ import java.time.ZoneId
  * @param qualityFilter defines the filters that remove data, based on quality criteria
  * @param routingFilter The original use case was for filters that remove data the
  * receiver does not want, based on who sent it.  However, it's available for any general purpose use.
- * @param processingIdFilter defines the filters that is normally set to remove test and debug data.
+ * @param processingModeFilter defines the filters that is normally set to remove test and debug data.
  * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
  * @param conditionFilter defines the filters that select the conditions that a STLT wants to receive
  * @param deidentify transform
@@ -45,7 +45,7 @@ open class Receiver(
     val jurisdictionalFilter: ReportStreamFilter = emptyList(),
     val qualityFilter: ReportStreamFilter = emptyList(),
     val routingFilter: ReportStreamFilter = emptyList(),
-    val processingIdFilter: ReportStreamFilter = emptyList(),
+    val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val conditionFilter: ReportStreamFilter = emptyList(),
     val deidentify: Boolean = false,
@@ -92,7 +92,7 @@ open class Receiver(
         jurisdictionalFilter: ReportStreamFilter = emptyList(),
         qualityFilter: ReportStreamFilter = emptyList(),
         routingFilter: ReportStreamFilter = emptyList(),
-        processingIdFilter: ReportStreamFilter = emptyList(),
+        processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false,
         enrichmentSchemaNames: List<String> = emptyList(),
@@ -105,7 +105,7 @@ open class Receiver(
         jurisdictionalFilter = jurisdictionalFilter,
         qualityFilter = qualityFilter,
         routingFilter = routingFilter,
-        processingIdFilter = processingIdFilter,
+        processingModeFilter = processingModeFilter,
         conditionFilter = conditionFilter,
         timing = timing,
         timeZone = timeZone,
@@ -124,7 +124,7 @@ open class Receiver(
         copy.jurisdictionalFilter,
         copy.qualityFilter,
         copy.routingFilter,
-        copy.processingIdFilter,
+        copy.processingModeFilter,
         copy.reverseTheQualityFilter,
         copy.conditionFilter,
         copy.deidentify,

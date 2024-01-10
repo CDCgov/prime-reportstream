@@ -62,7 +62,7 @@
         - "orEquals(ordering_facility_state, MO, patient_state, MO)"
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       deidentifiedValue: ""

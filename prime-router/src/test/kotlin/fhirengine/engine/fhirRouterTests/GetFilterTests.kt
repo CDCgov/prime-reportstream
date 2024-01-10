@@ -94,7 +94,7 @@ class GetFilterTests {
         jurisdictionalFilter = listOf("testJuris"),
         qualityFilter = listOf("testQual"),
         routingFilter = listOf("testRouting"),
-        processingIdFilter = listOf("testProcMode"),
+        processingModeFilter = listOf("testProcMode"),
         conditionFilter = listOf("testCondition")
     )
 
@@ -104,14 +104,14 @@ class GetFilterTests {
             jurisdictionalFilter = listOf("testOrgJuris"),
             qualityFilter = listOf("testOrgQuality"),
             routingFilter = listOf("testOrgRouting"),
-            processingIdFilter = listOf("testOrgProcMode")
+            processingModeFilter = listOf("testOrgProcMode")
         ),
         ReportStreamFilters(
             topic = Topic.COVID_19,
             jurisdictionalFilter = listOf("testCovidJuris"),
             qualityFilter = listOf("testCovidQuality"),
             routingFilter = listOf("testCovidRouting"),
-            processingIdFilter = listOf("testCovidProcMode")
+            processingModeFilter = listOf("testCovidProcMode")
         )
     )
 
@@ -352,24 +352,24 @@ class GetFilterTests {
 
     // PROCESSING MODE FILTERS
     @Test
-    fun `test getProcessingIdFilters no filters`() {
+    fun `test getProcessingModeFilters no filters`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
-        var filters = engine.getProcessingIdFilter(fullElrReceiverNoFilters, emptyList())
+        var filters = engine.getProcessingModeFilter(fullElrReceiverNoFilters, emptyList())
         assertTrue(filters.isEmpty())
 
-        filters = engine.getProcessingIdFilter(etorTiReceiverNoFilters, emptyList())
+        filters = engine.getProcessingModeFilter(etorTiReceiverNoFilters, emptyList())
         assertTrue(filters.isEmpty())
     }
 
     @Test
-    fun `test getProcessingIdFilters org filter, no receiver`() {
+    fun `test getProcessingModeFilters org filter, no receiver`() {
         val settings = FileSettings().loadOrganizations(orgWithFilters)
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // do work
-        val filters = engine.getProcessingIdFilter(fullElrReceiverNoFilters, orgFilters)
+        val filters = engine.getProcessingModeFilter(fullElrReceiverNoFilters, orgFilters)
 
         // assert
         assert(filters.size == 1)
@@ -377,12 +377,12 @@ class GetFilterTests {
     }
 
     @Test
-    fun `test getProcessingIdFilters org filter + receiver`() {
+    fun `test getProcessingModeFilters org filter + receiver`() {
         val settings = FileSettings().loadOrganizations(orgWithFilters)
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // do work
-        val filters = engine.getProcessingIdFilter(receiverWithFilters, orgFilters)
+        val filters = engine.getProcessingModeFilter(receiverWithFilters, orgFilters)
 
         // assert
         assert(filters.size == 2)
@@ -391,12 +391,12 @@ class GetFilterTests {
     }
 
     @Test
-    fun `test getProcessingIdFilters receiver filter, no org filter`() {
+    fun `test getProcessingModeFilters receiver filter, no org filter`() {
         val settings = FileSettings().loadOrganizations(orgNoFilters)
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // do work
-        val filters = engine.getProcessingIdFilter(receiverWithFilters, emptyList())
+        val filters = engine.getProcessingModeFilter(receiverWithFilters, emptyList())
 
         // assert
         assert(filters.size == 1)

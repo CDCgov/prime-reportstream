@@ -98,7 +98,7 @@
         - "filterOutNegativeAntigenTestType(test_result, 260385009, 260415000, 895231008)"
       routingFilter:
         - "allowNone()"
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter: []
       deidentify: false
@@ -208,7 +208,7 @@
       qualityFilter: []
       routingFilter:
         - "allowNone()"
-      processingIdFilter:
+      processingModeFilter:
         - "matches(processing_mode_code,T,D)"
       reverseTheQualityFilter: false
       conditionFilter: []
@@ -325,7 +325,7 @@
         - "filterOutNegativeAntigenTestType(test_result, 260385009, 260415000, 895231008)"
       routingFilter:
         - "DoesNotMatch(sender_id, pmg)"
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter: []
       deidentify: false
@@ -441,7 +441,7 @@
         - "filterOutNegativeAntigenTestType(test_result, 260385009, 260415000, 895231008)"
       routingFilter:
         - "DoesNotMatch(sender_id, pmg)"
-      processingIdFilter:
+      processingModeFilter:
         - "matches(processing_mode_code,T,D)"
       reverseTheQualityFilter: false
       conditionFilter: []
@@ -552,7 +552,7 @@
         - "orEquals(ordering_facility_state, CA, patient_state, CA)"
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter: []
       deidentify: false

@@ -246,7 +246,7 @@ Example Receiver settings configuration. Deprecated options have been omitted.
     "jurisdictionalFilter": [
         "%hl7MessageType = 'O21'"
     ],
-    "processingIdFilter": [],
+    "processingModeFilter": [],
     "reverseTheQualityFilter": false
 }
 ```

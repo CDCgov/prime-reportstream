@@ -14,7 +14,7 @@
         - "isValidCLIA(testing_lab_clia,reporting_facility_clia)"
         - "doesNotMatch(processing_mode_code,T,D)"
       routingFilter: null
-      processingIdFilter: null
+      processingModeFilter: null
   senders: []
   receivers:
     - name: "elr"
@@ -58,7 +58,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -116,7 +116,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:

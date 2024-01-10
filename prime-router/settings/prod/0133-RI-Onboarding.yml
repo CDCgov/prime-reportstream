@@ -11,7 +11,7 @@
         - orEquals(ordering_facility_state, RI, patient_state, RI)
       qualityFilter: null
       routingFilter: null
-      processingIdFilter: null
+      processingModeFilter: null
   senders: []
   receivers:
     - name: "elr"
@@ -62,7 +62,7 @@
         - "orEquals(ordering_facility_state, RI, patient_state, RI)"
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       deidentifiedValue: ""

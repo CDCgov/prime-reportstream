@@ -94,7 +94,7 @@ class FhirFunctionTests {
                 timing = timing1,
                 jurisdictionalFilter = listOf("true"),
                 qualityFilter = listOf("true"),
-                processingIdFilter = listOf("true"),
+                processingModeFilter = listOf("true"),
                 format = Report.Format.HL7,
             )
         ),

@@ -15,7 +15,7 @@
         - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id,ordering_facility_name)"
         - "isValidCLIA(testing_lab_clia)"
       routingFilter: null
-      processingIdFilter: null
+      processingModeFilter: null
   senders: []
   receivers:
     - name: "elr"
@@ -57,7 +57,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:
@@ -113,7 +113,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:

@@ -97,7 +97,7 @@
         - "isValidCLIA(testing_lab_clia)"
       routingFilter:
         - "allowNone()"
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter: []
       deidentify: false
@@ -207,7 +207,7 @@
       qualityFilter: []
       routingFilter:
         - "allowNone()"
-      processingIdFilter:
+      processingModeFilter:
         - "matches(processing_mode_code,T,D)"
       reverseTheQualityFilter: false
       conditionFilter: []
@@ -323,7 +323,7 @@
         - "isValidCLIA(testing_lab_clia)"
       routingFilter:
         - "DoesNotMatch(sender_id, pmg)"
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter: []
       deidentify: false
@@ -438,7 +438,7 @@
         - "isValidCLIA(testing_lab_clia)"
       routingFilter:
         - "DoesNotMatch(sender_id, pmg)"
-      processingIdFilter:
+      processingModeFilter:
         - "matches(processing_mode_code,T,D)"
       reverseTheQualityFilter: false
       conditionFilter: []
@@ -549,7 +549,7 @@
         - "orEquals(ordering_facility_state, CA, patient_state, CA)"
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter: []
       deidentify: false

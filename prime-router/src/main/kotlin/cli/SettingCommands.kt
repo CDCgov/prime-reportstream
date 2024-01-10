@@ -1045,7 +1045,7 @@ class GetMultipleSettings : SettingCommand(
                         it.jurisdictionalFilter,
                         it.qualityFilter,
                         it.routingFilter,
-                        it.processingIdFilter,
+                        it.processingModeFilter,
                         it.reverseTheQualityFilter,
                         it.conditionFilter,
                         it.deidentify,

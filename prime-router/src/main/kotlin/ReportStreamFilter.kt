@@ -15,7 +15,7 @@ enum class ReportStreamFilterType(val field: String) {
     JURISDICTIONAL_FILTER("jurisdictionalFilter"),
     QUALITY_FILTER("qualityFilter"),
     ROUTING_FILTER("routingFilter"),
-    PROCESSING_ID_FILTER("processingIdFilter"),
+    PROCESSING_MODE_FILTER("processingModeFilter"),
     CONDITION_FILTER("conditionFilter"),
     ;
 
@@ -37,7 +37,7 @@ enum class ReportStreamFilterType(val field: String) {
  *  @param jurisdictionalFilter - used to limit the data received or sent by geographical region
  *  @param qualityFilter - used to limit the data received or sent, by quality
  *  @param routingFilter - used to limit the data received or sent, by who sent it.
- *  @param processingIdFilter - used to limit the data received to be either "Training", "Debug", or "Production"
+ *  @param processingModeFilter - used to limit the data received to be either "Training", "Debug", or "Production"
  *  @param conditionFilter - used to limit the data sent to the receiver by the conditions they want to receive.
  * We allow a different set of filters per [topic]
  */
@@ -46,7 +46,7 @@ data class ReportStreamFilters(
     val jurisdictionalFilter: ReportStreamFilter?,
     val qualityFilter: ReportStreamFilter?,
     val routingFilter: ReportStreamFilter?,
-    val processingIdFilter: ReportStreamFilter?,
+    val processingModeFilter: ReportStreamFilter?,
     val conditionFilter: ReportStreamFilter? = null,
 ) {
 
@@ -77,7 +77,7 @@ data class ReportStreamFilters(
             jurisdictionalFilter = listOf("allowNone()"), // Receiver *must* override this to get data!
             qualityFilter = defaultCovid19QualityFilter,
             routingFilter = listOf("allowAll()"),
-            processingIdFilter = listOf("doesNotMatch(processing_mode_code, T, D)") // No Training/Debug data
+            processingModeFilter = listOf("doesNotMatch(processing_mode_code, T, D)") // No Training/Debug data
         )
 
         private val defaultMonkeypoxFilters = ReportStreamFilters(
@@ -85,7 +85,7 @@ data class ReportStreamFilters(
             jurisdictionalFilter = listOf("allowNone()"), // Receiver *must* override this to get data!
             qualityFilter = listOf("allowAll()"),
             routingFilter = listOf("allowAll()"),
-            processingIdFilter = listOf("doesNotMatch(processing_mode_code, T, D)") // No Training/Debug data
+            processingModeFilter = listOf("doesNotMatch(processing_mode_code, T, D)") // No Training/Debug data
         )
 
         private val defaultTestFilters = ReportStreamFilters(
@@ -93,7 +93,7 @@ data class ReportStreamFilters(
             jurisdictionalFilter = null,
             qualityFilter = listOf("matches(a, no)"),
             routingFilter = listOf("matches(b, false)"),
-            processingIdFilter = listOf("allowAll()")
+            processingModeFilter = listOf("allowAll()")
         )
 
         /**

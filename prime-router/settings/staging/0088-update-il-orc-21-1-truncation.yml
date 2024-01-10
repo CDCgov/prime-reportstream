@@ -12,7 +12,7 @@
       qualityFilter: []
       routingFilter:
         - "matches(test_result_status, F, C, P)"
-      processingIdFilter: null
+      processingModeFilter: null
   senders: []
   receivers:
     - name: "elr-secondary"
@@ -57,7 +57,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: true
       deidentify: false
       timing:
@@ -113,7 +113,7 @@
       jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
-      processingIdFilter: []
+      processingModeFilter: []
       reverseTheQualityFilter: false
       deidentify: false
       timing:

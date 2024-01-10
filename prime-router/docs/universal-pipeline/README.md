@@ -199,7 +199,7 @@ Step 1: User submits a report via the reports API and gets the following object 
 
 Step 2: Some time later, could be right away or could be days from the original submission, the user calls the history endpoint with the id returned from the submission query (`5036f90b-edd5-4a93-9edd-a71d1fa8fba1`) and gets the following object back in the response. The important things to note here are:
 - `overallStatus` changed from `Received` to `Waiting to Deliver`. This indicates the report made it all the way from the [Receive](receive.md) step in the pipeline to the [Translate](translate.md) step and is now waiting on the [Batch](batch.md) function to run. Once the Batch and [Send](send.md) steps run, the `overallStatus` will be set to `Delivered`.
-- `destinations` was populated with three receiver objects, indicating the [Route](route.md) step determined the report contained items that matched the initial topic and jurisdiction filters of those receivers. The filters for the *CDC-ELIMS-HL7.CDC-ELIMS-RECEIVER* organization allowed the item in the report through (`itemCount` matches `itemCountBeforeQualityFiltering`) but the filters for *flexion.simulated-lab-2* and *flexion.simulated-lab* filtered out the item (`itemCount` is 0), and the `filteredReportRows` element indicates why. In this case, it was the processing id filter that determined the item should not go through.
+- `destinations` was populated with three receiver objects, indicating the [Route](route.md) step determined the report contained items that matched the initial topic and jurisdiction filters of those receivers. The filters for the *CDC-ELIMS-HL7.CDC-ELIMS-RECEIVER* organization allowed the item in the report through (`itemCount` matches `itemCountBeforeQualityFiltering`) but the filters for *flexion.simulated-lab-2* and *flexion.simulated-lab* filtered out the item (`itemCount` is 0), and the `filteredReportRows` element indicates why. In this case, it was the processing mode filter that determined the item should not go through.
 - `destinationCount` is set to `1`, meaning the item in the submitted report passed all the filters for one receiver, in this case *CDC-ELIMS-HL7.CDC-ELIMS-RECEIVER*.
 ```JSON
 {
@@ -237,7 +237,7 @@ Step 2: Some time later, could be right away or could be days from the original 
 		],
 		"filteredReportItems": [
 		{
-			"filterType": "PROCESSING_ID_FILTER",
+			"filterType": "PROCESSING_MODE_FILTER",
 			"filterName": "(default filter) [%processingId.exists() and %processingId = 'P']",
 			"filteredTrackingElement": "3003786103_4988249_33033",
 			"filterArgs": [],
@@ -257,7 +257,7 @@ Step 2: Some time later, could be right away or could be days from the original 
 		],
 		"filteredReportItems": [
 		{
-			"filterType": "PROCESSING_ID_FILTER",
+			"filterType": "PROCESSING_MODE_FILTER",
 			"filterName": "(default filter) [%processingId.exists() and %processingId = 'P']",
 			"filteredTrackingElement": "3003786103_4988249_33033",
 			"filterArgs": [],

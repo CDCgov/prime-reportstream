@@ -33,7 +33,7 @@
         receivingOrganization: null
         type: "HL7"
       routingFilter: []
-      processingIdFilter:
+      processingModeFilter:
         - "matches(processing_mode_code,T,D)"
       jurisdictionalFilter:
         - "allowAll()"

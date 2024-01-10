@@ -89,7 +89,7 @@
     - "isValidCLIA(testing_lab_clia)"
     routingFilter:
     - "DoesNotMatch(sender_id, pmg)"
-    processingIdFilter: []
+    processingModeFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     timing:
@@ -189,7 +189,7 @@
     qualityFilter: []
     routingFilter:
     - "DoesNotMatch(sender_id, pmg)"
-    processingIdFilter:
+    processingModeFilter:
     - "matches(processing_mode_code,T,D)"
     reverseTheQualityFilter: false
     deidentify: false
@@ -240,7 +240,7 @@
     - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
     - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
     routingFilter: []
-    processingIdFilter: []
+    processingModeFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     timing:
@@ -285,7 +285,7 @@
     - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
     - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
     routingFilter: []
-    processingIdFilter: []
+    processingModeFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     timing:
