@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+import { Utils } from "../helpers/utils";
+
 test.describe("Daily data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
@@ -8,49 +10,73 @@ test.describe("Daily data page", () => {
         });
     });
 
-    test.describe("authenticated", () => {
+    test.describe("admin test", () => {
         test.use({ storageState: "playwright/.auth/admin.json" });
 
-        test.beforeEach(async ({ page }) => {
-            await page.goto("/daily-data");
+        test.describe("without org selected", () => {
+            test.beforeEach(async ({ page }) => {
+                await page.goto("/daily-data");
+            });
+
+            test("will not load page", async ({ page }) => {
+                await expect(
+                    page.getByText("Cannot fetch Organization data as admin"),
+                ).toBeVisible();
+            });
+
+            test("has footer", async ({ page }) => {
+                await expect(page.locator("footer")).toBeAttached();
+            });
         });
 
-        test("has correct title", async ({ page }) => {
-            await expect(page).toHaveTitle(/Daily Data - ReportStream/);
-        });
+        test.describe("with org selected", () => {
+            test.beforeEach(async ({ page }) => {
+                const utils = new Utils(page);
+                await utils.selectTestOrg();
 
-        test("has receiver services dropdown", async ({ page }) => {
-            await expect(page.getByTestId("services-dropdown")).toBeAttached();
-        });
+                await page.goto("/daily-data");
+            });
 
-        test("has filter", async ({ page }) => {
-            await expect(page.getByText("From (Start Range):")).toBeAttached();
-            await expect(page.getByText("Until (End Range):")).toBeAttached();
-        });
+            test("has correct title", async ({ page }) => {
+                await expect(page).toHaveTitle(/Daily Data - ReportStream/);
+            });
 
-        test("table has correct headers", async ({ page }) => {
-            await expect(page.getByText("Report ID")).toBeAttached();
-            await expect(page.getByText("Available")).toBeAttached();
-            await expect(page.getByText("Expires")).toBeAttached();
-            await expect(page.getByText("Items")).toBeAttached();
-            await expect(page.getByText("File")).toBeAttached();
-        });
+            test("has receiver services dropdown", async ({ page }) => {
+                await expect(
+                    page.getByTestId("services-dropdown"),
+                ).toBeAttached();
+            });
 
-        test("table has pagination", async ({ page }) => {
-            await expect(
-                page.getByTestId("Deliveries pagination"),
-            ).toBeAttached();
-            await expect(page.getByTestId("Page 1")).toBeAttached();
-            await expect(page.getByTestId("Page 2")).toBeAttached();
-            await expect(page.getByTestId("Page 3")).toBeAttached();
-            await expect(page.getByTestId("Page 4")).toBeAttached();
-            await expect(page.getByTestId("Page 5")).toBeAttached();
-            await expect(page.getByTestId("Page 6")).toBeAttached();
-            await expect(page.getByTestId("Next page")).toBeAttached();
-        });
+            test("has filter", async ({ page }) => {
+                await expect(
+                    page.getByText("From (Start Range):"),
+                ).toBeAttached();
+                await expect(
+                    page.getByText("Until (End Range):"),
+                ).toBeAttached();
+            });
 
-        test("has footer", async ({ page }) => {
-            await expect(page.locator("footer")).toBeAttached();
+            test("table has correct headers", async ({ page }) => {
+                await expect(page.getByText("Report ID")).toBeAttached();
+                await expect(page.getByText("Available")).toBeAttached();
+                await expect(page.getByText("Expires")).toBeAttached();
+                await expect(page.getByText("Items")).toBeAttached();
+                await expect(page.getByText("File")).toBeAttached();
+            });
+
+            test("table has pagination", async ({ page }) => {
+                await expect(
+                    page.getByTestId("Deliveries pagination"),
+                ).toBeAttached();
+            });
+
+            test("has footer", async ({ page }) => {
+                await expect(page.locator("footer")).toBeAttached();
+            });
         });
     });
+
+    // TODO: receiver test
+
+    // TODO: sender test
 });

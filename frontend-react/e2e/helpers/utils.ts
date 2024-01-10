@@ -1,6 +1,6 @@
 import fs from "node:fs";
 
-import { expect, Page } from "@playwright/test";
+import { Page, expect } from "@playwright/test";
 
 export class Utils {
     constructor(private readonly page: Page) {}
@@ -18,7 +18,8 @@ export class Utils {
     async selectTestOrg() {
         await this.page.goto("/admin/settings");
         await expect(this.page).toHaveTitle(/Admin-Organizations/);
-        await this.page.getByTestId("ca-dph_set").click();
+        await this.page.getByTestId("textInput").fill("ignore");
+        await this.page.getByTestId("ignore_set").click();
     }
 
     /**

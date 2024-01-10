@@ -39,6 +39,16 @@ export default defineConfig<TestOptions>({
             password: process.env.TEST_ADMIN_PASSWORD ?? "",
             totpCode: process.env.TEST_ADMIN_TOTP_CODE ?? "",
         },
+        senderLogin: {
+            username: process.env.TEST_SENDER_USERNAME ?? "",
+            password: process.env.TEST_SENDER_PASSWORD ?? "",
+            totpCode: process.env.TEST_SENDER_TOTP_CODE ?? "",
+        },
+        receiverLogin: {
+            username: process.env.TEST_RECEIVER_USERNAME ?? "",
+            password: process.env.TEST_RECEIVER_PASSWORD ?? "",
+            totpCode: process.env.TEST_RECEIVER_TOTP_CODE ?? "",
+        },
     },
 
     /* Configure projects for major browsers */
