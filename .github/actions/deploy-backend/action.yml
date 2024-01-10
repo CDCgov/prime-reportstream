@@ -257,7 +257,7 @@ runs:
           zdd-promote-slot
       shell: bash
 
-    - name: New production slot details
+    - name: Pass if slot swap completes
       run: |
         NEW_SWAP_UTC=$(az functionapp deployment slot list \
         --name ${{ env.FUNCTION_APP }} --resource-group ${{ env.RESOURCE_GROUP }} \
