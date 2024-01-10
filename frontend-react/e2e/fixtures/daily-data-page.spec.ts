@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-import { Utils } from "../helpers/utils";
+import { selectTestOrg } from "../helpers/utils";
 
 test.describe("Daily data page", () => {
     test.describe("not authenticated", () => {
@@ -31,8 +31,7 @@ test.describe("Daily data page", () => {
 
         test.describe("with org selected", () => {
             test.beforeEach(async ({ page }) => {
-                const utils = new Utils(page);
-                await utils.selectTestOrg();
+                await selectTestOrg(page);
 
                 await page.goto("/daily-data");
             });
