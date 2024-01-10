@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { Page, expect } from "@playwright/test";
 import { TOTP } from "otpauth";
 
 import { test as setup } from "./rs-test";
@@ -30,14 +30,14 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     await page.getByLabel("Enter Code ").fill(totp.generate());
     await page.getByRole("button", { name: "Verify" }).click();
 
-    await page.getByRole("button", { name: "Logout" });
+    // Verify we are authenticated
+    await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
 }
 
 setup("authenticate as admin", async ({ page, adminLogin }) => {
     await logIntoOkta(page, adminLogin);
 
     await page.context().storageState({ path: adminFile });
-    await page.goto(`/`);
 });
 
 // TODO: other user types
