@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.ser.OffsetDateTimeSerializer
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import java.time.OffsetDateTime
@@ -49,6 +50,16 @@ object JacksonMapperUtilities {
         disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         enable(SerializationFeature.INDENT_OUTPUT) // Pretty print JSON output
     }.run { setTimeZone(TimeZone.getTimeZone(Environment.rsTimeZone)) }
+
+    /**
+     * Mapper using library defaults (no kotlin, java modules).
+     */
+    val objectMapper: ObjectMapper = ObjectMapper()
+
+    /**
+     * jacksonObjectMapper using library defaults.
+     */
+    val jacksonObjectMapper: ObjectMapper = jacksonObjectMapper()
 
     /**
      * Mapper using library defaults.
