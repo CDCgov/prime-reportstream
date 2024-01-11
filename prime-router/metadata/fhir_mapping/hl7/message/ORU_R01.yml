@@ -37,7 +37,7 @@ resources:
   - resourceName: Encounter
     segment: .PV1
     group: PATIENT_RESULT.PATIENT.VISIT
-    resourcePath: resource/Encounter
+    resourcePath: segments/PV1/Encounter
     isReferenced: true
     repeats: false
     additionalSegments:
