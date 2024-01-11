@@ -35,7 +35,8 @@ extension_2:
 assigner_1:
   vars:
     cx43: String, CX.4.3
-  condition: $cx43 NULL
+    cx4: STRING_ALL, CX.4
+  condition: $cx43 NULL && $cx4 NOT_NULL
   valueOf: datatypes/HD/Organization
   expressionType: reference
   specs: CX.4
@@ -152,6 +153,9 @@ extension_type:
 extension_assigningFacility:
   generateList: true
   expressionType: nested
+  condition: $cx6 NOT_NULL
+  vars:
+    cx6: CX.6
   expressionsMap:
     url:
       type: SYSTEM_URL
