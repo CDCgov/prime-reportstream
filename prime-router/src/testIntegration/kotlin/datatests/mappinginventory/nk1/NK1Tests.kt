@@ -9,5 +9,7 @@ class NK1ToRelatedPersonTests {
     @Test
     fun `can accurately map from HL7 to FHIR to HL7`() {
         assert(verifyHL7ToFHIRToHL7Mapping("nk1/NK1-to-RelatedPerson").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("nk1/NK1-to-RelatedPerson-mostly-empty").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("nk1/NK1-to-RelatedPerson-with-repeats").passed)
     }
 }

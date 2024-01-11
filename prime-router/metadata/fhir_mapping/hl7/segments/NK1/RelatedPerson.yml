@@ -293,7 +293,9 @@ extension:
         valueString:
           valueOf: 'NK1'
     - expressionType: nested
+      generateList: true
       condition: $nk1-13 NOT_NULL
+      specs: NK1.13 *
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -301,7 +303,6 @@ extension:
         valueReference:
           valueOf: datatypes/XON/Organization
           expressionType: reference
-          specs: NK1.13 *
     - expressionType: nested
       condition: $nk1-16 NOT_NULL
       expressionsMap:
