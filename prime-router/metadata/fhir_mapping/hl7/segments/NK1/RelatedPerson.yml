@@ -38,6 +38,7 @@ name:
     - valueOf: datatypes/XPN/HumanName
       expressionType: resource
       condition: $nk1-2 NOT_NULL
+      generateList: true
       vars:
         nk1-2: NK1.2
       specs: NK1.2 *
@@ -46,6 +47,7 @@ name:
     - valueOf: datatypes/XPN/HumanName
       expressionType: resource
       condition: $nk1-30 NOT_NULL
+      generateList: true
       vars:
         nk1-30: NK1.30
       specs: NK1.30 *
@@ -78,6 +80,7 @@ address:
   generateList: true
   expressions:
     - valueOf: datatypes/XAD/Address
+      generateList: true
       expressionType: resource
       condition: $nk1-4 NOT_NULL
       vars:
@@ -86,6 +89,7 @@ address:
       constants:
         hl7v2Name: "address"
     - valueOf: datatypes/XAD/Address
+      generateList: true
       expressionType: resource
       condition: $nk1-32 NOT_NULL
       vars:
@@ -197,7 +201,6 @@ identifier:
       condition: $nk1-12 NOT_NULL
       vars:
         nk1-12: NK1.12
-      generateList: true
       expressionType: resource
       specs: NK1.12
       constants:
@@ -212,7 +215,6 @@ identifier:
       constants:
         identifierIndexName: next-of-kin-identifier
     - expressionType: nested
-      generateList: true
       condition: $nk1-37 NOT_NULL
       vars:
         nk1-37: NK1.37
@@ -272,7 +274,6 @@ communication:
   condition: $nk1-20 NOT_NULL
   expressionsMap:
     language:
-      generateList: true
       valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
       specs: NK1.20
@@ -303,7 +304,6 @@ extension:
           specs: NK1.13 *
     - expressionType: nested
       condition: $nk1-16 NOT_NULL
-      generateList: true
       expressionsMap:
         url:
           type: SYSTEM_URL

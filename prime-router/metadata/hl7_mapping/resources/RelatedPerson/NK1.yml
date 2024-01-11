@@ -8,8 +8,9 @@ elements:
 
   - name: name
     resource: '%resource.name.where(extension(%`rsext-hl7v2Name`).value = "name")'
+    resourceIndex: xpnIndex
     constants:
-      hl7xpnField: '%{hl7NK1FieldPath}-2'
+      hl7xpnField: '%{hl7NK1FieldPath}-2(%{xpnIndex})'
     schema: ../../datatypes/HumanName/XPN
 
   - name: relationship
@@ -20,9 +21,10 @@ elements:
 
   - name: address
     resource: '%resource.address.where(extension(%`rsext-hl7v2Name`).value = "address")'
-    schema: ../../datatypes/Address/XAD
+    resourceIndex: xadIndex
     constants:
-      hl7SpecXADField: '%{hl7NK1FieldPath}-4'
+      hl7SpecXADField: '%{hl7NK1FieldPath}-4(%{xadIndex})'
+    schema: ../../datatypes/Address/XAD
 
   - name: phone-number
     resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "phone-number")'
@@ -64,8 +66,9 @@ elements:
 
   - name: organization-name
     resource: '%resource.extension(%`rsext-nk1-13-organization-name`).value.resolve()'
+    resourceIndex: xonIndex
     constants:
-      hl7XONField: '%{hl7NK1FieldPath}-13'
+      hl7XONField: '%{hl7NK1FieldPath}-13(%{xonIndex})'
     schema: ../Organization/XON
 
   - name: administrative-sex
@@ -88,8 +91,9 @@ elements:
 
   - name: contact-person-name
     resource: '%resource.name.where(extension(%`rsext-hl7v2Name`).value = "contact-person-name")'
+    resourceIndex: xpnIndex
     constants:
-      hl7xpnField: '%{hl7NK1FieldPath}-30'
+      hl7xpnField: '%{hl7NK1FieldPath}-30(%{xpnIndex})'
     schema: ../../datatypes/HumanName/XPN
 
   - name: contact-person-phone-number
@@ -101,15 +105,17 @@ elements:
 
   - name: contact-person-address
     resource: '%resource.address.where(extension(%`rsext-hl7v2Name`).value = "contact-person-address")'
-    schema: ../../datatypes/Address/XAD
+    resourceIndex: xadIndex
     constants:
-      hl7SpecXADField: '%{hl7NK1FieldPath}-32'
+      hl7SpecXADField: '%{hl7NK1FieldPath}-32(%{xadIndex})'
+    schema: ../../datatypes/Address/XAD
 
   - name: next-of-kin-identifier
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "next-of-kin-identifier")'
-    schema: ../../datatypes/identifier/CX
+    resourceIndex: cxIndex
     constants:
-      cxFieldPath: '%{hl7NK1FieldPath}-33'
+      cxFieldPath: '%{hl7NK1FieldPath}-33(%{cxIndex})'
+    schema: ../../datatypes/identifier/CX
 
   - name: contact-person-ssn
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).exists().not())'
