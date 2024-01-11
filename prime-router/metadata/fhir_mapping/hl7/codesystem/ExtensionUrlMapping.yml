@@ -485,6 +485,12 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn22-assigning-jurisdiction"
 - id: "xcn23-assigning-agency-or-department"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn23-assigning-agency-or-department"
+- id: "nk1-13-organization-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-13-organization-name"
+- id: "nk1-15-administrative-sex"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-15-administrative-sex"
+- id: "nk1-16-birth-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-16-birth-date"
 # Given Name
 - id: "xpn2-given-name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name"

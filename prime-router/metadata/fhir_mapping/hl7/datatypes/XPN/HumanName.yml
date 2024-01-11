@@ -1,3 +1,5 @@
+resourceType: HumanName
+
 family:
   type: STRING
   valueOf: XPN.1.1
@@ -232,11 +234,11 @@ extension:
           expressionType: HL7Spec
           valueOf: XPN.14
     - expressionType: nested
-      condition: $hl7Use NOT_NULL
+      condition: $hl7v2Name NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          valueOf: hl7-use
+          value: hl7v2Name
         valueString:
           type: STRING
-          valueOf: $hl7Use
+          valueOf: $hl7v2Name
