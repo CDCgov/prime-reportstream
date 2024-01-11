@@ -131,8 +131,10 @@ type:
           expressionType: nested
           expressionsMap:
             code:
+              type: STRING
               valueOf: $code
             system:
+              type: STRING
               valueOf: $system
 
 extension_type:

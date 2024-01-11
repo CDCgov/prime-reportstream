@@ -10,20 +10,20 @@ elements:
     resource: '%resource.name.where(extension(%`rsext-hl7v2Name`).value = "name")'
     resourceIndex: xpnIndex
     constants:
-      hl7xpnField: '%{hl7NK1FieldPath}-2(%{xpnIndex})'
+      xpnField: '%{hl7NK1FieldPath}-2(%{xpnIndex})'
     schema: ../../datatypes/HumanName/XPN
 
   - name: relationship
     resource: '%resource.relationship.where(extension(%`rsext-hl7v2Name`).value = "relationship")'
     constants:
-      cweFieldPath: '%{hl7NK1FieldPath}-3'
+      cweField: '%{hl7NK1FieldPath}-3'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: address
     resource: '%resource.address.where(extension(%`rsext-hl7v2Name`).value = "address")'
     resourceIndex: xadIndex
     constants:
-      hl7SpecXADField: '%{hl7NK1FieldPath}-4(%{xadIndex})'
+      xadField: '%{hl7NK1FieldPath}-4(%{xadIndex})'
     schema: ../../datatypes/Address/XAD
 
   - name: phone-number
@@ -43,7 +43,7 @@ elements:
   - name: contact-role
     resource: '%resource.relationship.where(extension(%`rsext-hl7v2Name`).value = "contact-role")'
     constants:
-      cweFieldPath: '%{hl7NK1FieldPath}-7'
+      cweField: '%{hl7NK1FieldPath}-7'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: start-date
@@ -74,7 +74,7 @@ elements:
   - name: administrative-sex
     resource: '%resource.gender.extension(%`rsext-nk1-15-administrative-sex`).value'
     constants:
-      cweFieldPath: '%{hl7NK1FieldPath}-15'
+      cweField: '%{hl7NK1FieldPath}-15'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: birth-date
@@ -86,14 +86,14 @@ elements:
   - name: primary-language
     resource: '%resource.communication.language'
     constants:
-      cweFieldPath: '%{hl7NK1FieldPath}-20'
+      cweField: '%{hl7NK1FieldPath}-20'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: contact-person-name
     resource: '%resource.name.where(extension(%`rsext-hl7v2Name`).value = "contact-person-name")'
     resourceIndex: xpnIndex
     constants:
-      hl7xpnField: '%{hl7NK1FieldPath}-30(%{xpnIndex})'
+      xpnField: '%{hl7NK1FieldPath}-30(%{xpnIndex})'
     schema: ../../datatypes/HumanName/XPN
 
   - name: contact-person-phone-number
@@ -107,7 +107,7 @@ elements:
     resource: '%resource.address.where(extension(%`rsext-hl7v2Name`).value = "contact-person-address")'
     resourceIndex: xadIndex
     constants:
-      hl7SpecXADField: '%{hl7NK1FieldPath}-32(%{xadIndex})'
+      xadField: '%{hl7NK1FieldPath}-32(%{xadIndex})'
     schema: ../../datatypes/Address/XAD
 
   - name: next-of-kin-identifier
