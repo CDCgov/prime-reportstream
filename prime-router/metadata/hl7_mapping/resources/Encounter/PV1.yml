@@ -5,7 +5,7 @@ elements:
     hl7Spec: [ '%{hl7PV1Field}-1' ]
 
   - name: pv1-patient-class
-    resource: '%resource.status.extension(%`rsext-pv1-2-patient-class`).value'
+    resource: '%resource.class.extension(%`rsext-pv1-2-patient-class`).value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
       cweFieldPath: '%{hl7PV1Field}-2'

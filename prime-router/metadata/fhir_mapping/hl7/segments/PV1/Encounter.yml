@@ -41,7 +41,7 @@ status:
       expressionType: HL7Spec
       specs: PV1.2
 
-_status:
+_class:
   vars:
     pv12: STRING_ALL, PV1.2
   condition: $pv12 NOT_NULL
@@ -544,7 +544,7 @@ length:
     pv211: STRING, PV2.11
   condition: $pv211 NOT_NULL
   expressionType: resource
-  valueOf: segments/PV1/NM/Quantity
+  valueOf: datatypes/NM/Quantity-LengthOfStay
   specs: PV2.11
 
 text:
@@ -557,7 +557,7 @@ text:
       type: STRING
       expressionType: HL7Spec
       valueOf: PV2.12
-    extension:
+    extension: # This extension is needed because the FHIR encoder will wrap the contents in a <div>
       generateList: true
       expressionType: nested
       expressionsMap:
@@ -587,7 +587,7 @@ meta:
               value: true
             - condition: $pv222 EQUALS N
               type: STRING
-              value: true
+              value: false
             - condition: $pv222 NOT_EQUALS Y && $pv222 NOT_EQUALS N
               type: STRING
               valueOf: $pv222
@@ -677,7 +677,7 @@ extension:
           value: estimated-length
         valueQuantity:
           expressionType: resource
-          valueOf: segments/PV1/NM/Quantity
+          valueOf: datatypes/NM/Quantity-LengthOfStay
           specs: PV2.10
     - vars:
         pv221: STRING, PV2.21
