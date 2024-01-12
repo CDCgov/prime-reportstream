@@ -101,3 +101,12 @@ implementation differs from what is in the spreadsheets.
 - Mapping comments
   in [ORU_R01](https://docs.google.com/spreadsheets/d/1gHK6_PFyr7PXns7wLDs0LSLsbjm0x-4bWUu3crXMKMI/edit#gid=0)
   indicate that NK1 can be mapped to Patient or Related Person. We have decided Related Person is more appropriate.
+### PV1/PV2 -> Encounter
+
+- The inventory says PV1.16 should go to a property on an Encounter, but that property exists on
+  Encounter.hospitalization which is where the implementation sets it
+- The NIST spec states that PV1.2 is of type `IS` but in both the inventory and the HAPI structures it is a CWE which is
+  how it is mapped
+- The inventory does not have a record for the FC datatype and the implementation does not map PV1.20
+- PV1.52 should be mapped as it's in NIST and has a mapping in the inventory but, the HAPI 2.7 structures have it as
+  NULLDT so this implementation does not map it

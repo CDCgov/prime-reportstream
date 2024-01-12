@@ -123,6 +123,7 @@ type:
   vars:
     code: $code | CX.5
     system: $system
+  condition: $code NOT_NULL || $system NOT_NULL
   expressions:
     - expressionType: nested
       expressionsMap:
@@ -136,6 +137,10 @@ type:
             system:
               type: STRING
               valueOf: $system
+        text:
+          type: STRING
+          condition: $CXIdentifierText NOT_NULL
+          valueOf: $CXIdentifierText
 
 extension_type:
   generateList: true
@@ -244,6 +249,7 @@ extension_5:
 extension_6:
   generateList: true
   expressionType: nested
+  condition: $identifierIndexName NOT_NULL
   expressionsMap:
     url:
       type: SYSTEM_URL
