@@ -629,4 +629,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ed-5-data"
 - id: "alternate-codes"
   url: "https://hl7.org/fhir/StructureDefinition/alternate-codes"
+- id: "reject-reason"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/reject-reason"
 

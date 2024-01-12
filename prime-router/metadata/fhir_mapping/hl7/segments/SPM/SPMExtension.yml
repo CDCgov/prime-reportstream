@@ -1,0 +1,165 @@
+url:
+  type: SYSTEM_URL
+  value: spm-specimen
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        spm5: SPM.5
+      condition: $spm5 NOT_NULL
+      specs: SPM.5 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-5-specimen-type-modifier
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm10: SPM.10
+      condition: $spm10 NOT_NULL
+      specs: SPM.10
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-10-specimen-collection-site
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm11: SPM.11
+      condition: $spm11 NOT_NULL
+      specs: SPM.11 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-11-specimen-role
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept Grouped Specimen Count
+    - expressionType: nested
+      vars:
+        spm13: SPM.13
+      condition: $spm13 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-13-grouped-specimen-count
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SPM.13
+    - expressionType: nested
+      vars:
+        spm15: SPM.15
+      condition: $spm15 NOT_NULL
+      specs: SPM.15 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-15-specimen-handling-code
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept Grouped Specimen Count
+    - expressionType: nested
+      vars:
+        spm16: SPM.16
+      condition: $spm16 NOT_NULL
+      specs: SPM.16 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-16-specimen-risk-code
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm19: SPM.19
+      condition: $spm19 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-19-specimen-expiration-date
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SPM.19
+    - expressionType: nested
+      vars:
+        spm22: SPM.22
+      condition: $spm22 NOT_NULL
+      specs: SPM.22
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-22-specimen-quality
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept Grouped Specimen Count
+    - expressionType: nested
+      vars:
+        spm23: SPM.23
+      condition: $spm23 NOT_NULL
+      specs: SPM.23
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-23-specimen-appropriateness
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm25: SPM.25
+      condition: $spm25 NOT_NULL
+      specs: SPM.25
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-25-specimen-current-quantity
+        valueQuantity:
+          expressionType: resource
+          valueOf: datatypes/CQ/Quantity
+    - expressionType: nested
+      vars:
+        spm26: SPM.26
+      condition: $spm26 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-26-number-of-specimen-containers
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SPM.26
+    - expressionType: nested
+      vars:
+        spm28: SPM.28
+      condition: $spm28 NOT_NULL
+      specs: SPM.28
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-28-container-condition
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm29: SPM.29
+      condition: $spm29 NOT_NULL
+      specs: SPM.29
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-29-specimen-child-role
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept

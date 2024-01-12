@@ -10,7 +10,6 @@ identifier:
   expressions:
     - condition: $spm21 NOT_NULL
       valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
-      generateList: true
       expressionType: resource
       specs: SPM.2
       vars:
@@ -20,7 +19,6 @@ identifier:
         backupExtension: "filler-assigned-identifier"
     - condition: $spm22 NOT_NULL
       valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
-      generateList: true
       expressionType: resource
       specs: SPM.2
       vars:
@@ -28,6 +26,20 @@ identifier:
       constants:
         hl7Use: "specimen-id-filler"
         backupExtension: "placer-assigned-identifier"
+    - valueOf: datatypes/CX/Identifier
+      expressionType: resource
+      generateList: true
+      specs: SPM.31 *
+    - condition: $spm32 NOT_NULL
+      valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
+      expressionType: resource
+      specs: SPM.32
+      vars:
+        spm32: SPM.32
+      constants:
+        hl7Use: "shipment-id"
+        code: "SHIP"
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
 
 parent:
   generateList: true
@@ -64,16 +76,21 @@ type:
   specs: SPM.4
 
 container:
-  condition: $spm6 NOT_NULL
+  condition: $spm6 NOT_NULL || $spm27 NOT_NULL
   expressionType: nested
   generateList: true
   vars:
-    spm6: STRING_ALL, SPM.6
+    spm6: SPM.6
+    spm27: SPM.27
   expressionsMap:
     additiveCodeableConcept:
       valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
       specs: SPM.6 *
+    type:
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: SPM.27
 
 collection:
   condition: $spm7 NOT_NULL || $spm8 NOT_NULL || $spm9 NOT_NULL || $spm12 NOT_NULL
@@ -188,3 +205,34 @@ status:
   valueOf: SPM.20
   expressionType: HL7Spec
 
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    # ORC data
+    - expressionType: resource
+      valueOf: segments/ORC/ORCExtension
+    - expressionType: nested
+      generateList: true
+      vars:
+        spm21: SPM.21
+      specs: SPM.21 *
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: reject-reason
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+
+condition:
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  generateList: true
+  specs: SPM.24 *
+
+accessionIdentifier:
+  valueOf: datatypes/CX/Identifier
+  expressionType: resource
+  generateList: true
+  specs: SPM.30 *
