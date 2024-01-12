@@ -25,6 +25,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.BlobAccess.Companion.validateSchemas
 import gov.cdc.prime.router.common.Environment
 import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
@@ -42,7 +43,9 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.net.MalformedURLException
+import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
@@ -121,7 +124,7 @@ class BlobAccessTests {
         }
 
         @Test
-        fun `copyDir should overwrite any existing files`() {
+        fun `validateSchemas - fhir to fhir`() {
             val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
                 "container1",
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
@@ -135,9 +138,114 @@ class BlobAccessTests {
                 }/devstoreaccount1;"""
             )
 
+            BlobAccess.uploadBlob(
+                "dev/bar/input.fhir",
+                File(
+                    Paths.get("").toAbsolutePath().toString() +
+                    "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/input.fhir"
+                )
+                    .inputStream().readAllBytes(),
+                sourceBlobContainerMetadata
+            )
+
+            BlobAccess.uploadBlob(
+                "dev/bar/output.fhir",
+                File(
+                    Paths.get("").toAbsolutePath().toString() +
+                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/output.fhir"
+                )
+                    .inputStream().readAllBytes(),
+                sourceBlobContainerMetadata
+            )
+
+            BlobAccess.uploadBlob(
+                "dev/bar/simple-transform.yml",
+                File(
+                    Paths.get("").toAbsolutePath().toString() +
+                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/simple-transform.yml")
+                    .inputStream().readAllBytes(),
+                sourceBlobContainerMetadata
+            )
+
+            assertThat(
+                validateSchemas(
+                    "dev/bar",
+                    sourceBlobContainerMetadata,
+                    BlobAccess.Companion.SchemaType.FHIR_FHIR
+                )
+            ).isEqualTo(true)
+        }
+
+        @Test
+        fun `validateSchemas - fhir to hl7`() {
+            val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
+                "container1",
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10000
+                    )
+                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10001
+                    )
+                }/devstoreaccount1;"""
+            )
+
+            BlobAccess.uploadBlob(
+                "dev/foo/input.fhir",
+                File(
+                    Paths.get("").toAbsolutePath().toString() +
+                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/input.fhir"
+                ).inputStream().readAllBytes(),
+                sourceBlobContainerMetadata
+            )
+
+            BlobAccess.uploadBlob(
+                "dev/foo/output.hl7",
+                File(
+                    Paths.get("").toAbsolutePath().toString() +
+                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/output.hl7"
+                ).inputStream().readAllBytes(),
+                sourceBlobContainerMetadata
+            )
+
+            BlobAccess.uploadBlob(
+                "dev/foo/sender-transform.yml",
+                File(
+                    Paths.get("").toAbsolutePath().toString() +
+                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/sender-transform.yml"
+                ).inputStream().readAllBytes(),
+                sourceBlobContainerMetadata
+            )
+
+            assertThat(validateSchemas(
+                "dev/foo",
+                sourceBlobContainerMetadata,
+                BlobAccess.Companion.SchemaType.FHIR_HL7
+            )).isEqualTo(true)
+        }
+
+        @Test
+        fun `copyDir should overwrite any existing files`() {
+            val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
+                "container1",
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10000
+                    )
+                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10001
+                    )
+                }/devstoreaccount1;"""
+            )
+
             val destinationBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
                 "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount2;AccountKey=keydevstoreaccount2;BlobEndpoint=http://${azuriteContainer2.host}:${
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount2;""" +
+                    """AccountKey=keydevstoreaccount2;BlobEndpoint=http://${azuriteContainer2.host}:${
                     azuriteContainer2.getMappedPort(
                         10000
                     )
@@ -176,7 +284,8 @@ class BlobAccessTests {
             val testContent = "test content"
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
                     azuriteContainer1.getMappedPort(
                         10000
                     )
@@ -202,7 +311,8 @@ class BlobAccessTests {
         fun `can list blobs in a directory`() {
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
                     azuriteContainer1.getMappedPort(
                         10000
                     )
@@ -252,7 +362,8 @@ class BlobAccessTests {
         fun `can list blobs with their versions`() {
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
                     azuriteContainer1.getMappedPort(
                         10000
                     )
@@ -325,7 +436,8 @@ class BlobAccessTests {
         fun `listBlobs with versions should not include a result that has been soft-deleted`() {
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
                     azuriteContainer1.getMappedPort(
                         10000
                     )

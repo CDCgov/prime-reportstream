@@ -202,7 +202,7 @@ object ConfigSchemaReader : Logging {
      * Read one YAML formatted schema of type [schemaClass] from the given [inputStream].
      * @return the schema
      */
-    internal fun readOneYamlSchema(
+    fun readOneYamlSchema(
         inputStream: InputStream,
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java,
     ): ConfigSchema<*> {
