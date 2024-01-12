@@ -7,9 +7,7 @@ not careful with them, you can really mess up the application. Spider-Man rules 
 "With great power comes great responsibility"
 
 ## Finding Dependabot and other dependency PRs
-Dependency PRs come primarily from Dependabot, but can come from other automations or be created manually.
-
-Here's the full list of [dependency PRs](https://github.com/CDCgov/prime-reportstream/pulls?q=is%3Apr+is%3Aopen+label%3Adependencies).
+Dependency PRs come primarily from Dependabot, but can come from other automations or be created manually.  Here's the full list of [dependency PRs](https://github.com/CDCgov/prime-reportstream/pulls?q=is%3Apr+is%3Aopen+label%3Adependencies).
 
 You will more likely be interested in dependency PRs associated with your portion of the code base, such as [/prime-router](https://github.com/CDCgov/prime-reportstream/pulls?q=is%3Apr+is%3Aopen+label%3Adependencies+%2Fprime-router+in%3Atitle+).
 
@@ -28,7 +26,7 @@ Please pay attention to [security related dependency PRs](https://github.com/CDC
 1. Identify what places in the code the library is used then identify if the unit, integration and/or smoke tests provide enough coverage to verify the update does 
 not break the baseline.  If the tests do not provide proper coverage then you MUST manually test as necessary to verify the library update BEFORE merging the update.
 When in doubt ask!
-1. If not further testing is required then you can merge in the PR in GitHub
+1. If no further testing is required then you can merge in the PR in GitHub
    1. Go to [Pull Requests](https://github.com/CDCgov/prime-reportstream/pulls) in Github and find the original branch (i.e. com.googlecode.libphonenumber-libphonenumber-8.12.31)
    2. Go to the Files changed tab click Review changes
    3. Leave a brief comment (i.e. "tested locally"), select Approve and click Submit review
