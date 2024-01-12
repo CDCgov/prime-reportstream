@@ -209,9 +209,8 @@ extension:
   expressionType: nested
   generateList: true
   expressions:
-    # ORC data
     - expressionType: resource
-      valueOf: segments/ORC/ORCExtension
+      valueOf: segments/SPM/SPMExtension
     - expressionType: nested
       generateList: true
       vars:
