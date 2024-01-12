@@ -62,7 +62,7 @@ elements:
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "next-of-kin-employee-number")'
     schema: ../../datatypes/identifier/CX
     constants:
-      cxFieldPath: '%{hl7NK1FieldPath}-12'
+      cxField: '%{hl7NK1FieldPath}-12'
 
   - name: organization-name
     resource: '%resource.extension(%`rsext-nk1-13-organization-name`).value.resolve()'
@@ -114,7 +114,7 @@ elements:
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "next-of-kin-identifier")'
     resourceIndex: cxIndex
     constants:
-      cxFieldPath: '%{hl7NK1FieldPath}-33(%{cxIndex})'
+      cxField: '%{hl7NK1FieldPath}-33(%{cxIndex})'
     schema: ../../datatypes/identifier/CX
 
   - name: contact-person-ssn
