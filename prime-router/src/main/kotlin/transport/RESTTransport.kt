@@ -90,7 +90,13 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         val receiver = header.receiver ?: error("No receiver defined for report $reportId")
         val reportContent: ByteArray = header.content ?: error("No content for report $reportId")
         // get the file name, or create one from the report ID, NY requires a file name in the POST
-        val fileName = header.reportFile.externalName ?: "$reportId.hl7"
+        val fileName = Report.formFilename(
+            header.reportFile.reportId,
+            receiver.organizationName,
+            Report.Format.valueOf(receiver.translation.type),
+            header.reportFile.createdAt
+        )
+
         // get the username/password to authenticate with OAuth
         val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
 

@@ -48,6 +48,7 @@ import java.net.MalformedURLException
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.test.assertEquals
 
 class BlobAccessTests {
     @AfterEach
@@ -121,6 +122,50 @@ class BlobAccessTests {
             BlobAccess.copyDir("foo", sourceBlobContainerMetadata, destinationBlobContainerMetadata)
             val copiedBlobs = BlobAccess.listBlobs("foo", destinationBlobContainerMetadata)
             assertThat(copiedBlobs).hasSize(4)
+        }
+
+        @Test
+        fun `downloadBlobsInDirectoryToLocal`() {
+            val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
+                "container1",
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10000
+                    )
+                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10001
+                    )
+                }/devstoreaccount1;"""
+            )
+
+            val contentToUpload =
+                listOf("foo/item1.txt", "foo/item2.txt", "foo/item13.txt", "foo/baz/item3.txt")
+            contentToUpload.forEach { content ->
+                BlobAccess.uploadBlob(
+                    content,
+                    content.toByteArray(),
+                    sourceBlobContainerMetadata
+                )
+            }
+
+            BlobAccess.downloadBlobsInDirectoryToLocal(
+                "foo", sourceBlobContainerMetadata, Paths.get("").toAbsolutePath().toString()
+            )
+
+            contentToUpload.forEach { fileName ->
+                val file = File("./$fileName")
+                val content =
+                    file.inputStream()
+                        .readBytes().toString(Charsets.UTF_8)
+                try {
+                    assertEquals(fileName, content)
+                } finally {
+                    file.delete()
+                    File("${Paths.get("").toAbsolutePath()}/foo/baz").delete()
+                    File("${Paths.get("").toAbsolutePath()}/foo").delete()
+                }
+            }
         }
 
         @Test
@@ -423,10 +468,10 @@ class BlobAccessTests {
 
             assertThat(results).hasSize(1)
 
-            assertThat(results.get(0).currentBlobItem.name).isEqualTo(blobName)
-            assertThat(results.get(0).previousBlobItemVersions).isNotNull()
-            assertThat(results.get(0).previousBlobItemVersions!!.size).isEqualTo(3)
-            assertThat(results.get(0).previousBlobItemVersions!!.map { it.versionId }).isEqualTo(
+            assertThat(results[0].currentBlobItem.name).isEqualTo(blobName)
+            assertThat(results[0].previousBlobItemVersions).isNotNull()
+            assertThat(results[0].previousBlobItemVersions!!.size).isEqualTo(3)
+            assertThat(results[0].previousBlobItemVersions!!.map { it.versionId }).isEqualTo(
                 listOf(
                     now.minusMinutes(3).format(DateTimeFormatter.ISO_DATE_TIME),
                     now.minusMinutes(4).format(DateTimeFormatter.ISO_DATE_TIME),
@@ -494,7 +539,7 @@ class BlobAccessTests {
 
             // fooBlob does not have a current version and should not be included in the results
             assertThat(results).hasSize(1)
-            assertThat(results.get(0).currentBlobItem.name).isEqualTo(blobName2)
+            assertThat(results[0].currentBlobItem.name).isEqualTo(blobName2)
         }
     }
 

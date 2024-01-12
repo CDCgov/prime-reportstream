@@ -14,6 +14,7 @@ import com.azure.storage.blob.models.ListBlobsOptions
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.Environment
+import org.apache.commons.io.FileUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
@@ -25,6 +26,7 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.Charset
@@ -411,6 +413,28 @@ class BlobAccess() : Logging {
             val toBlobUrl = uploadBlob(toFilename, fromBytes, blobConnInfo)
             logger.info("New blob URL is $toBlobUrl")
             return toBlobUrl
+        }
+
+        /**
+         * Download all blobs located at [sourceBlobDirectoryPath] with container info [sourceBlobContainerInfo] to the
+         * [destinationDirectoryPath].
+         */
+        fun downloadBlobsInDirectoryToLocal(
+            sourceBlobDirectoryPath: String,
+            sourceBlobContainerInfo: BlobContainerMetadata,
+            destinationDirectoryPath: String,
+        ) {
+            val sourceContainer = getBlobContainer(sourceBlobContainerInfo)
+            val blobsToCopy = listBlobs(sourceBlobDirectoryPath, sourceBlobContainerInfo)
+            if (blobsToCopy.isEmpty()) {
+                logger.warn("No files to copy in directory '$sourceBlobDirectoryPath'")
+            }
+            blobsToCopy.forEach { currentBlob ->
+                val sourceBlobClient = sourceContainer.getBlobClient(currentBlob.currentBlobItem.name)
+                val data = sourceBlobClient.downloadContent()
+                val file = File("$destinationDirectoryPath/${currentBlob.currentBlobItem.name}")
+                FileUtils.writeByteArrayToFile(file, data.toBytes())
+            }
         }
 
         /**
