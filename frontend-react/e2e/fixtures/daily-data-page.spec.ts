@@ -10,7 +10,7 @@ test.describe("Daily data page", () => {
         });
     });
 
-    test.describe("admin test", () => {
+    test.describe("admin user", () => {
         test.use({ storageState: "playwright/.auth/admin.json" });
 
         test.describe("without org selected", () => {
@@ -56,11 +56,11 @@ test.describe("Daily data page", () => {
             });
 
             test("table has correct headers", async ({ page }) => {
-                await expect(page.getByText("Report ID")).toBeAttached();
-                await expect(page.getByText("Available")).toBeAttached();
-                await expect(page.getByText("Expires")).toBeAttached();
-                await expect(page.getByText("Items")).toBeAttached();
-                await expect(page.getByText("File")).toBeAttached();
+                await expect(page.getByText(/Report ID/)).toBeAttached();
+                await expect(page.getByText(/Available/)).toBeAttached();
+                await expect(page.getByText(/Expires/)).toBeAttached();
+                await expect(page.getByText(/Items/)).toBeAttached();
+                await expect(page.getByText(/File/)).toBeAttached();
             });
 
             test("table has pagination", async ({ page }) => {
@@ -75,7 +75,54 @@ test.describe("Daily data page", () => {
         });
     });
 
-    // TODO: receiver test
+    test.describe("receiver user", () => {
+        test.use({ storageState: "playwright/.auth/receiver.json" });
 
-    // TODO: sender test
+        test.beforeEach(async ({ page }) => {
+            await page.goto("/daily-data");
+        });
+
+        test("has correct title", async ({ page }) => {
+            await expect(page).toHaveTitle(/Daily Data - ReportStream/);
+        });
+
+        test("has filter", async ({ page }) => {
+            await expect(page.getByText("From (Start Range):")).toBeAttached();
+            await expect(page.getByText("Until (End Range):")).toBeAttached();
+        });
+
+        test("table has correct headers", async ({ page }) => {
+            await expect(page.getByText(/Report ID/)).toBeAttached();
+            await expect(page.getByText(/Available/)).toBeAttached();
+            await expect(page.getByText(/Expires/)).toBeAttached();
+            await expect(page.getByText(/Items/)).toBeAttached();
+            await expect(page.getByText(/File/)).toBeAttached();
+        });
+
+        test("table has pagination", async ({ page }) => {
+            await expect(
+                page.getByTestId("Deliveries pagination"),
+            ).toBeAttached();
+        });
+
+        test("has footer", async ({ page }) => {
+            await expect(page.locator("footer")).toBeAttached();
+        });
+    });
+
+    test.describe("sender user", () => {
+        test.use({ storageState: "playwright/.auth/sender.json" });
+
+        test.beforeEach(async ({ page }) => {
+            await page.goto("/daily-data");
+        });
+
+        test("has correct title", async ({ page }) => {
+            await expect(page).toHaveTitle(/Daily Data - ReportStream/);
+        });
+
+        test("has footer", async ({ page }) => {
+            await expect(page.locator("footer")).toBeAttached();
+        });
+    });
 });

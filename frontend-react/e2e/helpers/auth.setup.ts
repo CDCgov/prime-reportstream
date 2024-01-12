@@ -27,8 +27,10 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     await pwd.fill(login.password);
     await page.getByRole("button", { name: "Sign in" }).click();
 
-    await page.getByLabel("Enter Code ").fill(totp.generate());
-    await page.getByRole("button", { name: "Verify" }).click();
+    if (login.totpCode !== "") {
+        await page.getByLabel("Enter Code ").fill(totp.generate());
+        await page.getByRole("button", { name: "Verify" }).click();
+    }
 
     // Verify we are authenticated
     await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
@@ -40,17 +42,16 @@ setup("authenticate as admin", async ({ page, adminLogin }) => {
     await page.context().storageState({ path: adminFile });
     await page.goto("/admin/settings", { waitUntil: "networkidle" });
     await page.waitForTimeout(3000);
-    await expect(page).toHaveTitle(/Admin-Organizations/);
+    await expect(page).toHaveURL("/admin/settings");
 });
 
-// TODO: other user types
-/*
 const senderFile = "playwright/.auth/sender.json";
 
 setup("authenticate as sender", async ({ page, senderLogin }) => {
     await logIntoOkta(page, senderLogin);
 
     await page.context().storageState({ path: senderFile });
+    await expect(page).toHaveURL("/submissions");
 });
 
 const receiverFile = "playwright/.auth/receiver.json";
@@ -59,5 +60,5 @@ setup("authenticate as receiver", async ({ page, receiverLogin }) => {
     await logIntoOkta(page, receiverLogin);
 
     await page.context().storageState({ path: receiverFile });
+    await expect(page).toHaveURL("/");
 });
-*/
