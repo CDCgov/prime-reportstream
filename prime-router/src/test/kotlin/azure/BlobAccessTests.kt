@@ -162,7 +162,8 @@ class BlobAccessTests {
                 "dev/bar/simple-transform.yml",
                 File(
                     Paths.get("").toAbsolutePath().toString() +
-                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/simple-transform.yml")
+                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/simple-transform.yml"
+                )
                     .inputStream().readAllBytes(),
                 sourceBlobContainerMetadata
             )
@@ -219,11 +220,13 @@ class BlobAccessTests {
                 sourceBlobContainerMetadata
             )
 
-            assertThat(validateSchemas(
+            assertThat(
+                validateSchemas(
                 "dev/foo",
                 sourceBlobContainerMetadata,
                 BlobAccess.Companion.SchemaType.FHIR_HL7
-            )).isEqualTo(true)
+            )
+            ).isEqualTo(true)
         }
 
         @Test
