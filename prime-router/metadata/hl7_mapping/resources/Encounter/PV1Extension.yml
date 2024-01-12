@@ -4,13 +4,13 @@ elements:
     resource: '%resource.extension.where(url = "pv1-12-preadmit-test-indicator").value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV1Field}-12'
+      cweField: '%{hl7PV1Field}-12'
 
   - name: pv1-patient-type
     resource: '%resource.extension.where(url = "pv1-18-patient-type").value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV1Field}-18'
+      cweField: '%{hl7PV1Field}-18'
 
   - name: pv1-transfer-to-bad-debt-date
     value: [ '%resource.extension.where(url = "pv1-30-transfer-to-bad-debt-date").value' ]
@@ -20,7 +20,7 @@ elements:
     resource: '%resource.extension.where(url = "pv1-31-bad-debt-agency-code").value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV1Field}-31'
+      cweField: '%{hl7PV1Field}-31'
 
   - name: pv1-bad-debt-transfer-amount
     value: [ '%resource.extension.where(url = "pv1-32-bad-debt-transfer-amount").value' ]
@@ -34,7 +34,7 @@ elements:
     resource: '%resource.extension.where(url = "pv1-34-delete-account-indicator").value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV1Field}-34'
+      cweField: '%{hl7PV1Field}-34'
 
   - name: pv1-delete-account-date
     value: [ '%resource.extension.where(url = "pv1-35-delete-account-date").value' ]
@@ -44,13 +44,13 @@ elements:
     resource: '%resource.extension.where(url = "pv1-39-servicing-facility").value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV1Field}-39'
+      cweField: '%{hl7PV1Field}-39'
 
   - name: pv1-account-status
     resource: '%resource.extension.where(url = "pv1-41-account-status").value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV1Field}-41'
+      cweField: '%{hl7PV1Field}-41'
 
   - name: pv1-current-patient-balance
     value: [ '%resource.extension.where(url = "pv1-46-current-patient-balance").value' ]
@@ -72,4 +72,4 @@ elements:
     resource: '%resource.extension.where(url = "pv1-51-visit-indicator").value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV1Field}-51'
+      cweField: '%{hl7PV1Field}-51'
