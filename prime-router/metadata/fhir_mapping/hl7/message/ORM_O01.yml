@@ -16,7 +16,7 @@ resources:
   - resourceName: ServiceRequest
     segment: .ORC
     group: ORDER
-    resourcePath: resource/ServiceRequest
+    resourcePath: segments/ORC/ServiceRequest
     repeats: true
     isReferenced: true
     additionalSegments:

@@ -28,7 +28,6 @@ elements:
   - name: collector-identifier
     resource: '%resource.extension.where(url = "obr-12-danger-code").value'
     schema: ../../datatypes/codeableConcept/CWE
-    resourceIndex: cweIndex
     constants:
       cweField: '%{obrFieldPath}-12'
 

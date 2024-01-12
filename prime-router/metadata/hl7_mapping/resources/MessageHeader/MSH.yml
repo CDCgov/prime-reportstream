@@ -105,7 +105,6 @@ elements:
   - name: principal-lanuage-of-message
     resource: '%resource.extension(%`rsext-msh-19-principal-language-of-message`).value'
     schema: ../../datatypes/codeableConcept/CWE
-    resourceIndex: cweIndex
     constants:
       cweField: 'MSH-19'
 

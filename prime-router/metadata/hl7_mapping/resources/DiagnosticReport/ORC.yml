@@ -5,6 +5,5 @@ elements:
   - name: order-control-reason
     resource: '%resource.extension(%`ext-event-statusReason`).value'
     schema: ../../datatypes/codeableConcept/CWE
-    resourceIndex: cweIndex
     constants:
-      cweField: '%{hl7Order}-16(%{cweIndex})'
+      cweField: '%{hl7Order}-16'
