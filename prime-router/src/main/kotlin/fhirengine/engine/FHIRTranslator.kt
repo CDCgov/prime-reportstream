@@ -49,11 +49,13 @@ class FHIRTranslator(
      *  element.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
-    override fun <T : gov.cdc.prime.router.fhirengine.engine.Message> doWork(
+    override fun <T : QueueMessage> doWork(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
+        message as ReportPipelineMessage
+
         logger.trace("Translating FHIR file for receivers.")
         // pull fhir document and parse FHIR document
         val bundle = FhirTranscoder.decode(message.downloadContent())
@@ -62,7 +64,7 @@ class FHIRTranslator(
         actionHistory.trackExistingInputReport(message.reportId)
 
         when (message) {
-            is FhirTranslateMessage -> {
+            is FhirTranslateQueueMessage -> {
                 val receiver = settings.findReceiver(message.receiverFullName)
                     ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
                 actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
@@ -106,22 +108,31 @@ class FHIRTranslator(
     internal fun getByteArrayFromBundle(
         receiver: Receiver,
         bundle: Bundle,
-    ) = when (receiver.format) {
-        Report.Format.FHIR -> {
-            if (receiver.schemaName.isNotEmpty()) {
-                val transformer = FhirTransformer(receiver.schemaName)
+    ): ByteArray {
+        if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+            receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
+                logger.info("Applying enrichment schema $enrichmentSchemaName")
+                val transformer = FhirTransformer(enrichmentSchemaName)
                 transformer.transform(bundle)
             }
-            FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
         }
+        when (receiver.format) {
+            Report.Format.FHIR -> {
+                if (receiver.schemaName.isNotEmpty()) {
+                    val transformer = FhirTransformer(receiver.schemaName)
+                    transformer.transform(bundle)
+                }
+                return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
+            }
 
-        Report.Format.HL7, Report.Format.HL7_BATCH -> {
-            val hl7Message = getHL7MessageFromBundle(bundle, receiver)
-            hl7Message.encodePreserveEncodingChars().toByteArray()
-        }
+            Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                val hl7Message = getHL7MessageFromBundle(bundle, receiver)
+                return hl7Message.encodePreserveEncodingChars().toByteArray()
+            }
 
-        else -> {
-            error("Receiver format ${receiver.format} not supported.")
+            else -> {
+                error("Receiver format ${receiver.format} not supported.")
+            }
         }
     }
 
