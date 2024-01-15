@@ -166,16 +166,62 @@ elements:
     bundleProperty: '%resource.coding.version'
     value: [ '"2.5.1"' ]
 
+  ## Code
+  - name: sr-patient-race-code-extension
+    resource: '%patient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    bundleProperty: '%resource.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  - name: sr-patient-given-name
+    bundleProperty: '%patient.name.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name").value[x]'
+    value: [ '%patient.name.given[0]' ]
+
+  - name: sr-patient-second-given-name
+    bundleProperty: '%patient.name.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xpn3-second-given-name").value[x]'
+    value: [ '%patient.name.given[1]' ]
+
   # This is populated as a sender transform in the Covid pipeline
   - name: sr-patient-name-type
     bundleProperty: '%patient.name.use'
     value: [ '"official"' ]
+
+  - name: sr-patient-address-street
+    bundleProperty: '%patient.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address").value[x]'
+    value: [ '%patient.address.line[0]' ]
+
+  ## Code
+  - name: sr-patient-ethnic-group-code-extension
+    resource: '%patient.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value'
+    bundleProperty: '%resource.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
 
   # Covid pipeline populates this by looking at the hl70189 value-set version
   - name: sr-patient-ethnic-group-version
     resource: '%patient.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value'
     bundleProperty: '%resource.coding.version'
     value: [ '"2.9"' ]
+
+  - name: sr-patient-ethnic-group-system
+    resource: '%patient.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value'
+    bundleProperty: '%resource.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    condition: '%resource.coding.system.exists() and %resource.coding.system is uri and %resource.coding.system.startsWith("http")'
+    value: [ '%resource.coding.system.getCodingSystemMapping()' ]
+
+  - name: sr-patient-identifier-list-extension
+    bundleProperty: '%patient.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
+    value: [ '"patient-identifier-list"' ]
+
+  - name: sr-patient-identifier-assigner
+    bundleProperty: '%patient.identifier[0].assigner'
+    value: [ '%patient.managingOrganization' ]
+
+  - name: sr-patient-identifier-type-code
+    bundleProperty: '%patient.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type-code").value[x]'
+    value: [ '"PI"' ]
+
+  - name: sr-patient-identifier-ext-assigning-facility
+    bundleProperty: '%patient.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility").value[x]'
+    value: [ '%patient.managingOrganization' ]
 
   # Covid pipeline populates this by looking at the hl70078 value-set version
   - name: sr-observation-abnormal-flag-version
@@ -191,9 +237,9 @@ elements:
     bundleProperty: '%resource.type.coding.version'
     value: [ '"2.67"' ]
 
-  # Covid pipeline populates this by looking at the sender-automation/aoe value-set version
-  # But some AOEs have different versions, we need the ability to lookup that version
-  # So the current solution is to move the sender-automation/aoe to the sender_automation_value_set_row lookup table
+  #   Covid pipeline populates this by looking at the sender-automation/aoe value-set version
+  #   But some AOEs have different versions, we need the ability to lookup that version
+  #   So the current solution is to move the sender-automation/aoe to the sender_automation_value_set_row lookup table
   - name: sr-observation-code-version
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.code.coding.exists()'
@@ -534,8 +580,15 @@ elements:
 
   - name: sr-observation-value-coding
     resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.value is CodeableConcept'
     bundleProperty: '%resource.value.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
     value: [ '"coding"' ]
+
+  - name: sr-observation-value-datetime
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.value is dateTime'
+    bundleProperty: '%resource.value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
+    value: [ '%resource.value' ]
 
   - name: sr-observation-value-coding-system
     resource: 'Bundle.entry.resource.ofType(Observation)'

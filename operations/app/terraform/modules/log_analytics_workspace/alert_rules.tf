@@ -5,7 +5,8 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_fatal" {
   resource_group_name = var.resource_group
 
   action {
-    action_group = [var.action_group_slack_id]
+    action_group  = [var.action_group_slack_id]
+    email_subject = "Found FATAL-ALERT in Production FunctionApp logs"
   }
   data_source_id = azurerm_log_analytics_workspace.law.id
   description    = "Found FATAL-ALERT in FunctionApp logs"
