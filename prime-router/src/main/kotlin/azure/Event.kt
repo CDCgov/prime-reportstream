@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -99,8 +98,6 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
 
     companion object {
         fun parseQueueMessage(event: String): Event {
-            // validate incoming queue message is in the expected format. This will error out with an
-            //  IllegalStateException and message if it is not valid
             val message = JacksonMapperUtilities.defaultMapper.readValue<QueueMessage>(event)
 
             return when (message) {
@@ -175,7 +172,7 @@ class ProcessEvent(
         val queueMessage = ProcessEventQueueMessage(
             eventAction, reportId, options, defaults, routeTo, afterClause
         )
-        return ObjectMapper().writeValueAsString(queueMessage)
+        return JacksonMapperUtilities.objectMapper.writeValueAsString(queueMessage)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -212,7 +209,7 @@ class ReportEvent(
         val queueMessage = ReportEventQueueMessage(
             eventAction, isEmptyBatch, reportId, afterClause
         )
-        return ObjectMapper().writeValueAsString(queueMessage)
+        return JacksonMapperUtilities.objectMapper.writeValueAsString(queueMessage)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -249,7 +246,7 @@ class BatchEvent(
         val queueMessage = BatchEventQueueMessage(
             eventAction, receiverName, isEmptyBatch, afterClause
         )
-        return ObjectMapper().writeValueAsString(queueMessage)
+        return JacksonMapperUtilities.objectMapper.writeValueAsString(queueMessage)
     }
 
     override fun equals(other: Any?): Boolean {
