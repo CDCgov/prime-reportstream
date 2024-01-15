@@ -242,6 +242,7 @@ testlogger {
         showPassed = false
         showSkipped = false
     }
+    showStandardStreams = true
 }
 
 // Add the testIntegration tests
@@ -424,6 +425,20 @@ tasks.register("testEnd2End") {
     group = rootProject.description ?: ""
     description = "Run the end to end tests.  Requires running a Docker instance"
     project.extra["cliArgs"] = listOf("test", "--run", "end2end")
+    finalizedBy("primeCLI")
+}
+
+tasks.register("testEnd2EndUP") {
+    group = rootProject.description ?: ""
+    description = "Run the end to end UP tests.  Requires running a Docker instance"
+    project.extra["cliArgs"] = listOf("test", "--run", "end2end_up")
+    finalizedBy("primeCLI")
+}
+
+tasks.register("testS2S") {
+    group = rootProject.description ?: ""
+    description = "Run the s2s auth tests.  Requires running a Docker instance"
+    project.extra["cliArgs"] = listOf("test", "--run", "server2serverauth")
     finalizedBy("primeCLI")
 }
 
