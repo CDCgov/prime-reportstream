@@ -2,13 +2,13 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.tokens.AccessToken
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Jwk
@@ -128,7 +128,7 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
+        val error = jacksonObjectMapper.readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
         assertThat(error.get("error_description").textValue()).isEqualTo("missing_scope")
         assertThat(error.get("error_uri").textValue())
@@ -145,7 +145,7 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
+        val error = jacksonObjectMapper.readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
         assertThat(error.get("error_description").textValue()).isEqualTo("missing_scope")
         assertThat(error.get("error_uri").textValue())
@@ -168,7 +168,7 @@ class TokenFunctionTests {
             var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-            val error = jacksonObjectMapper().readTree(response.body as String)
+            val error = jacksonObjectMapper.readTree(response.body as String)
             assertThat(error.get("error").textValue()).isEqualTo("invalid_scope")
             assertThat(error.get("error_description").textValue()).isEqualTo("invalid_scope")
             assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#invalid-scope")
@@ -184,7 +184,7 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
+        val error = jacksonObjectMapper.readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
         assertThat(error.get("error_description").textValue()).isEqualTo("malformed_jwt")
         assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#malformed-jwt")
@@ -215,7 +215,7 @@ class TokenFunctionTests {
         var response = tokenFunction.token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
+        val error = jacksonObjectMapper.readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
         assertThat(error.get("error_description").textValue()).isEqualTo("malformed_jwt")
         assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#malformed-jwt")
@@ -245,7 +245,7 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
+        val error = jacksonObjectMapper.readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
         assertThat(error.get("error_description").textValue()).isEqualTo("expired_token")
         assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#expired-token")
@@ -265,7 +265,7 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
+        val error = jacksonObjectMapper.readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
         assertThat(error.get("error_description").textValue()).isEqualTo("no_valid_keys")
         assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#no-valid-keys")
@@ -305,7 +305,7 @@ class TokenFunctionTests {
             var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-            val error = jacksonObjectMapper().readTree(response.body as String)
+            val error = jacksonObjectMapper.readTree(response.body as String)
             assertThat(error.get("error").textValue()).isEqualTo("invalid_scope")
             assertThat(error.get("error_description").textValue()).isEqualTo("invalid_scope")
             assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#invalid-scope")
@@ -326,7 +326,7 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
+        val error = jacksonObjectMapper.readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
         assertThat(error.get("error_description").textValue()).isEqualTo("no_valid_keys")
         assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#no-valid-keys")

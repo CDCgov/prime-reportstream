@@ -71,15 +71,13 @@ interface DeliveriesTableContentProps {
     serviceReportsList: RSDelivery[] | undefined;
 }
 
-const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
+const DeliveriesTable: React.FC<DeliveriesTableContentProps> = ({
     filterManager,
     paginationProps,
     isLoading,
     serviceReportsList,
 }) => {
-    const { appInsights } = useAppInsightsContext();
     const { authState, activeMembership } = useSessionContext();
-    const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
@@ -139,20 +137,6 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
 
     return (
         <>
-            <TableFilters
-                startDateLabel={TableFilterDateLabel.START_DATE}
-                endDateLabel={TableFilterDateLabel.END_DATE}
-                showDateHints={true}
-                filterManager={filterManager}
-                onFilterClick={({ from, to }: { from: string; to: string }) =>
-                    appInsights?.trackEvent({
-                        name: featureEvent,
-                        properties: {
-                            tableFilter: { startRange: from, endRange: to },
-                        },
-                    })
-                }
-            />
             <Table
                 config={resultsTableConfig}
                 filterManager={filterManager}
@@ -162,7 +146,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     );
 };
 
-const DeliveriesTableWithNumberedPagination = ({
+const DeliveriesFilterAndTable = ({
     services,
     activeService,
     setActiveService,
@@ -171,6 +155,8 @@ const DeliveriesTableWithNumberedPagination = ({
     activeService: RSReceiver | undefined;
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
 }) => {
+    const { appInsights } = useAppInsightsContext();
+    const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const handleSetActive = (name: string) => {
         setActiveService(services.find((item) => item.name === name));
     };
@@ -213,7 +199,21 @@ const DeliveriesTableWithNumberedPagination = ({
                 activeService={activeService}
                 handleSetActive={handleSetActive}
             />
-            <DeliveriesTableContent
+            <TableFilters
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
+                showDateHints={true}
+                filterManager={filterManager}
+                onFilterClick={({ from, to }: { from: string; to: string }) =>
+                    appInsights?.trackEvent({
+                        name: featureEvent,
+                        properties: {
+                            tableFilter: { startRange: from, endRange: to },
+                        },
+                    })
+                }
+            />
+            <DeliveriesTable
                 filterManager={filterManager}
                 paginationProps={paginationProps}
                 isLoading={isLoading}
@@ -223,7 +223,7 @@ const DeliveriesTableWithNumberedPagination = ({
     );
 };
 
-export const DeliveriesTable = () => {
+export const DailyData = () => {
     const {
         isLoading,
         data: services,
@@ -251,7 +251,7 @@ export const DeliveriesTable = () => {
     return (
         <>
             {activeService && (
-                <DeliveriesTableWithNumberedPagination
+                <DeliveriesFilterAndTable
                     services={services!!}
                     activeService={activeService}
                     setActiveService={setActiveService}
@@ -261,4 +261,4 @@ export const DeliveriesTable = () => {
     );
 };
 
-export default DeliveriesTable;
+export default DailyData;
