@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1701889660774442000.9609c600-7a29-4aee-911f-0b62b43fdafa",
+  "id" : "1703276494147686000.97221971-854f-4aba-aa14-61a733e08e57",
   "meta" : {
-    "lastUpdated" : "2023-12-06T14:07:40.793-05:00"
+    "lastUpdated" : "2023-12-22T15:21:34.181-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,12 +37,12 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1701889661220650000.2a08e628-92c5-4828-b098-ebba119ce2b8",
+    "fullUrl" : "Provenance/1703276494892059000.cdf9d0fc-41f7-44a0-9dcd-7abe483c2898",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1701889661220650000.2a08e628-92c5-4828-b098-ebba119ce2b8",
+      "id" : "1703276494892059000.cdf9d0fc-41f7-44a0-9dcd-7abe483c2898",
       "target" : [ {
-        "reference" : "DiagnosticReport/1701889661390939000.41c0fcef-2447-4768-b5e8-effc56c34acb"
+        "reference" : "DiagnosticReport/1703276495214138000.8ff7dd79-4fcd-48d3-9d8a-33ac72b5ab0b"
       } ],
       "recorded" : "2023-08-16T12:33:58-05:00",
       "_recorded" : {
@@ -77,21 +77,27 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1701889661223077000.1ab0ceaf-bc09-43c6-9205-4657b96538d7"
+          "reference" : "Device/1703276494899318000.83e4aa9f-92ae-4d5c-baec-563db0f40eb2"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1701889661223077000.1ab0ceaf-bc09-43c6-9205-4657b96538d7",
+    "fullUrl" : "Device/1703276494899318000.83e4aa9f-92ae-4d5c-baec-563db0f40eb2",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1701889661223077000.1ab0ceaf-bc09-43c6-9205-4657b96538d7"
+      "id" : "1703276494899318000.83e4aa9f-92ae-4d5c-baec-563db0f40eb2"
     }
   }, {
-    "fullUrl" : "ServiceRequest/1701889661246296000.c836302e-4167-4ddd-a5a1-c203e23d8fc5",
+    "fullUrl" : "Patient/1703276494949258000.97e405df-9925-4629-a59e-97242c9c039f",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1703276494949258000.97e405df-9925-4629-a59e-97242c9c039f"
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/1703276494966551000.4708b5d6-165a-47c8-add1-da54c6b02ec5",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "1701889661246296000.c836302e-4167-4ddd-a5a1-c203e23d8fc5",
+      "id" : "1703276494966551000.4708b5d6-165a-47c8-add1-da54c6b02ec5",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
         "valueCode" : "RE"
@@ -161,14 +167,14 @@
         } ]
       },
       "subject" : {
-        "reference" : "Patient/1701889661238340000.f0836df3-b307-4f64-978e-760f04464bc2"
+        "reference" : "Patient/1703276494949258000.97e405df-9925-4629-a59e-97242c9c039f"
       }
     }
   }, {
-    "fullUrl" : "DiagnosticReport/1701889661390939000.41c0fcef-2447-4768-b5e8-effc56c34acb",
+    "fullUrl" : "DiagnosticReport/1703276495214138000.8ff7dd79-4fcd-48d3-9d8a-33ac72b5ab0b",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "1701889661390939000.41c0fcef-2447-4768-b5e8-effc56c34acb",
+      "id" : "1703276495214138000.8ff7dd79-4fcd-48d3-9d8a-33ac72b5ab0b",
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
@@ -192,17 +198,9 @@
         "value" : "123456"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/1701889661246296000.c836302e-4167-4ddd-a5a1-c203e23d8fc5"
+        "reference" : "ServiceRequest/1703276494966551000.4708b5d6-165a-47c8-add1-da54c6b02ec5"
       } ],
       "status" : "final",
-      "category" : [ {
-        "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-            "valueString" : "id-code"
-          } ]
-        } ]
-      } ],
       "code" : {
         "coding" : [ {
           "extension" : [ {
@@ -218,7 +216,7 @@
         } ]
       },
       "subject" : {
-        "reference" : "Patient/1701889661238340000.f0836df3-b307-4f64-978e-760f04464bc2"
+        "reference" : "Patient/1703276494949258000.97e405df-9925-4629-a59e-97242c9c039f"
       },
       "issued" : "2023-08-15T03:04:05.6Z",
       "_issued" : {
@@ -227,12 +225,6 @@
           "valueString" : "20230815030405.6"
         } ]
       }
-    }
-  }, {
-    "fullUrl" : "Patient/1701889661238340000.f0836df3-b307-4f64-978e-760f04464bc2",
-    "resource" : {
-      "resourceType" : "Patient",
-      "id" : "1701889661238340000.f0836df3-b307-4f64-978e-760f04464bc2"
     }
   } ]
 }

@@ -12,13 +12,16 @@ deterministically
 create an HL7 message. A few examples on when this can occur:
 
 - the inventory does not map a field
-  - see [MSH.2](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=J4)
+  -
+  see [MSH.2](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=J4)
 - the inventory does not map a field if it does not meet certain conditions
-  - see [MSH.5.1](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0&range=G3)
+  -
+  see [MSH.5.1](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0&range=G3)
 - the inventory inserts different HL7 components into the same array
     - see [XAD](https://docs.google.com/spreadsheets/d/1hSTEur557TIKPEKZRoprVw-uNpw12JZtri-iQsc4uQ0/edit#gid=0&range=J4)
 - the inventory specifies preferring one HL7 field over the other
-  - see [MSH.6](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=G11)
+  -
+  see [MSH.6](https://docs.google.com/spreadsheets/d/13pgda5xl-PwCgB9j0axyymwwv7RJVcrIzY8Ah1y1Y1M/edit#gid=0&range=G11)
 
 These cases are all handled by adding custom extensions that can then be read when converting to HL7. These extensions
 either store
@@ -67,3 +70,43 @@ implementation differs from what is in the spreadsheets.
   defined in the mapping, the implementation maps them to extensions
 - The inventory specifies to prefer OBR.53 over ORC.33 as an identifier which does not align with any of the other
   identifiers, the implementations prefer ORC in all casses
+
+### PID -> Patient
+
+- PID.2 is deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Further, the HAPI v2.7 model has set both fields to
+  NULLDT. Thus, this field is not being mapped.
+- PID.4 is deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Further, the HAPI v2.7 model has set both fields to
+  NULLDT. Thus, this field is not being mapped.
+- PID.6: The inventory maps the value to a `valueString` extention but `valueHumanName` is available and fully captures
+  the values, so it is being used over `valueString`
+- PID.12 is deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Further, the HAPI v2.7 model has set both
+  fields to NULLDT. Thus, this field is not being mapped.
+- PID.19 and PID.20 are deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Further, the HAPI v2.7 model has set both
+  fields to NULLDT. Thus, this field is not being mapped.
+- PID.21: The inventory does not include a FHIR field on patient that this should be mapped to. We have decided to map
+  to Patient.link which includes a reference to RelatedPerson
+
+### PD1 -> Patient
+
+- PD1.4 is deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Further, the HAPI v2.7 model has set both fields to
+  NULLDT. Thus, this field is not being mapped.
+
+### PV1 -> Patient
+
+- Mapping inventory only defines PV1.16 mapping and only when the value is `VIP`. PV1.16 is deprecated in NIST HL7v2.5.1
+  spec and is more thoroughly mapped in PV1 -> Encounter. This field does not need to be mapped to Patient.
+
+### NK1 -> Patient
+
+- Mapping comments
+  in [ORU_R01](https://docs.google.com/spreadsheets/d/1gHK6_PFyr7PXns7wLDs0LSLsbjm0x-4bWUu3crXMKMI/edit#gid=0)
+  indicate that NK1 can be mapped to Patient or Related Person. We have decided Related Person is more appropriate.
+### PV1/PV2 -> Encounter
+
+- The inventory says PV1.16 should go to a property on an Encounter, but that property exists on
+  Encounter.hospitalization which is where the implementation sets it
+- The NIST spec states that PV1.2 is of type `IS` but in both the inventory and the HAPI structures it is a CWE which is
+  how it is mapped
+- The inventory does not have a record for the FC datatype and the implementation does not map PV1.20
+- PV1.52 should be mapped as it's in NIST and has a mapping in the inventory but, the HAPI 2.7 structures have it as
+  NULLDT so this implementation does not map it
