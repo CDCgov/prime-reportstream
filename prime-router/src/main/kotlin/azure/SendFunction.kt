@@ -17,6 +17,8 @@ import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.SoapTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.info
+import gov.cdc.prime.router.common.warn
 import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
@@ -155,9 +157,13 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         actionHistory: ActionHistory,
         isEmptyBatch: Boolean,
     ): ReportEvent {
+        val reportContext = mapOf(
+            "report_id" to reportId.toString(),
+            "receiver" to receiver.fullName,
+        )
         return if (nextRetryItems.isEmpty()) {
             // All OK
-            logger.info("Successfully sent report: $reportId to ${receiver.fullName}")
+            logger.info("Successfully sent report: $reportId to ${receiver.fullName}", reportContext)
             ReportEvent(Event.EventAction.NONE, reportId, isEmptyBatch)
         } else {
             // mapOf() in kotlin is `1` based (not `0`), but always +1
@@ -168,6 +174,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                     "Send Error report for: $reportId to ${receiver.fullName}"
                 actionHistory.setActionType(TaskAction.send_error)
                 actionHistory.trackActionResult(msg)
+                logger.warn("Failed to send report: $reportId to ${receiver.fullName}", reportContext)
                 if (receiver.customerStatus == CustomerStatus.ACTIVE) {
                     logger.fatal("${actionHistory.action.actionResult}")
                 } else {
