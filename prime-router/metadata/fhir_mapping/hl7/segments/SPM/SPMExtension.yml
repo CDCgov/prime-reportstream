@@ -8,6 +8,40 @@ extension:
   expressions:
     - expressionType: nested
       vars:
+        spm31: SPM.3.1
+      condition: $spm31 NOT_NULL
+      specs: SPM.3 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-3-specimen-parent-id-placer
+        valueIdentifier:
+          valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+          expressionType: resource
+          specs: SPM.3
+          constants:
+            hl7Use: "specimen-parent-id-placer"
+            backupExtension: "filler-assigned-identifier"
+    - expressionType: nested
+      vars:
+        spm32: SPM.3.2
+      condition: $spm32 NOT_NULL
+      specs: SPM.3 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-3-specimen-parent-id-filler
+        valueIdentifier:
+          valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
+          expressionType: resource
+          specs: SPM.3
+          constants:
+            hl7Use: "specimen-parent-id-filler"
+            backupExtension: "placer-assigned-identifier"
+    - expressionType: nested
+      vars:
         spm5: SPM.5
       condition: $spm5 NOT_NULL
       specs: SPM.5 *
