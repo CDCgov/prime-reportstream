@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1701889562874459000.bd6f853d-5ff1-465d-abb4-0cc547af9f58",
+  "id" : "1703276309719413000.b70134c7-c525-41e8-8ef0-66da2581f4a3",
   "meta" : {
-    "lastUpdated" : "2023-12-06T14:06:02.888-05:00"
+    "lastUpdated" : "2023-12-22T15:18:29.752-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,10 +37,10 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1701889563220901000.0162e547-226b-4ebf-b15c-b9218750f67f",
+    "fullUrl" : "Provenance/1703276310414399000.1a71a7e1-8bf6-4aa1-8469-0ea347d99c1c",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1701889563220901000.0162e547-226b-4ebf-b15c-b9218750f67f",
+      "id" : "1703276310414399000.1a71a7e1-8bf6-4aa1-8469-0ea347d99c1c",
       "recorded" : "2023-08-16T12:33:58-05:00",
       "_recorded" : {
         "extension" : [ {
@@ -74,21 +74,21 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1701889563223755000.991fbd9e-561f-4219-8cb4-f03ccd6ca97c"
+          "reference" : "Device/1703276310419268000.bd52d7c9-99b9-4e44-bc37-8ab4c5729590"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1701889563223755000.991fbd9e-561f-4219-8cb4-f03ccd6ca97c",
+    "fullUrl" : "Device/1703276310419268000.bd52d7c9-99b9-4e44-bc37-8ab4c5729590",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1701889563223755000.991fbd9e-561f-4219-8cb4-f03ccd6ca97c"
+      "id" : "1703276310419268000.bd52d7c9-99b9-4e44-bc37-8ab4c5729590"
     }
   }, {
-    "fullUrl" : "Patient/1701889563238621000.15f9fd4b-7176-4ddc-a7d8-3f79475c1e9c",
+    "fullUrl" : "Patient/1703276310456787000.251779b2-ddea-41b5-9151-951891f61f90",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1701889563238621000.15f9fd4b-7176-4ddc-a7d8-3f79475c1e9c",
+      "id" : "1703276310456787000.251779b2-ddea-41b5-9151-951891f61f90",
       "deceasedDateTime" : "2023-11-02T11:00:00Z",
       "_deceasedDateTime" : {
         "extension" : [ {
