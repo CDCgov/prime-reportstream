@@ -105,3 +105,32 @@ spreadsheet using its code/OID. The resulting row is then mapped to the appropri
 Either copy the values from the website and map them into the appropriate columns  
 -OR-  
 Sign up for an account, download the CSV, and map the data from it
+
+## Checking for mapping failures
+Use the following query:
+```postgresql
+SELECT action_log.created_at,
+       detail ->> 'message'      as message,
+       detail ->> 'fieldMapping' as field,
+       action_log.report_id,
+       report_file.body_url
+FROM action_log
+         INNER JOIN report_file ON report_file.report_id = action_log.report_id
+WHERE action_log.detail ->> 'errorCode' = 'INVALID_MSG_CONDITION_MAPPING'
+ORDER BY action_log.created_at DESC
+LIMIT 100;
+```
+
+Output will include the missing code, its origin, and the URL of the source data. Use the azure storage explorer
+or the azure portal to download the file being careful to observe PII precautions. 
+
+### Example output
+
+| message | field | report\_id | body\_url |
+| :--- | :--- | :--- | :--- |
+| Missing mapping for code\(s\): N | observation.valueCodeableConcept.coding.code | 3a947e0f-0832-403d-a9d8-92f9b88557a8 | http://localhost:10000/devstoreaccount1/reports/receive%2Fdevelopment.dev-elims%2FNone-3a947e0f-0832-403d-a9d8-92f9b88557a8-20240102233706.fhir |
+| Missing mapping for code\(s\): Y | observation.valueCodeableConcept.coding.code | 3a947e0f-0832-403d-a9d8-92f9b88557a8 | http://localhost:10000/devstoreaccount1/reports/receive%2Fdevelopment.dev-elims%2FNone-3a947e0f-0832-403d-a9d8-92f9b88557a8-20240102233706.fhir |
+| Missing mapping for code\(s\): N | observation.valueCodeableConcept.coding.code | 3a947e0f-0832-403d-a9d8-92f9b88557a8 | http://localhost:10000/devstoreaccount1/reports/receive%2Fdevelopment.dev-elims%2FNone-3a947e0f-0832-403d-a9d8-92f9b88557a8-20240102233706.fhir |
+| Missing mapping for code\(s\): N | observation.valueCodeableConcept.coding.code | 3a947e0f-0832-403d-a9d8-92f9b88557a8 | http://localhost:10000/devstoreaccount1/reports/receive%2Fdevelopment.dev-elims%2FNone-3a947e0f-0832-403d-a9d8-92f9b88557a8-20240102233706.fhir |
+| Missing mapping for code\(s\): 260415000 | observation.valueCodeableConcept.coding.code | 3a947e0f-0832-403d-a9d8-92f9b88557a8 | http://localhost:10000/devstoreaccount1/reports/receive%2Fdevelopment.dev-elims%2FNone-3a947e0f-0832-403d-a9d8-92f9b88557a8-20240102233706.fhir |
+
