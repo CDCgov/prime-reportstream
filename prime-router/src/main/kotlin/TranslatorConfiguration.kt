@@ -20,12 +20,13 @@ interface TranslatorProperties {
     val format: Report.Format
 
     /**
-     * [useBatching] tells whether or not to batch the results
+     * [useBatching] tells whether to batch the results
      */
     val useBatching: Boolean
 
     /**
-     * [schemaName] is the full name of the schema used in the translation
+     * [schemaName] is the full name of the schema used in the convert step as well as the translate step when
+     * translating the internal FHIR bundle to a receiver's preferred format.
      */
     val schemaName: String
 
