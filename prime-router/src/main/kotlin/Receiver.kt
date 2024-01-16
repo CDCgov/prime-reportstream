@@ -33,6 +33,8 @@ import java.time.ZoneId
  * @param externalName an external display name for the receiver. useful for display in the website
  * @param timeZone the timezone the receiver operates under
  * @param dateTimeFormat the format to use for date and datetime values, either Offset or Local
+ * @param enrichmentSchemaNames the paths to schema(s) used to enrich the bundle before translating it to its final
+ *  format
  */
 open class Receiver(
     val name: String,
@@ -52,6 +54,7 @@ open class Receiver(
     val description: String = "",
     val transport: TransportType? = null,
     val externalName: String? = null,
+    val enrichmentSchemaNames: List<String> = emptyList(),
     /**
      * The timezone for the receiver. This is different from the timezone in Timing, which controls the calculation of
      * when and how often to send reports to the receiver. They are distinct ideas. The timeZone for the receiver is
@@ -92,6 +95,7 @@ open class Receiver(
         processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false,
+        enrichmentSchemaNames: List<String> = emptyList(),
     ) : this(
         name,
         organizationName,
@@ -106,7 +110,8 @@ open class Receiver(
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
-        reverseTheQualityFilter = reverseTheQualityFilter
+        reverseTheQualityFilter = reverseTheQualityFilter,
+        enrichmentSchemaNames = enrichmentSchemaNames
     )
 
     /** A copy constructor for the receiver */
@@ -128,6 +133,7 @@ open class Receiver(
         copy.description,
         copy.transport,
         copy.externalName,
+        copy.enrichmentSchemaNames,
         copy.timeZone,
         copy.dateTimeFormat
     )

@@ -13,9 +13,9 @@ __metadata:
   linkType: hard
 
 "@adobe/css-tools@npm:^4.3.1":
-  version: 4.3.1
-  resolution: "@adobe/css-tools@npm:4.3.1"
-  checksum: ad43456379ff391132aff687ece190cb23ea69395e23c9b96690eeabe2468da89a4aaf266e4f8b6eaab53db3d1064107ce0f63c3a974e864f4a04affc768da3f
+  version: 4.3.2
+  resolution: "@adobe/css-tools@npm:4.3.2"
+  checksum: 9667d61d55dc3b0a315c530ae84e016ce5267c4dd8ac00abb40108dc98e07b98e3090ce8b87acd51a41a68d9e84dcccb08cdf21c902572a9cf9dcaf830da4ae3
   languageName: node
   linkType: hard
 
@@ -5192,10 +5192,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/downloadjs@npm:^1.4.4":
-  version: 1.4.4
-  resolution: "@types/downloadjs@npm:1.4.4"
-  checksum: 226faa39f1d1863e97305473894ed2952cffa5f96402528e1bfded7ecc1e74422e876aa5e1bbcbcfe07b48171d161c96cbf6bff985148f4a664141555af4f6e3
+"@types/downloadjs@npm:^1.4.6":
+  version: 1.4.6
+  resolution: "@types/downloadjs@npm:1.4.6"
+  checksum: 0e98425946c12315a7b9646edb75285bcc0fda2d59f9d296fa3bf9455ef62d6d73383c52ee86eec50e9b4cee6f9af9dba78c6fb56bc6444395b4ac4f76a86ec0
   languageName: node
   linkType: hard
 
@@ -5345,10 +5345,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/html-to-text@npm:^9.0.2":
-  version: 9.0.2
-  resolution: "@types/html-to-text@npm:9.0.2"
-  checksum: 9ad76f5ff2c303c6a66f6a03ecccee60da85bed06769c14bc31bf1113c88ac1ea323790f2340b1b6bd7560570fb9e3d8ba0158c123e249a1c3779ddcb78635d5
+"@types/html-to-text@npm:^9.0.4":
+  version: 9.0.4
+  resolution: "@types/html-to-text@npm:9.0.4"
+  checksum: 58ab5564080febdf7a5db99e713bdcf1be8b1ca31c40dae76f8278eba6b1cf62a0291082abe1e00537350aaf1c5d64f92ff37b718c1f880bf5e6174fceb41b78
   languageName: node
   linkType: hard
 
@@ -5661,12 +5661,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-scroll-sync@npm:^0.8.5":
-  version: 0.8.5
-  resolution: "@types/react-scroll-sync@npm:0.8.5"
+"@types/react-scroll-sync@npm:^0.8.7":
+  version: 0.8.7
+  resolution: "@types/react-scroll-sync@npm:0.8.7"
   dependencies:
     "@types/react": "*"
-  checksum: d06895643d831de415ddec7ec2a4f57f6740765f3619ebd92cbdf1a26e66048b4095d99f8874a955fe852fe42ce310a201d93564e2161d3ab059d602f50cd175
+  checksum: e147ff4588d3b97c17ba5b3f683ea0baf7514189a9ad6e2ef24eb2f92b7af18017698099c993b704c74683aaac1fa711e17ba2088a4435181132b02b74812e85
   languageName: node
   linkType: hard
 
@@ -15224,9 +15224,9 @@ __metadata:
     "@trussworks/react-uswds": ^5.4.0
     "@types/dompurify": ^3.0.3
     "@types/dotenv-flow": ^3
-    "@types/downloadjs": ^1.4.4
+    "@types/downloadjs": ^1.4.6
     "@types/github-slugger": ^1.3.0
-    "@types/html-to-text": ^9.0.2
+    "@types/html-to-text": ^9.0.4
     "@types/jest": ^29.5.11
     "@types/lodash.chunk": ^4.2.7
     "@types/lodash.omit": ^4.5.7
@@ -15238,7 +15238,7 @@ __metadata:
     "@types/react": 18.0.28
     "@types/react-dom": ^18.2.18
     "@types/react-router-dom": ^5.3.3
-    "@types/react-scroll-sync": ^0.8.5
+    "@types/react-scroll-sync": ^0.8.7
     "@types/sanitize-html": ^2.9.2
     "@typescript-eslint/eslint-plugin": ^6.16.0
     "@typescript-eslint/parser": ^6.16.0
@@ -15301,11 +15301,11 @@ __metadata:
     react-helmet-async: ^1.3.0
     react-idle-timer: ^5.7.2
     react-loader-spinner: ^6.1.6
-    react-markdown: ^9.0.0
+    react-markdown: ^9.0.1
     react-query-kit: ^2.0.8
     react-router: ^6.21.1
     react-router-dom: ^6.21.1
-    react-scroll-sync: ^0.11.0
+    react-scroll-sync: ^0.11.2
     react-toastify: ^9.1.3
     rehype-raw: ^7.0.0
     rehype-slug: ^5.1.0
@@ -15406,16 +15406,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-markdown@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "react-markdown@npm:9.0.0"
+"react-markdown@npm:^9.0.1":
+  version: 9.0.1
+  resolution: "react-markdown@npm:9.0.1"
   dependencies:
     "@types/hast": ^3.0.0
     devlop: ^1.0.0
     hast-util-to-jsx-runtime: ^2.0.0
     html-url-attributes: ^3.0.0
     mdast-util-to-hast: ^13.0.0
-    micromark-util-sanitize-uri: ^2.0.0
     remark-parse: ^11.0.0
     remark-rehype: ^11.0.0
     unified: ^11.0.0
@@ -15424,7 +15423,7 @@ __metadata:
   peerDependencies:
     "@types/react": ">=18"
     react: ">=18"
-  checksum: 7057f60f0657d5c6210f02a2c80d537176d0d29c141e4b52a8f8fa335ee454248c37c29caf27e8bd28a180bc8e14b5522f63e2a61e3ec3ea5201a58ad43f43c6
+  checksum: ca1daa650d48b84a5a9771683cdb3f3d2d418247ce0faf73ede3207c65f2a21cdebb9df37afda67f6fc8f0f0a7b9ce00eb239781954a4d6c7ad88ea4df068add
   languageName: node
   linkType: hard
 
@@ -15518,15 +15517,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-scroll-sync@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "react-scroll-sync@npm:0.11.0"
+"react-scroll-sync@npm:^0.11.2":
+  version: 0.11.2
+  resolution: "react-scroll-sync@npm:0.11.2"
   dependencies:
     prop-types: ^15.5.7
   peerDependencies:
     react: 16.x || 17.x || 18.x
     react-dom: 16.x || 17.x || 18.x
-  checksum: 8b505cc8c4e83aa3e11d9a7f60677694a10dcd0f9d5818767b3364dff5b461b32ee707bd7bac0ebefd1662c8c49f066ef9871703208f4bd6a23937d37e73809f
+  checksum: 42220e7606c3f28a58ce579313044d5dc2c370c2db25737432e74065805ff50baf7f94136597ae7b1c192657c13ee16d6a9274316ab9481ba05595cefd7a2f07
   languageName: node
   linkType: hard
 
