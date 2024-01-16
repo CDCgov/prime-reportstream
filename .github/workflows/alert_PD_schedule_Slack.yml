@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push: 
     branches:
-        - feature/12568-PDScheduleNotifications
+        - feature/12568-PDSCheduleNotifications
   schedule:
     - cron: "7 13 * * Mon-Fri"  #UTC-5
 jobs:
