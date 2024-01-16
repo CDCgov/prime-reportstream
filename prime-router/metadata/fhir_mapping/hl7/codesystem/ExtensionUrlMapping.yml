@@ -616,6 +616,9 @@
 # PD1 Patient
 - id: "pd1-patient"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pd1-patient"
+# Specimen
+- id: "spm-specimen"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/spm-specimen"
 # NK1 Related Person
 - id: "nk1-related-person"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person"
@@ -696,4 +699,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-visit-description"
 - id: "episode-of-care-name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/episode-of-care-name"
+- id: "bodySiteModifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/bodySiteModifier"
 

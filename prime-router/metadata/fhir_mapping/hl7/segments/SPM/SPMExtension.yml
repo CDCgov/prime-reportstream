@@ -45,6 +45,7 @@ extension:
         spm5: SPM.5
       condition: $spm5 NOT_NULL
       specs: SPM.5 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -57,6 +58,7 @@ extension:
         spm10: SPM.10
       condition: $spm10 NOT_NULL
       specs: SPM.10
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -69,17 +71,19 @@ extension:
         spm11: SPM.11
       condition: $spm11 NOT_NULL
       specs: SPM.11 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
           value: spm-11-specimen-role
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept Grouped Specimen Count
+          valueOf: datatypes/CWE/CodeableConcept
     - expressionType: nested
       vars:
         spm13: SPM.13
       condition: $spm13 NOT_NULL
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -93,13 +97,14 @@ extension:
         spm15: SPM.15
       condition: $spm15 NOT_NULL
       specs: SPM.15 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
           value: spm-15-specimen-handling-code
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept Grouped Specimen Count
+          valueOf: datatypes/CWE/CodeableConcept
     - expressionType: nested
       vars:
         spm16: SPM.16
@@ -117,6 +122,7 @@ extension:
       vars:
         spm19: SPM.19
       condition: $spm19 NOT_NULL
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -130,18 +136,20 @@ extension:
         spm22: SPM.22
       condition: $spm22 NOT_NULL
       specs: SPM.22
+      generateList: true
       expressionsMap:
         url:
           type: STRING
           value: spm-22-specimen-quality
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept Grouped Specimen Count
+          valueOf: datatypes/CWE/CodeableConcept
     - expressionType: nested
       vars:
         spm23: SPM.23
       condition: $spm23 NOT_NULL
       specs: SPM.23
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -154,6 +162,7 @@ extension:
         spm25: SPM.25
       condition: $spm25 NOT_NULL
       specs: SPM.25
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -165,6 +174,7 @@ extension:
       vars:
         spm26: SPM.26
       condition: $spm26 NOT_NULL
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -178,6 +188,7 @@ extension:
         spm28: SPM.28
       condition: $spm28 NOT_NULL
       specs: SPM.28
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -190,6 +201,7 @@ extension:
         spm29: SPM.29
       condition: $spm29 NOT_NULL
       specs: SPM.29
+      generateList: true
       expressionsMap:
         url:
           type: STRING
