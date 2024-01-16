@@ -6,4 +6,4 @@ elements:
     resource: '%resource.extension(%`ext-event-statusReason`).value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7Order}-16'
+      cweField: '%{hl7Order}-16'
