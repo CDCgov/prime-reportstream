@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1701889544828569000.fd0b59e3-cbf8-4252-aaa0-c09c2bddb997",
+  "id" : "1703276273885087000.09ba8ceb-70a8-462b-8205-d56665e0ac32",
   "meta" : {
-    "lastUpdated" : "2023-12-06T14:05:44.849-05:00"
+    "lastUpdated" : "2023-12-22T15:17:53.923-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,10 +37,10 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1701889545207857000.43a99493-5940-4f74-9399-b35b1bec0a0b",
+    "fullUrl" : "Provenance/1703276274562411000.74d6b4a2-0118-4adb-8375-8cd4eac2131c",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1701889545207857000.43a99493-5940-4f74-9399-b35b1bec0a0b",
+      "id" : "1703276274562411000.74d6b4a2-0118-4adb-8375-8cd4eac2131c",
       "recorded" : "2023-08-16T12:33:58-05:00",
       "_recorded" : {
         "extension" : [ {
@@ -74,21 +74,21 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1701889545210041000.c8a2c12a-37af-4882-a0f8-a552db8200ea"
+          "reference" : "Device/1703276274566653000.fbf2aca8-a961-4d21-b60e-ffcbe1610048"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1701889545210041000.c8a2c12a-37af-4882-a0f8-a552db8200ea",
+    "fullUrl" : "Device/1703276274566653000.fbf2aca8-a961-4d21-b60e-ffcbe1610048",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1701889545210041000.c8a2c12a-37af-4882-a0f8-a552db8200ea"
+      "id" : "1703276274566653000.fbf2aca8-a961-4d21-b60e-ffcbe1610048"
     }
   }, {
-    "fullUrl" : "Patient/1701889545224028000.e6caa131-d5d1-4903-874c-b3c41e065742",
+    "fullUrl" : "Patient/1703276274600032000.9f278e17-1d6d-4274-9056-49804a2c8b5f",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1701889545224028000.e6caa131-d5d1-4903-874c-b3c41e065742",
+      "id" : "1703276274600032000.9f278e17-1d6d-4274-9056-49804a2c8b5f",
       "deceasedDateTime" : "2023-11-02",
       "_deceasedDateTime" : {
         "extension" : [ {
