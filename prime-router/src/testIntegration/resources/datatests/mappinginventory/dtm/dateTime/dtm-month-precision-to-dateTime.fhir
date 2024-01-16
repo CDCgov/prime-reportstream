@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1701889591137207000.8f05ac0d-70f6-4c87-8707-392898a1b710",
+  "id" : "1703276363420730000.670095dd-4de2-4346-a350-98059c19a612",
   "meta" : {
-    "lastUpdated" : "2023-12-06T14:06:31.158-05:00"
+    "lastUpdated" : "2023-12-22T15:19:23.449-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,10 +37,10 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1701889591564317000.88bba365-851e-4765-bfff-65f718b26759",
+    "fullUrl" : "Provenance/1703276364130429000.07fe9145-31b6-4f7b-86e0-464e27baf2d5",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1701889591564317000.88bba365-851e-4765-bfff-65f718b26759",
+      "id" : "1703276364130429000.07fe9145-31b6-4f7b-86e0-464e27baf2d5",
       "recorded" : "2023-08-16T12:33:58-05:00",
       "_recorded" : {
         "extension" : [ {
@@ -74,21 +74,21 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1701889591566807000.1a16c6f9-21d6-45b6-b29b-3903aae39dfa"
+          "reference" : "Device/1703276364135333000.6d9a71c7-25d2-40f3-9f70-23310090b19f"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1701889591566807000.1a16c6f9-21d6-45b6-b29b-3903aae39dfa",
+    "fullUrl" : "Device/1703276364135333000.6d9a71c7-25d2-40f3-9f70-23310090b19f",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1701889591566807000.1a16c6f9-21d6-45b6-b29b-3903aae39dfa"
+      "id" : "1703276364135333000.6d9a71c7-25d2-40f3-9f70-23310090b19f"
     }
   }, {
-    "fullUrl" : "Patient/1701889591584295000.bafcaf2e-3ca5-429a-af78-beff26c868ac",
+    "fullUrl" : "Patient/1703276364179577000.74110cdd-174a-48d4-af3e-aabea9af9b33",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1701889591584295000.bafcaf2e-3ca5-429a-af78-beff26c868ac",
+      "id" : "1703276364179577000.74110cdd-174a-48d4-af3e-aabea9af9b33",
       "deceasedDateTime" : "2023-11",
       "_deceasedDateTime" : {
         "extension" : [ {

@@ -115,13 +115,13 @@ resource "azurerm_application_insights_web_test" "sftp_test" {
   name                    = "${var.resource_prefix}-sftp-health-check"
   location                = var.location
   resource_group_name     = var.resource_group
-  application_insights_id = azurerm_application_insights.app_insights.id
+  application_insights_id = local.app_insights_id
   kind                    = "ping"
-  frequency               = 300
+  frequency               = 900
   timeout                 = 60
   enabled                 = true
   retry_enabled           = true
-  geo_locations           = ["us-va-ash-azr", "us-ca-sjc-azr", "us-fl-mia-edge"]
+  geo_locations           = ["us-ca-sjc-azr", "us-tx-sn1-azr", "us-il-ch1-azr", "us-va-ash-azr", "us-fl-mia-edge"]
   configuration           = <<XML
 <WebTest Name="" Id="" Enabled="True" CssProjectStructure="" CssIteration="" Timeout="60" WorkItemIds="" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010" Description="" CredentialUserName="" CredentialPassword="" PreAuthenticate="True" Proxy="default" StopOnError="False" RecordedResultFile="" ResultsLocale="">
       <Items>
@@ -132,7 +132,10 @@ resource "azurerm_application_insights_web_test" "sftp_test" {
   tags = {
     environment = var.environment
     # This prevents terraform from seeing a tag change for each plan/apply
-    "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/Microsoft.Insights/components/${var.resource_prefix}-appinsights" = "Resource"
+    "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/microsoft.insights/components/${var.resource_prefix}-appinsights" = "Resource"
+  }
+  lifecycle {
+    ignore_changes = [configuration, tags]
   }
 }
 resource "azurerm_application_insights_web_test" "livdapi_test" {
