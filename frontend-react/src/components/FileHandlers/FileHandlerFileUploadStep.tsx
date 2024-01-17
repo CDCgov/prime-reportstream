@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { ChangeEvent, FormEvent, useRef } from "react";
 import {
     Button,
     Form,
@@ -98,9 +98,7 @@ export default function FileHandlerFileUploadStep({
     const { mutateAsync: sendFile, isPending: isUploading } =
         useWatersUploader();
 
-    async function handleFileChange(
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) {
+    async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
         // TODO: consolidate with upcoming FileUtils generic function
         if (!event?.target?.files?.length) {
             onFileSubmitError();
@@ -124,7 +122,7 @@ export default function FileHandlerFileUploadStep({
         onFileChange(selectedFile, selectedFileContent);
     }
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         if (fileContent.length === 0) {

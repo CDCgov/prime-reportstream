@@ -1,9 +1,15 @@
 import type { OnAuthResumeFunction } from "@okta/okta-react/bundles/types/OktaContext";
-import * as React from "react";
+import React, {
+    ComponentType,
+    FC,
+    ReactElement,
+    useEffect,
+    useState,
+} from "react";
 
 import { useSessionContext } from "../../contexts/Session";
 
-const OktaError: React.FC<{ error: Error }> = ({ error }) => {
+const OktaError: FC<{ error: Error }> = ({ error }) => {
     if (error.name && error.message) {
         return (
             <p>
@@ -15,9 +21,9 @@ const OktaError: React.FC<{ error: Error }> = ({ error }) => {
 };
 
 interface LoginCallbackProps {
-    errorComponent?: React.ComponentType<{ error: Error }>;
+    errorComponent?: ComponentType<{ error: Error }>;
     onAuthResume?: OnAuthResumeFunction;
-    loadingElement?: React.ReactElement;
+    loadingElement?: ReactElement;
 }
 
 let handledRedirect = false;
@@ -28,16 +34,16 @@ let handledRedirect = false;
  * once published.
  * @see https://github.com/okta/okta-react/pull/266
  */
-const LoginCallback: React.FC<LoginCallbackProps> = ({
+const LoginCallback: FC<LoginCallbackProps> = ({
     errorComponent,
     loadingElement = null,
     onAuthResume,
 }) => {
     const { oktaAuth, authState } = useSessionContext();
-    const [callbackError, setCallbackError] = React.useState(null);
+    const [callbackError, setCallbackError] = useState(null);
 
     const ErrorReporter = errorComponent || OktaError;
-    React.useEffect(() => {
+    useEffect(() => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore OKTA-464505: backward compatibility support for auth-js@5
         const isInteractionRequired =

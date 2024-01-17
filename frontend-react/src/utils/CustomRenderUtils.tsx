@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { ReactElement, ReactNode } from "react";
 import {
     render,
     RenderOptions,
@@ -27,7 +27,7 @@ import AppInsightsContextProvider from "../contexts/AppInsights";
 import config from "../config";
 
 interface AppWrapperProps {
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
 interface AppWrapperOptions {
@@ -41,7 +41,7 @@ function TestLayout() {
 
 function createTestRoutes(
     routes: RouteObject[],
-    element: React.ReactNode,
+    element: ReactNode,
 ): RouteObject[] {
     return routes.map((r) => ({
         ...r,

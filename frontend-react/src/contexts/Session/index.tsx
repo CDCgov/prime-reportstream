@@ -1,5 +1,7 @@
 import React, {
+    ComponentProps,
     createContext,
+    PropsWithChildren,
     useCallback,
     useContext,
     useEffect,
@@ -44,7 +46,7 @@ export interface RSSessionContext {
     setActiveMembership: (value: Partial<MembershipSettings> | null) => void;
     config: AppConfig;
     site: typeof site;
-    rsconsole: RSConsole;
+    rsConsole: RSConsole;
 }
 
 export const SessionContext = createContext<RSSessionContext>({
@@ -53,8 +55,7 @@ export const SessionContext = createContext<RSSessionContext>({
     setActiveMembership: () => void 0,
 } as any);
 
-export interface SessionProviderProps
-    extends React.ComponentProps<typeof Security> {
+export interface SessionProviderProps extends ComponentProps<typeof Security> {
     config: AppConfig;
 }
 
@@ -69,7 +70,7 @@ function SessionProvider({ children, config, ...props }: SessionProviderProps) {
 }
 
 export interface SessionAuthStateGateProps
-    extends React.PropsWithChildren<Pick<SessionProviderProps, "config">> {}
+    extends PropsWithChildren<Pick<SessionProviderProps, "config">> {}
 
 function SessionAuthStateGate({ children, config }: SessionAuthStateGateProps) {
     const { authState, ...props } = useOktaAuth();
@@ -84,7 +85,7 @@ function SessionAuthStateGate({ children, config }: SessionAuthStateGateProps) {
 }
 
 export interface SessionProviderBaseProps
-    extends React.PropsWithChildren<
+    extends PropsWithChildren<
         Omit<ReturnType<typeof useOktaAuth>, "authState">
     > {
     authState: AuthState;
@@ -117,7 +118,7 @@ export function SessionProviderBase({
         return { ...actualMembership, ...(_activeMembership ?? {}) };
     }, [authState, _activeMembership]);
 
-    const rsconsole = useMemo(
+    const rsConsole = useMemo(
         () =>
             new RSConsole({
                 ai: appInsights?.sdk,
@@ -139,9 +140,9 @@ export function SessionProviderBase({
                 postLogoutRedirectUri: `${window.location.origin}/`,
             });
         } catch (e) {
-            rsconsole.warn("Failed to logout", e);
+            rsConsole.warn("Failed to logout", e);
         }
-    }, [oktaAuth, rsconsole]);
+    }, [oktaAuth, rsConsole]);
 
     const context = useMemo(() => {
         return {
@@ -163,7 +164,7 @@ export function SessionProviderBase({
             setActiveMembership,
             config,
             site,
-            rsconsole,
+            rsConsole,
         };
     }, [
         oktaAuth,
@@ -172,7 +173,7 @@ export function SessionProviderBase({
         logout,
         _activeMembership,
         config,
-        rsconsole,
+        rsConsole,
     ]);
 
     useEffect(() => {

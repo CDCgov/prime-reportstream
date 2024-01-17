@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
 import { useNavigate, useParams } from "react-router-dom";
@@ -44,7 +44,7 @@ type EditReceiverSettingsFormProps = {
     action: "edit" | "clone";
 };
 
-const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
+const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
     orgname,
     receivername,
     action,

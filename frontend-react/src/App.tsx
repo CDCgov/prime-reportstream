@@ -1,5 +1,5 @@
 import { useIdleTimer } from "react-idle-timer";
-import { Suspense, useCallback, useEffect, useRef } from "react";
+import { ComponentType, Suspense, useCallback, useEffect, useRef } from "react";
 import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
 import { useLocation, useNavigate } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -25,7 +25,7 @@ import { ToastProvider } from "./contexts/Toast";
 import "react-toastify/dist/ReactToastify.css";
 
 export interface AppProps {
-    Layout: React.ComponentType;
+    Layout: ComponentType;
     config: AppConfig;
     oktaAuth: OktaAuth;
 }

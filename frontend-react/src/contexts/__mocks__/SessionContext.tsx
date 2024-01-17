@@ -22,7 +22,7 @@ export function mockSessionContentReturnValue(
         setActiveMembership: () => void 0,
         config: {} as any,
         site: {} as any,
-        rsconsole: mockRsconsole as any,
+        rsConsole: mockRsconsole as any,
         ...impl,
     });
 }

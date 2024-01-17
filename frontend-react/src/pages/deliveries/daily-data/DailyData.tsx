@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, FC, SetStateAction } from "react";
 
 import Table, {
     ColumnConfig,
@@ -71,7 +71,7 @@ interface DeliveriesTableContentProps {
     serviceReportsList: RSDelivery[] | undefined;
 }
 
-const DeliveriesTable: React.FC<DeliveriesTableContentProps> = ({
+const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     filterManager,
     paginationProps,
     isLoading,

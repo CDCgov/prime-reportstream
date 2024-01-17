@@ -9,6 +9,7 @@ import {
 } from "@trussworks/react-uswds";
 import React, {
     forwardRef,
+    ReactElement,
     Ref,
     useImperativeHandle,
     useRef,
@@ -29,7 +30,7 @@ export const ModalConfirmSaveButton = ({
     ...buttonProps
 }: ModalConfirmButtonProps &
     Omit<ButtonProps, "type"> &
-    JSX.IntrinsicElements["button"]): React.ReactElement => {
+    JSX.IntrinsicElements["button"]): ReactElement => {
     return (
         <Button
             {...buttonProps}

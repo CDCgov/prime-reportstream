@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 import { Helmet } from "react-helmet-async";
 
@@ -56,9 +56,7 @@ export function ManagePublicKeyPage() {
         setUploadNewPublicKey(false);
     };
 
-    const handlePublicKeySubmit = async (
-        event: React.FormEvent<HTMLFormElement>,
-    ) => {
+    const handlePublicKeySubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (fileContent.length === 0) {
@@ -91,9 +89,7 @@ export function ManagePublicKeyPage() {
         }
     };
 
-    const handleFileChange = async (
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) => {
+    const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
         // No file selected
         if (!event?.target?.files?.length) {
             setFile(null);

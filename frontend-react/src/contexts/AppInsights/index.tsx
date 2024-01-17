@@ -1,4 +1,5 @@
 import React, {
+    PropsWithChildren,
     createContext,
     useCallback,
     useContext,
@@ -46,8 +47,7 @@ export interface AppInsightsCtx {
 
 export const AppInsightsContext = createContext<AppInsightsCtx>({} as any);
 
-export interface AppInsightsContextProviderProps
-    extends React.PropsWithChildren {
+export interface AppInsightsContextProviderProps extends PropsWithChildren {
     value?: ApplicationInsights;
 }
 

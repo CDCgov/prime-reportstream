@@ -1,11 +1,18 @@
 import { toast } from "react-toastify";
-import React, { createContext, useCallback, useContext, useMemo } from "react";
+import React, {
+    PropsWithChildren,
+    ReactNode,
+    createContext,
+    useCallback,
+    useContext,
+    useMemo,
+} from "react";
 
 import { useSessionContext } from "../Session";
 
 export interface ToastCtx {
     toast: (
-        msgOrErr: Error | React.ReactNode,
+        msgOrErr: Error | ReactNode,
         type: "success" | "warning" | "error" | "info",
     ) => void;
 }
@@ -13,7 +20,7 @@ export interface ToastCtx {
 export const ToastContext = createContext<ToastCtx>({ toast: () => void 0 });
 
 export const showToast = (
-    message: React.ReactNode,
+    message: ReactNode,
     type: "success" | "warning" | "error" | "info",
 ) => {
     const toastId = `id_${message}`.replace(/\W/gi, "_").substring(0, 512);
@@ -43,34 +50,34 @@ export const showToast = (
 
 export const useToast = () => useContext(ToastContext);
 
-export function ToastProvider({ children }: React.PropsWithChildren) {
-    const { rsconsole } = useSessionContext();
+export function ToastProvider({ children }: PropsWithChildren) {
+    const { rsConsole } = useSessionContext();
     const fn = useCallback(
         (
-            msgOrErr: Error | React.ReactNode,
+            msgOrErr: Error | ReactNode,
             type: "success" | "warning" | "error" | "info",
         ) => {
-            let message: React.ReactNode;
+            let message: ReactNode;
             if (msgOrErr instanceof Error) {
                 message = msgOrErr.message;
-                rsconsole.error(msgOrErr);
+                rsConsole.error(msgOrErr);
             } else message = msgOrErr;
             if (typeof msgOrErr === "string") {
                 if (type === "error") {
-                    rsconsole.trace(msgOrErr);
+                    rsConsole.trace(msgOrErr);
                 } else if (type === "warning") {
-                    rsconsole.warn(msgOrErr);
+                    rsConsole.warn(msgOrErr);
                 } else if (type === "info") {
-                    rsconsole.info(msgOrErr);
+                    rsConsole.info(msgOrErr);
                 }
             }
             try {
                 showToast(message, type);
             } catch (e: any) {
-                rsconsole.error(e);
+                rsConsole.error(e);
             }
         },
-        [rsconsole],
+        [rsConsole],
     );
     const ctx = useMemo(
         () => ({

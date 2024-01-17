@@ -1,5 +1,5 @@
 import { useController } from "rest-hooks";
-import React, { useCallback } from "react";
+import React, { FC, useCallback } from "react";
 
 import Spinner from "../../components/Spinner";
 import usePagination from "../../hooks/UsePagination";
@@ -39,7 +39,7 @@ function transformDate(s: string) {
     return new Date(s).toLocaleString();
 }
 
-const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
+const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
     filterManager,
     paginationProps,
     submissions,

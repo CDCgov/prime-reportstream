@@ -89,7 +89,7 @@ export const useValueSetsMeta = (
     dataTableName: string = LookupTables.VALUE_SET,
 ) => {
     const authorizedFetch = useAuthorizedFetch<LookupTable[]>();
-    const { rsconsole } = useSessionContext();
+    const { rsConsole } = useSessionContext();
 
     // get all lookup tables in order to get metadata
     const { data: tableData, ...query } = useQuery({
@@ -104,12 +104,12 @@ export const useValueSetsMeta = (
 
     useEffect(() => {
         if (!tableMeta || tableData?.length) {
-            rsconsole.info(
+            rsConsole.info(
                 "Unable to find metadata for lookup table: ",
                 dataTableName,
             );
         }
-    }, [tableMeta, tableData, dataTableName, rsconsole]);
+    }, [tableMeta, tableData, dataTableName, rsConsole]);
 
     return { ...query, data: tableMeta };
 };

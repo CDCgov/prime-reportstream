@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import type { Location } from "react-router-dom";
 import type { Tokens } from "@okta/okta-auth-js";
@@ -14,7 +14,7 @@ export function Login() {
     const location: Location<{ originalUrl?: string } | undefined> =
         useLocation();
 
-    const onSuccess = React.useCallback(
+    const onSuccess = useCallback(
         (tokens: Tokens) => {
             oktaAuth.handleLoginRedirect(
                 tokens,
@@ -25,7 +25,7 @@ export function Login() {
         [location.state?.originalUrl, oktaAuth],
     );
 
-    const onError = React.useCallback((_: any) => {}, []);
+    const onError = useCallback((_: any) => {}, []);
 
     if (authState.isAuthenticated) {
         return <Navigate replace to={"/"} />;

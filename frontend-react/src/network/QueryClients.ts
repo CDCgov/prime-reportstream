@@ -23,7 +23,7 @@ export const config = {
                 const errorString = `Something went wrong: ${error.message}`;
                 const e = new Error(errorString, { cause: error });
                 showError(errorString);
-                rsconsole.error(e);
+                rsConsole.error(e);
             },*/
         },
     },

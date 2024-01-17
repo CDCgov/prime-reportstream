@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router";
-import React from "react";
+import React, { lazy } from "react";
 
 import { createRouter } from "./AppRouter";
 import config from "./config";
@@ -12,10 +12,8 @@ import "./global.scss";
 
 const appInsights = createTelemetryService(aiConfig);
 const router = createRouter(
-    React.lazy(async () => {
-        const MainLayout = React.lazy(
-            () => import("./layouts/Main/MainLayout"),
-        );
+    lazy(async () => {
+        const MainLayout = lazy(() => import("./layouts/Main/MainLayout"));
         const App = (await import("./App")).default;
         return {
             default: () => (

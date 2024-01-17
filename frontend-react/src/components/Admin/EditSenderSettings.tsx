@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
 import { useNavigate, useParams } from "react-router-dom";
@@ -39,7 +39,7 @@ type EditSenderSettingsFormProps = {
     sendername: string;
     action: "edit" | "clone";
 };
-const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
+const EditSenderSettingsForm: FC<EditSenderSettingsFormProps> = ({
     orgname,
     sendername,
     action,
@@ -48,7 +48,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     const { fetchHeaders } = useAppInsightsContext();
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
-    const { activeMembership, authState, rsconsole } = useSessionContext();
+    const { activeMembership, authState, rsConsole } = useSessionContext();
 
     const orgSenderSettings: OrgSenderSettingsResource = useResource(
         OrgSenderSettingsResource.detail(),
@@ -89,7 +89,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             navigate(-1);
             return true;
         } catch (e: any) {
-            rsconsole.trace(e);
+            rsConsole.trace(e);
             showAlertNotification(
                 new Error(
                     `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
@@ -160,7 +160,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            rsconsole.trace(e, errorDetail);
+            rsConsole.trace(e, errorDetail);
             showAlertNotification(
                 new Error(
                     `Reloading sender '${sendername}' failed with: ${errorDetail}`,
@@ -224,7 +224,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            rsconsole.trace(e, errorDetail);
+            rsConsole.trace(e, errorDetail);
             showAlertNotification(
                 new Error(
                     `Updating sender '${sendername}' failed with: ${errorDetail}`,

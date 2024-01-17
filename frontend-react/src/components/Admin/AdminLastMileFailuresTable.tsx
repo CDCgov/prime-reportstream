@@ -1,4 +1,10 @@
-import React, { Suspense, useCallback, useRef, useState } from "react";
+import React, {
+    PropsWithChildren,
+    Suspense,
+    useCallback,
+    useRef,
+    useState,
+} from "react";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import DOMPurify from "dompurify";
 import {
@@ -34,7 +40,7 @@ interface DataForDialog {
 }
 
 // Improves readability
-const DRow = (props: React.PropsWithChildren<{ label: string }>) => {
+const DRow = (props: PropsWithChildren<{ label: string }>) => {
     return (
         <Grid row className={"modal-info-row"}>
             <Grid className={"modal-info-label text-no-wrap"}>

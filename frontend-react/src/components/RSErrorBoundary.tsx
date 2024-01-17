@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { PropsWithChildren, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { isRSNetworkError } from "../utils/RSNetworkError";
@@ -8,8 +8,8 @@ import { useSessionContext } from "../contexts/Session";
 import Spinner from "./Spinner";
 
 /** Wrap components with this error boundary to catch errors thrown */
-export function RSErrorBoundary(props: React.PropsWithChildren) {
-    const { rsconsole, config } = useSessionContext();
+export function RSErrorBoundary(props: PropsWithChildren) {
+    const { rsConsole, config } = useSessionContext();
     return (
         <ErrorBoundary
             fallback={<ErrorPage type="message" />}
@@ -21,7 +21,7 @@ export function RSErrorBoundary(props: React.PropsWithChildren) {
                 }
                 // React will always console.error all errors, regardless of boundary,
                 // so just emit the telemetry.
-                rsconsole._error(
+                rsConsole._error(
                     {
                         args: [exception, info.componentStack],
                         location: window.location.href,

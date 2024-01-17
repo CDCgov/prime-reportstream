@@ -143,17 +143,17 @@ export const ValueSetsDetailTable = ({
     const { mutateAsync: saveData, isPending: isSaving } = useValueSetUpdate();
     const { mutateAsync: activateTable, isPending: isActivating } =
         useValueSetActivation();
-    const { rsconsole } = useSessionContext();
+    const { rsConsole } = useSessionContext();
     useEffect(() => {
         if (error) {
             handleErrorWithAlert({
                 logMessage: "Error occurred fetching value set",
                 error,
                 setAlert,
-                rsconsole,
+                rsConsole,
             });
         }
-    }, [error, rsconsole, setAlert]);
+    }, [error, rsConsole, setAlert]);
 
     const valueSetsWithIds = useMemo(
         () => addIdsToRows(valueSetData),
@@ -193,7 +193,7 @@ export const ValueSetsDetailTable = ({
                     logMessage: "Error occurred saving value set",
                     error: e,
                     setAlert,
-                    rsconsole,
+                    rsConsole,
                 });
                 return;
             }
@@ -201,7 +201,7 @@ export const ValueSetsDetailTable = ({
         },
         [
             activateTable,
-            rsconsole,
+            rsConsole,
             saveData,
             setAlert,
             valueSetName,

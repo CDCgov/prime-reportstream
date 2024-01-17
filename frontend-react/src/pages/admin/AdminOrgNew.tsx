@@ -20,7 +20,7 @@ const fallbackPage = () => <ErrorPage type="page" />;
 export function AdminOrgNewPage() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const { rsconsole } = useSessionContext();
+    const { rsConsole } = useSessionContext();
     let orgSetting: object = [];
     let orgName: string = "";
 
@@ -40,7 +40,7 @@ export function AdminOrgNewPage() {
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            rsconsole.trace(e, errorDetail);
+            rsConsole.trace(e, errorDetail);
             showToast(
                 `Creating item '${orgName}' failed. ${errorDetail}`,
                 "error",

@@ -43,7 +43,7 @@ export class RSConsole {
     }
 
     /**
-     * Original rsconsole.log, does not emit telemetry.
+     * Original rsConsole.log, does not emit telemetry.
      */
     log: {
         (...data: any[]): void;

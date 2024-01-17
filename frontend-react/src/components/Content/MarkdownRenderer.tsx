@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import rehypeRaw from "rehype-raw";
 import ReactMarkdown from "react-markdown";
 import rehypeSlug from "rehype-slug";
@@ -13,9 +13,7 @@ type MarkdownContentProps = {
     markdownUrl: string;
 };
 
-export const MarkdownRenderer: React.FC<MarkdownContentProps> = ({
-    markdownUrl,
-}) => {
+export const MarkdownRenderer: FC<MarkdownContentProps> = ({ markdownUrl }) => {
     const [markdownContent, setMarkdownContent] = useState("");
 
     // Fetch the contents of the markdown file.

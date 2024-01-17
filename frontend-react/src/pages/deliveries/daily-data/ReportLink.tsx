@@ -1,6 +1,6 @@
 import download from "downloadjs";
 import { Button, Icon } from "@trussworks/react-uswds";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 
 import config from "../../../config";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
@@ -34,7 +34,7 @@ function ReportLink({
     reportExpires,
     children,
     button,
-}: React.PropsWithChildren<ReportLinkProps>) {
+}: PropsWithChildren<ReportLinkProps>) {
     const { authState } = useSessionContext();
     const { activeMembership } = useSessionContext();
     const organization = activeMembership?.parsedName;
