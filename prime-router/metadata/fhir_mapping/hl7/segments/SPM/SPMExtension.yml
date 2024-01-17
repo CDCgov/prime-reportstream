@@ -55,6 +55,19 @@ extension:
           valueOf: datatypes/CWE/CodeableConcept
     - expressionType: nested
       vars:
+        spm6: SPM.6
+      condition: $spm6 NOT_NULL
+      specs: SPM.6 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-6-specimen-additives
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
         spm10: SPM.10
       condition: $spm10 NOT_NULL
       specs: SPM.10

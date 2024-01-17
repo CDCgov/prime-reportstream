@@ -79,7 +79,7 @@ collection:
       valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
       specs: SPM.7
-    bodysite:
+    bodySite:
       valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
       specs: SPM.8
@@ -147,6 +147,7 @@ note:
     text:
       type: STRING
       valueOf: ST
+      expressionType: HL7Spec
 
 receivedTime:
   condition: $dateTimeIn NOT_NULL

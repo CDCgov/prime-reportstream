@@ -6,7 +6,7 @@ elements:
     resourceIndex: eipIndex
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-3(%{eipIndex})'
-    schema: ../datatypes/identifier-placerAssignedIdentifier/EIP
+    schema: ../../datatypes/identifier-placerAssignedIdentifier/EIP
 
   - name: specimen-parent-identifier-backup
     resource: '%resource.extension.where(url = "spm-3-specimen-parent-id-filler").value'
@@ -16,7 +16,7 @@ elements:
     resourceIndex: eipIndex
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-3(%{eipIndex})'
-    schema: ../datatypes/identifier-fillerAssignedIdentifier/EIP
+    schema: ../../datatypes/identifier-fillerAssignedIdentifier/EIP
 
   - name: specimen-type-modifier
     resource: '%resource.extension.where(url = "spm-5-specimen-type-modifier").value'
@@ -24,6 +24,13 @@ elements:
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7SpecimenFieldPath}-5(%{cweIndex})'
+
+  - name: specimen-additives
+    resource: '%resource.extension.where(url = "spm-6-specimen-additives").value'
+    schema: ../../datatypes/codeableConcept/CWE
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7SpecimenFieldPath}-6(%{cweIndex})'
 
   - name: specimen-collection-site
     resource: '%resource.extension.where(url = "spm-10-specimen-collection-site").value'
