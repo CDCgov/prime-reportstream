@@ -1,4 +1,9 @@
-import React, { AnchorHTMLAttributes, ReactNode, useMemo } from "react";
+import React, {
+    AnchorHTMLAttributes,
+    ReactNode,
+    useMemo,
+    MouseEvent as ReactMouseEvent,
+} from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import classnames from "classnames";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
@@ -252,7 +257,7 @@ export function USSmartLink({
     const finalOnClick = useMemo(
         () =>
             appInsights && trackClick
-                ? (ev: MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+                ? (ev: ReactMouseEvent<HTMLAnchorElement, MouseEvent>) => {
                       appInsights.trackEvent(trackClick);
                       onClick?.(ev);
                   }
