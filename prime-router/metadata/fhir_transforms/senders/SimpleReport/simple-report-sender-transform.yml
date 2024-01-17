@@ -237,9 +237,15 @@ elements:
     bundleProperty: '%resource.type.coding.version'
     value: [ '"2.67"' ]
 
-  #   Covid pipeline populates this by looking at the sender-automation/aoe value-set version
-  #   But some AOEs have different versions, we need the ability to lookup that version
-  #   So the current solution is to move the sender-automation/aoe to the sender_automation_value_set_row lookup table
+  - name: sr-specimen-collection-bodysite-display
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.collection.bodySite.coding.display.exists().not()'
+    bundleProperty: '%resource.collection.bodySite.coding.display'
+    value: [ '%resource.collection.bodySite.text' ]
+
+  # Covid pipeline populates this by looking at the sender-automation/aoe value-set version
+  # But some AOEs have different versions, we need the ability to lookup that version
+  # So the current solution is to move the sender-automation/aoe to the sender_automation_value_set_row lookup table
   - name: sr-observation-code-version
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.code.coding.exists()'
@@ -300,6 +306,17 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).identifier.type.where(coding.system = "http://terminology.hl7.org/CodeSystem/v2-0203")'
     bundleProperty: '%resource.coding.code'
     value: [ '"XX"' ]
+
+  - name: sr-observation-code-display-lookup
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.code.coding[0].display.empty()'
+    bundleProperty: '%resource.code.coding[0].display'
+    value: [ '%resource.code.coding.code' ]
+    valueSet:
+      lookupTable:
+        tableName: LOINC
+        keyColumn: LOINC_NUM
+        valueColumn: LONG_COMMON_NAME
 
   - name: sr-observation-code-display
     condition: '%resource.code.coding[0].display.empty() and %resource.code.text.empty().not()'
@@ -461,6 +478,16 @@ elements:
     bundleProperty: '%serviceRequest.code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
     value: [ '%serviceRequest.code.coding.system.getCodingSystemMapping()' ]
 
+  - name: sr-service-request-code-extension-display
+    condition: '%serviceRequest.code.coding[0].display.empty()'
+    bundleProperty: '%serviceRequest.code.coding[0].display'
+    value: [ '%serviceRequest.code.coding.code' ]
+    valueSet:
+      lookupTable:
+        tableName: LOINC
+        keyColumn: LOINC_NUM
+        valueColumn: LONG_COMMON_NAME
+
   ## Requester
   - name: sr-service-request-requester-telecom
     resource: '%serviceRequest.requester.resolve().practitioner.resolve().telecom'
@@ -503,8 +530,6 @@ elements:
   - name: sr-service-request-orc-order-effective-date
     bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order").extension("orc-15-order-effective-date").value[x]'
     value: [ '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date").value' ]
-
-
 
   # Organization
   - name: sr-organization-address-street
