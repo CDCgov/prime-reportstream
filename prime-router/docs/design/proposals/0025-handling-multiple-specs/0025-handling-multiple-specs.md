@@ -104,6 +104,79 @@ The HAPI HL7 dependency does implement a source code generator that _works_, but
 - there is a bug in the code for generating datatypes which means datatypes need to be created manually
 - it only exists as Maven plugin and is not compatible with the ReportStream gradle build
 
+Example `pom.xml`
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>TEST_PROJEFT</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/ca.uhn.hapi/hapi-base -->
+        <dependency>
+            <groupId>ca.uhn.hapi</groupId>
+            <artifactId>hapi-base</artifactId>
+            <version>2.5.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/ca.uhn.hapi/hapi-structures-v25 -->
+        <dependency>
+            <groupId>ca.uhn.hapi</groupId>
+            <artifactId>hapi-structures-v25</artifactId>
+            <version>2.5.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/ca.uhn.hapi/hapi-sourcegen -->
+        <dependency>
+            <groupId>ca.uhn.hapi</groupId>
+            <artifactId>hapi-sourcegen</artifactId>
+            <version>2.5.1</version>
+        </dependency>
+
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>ca.uhn.hapi</groupId>
+                <artifactId>hapi-sourcegen</artifactId>
+                <version>2.5.1</version>
+                <executions>
+                    <execution>
+                        <id>nistelr251</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>confgen</goal>
+                        </goals>
+                        <configuration>
+
+                            <!-- This is the conformance profile file to use -->
+                            <profile>${project.basedir}/src/main/resources/hl7/profiles/nist-elr-2.5.1.xml</profile>
+
+                            <!-- Place generated Java source here -->
+                            <targetDirectory>${project.basedir}/src/main/java</targetDirectory>
+
+                            <!-- Generated classes will be placed here -->
+                            <packageName>gov.cdc.nist</packageName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+and then code generation can be invoked with `mvn hapi-sourcegen:confgen@nist`
+
 #### A reportstream code generator tool
 
 Some potential functionality that a new tool could or should implement would be:
