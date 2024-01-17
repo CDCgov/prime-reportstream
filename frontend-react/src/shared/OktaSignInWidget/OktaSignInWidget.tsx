@@ -7,6 +7,7 @@ import React, {
 import OktaSignIn, { WidgetOptions } from "@okta/okta-signin-widget";
 import type { Tokens } from "@okta/okta-auth-js";
 
+import "@okta/okta-signin-widget/css/okta-sign-in.min.css";
 import "./OktaSignInWidget.scss";
 
 export interface OktaSigninWidgetProps

@@ -1,8 +1,7 @@
 import React, { FC, useEffect, useState } from "react";
 import rehypeRaw from "rehype-raw";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { Options } from "react-markdown";
 import rehypeSlug from "rehype-slug";
-import { PluggableList } from "react-markdown/lib";
 
 import { USSmartLink } from "../USLink";
 
@@ -28,7 +27,9 @@ export const MarkdownRenderer: FC<MarkdownContentProps> = ({ markdownUrl }) => {
 
     return (
         <ReactMarkdown
-            rehypePlugins={[rehypeSlug, rehypeRaw] as PluggableList}
+            rehypePlugins={
+                [rehypeSlug, rehypeRaw] as unknown as Options["rehypePlugins"]
+            }
             children={markdownContent}
             components={{
                 a: USSmartLink,
