@@ -66,8 +66,10 @@ elements:
 
   - name: specimen-description
     resource: '%resource.note'
-    value: [ '%resource.text' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-14' ]
+    resourceIndex: stIndex
+    constants:
+      stField: '%{hl7SpecimenFieldPath}-14(%{stIndex})'
+      schema: ../../datatypes/annotation/ST
 
   - name: specimen-collection-time
     condition: '%context.collection.collected.exists() and %context.collection.collected is dateTime'
