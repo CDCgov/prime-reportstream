@@ -108,27 +108,54 @@ elements:
     schema: ../datatypes/dateTime/DTMorDT
 
   - name: specimen-reject-reason
-    value: [ '""' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-21' ]
+    resource: '%resource.extension(%`rsext-reject-reason`).value'
+    condition: '%condition.extension(%`rsext-reject-reason`)'
+    resourceIndex: cweIndex
+    constants:
+      cweFieldPath: '%{hl7SpecimenFieldPath}-21(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
 
   - name: specimen-condition
     resource: '%resource.condition'
     condition: '%resource.exists()'
+    resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{hl7SpecimenFieldPath}-24'
-    schema: datatype/ce-coded-with-exceptions
-
-  - name: specimen-number-of-containers
-    resource: '%resource.container.specimenQuantity'
-    condition: '%resource.exists()'
-    value: [ '%resource.value' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-26' ]
+      cweFieldPath: '%{hl7SpecimenFieldPath}-24(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
 
   - name: specimen-container-type
     resource: '%resource.container.type'
+    condition: '%resource.exists()'
+    resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{hl7SpecimenFieldPath}-27'
-    schema: datatype/ce-coded-with-exceptions
+      cweFieldPath: '%{hl7SpecimenFieldPath}-27(%{cweIndex})'
+    schema: ../../datatypes/codeableConcept/CWE
+
+  - name: pv1-preadmit-number
+    resource: '%resource.accessionIdentifier'
+    schema: ../../datatypes/identifier/CX
+    resourceIndex: cxIndex
+    constants:
+      cxField: '%{hl7PV1Field}-30(%{cxIndex})'
+
+  - name: other-specimen-identifier
+    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "other-specimen-id")'
+    condition: '%resource.exists()'
+    resourceIndex: cxIndex
+    constants:
+      eipFieldPath: '%{hl7SpecimenFieldPath}-31(%{cxIndex})'
+    schema: ../../datatypes/identifier/CX
+
+  - name: shipment-id
+    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "shipment-id")'
+    condition: '%resource.exists()'
+    constants:
+      hl7EIField: '%{hl7SpecimenFieldPath}-31'
+    schema: ../../datatypes/identifier/ei
+
+  - name: spm-extension
+    resource: '%resource.extension(%`rsext-spm-specimen`)'
+    schema: ./SPMExtension
 
   - name: specimen-observation-result-with-aoe
     resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id and (meta.exists().not() or meta.tag.code != "AOE"))'

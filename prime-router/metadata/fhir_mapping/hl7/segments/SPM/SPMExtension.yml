@@ -133,6 +133,19 @@ extension:
           valueOf: SPM.19
     - expressionType: nested
       vars:
+        spm20: SPM.20
+      condition: $spm20 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-20-specimen-availability
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SPM.20
+    - expressionType: nested
+      vars:
         spm22: SPM.22
       condition: $spm22 NOT_NULL
       specs: SPM.22

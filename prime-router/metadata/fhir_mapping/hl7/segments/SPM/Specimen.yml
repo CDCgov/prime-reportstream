@@ -30,8 +30,10 @@ identifier:
       expressionType: resource
       generateList: true
       specs: SPM.31 *
+      constants:
+        identifierIndexName: "other-specimen-id"
     - condition: $spm32 NOT_NULL
-      valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
+      valueOf: datatypes/EI/Identifier
       expressionType: resource
       specs: SPM.32
       vars:
