@@ -34,5 +34,5 @@ elements:
     hl7Spec: [ '%{hl7HDField}-2' ]
 
   - name: designator-universal-id-type
-    value: [ '%resource.extension(%`universalIdExtName`).value.getIdType()' ]
+    value: [ '%resource.extension(%`universalIdExtName`).value.getIdType()',  '%resource.extension(%`universalIdTypeExtName`).value' ]
     hl7Spec: [ '%{hl7HDField}-3' ]

@@ -4,6 +4,10 @@ constants:
   observation: '%diagnostic.result[%resultIndex].resolve()'
 elements:
 
+  - name: ca-observation-value-type
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-2' ]
+    value: [ '"CE"' ]
+
   - name: ca-observation-identifier-code
     resource: '%resource.code'
     constants:

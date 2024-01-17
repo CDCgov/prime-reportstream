@@ -2,12 +2,12 @@ package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.result.Result
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.azure.LivdData
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 
 /**
  * Wraps the test case for the LIVD API
@@ -143,7 +143,7 @@ class LivdApiTest : CoolTest() {
         const val apiEndpointPath = "/api/metadata/livd"
 
         /** A static instance of the mapper to work with in our checks */
-        val jsonMapper: ObjectMapper = jacksonObjectMapper().configure(
+        val jsonMapper: ObjectMapper = jacksonObjectMapper.configure(
             DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
             false
         )

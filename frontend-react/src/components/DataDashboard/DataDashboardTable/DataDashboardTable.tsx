@@ -122,7 +122,7 @@ function DashboardFilterAndTable({
                     handleSetActive={handleSetActive}
                 />
                 <TableFilters
-                    startDateLabel="From: (mm/dd/yyy)"
+                    startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}
                     onFilterClick={({

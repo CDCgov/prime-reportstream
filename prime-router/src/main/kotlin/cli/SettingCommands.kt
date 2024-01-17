@@ -1054,6 +1054,7 @@ class GetMultipleSettings : SettingCommand(
                         it.description,
                         localTransport,
                         it.externalName,
+                        it.enrichmentSchemaNames,
                         it.timeZone,
                         it.dateTimeFormat
                     )

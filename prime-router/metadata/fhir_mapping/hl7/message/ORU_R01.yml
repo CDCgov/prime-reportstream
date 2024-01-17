@@ -14,11 +14,10 @@ resources:
     additionalSegments:
       - ORC
 
-
   - resourceName: Patient
     segment: .PID
     group: PATIENT_RESULT.PATIENT
-    resourcePath: resource/Patient
+    resourcePath: segments/PID/Patient
     isReferenced: true
     repeats: false
     additionalSegments:
@@ -27,10 +26,17 @@ resources:
       - .NTE
       - .NK1
 
+  - resourceName: RelatedPerson
+    segment: .NK1
+    group: PATIENT_RESULT.PATIENT
+    resourcePath: segments/NK1/RelatedPerson
+    isReferenced: false
+    repeats: true
+
   - resourceName: Encounter
     segment: .PV1
     group: PATIENT_RESULT.PATIENT.VISIT
-    resourcePath: resource/Encounter
+    resourcePath: segments/PV1/Encounter
     isReferenced: true
     repeats: false
     additionalSegments:
@@ -40,15 +46,12 @@ resources:
   - resourceName: Observation
     segment: .OBSERVATION.OBX
     group: PATIENT_RESULT.ORDER_OBSERVATION
-    resourcePath: resource/Observation
+    resourcePath: segments/OBX/Observation
     repeats: true
     isReferenced: true
     additionalSegments:
-      - .OBR
       - .OBSERVATION.NTE
       - .SPECIMEN.SPM
-      - MSH
-      - .PID
 
   - resourceName: Specimen
     segment: .SPECIMEN.SPM
@@ -65,7 +68,7 @@ resources:
   - resourceName: ServiceRequest
     segment: .OBR
     group: PATIENT_RESULT.ORDER_OBSERVATION
-    resourcePath: resource/ServiceRequest
+    resourcePath: segments/ORC/ServiceRequest
     repeats: true
     isReferenced: true
     additionalSegments:
@@ -73,25 +76,14 @@ resources:
       - .ORC
       - .SPECIMEN.SPECIMEN_OBSERVATION.OBX
       - .SPECIMEN.OBX
-      - PATIENT_RESULT.PATIENT.PID
-      - PATIENT_RESULT.PATIENT.VISIT.PV1
-      - MSH
-      - .TIMING_QTY.TQ1
 
   - resourceName: DiagnosticReport
     segment: .OBR
     group: PATIENT_RESULT.ORDER_OBSERVATION
-    resourcePath: resource/DiagnosticReport
+    resourcePath: segments/ORC/DiagnosticReport
     repeats: true
     additionalSegments:
       - .ORC
-      - .NTE
-      - .TIMING_QTY.TQ1
-      - .OBSERVATION.OBX
-      - MSH
-      - PATIENT_RESULT.PATIENT.PID
-      - PATIENT_RESULT.PATIENT.VISIT.PV1
-      # NOTE:  PID and PV1 are passed because they are used by the created Service Request
 
   - resourceName: Device
     segment: .PRT

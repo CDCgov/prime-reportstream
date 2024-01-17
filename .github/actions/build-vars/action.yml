@@ -198,7 +198,7 @@ runs:
           echo "has_react_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi
 
-    - uses: azure/login@4c88f01b0e3a5600e08a37889921afd060f75cf0
+    - uses: azure/login@de95379fe4dadc2defb305917eaa7e5dde727294
       if: inputs.sp-creds != 'false'
       with:
         creds: ${{ inputs.sp-creds }}

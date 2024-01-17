@@ -1,4 +1,9 @@
 elements:
+  - name: xtn1-telephone-number
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number").value.exists().not() and %resource.value.exists() and %resource.system = "phone"'
+    value: [ '%deidentifiedValue','%resource.value' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number").value[x]'
+
   - name: xtn-use-code-bpn-from-system
     condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code").value.exists().not() and %resource.system = "pager" and %resource.use.exists().not()'
     value: [ '"BPN"' ]

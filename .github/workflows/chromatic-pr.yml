@@ -26,7 +26,7 @@ jobs:
 
       - name: Get changed files
         id: changed_files
-        uses: tj-actions/changed-files@da093c1609db0edd0a037ce9664e135f74bf30d9
+        uses: tj-actions/changed-files@62f4729b5df35e6e0e01265fa70a82ccaf196b4b
 
       - name: List all changed files
         id: set_vars
@@ -77,7 +77,7 @@ jobs:
         with:
           fetch-depth: 0 # need commit history for Chromatic
 
-      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65
+      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8
         with:
           node-version-file: frontend-react/package.json
 
@@ -89,7 +89,7 @@ jobs:
       - name: Publish to Chromatic
         id: chromatic_publish
         if: steps.set_vars.outputs.chromatic == 'true'
-        uses: chromaui/action@v1
+        uses: chromaui/action@v10
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}

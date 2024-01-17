@@ -49,7 +49,7 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
             <section id="facilities">
                 <h2>Facilities & Providers included in this report</h2>
                 <TableFilters
-                    startDateLabel="From: (mm/dd/yyy)"
+                    startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}
                     onFilterClick={({

@@ -90,13 +90,13 @@ jobs:
           echo "SINK_BACKUP_STORAGE=pdh${{ env.SINK_ENV_NAME }}terraform" >> $GITHUB_ENV
 
       # Login to Azure
-      - uses: azure/login@4c88f01b0e3a5600e08a37889921afd060f75cf0
+      - uses: azure/login@de95379fe4dadc2defb305917eaa7e5dde727294
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       # Restores will fail if sink server is not pre-expanded
       - name: Increase sink server size if necessary
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        uses: ./.github/actions/retry
         with:
           timeout_minutes: 20
           max_attempts: 4
@@ -139,7 +139,7 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-      - uses: azure/login@4c88f01b0e3a5600e08a37889921afd060f75cf0
+      - uses: azure/login@de95379fe4dadc2defb305917eaa7e5dde727294
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
@@ -230,7 +230,7 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-      - uses: azure/login@4c88f01b0e3a5600e08a37889921afd060f75cf0
+      - uses: azure/login@de95379fe4dadc2defb305917eaa7e5dde727294
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
@@ -241,10 +241,10 @@ jobs:
       # Allow runner db access
       - name: Add db access
         id: add-db-access
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        uses: ./.github/actions/retry
         with:
           timeout_minutes: 120
-          max_attempts: 4
+          max_attempts: 6
           retry_wait_seconds: 30
           command: |
             az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Enabled"

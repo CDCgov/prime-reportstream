@@ -166,7 +166,7 @@ for that particular schema element
 
 ##### Extending Schemas
 
-One schema can extend another by using the keyword `extends` at the very top of the schema. Example `extends: ../default-sender-transform`. When a schema extends another schema, the elements and constants from the referenced schema will be added to the referencing schema. An error will be thrown if there are name collisions for element names.
+One schema can extend another by using the keyword `extends` at the very top of the schema. Example `extends: ../original-pipeline-transforms`. When a schema extends another schema, the elements and constants from the referenced schema will be added to the referencing schema. An error will be thrown if there are name collisions for element names.
 
 `ConfigSchemaReader`, a custom ReportStream class for loading FHIR to FHIR schemas, has similar features to that of [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter), including the ability to override schemas. This means schemas can reference each other and the `ConfigSchemaReader` class will combine them into one object. `ConfigSchemaReader` has the ability to detect errors in the schema structure, such as circular dependencies, and will throw an error if such an error is found.
 

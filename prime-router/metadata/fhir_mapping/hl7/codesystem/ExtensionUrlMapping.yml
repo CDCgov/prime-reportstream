@@ -28,6 +28,9 @@
 # humanname assembly order
 - id: "humanname-assembly-order"
   url: "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order"
+# Patient Congregation
+- id: "patient-congregation"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-congregation"
 # race
 - id: "race"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd"
@@ -49,6 +52,9 @@
 # condition-assertedDate
 - id: "condition-assertedDate"
   url: "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
+# patient-disability
+- id: "patient-disability"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-disability"
 # message encoding characters
 - id: "encoding-characters"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters"
@@ -361,9 +367,23 @@
 # CWE Coding System
 - id: "cwe-coding-system"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system"
+# CE coding
+- id: "ce-coding"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding"
+# CE Coding System
+- id: "ce-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding-system"
+- id: "cne-coding"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding"
+# CNE Coding System
+- id: "cne-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding-system"
 # patient-citizenship
 - id: "patient-citizenship"
   url: "http://hl7.org/fhir/StructureDefinition/patient-citizenship"
+# patient-nationality
+- id: "patient-nationality"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-nationality"
 # code
 - id: "code"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code"
@@ -465,6 +485,12 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn22-assigning-jurisdiction"
 - id: "xcn23-assigning-agency-or-department"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn23-assigning-agency-or-department"
+- id: "nk1-13-organization-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-13-organization-name"
+- id: "nk1-15-administrative-sex"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-15-administrative-sex"
+- id: "nk1-16-birth-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-16-birth-date"
 # Given Name
 - id: "xpn2-given-name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name"
@@ -575,3 +601,97 @@
 # cx-5 identifier type code
 - id: "identifier-type-code"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type-code"
+# Veteran Military Status
+- id: "veteran-military-status"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/veteran-military-status"
+# Identity Unknown
+- id: "identity-unknown"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identity-unknown"
+# PV1 Patient
+- id: "pv1-patient"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-patient"
+# PID Patient
+- id: "pid-patient"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient"
+# PD1 Patient
+- id: "pd1-patient"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pd1-patient"
+# NK1 Related Person
+- id: "nk1-related-person"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person"
+# Student Status
+- id: "studentStatus"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/studentStatus"
+# Living Will
+- id: "livingWill"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/livingWill"
+- id: "orc-common-order"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order"
+- id: "obr-observation-request"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request"
+- id: "status-modifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/status-modifier"
+- id: obr-11-specimen-action-code
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-11-specimen-action-code"
+- id: callback-number
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number"
+# internal indicator of sender, usable for filtering
+- id: "sender-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id"
+- id: "obx-5-value-sn"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-5-value-sn"
+- id: "sn-1-comparator"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sn-1-comparator"
+- id: "sn-2-num1"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sn-2-num1"
+- id: "sn-3-separator"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sn-3-separator"
+- id: "sn-4-num2"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sn-4-num2"
+- id: "observation-value-attachment"
+  url: "https://hl7.org/fhir/R5/StructureDefinition/observation-value-attachment"
+- id: "nature-of-abnormal-test"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nature-of-abnormal-test"
+- id: "analysis-date-time"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time"
+- id: "obx-observation"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation"
+- id: "cwe-organization"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization"
+- id: "ed-1-source-application"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ed-1-source-application"
+- id: "ed-2-type-of-data"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ed-2-type-of-data"
+- id: "ed-4-encoding"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ed-4-encoding"
+- id: "ed-5-data"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ed-5-data"
+- id: "alternate-codes"
+  url: "https://hl7.org/fhir/StructureDefinition/alternate-codes"
+- id: "relationship"
+  url: "https://hl7.org/fhir/StructureDefinition/relationship"
+- id: "pv1-encounter"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-encounter"
+- id: "pv2-encounter"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-encounter"
+- id: "admission-level-of-care"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/admission-level-of-care"
+- id: "publicity-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/publicity-code"
+- id: "estimated-length"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/estimated-length"
+- id: "planned-discharge-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/planned-discharge-date"
+- id: "planned-start-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/planned-start-date"
+- id: "visit-user-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/visit-user-code"
+- id: "pv1-2-patient-class"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-2-patient-class"
+- id: "temporary-location"
+  url: "https://hl7.org/fhir/StructureDefinition/temporary-location"
+- id: "pv2-visit-description"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-visit-description"
+- id: "episode-of-care-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/episode-of-care-name"
+
