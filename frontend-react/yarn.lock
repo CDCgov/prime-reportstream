@@ -5681,12 +5681,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sanitize-html@npm:^2.9.2":
-  version: 2.9.2
-  resolution: "@types/sanitize-html@npm:2.9.2"
+"@types/sanitize-html@npm:^2.9.5":
+  version: 2.9.5
+  resolution: "@types/sanitize-html@npm:2.9.5"
   dependencies:
     htmlparser2: ^8.0.0
-  checksum: bdd0db4a39125b8836573ede5ec5cc2f7b0dff5ecfbeae68aefb40163c916429cfb500d581ad3a18613e8d6a53f707abb279350e0811122e84e21b0223b8d560
+  checksum: fd0afee5dac91aa2c42391f0c8c9254204f4ee1f10b902aa04e8f7809043d785e28af2732f75277ef09e46838013ad60abedb02ba1424b6218264f3333437fb5
   languageName: node
   linkType: hard
 
@@ -15239,7 +15239,7 @@ __metadata:
     "@types/react-dom": ^18.2.18
     "@types/react-router-dom": ^5.3.3
     "@types/react-scroll-sync": ^0.8.7
-    "@types/sanitize-html": ^2.9.2
+    "@types/sanitize-html": ^2.9.5
     "@typescript-eslint/eslint-plugin": ^6.16.0
     "@typescript-eslint/parser": ^6.16.0
     "@uswds/uswds": 3.4.1
