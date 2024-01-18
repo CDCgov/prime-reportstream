@@ -36,6 +36,6 @@ jobs:
           "Prime ReportStream PagerDuty Next person on-call from": "${{ env.NextFrom }}"
           "Prime ReportStream PagerDuty Next person on-call until": "${{ env.NextUntil }}"
         icon-emoji: ':bell:'
-        channel: pagerduty-alert-dump
+        channel:  prime-reportstream-engineering
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
         color: warning
