@@ -54,7 +54,7 @@
       format: HL7
   receivers:
     # Orders Receivers
-    # RS => TI
+    # RS => TI: translates OML_O21 from HL7 to FHIR and sends the message to the TI service orders API
     - name: etor-service-receiver-orders
       externalName: ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 FHIR orders
       organizationName: flexion
@@ -92,7 +92,7 @@
         authHeaders:
           Content-Type: "application/x-www-form-urlencoded"
           Host: "host.docker.internal"
-    # RS => PHL
+    # RS => PHL: translates OML_O21 from FHIR to HL7 and uploads the message to the SFTP folder
     - name: simulated-lab
       externalName: Simulated State Public Health Lab ETOR Receiver - Receiving OML_O21 HL7 orders
       organizationName: flexion
@@ -120,7 +120,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     # Results Receivers
-    # RS => TI
+    # RS => TI: translates ORU_R01 from HL7 to FHIR and uploads the message to the SFTP folder
     - name: etor-service-receiver-results
       externalName: ETOR Service Receiver Channel from ReportStream for results - Receiving ORU_R01 FHIR results
       organizationName: flexion
@@ -144,7 +144,7 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-    # RS => Hospital
+    # RS => Hospital: translates ORU_R01 from FHIR to HL7 and uploads the message to the SFTP folder
     # - name: simulated-hospital
     #   externalName: Simulated Hospital ETOR Receiver - Receiving ORU_R01 HL7 results
     #   organizationName: flexion
