@@ -10,4 +10,4 @@ export default {
     component: GovBanner,
 };
 
-export const customBanner = (): React.ReactElement => <Banner />;
+export const customBanner = (): ReactElement => <Banner />;

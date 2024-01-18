@@ -1,4 +1,5 @@
 import React, {
+    PropsWithChildren,
     createContext,
     useCallback,
     useContext,
@@ -12,7 +13,7 @@ import {
 } from "@microsoft/applicationinsights-react-js";
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 
-import { MembershipSettings } from "../utils/OrganizationUtils";
+import { MembershipSettings } from "../../utils/OrganizationUtils";
 
 export enum EventName {
     TABLE_FILTER = "Table Filter",
@@ -46,8 +47,7 @@ export interface AppInsightsCtx {
 
 export const AppInsightsContext = createContext<AppInsightsCtx>({} as any);
 
-export interface AppInsightsContextProviderProps
-    extends React.PropsWithChildren {
+export interface AppInsightsContextProviderProps extends PropsWithChildren {
     value?: ApplicationInsights;
 }
 

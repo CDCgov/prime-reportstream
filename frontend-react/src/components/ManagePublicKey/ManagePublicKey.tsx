@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 import { Helmet } from "react-helmet-async";
 
 import Spinner from "../Spinner";
 import { USLink } from "../USLink";
-import { showError } from "../AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import { ApiKey } from "../../config/endpoints/settings";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
 import Alert from "../../shared/Alert/Alert";
 import { FeatureName } from "../../utils/FeatureName";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
 
 import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
@@ -56,13 +56,11 @@ export function ManagePublicKeyPage() {
         setUploadNewPublicKey(false);
     };
 
-    const handlePublicKeySubmit = async (
-        event: React.FormEvent<HTMLFormElement>,
-    ) => {
+    const handlePublicKeySubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (fileContent.length === 0) {
-            showError("No file contents to validate.");
+            showToast("No file contents to validate.", "error");
             return;
         }
 
@@ -87,13 +85,11 @@ export function ManagePublicKeyPage() {
                     },
                 },
             });
-            showError(`Uploading public key failed. ${e.toString()}`);
+            showToast(`Uploading public key failed. ${e.toString()}`, "error");
         }
     };
 
-    const handleFileChange = async (
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) => {
+    const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
         // No file selected
         if (!event?.target?.files?.length) {
             setFile(null);
@@ -107,11 +103,11 @@ export function ManagePublicKeyPage() {
 
         const fileTypeError = validateFileType(file, FORMAT, CONTENT_TYPE);
         if (fileTypeError) {
-            showError(fileTypeError);
+            showToast(fileTypeError, "error");
         }
         const fileSizeError = validateFileSize(file);
         if (fileSizeError) {
-            showError(fileSizeError);
+            showToast(fileSizeError, "error");
         }
 
         if (!fileTypeError && !fileSizeError) {

@@ -1,7 +1,7 @@
+import { PropsWithChildren, HTMLAttributes } from "react";
+
 export interface CitationProps
-    extends React.PropsWithChildren<
-        React.HTMLAttributes<HTMLElement> & CitationItem
-    > {}
+    extends PropsWithChildren<HTMLAttributes<HTMLElement> & CitationItem> {}
 
 export const Citation = ({
     title,
