@@ -17,6 +17,16 @@ elements:
     value: [ '"ISO"' ]
     hl7Spec: [ MSH-3-3 ]
 
+  # MSH 5
+  - name: receiving-application
+    value: [ '"RIDOH"' ]
+    hl7Spec: [ MSH-5 ]
+
+  # MSH 6
+  - name: receiving-facility
+    value: [ '"RIDOH"' ]
+    hl7Spec: [ MSH-6 ]
+
   # PID 5-7
   - name: patient-name_use
     condition: true
