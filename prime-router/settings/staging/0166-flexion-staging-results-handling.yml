@@ -101,9 +101,7 @@
         type: "HL7"
         schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
         useTestProcessingMode: false
-        useBatchHeaders: true
-        receivingApplicationName: "CO-ELR"
-        receivingFacilityName: "CO"
+        useBatchHeaders: false
       transport:
         type: SFTP
         host: sftp
@@ -129,6 +127,7 @@
         type: "FHIR"
         schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
         useBatching: false
+        useBatchHeaders: false
       transport:
         type: SFTP
         host: sftp
