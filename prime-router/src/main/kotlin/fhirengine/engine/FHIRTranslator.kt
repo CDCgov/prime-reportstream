@@ -47,7 +47,6 @@ class FHIRTranslator(
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
 ) : FHIREngine(metadata, settings, db, blob) {
-    val workflowEngine = WorkflowEngine()
 
     /**
      * Accepts a FHIR [message], parses it, and generates translated output files for each item in the destinations
@@ -75,7 +74,7 @@ class FHIRTranslator(
                 actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
 
                 val bodyBytes = if (receiver.topic == Topic.SEND_ORIGINAL) {
-                    getOriginalMessage(message.reportId)
+                    getOriginalMessage(message.reportId, WorkflowEngine())
                 } else {
                     getByteArrayFromBundle(receiver, bundle)
                 }
@@ -111,8 +110,8 @@ class FHIRTranslator(
     /**
      * Takes a reportId and returns the content of the original message as a ByteArray
      */
-    internal fun getOriginalMessage(reportId: ReportId): ByteArray {
-        val rootReportId = findRootReportId(reportId)
+    internal fun getOriginalMessage(reportId: ReportId, workflowEngine: WorkflowEngine): ByteArray {
+        val rootReportId = findRootReportId(reportId, workflowEngine)
         val report = workflowEngine.db.fetchReportFile(rootReportId)
         return downloadBlobAsByteArray(report.bodyUrl)
     }
@@ -120,10 +119,10 @@ class FHIRTranslator(
     /**
      * Takes a [reportId] and returns the ReportId of the original message that was sent
      */
-    fun findRootReportId(reportId: ReportId): ReportId {
+    fun findRootReportId(reportId: ReportId, workflowEngine: WorkflowEngine): ReportId {
         val itemLineages = workflowEngine.db.fetchItemLineagesForReport(reportId, 1)
         return if (itemLineages != null && itemLineages[0].parentReportId != null) {
-            findRootReportId(itemLineages[0].parentReportId)
+            findRootReportId(itemLineages[0].parentReportId, workflowEngine)
         } else {
             return reportId
         }

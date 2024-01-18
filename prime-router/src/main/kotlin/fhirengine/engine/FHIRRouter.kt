@@ -203,7 +203,7 @@ class FHIRRouter(
         if (listOfReceivers.isNotEmpty()) {
             if (message.topic == Topic.SEND_ORIGINAL) {
                 listOfReceivers.forEach { receiver ->
-                    val originalMessageFormat = getOriginalMessageBodyFormat(message.reportId)
+                    val originalMessageFormat = getOriginalMessageBodyFormat(message.reportId, WorkflowEngine())
                     if ((originalMessageFormat == "HL7" && receiver.format == Report.Format.HL7) ||
                         (originalMessageFormat == "FHIR" && receiver.format == Report.Format.FHIR)
                     ) {
@@ -446,8 +446,8 @@ class FHIRRouter(
     /**
      * Takes a [reportId] and returns the format of the original message, should be either FHIR or HL7
      */
-    internal fun getOriginalMessageBodyFormat(reportId: ReportId): String {
-        val rootReportId = FHIRTranslator().findRootReportId(reportId)
+    internal fun getOriginalMessageBodyFormat(reportId: ReportId, workflowEngine: WorkflowEngine): String {
+        val rootReportId = FHIRTranslator().findRootReportId(reportId, workflowEngine)
         val report = WorkflowEngine().db.fetchReportFile(rootReportId)
         return report.bodyFormat
     }

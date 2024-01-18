@@ -29,6 +29,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.BlobAccess.Companion.downloadBlobAsByteArray
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -70,6 +71,7 @@ class FhirTranslatorTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
+    val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
@@ -269,7 +271,7 @@ class FhirTranslatorTests {
     @Test
     fun `test getOriginalMessage`() {
         val mockWorkflowEngine = mockk<WorkflowEngine>()
-        val databaseAccess = mockk<DatabaseAccess>()
+        val mockDatabaseAccess = mockk<DatabaseAccess>()
         val mockBlobAccess = mockk<BlobAccess.Companion>()
         val parentReportId = UUID.randomUUID()
         val childReportId = UUID.randomUUID()
@@ -290,21 +292,24 @@ class FhirTranslatorTests {
         val report = ReportFile().setReportId(parentReportId).setBodyUrl("testingurl")
         val reportContent = "reportContent"
 
-        every { mockWorkflowEngine.db }.returns(databaseAccess)
         every {
-            databaseAccess.fetchItemLineagesForReport(any(), any(), any())
-        }.returns(listOf(childItemLineage, rootItemLineage))
-        every { databaseAccess.fetchReportFile(parentReportId) }.returns(report)
-        every { mockBlobAccess.downloadBlobAsByteArray(report.bodyUrl) }.returns(reportContent.toByteArray())
+            mockWorkflowEngine.db
+        }.returns(mockDatabaseAccess)
+        every {
+            mockWorkflowEngine.db.fetchItemLineagesForReport(any(), any(), any())
+        }.returnsMany(listOf(childItemLineage), listOf(rootItemLineage))
+        every { mockWorkflowEngine.db.fetchReportFile(any()) }.returns(report)
+        every { mockBlobAccess.downloadBlobAsByteArray(any()) }.returns(reportContent.toByteArray())
 
-        val originalMessage = FHIRTranslator().getOriginalMessage(childReportId)
+        val rootReport = FHIRTranslator().getOriginalMessage(childReportId, mockWorkflowEngine)
 
-        assertThat(originalMessage.toString()).isEqualTo(reportContent)
+        assertThat(rootReport).isEqualTo(parentReportId)
     }
 
     @Test
     fun `test findRootReportId`() {
         val mockWorkflowEngine = mockk<WorkflowEngine>()
+        val mockDatabaseAccess = mockk<DatabaseAccess>()
         val parentReportId = UUID.randomUUID()
         val childReportId = UUID.randomUUID()
         val rootItemLineage =
@@ -323,13 +328,47 @@ class FhirTranslatorTests {
             )
 
         every {
+            mockWorkflowEngine.db
+        }.returns(mockDatabaseAccess)
+        every {
             mockWorkflowEngine.db.fetchItemLineagesForReport(any(), any(), any())
-        }.returns(listOf(childItemLineage, rootItemLineage))
+        }.returnsMany(listOf(childItemLineage), listOf(rootItemLineage))
 
-        val rootReport = FHIRTranslator().findRootReportId(childReportId)
+        val rootReport = FHIRTranslator().findRootReportId(childReportId, mockWorkflowEngine)
 
-        assertThat(rootReport == parentReportId)
+        assertThat(rootReport).isEqualTo(parentReportId)
     }
+
+//    @Test
+//    fun `test findRootReportId`() {
+//        val metadata = Metadata(schema = Schema(name = "one", topic = Topic.TEST))
+//        val mockWorkflowEngine = makeEngine(metadata, MockSettings())
+//        val parentReportId = UUID.randomUUID()
+//        val childReportId = UUID.randomUUID()
+//        val rootItemLineage =
+//            ItemLineage(9000000125356546, null, 0, parentReportId, 0, "trackingId1", null, OffsetDateTime.now(), null)
+//        val childItemLineage =
+//            ItemLineage(
+//                9000000125356546,
+//                parentReportId,
+//                0,
+//                childReportId,
+//                0,
+//                "trackingId2",
+//                null,
+//                OffsetDateTime.now(),
+//                null
+//            )
+//
+//        every { mockWorkflowEngine.db } returns accessSpy
+//        every {
+//            mockWorkflowEngine.db.fetchItemLineagesForReport(any(), any(), any())
+//        }.returns(listOf(childItemLineage, rootItemLineage))
+//
+//        val rootReport = FHIRTranslator().findRootReportId(childReportId, mockWorkflowEngine)
+//
+//        assertThat(rootReport == parentReportId)
+//    }
 
     // happy path, with a receiver that has a custom schema
     @Test
