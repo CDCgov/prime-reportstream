@@ -1,18 +1,18 @@
 import classNames from "classnames";
 import { Outlet, useMatches } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import React, { Suspense, useMemo } from "react";
+import React, { PropsWithChildren, Suspense, useMemo } from "react";
 
 import RSErrorBoundary from "../../components/RSErrorBoundary";
 import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
 import { ReportStreamHeader } from "../../components/header/ReportStreamHeader";
 import Spinner from "../../components/Spinner";
 
-const ArticleWrapper = (props: React.PropsWithChildren) => {
+const ArticleWrapper = (props: PropsWithChildren) => {
     return <article className="tablet:grid-col-12" {...props} />;
 };
 
-export type MainLayoutBaseProps = React.PropsWithChildren<{}>;
+export type MainLayoutBaseProps = PropsWithChildren<{}>;
 
 export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
     const matches = useMatches() as RsRouteObject[];

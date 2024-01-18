@@ -1,9 +1,10 @@
 import classNames from "classnames";
+import { PropsWithChildren, HTMLAttributes } from "react";
 
 import styles from "./HeroWrapper.module.scss";
 
 export interface HeroWrapperProps
-    extends React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> {
+    extends PropsWithChildren<HTMLAttributes<HTMLDivElement>> {
     isAlternate?: boolean;
 }
 

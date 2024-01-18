@@ -45,5 +45,5 @@ elements:
   - name: alternate-placer-order-number
     resource: '%service.identifier.where(extension(%`rsext-hl7-use`).value = "alternate-placer-identifier" )'
     constants:
-      cxFieldPath: '%{fieldPath}-53'
+      cxField: '%{fieldPath}-53'
     schema: ../datatypes/identifier/CX

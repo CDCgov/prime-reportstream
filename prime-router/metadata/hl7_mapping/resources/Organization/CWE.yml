@@ -3,4 +3,4 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
     resource: '%resource.extension(%`rsext-cwe-organization`).value'
     constants:
-      cweFieldPath: '%{organizationCWEFieldPath}'
+      cweField: '%{organizationCWEFieldPath}'

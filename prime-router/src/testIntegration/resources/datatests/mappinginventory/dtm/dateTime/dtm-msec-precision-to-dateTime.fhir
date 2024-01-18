@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1701889601096588000.8e287d94-d842-44e5-95fc-517fe91dde1c",
+  "id" : "1703276380968096000.7d66cb76-a720-4efe-b76d-d1d03e3282b5",
   "meta" : {
-    "lastUpdated" : "2023-12-06T14:06:41.112-05:00"
+    "lastUpdated" : "2023-12-22T15:19:41.006-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,10 +37,10 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1701889601495850000.066f23be-ae0d-472e-9885-2950991b1a63",
+    "fullUrl" : "Provenance/1703276381655041000.819090ea-da98-443d-b2df-7cff9b2527b3",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1701889601495850000.066f23be-ae0d-472e-9885-2950991b1a63",
+      "id" : "1703276381655041000.819090ea-da98-443d-b2df-7cff9b2527b3",
       "recorded" : "2023-08-16T12:33:58-05:00",
       "_recorded" : {
         "extension" : [ {
@@ -74,21 +74,21 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1701889601498241000.f4447a7c-89a7-4b53-9ad5-0c611d275a2f"
+          "reference" : "Device/1703276381660209000.7b215f70-196b-49b6-acc6-6753f259f3ef"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1701889601498241000.f4447a7c-89a7-4b53-9ad5-0c611d275a2f",
+    "fullUrl" : "Device/1703276381660209000.7b215f70-196b-49b6-acc6-6753f259f3ef",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1701889601498241000.f4447a7c-89a7-4b53-9ad5-0c611d275a2f"
+      "id" : "1703276381660209000.7b215f70-196b-49b6-acc6-6753f259f3ef"
     }
   }, {
-    "fullUrl" : "Patient/1701889601513346000.98ae0651-40ef-469c-9f02-b53577de5d6f",
+    "fullUrl" : "Patient/1703276381699085000.3c96e8ac-3459-431a-a5fe-e9d1733b7d83",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1701889601513346000.98ae0651-40ef-469c-9f02-b53577de5d6f",
+      "id" : "1703276381699085000.3c96e8ac-3459-431a-a5fe-e9d1733b7d83",
       "deceasedDateTime" : "2023-11-02T11:04:05.678Z",
       "_deceasedDateTime" : {
         "extension" : [ {
