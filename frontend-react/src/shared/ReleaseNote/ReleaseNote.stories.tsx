@@ -1,4 +1,6 @@
 // AutoUpdateFileChromatic
+import { ReactElement } from "react";
+
 import { ReleaseNote } from "./ReleaseNote";
 
 export default {
@@ -6,7 +8,7 @@ export default {
     component: ReleaseNote,
 };
 
-export const Default = (): React.ReactElement => (
+export const Default = (): ReactElement => (
     <ReleaseNote
         header="October 2020"
         sections={[

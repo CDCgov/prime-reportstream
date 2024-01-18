@@ -1,17 +1,22 @@
-import React, { AnchorHTMLAttributes, useMemo } from "react";
+import React, {
+    AnchorHTMLAttributes,
+    ReactNode,
+    useMemo,
+    MouseEvent as ReactMouseEvent,
+} from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import classnames from "classnames";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 import DOMPurify from "dompurify";
 import { IEventTelemetry } from "@microsoft/applicationinsights-web";
 
-import { useAppInsightsContext } from "../contexts/AppInsightsContext";
+import { useAppInsightsContext } from "../contexts/AppInsights";
 
-/** React.PropsWithChildren has known issues with generic extension in React 18,
+/** PropsWithChildren has known issues with generic extension in React 18,
  * so rather than using it here, we are using our own definition of child types.
  * One less headache when updating to React 18 in the future! */
 interface CustomLinkProps {
-    children: React.ReactNode;
+    children: ReactNode;
     className?: string;
     activeClassName?: string;
     state?: any;
@@ -49,7 +54,7 @@ export function getHrefRoute(href?: string): string | undefined {
     return undefined;
 }
 
-export interface SafeLinkProps extends React.AnchorHTMLAttributes<Element> {
+export interface SafeLinkProps extends AnchorHTMLAttributes<Element> {
     state?: any;
 }
 
@@ -237,7 +242,7 @@ export function isExternalUrl(href?: string) {
 }
 
 export interface USSmartLinkProps
-    extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+    extends AnchorHTMLAttributes<HTMLAnchorElement> {
     trackClick?: IEventTelemetry;
 }
 
@@ -252,7 +257,7 @@ export function USSmartLink({
     const finalOnClick = useMemo(
         () =>
             appInsights && trackClick
-                ? (ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+                ? (ev: ReactMouseEvent<HTMLAnchorElement, MouseEvent>) => {
                       appInsights.trackEvent(trackClick);
                       onClick?.(ev);
                   }

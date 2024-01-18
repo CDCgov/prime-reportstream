@@ -1,11 +1,11 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, FC, SetStateAction } from "react";
 
 import Table, {
     ColumnConfig,
     TableConfig,
 } from "../../../components/Table/Table";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
-import { useSessionContext } from "../../../contexts/SessionContext";
+import { useSessionContext } from "../../../contexts/Session";
 import {
     useOrgDeliveries,
     DeliveriesDataAttr,
@@ -27,7 +27,7 @@ import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import {
     EventName,
     useAppInsightsContext,
-} from "../../../contexts/AppInsightsContext";
+} from "../../../contexts/AppInsights";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -71,7 +71,7 @@ interface DeliveriesTableContentProps {
     serviceReportsList: RSDelivery[] | undefined;
 }
 
-const DeliveriesTable: React.FC<DeliveriesTableContentProps> = ({
+const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     filterManager,
     paginationProps,
     isLoading,
