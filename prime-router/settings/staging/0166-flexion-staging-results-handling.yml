@@ -1,5 +1,4 @@
 # To submit this to localhost, run:
-#
 # ./prime multiple-settings set --input ./settings/staging/0166-flexion-staging-results-handling.yml
 #
 # To submit this to staging, run:
@@ -9,15 +8,6 @@
 # Then add keys to it, as needed, like this:
 #  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-hospital --doit
 #  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.etor-service-sender --doit
-#
-# Then go into prime-reportstream/prime-router/examples/generate-jwt-python/generate-jwt.py
-#     and change these vars to:
-#        my_client_id = "flexion"
-#        my_sender_id = "etor-service-sender"
-#        my_rsa_keypair_file = "<put your path-to-public-key.pem here"
-# Then follow the instructions at the top of generate-jwt.py to run it, which will generate code to get a token.
-#
-# You can also do all the above locally instead of staging, just take out --env staging.
 #
 # This FHIR ndjson (aka 'FHIR all on one line') data submission curl works for me, with a valid token in `TOK` env var:
 #
@@ -37,7 +27,7 @@
       customerStatus: active
       format: HL7
     # TI => RS
-    - name: etor-service-sender-orders
+    - name: etor-service-sender # TODO: rename to etor-service-sender-orders?
       externalName: ETOR Service Sender Channel to ReportStream - Sending FHIR orders
       organizationName: flexion
       topic: etor-ti
@@ -61,7 +51,7 @@
       topic: etor-ti
       customerStatus: active
       jurisdictionalFilter:
-        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01'
+        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01' # ORM_O01
       qualityFilter:
         - true
       timing:
@@ -69,29 +59,29 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<FHIR>
+        type: "FHIR"
         schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
         useBatching: false
-        type: "FHIR"
       transport: !<REST>
+        type: "REST"
+        authType: "two-legged"
         reportUrl: "https://cdcti-stg-api.azurewebsites.net/v1/etor/orders"
         authTokenUrl: "https://cdcti-stg-api.azurewebsites.net/v1/auth/token"
-        authType: "two-legged"
         # Uncomment below for local Trusted-Intermediary server
         # reportUrl: "http://host.docker.internal:8080/v1/etor/orders"
         # authTokenUrl: "http://host.docker.internal:8080/v1/auth/token"
-        type: "REST"
         tlsKeystore: null
         parameters:
           scope: "report-stream"
           client_assertion: "client_secret"
         headers:
+          Content-Type: "text/fhir+ndjson"
           RecordId: "header.reportFile.reportId"
           senderLabName: "CDC PRIME REPORTSTREAM" #name-of-the-lab-the-sending-user-belongs-to
           sourceLabName: "CDC PRIME REPORTSTREAM" #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
-          Content-Type: "text/fhir+ndjson"
         authHeaders:
           Content-Type: "application/x-www-form-urlencoded"
-          Host: "host.docker.internal"
+          Host: "cdcti-stg-api.azurewebsites.net"
     # RS => PHL: translates OML_O21 from FHIR to HL7 and uploads the message to the SFTP folder
     - name: simulated-lab
       externalName: Simulated State Public Health Lab ETOR Receiver - Receiving OML_O21 HL7 orders
@@ -99,7 +89,7 @@
       topic: etor-ti
       customerStatus: active
       jurisdictionalFilter:
-        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'
+        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21' # OML_O21
       qualityFilter:
         - true
       timing:
@@ -107,10 +97,10 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
+        type: "HL7"
         schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
         useTestProcessingMode: false
         useBatchHeaders: true
-        type: "HL7"
         receivingApplicationName: "CO-ELR"
         receivingFacilityName: "CO"
       transport:
@@ -127,7 +117,7 @@
       topic: etor-ti
       customerStatus: active
       jurisdictionalFilter:
-        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
+        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01' # ORU_R01
       qualityFilter:
         - true
       timing:
@@ -135,9 +125,9 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<FHIR>
+        type: "FHIR"
         schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
         useBatching: false
-        type: "FHIR"
       transport:
         type: SFTP
         host: sftp
@@ -151,7 +141,7 @@
     #   topic: etor-ti
     #   customerStatus: active
     #   jurisdictionalFilter:
-    #     - Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
+    #     - Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01' # ORU_R01
     #   qualityFilter:
     #     - true
     #   timing:
@@ -159,9 +149,9 @@
     #     numberPerDay: 1440 # Every minute
     #     initialTime: 00:00
     #   translation: !<HL7>
+    #     type: "HL7"
     #     schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
     #     useBatching: false
-    #     type: "HL7"
     #   transport:
     #     type: SFTP
     #     host: sftp
