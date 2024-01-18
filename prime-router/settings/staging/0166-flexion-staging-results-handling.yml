@@ -28,12 +28,15 @@
   description: Flexion, Inc.
   jurisdiction: FEDERAL
   senders:
+    # Orders Senders
+    # Hospital => RS
     - name: simulated-hospital
       externalName: Simulated Hospital ETOR Sender
       organizationName: flexion
       topic: etor-ti
       customerStatus: active
       format: HL7
+    # TI => RS
     - name: etor-service-sender
       externalName: ETOR Service Sender Channel to ReportStream - Sending FHIR
       organizationName: flexion
@@ -41,6 +44,8 @@
       customerStatus: active
       format: FHIR
       schemaName: "metadata/fhir_transforms/senders/Flexion/TILabOrder"
+    # Results Senders
+    # PHL => RS
     - name: simulated-lab
       externalName: Simulated State Public Health Lab ETOR Sender
       organizationName: flexion
@@ -48,32 +53,8 @@
       customerStatus: active
       format: HL7
   receivers:
-    - name: simulated-lab
-      externalName: Simulated State Public Health Lab ETOR Receiver
-      organizationName: flexion
-      topic: etor-ti
-      customerStatus: active
-      jurisdictionalFilter:
-        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'
-      qualityFilter:
-        - true
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-      translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
-        useTestProcessingMode: false
-        useBatchHeaders: true
-        type: "HL7"
-        receivingApplicationName: "CO-ELR"
-        receivingFacilityName: "CO"
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+    # Orders Receivers
+    # RS => TI
     - name: etor-service-receiver-orders
       externalName: ETOR Service Receiver Channel from ReportStream for orders
       organizationName: flexion
@@ -111,6 +92,35 @@
         authHeaders:
           Content-Type: "application/x-www-form-urlencoded"
           Host: "host.docker.internal"
+    # RS => PHL
+    - name: simulated-lab
+      externalName: Simulated State Public Health Lab ETOR Receiver
+      organizationName: flexion
+      topic: etor-ti
+      customerStatus: active
+      jurisdictionalFilter:
+        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'
+      qualityFilter:
+        - true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        type: "HL7"
+        receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    # Results Receivers
+    # RS => TI
     - name: etor-service-receiver-results
       externalName: ETOR Service Receiver Channel from ReportStream for results
       organizationName: flexion
@@ -134,8 +144,9 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-    # - name: etor-service-receiver-oru-hl7
-    #   externalName: ETOR Service Receiver Channel from ReportStream
+    # RS => Hospital
+    # - name: simulated-hospital
+    #   externalName: Simulated Hospital ETOR Receiver
     #   organizationName: flexion
     #   topic: etor-ti
     #   customerStatus: active
