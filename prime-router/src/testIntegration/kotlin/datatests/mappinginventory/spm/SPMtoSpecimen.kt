@@ -5,7 +5,12 @@ import org.junit.jupiter.api.Test
 
 class SPMtoSpecimen {
     @Test
-    fun `test SPM fully populated`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("spm/spm").passed)
+    fun `test SPM fully populated with 17-2 populated`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("spm/SPM-with-17-2-populated").passed)
+    }
+
+    @Test
+    fun `test SPM fully populated with 17-2 not populated`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("spm/SPM-with-17-2-not-populated").passed)
     }
 }
