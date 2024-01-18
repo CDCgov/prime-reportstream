@@ -1,0 +1,257 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1705533126127034000.ceb03706-5574-4aa9-af8f-b5532a34fbf1",
+  "meta" : {
+    "lastUpdated" : "2024-01-17T17:12:06.148-06:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "20230816123358"
+  },
+  "type" : "message",
+  "timestamp" : "2023-08-16T12:33:58.000-05:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "bb504ecd-c2ab-3be3-91d8-6065e2bce435",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
+        "valueString" : "20230816123358-0500"
+      } ],
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU^R01^ORU_R01"
+      },
+      "source" : {
+        "_endpoint" : {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+            "valueCode" : "unknown"
+          } ]
+        }
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1705533126763572000.44738eab-eb33-43de-a728-3e3ad0daf342",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1705533126763572000.44738eab-eb33-43de-a728-3e3ad0daf342",
+      "recorded" : "2023-08-16T12:33:58-05:00",
+      "_recorded" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+          "valueString" : "20230816123358-0500"
+        } ]
+      },
+      "activity" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code" : "R01",
+          "display" : "ORU_R01"
+        } ]
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "author"
+          } ]
+        }
+      } ],
+      "entity" : [ {
+        "role" : "source",
+        "what" : {
+          "reference" : "Device/1705533126768702000.b1cbbc9e-b2e8-4017-b52b-4866a335e708"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Device/1705533126768702000.b1cbbc9e-b2e8-4017-b52b-4866a335e708",
+    "resource" : {
+      "resourceType" : "Device",
+      "id" : "1705533126768702000.b1cbbc9e-b2e8-4017-b52b-4866a335e708"
+    }
+  }, {
+    "fullUrl" : "Patient/1705533126821632000.80c1f2c1-73d1-4c6d-8d93-f50f0987f9f8",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1705533126821632000.80c1f2c1-73d1-4c6d-8d93-f50f0987f9f8",
+      "contact" : [ {
+        "relationship" : [ {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "code" : "U"
+          } ]
+        }, {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "system" : "HL70063",
+            "version" : "2.5.1",
+            "code" : "OTH",
+            "display" : "Other"
+          }, {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "alternate identifier"
+            } ],
+            "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+            "version" : "2.5.1",
+            "code" : "OT",
+            "display" : "OTHER RELATIONSHIP"
+          }, {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "second alternate identifier"
+            } ],
+            "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+            "version" : "2.5.1",
+            "code" : "OT",
+            "display" : "OTHER RELATIONSHIP"
+          } ],
+          "text" : "TEST"
+        } ],
+        "name" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
+            "valueString" : "LUDWIG"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn3-second-given-name",
+            "valueString" : "B"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn14-professional-suffix",
+            "valueString" : "MD"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn4-suffix",
+            "valueString" : "2ND"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn6-degree",
+            "valueString" : "MD"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
+            "valueString" : "B"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn8-name-representation-code",
+            "valueString" : "A"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn12-effective-date",
+            "valueString" : "20220501102531-0400"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn13-expiration-date",
+            "valueString" : "20230501102531-0400"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",
+            "valueCode" : "F"
+          } ],
+          "use" : "official",
+          "family" : "BEETHOVEN",
+          "_family" : {
+            "extension" : [ {
+              "url" : "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+              "valueString" : "VAN"
+            }, {
+              "url" : "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+              "valueString" : "BEETHOVEN"
+            }, {
+              "url" : "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix",
+              "valueString" : "VAL"
+            }, {
+              "url" : "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
+              "valueString" : "ROGER"
+            } ]
+          },
+          "given" : [ "LUDWIG", "B" ],
+          "prefix" : [ "DR" ],
+          "suffix" : [ "2ND", "MD", "MD" ],
+          "period" : {
+            "start" : "2022-05-01T10:25:31-04:00",
+            "end" : "2023-05-01T10:25:31-04:00"
+          }
+        },
+        "telecom" : [ {
+          "system" : "phone",
+          "value" : "+1 720 301 3954",
+          "use" : "home"
+        }, {
+          "system" : "phone",
+          "value" : "+1 720 301 3954",
+          "use" : "home"
+        }, {
+          "system" : "phone",
+          "value" : "+1 555 467 2293",
+          "use" : "work"
+        }, {
+          "system" : "phone",
+          "value" : "+1 555 467 2293",
+          "use" : "work"
+        } ],
+        "address" : {
+          "use" : "home",
+          "line" : [ "4861 20TH AVE" ],
+          "city" : "THUNDER MOUNTAIN",
+          "state" : "NV",
+          "postalCode" : "99999",
+          "country" : "USA"
+        },
+        "organization" : {
+          "reference" : "Organization/1705533126808146000.3e1eda31-dd0e-409b-99fb-5198214b2281"
+        },
+        "period" : {
+          "start" : "2023-05-01T10:25:31-04:00",
+          "_start" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230501102531-0400"
+            } ]
+          },
+          "end" : "2023-05-01T10:25:31-04:00",
+          "_end" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230501102531-0400"
+            } ]
+          }
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1705533126808146000.3e1eda31-dd0e-409b-99fb-5198214b2281",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1705533126808146000.3e1eda31-dd0e-409b-99fb-5198214b2281",
+      "address" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
+          "valueCode" : "H"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
+          "valueString" : "4861 20TH AVE"
+        } ],
+        "use" : "home",
+        "line" : [ "4861 20TH AVE" ],
+        "city" : "AURORA",
+        "state" : "IG",
+        "postalCode" : "99999",
+        "country" : "USA"
+      } ]
+    }
+  } ]
+}
