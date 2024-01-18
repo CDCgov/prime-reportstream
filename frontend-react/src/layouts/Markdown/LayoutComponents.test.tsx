@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import { useMemo, useState } from "react";
+import { PropsWithChildren, ReactNode, useMemo, useState } from "react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 
@@ -7,11 +7,10 @@ import MarkdownLayoutContext from "./Context";
 import { LayoutMain, LayoutSidenav } from "./LayoutComponents";
 
 describe("LayoutComponents", () => {
-    function TestComponent(props: React.PropsWithChildren<{}>) {
+    function TestComponent(props: PropsWithChildren<{}>) {
         const [sidenavContent, setSidenavContent] =
-            useState<React.ReactNode>(undefined);
-        const [mainContent, setMainContent] =
-            useState<React.ReactNode>(undefined);
+            useState<ReactNode>(undefined);
+        const [mainContent, setMainContent] = useState<ReactNode>(undefined);
         const ctx = useMemo(() => {
             return {
                 sidenavContent,

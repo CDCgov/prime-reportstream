@@ -1,5 +1,7 @@
 import React, {
+    ComponentProps,
     createContext,
+    PropsWithChildren,
     useCallback,
     useContext,
     useEffect,
@@ -17,16 +19,18 @@ import { Security, useOktaAuth } from "@okta/okta-react";
 import {
     getUserPermissions,
     RSUserPermissions,
-} from "../utils/PermissionsUtils";
+} from "../../utils/PermissionsUtils";
 import {
     MembershipSettings,
     membershipsFromToken,
     MemberType,
     RSUserClaims,
-} from "../utils/OrganizationUtils";
-import type { AppConfig } from "../config";
-import { updateApiSessions } from "../network/Apis";
-import site from "../content/site.json";
+} from "../../utils/OrganizationUtils";
+import type { AppConfig } from "../../config";
+import { updateApiSessions } from "../../network/Apis";
+import site from "../../content/site.json";
+import { RSConsole } from "../../utils/console";
+import { useAppInsightsContext } from "../AppInsights";
 
 export interface RSSessionContext {
     oktaAuth: OktaAuth;
@@ -42,6 +46,7 @@ export interface RSSessionContext {
     setActiveMembership: (value: Partial<MembershipSettings> | null) => void;
     config: AppConfig;
     site: typeof site;
+    rsConsole: RSConsole;
 }
 
 export const SessionContext = createContext<RSSessionContext>({
@@ -50,8 +55,7 @@ export const SessionContext = createContext<RSSessionContext>({
     setActiveMembership: () => void 0,
 } as any);
 
-export interface SessionProviderProps
-    extends React.ComponentProps<typeof Security> {
+export interface SessionProviderProps extends ComponentProps<typeof Security> {
     config: AppConfig;
 }
 
@@ -66,7 +70,7 @@ function SessionProvider({ children, config, ...props }: SessionProviderProps) {
 }
 
 export interface SessionAuthStateGateProps
-    extends React.PropsWithChildren<Pick<SessionProviderProps, "config">> {}
+    extends PropsWithChildren<Pick<SessionProviderProps, "config">> {}
 
 function SessionAuthStateGate({ children, config }: SessionAuthStateGateProps) {
     const { authState, ...props } = useOktaAuth();
@@ -81,7 +85,7 @@ function SessionAuthStateGate({ children, config }: SessionAuthStateGateProps) {
 }
 
 export interface SessionProviderBaseProps
-    extends React.PropsWithChildren<
+    extends PropsWithChildren<
         Omit<ReturnType<typeof useOktaAuth>, "authState">
     > {
     authState: AuthState;
@@ -94,6 +98,7 @@ export function SessionProviderBase({
     authState,
     config,
 }: SessionProviderBaseProps) {
+    const { appInsights } = useAppInsightsContext();
     const initActiveMembership = useRef(
         JSON.parse(
             sessionStorage.getItem("__deprecatedActiveMembership") ?? "null",
@@ -113,15 +118,31 @@ export function SessionProviderBase({
         return { ...actualMembership, ...(_activeMembership ?? {}) };
     }, [authState, _activeMembership]);
 
+    const rsConsole = useMemo(
+        () =>
+            new RSConsole({
+                ai: appInsights?.sdk,
+                consoleSeverityLevels: config.AI_CONSOLE_SEVERITY_LEVELS,
+                reportableConsoleLevels: config.AI_REPORTABLE_CONSOLE_LEVELS,
+                env: config.CLIENT_ENV,
+            }),
+        [
+            appInsights,
+            config.AI_CONSOLE_SEVERITY_LEVELS,
+            config.AI_REPORTABLE_CONSOLE_LEVELS,
+            config.CLIENT_ENV,
+        ],
+    );
+
     const logout = useCallback(async () => {
         try {
             await oktaAuth.signOut({
                 postLogoutRedirectUri: `${window.location.origin}/`,
             });
         } catch (e) {
-            console.trace(e);
+            rsConsole.warn("Failed to logout", e);
         }
-    }, [oktaAuth]);
+    }, [oktaAuth, rsConsole]);
 
     const context = useMemo(() => {
         return {
@@ -143,6 +164,7 @@ export function SessionProviderBase({
             setActiveMembership,
             config,
             site,
+            rsConsole,
         };
     }, [
         oktaAuth,
@@ -151,6 +173,7 @@ export function SessionProviderBase({
         logout,
         _activeMembership,
         config,
+        rsConsole,
     ]);
 
     useEffect(() => {
