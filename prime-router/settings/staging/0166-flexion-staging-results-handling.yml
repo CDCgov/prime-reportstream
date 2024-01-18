@@ -8,6 +8,7 @@
 # Then add keys to it, as needed, like this:
 #  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-hospital --doit
 #  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.etor-service-sender --doit
+#  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-lab --doit
 #
 # This FHIR ndjson (aka 'FHIR all on one line') data submission curl works for me, with a valid token in `TOK` env var:
 #
