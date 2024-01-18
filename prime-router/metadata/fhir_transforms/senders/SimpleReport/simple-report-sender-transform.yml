@@ -321,12 +321,14 @@ elements:
 
   - name: sr-specimen-type-cwe-coding
     resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.type.exists()
     bundleProperty: '%resource.type.coding[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
     value: [ '"coding"' ]
 
   ## Code
   - name: sr-specimen-type-code-system-extension
     resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.type.exists()
     bundleProperty: '%resource.type.coding[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
     value: [ '%resource.type.coding[0].system.getCodingSystemMapping()' ]
 
@@ -339,12 +341,14 @@ elements:
 
   - name: sr-specimen-bodySite-cwe-coding
     resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.collection.bodySite.exists()
     bundleProperty: '%resource.collection.bodySite.coding[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
     value: [ '"coding"' ]
 
   ## Code
   - name: sr-specimen-bodySite-code-system-extension
     resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.collection.bodySite.exists()
     bundleProperty: '%resource.collection.bodySite.coding[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
     value: [ '%resource.collection.bodySite.coding[0].system.getCodingSystemMapping()' ]
 

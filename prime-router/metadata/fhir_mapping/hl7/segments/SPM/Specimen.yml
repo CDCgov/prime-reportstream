@@ -70,10 +70,10 @@ collection:
   expressionType: nested
   generateList: true
   vars:
-    spm7: STRING, SPM.7
-    spm8: STRING, SPM.8
-    spm9: STRING_ALL, SPM.9
-    spm12: STRING, SPM.12
+    spm7: SPM.7
+    spm8: SPM.8
+    spm9: SPM.9
+    spm12: SPM.12
   expressionsMap:
     method:
       valueOf: datatypes/CWE/CodeableConcept
