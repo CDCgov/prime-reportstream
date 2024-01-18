@@ -108,12 +108,18 @@ class FHIRTranslator(
         }
     }
 
+    /**
+     * Takes a reportId and returns the content of the original message as a ByteArray
+     */
     internal fun getOriginalMessage(reportId: ReportId): ByteArray {
         val rootReportId = findRootReportId(reportId)
         val report = workflowEngine.db.fetchReportFile(rootReportId)
         return downloadBlobAsByteArray(report.bodyUrl)
     }
 
+    /**
+     * Takes a [reportId] and returns the ReportId of the original message that was sent
+     */
     fun findRootReportId(reportId: ReportId): ReportId {
         val itemLineages = workflowEngine.db.fetchItemLineagesForReport(reportId, 1)
         return if (itemLineages != null && itemLineages[0].parentReportId != null) {

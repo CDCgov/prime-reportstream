@@ -143,7 +143,7 @@
       translation: !<HL7>
         schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
         useTestProcessingMode: false
-        useBatchHeaders: true
+        useBatchHeaders: false
         type: "HL7"
         receivingApplicationName: ""
         receivingFacilityName: ""

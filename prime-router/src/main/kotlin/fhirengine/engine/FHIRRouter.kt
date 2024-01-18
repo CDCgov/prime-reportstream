@@ -421,6 +421,13 @@ class FHIRRouter(
                     passes = false
                 } else if (originalMessageFormat == "FHIR" && receiver.format != Report.Format.FHIR) {
                     passes = false
+                } else if (originalMessageFormat != "HL7" && originalMessageFormat != "FHIR") {
+                    /*
+                        we want all to fail if it is not one of these formats. We do not want to send to receivers who
+                        are batch, that would be a misconfiguration of a send orginal receiver
+                     */
+
+                    passes = false
                 }
             }
 
@@ -433,6 +440,9 @@ class FHIRRouter(
         return listOfReceivers
     }
 
+    /**
+     * Takes a [reportId] and returns the format of the original message, should be either FHIR or HL7
+     */
     internal fun getOriginalMessageBodyFormat(reportId: ReportId): String {
         val rootReportId = FHIRTranslator().findRootReportId(reportId)
         val report = WorkflowEngine().db.fetchReportFile(rootReportId)
