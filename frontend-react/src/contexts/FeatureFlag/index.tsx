@@ -4,14 +4,16 @@ import React, {
     useContext,
     useReducer,
     useMemo,
+    Dispatch,
+    PropsWithChildren,
 } from "react";
 import uniq from "lodash.uniq";
 
-import config from "../config";
+import config from "../../config";
 import {
     getSavedFeatureFlags,
     storeFeatureFlags,
-} from "../utils/SessionStorageTools";
+} from "../../utils/SessionStorageTools";
 
 export enum FeatureFlagActionType {
     ADD = "ADD",
@@ -27,7 +29,7 @@ type StringCheck = (flags: string | string[]) => boolean;
 
 interface FeatureFlagContextValues {
     checkFlags: StringCheck;
-    dispatch: React.Dispatch<FeatureFlagAction>;
+    dispatch: Dispatch<FeatureFlagAction>;
     featureFlags: string[];
 }
 
@@ -72,9 +74,7 @@ export const featureFlagReducer = (
     }
 };
 
-export const FeatureFlagProvider = ({
-    children,
-}: React.PropsWithChildren<{}>) => {
+export const FeatureFlagProvider = ({ children }: PropsWithChildren<{}>) => {
     // reducer manages per user feature flags only
     const [{ featureFlags }, dispatch] = useReducer(featureFlagReducer, {
         featureFlags: getSavedFeatureFlags(),

@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { useSessionContext } from "../contexts/SessionContext";
+import { useSessionContext } from "../contexts/Session";
 import { RSSender, servicesEndpoints } from "../config/endpoints/settings";
-import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
+import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
 
 const { senderDetail } = servicesEndpoints;
 

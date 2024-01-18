@@ -1,12 +1,12 @@
+import { PropsWithChildren, HTMLAttributes } from "react";
+
 import usamapsvg from "../../content/usa_w_territories.svg";
 import { USLink } from "../../components/USLink";
 
 import styles from "./LiveMap.module.scss";
 
 export interface LiveMapProps
-    extends React.PropsWithChildren<
-        React.HTMLAttributes<HTMLElement> & ContentItem
-    > {}
+    extends PropsWithChildren<HTMLAttributes<HTMLElement> & ContentItem> {}
 
 export const LiveMap = ({
     title,
