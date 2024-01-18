@@ -142,7 +142,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       eiFieldPath: '%{hl7SpecimenFieldPath}-32'
-    schema: ../../datatypes/identifier-extension/ei
+    schema: ../../datatypes/identifier-extension/EI
 
   - name: spm-extension
     resource: '%resource.extension(%`rsext-spm-specimen`)'
