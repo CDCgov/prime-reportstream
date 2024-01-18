@@ -74,8 +74,8 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-    - name: etor-service-receiver
-      externalName: ETOR Service Receiver Channel from ReportStream
+    - name: etor-service-receiver-orders
+      externalName: ETOR Service Receiver Channel from ReportStream for orders
       organizationName: flexion
       topic: etor-ti
       customerStatus: active
@@ -111,29 +111,29 @@
         authHeaders:
           Content-Type: "application/x-www-form-urlencoded"
           Host: "host.docker.internal"
-    #    - name: etor-service-receiver-oru
-    #      externalName: ETOR Service Receiver Channel from ReportStream
-    #      organizationName: flexion
-    #      topic: etor-ti
-    #      customerStatus: active
-    #      jurisdictionalFilter:
-    #        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
-    #      qualityFilter:
-    #        - true
-    #      timing:
-    #        operation: MERGE
-    #        numberPerDay: 1440 # Every minute
-    #        initialTime: 00:00
-    #      translation: !<FHIR>
-    #        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
-    #        useBatching: false
-    #        type: "FHIR"
-    #      transport:
-    #        type: SFTP
-    #        host: sftp
-    #        port: 22
-    #        filePath: ./upload
-    #        credentialName: DEFAULT-SFTP
+    - name: etor-service-receiver-results
+      externalName: ETOR Service Receiver Channel from ReportStream for results
+      organizationName: flexion
+      topic: etor-ti
+      customerStatus: active
+      jurisdictionalFilter:
+        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
+      qualityFilter:
+        - true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        useBatching: false
+        type: "FHIR"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
     # - name: etor-service-receiver-oru-hl7
     #   externalName: ETOR Service Receiver Channel from ReportStream
     #   organizationName: flexion
