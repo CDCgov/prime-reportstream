@@ -25,6 +25,7 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -198,9 +199,27 @@ class FHIRRouter(
         // get the receivers that this bundle should go to
         val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
 
-        // check if there are any receivers
+        val finalReceivers = mutableListOf<Receiver>()
         if (listOfReceivers.isNotEmpty()) {
-            return listOfReceivers.flatMap { receiver ->
+            if (message.topic == Topic.SEND_ORIGINAL) {
+                listOfReceivers.forEach { receiver ->
+                    val originalMessageFormat = getOriginalMessageBodyFormat(message.reportId)
+                    if ((originalMessageFormat == "HL7" && receiver.format == Report.Format.HL7) ||
+                        (originalMessageFormat == "FHIR" && receiver.format == Report.Format.FHIR)
+                    ) {
+                        finalReceivers.add(receiver)
+                    }
+                }
+            }
+
+            if (finalReceivers.isEmpty()) {
+                ActionHistory(TaskAction.process_warning, true)
+            }
+        }
+
+        // check if there are any receivers
+        if (finalReceivers.isNotEmpty()) {
+            return finalReceivers.flatMap { receiver ->
                 val sources = emptyList<Source>()
                 val report = Report(
                     Report.Format.FHIR,
@@ -414,22 +433,6 @@ class FHIRRouter(
                     )
                 }
                 )
-
-            if (topic == Topic.SEND_ORIGINAL) {
-                val originalMessageFormat = getOriginalMessageBodyFormat(reportId)
-                if (originalMessageFormat == "HL7" && receiver.format != Report.Format.HL7) {
-                    passes = false
-                } else if (originalMessageFormat == "FHIR" && receiver.format != Report.Format.FHIR) {
-                    passes = false
-                } else if (originalMessageFormat != "HL7" && originalMessageFormat != "FHIR") {
-                    /*
-                        we want all to fail if it is not one of these formats. We do not want to send to receivers who
-                        are batch, that would be a misconfiguration of a send orginal receiver
-                     */
-
-                    passes = false
-                }
-            }
 
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
