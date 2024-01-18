@@ -34,12 +34,6 @@
       topic: etor-ti
       customerStatus: active
       format: HL7
-    - name: simulated-lab
-      externalName: Simulated State Public Health Lab ETOR Sender
-      organizationName: flexion
-      topic: etor-ti
-      customerStatus: active
-      format: HL7
     - name: etor-service-sender
       externalName: ETOR Service Sender Channel to ReportStream - Sending FHIR
       organizationName: flexion
@@ -47,6 +41,12 @@
       customerStatus: active
       format: FHIR
       schemaName: "metadata/fhir_transforms/senders/Flexion/TILabOrder"
+    - name: simulated-lab
+      externalName: Simulated State Public Health Lab ETOR Sender
+      organizationName: flexion
+      topic: etor-ti
+      customerStatus: active
+      format: HL7
   receivers:
     - name: simulated-lab
       externalName: Simulated State Public Health Lab ETOR Receiver
@@ -107,26 +107,10 @@
           RecordId: "header.reportFile.reportId"
           senderLabName: "CDC PRIME REPORTSTREAM" #name-of-the-lab-the-sending-user-belongs-to
           sourceLabName: "CDC PRIME REPORTSTREAM" #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
-    #      transport: !<REST>
-    #        # reportUrl: "https://cdcti-stg-api.azurewebsites.net/v1/etor/orders"
-    #        # authTokenUrl: "https://cdcti-stg-api.azurewebsites.net/v1/auth/token"
-    #        authType: "two-legged"
-    ## Uncomment below for local Trusted-Intermediary server
-    #        reportUrl: "http://host.docker.internal:8080/v1/etor/orders"
-    #        authTokenUrl: "http://host.docker.internal:8080/v1/auth/token"
-    #        type: "REST"
-    #        tlsKeystore: null
-    #        parameters:
-    #          scope: "report-stream"
-    #          client_assertion: "client_secret"
-    #        headers:
-    #          RecordId: "header.reportFile.reportId"
-    #          senderLabName: "CDC PRIME REPORTSTREAM" #name-of-the-lab-the-sending-user-belongs-to
-    #          sourceLabName: "CDC PRIME REPORTSTREAM" #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
-    #          Content-Type: "text/fhir+ndjson"
-    #        authHeaders:
-    #          Content-Type: "application/x-www-form-urlencoded"
-    #          Host: "host.docker.internal"
+          Content-Type: "text/fhir+ndjson"
+        authHeaders:
+          Content-Type: "application/x-www-form-urlencoded"
+          Host: "host.docker.internal"
     #    - name: etor-service-receiver-oru
     #      externalName: ETOR Service Receiver Channel from ReportStream
     #      organizationName: flexion
@@ -150,26 +134,26 @@
     #        port: 22
     #        filePath: ./upload
     #        credentialName: DEFAULT-SFTP
-    - name: etor-service-receiver-oru-hl7
-      externalName: ETOR Service Receiver Channel from ReportStream
-      organizationName: flexion
-      topic: etor-ti
-      customerStatus: active
-      jurisdictionalFilter:
-        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
-      qualityFilter:
-        - true
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-      translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
-        useBatching: false
-        type: "HL7"
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+    # - name: etor-service-receiver-oru-hl7
+    #   externalName: ETOR Service Receiver Channel from ReportStream
+    #   organizationName: flexion
+    #   topic: etor-ti
+    #   customerStatus: active
+    #   jurisdictionalFilter:
+    #     - Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
+    #   qualityFilter:
+    #     - true
+    #   timing:
+    #     operation: MERGE
+    #     numberPerDay: 1440 # Every minute
+    #     initialTime: 00:00
+    #   translation: !<HL7>
+    #     schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+    #     useBatching: false
+    #     type: "HL7"
+    #   transport:
+    #     type: SFTP
+    #     host: sftp
+    #     port: 22
+    #     filePath: ./upload
+    #     credentialName: DEFAULT-SFTP
