@@ -9,7 +9,7 @@ elements:
     resource: '%resource.name'
     condition: '%resource.exists()'
     constants:
-      hl7xpnField: '%{hl7NK1Field}-2'
+      xpnField: '%{hl7NK1Field}-2'
     schema: ../datatypes/HumanName/XPN
 
   - name: contact-relationship-id
@@ -66,9 +66,9 @@ elements:
     resource: '%resource.organization.resolve().address'
     condition: '%resource.exists()'
     constants:
-      hl7SpecXADField: '%{hl7NK1Field}-32'
+      xadField: '%{hl7NK1Field}-32(%{xadIndex})'
     schema: ../datatypes/Address/XAD
-    resourceIndex: orderIndex
+    resourceIndex: xadIndex
 
   - name: next-of-kin-telecomm-info
     resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "next-of-kin-telecomm-info")'

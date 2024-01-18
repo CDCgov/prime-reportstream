@@ -2,7 +2,7 @@ elements:
 
   - name: parent-observation-identifier
     constants:
-      cweFieldPath: '%{hl7PRLField}-1'
+      cweField: '%{hl7PRLField}-1'
     resource: '%resource.extension.where(url = "prl-1-parent-observation-identifier").value'
     schema: ../codeableConcept/CWE
 

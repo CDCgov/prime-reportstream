@@ -5,7 +5,7 @@ import {
     Organizations,
     useAdminSafeOrganizationName,
 } from "../../UseAdminSafeOrganizationName";
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 import {
     deliveriesEndpoints,
     RSDelivery,
@@ -14,7 +14,7 @@ import {
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../filters/UseFilterManager";
-import { useSessionContext } from "../../../contexts/SessionContext";
+import { useSessionContext } from "../../../contexts/Session";
 
 const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
     deliveriesEndpoints;
@@ -53,6 +53,7 @@ const useOrgDeliveries = (service?: string) => {
         [adminSafeOrgName, service],
     );
 
+    // Pagination and filter props
     const filterManager = useFilterManager(filterManagerDefaults);
     const sortOrder = filterManager.sortSettings.order;
     const rangeTo = filterManager.rangeSettings.to;
