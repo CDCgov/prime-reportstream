@@ -148,6 +148,17 @@ note:
       type: STRING
       valueOf: ST
       expressionType: HL7Spec
+    extension:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Name
+        valueString:
+          type: STRING
+          valueOf: specimen-description
+
 
 receivedTime:
   condition: $dateTimeIn NOT_NULL
@@ -162,7 +173,7 @@ _receivedTime:
   vars:
     dateTimeIn: SPM.18.1
   expressionsMap:
-    extension_1:
+    extension:
       generateList: true
       expressionType: nested
       expressionsMap:

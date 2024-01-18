@@ -57,7 +57,7 @@ elements:
     schema: ../../datatypes/Quantity/CQ
 
   - name: specimen-description
-    resource: '%resource.note'
+    resource: '%resource.note.where(extension(%`rsext-hl7v2Name`).value = "specimen-description")'
     resourceIndex: stIndex
     constants:
       stField: '%{hl7SpecimenFieldPath}-14(%{stIndex})'

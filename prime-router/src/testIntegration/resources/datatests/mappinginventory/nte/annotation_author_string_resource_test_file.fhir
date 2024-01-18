@@ -675,23 +675,6 @@
             "value": "3015822725"
           }
         ],
-        "type": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString": "identifier"
-                }
-              ],
-              "system": "http://snomed.info/sct",
-              "version": "09012017",
-              "code": "119297000",
-              "display": "Blood"
-            }
-          ],
-          "text": "Blood"
-        },
         "subject": {
           "reference": "Patient/1703270114819832000.26c349de-e14c-46c9-a22f-95f00d3d54e3"
         }
