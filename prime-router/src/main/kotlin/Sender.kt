@@ -40,6 +40,7 @@ import java.time.OffsetDateTime
     visible = true
 )
 @JsonSubTypes(
+    JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "send-original"),
     JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "full-elr"),
     JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "etor-ti"),
     JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "elr-elims"),

@@ -46,6 +46,7 @@ enum class CustomerStatus {
  * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
  */
 enum class Topic(@JsonValue val jsonVal: String, val isUniversalPipeline: Boolean = true) {
+    SEND_ORIGINAL("send-original", true),
     FULL_ELR("full-elr", true),
     ETOR_TI("etor-ti", true),
     ELR_ELIMS("elr-elims", true),

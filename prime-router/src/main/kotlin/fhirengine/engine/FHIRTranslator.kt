@@ -12,11 +12,15 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.BlobAccess.Companion.downloadBlobAsByteArray
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
@@ -43,6 +47,7 @@ class FHIRTranslator(
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
 ) : FHIREngine(metadata, settings, db, blob) {
+    val workflowEngine = WorkflowEngine()
 
     /**
      * Accepts a FHIR [message], parses it, and generates translated output files for each item in the destinations
@@ -68,7 +73,12 @@ class FHIRTranslator(
                 val receiver = settings.findReceiver(message.receiverFullName)
                     ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
                 actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
-                val bodyBytes = getByteArrayFromBundle(receiver, bundle)
+
+                val bodyBytes = if (receiver.topic == Topic.SEND_ORIGINAL) {
+                    getOriginalMessage(message.reportId)
+                } else {
+                    getByteArrayFromBundle(receiver, bundle)
+                }
 
                 // get a Report from the message
                 val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
@@ -95,6 +105,21 @@ class FHIRTranslator(
                     "Message was not a FhirConvert and cannot be processed: $message"
                 )
             }
+        }
+    }
+
+    internal fun getOriginalMessage(reportId: ReportId): ByteArray {
+        val rootReportId = findRootReportId(reportId)
+        val report = workflowEngine.db.fetchReportFile(rootReportId)
+        return downloadBlobAsByteArray(report.bodyUrl)
+    }
+
+    fun findRootReportId(reportId: ReportId): ReportId {
+        val itemLineages = workflowEngine.db.fetchItemLineagesForReport(reportId, 1)
+        return if (itemLineages != null && itemLineages[0].parentReportId != null) {
+            findRootReportId(itemLineages[0].parentReportId)
+        } else {
+            return reportId
         }
     }
 

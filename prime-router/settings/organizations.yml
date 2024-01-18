@@ -135,6 +135,16 @@
       customerStatus: active
       schemaName: metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform
       format: FHIR
+    - name: ignore-fhir-passthrough      # Use this to test fhir passthrough
+      organizationName: ignore
+      topic: send-original
+      customerStatus: active
+      format: FHIR
+    - name: ignore-hl7-passthrough      # Use this to test fhir passthrough
+      organizationName: ignore
+      topic: send-original
+      customerStatus: active
+      format: HL7
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
       topic: covid-19
@@ -222,6 +232,51 @@
         type: "HL7"
         receivingApplicationName: "CO-ELR"
         receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: FULL_ELR_PASSTHROUGH
+      externalName: Ignore FULL_ELR Passthrough
+      organizationName: ignore
+      topic: send-original
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        # Uncomment next line to verify fhir receiver transforms
+        # schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        type: "FHIR"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: FULL_ELR_PASSTHROUGH_HL7
+      externalName: Ignore HL7 Passthrough
+      organizationName: ignore
+      topic: send-original
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        type: "HL7"
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+        convertPositiveDateTimeOffsetToNegative: false
+        useHighPrecisionHeaderDateTimeFormat: true
       transport:
         type: SFTP
         host: sftp

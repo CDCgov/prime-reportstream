@@ -44,6 +44,7 @@ import kotlin.test.assertFailsWith
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
+private const val ORIGINAL_SENDER_RECEIVER_NAME = "send-original"
 private const val ORU_R01_SCHEMA = "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
 private const val BLOB_SUB_FOLDER = "test-sender"
 private const val BLOB_URL = "http://blob.url"
@@ -73,6 +74,22 @@ class FhirTranslatorTests {
         )
     )
 
+    val originalSenderOrganization = DeepOrganization(
+        ORGANIZATION_NAME,
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                ORIGINAL_SENDER_RECEIVER_NAME,
+                ORGANIZATION_NAME,
+                Topic.SEND_ORIGINAL,
+                CustomerStatus.ACTIVE,
+                ORU_R01_SCHEMA,
+                format = Report.Format.HL7_BATCH,
+            )
+        )
+    )
+
     private fun makeFhirEngine(
         metadata: Metadata = Metadata(
             schema = Schema(
@@ -82,6 +99,20 @@ class FhirTranslatorTests {
             )
         ),
         settings: SettingsProvider = FileSettings().loadOrganizations(oneOrganization),
+    ): FHIRTranslator {
+        return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+            .blobAccess(blobMock).build(TaskAction.translate) as FHIRTranslator
+    }
+
+    private fun makeSendOriginalFhirEngine(
+        metadata: Metadata = Metadata(
+            schema = Schema(
+                name = "None",
+                topic = Topic.SEND_ORIGINAL,
+                elements = emptyList()
+            )
+        ),
+        settings: SettingsProvider = FileSettings().loadOrganizations(originalSenderOrganization),
     ): FHIRTranslator {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
             .blobAccess(blobMock).build(TaskAction.translate) as FHIRTranslator
@@ -141,6 +172,62 @@ class FhirTranslatorTests {
             actionHistory.trackActionReceiverInfo(any(), any())
         }
     }
+
+//    @Test
+//    fun `test send original translation happy path, one receiver`() {
+//        mockkObject(BlobAccess)
+//        val mockWorkflowEngine = mockk<WorkflowEngine>()
+//
+//        // set up
+//        val actionHistory = mockk<ActionHistory>()
+//        val actionLogger = mockk<ActionLogger>()
+//        val engine = makeSendOriginalFhirEngine()
+//
+//        val message =
+//            spyk(
+//                FhirTranslateQueueMessage(
+//                    UUID.randomUUID(),
+//                    BLOB_URL,
+//                    "test",
+//                    BLOB_SUB_FOLDER,
+//                    topic = Topic.FULL_ELR,
+//                    originalSenderOrganization.receivers[0].fullName
+//                )
+//            )
+//
+//        val bodyFormat = Report.Format.FHIR
+//        val bodyUrl = BODY_URL
+//
+//        val parentReportId = UUID.randomUUID()
+//        val childReportId = UUID.randomUUID()
+//
+//        val reportLineage = gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage(9000000125356546,9000000125356547, parentReportId, childReportId, OffsetDateTime.now())
+//
+//        every { actionLogger.hasErrors() } returns false
+//        every { message.downloadContent() }
+//            .returns(File(VALID_DATA_URL).readText())
+//        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+//        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+//        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
+//        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+//        every { actionHistory.trackActionReceiverInfo(any(), any()) }
+//            .returns(Unit)
+//        every { mockWorkflowEngine.db.fetchItemLineagesForReport(any(), any(), any())}.returns(listOf(ItemLineage(reportLineage)))
+//
+//        // act
+//        accessSpy.transact { txn ->
+//            engine.run(message, actionLogger, actionHistory, txn)
+//        }
+
+//        // assert
+//        verify(exactly = 1) {
+//            actionHistory.trackExistingInputReport(any())
+//            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
+//            BlobAccess.Companion.uploadBlob(any(), any(), any())
+//            accessSpy.insertTask(any(), any(), any(), any(), any())
+//            actionHistory.trackActionReceiverInfo(any(), any())
+//        }
+//    }
 
     // happy path, with a receiver that has a custom schema
     @Test

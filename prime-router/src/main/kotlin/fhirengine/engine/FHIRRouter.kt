@@ -23,6 +23,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
@@ -97,10 +98,10 @@ class FHIRRouter(
     )
 
     /**
-     * Default Rules for quality filter on ELR_ELIMS topic:
+     * Default Rules for topics that do not want a filer:
      *   no rules; completely open
      */
-    private val elrElimsQualityFilterDefault: ReportStreamFilter = listOf(
+    private val noFilterDefault: ReportStreamFilter = listOf(
         "true",
     )
 
@@ -110,7 +111,8 @@ class FHIRRouter(
     val qualityFilterDefaults = mapOf(
         Pair(Topic.FULL_ELR, fullElrQualityFilterDefault),
         Pair(Topic.ETOR_TI, etorTiQualityFilterDefault),
-        Pair(Topic.ELR_ELIMS, elrElimsQualityFilterDefault)
+        Pair(Topic.ELR_ELIMS, noFilterDefault),
+        Pair(Topic.SEND_ORIGINAL, noFilterDefault)
     )
 
     /**
@@ -126,7 +128,8 @@ class FHIRRouter(
      */
     val processingModeDefaults = mapOf(
         Pair(Topic.FULL_ELR, processingModeFilterDefault),
-        Pair(Topic.ETOR_TI, processingModeFilterDefault)
+        Pair(Topic.ETOR_TI, processingModeFilterDefault),
+        Pair(Topic.SEND_ORIGINAL, noFilterDefault)
     )
 
     /**
@@ -412,6 +415,15 @@ class FHIRRouter(
                 }
                 )
 
+            if (topic == Topic.SEND_ORIGINAL) {
+                val originalMessageFormat = getOriginalMessageBodyFormat(reportId)
+                if (originalMessageFormat == "HL7" && receiver.format != Report.Format.HL7) {
+                    passes = false
+                } else if (originalMessageFormat == "FHIR" && receiver.format != Report.Format.FHIR) {
+                    passes = false
+                }
+            }
+
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
                 listOfReceivers.add(receiver)
@@ -419,6 +431,12 @@ class FHIRRouter(
         }
 
         return listOfReceivers
+    }
+
+    internal fun getOriginalMessageBodyFormat(reportId: ReportId): String {
+        val rootReportId = FHIRTranslator().findRootReportId(reportId)
+        val report = WorkflowEngine().db.fetchReportFile(rootReportId)
+        return report.bodyFormat
     }
 
     /**
