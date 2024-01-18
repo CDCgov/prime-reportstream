@@ -274,3 +274,15 @@ extension_8-xad19Addressee:
       type: STRING
       valueOf: XAD.19
       expressionType: HL7Spec
+
+extension_hl7v2Name:
+  generateList: true
+  expressionType: nested
+  condition: $hl7v2Name NOT_NULL
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: hl7v2Name
+    valueString:
+      type: STRING
+      valueOf: $hl7v2Name

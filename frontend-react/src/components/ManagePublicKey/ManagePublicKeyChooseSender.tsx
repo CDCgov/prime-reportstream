@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { Form, Dropdown, Button, FormGroup } from "@trussworks/react-uswds";
 
 import { RSSender } from "../../config/endpoints/settings";
@@ -14,7 +14,7 @@ export default function ManagePublicKeyChooseSender({
 }: ManagePublicKeyChooseSenderProps) {
     const [selectedSender, setSelectedSender] = useState("");
 
-    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         onSenderSelect(selectedSender, true);
     }

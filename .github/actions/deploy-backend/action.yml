@@ -96,7 +96,7 @@ runs:
       shell: bash
       run: echo "USE_DCT=true" >> $GITHUB_ENV
 
-    - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+    - uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router
@@ -230,6 +230,15 @@ runs:
           > /dev/null
       shell: bash
 
+    - name: Production slot details
+      id: prod-slot-details
+      run: |
+        SWAP_UTC=$(az functionapp deployment slot list \
+        --name ${{ env.FUNCTION_APP }} --resource-group ${{ env.RESOURCE_GROUP }} \
+        --query "[].{timestampUtc:slotSwapStatus.timestampUtc}" --output tsv)
+        echo "swap_utc=$SWAP_UTC" >> $GITHUB_OUTPUT
+      shell: bash
+
     - uses: Azure/functions-container-action@0aec6197033a72d3ca813f1aebd9391f639c2a8f
       id: deploy-candidate
       with:
@@ -246,6 +255,24 @@ runs:
           AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
           AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
           zdd-promote-slot
+      shell: bash
+
+    - name: Pass if slot swap completes
+      run: |
+        NEW_SWAP_UTC=$(az functionapp deployment slot list \
+        --name ${{ env.FUNCTION_APP }} --resource-group ${{ env.RESOURCE_GROUP }} \
+        --query "[].{timestampUtc:slotSwapStatus.timestampUtc}" --output tsv)
+
+        if [[ $NEW_SWAP_UTC > ${{ steps.prod-slot-details.outputs.swap_utc }} ]]; then
+          echo "## Function App slot swap successful! ✅" >> $GITHUB_STEP_SUMMARY
+          echo "* Old slot UTC: ${{ steps.prod-slot-details.outputs.swap_utc }}" >> $GITHUB_STEP_SUMMARY
+          echo "* New slot UTC: $NEW_SWAP_UTC" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "## Function App slot swap failed! ❌" >> $GITHUB_STEP_SUMMARY
+          echo "* Old slot UTC: ${{ steps.prod-slot-details.outputs.swap_utc }}" >> $GITHUB_STEP_SUMMARY
+          echo "* New slot UTC: $NEW_SWAP_UTC" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
       shell: bash
 
     - name: Validate function app checksum

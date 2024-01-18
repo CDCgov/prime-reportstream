@@ -67,7 +67,6 @@ code:
   valueOf: datatypes/CWE/CodeableConcept
   expressionType: resource
   specs: OBR.4
-  required: true
 
 effectiveDateTime:
   condition: $start NOT_NULL && $end NULL

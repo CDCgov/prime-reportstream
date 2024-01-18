@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1701889629991458000.06b6deb3-95a7-41d9-beb3-28de03d59537",
+  "id" : "1703276434056075000.cd1438ae-c213-4674-bffb-7c5ff1d5a48b",
   "meta" : {
-    "lastUpdated" : "2023-12-06T14:07:10.007-05:00"
+    "lastUpdated" : "2023-12-22T15:20:34.090-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,10 +37,10 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1701889630360703000.49438608-4626-4f38-a94c-58b43fd57153",
+    "fullUrl" : "Provenance/1703276434808683000.63b137e8-b526-42c0-ba32-b3c48cdcc9c4",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1701889630360703000.49438608-4626-4f38-a94c-58b43fd57153",
+      "id" : "1703276434808683000.63b137e8-b526-42c0-ba32-b3c48cdcc9c4",
       "recorded" : "2023-08-16T12:33:58-05:00",
       "_recorded" : {
         "extension" : [ {
@@ -74,21 +74,21 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1701889630363222000.05305726-0771-4ee3-86f4-136e1ceabd44"
+          "reference" : "Device/1703276434815753000.84609fe0-4c97-45a4-afba-6d852ca30cfc"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1701889630363222000.05305726-0771-4ee3-86f4-136e1ceabd44",
+    "fullUrl" : "Device/1703276434815753000.84609fe0-4c97-45a4-afba-6d852ca30cfc",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1701889630363222000.05305726-0771-4ee3-86f4-136e1ceabd44"
+      "id" : "1703276434815753000.84609fe0-4c97-45a4-afba-6d852ca30cfc"
     }
   }, {
-    "fullUrl" : "Patient/1701889630381152000.48c1bca6-3653-43c0-b6df-534812d48fc1",
+    "fullUrl" : "Patient/1703276434866503000.6fbe36b7-0abc-4632-8ea8-136cf547b26d",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1701889630381152000.48c1bca6-3653-43c0-b6df-534812d48fc1",
+      "id" : "1703276434866503000.6fbe36b7-0abc-4632-8ea8-136cf547b26d",
       "_deceasedDateTime" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
