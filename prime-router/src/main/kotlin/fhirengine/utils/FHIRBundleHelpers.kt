@@ -370,21 +370,25 @@ fun Bundle.filterObservations(
  * The [bundle] and [shortHandLookupTable] will be used to evaluate whether
  * the observation passes the filter
  *
- * @return copy of the bundle with filtered observations removed
+ * @return a pair containing a list of the filtered ids and copy of the bundle with filtered observations removed
  */
 fun Bundle.filterMappedObservations(
     conditionFilter: ReportStreamConditionFilter,
-): Bundle {
+): Pair<List<String>, Bundle> {
     val codes = conditionFilter.codes()
     val observations = this.getObservations()
     val toKeep = observations.filter { it.getMappedConditions().any(codes::contains) }.map { it.idBase }
     val filteredBundle = this.copy()
-    observations.forEach {
-        if (it.idBase !in toKeep) {
+    val filteredIds = observations.mapNotNull {
+        val idBase = it.idBase
+        if (idBase !in toKeep) {
             filteredBundle.deleteResource(it)
+            idBase
+        } else {
+            null
         }
     }
-    return filteredBundle
+    return Pair(filteredIds, filteredBundle)
 }
 
 private fun getFilteredObservations(

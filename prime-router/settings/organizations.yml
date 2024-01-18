@@ -1089,6 +1089,9 @@
       qualityFilter:
         - "true"
       processingModeFilter: [ "true" ]
+      mappedConditionFilter:
+        - type: codeString
+          value: 840539006,1234
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

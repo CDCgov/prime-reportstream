@@ -9,6 +9,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.PrunedObservationsLogMessage
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -138,6 +139,7 @@ class FHIRRouter(
 
         // check if there are any receivers
         if (listOfReceivers.isNotEmpty()) {
+            val filteredIdMap: MutableMap<String, List<String>> = mutableMapOf()
             return listOfReceivers.flatMap { receiver ->
                 val sources = emptyList<Source>()
                 val report = Report(
@@ -164,6 +166,7 @@ class FHIRRouter(
                     )
                 )
 
+                // TODO: merge with mapped condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
                 // If the receiver does not have a condition filter set send the entire bundle to the translate step
                 var receiverBundle = if (receiver.conditionFilter.isEmpty()) {
                     bundle
@@ -176,7 +179,11 @@ class FHIRRouter(
 
                 // If the receiver does not have a mapped condition filter send the entire bundle to the translate step
                 if (receiver.mappedConditionFilter.isNotEmpty()) {
-                    receiverBundle = receiverBundle.filterMappedObservations(receiver.mappedConditionFilter)
+                    val (filteredIds, filteredBundle) = receiverBundle.filterMappedObservations(
+                        receiver.mappedConditionFilter
+                    )
+                    filteredIds.forEach { id -> filteredIdMap.getOrDefault(id, mutableListOf(receiver.fullName)) }
+                    receiverBundle = filteredBundle
                 }
 
                 val nextEvent = ProcessEvent(
@@ -214,6 +221,8 @@ class FHIRRouter(
                         )
                     )
                 )
+            }.also {
+                actionLogger.info(PrunedObservationsLogMessage(message.reportId, filteredIdMap))
             }
         } else {
             // this bundle does not have receivers; only perform the work necessary to track the routing action
@@ -339,7 +348,6 @@ class FHIRRouter(
                 allObservationsExpression
             )
 
-            // TODO: is this handled?
             // Automatically passing if observations are empty is necessary for messages that may not
             // contain any observations but messages that must have observations are now at risk of getting
             // routed if they contain no observations. This case must be handled in one of the filters above

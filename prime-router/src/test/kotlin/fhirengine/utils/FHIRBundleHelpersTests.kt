@@ -494,7 +494,7 @@ class FHIRBundleHelpersTests {
 
         val filteredBundle = bundle.filterMappedObservations(
             listOf(CodeStringConditionFilter("840539006"))
-        )
+        ).second
 
         val filteredObservations = filteredBundle.getObservations()
         assertThat(filteredObservations.size).isEqualTo(1)

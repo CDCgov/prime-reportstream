@@ -22,6 +22,7 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.PrunedObservationsLogMessage
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamConditionFilter
@@ -47,10 +48,12 @@ import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
+import io.mockk.runs
 import io.mockk.spyk
 import io.mockk.verify
 import org.hl7.fhir.r4.model.Bundle
@@ -1107,6 +1110,7 @@ class FhirRouterTests {
         val mappedConditionFilter = emptyList<ConditionFilter>()
 
         every { actionLogger.hasErrors() } returns false
+        every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
         every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -1166,6 +1170,7 @@ class FhirRouterTests {
         val mappedConditionFilter = emptyList<ConditionFilter>()
 
         every { actionLogger.hasErrors() } returns false
+        every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -1229,6 +1234,7 @@ class FhirRouterTests {
         val mappedConditionFilter = emptyList<ConditionFilter>()
 
         every { actionLogger.hasErrors() } returns false
+        every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -1289,7 +1295,7 @@ class FhirRouterTests {
         )
 
         val expectedBundle = bundle
-            .filterMappedObservations(listOf(CodeStringConditionFilter("6142004")))
+            .filterMappedObservations(listOf(CodeStringConditionFilter("6142004"))).second
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
@@ -1303,6 +1309,7 @@ class FhirRouterTests {
         val mappedConditionFilter = emptyList<ConditionFilter>()
 
         every { actionLogger.hasErrors() } returns false
+        every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
         every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -1362,6 +1369,7 @@ class FhirRouterTests {
         val mappedConditionFilter = emptyList<ConditionFilter>()
 
         every { actionLogger.hasErrors() } returns false
+        every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
