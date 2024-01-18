@@ -272,7 +272,7 @@ class FhirTranslatorTests {
     fun `test getOriginalMessage`() {
         val mockWorkflowEngine = mockk<WorkflowEngine>()
         val mockDatabaseAccess = mockk<DatabaseAccess>()
-        val mockBlobAccess = mockk<BlobAccess.Companion>()
+        mockkObject(BlobAccess.Companion)
         val parentReportId = UUID.randomUUID()
         val childReportId = UUID.randomUUID()
         val rootItemLineage =
@@ -299,11 +299,11 @@ class FhirTranslatorTests {
             mockWorkflowEngine.db.fetchItemLineagesForReport(any(), any(), any())
         }.returnsMany(listOf(childItemLineage), listOf(rootItemLineage))
         every { mockWorkflowEngine.db.fetchReportFile(any()) }.returns(report)
-        every { mockBlobAccess.downloadBlobAsByteArray(any()) }.returns(reportContent.toByteArray())
+        every { downloadBlobAsByteArray(any()) }.returns(reportContent.toByteArray())
 
         val rootReport = FHIRTranslator().getOriginalMessage(childReportId, mockWorkflowEngine)
 
-        assertThat(rootReport).isEqualTo(parentReportId)
+        assertThat(String(rootReport)).isEqualTo(reportContent)
     }
 
     @Test
