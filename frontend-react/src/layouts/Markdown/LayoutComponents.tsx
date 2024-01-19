@@ -1,10 +1,10 @@
-import { useContext, useLayoutEffect } from "react";
+import { ReactNode, useContext, useLayoutEffect } from "react";
 
 import { USSmartLink } from "../../components/USLink";
 
 import MarkdownLayoutContext from "./Context";
 
-export const LayoutSidenav = ({ children }: { children: React.ReactNode }) => {
+export const LayoutSidenav = ({ children }: { children: ReactNode }) => {
     const { setSidenavContent } = useContext(MarkdownLayoutContext);
 
     useLayoutEffect(() => {
@@ -15,7 +15,7 @@ export const LayoutSidenav = ({ children }: { children: React.ReactNode }) => {
     return null;
 };
 
-export const LayoutMain = ({ children }: { children: React.ReactNode }) => {
+export const LayoutMain = ({ children }: { children: ReactNode }) => {
     const { setMainContent } = useContext(MarkdownLayoutContext);
 
     useLayoutEffect(() => {
