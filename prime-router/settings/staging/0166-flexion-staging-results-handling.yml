@@ -28,7 +28,7 @@
       customerStatus: active
       format: HL7
     # TI => RS
-    - name: etor-service-sender # TODO: rename to etor-service-sender-orders?
+    - name: etor-service-sender
       externalName: ETOR Service Sender Channel to ReportStream - Sending FHIR orders
       organizationName: flexion
       topic: etor-ti
