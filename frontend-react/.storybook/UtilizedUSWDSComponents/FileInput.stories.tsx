@@ -5,7 +5,13 @@ import {
     FormGroup,
     Label,
 } from "@trussworks/react-uswds";
-import React, { useState, useRef } from "react";
+import React, {
+    useState,
+    useRef,
+    ChangeEvent,
+    DragEventHandler,
+    ReactElement,
+} from "react";
 
 export default {
     title: "Components/File input",
@@ -17,18 +23,18 @@ export default {
 };
 
 type StorybookArguments = {
-    onChange: (event: React.ChangeEvent<Element>) => void;
-    onDrop: React.DragEventHandler<Element>;
+    onChange: (event: ChangeEvent<Element>) => void;
+    onDrop: DragEventHandler<Element>;
 };
 
-export const singleFileInput = (): React.ReactElement => (
+export const singleFileInput = (): ReactElement => (
     <FormGroup>
         <Label htmlFor="file-input-single">Input accepts a single file</Label>
         <FileInput id="file-input-single" name="file-input-single" />
     </FormGroup>
 );
 
-export const acceptTextAndPDF = (): React.ReactElement => (
+export const acceptTextAndPDF = (): ReactElement => (
     <FormGroup>
         <Label htmlFor="file-input-specific">
             Input accepts only specific file types
@@ -46,7 +52,7 @@ export const acceptTextAndPDF = (): React.ReactElement => (
     </FormGroup>
 );
 
-export const acceptImages = (): React.ReactElement => (
+export const acceptImages = (): ReactElement => (
     <FormGroup>
         <Label htmlFor="file-input-wildcard">
             Input accepts any kind of image
@@ -64,7 +70,7 @@ export const acceptImages = (): React.ReactElement => (
     </FormGroup>
 );
 
-export const multipleFilesInput = (): React.ReactElement => (
+export const multipleFilesInput = (): ReactElement => (
     <FormGroup>
         <Label htmlFor="file-input-multiple">
             Input accepts multiple files
@@ -81,7 +87,7 @@ export const multipleFilesInput = (): React.ReactElement => (
     </FormGroup>
 );
 
-export const withError = (): React.ReactElement => (
+export const withError = (): ReactElement => (
     <div style={{ marginLeft: "1.25em" }}>
         <FormGroup error>
             <Label htmlFor="file-input-multiple" error>
@@ -102,7 +108,7 @@ export const withError = (): React.ReactElement => (
     </div>
 );
 
-export const disabled = (): React.ReactElement => (
+export const disabled = (): ReactElement => (
     <FormGroup>
         <Label htmlFor="file-input-disabled">Input in a disabled state</Label>
         <FileInput
@@ -114,14 +120,14 @@ export const disabled = (): React.ReactElement => (
 );
 
 export const withRefAndCustomHandlers = (
-    argTypes: StorybookArguments
-): React.ReactElement => {
+    argTypes: StorybookArguments,
+): ReactElement => {
     const [files, setFiles] = useState<FileList | null>(null);
     const fileInputRef = useRef<FileInputRef>(null);
 
     const handleClearFiles = (): void => fileInputRef.current?.clearFiles();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
         argTypes.onChange(e);
         setFiles(e.target?.files);
     };
@@ -159,7 +165,7 @@ export const withRefAndCustomHandlers = (
     );
 };
 
-export const customText = (): React.ReactElement => (
+export const customText = (): ReactElement => (
     <FormGroup>
         <Label htmlFor="file-input-single">
             La entrada acepta un solo archivo

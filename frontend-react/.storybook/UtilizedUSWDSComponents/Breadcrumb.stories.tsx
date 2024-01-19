@@ -3,7 +3,11 @@ import {
     BreadcrumbBar,
     BreadcrumbLink,
 } from "@trussworks/react-uswds";
-import React from "react";
+import React, {
+    FunctionComponent,
+    PropsWithChildren,
+    ReactElement,
+} from "react";
 
 export default {
     title: "Components/Breadcrumb",
@@ -11,7 +15,7 @@ export default {
     subcomponents: { Breadcrumb, BreadcrumbLink },
 };
 
-export const DefaultBreadcrumb = (): React.ReactElement => (
+export const DefaultBreadcrumb = (): ReactElement => (
     <BreadcrumbBar>
         <Breadcrumb>
             <BreadcrumbLink href="#">
@@ -34,7 +38,7 @@ export const DefaultBreadcrumb = (): React.ReactElement => (
     </BreadcrumbBar>
 );
 
-export const BreadcrumbWithRdfaMetadata = (): React.ReactElement => {
+export const BreadcrumbWithRdfaMetadata = (): ReactElement => {
     const rdfaMetadata = {
         ol: {
             vocab: "http://schema.org/",
@@ -84,7 +88,7 @@ export const BreadcrumbWithRdfaMetadata = (): React.ReactElement => {
     );
 };
 
-export const WrappingBreadcrumb = (): React.ReactElement => (
+export const WrappingBreadcrumb = (): ReactElement => (
     <BreadcrumbBar variant="wrap">
         <Breadcrumb>
             <BreadcrumbLink href="#">
@@ -107,19 +111,19 @@ export const WrappingBreadcrumb = (): React.ReactElement => (
     </BreadcrumbBar>
 );
 
-export const CustomBreadcrumbLinks = (): React.ReactElement => {
-    type MockLinkProps = React.PropsWithChildren<{
+export const CustomBreadcrumbLinks = (): ReactElement => {
+    type MockLinkProps = PropsWithChildren<{
         to: string;
         className: string;
     }> &
         JSX.IntrinsicElements["a"];
 
-    const CustomLink: React.FunctionComponent<MockLinkProps> = ({
+    const CustomLink: FunctionComponent<MockLinkProps> = ({
         to,
         className,
         children,
         ...linkProps
-    }: MockLinkProps): React.ReactElement => (
+    }: MockLinkProps): ReactElement => (
         <a href={to} className={className} {...linkProps}>
             {children}
         </a>

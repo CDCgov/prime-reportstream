@@ -1,20 +1,20 @@
 import { Navigate, useLocation } from "react-router";
-import React from "react";
+import React, { PropsWithChildren, ReactElement, lazy } from "react";
 
 import { PERMISSIONS } from "../../utils/UsefulTypes";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
-import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
+import { useFeatureFlags } from "../../contexts/FeatureFlag";
 
-const ErrorNoPage = React.lazy(
+const ErrorNoPage = lazy(
     () => import("../../pages/error/legacy-content/ErrorNoPage"),
 );
 
-export interface RequireGateBaseProps extends React.PropsWithChildren {
+export interface RequireGateBaseProps extends PropsWithChildren {
     auth?: boolean | PERMISSIONS | PERMISSIONS[];
     featureFlags?: FeatureFlagName | FeatureFlagName[];
-    failElement: React.ReactElement;
-    anonymousElement: React.ReactElement;
+    failElement: ReactElement;
+    anonymousElement: ReactElement;
 }
 
 /**

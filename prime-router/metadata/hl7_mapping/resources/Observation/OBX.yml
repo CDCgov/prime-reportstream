@@ -7,7 +7,7 @@ elements:
     resource: '%resource.code'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7OBXField}-3'
+      cweField: '%{hl7OBXField}-3'
 
   - name: obx-sub-id
     value: [ '%resource.extension(%`rsext-sub-id`).value' ]
@@ -25,7 +25,7 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: interpretationIndex
     constants:
-      cweFieldPath: '%{hl7OBXField}-8(%{interpretationIndex})'
+      cweField: '%{hl7OBXField}-8(%{interpretationIndex})'
 
   - name: obx-nature-of-abnormal-test
     resource: '%resource.extension(%`rsext-nature-of-abnormal-test`)'
@@ -55,7 +55,7 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: observationMethodIndex
     constants:
-      cweFieldPath: '%{hl7OBXField}-17(%{observationMethodIndex})'
+      cweField: '%{hl7OBXField}-17(%{observationMethodIndex})'
 
   - name: obx-equipment-instance-identifier
     resource: '%resource.device.resolve().identifier.union(%resource.extension(%`rsext-obx-observation`).extension.where(url = "obx-18-equipment-instance-identifier").tail().value.resolve().identifier)'
@@ -73,7 +73,7 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: observationMethodIndex
     constants:
-      cweFieldPath: '%{hl7OBXField}-20(%{observationMethodIndex})'
+      cweField: '%{hl7OBXField}-20(%{observationMethodIndex})'
 
   - name: obx-observation-instance-identifier
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "obx-21-observation-instance-identifier")'
@@ -97,13 +97,13 @@ elements:
     resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7-use`).value.join(",").contains("obx-25-performing-organization")).address'
     schema: ../../datatypes/Address/XAD
     constants:
-      hl7SpecXADField: '%{hl7OBXField}-24'
+      xadField: '%{hl7OBXField}-24'
 
   - name: obx-performing-organization-address-from-practitioner-role
     resource: '%resource.performer.resolve().ofType(PractitionerRole).where(code.coding.code = "MDIR").organization.resolve().address'
     schema: ../../datatypes/Address/XAD
     constants:
-      hl7SpecXADField: '%{hl7OBXField}-24'
+      xadField: '%{hl7OBXField}-24'
 
   - name: obx-performing-organization-medical-director
     resource: '%resource.performer.resolve().ofType(PractitionerRole).where(code.coding.code = "MDIR").practitioner.resolve()'
