@@ -62,7 +62,7 @@ runs:
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
           yarn lint
           yarn test:ci
-          yarn test:e2e-headless
+          yarn test:e2e
           yarn build:$ENV
         shell: bash
 
