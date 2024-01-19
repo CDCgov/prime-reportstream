@@ -217,7 +217,7 @@ class BlobAccessTests {
                 validateSchemas(
                     "dev/bar",
                     sourceBlobContainerMetadata,
-                    BlobAccess.Companion.SchemaType.FHIR_FHIR
+                    Report.Format.FHIR
                 )
             ).isEqualTo(true)
         }
@@ -269,7 +269,7 @@ class BlobAccessTests {
                 validateSchemas(
                 "dev/foo",
                 sourceBlobContainerMetadata,
-                BlobAccess.Companion.SchemaType.FHIR_HL7
+                Report.Format.HL7
             )
             ).isEqualTo(true)
         }
