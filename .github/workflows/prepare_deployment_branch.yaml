@@ -3,7 +3,7 @@ name: "Prepare Deployment Branch"
 on:
   workflow_dispatch:
   schedule:
-    # At 23:00 on Monday and Wednesday (https://crontab.guru/#0_16_*_*_1,3)
+    # 3:00am UTC Tuesdays and Thursdays // 10:00pm EST Mondays and Wednesdays // 7:00pm PST Mondays and Wednesdays (https://crontab.guru/#0_3_*_*_2,4)
     # GitHub actions run in UTC (and EDT is UTC-4)
     # If this schedule changes, check any reminders that might be in slack with `/remind list`
     - cron: "0 3 * * 2,4"
