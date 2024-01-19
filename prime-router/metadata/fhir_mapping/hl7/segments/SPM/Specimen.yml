@@ -5,7 +5,6 @@ id:
   expressionType: JEXL
 
 identifier:
-  condition: $spm2 NOT_NULL || $spm31 NOT_NULL || $spm32 NOT_NULL
   vars:
     spm2: SPM.2
     spm31: SPM.31
@@ -46,6 +45,14 @@ identifier:
         hl7Use: "shipment-id"
         code: "SHIP"
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+
+parent:
+  condition: $spm3 NOT_NULL
+  valueOf: segments/SPM/EIP/Specimen
+  expressionType: reference
+  vars:
+    spm3: SPM.3
+  specs: SPM.3 *
 
 type:
   valueOf: datatypes/CWE/CodeableConcept
