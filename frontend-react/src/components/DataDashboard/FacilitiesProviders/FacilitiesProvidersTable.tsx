@@ -24,7 +24,7 @@ import {
 import {
     EventName,
     useAppInsightsContext,
-} from "../../../contexts/AppInsightsContext";
+} from "../../../contexts/AppInsights";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 
 function FacilitiesProvidersFilterAndTable({

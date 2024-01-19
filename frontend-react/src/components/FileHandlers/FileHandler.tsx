@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 import { Helmet } from "react-helmet-async";
 
-import { showError } from "../AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import useFileHandler, {
     FileHandlerActionType,
     FileHandlerState,
@@ -68,7 +68,7 @@ export default function FileHandler() {
 
     useEffect(() => {
         if (localError) {
-            showError(localError);
+            showToast(localError, "error");
         }
     }, [localError]);
 

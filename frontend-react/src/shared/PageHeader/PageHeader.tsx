@@ -1,16 +1,16 @@
-import React from "react";
+import React, { HTMLAttributes, PropsWithChildren } from "react";
 import { Breadcrumb, BreadcrumbBar } from "@trussworks/react-uswds";
 
 import { USCrumbLink, USLinkButton } from "../../components/USLink";
 
-export type PageHeaderProps = React.PropsWithChildren<
+export type PageHeaderProps = PropsWithChildren<
     {
         breadcrumbs?: Array<{ label: string; href: string }>;
         title?: string;
         subtitleArr?: string[];
         callToAction?: Array<{ label: string; href: string }>;
         lastUpdated?: string;
-    } & React.HTMLAttributes<HTMLElement>
+    } & HTMLAttributes<HTMLElement>
 >;
 
 export function PageHeader({

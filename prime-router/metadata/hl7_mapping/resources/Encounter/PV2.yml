@@ -10,14 +10,14 @@ elements:
     resource: '%resource.reasonCode.where(extension(%`rsext-hl7v2Name`).value = "pv2-admit-reason")'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV2Field}-3'
+      cweField: '%{hl7PV2Field}-3'
 
   - name: pv2-visit-user-code
     resource: '%resource.extension(%`rsext-visit-user-code`).value'
     schema: ../../datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{hl7PV2Field}-7(%{cweIndex})'
+      cweField: '%{hl7PV2Field}-7(%{cweIndex})'
 
   - name: pv2-expected-admit-datetime
     value: [ '%resource.extension(%`rsext-planned-start-date`).value.extension(%`rsext-hl7v2-date-time`).value' ]
@@ -50,7 +50,7 @@ elements:
     resource: '%resource.extension(%`rsext-publicity-code`).value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV2Field}-21'
+      cweField: '%{hl7PV2Field}-21'
 
   - name: pv2-visit-protection-indicator
     value: [ '%resource.meta.security.code' ]
@@ -64,19 +64,19 @@ elements:
     resource: '%resource.priority'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV2Field}-25'
+      cweField: '%{hl7PV2Field}-25'
 
   - name: pv2-mode-of-arrival-code
     resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/encounter-modeOfArrival").value.extension(%`rsext-cwe-coding`).value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV2Field}-38'
+      cweField: '%{hl7PV2Field}-38'
 
   - name: pv2-admission-level-of-care-code
     resource: '%resource.extension(%`rsext-admission-level-of-care`).value'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7PV2Field}-40'
+      cweField: '%{hl7PV2Field}-40'
 
   - name: pv2-extension-values
     resource: '%resource.extension(%`rsext-pv2-encounter`)'

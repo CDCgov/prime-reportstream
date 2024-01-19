@@ -28,6 +28,9 @@
 # humanname assembly order
 - id: "humanname-assembly-order"
   url: "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order"
+# Patient Congregation
+- id: "patient-congregation"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-congregation"
 # race
 - id: "race"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd"
@@ -49,6 +52,9 @@
 # condition-assertedDate
 - id: "condition-assertedDate"
   url: "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
+# patient-disability
+- id: "patient-disability"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-disability"
 # message encoding characters
 - id: "encoding-characters"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters"
@@ -375,6 +381,9 @@
 # patient-citizenship
 - id: "patient-citizenship"
   url: "http://hl7.org/fhir/StructureDefinition/patient-citizenship"
+# patient-nationality
+- id: "patient-nationality"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-nationality"
 # code
 - id: "code"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code"
@@ -592,6 +601,30 @@
 # cx-5 identifier type code
 - id: "identifier-type-code"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type-code"
+# Veteran Military Status
+- id: "veteran-military-status"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/veteran-military-status"
+# Identity Unknown
+- id: "identity-unknown"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identity-unknown"
+# PV1 Patient
+- id: "pv1-patient"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-patient"
+# PID Patient
+- id: "pid-patient"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient"
+# PD1 Patient
+- id: "pd1-patient"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pd1-patient"
+# NK1 Related Person
+- id: "nk1-related-person"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person"
+# Student Status
+- id: "studentStatus"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/studentStatus"
+# Living Will
+- id: "livingWill"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/livingWill"
 - id: "orc-common-order"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order"
 - id: "obr-observation-request"
@@ -635,6 +668,8 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ed-5-data"
 - id: "alternate-codes"
   url: "https://hl7.org/fhir/StructureDefinition/alternate-codes"
+- id: "relationship"
+  url: "https://hl7.org/fhir/StructureDefinition/relationship"
 - id: "pv1-encounter"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-encounter"
 - id: "pv2-encounter"

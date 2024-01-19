@@ -166,3 +166,26 @@ telecom:
   valueOf: datatypes/XTN/ContactPoint
   generateList: true
   specs: $XTNTelecom *
+
+contact:
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    name:
+      condition: $XPNContactName NOT_NULL
+      expressionType: resource
+      generateList: true
+      specs: $XPNHumanName *
+      valueOf: datatypes/XPN/HumanName
+    telecom:
+      condition: $XPNContactTelecom NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: $XPNContactTelecom *
+    address:
+      condition: $XADContactAddress NOT_NULL
+      valueOf: datatypes/XAD/Address
+      generateList: true
+      expressionType: resource
+      specs: $XADContactAddress *

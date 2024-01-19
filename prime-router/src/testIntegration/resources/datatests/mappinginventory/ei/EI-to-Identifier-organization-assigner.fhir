@@ -1,280 +1,213 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1704734669133175000.33e3068c-faef-4385-a036-5ecbe08ff863",
+  "id" : "1705077041897476000.043ef36c-84e2-4b99-a8ec-03977516b22f",
   "meta" : {
-    "lastUpdated" : "2024-01-08T12:24:29.151-05:00"
+    "lastUpdated" : "2024-01-12T10:30:41.917-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T10:25:31.000-04:00",
-  "entry" : [
-    {
-      "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-      "resource" : {
-        "resourceType" : "MessageHeader",
-        "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
-            "valueString" : "^~\\&#"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
-            "valueString" : "20230501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-            "valueString" : "UNICODE UTF-8"
-          }
-        ],
-        "eventCoding" : {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-          "code" : "R01",
-          "display" : "ORU^R01^ORU_R01"
-        },
-        "sender" : {
-          "reference" : "Organization/1704734669245623000.0fadfaab-ccb9-480b-989f-84806b3098d9"
-        },
-        "source" : {
-          "_endpoint" : {
-            "extension" : [
-              {
-                "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
-                "valueCode" : "unknown"
-              }
-            ]
-          }
+  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
+        "valueString" : "20230501102531-0400"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
+        "valueString" : "UNICODE UTF-8"
+      } ],
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU^R01^ORU_R01"
+      },
+      "sender" : {
+        "reference" : "Organization/1705077042050264000.07fb97e8-344f-42a0-bda0-b4ba094b505c"
+      },
+      "source" : {
+        "_endpoint" : {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+            "valueCode" : "unknown"
+          } ]
         }
-      }
-    },
-    {
-      "fullUrl" : "Organization/1704734669245623000.0fadfaab-ccb9-480b-989f-84806b3098d9",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1704734669245623000.0fadfaab-ccb9-480b-989f-84806b3098d9",
-        "address" : [
-          {
-            "country" : "USA"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Provenance/1704734669566066000.d08d974e-9de1-48cc-a5ec-5b4109bab239",
-      "resource" : {
-        "resourceType" : "Provenance",
-        "id" : "1704734669566066000.d08d974e-9de1-48cc-a5ec-5b4109bab239",
-        "recorded" : "2023-05-01T10:25:31-04:00",
-        "_recorded" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230501102531-0400"
-            }
-          ]
-        },
-        "activity" : {
-          "coding" : [
-            {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-              "code" : "R01",
-              "display" : "ORU_R01"
-            }
-          ]
-        },
-        "agent" : [
-          {
-            "type" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
-                  "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-                  "code" : "author"
-                }
-              ]
-            }
-          }
-        ],
-        "entity" : [
-          {
-            "role" : "source",
-            "what" : {
-              "reference" : "Device/1704734669568645000.86f39f55-eb50-4569-9319-e22952a3b963"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Device/1704734669568645000.86f39f55-eb50-4569-9319-e22952a3b963",
-      "resource" : {
-        "resourceType" : "Device",
-        "id" : "1704734669568645000.86f39f55-eb50-4569-9319-e22952a3b963"
-      }
-    },
-    {
-      "fullUrl" : "Encounter/1704734669592758000.0e753c48-cfc3-4058-b13a-020e39593831",
-      "resource" : {
-        "resourceType" : "Encounter",
-        "id" : "1704734669592758000.0e753c48-cfc3-4058-b13a-020e39593831",
-        "subject" : {
-          "reference" : "Patient/1704734669585304000.a27b09ff-c655-4b73-9ee4-4ba3e9fc6b8a"
-        },
-        "episodeOfCare" : [
-          {
-            "reference" : "EpisodeOfCare/1704734669593093000.8844915a-686c-43f8-b2e1-286020f320a7"
-          }
-        ],
-        "location" : [
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "prior-patient-location"
-              }
-            ],
-            "location" : {
-              "reference" : "Location/1704734669592479000.9b1e692e-b9e5-44b3-9bb5-cbb87f80288a"
-            },
-            "status" : "completed"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Organization/1704734669591914000.add9970d-4f68-4ce6-8c8c-6f2c15a0c0df",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1704734669591914000.add9970d-4f68-4ce6-8c8c-6f2c15a0c0df",
-        "identifier" : [
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
-                "valueBoolean" : true
-              }
-            ],
-            "value" : "NAME"
-          },
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id",
-                "valueBoolean" : true
-              }
-            ],
-            "type" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                      "valueString" : "id-code"
-                    }
-                  ],
-                  "code" : "ISO"
-                }
-              ]
-            },
-            "value" : "UNI"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Location/1704734669592479000.9b1e692e-b9e5-44b3-9bb5-cbb87f80288a",
-      "resource" : {
-        "resourceType" : "Location",
-        "id" : "1704734669592479000.9b1e692e-b9e5-44b3-9bb5-cbb87f80288a",
-        "identifier" : [
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
-                "valueBoolean" : true
-              }
-            ],
-            "value" : "Hospital A"
-          },
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id",
-                "valueBoolean" : true
-              }
-            ],
-            "type" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                      "valueString" : "id-code"
-                    }
-                  ],
-                  "code" : "ISO"
-                }
-              ]
-            },
-            "value" : "2.4.4.4"
-          },
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type",
-                "valueString" : "default"
-              }
-            ],
-            "value" : "Entity ID",
-            "assigner" : {
-              "reference" : "Organization/1704734669591914000.add9970d-4f68-4ce6-8c8c-6f2c15a0c0df"
-            }
-          }
-        ],
-        "mode" : "instance",
-        "physicalType" : {
-          "coding" : [
-            {
-              "system" : "http://terminology.hl7.org/CodeSystem/location-physical-type",
-              "code" : "si"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "fullUrl" : "EpisodeOfCare/1704734669593093000.8844915a-686c-43f8-b2e1-286020f320a7",
-      "resource" : {
-        "resourceType" : "EpisodeOfCare",
-        "id" : "1704734669593093000.8844915a-686c-43f8-b2e1-286020f320a7",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-            "valueString" : "service-episode"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Patient/1704734669585304000.a27b09ff-c655-4b73-9ee4-4ba3e9fc6b8a",
-      "resource" : {
-        "resourceType" : "Patient",
-        "id" : "1704734669585304000.a27b09ff-c655-4b73-9ee4-4ba3e9fc6b8a"
       }
     }
-  ]
+  }, {
+    "fullUrl" : "Organization/1705077042050264000.07fb97e8-344f-42a0-bda0-b4ba094b505c",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1705077042050264000.07fb97e8-344f-42a0-bda0-b4ba094b505c",
+      "address" : [ {
+        "country" : "USA"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Provenance/1705077042517637000.1364bb70-5c96-4756-b37a-5ddbf55028d7",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1705077042517637000.1364bb70-5c96-4756-b37a-5ddbf55028d7",
+      "recorded" : "2023-05-01T10:25:31-04:00",
+      "_recorded" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+          "valueString" : "20230501102531-0400"
+        } ]
+      },
+      "activity" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code" : "R01",
+          "display" : "ORU_R01"
+        } ]
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "author"
+          } ]
+        }
+      } ],
+      "entity" : [ {
+        "role" : "source",
+        "what" : {
+          "reference" : "Device/1705077042522177000.95c1d6b2-5e07-4a9d-9da5-fdc5de94d76a"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Device/1705077042522177000.95c1d6b2-5e07-4a9d-9da5-fdc5de94d76a",
+    "resource" : {
+      "resourceType" : "Device",
+      "id" : "1705077042522177000.95c1d6b2-5e07-4a9d-9da5-fdc5de94d76a"
+    }
+  }, {
+    "fullUrl" : "Patient/1705077042551929000.6a519c94-0d0d-4125-bbca-526f05875f9d",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1705077042551929000.6a519c94-0d0d-4125-bbca-526f05875f9d"
+    }
+  }, {
+    "fullUrl" : "Encounter/1705077042563923000.b1375ae2-4fa9-4193-b829-9eafd1a97f3f",
+    "resource" : {
+      "resourceType" : "Encounter",
+      "id" : "1705077042563923000.b1375ae2-4fa9-4193-b829-9eafd1a97f3f",
+      "subject" : {
+        "reference" : "Patient/1705077042551929000.6a519c94-0d0d-4125-bbca-526f05875f9d"
+      },
+      "episodeOfCare" : [ {
+        "reference" : "EpisodeOfCare/1705077042564822000.fea130d5-eec1-4e6e-898b-5808048c81af"
+      } ],
+      "location" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+          "valueString" : "prior-patient-location"
+        } ],
+        "location" : {
+          "reference" : "Location/1705077042562934000.5d4e8e4a-a42a-45e7-ac72-07af99cdfa99"
+        },
+        "status" : "completed"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1705077042561857000.f4c809f2-f56e-40c4-b973-2ac4bc6be692",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1705077042561857000.f4c809f2-f56e-40c4-b973-2ac4bc6be692",
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
+          "valueBoolean" : true
+        } ],
+        "value" : "NAME"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id",
+          "valueBoolean" : true
+        } ],
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+              "valueString" : "id-code"
+            } ],
+            "code" : "ISO"
+          } ]
+        },
+        "value" : "UNI"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/1705077042562934000.5d4e8e4a-a42a-45e7-ac72-07af99cdfa99",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "1705077042562934000.5d4e8e4a-a42a-45e7-ac72-07af99cdfa99",
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
+          "valueBoolean" : true
+        } ],
+        "value" : "Hospital A"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id",
+          "valueBoolean" : true
+        } ],
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+              "valueString" : "id-code"
+            } ],
+            "code" : "ISO"
+          } ]
+        },
+        "value" : "2.4.4.4"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type",
+          "valueString" : "default"
+        } ],
+        "value" : "Entity ID",
+        "assigner" : {
+          "reference" : "Organization/1705077042561857000.f4c809f2-f56e-40c4-b973-2ac4bc6be692"
+        }
+      } ],
+      "mode" : "instance",
+      "physicalType" : {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/location-physical-type",
+          "code" : "si"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "EpisodeOfCare/1705077042564822000.fea130d5-eec1-4e6e-898b-5808048c81af",
+    "resource" : {
+      "resourceType" : "EpisodeOfCare",
+      "id" : "1705077042564822000.fea130d5-eec1-4e6e-898b-5808048c81af",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+        "valueString" : "service-episode"
+      } ]
+    }
+  } ]
 }
