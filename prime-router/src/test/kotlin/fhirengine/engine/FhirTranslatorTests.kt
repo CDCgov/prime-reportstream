@@ -7,12 +7,6 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Terser
-import com.azure.core.http.HttpHeaders
-import com.azure.core.http.HttpMethod
-import com.azure.core.http.HttpRequest
-import com.azure.storage.blob.BlobClient
-import com.azure.storage.blob.models.BlobDownloadAsyncResponse
-import com.azure.storage.blob.models.BlobDownloadResponse
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -41,9 +35,11 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
+import net.wussmann.kenneth.mockfuel.any
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -88,7 +84,7 @@ class FhirTranslatorTests {
         )
     )
 
-    val originalSenderOrganization = DeepOrganization(
+    private val originalSenderOrganization = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
         Organization.Jurisdiction.FEDERAL,
@@ -145,7 +141,7 @@ class FhirTranslatorTests {
         // set up
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
-        val engine = makeFhirEngine()
+        val engine = makeSendOriginalFhirEngine()
 
         val message =
             spyk(
@@ -189,29 +185,10 @@ class FhirTranslatorTests {
 
     @Test
     fun `test send original translation happy path, one receiver`() {
-        mockkObject(BlobAccess)
-        val mockWorkflowEngine = mockk<WorkflowEngine>()
-        val mockedBlobClient = mockk<BlobClient>()
-
-        // set up
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
         val engine = makeSendOriginalFhirEngine()
-
-        val message =
-            spyk(
-                FhirTranslateQueueMessage(
-                    UUID.randomUUID(),
-                    BLOB_URL,
-                    "test",
-                    BLOB_SUB_FOLDER,
-                    topic = Topic.FULL_ELR,
-                    originalSenderOrganization.receivers[0].fullName
-                )
-            )
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
+        mockkObject(BlobAccess.Companion)
 
         val parentReportId = UUID.randomUUID()
         val childReportId = UUID.randomUUID()
@@ -229,40 +206,54 @@ class FhirTranslatorTests {
                 OffsetDateTime.now(),
                 null
             )
-        val report = ReportFile()
+        val report = ReportFile().setReportId(parentReportId).setBodyUrl("testingurl")
+        val reportContent = "reportContent"
+        val message =
+            spyk(
+                FhirTranslateQueueMessage(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER,
+                    topic = Topic.SEND_ORIGINAL,
+                    originalSenderOrganization.receivers[0].fullName
+                )
+            )
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = BODY_URL
 
+        // need a different mock for the one that is instantiated within the method
+        mockkConstructor(WorkflowEngine::class)
+        mockkConstructor(DatabaseAccess::class)
+
+        val dbAccessMock = mockk<DatabaseAccess>()
+        every {
+            anyConstructed<WorkflowEngine>().db
+        }.returns(dbAccessMock)
+        every {
+            dbAccessMock.fetchItemLineagesForReport(any(), any(), any())
+        }.returnsMany(listOf(childItemLineage), listOf(rootItemLineage))
+        every { downloadBlobAsByteArray(any()) }.returns(reportContent.toByteArray())
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { dbAccessMock.fetchReportFile(any(), any(), any()) }.returns(report)
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { actionHistory.trackActionReceiverInfo(any(), any()) }
             .returns(Unit)
-        every {
-            mockWorkflowEngine.db.fetchItemLineagesForReport(any(), any(), any())
-        }.returns(listOf(rootItemLineage, childItemLineage))
-        every { mockWorkflowEngine.db.fetchReportFile(any()) }.returns(report)
-        every { mockedBlobClient.downloadStreamWithResponse(any(), any(), any(), any(), any(), any(), any()) }.returns(
-            BlobDownloadResponse(
-                BlobDownloadAsyncResponse(
-                HttpRequest(HttpMethod.GET, "http://microsoft.com"),
-                200, HttpHeaders(), null, null
-                )
-            )
-        )
 
-        // act
         accessSpy.transact { txn ->
             engine.run(message, actionLogger, actionHistory, txn)
         }
 
-        // assert
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any(), any())
+            BlobAccess.Companion.downloadBlobAsByteArray(any(), any(), any())
             accessSpy.insertTask(any(), any(), any(), any(), any())
             actionHistory.trackActionReceiverInfo(any(), any())
         }
