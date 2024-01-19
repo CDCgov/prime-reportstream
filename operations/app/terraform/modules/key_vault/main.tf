@@ -172,7 +172,7 @@ resource "azurerm_key_vault" "client_config" {
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
     ignore_changes = [
       # Temp ignore ip_rules during tf development
       network_acls[0].ip_rules
