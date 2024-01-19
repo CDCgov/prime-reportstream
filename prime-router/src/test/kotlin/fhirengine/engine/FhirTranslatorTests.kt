@@ -79,7 +79,7 @@ class FhirTranslatorTests {
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 ORU_R01_SCHEMA,
-                format = Report.Format.HL7_BATCH,
+                format = Report.Format.HL7,
             )
         )
     )
@@ -193,7 +193,17 @@ class FhirTranslatorTests {
         val parentReportId = UUID.randomUUID()
         val childReportId = UUID.randomUUID()
         val rootItemLineage =
-            ItemLineage(9000000125356546, null, 0, parentReportId, 0, "trackingId1", null, OffsetDateTime.now(), null)
+            ItemLineage(
+                9000000125356546,
+                null,
+                0,
+                parentReportId,
+                0,
+                "trackingId1",
+                null,
+                OffsetDateTime.now(),
+                null
+            )
         val childItemLineage =
             ItemLineage(
                 9000000125356546,

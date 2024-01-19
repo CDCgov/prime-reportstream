@@ -448,7 +448,7 @@ class FHIRRouter(
      */
     internal fun getOriginalMessageBodyFormat(reportId: ReportId, workflowEngine: WorkflowEngine): String {
         val rootReportId = FHIRTranslator().findRootReportId(reportId, workflowEngine)
-        val report = WorkflowEngine().db.fetchReportFile(rootReportId)
+        val report = workflowEngine.db.fetchReportFile(rootReportId)
         return report.bodyFormat
     }
 
