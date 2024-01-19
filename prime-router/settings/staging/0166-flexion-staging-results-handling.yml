@@ -127,7 +127,6 @@
         type: "FHIR"
         schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
         useBatching: false
-        useBatchHeaders: false
       transport:
         type: SFTP
         host: sftp
