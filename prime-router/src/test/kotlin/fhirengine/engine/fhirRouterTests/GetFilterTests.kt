@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
@@ -245,13 +246,13 @@ class GetFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         var filters = engine.getQualityFilters(fullElrReceiverNoFilters, emptyList())
-        assert(filters === engine.qualityFilterDefaults[Topic.FULL_ELR])
+        assertTrue(filters.isEmpty())
 
         filters = engine.getQualityFilters(etorTiReceiverNoFilters, emptyList())
-        assert(filters === engine.qualityFilterDefaults[Topic.ETOR_TI])
+        assertTrue(filters.isEmpty())
 
         filters = engine.getQualityFilters(elrElimsReceiverNoFilters, emptyList())
-        assert(filters === engine.qualityFilterDefaults[Topic.ELR_ELIMS])
+        assertTrue(filters.isEmpty())
     }
 
     @Test
@@ -356,10 +357,10 @@ class GetFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         var filters = engine.getProcessingModeFilter(fullElrReceiverNoFilters, emptyList())
-        assert(filters === engine.processingModeDefaults[Topic.FULL_ELR])
+        assertTrue(filters.isEmpty())
 
         filters = engine.getProcessingModeFilter(etorTiReceiverNoFilters, emptyList())
-        assert(filters === engine.processingModeDefaults[Topic.ETOR_TI])
+        assertTrue(filters.isEmpty())
     }
 
     @Test
