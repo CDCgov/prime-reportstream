@@ -147,7 +147,9 @@ class FhirToHl7Converter(
         if (focusResources.isEmpty() && element.required == true) {
             // There are no sources to parse, but the element was required
             throw RequiredElementException(element)
-        } else if (focusResources.isEmpty()) debugMsg += "resource: NONE"
+        } else if (focusResources.isEmpty()) {
+            debugMsg += "resource: NONE"
+        }
 
         focusResources.forEachIndexed { index, focusResource ->
             // The element context must now get the focus resource
