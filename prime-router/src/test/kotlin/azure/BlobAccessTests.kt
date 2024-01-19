@@ -25,7 +25,6 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.azure.BlobAccess.Companion.validateSchemas
 import gov.cdc.prime.router.common.Environment
 import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
@@ -166,112 +165,6 @@ class BlobAccessTests {
                     File("${Paths.get("").toAbsolutePath()}/foo").delete()
                 }
             }
-        }
-
-        @Test
-        fun `validateSchemas - fhir to fhir`() {
-            val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
-                "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
-            )
-
-            BlobAccess.uploadBlob(
-                "dev/bar/input.fhir",
-                File(
-                    Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/input.fhir"
-                )
-                    .inputStream().readAllBytes(),
-                sourceBlobContainerMetadata
-            )
-
-            BlobAccess.uploadBlob(
-                "dev/bar/output.fhir",
-                File(
-                    Paths.get("").toAbsolutePath().toString() +
-                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/output.fhir"
-                )
-                    .inputStream().readAllBytes(),
-                sourceBlobContainerMetadata
-            )
-
-            BlobAccess.uploadBlob(
-                "dev/bar/simple-transform.yml",
-                File(
-                    Paths.get("").toAbsolutePath().toString() +
-                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/simple-transform.yml"
-                )
-                    .inputStream().readAllBytes(),
-                sourceBlobContainerMetadata
-            )
-
-            assertThat(
-                validateSchemas(
-                    "dev/bar",
-                    sourceBlobContainerMetadata,
-                    Report.Format.FHIR
-                )
-            ).isEqualTo(true)
-        }
-
-        @Test
-        fun `validateSchemas - fhir to hl7`() {
-            val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
-                "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
-                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
-            )
-
-            BlobAccess.uploadBlob(
-                "dev/foo/input.fhir",
-                File(
-                    Paths.get("").toAbsolutePath().toString() +
-                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/input.fhir"
-                ).inputStream().readAllBytes(),
-                sourceBlobContainerMetadata
-            )
-
-            BlobAccess.uploadBlob(
-                "dev/foo/output.hl7",
-                File(
-                    Paths.get("").toAbsolutePath().toString() +
-                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/output.hl7"
-                ).inputStream().readAllBytes(),
-                sourceBlobContainerMetadata
-            )
-
-            BlobAccess.uploadBlob(
-                "dev/foo/sender-transform.yml",
-                File(
-                    Paths.get("").toAbsolutePath().toString() +
-                        "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/sender-transform.yml"
-                ).inputStream().readAllBytes(),
-                sourceBlobContainerMetadata
-            )
-
-            assertThat(
-                validateSchemas(
-                "dev/foo",
-                sourceBlobContainerMetadata,
-                Report.Format.HL7
-            )
-            ).isEqualTo(true)
         }
 
         @Test
