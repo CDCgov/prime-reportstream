@@ -5,6 +5,11 @@ id:
   expressionType: JEXL
 
 identifier:
+  condition: $spm2 NOT_NULL || $spm31 NOT_NULL || $spm32 NOT_NULL
+  vars:
+    spm2: SPM.2
+    spm31: SPM.31
+    spm32: SPM.32
   generateList: true
   expressionType: nested
   expressions:
@@ -27,6 +32,7 @@ identifier:
         hl7Use: "specimen-id-filler"
         backupExtension: "placer-assigned-identifier"
     - valueOf: datatypes/CX/Identifier
+      condition: $spm31 NOT_NULL
       expressionType: resource
       generateList: true
       specs: SPM.31 *
@@ -36,8 +42,6 @@ identifier:
       valueOf: datatypes/EI/Identifier
       expressionType: resource
       specs: SPM.32
-      vars:
-        spm32: SPM.32
       constants:
         hl7Use: "shipment-id"
         code: "SHIP"
@@ -57,6 +61,7 @@ container:
     spm27: SPM.27
   expressionsMap:
     additiveCodeableConcept:
+      condition: $spm6 NOT_NULL
       valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
       specs: SPM.6 *
@@ -66,7 +71,7 @@ container:
       specs: SPM.27
 
 collection:
-  condition: $spm7 NOT_NULL || $spm8 NOT_NULL || $spm9 NOT_NULL || $spm12 NOT_NULL
+  condition: $spm7 NOT_NULL || $spm8 NOT_NULL || $spm9 NOT_NULL || $spm12 NOT_NULL || $spm17 NOT_NULL
   expressionType: nested
   generateList: true
   vars:
@@ -74,6 +79,7 @@ collection:
     spm8: SPM.8
     spm9: SPM.9
     spm12: SPM.12
+    spm17: SPM.17
   expressionsMap:
     method:
       valueOf: datatypes/CWE/CodeableConcept
@@ -197,6 +203,7 @@ extension:
     - expressionType: resource
       valueOf: segments/SPM/SPMExtension
     - expressionType: nested
+      condition: $spm21 NOT_NULL
       generateList: true
       vars:
         spm21: SPM.21
@@ -210,12 +217,18 @@ extension:
           expressionType: resource
 
 condition:
+  condition: $spm24 NOT_NULL
+  vars:
+    spm24: SPM.24
   valueOf: datatypes/CWE/CodeableConcept
   expressionType: resource
   generateList: true
   specs: SPM.24 *
 
 accessionIdentifier:
+  condition: $spm30 NOT_NULL
+  vars:
+    spm30: SPM.30
   valueOf: datatypes/CX/Identifier
   expressionType: resource
   generateList: true
