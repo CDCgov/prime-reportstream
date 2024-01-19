@@ -1,4 +1,4 @@
-import React, { useMemo, useReducer } from "react";
+import { Dispatch, useMemo, useReducer } from "react";
 
 interface Cursors {
     current: string;
@@ -26,7 +26,7 @@ interface CursorManager {
     cursors: Cursors;
     hasPrev: boolean;
     hasNext: boolean;
-    update: React.Dispatch<CursorAction>;
+    update: Dispatch<CursorAction>;
 }
 
 const cursorReducer = (state: Cursors, action: CursorAction): Cursors => {

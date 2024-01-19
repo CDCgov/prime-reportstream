@@ -1,5 +1,5 @@
 import { SideNav } from "@trussworks/react-uswds";
-import React from "react";
+import React, { ReactElement } from "react";
 
 export default {
     title: "Components/Side navigation",
@@ -60,14 +60,12 @@ const testItemsThreeLevels = [
     </a>,
 ];
 
-export const singleLevel = (): React.ReactElement => (
-    <SideNav items={testItems} />
-);
+export const singleLevel = (): ReactElement => <SideNav items={testItems} />;
 
-export const twoLevels = (): React.ReactElement => (
+export const twoLevels = (): ReactElement => (
     <SideNav items={testItemsWithSubnav} />
 );
 
-export const threeLevels = (): React.ReactElement => (
+export const threeLevels = (): ReactElement => (
     <SideNav items={testItemsThreeLevels} />
 );

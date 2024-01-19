@@ -1,3 +1,7 @@
+import { SeverityLevel } from "@microsoft/applicationinsights-web";
+
+import type { ConsoleLevel } from "../utils/console";
+
 const envVars = {
     APP_ENV: import.meta.env.VITE_ENV,
     OKTA_URL: import.meta.env.VITE_OKTA_URL,
@@ -17,6 +21,22 @@ const config = {
     IS_PREVIEW: envVars.OKTA_URL?.match(/oktapreview.com/) !== null,
     API_ROOT: `${envVars.RS_API_URL}/api`,
     RS_DOMAIN: "reportstream.cdc.gov",
+    // Debug ignored by default
+    AI_REPORTABLE_CONSOLE_LEVELS: [
+        "assert",
+        "error",
+        "info",
+        "trace",
+        "warn",
+    ] as ConsoleLevel[],
+    AI_CONSOLE_SEVERITY_LEVELS: {
+        info: SeverityLevel.Information,
+        warn: SeverityLevel.Warning,
+        error: SeverityLevel.Error,
+        debug: SeverityLevel.Verbose,
+        assert: SeverityLevel.Error,
+        trace: SeverityLevel.Warning,
+    } as Record<ConsoleLevel, SeverityLevel>,
 } as const;
 
 export type AppConfig = typeof config;

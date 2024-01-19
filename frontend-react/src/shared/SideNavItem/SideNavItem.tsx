@@ -1,17 +1,18 @@
 import { SideNav } from "@trussworks/react-uswds";
 import { useLocation } from "react-router-dom";
+import { AnchorHTMLAttributes, ReactNode, FunctionComponent } from "react";
 
 import { USNavLink } from "../../components/USLink";
 
 export interface SideNavItemProps
-    extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-    items?: React.ReactNode[];
-    children: React.ReactNode;
+    extends AnchorHTMLAttributes<HTMLAnchorElement> {
+    items?: ReactNode[];
+    children: ReactNode;
     to?:
         | string
-        | React.FunctionComponent<
-              React.AnchorHTMLAttributes<HTMLAnchorElement> & {
-                  children: React.ReactNode;
+        | FunctionComponent<
+              AnchorHTMLAttributes<HTMLAnchorElement> & {
+                  children: ReactNode;
               }
           >;
     isActive?: boolean;
