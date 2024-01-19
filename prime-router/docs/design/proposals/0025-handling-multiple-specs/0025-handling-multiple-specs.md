@@ -6,7 +6,7 @@ ReportStream uses the HL7 -> FHIR inventory as a guide for how to convert HL7 me
 multiple version of HL7 in order to be forward and backwards compatible. The goal for the ReportStream implementation
 was to be able to losslessly translate a valid NIST ELR 2.5.1 message to FHIR R4 and back. Under the hood, the actual
 implementation maps a specific version of HL7 as represented in a HAPI HL7 java class, which in this case is a
-HAPI HL& 2.7 structure into the HAPI FHIR R4 structures.
+HAPI HL7 2.7 structure into the HAPI FHIR R4 structures.
 
 For the most part, this simply works. The HL7 specs are designed to be mostly backwards compatible and the NIST ELR
 2.5.1 spec almost entirely lines up with what is contained in the HAPI 2.7 java message. However, there are a few
@@ -23,12 +23,12 @@ problematic edge cases:
   defined by NIST
 
 To summarize, the current approach to how different specs are handled is ambiguous and can result in both lost data and
-messages that can not be properly translated because the targeted specification currently not match the underlying java
+messages that can not be properly translated because the targeted specification currently does not match the underlying java
 representation
 
 ## Context
 
-HL7 has a concept of a conformance profile that serves as a description of how a particular HL7 message can be
+HL7v2 has a concept of a conformance profile that serves as a description of how a particular HL7v2 message can be
 constructed and constraints on the message.
 
 This includes:
