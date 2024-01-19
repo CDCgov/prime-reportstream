@@ -59,9 +59,10 @@ translation.
 ### Short term handling for new conformance profiles
 
 The overall proposal is to ask senders to use `MSH.21` to indicate which conformance profile they are targeting. If
-ReportStream can not determine an implemented conformance profile, it will continue to fallback to comprehensive
-HL7->FHIR->HL7 mappings. This means that receivers can continue to get their messages with a high degree of fidelity
-just without the absolute guarantee of all the data making it through.
+ReportStream can not determine an implemented conformance profile (either because `MSH.21` is not valued or we have not
+implemented the profile), it will continue to fallback to comprehensive HL7->FHIR->HL7 mappings. This means that
+receivers can continue to get their messages with a high degree of fidelity just without the absolute guarantee of all
+the data making it through.
 
 For each conformance profile ReportStream decides to support, the following steps are taken:
 
@@ -83,11 +84,6 @@ NIST ELR 2.5.1 messages and one receiver that is getting NIST ELR 2.5.1 and anot
 actual mechanics of how to do this would need to be handled after a comparison of the two conformance profiles occurs,
 but once that comparison is done FHIR transforms can be written to modify the bundle, so it can be translated
 successfully to a different conformance profile.
-
-### Rough code updates
-
-- Update the `HL7toFhirTranslator` to be instantiated with the templates that reflect the conformance profile
-- Make use of the additional resources parameter for the hlv2converter so that the base data types can be used
 
 ### Long term: code generator
 
