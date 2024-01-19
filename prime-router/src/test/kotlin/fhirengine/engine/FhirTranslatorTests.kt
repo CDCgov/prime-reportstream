@@ -141,7 +141,7 @@ class FhirTranslatorTests {
         // set up
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
-        val engine = makeSendOriginalFhirEngine()
+        val engine = makeFhirEngine()
 
         val message =
             spyk(
