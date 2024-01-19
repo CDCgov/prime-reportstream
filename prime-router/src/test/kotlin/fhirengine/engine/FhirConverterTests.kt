@@ -414,7 +414,7 @@ class FhirConverterTests {
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { message.downloadContent() } returns(fhirRecord)
+        every { message.downloadContent() } returns (fhirRecord)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -503,7 +503,7 @@ class FhirConverterTests {
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { message.downloadContent() } returns(fhirRecord)
+        every { message.downloadContent() } returns (fhirRecord)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
