@@ -15,50 +15,50 @@
 # curl -X POST -H "authorization:bearer $TOK" -H "client:flexion.etor-service-sender"  -H "content-type:application/fhir+ndjson" --data-binary "@../../src/testIntegration/resources/datatests/HL7_to_FHIR/test.ndjson" "https://staging.prime.cdc.gov/api/waters"
 #
 ---
-- name: flexion
-  description: Flexion, Inc.
-  jurisdiction: FEDERAL
+- name: "flexion"
+  description: "Flexion, Inc."
+  jurisdiction: "FEDERAL"
   senders:
     # Orders Senders
     # Hospital => RS
-    - name: simulated-hospital
-      externalName: Simulated Hospital ETOR Sender - Sending HL7 orders
-      organizationName: flexion
-      topic: etor-ti
-      customerStatus: active
-      format: HL7
+    - name: "simulated-hospital"
+      externalName: "Simulated Hospital ETOR Sender - Sending HL7 orders"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "HL7"
     # TI => RS
-    - name: etor-service-sender
-      externalName: ETOR Service Sender Channel to ReportStream - Sending FHIR orders
-      organizationName: flexion
-      topic: etor-ti
-      customerStatus: active
-      format: FHIR
+    - name: "etor-service-sender"
+      externalName: "ETOR Service Sender Channel to ReportStream - Sending FHIR orders"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "FHIR"
       schemaName: "metadata/fhir_transforms/senders/Flexion/TILabOrder"
     # Results Senders
     # PHL => RS
-    - name: simulated-lab
-      externalName: Simulated State Public Health Lab ETOR Sender - Sending HL7 results
-      organizationName: flexion
-      topic: etor-ti
-      customerStatus: active
-      format: HL7
+    - name: "simulated-lab"
+      externalName: "Simulated State Public Health Lab ETOR Sender - Sending HL7 results"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "HL7"
   receivers:
     # Orders Receivers
     # RS => TI: translates OML_O21 from HL7 to FHIR and sends the message to the TI service orders API
-    - name: etor-service-receiver-orders
-      externalName: ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 FHIR orders
-      organizationName: flexion
-      topic: etor-ti
-      customerStatus: active
+    - name: "etor-service-receiver-orders"
+      externalName: "ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 FHIR orders"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
       jurisdictionalFilter:
-        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01' # ORM_O01
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01'" # ORM_O01
       qualityFilter:
         - true
       timing:
-        operation: MERGE
+        operation: "MERGE"
         numberPerDay: 1440 # Every minute
-        initialTime: 00:00
+        initialTime: "00:00"
       translation: !<FHIR>
         type: "FHIR"
         schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
@@ -84,52 +84,52 @@
           Content-Type: "application/x-www-form-urlencoded"
           Host: "cdcti-stg-api.azurewebsites.net"
     # RS => PHL: translates OML_O21 from FHIR to HL7 and uploads the message to the SFTP folder
-    - name: simulated-lab
-      externalName: Simulated State Public Health Lab ETOR Receiver - Receiving OML_O21 HL7 orders
-      organizationName: flexion
-      topic: etor-ti
-      customerStatus: active
+    - name: "simulated-lab"
+      externalName: "Simulated State Public Health Lab ETOR Receiver - Receiving OML_O21 HL7 orders"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
       jurisdictionalFilter:
-        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21' # OML_O21
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'" # OML_O21
       qualityFilter:
         - true
       timing:
-        operation: MERGE
+        operation: "MERGE"
         numberPerDay: 1440 # Every minute
-        initialTime: 00:00
+        initialTime: "00:00"
       translation: !<HL7>
         type: "HL7"
         schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
         useTestProcessingMode: false
         useBatchHeaders: false
       transport:
-        type: SFTP
-        host: sftp
+        type: "SFTP"
+        host: "sftp"
         port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        filePath: "./upload"
+        credentialName: "DEFAULT-SFTP"
     # Results Receivers
     # RS => TI: translates ORU_R01 from HL7 to FHIR and uploads the message to the SFTP folder
-    - name: etor-service-receiver-results
-      externalName: ETOR Service Receiver Channel from ReportStream for results - Receiving ORU_R01 FHIR results
-      organizationName: flexion
-      topic: etor-ti
-      customerStatus: active
+    - name: "etor-service-receiver-results"
+      externalName: "ETOR Service Receiver Channel from ReportStream for results - Receiving ORU_R01 FHIR results"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
       jurisdictionalFilter:
-        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01' # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
       qualityFilter:
         - true
       timing:
-        operation: MERGE
+        operation: "MERGE"
         numberPerDay: 1440 # Every minute
-        initialTime: 00:00
+        initialTime: "00:00"
       translation: !<FHIR>
         type: "FHIR"
         schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
         useBatching: false
       transport:
-        type: SFTP
-        host: sftp
+        type: "SFTP"
+        host: "sftp"
         port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        filePath: "./upload"
+        credentialName: "DEFAULT-SFTP"
