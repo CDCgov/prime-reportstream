@@ -1,10 +1,15 @@
-import React, { createContext, useCallback, useContext } from "react";
+import React, {
+    PropsWithChildren,
+    createContext,
+    useCallback,
+    useContext,
+} from "react";
 import axios, { AxiosError } from "axios";
 
-import { RSEndpoint, AxiosOptionsWithSegments } from "../config/endpoints";
-import { RSNetworkError } from "../utils/RSNetworkError";
-import { useSessionContext } from "../contexts/SessionContext";
-import { useAppInsightsContext } from "../contexts/AppInsightsContext";
+import { RSEndpoint, AxiosOptionsWithSegments } from "../../config/endpoints";
+import { RSNetworkError } from "../../utils/RSNetworkError";
+import { useSessionContext } from "../Session";
+import { useAppInsightsContext } from "../AppInsights";
 
 export type AuthorizedFetcher<T = any> = (
     EndpointConfig: RSEndpoint,
@@ -19,7 +24,7 @@ export const AuthorizedFetchContext = createContext<IAuthorizedFetchContext>(
 
 export const AuthorizedFetchProvider = ({
     children,
-}: React.PropsWithChildren<{ initializedOverride?: boolean }>) => {
+}: PropsWithChildren<{ initializedOverride?: boolean }>) => {
     const { activeMembership, authState = {} } = useSessionContext();
     const { fetchHeaders } = useAppInsightsContext();
     const authorizedFetch = useCallback(

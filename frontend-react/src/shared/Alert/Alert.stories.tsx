@@ -1,6 +1,6 @@
 // AutoUpdateFileChromatic
 
-import React from "react";
+import React, { ComponentProps, ReactElement } from "react";
 import { Button } from "@trussworks/react-uswds";
 import { Meta, StoryObj } from "@storybook/react";
 
@@ -17,21 +17,19 @@ const types = ["success", "warning", "error", "info"];
 const AlertSimpleRender = ({
     type,
     ...props
-}: React.ComponentProps<typeof AlertSimple>) => (
+}: ComponentProps<typeof AlertSimple>) => (
     <AlertSimple type={type} heading={`${type} status`} {...props} />
 );
 
 const AlertSimpleTypesRender = ({
     type: _,
     ...props
-}: React.ComponentProps<typeof AlertSimple>) => (
+}: ComponentProps<typeof AlertSimple>) => (
     <>
         {types.map((t) => (
             <AlertSimpleRender
                 key={t}
-                type={
-                    t as React.ComponentProps<typeof AlertSimpleRender>["type"]
-                }
+                type={t as ComponentProps<typeof AlertSimpleRender>["type"]}
                 {...props}
             />
         ))}
@@ -104,7 +102,7 @@ export const HeadingLevels: StoryObj<typeof AlertSimple> = {
         heading: "Heading level 2",
         headingLevel: "h2",
     },
-    render: (props): React.ReactElement => (
+    render: (props): ReactElement => (
         <>
             <h1>Heading Level 1</h1>
             <AlertSimpleRender {...props} />

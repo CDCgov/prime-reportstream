@@ -1,9 +1,9 @@
+import { PropsWithChildren, HTMLAttributes } from "react";
+
 import { Tile } from "../Tile/Tile";
 
 export interface ContentSectionProps
-    extends React.PropsWithChildren<
-        React.HTMLAttributes<HTMLElement> & ContentItem
-    > {}
+    extends PropsWithChildren<HTMLAttributes<HTMLElement> & ContentItem> {}
 
 export const ContentSection = ({
     title,
