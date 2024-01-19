@@ -104,10 +104,10 @@
         useBatchHeaders: false
       transport:
         type: "SFTP"
-        host: "sftp"
+        host: "172.17.6.20" # use "sftp" if running locally
         port: 22
         filePath: "./upload"
-        credentialName: "DEFAULT-SFTP"
+        credentialName: null # use "DEFAULT-SFTP" if running locally
     # Results Receivers
     # RS => TI: translates ORU_R01 from HL7 to FHIR and uploads the message to the SFTP folder
     - name: "etor-service-receiver-results"
@@ -129,7 +129,7 @@
         useBatching: false
       transport:
         type: "SFTP"
-        host: "sftp"
+        host: "172.17.6.20" # use "sftp" if running locally
         port: 22
         filePath: "./upload"
-        credentialName: "DEFAULT-SFTP"
+        credentialName: null # use "DEFAULT-SFTP" if running locally
