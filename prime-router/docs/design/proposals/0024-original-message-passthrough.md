@@ -21,15 +21,15 @@ We will need to store enough information in the pipeline to:
 * Identify an item as an sendOriginal item
 * Reproduce the filename and content of the original item
 
-A new mechanism needs to be provided to receive the original filename, as the current API does not provide a means to
-take it in. This can take the form of an additional header field.
-
 This information would be made available to the `translate` step of the UP, which would then be changed to retrieve the
-original item instead of performing receiver translation. Furthermore, the `translate` step would directly insert
-a `send` task for the item, bypassing the `batch` step.
+original item instead of performing receiver translation.
+
+The report API currently accepts a filename from a sender using the `payloadname` request header or query string
+parameter. This can be utilized to capture the filename to use when sending the report to receivers.
 
 The following proposed implementations can be grouped into two major approaches: storing the HL7v2 data within the FHIR
-bundle (in the case of an HL7v2 input message), or utilizing the blobURL of the original item upload. In summary:
+bundle (in the case of an HL7v2 input message), or utilizing the blobURL of the original item upload. Details for each
+of these approaches follow. In summary:
 
 | Feature Implementation                               | Original message available to FHIR (non sendOriginal) receivers | Requires additional storage | Requires convert step changes | Requires translate step changes |
 |------------------------------------------------------|-----------------------------------------------------------------|-----------------------------|-------------------------------|---------------------------------|

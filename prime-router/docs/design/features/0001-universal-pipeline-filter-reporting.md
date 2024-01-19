@@ -67,14 +67,14 @@ move on to the next filter without being logged.
 
 ### Processing Mode Filter
 
-Processing mode filters typically restrict received data to be either test or production data. When a processing mode
+Processing id filters typically restrict received data to be either test or production data. When a processing mode
 filter filters out items, it is recorded in the filtered report logs. There is a default processing mode filter, so if a
 receiver does not have processing mode filters set, the following filters will be used by default:
 
 ```kotlin
    /**
  * Default Rule:
- *  Must have a processing mode id of 'P'
+ *  Must have a processing mode of 'P'
  */
 val processingModeFilterDefault: ReportStreamFilter = listOf(
         "%processingId = 'P'"
