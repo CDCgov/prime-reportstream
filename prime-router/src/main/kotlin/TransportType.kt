@@ -126,6 +126,8 @@ data class RESTTransportType
     val parameters: Map<String, String> = emptyMap(),
     /** [headers] The map of headers to be sent in the message */
     val headers: Map<String, String>,
+    /** [authHeaders] The map of auth headers to be sent to authenticate */
+    val authHeaders: Map<String, String> = emptyMap(),
 ) : TransportType("REST") {
     override fun toString(): String = "apiUrl=$reportUrl"
 }

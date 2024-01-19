@@ -1,10 +1,11 @@
 import { Button } from "@trussworks/react-uswds";
 import classnames from "classnames";
+import { ReactElement, ReactNode } from "react";
 
 // Can't seem to import these directly from react-uswds? Copied here instead.
 export interface ButtonProps {
     type: "button" | "submit" | "reset";
-    children: React.ReactNode;
+    children: ReactNode;
     secondary?: boolean;
     base?: boolean;
     /**
@@ -36,7 +37,7 @@ export const IconButton = ({
     children,
     className,
     ...props
-}: ButtonProps & JSX.IntrinsicElements["button"]): React.ReactElement => {
+}: ButtonProps & JSX.IntrinsicElements["button"]): ReactElement => {
     const classes = classnames("usa-icon-button", className);
     return (
         <Button {...props} className={classes}>

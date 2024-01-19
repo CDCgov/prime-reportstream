@@ -1,0 +1,64 @@
+# To submit this to localhost, run:
+#
+# ./prime multiple-settings set --env staging --input ./settings/staging/0161-flexion-staging-new-rest-setting.yml
+---
+- name: "flexion"
+  description: "Flexion, Inc."
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  featureFlags: []
+  keys: []
+  senders: []
+  receivers:    
+  - name: "etor-service-receiver"
+    organizationName: "flexion"
+    topic: "etor-ti"
+    customerStatus: "active"
+    translation: !<FHIR>
+      schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+      useBatching: false
+      nameFormat: "standard"
+      receivingOrganization: null
+      type: "FHIR"
+    jurisdictionalFilter:
+    - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01'"
+    qualityFilter:
+    - "true"
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<REST>
+      reportUrl: "https://cdcti-stg-api.azurewebsites.net/v1/etor/orders"
+      authTokenUrl: "https://cdcti-stg-api.azurewebsites.net/v1/auth/token"
+      authType: "two-legged"
+      tlsKeystore: null
+      parameters:
+        scope: "report-stream"
+        client_assertion: "client_secret"
+      headers:
+        senderLabName: "CDC PRIME REPORTSTREAM"
+        RecordId: "header.reportFile.reportId"
+        sourceLabName: "CDC PRIME REPORTSTREAM"
+        Content-Type: "text/fhir+ndjson"  # Added for sending text/fhir+ndjson format message content
+      authHeaders:
+        Content-Type: "application/x-www-form-urlencoded"
+        Host: "cdcti-stg-api.azurewebsites.net"
+      type: "REST"
+    externalName: "ETOR Service Receiver Channel from ReportStream"
+    timeZone: null
+    dateTimeFormat: "OFFSET"

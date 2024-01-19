@@ -56,7 +56,7 @@ class LoginCommand : OktaCommand(
     private var redirectResult: String? = null
     private var server: HttpServer? = null
 
-    private val env by option(
+    val env by option(
         "--env", help = "Connect to <name> environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
     )
         .choice("local", "test", "staging", "prod")
@@ -64,7 +64,7 @@ class LoginCommand : OktaCommand(
 
     override fun run() {
         val oktaApp = Environment.get(env).oktaApp ?: abort("No need to login in this environment")
-        val accessTokenFile = readAccessTokenFile()
+        val accessTokenFile = readAccessTokenFile(oktaApp)
         if (accessTokenFile != null && isValidToken(oktaApp, accessTokenFile)) {
             echo("Has a valid token until ${accessTokenFile.expiresAt}")
         } else {
@@ -176,8 +176,12 @@ class LogoutCommand : OktaCommand(
     name = "logout",
     help = "Logout of the ReportStream authorization service"
 ) {
+    val env by option(
+        "--env", help = "Disconnect from <name> environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
+    ).choice("local", "test", "staging", "prod").default("local", "local")
     override fun run() {
-        deleteAccessTokenFile()
+        val oktaApp = Environment.get(env).oktaApp ?: abort("No need to logout from this environment")
+        deleteAccessTokenFile(oktaApp)
         echo("Logged out")
     }
 }
@@ -223,7 +227,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             return if (app == null) {
                 dummyOktaAccessToken
             } else {
-                val accessTokenFile = readAccessTokenFile()
+                val accessTokenFile = readAccessTokenFile(app)
                 if (accessTokenFile != null && isValidToken(app, accessTokenFile)) {
                     accessTokenFile.token
                 } else {
@@ -232,8 +236,8 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             }
         }
 
-        fun readAccessTokenFile(): AccessTokenFile? {
-            val filePath = primeAccessFilePath()
+        fun readAccessTokenFile(app: OktaApp): AccessTokenFile? {
+            val filePath = primeAccessFilePath(app)
             if (!Files.exists(filePath)) return null
             val file = filePath.toFile()
             return try {
@@ -268,17 +272,17 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             val clientId = clientIds.getValue(oktaApp)
             val accessTokenFile = AccessTokenFile(token, clientId, expiresAt)
 
-            val directoryPath = primeFolderPath()
+            val directoryPath = primeFolderPath(oktaApp)
             if (Files.notExists(directoryPath)) Files.createDirectory(directoryPath)
-            val file = primeAccessFilePath().toFile()
+            val file = primeAccessFilePath(oktaApp).toFile()
             if (file.exists()) file.delete()
             file.createNewFile()
             jsonMapper.writeValue(file, accessTokenFile)
             return accessTokenFile
         }
 
-        fun deleteAccessTokenFile() {
-            val file = primeAccessFilePath().toFile()
+        fun deleteAccessTokenFile(app: OktaApp) {
+            val file = primeAccessFilePath(app).toFile()
             if (file.exists()) {
                 file.delete()
             }
@@ -288,12 +292,12 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             return oktaBaseUrls.getValue(oktaApp)
         }
 
-        private fun primeFolderPath(): Path {
-            return Path.of(System.getProperty("user.home"), localPrimeFolder)
+        private fun primeFolderPath(app: OktaApp): Path {
+            return Path.of(System.getProperty("user.home"), localPrimeFolder, app.name)
         }
 
-        private fun primeAccessFilePath(): Path {
-            return Path.of(System.getProperty("user.home"), localPrimeFolder, localTokenFileName)
+        private fun primeAccessFilePath(app: OktaApp): Path {
+            return Path.of(System.getProperty("user.home"), localPrimeFolder, app.name, localTokenFileName)
         }
     }
 }

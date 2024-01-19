@@ -1,18 +1,24 @@
 import { Tooltip } from "@trussworks/react-uswds";
-import React from "react";
+import React, {
+    ForwardRefRenderFunction,
+    PropsWithChildren,
+    ReactElement,
+    RefAttributes,
+    forwardRef,
+} from "react";
 
 export default {
     title: "Components/Tooltip",
     component: Tooltip,
 };
 
-export const tooltipDefault = (): React.ReactElement => (
+export const tooltipDefault = (): ReactElement => (
     <div className="margin-4">
         <Tooltip label="Default">Default</Tooltip>
     </div>
 );
 
-export const tooltipTop = (): React.ReactElement => (
+export const tooltipTop = (): ReactElement => (
     <div className="margin-4">
         <Tooltip position="top" label="Top">
             Show on top
@@ -20,7 +26,7 @@ export const tooltipTop = (): React.ReactElement => (
     </div>
 );
 
-export const tooltipBottom = (): React.ReactElement => (
+export const tooltipBottom = (): ReactElement => (
     <div className="margin-4">
         <Tooltip position="bottom" label="Bottom">
             Show on bottom
@@ -28,7 +34,7 @@ export const tooltipBottom = (): React.ReactElement => (
     </div>
 );
 
-export const tooltipRight = (): React.ReactElement => (
+export const tooltipRight = (): ReactElement => (
     <div className="margin-4">
         <Tooltip position="right" label="Right">
             Show on right
@@ -36,7 +42,7 @@ export const tooltipRight = (): React.ReactElement => (
     </div>
 );
 
-export const tooltipLeft = (): React.ReactElement => (
+export const tooltipLeft = (): ReactElement => (
     <div className="margin-4">
         <Tooltip position="left" label="Left">
             Show on left
@@ -44,7 +50,7 @@ export const tooltipLeft = (): React.ReactElement => (
     </div>
 );
 
-export const tooltipWithUtilityClass = (): React.ReactElement => (
+export const tooltipWithUtilityClass = (): ReactElement => (
     <div className="margin-4">
         <Tooltip
             wrapperclasses="width-full tablet:width-auto"
@@ -56,25 +62,25 @@ export const tooltipWithUtilityClass = (): React.ReactElement => (
     </div>
 );
 
-export const CustomComponent = (): React.ReactElement => {
-    type CustomLinkProps = React.PropsWithChildren<{
+export const CustomComponent = (): ReactElement => {
+    type CustomLinkProps = PropsWithChildren<{
         to: string;
         className?: string;
     }> &
         JSX.IntrinsicElements["a"] &
-        React.RefAttributes<HTMLAnchorElement>;
-    const CustomLinkForwardRef: React.ForwardRefRenderFunction<
+        RefAttributes<HTMLAnchorElement>;
+    const CustomLinkForwardRef: ForwardRefRenderFunction<
         HTMLAnchorElement,
         CustomLinkProps
     > = (
         { to, className, children, ...tooltipProps }: CustomLinkProps,
-        ref
+        ref,
     ) => (
         <a ref={ref} href={to} className={className} {...tooltipProps}>
             {children}
         </a>
     );
-    const CustomLink = React.forwardRef(CustomLinkForwardRef);
+    const CustomLink = forwardRef(CustomLinkForwardRef);
 
     return (
         <div className="margin-4">
@@ -92,7 +98,7 @@ export const CustomComponent = (): React.ReactElement => {
     );
 };
 
-export const tooltipTopLeftWrap = (): React.ReactElement => (
+export const tooltipTopLeftWrap = (): ReactElement => (
     <div style={{ marginTop: "32px" }}>
         <Tooltip label="You can only add 10 links to a collection. To add more links, please create a new collection.">
             Default
@@ -100,7 +106,7 @@ export const tooltipTopLeftWrap = (): React.ReactElement => (
     </div>
 );
 
-export const tooltipBottomLeftWrap = (): React.ReactElement => (
+export const tooltipBottomLeftWrap = (): ReactElement => (
     <div style={{ position: "absolute", bottom: "32px" }}>
         <Tooltip label="You can only add 10 links to a collection. To add more links, please create a new collection.">
             Default
@@ -108,7 +114,7 @@ export const tooltipBottomLeftWrap = (): React.ReactElement => (
     </div>
 );
 
-export const tooltipTopRightWrap = (): React.ReactElement => (
+export const tooltipTopRightWrap = (): ReactElement => (
     <div style={{ marginTop: "32px", textAlign: "right" }}>
         <Tooltip label="You can only add 10 links to a collection. To add more links, please create a new collection.">
             Default
@@ -116,7 +122,7 @@ export const tooltipTopRightWrap = (): React.ReactElement => (
     </div>
 );
 
-export const tooltipBottomRightWrap = (): React.ReactElement => (
+export const tooltipBottomRightWrap = (): ReactElement => (
     <div
         style={{
             position: "absolute",

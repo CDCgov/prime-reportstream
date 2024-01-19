@@ -1,4 +1,5 @@
 import React, {
+    PropsWithChildren,
     ReactNode,
     useCallback,
     useEffect,
@@ -10,7 +11,7 @@ import classnames from "classnames";
 
 import styles from "./CodeSnippet.module.scss";
 
-interface CodeSnippetProps extends React.PropsWithChildren {
+interface CodeSnippetProps extends PropsWithChildren {
     children?: ReactNode;
 }
 

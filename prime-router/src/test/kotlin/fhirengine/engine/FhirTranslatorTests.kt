@@ -5,6 +5,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -22,7 +23,6 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -32,7 +32,6 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
-import org.hl7.fhir.r4.model.Bundle
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -73,31 +72,6 @@ class FhirTranslatorTests {
             )
         )
     )
-    private val colorado = DeepOrganization(
-        ORGANIZATION_NAME,
-        "test",
-        Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(
-            Receiver(
-                "elr.secondary",
-                ORGANIZATION_NAME,
-                Topic.TEST,
-                CustomerStatus.INACTIVE,
-                "metadata/hl7_mapping/receivers/STLTs/CO/CO"
-            ),
-            Receiver(
-                "elr",
-                ORGANIZATION_NAME,
-                Topic.TEST,
-                CustomerStatus.INACTIVE,
-                "metadata/hl7_mapping/receivers/STLTs/CO/CO",
-                Report.Format.CSV,
-                null,
-                null,
-                null
-            )
-        )
-    )
 
     private fun makeFhirEngine(
         metadata: Metadata = Metadata(
@@ -112,9 +86,6 @@ class FhirTranslatorTests {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
             .blobAccess(blobMock).build(TaskAction.translate) as FHIRTranslator
     }
-
-    private fun getResource(bundle: Bundle, resource: String) =
-        FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType($resource)")
 
     @BeforeEach
     fun reset() {
@@ -133,7 +104,7 @@ class FhirTranslatorTests {
 
         val message =
             spyk(
-                FhirTranslateMessage(
+                FhirTranslateQueueMessage(
                     UUID.randomUUID(),
                     BLOB_URL,
                     "test",
@@ -183,7 +154,7 @@ class FhirTranslatorTests {
 
         val engine = makeFhirEngine(settings = settings)
         val message = spyk(
-            FhirTranslateMessage(
+            FhirTranslateQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -362,6 +333,51 @@ class FhirTranslatorTests {
         assertThat(terser.get(MSH_11_1)).isEqualTo("T")
     }
 
+    /**
+     * When the receiver is in production mode and sender is in testing mode, output HL7 should be 'T'
+     */
+    @Test
+    fun `test receiver enrichment`() {
+        // set up
+        val schemaName = ORU_R01_SCHEMA
+        val receiver = Receiver(
+            RECEIVER_NAME,
+            ORGANIZATION_NAME,
+            Topic.FULL_ELR,
+            CustomerStatus.ACTIVE,
+            schemaName,
+            translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName),
+            enrichmentSchemaNames = listOf(
+                "/src/test/resources/enrichments/testing",
+                "/src/test/resources/enrichments/testing2"
+            )
+        )
+
+        val testOrg = DeepOrganization(
+            ORGANIZATION_NAME, "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(receiver)
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+
+        val fhirData = File("src/test/resources/fhirengine/engine/valid_data_testing_sender.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        val engine = makeFhirEngine(settings = settings)
+
+        // act
+        val byteArray = engine.getByteArrayFromBundle(receiver, bundle)
+        val messageIterator = Hl7InputStreamMessageIterator(byteArray.inputStream())
+        val message = messageIterator.next()
+        val terser = Terser(message)
+
+        // assert
+        assertThat(terser.get("SFT-1-1")).isEqualTo("Orange Software Vendor Name")
+        assertThat(terser.get("SFT-2")).isEqualTo("0.2-YELLOW")
+        // because while it will initially get set, it will then be overridden by the transform
+        assertThat(terser.get("SFT-3")).isEqualTo("PRIME ReportStream")
+    }
+
     @Test
     fun `test full elr translation hl7 translation exception`() {
         mockkObject(BlobAccess)
@@ -387,7 +403,7 @@ class FhirTranslatorTests {
         val actionLogger = mockk<ActionLogger>()
 
         val message = spyk(
-            FhirTranslateMessage(
+            FhirTranslateQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",

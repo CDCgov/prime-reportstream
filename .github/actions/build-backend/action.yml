@@ -64,7 +64,7 @@ runs:
       run: tar -czvf prime-router-build.tar.gz build
 
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action@ca89ad036b5fcd524c1017287fb01b5139908408
+      uses: EnricoMi/publish-unit-test-result-action@e780361cd1fc1b1a170624547b3ffda64787d365
       # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
       if: >
         always() &&
@@ -117,7 +117,7 @@ runs:
       shell: bash
 
     - name: Publish Integration Test Results
-      uses: EnricoMi/publish-unit-test-result-action@ca89ad036b5fcd524c1017287fb01b5139908408
+      uses: EnricoMi/publish-unit-test-result-action@e780361cd1fc1b1a170624547b3ffda64787d365
       # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
       if: >
         always() &&
@@ -163,7 +163,7 @@ runs:
 
     - name: Upload Artifact
       if: inputs.upload-build == 'true'
-      uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
+      uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz

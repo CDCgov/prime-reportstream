@@ -24,7 +24,7 @@ import {
 import {
     EventName,
     useAppInsightsContext,
-} from "../../../contexts/AppInsightsContext";
+} from "../../../contexts/AppInsights";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 
 function FacilitiesProvidersFilterAndTable({
@@ -124,7 +124,7 @@ function FacilitiesProvidersFilterAndTable({
                         handleSetActive={handleSetActive}
                     />
                     <TableFilters
-                        startDateLabel="From: (mm/dd/yyy)"
+                        startDateLabel="From: (mm/dd/yyyy)"
                         endDateLabel="To: (mm/dd/yyyy)"
                         filterManager={filterManager}
                         onFilterClick={({
