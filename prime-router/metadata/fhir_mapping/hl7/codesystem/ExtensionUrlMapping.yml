@@ -323,16 +323,6 @@
 # TODO end
 
 
-# TODO: collapse these into one
-# HL7 v2 Name
-- id: "hl7v2Name"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name"
-# HL7 Use
-- id: "hl7-use"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
-# EI -> Identifier
-- id: "ei-assigner-organization-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
 
 
 
@@ -477,14 +467,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn14-professional-suffix"
 # TODO: end
 
-
-# Date time as hl7v2 string
-- id: "hl7v2-date-time"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time"
-
-
-
-
 # PL -> Location
 - id: "pl6-person-location-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type"
@@ -581,11 +563,24 @@
 - id: "episode-of-care-name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/episode-of-care-name"
 
-## Unclassified
+## Multipurpose
 # internal indicator of sender, usable for filtering
 - id: "sender-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id"
-
+# TODO: collapse these into one
+# HL7 v2 Name
+- id: "hl7v2Name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name"
+# HL7 Use
+- id: "hl7-use"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
+# EI -> Identifier
+- id: "ei-assigner-organization-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
+# TODO: end
+# Date time as hl7v2 string
+- id: "hl7v2-date-time"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time"
 
 
 ## Code Index Name
@@ -598,19 +593,7 @@
 - id: "race"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd"
 
-# TODO: Likely deprecated SR transforms (or should be updated)
-# Assigning facility universal ID
-- id: "assigning-facility-universal-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"
-# Assigning facility namespace ID
-- id: "assigning-facility-namespace-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"
-# Producer's ID
-- id: "producer-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id"
-# Identifier type
-- id: "identifier-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type"
+# SR Extension used to convey the order effective date
 # Order effective date
 - id: "order-effective-date"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date"
@@ -622,3 +605,6 @@
 # Comment type
 - id: "note-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
+# Identifier type
+- id: "identifier-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type"

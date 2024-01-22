@@ -132,28 +132,12 @@ elements:
     bundleProperty: '%diagnosticReport.specimen.resolve().identifier.value'
     value: [ '%diagnosticReport.identifier.value' ]
 
-  # The Covid pipeline checks if this is a valid NPI and adds the NPI identifier type if it is
-  - name: sr-ordering-provider-id-authority-type
-    condition: '%resource.identifier.value.empty().not()'
-    resource: 'Bundle.entry.resource.ofType(Practitioner)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type").valueCodeableConcept.coding.code'
-    value: [ '"NPI"' ]
-
   # This is populated as a sender transform in the Covid pipeline
   - name: sr-ordering-provider-name-type-code
     condition: '%resource.name.use.exists().not()'
     resource: 'Bundle.entry.resource.ofType(Practitioner)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code").value[x]'
     value: [ '"L"' ]
-
-  # This were being populated as CA Receiver transforms, but should be Sender Transforms
-  - name: sr-patient-assigning-facility-name
-    bundleProperty: '%patient.identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id").value[x]'
-    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
-
-  - name: sr-patient-assigning-facility-id
-    bundleProperty: '%patient.identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id").value[x]'
-    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
 
   - name: sr-patient-telecom
     resource: '%patient.telecom'
@@ -358,11 +342,6 @@ elements:
     condition: '%resource.collection.bodySite.exists() and %resource.type.coding[0].display.exists().not()'
     bundleProperty: '%resource.collection.bodySite.coding[0].display'
     value: [ '%resource.collection.bodySite.text' ]
-
-  - name: sr-observation-producer-id-identifier
-    resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id").value[x]'
-    value: [ '%diagnosticReport.basedOn.resolve().performer' ]
 
   - name: sr-observation-producer-id-identifier
     resource: 'Bundle.entry.resource.ofType(Observation)'
