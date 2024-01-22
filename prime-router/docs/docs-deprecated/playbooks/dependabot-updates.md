@@ -1,4 +1,4 @@
-# How to do Dependabot Updates
+# How to do Dependabot and other dependency Updates
 
 ## Introduction
 As part of using GitHub, we have the dependabot service which automatically finds updates
@@ -6,19 +6,27 @@ for project dependencies and creates PRs for them. While this is really helpful,
 not careful with them, you can really mess up the application. Spider-Man rules apply here:
 "With great power comes great responsibility"
 
-Below are the steps for how to most safely check and merge in the dependabot PRs:
+## Finding Dependabot and other dependency PRs
+Dependency PRs come primarily from Dependabot, but can come from other automations or be created manually.  Here's the full list of [dependency PRs](https://github.com/CDCgov/prime-reportstream/pulls?q=is%3Apr+is%3Aopen+label%3Adependencies).
+
+You will more likely be interested in dependency PRs associated with your portion of the code base, such as [/prime-router](https://github.com/CDCgov/prime-reportstream/pulls?q=is%3Apr+is%3Aopen+label%3Adependencies+%2Fprime-router+in%3Atitle+).
+
+Please pay attention to [security related dependency PRs](https://github.com/CDCgov/prime-reportstream/pulls?q=is%3Apr+is%3Aopen+label%3Adependencies+label%3Asecurity+%2Fprime-router+in%3Atitle+) (again in /prime-router) which have a required remediation timeline.
+
+
+**Below are the steps for how to most safely check and merge in the dependabot PRs:**
 
 ## Steps
 1. Open the dependabot's pull request to be merged and identify if the PR is out of date from master.  If so, create a new comment in the PR with the text 
-`@dependabot rebase` to let dependabot rebase the branch for you.  If you use any other method then dependabot will not be able to keep track of the PR.
+`@dependabot rebase` to let dependabot rebase the branch for you.  If you use any other method, dependabot will not be able to keep track of the PR. If the PR has conflicts (and no manual commits were added), use `@dpendabot recreate` to recreate the PR from scratch.
 1. Verify that the build for the PR is successful.  Note that the unit, integration and smoke tests are run as part of the build.
 1. Read the updated library's changelog and identify and communicate any risks you find.  When in doubt ask! Library changes can affect many parts of the system.
 1. Identify any library version conflicts for the updated library. This may happen when other libraries are dependent on a different version of the same library.  See 
 [Identifying Library Version Conflicts](#identifying-library-version-conflicts)
-3. Identify what places in the code the library is used then identify if the unit, integration and/or smoke tests provide enough coverage to verify the update does 
+1. Identify what places in the code the library is used then identify if the unit, integration and/or smoke tests provide enough coverage to verify the update does 
 not break the baseline.  If the tests do not provide proper coverage then you MUST manually test as necessary to verify the library update BEFORE merging the update.
 When in doubt ask!
-1. If not further testing is required then you can merge in the PR in GitHub
+1. If no further testing is required then you can merge in the PR in GitHub
    1. Go to [Pull Requests](https://github.com/CDCgov/prime-reportstream/pulls) in Github and find the original branch (i.e. com.googlecode.libphonenumber-libphonenumber-8.12.31)
    2. Go to the Files changed tab click Review changes
    3. Leave a brief comment (i.e. "tested locally"), select Approve and click Submit review

@@ -41,7 +41,7 @@ resources:
   - resourceName: Specimen
     segment: .OBR
     group: ORDER.ORDER_DETAIL
-    resourcePath: resource/Specimen
+    resourcePath: segments/SPM/Specimen
     repeats: true
     isReferenced: true
     additionalSegments:
