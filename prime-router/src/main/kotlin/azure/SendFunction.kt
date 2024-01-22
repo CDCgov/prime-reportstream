@@ -17,11 +17,10 @@ import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.SoapTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.common.info
-import gov.cdc.prime.router.common.warn
 import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
+import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.Date
@@ -157,42 +156,44 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         actionHistory: ActionHistory,
         isEmptyBatch: Boolean,
     ): ReportEvent {
-        val reportContext = mapOf(
+        withLoggingContext(
+            // TODO: update with data class after event code is merged
             "report_id" to reportId.toString(),
             "receiver" to receiver.fullName,
-        )
-        return if (nextRetryItems.isEmpty()) {
-            // All OK
-            logger.info("Successfully sent report: $reportId to ${receiver.fullName}", reportContext)
-            ReportEvent(Event.EventAction.NONE, reportId, isEmptyBatch)
-        } else {
-            // mapOf() in kotlin is `1` based (not `0`), but always +1
-            val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
-            if (nextRetryCount > retryDurationInMin.size) {
-                // Stop retrying and just put the task into an error state
-                val msg = "All retries failed.  Manual Intervention Required.  " +
-                    "Send Error report for: $reportId to ${receiver.fullName}"
-                actionHistory.setActionType(TaskAction.send_error)
-                actionHistory.trackActionResult(msg)
-                logger.warn("Failed to send report: $reportId to ${receiver.fullName}", reportContext)
-                if (receiver.customerStatus == CustomerStatus.ACTIVE) {
-                    logger.fatal("${actionHistory.action.actionResult}")
-                } else {
-                    logger.error("${actionHistory.action.actionResult}")
-                }
-                ReportEvent(Event.EventAction.SEND_ERROR, reportId, isEmptyBatch)
+        ) {
+            return if (nextRetryItems.isEmpty()) {
+                // All OK
+                logger.info("Successfully sent report: $reportId to ${receiver.fullName}")
+                ReportEvent(Event.EventAction.NONE, reportId, isEmptyBatch)
             } else {
-                // retry using a back-off strategy
-                val waitMinutes = retryDurationInMin.getOrDefault(nextRetryCount, defaultMaxDurationValue)
-                val randomSeconds = Random.nextInt(ditherRetriesInSec * -1, ditherRetriesInSec)
-                val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes * 60 + randomSeconds)
-                val nextRetryToken = RetryToken(nextRetryCount, nextRetryItems)
-                val msg = "Send Failed.  Will retry sending report: $reportId to ${receiver.fullName}" +
-                    " in $waitMinutes minutes and $randomSeconds seconds at $nextRetryTime"
-                logger.warn(msg)
-                actionHistory.setActionType(TaskAction.send_warning)
-                actionHistory.trackActionResult(msg)
-                ReportEvent(Event.EventAction.SEND, reportId, isEmptyBatch, nextRetryTime, nextRetryToken)
+                // mapOf() in kotlin is `1` based (not `0`), but always +1
+                val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
+                if (nextRetryCount > retryDurationInMin.size) {
+                    // Stop retrying and just put the task into an error state
+                    val msg = "All retries failed.  Manual Intervention Required.  " +
+                        "Send Error report for: $reportId to ${receiver.fullName}"
+                    actionHistory.setActionType(TaskAction.send_error)
+                    actionHistory.trackActionResult(msg)
+                    logger.warn("Failed to send report: $reportId to ${receiver.fullName}")
+                    if (receiver.customerStatus == CustomerStatus.ACTIVE) {
+                        logger.fatal("${actionHistory.action.actionResult}")
+                    } else {
+                        logger.error("${actionHistory.action.actionResult}")
+                    }
+                    ReportEvent(Event.EventAction.SEND_ERROR, reportId, isEmptyBatch)
+                } else {
+                    // retry using a back-off strategy
+                    val waitMinutes = retryDurationInMin.getOrDefault(nextRetryCount, defaultMaxDurationValue)
+                    val randomSeconds = Random.nextInt(ditherRetriesInSec * -1, ditherRetriesInSec)
+                    val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes * 60 + randomSeconds)
+                    val nextRetryToken = RetryToken(nextRetryCount, nextRetryItems)
+                    val msg = "Send Failed.  Will retry sending report: $reportId to ${receiver.fullName}" +
+                        " in $waitMinutes minutes and $randomSeconds seconds at $nextRetryTime"
+                    logger.warn(msg)
+                    actionHistory.setActionType(TaskAction.send_warning)
+                    actionHistory.trackActionResult(msg)
+                    ReportEvent(Event.EventAction.SEND, reportId, isEmptyBatch, nextRetryTime, nextRetryToken)
+                }
             }
         }
     }

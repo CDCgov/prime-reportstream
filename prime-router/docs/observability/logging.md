@@ -3,18 +3,29 @@
 ## Background
 
 All logging via Log4J is automatically captured and sent to Azure AppInsights given you are running in a deployed 
-environment (or have AppInsights set up locally). We are able to query for specific logs using either the log messaging or a 
-variety of properties.
+environment (or have [AppInsights set up locally](local-dev-setup.md)). We are able to query for specific logs using either the log messaging or
+properties added to the Mapped Diagnostic Context (MDC).
 
 ## Setting custom properties on logs
 
-Use the extension functions located at [LoggerExt.kt](../../src/main/kotlin/common/LoggerExt.kt). Alongside your 
- message, you can pass an optional context map containing additional fields. The fields in this map will populate the 
-`customDimensions` column in the Azure `traces` or `exceptions` table. Anything you want to be easily queryable should go in this map. 
+Properties present in the Mapped Diagnostic Context (MDC) will populate the `customDimensions` column in the Azure `traces` or `exceptions` table. 
+Anything you want to be easily queryable in Azure AppInsights should be present in this map during a call to the logger. 
+The MDC does not need to be cleaned at the end of an Azure function invocation and will be discarded automatically
 
 ```kotlin
-// logging message in source code with additional properties
-logger.info("Hello world!", mapOf("property" to "value"))
+// properties added to the MDC will be attached to each logger call during the entire function invocation 
+MDC.put("property", "value")
+logger.info("Hello world!")
+```
+
+```kotlin
+// properties added to the MDC via the withLoggingContext function will be attached to each logger call 
+// only during the lambda and will be removed afterwards 
+withLoggingContext("property" to "value") {
+    logger.info("Hello world!")
+}
+logger.info("Another log message!") // MDC is empty
+
 ```
 
 ```
@@ -27,7 +38,8 @@ traces | where customDimensions.property == "value"
 Logs are now output in a JSON structure that Azure AppInsights knows how to ingest.
 
 ```kotlin
-logger.info("Hello world!", mapOf("property" to "value"))
+MDC.put("property", "value")
+logger.info("Hello world!")
 ```
 
 ```json
@@ -54,7 +66,8 @@ by an http request, timer, queue, etc).
 
 ```
 // Show all logs during a function invocation
-traces | where customDimensions.trace_id == "1a66f28df94b7dcf0eb29ee0287e54d5"
+// operation_id == trace_id
+traces | where operation_id == "1a66f28df94b7dcf0eb29ee0287e54d5"
 ```
 
 ## Exceptions
@@ -63,7 +76,8 @@ When an exception is logged it will end up in the `exceptions` table rather than
 fields to help figure out the cause of the exception.
 
 ```kotlin
-logger.error("Kaboom!", RuntimeException("Why?"), mapOf("property" to "value"))
+MDC.put("property", "value")
+logger.error("Kaboom!", RuntimeException("Why?"))
 ```
 
 ```json
