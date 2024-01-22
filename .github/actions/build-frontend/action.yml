@@ -62,6 +62,7 @@ runs:
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
           yarn lint
           yarn playwright install
+          npx playwright install-deps
           yarn test:e2e
           yarn build:$ENV
         shell: bash
