@@ -1,0 +1,16 @@
+elements:
+  - name: system
+    bundleProperty: '%resource.category.coding.system'
+    value: [ '%system' ]
+
+  - name: code
+    bundleProperty: '%resource.category.coding.code'
+    value: [ '%code' ]
+
+  - name: display
+    bundleProperty: '%resource.category.coding.display'
+    value: [ '%display' ]
+
+  - name: text
+    bundleProperty: '%resource.category.text'
+    value: [ '%text' ]
