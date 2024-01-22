@@ -575,9 +575,16 @@ elements:
 
   # Observation
   - name: sr-observation-value-type-cwe
+    condition: '%resource.value is CodeableConcept'
     resource: 'Bundle.entry.resource.ofType(Observation)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("obx-2-value-type").value[x]'
     value: [ '"CWE"' ]
+
+  - name: sr-observation-value-type-date-time
+    condition: '%resource.value is dateTime'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("obx-2-value-type").value[x]'
+    value: [ '"DT"' ]
 
   - name: sr-observation-status
     resource: 'Bundle.entry.resource.ofType(Observation)'
