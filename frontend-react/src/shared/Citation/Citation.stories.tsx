@@ -1,5 +1,5 @@
 // AutoUpdateFileChromatic
-import React from "react";
+import React, { ReactElement } from "react";
 
 import { Citation } from "./Citation";
 
@@ -15,4 +15,4 @@ const citation = {
     authorTitle: "Senior VP of Operations at Dobrin Group",
 };
 
-export const RSCitation = (): React.ReactElement => <Citation {...citation} />;
+export const RSCitation = (): ReactElement => <Citation {...citation} />;

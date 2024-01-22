@@ -1,12 +1,12 @@
 import { Button, ButtonGroup, Link } from "@trussworks/react-uswds";
-import React from "react";
+import React, { ReactElement } from "react";
 
 export default {
     title: "Components/Button group",
     component: ButtonGroup,
 };
 
-export const Default = (): React.ReactElement => (
+export const Default = (): ReactElement => (
     <ButtonGroup type="default">
         <Link href="#" className="usa-button usa-button--outline">
             Back
@@ -15,7 +15,7 @@ export const Default = (): React.ReactElement => (
     </ButtonGroup>
 );
 
-export const Segmented = (): React.ReactElement => (
+export const Segmented = (): ReactElement => (
     <ButtonGroup type="segmented">
         <Button type="button">Map</Button>
         <Button type="button" outline>

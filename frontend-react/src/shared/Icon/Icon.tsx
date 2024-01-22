@@ -1,5 +1,5 @@
 // AutoUpdateFileChromatic
-import React from "react";
+import React, { HTMLAttributes } from "react";
 import { Icon as OrigIcon } from "@trussworks/react-uswds";
 import { IconProps as OrigIconProps } from "@trussworks/react-uswds/lib/components/Icon/Icon";
 import classNames from "classnames";
@@ -14,7 +14,7 @@ export type RSIconName =
     | "rs-covid"
     | "rs-csv";
 
-export interface RSIconProps extends React.HTMLAttributes<SVGElement> {
+export interface RSIconProps extends HTMLAttributes<SVGElement> {
     name: RSIconName;
     size?: 3 | 4 | 5 | 6 | 7 | 8 | 9;
 }

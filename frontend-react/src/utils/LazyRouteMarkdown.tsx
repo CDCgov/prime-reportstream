@@ -1,12 +1,10 @@
 import type { MDXModule } from "mdx/types";
-import React from "react";
+import React, { lazy } from "react";
 
-const MarkdownLayout = React.lazy(
-    () => import("../layouts/Markdown/MarkdownLayout"),
-);
+const MarkdownLayout = lazy(() => import("../layouts/Markdown/MarkdownLayout"));
 
 /**
- * Creates React.lazy-compatible function that renders a content page
+ * Creates lazy-compatible function that renders a content page
  */
 export function lazyRouteMarkdown(fn: () => Promise<MDXModule>) {
     return async () => {

@@ -336,12 +336,45 @@ elements:
     bundleProperty: '%resource.deceased[x]'
     value: [ 'false' ]
 
+  - name: sr-specimen-type-cwe-coding
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.type.exists()'
+    bundleProperty: '%resource.type.coding[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  ## Code
+  - name: sr-specimen-type-code-system-extension
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.type.exists()'
+    bundleProperty: '%resource.type.coding[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '%resource.type.coding[0].system.getCodingSystemMapping()' ]
+
   # Populating display based on text
   - name: sr-specimen-type-display
     resource: 'Bundle.entry.resource.ofType(Specimen)'
     condition: '%resource.type.exists() and %resource.type.coding[0].display.exists().not()'
     bundleProperty: '%resource.type.coding[0].display'
     value: [ '%resource.type.text' ]
+
+  - name: sr-specimen-bodySite-cwe-coding
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.collection.bodySite.exists()'
+    bundleProperty: '%resource.collection.bodySite.coding[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  ## Code
+  - name: sr-specimen-bodySite-code-system-extension
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.collection.bodySite.exists()'
+    bundleProperty: '%resource.collection.bodySite.coding[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '%resource.collection.bodySite.coding[0].system.getCodingSystemMapping()' ]
+
+  # Populating display based on text
+  - name: sr-specimen-bodySite-display
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.collection.bodySite.exists() and %resource.type.coding[0].display.exists().not()'
+    bundleProperty: '%resource.collection.bodySite.coding[0].display'
+    value: [ '%resource.collection.bodySite.text' ]
 
   - name: sr-observation-producer-id-identifier
     resource: 'Bundle.entry.resource.ofType(Observation)'

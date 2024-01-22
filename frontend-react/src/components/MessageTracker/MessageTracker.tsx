@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { FC, FormEvent, useState } from "react";
 import {
     Form,
     FormGroup,
@@ -19,7 +19,7 @@ interface MessageListTableContentProps {
     hasSearched: boolean;
 }
 
-const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
+const MessageTrackerTableContent: FC<MessageListTableContentProps> = ({
     isLoading,
     messagesData,
     hasSearched,
@@ -77,7 +77,7 @@ export function MessageTracker() {
     const [hasSearched, setHasSearched] = useState(false);
     const { mutateAsync: search, isPending } = useMessageSearch();
 
-    const searchMessageId = async (e: React.FormEvent<HTMLFormElement>) => {
+    const searchMessageId = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const senderResponse: MessageListResource[] =
             await search(searchFilter);
