@@ -597,10 +597,6 @@
 # race
 - id: "race"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd"
-# TODO: unused outside of integration test FHIR bundles
-# source-data-model-version
-- id: "source-data-model-version"
-  url: "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version"
 
 # TODO: Likely deprecated SR transforms (or should be updated)
 # Assigning facility universal ID
