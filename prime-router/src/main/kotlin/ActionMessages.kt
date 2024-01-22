@@ -287,14 +287,11 @@ class EvaluateFilterConditionErrorMessage(message: String?) : ActionLogDetail {
 /**
  * A [message] for when observations have been pruned for any receiver of a report
  */
-class PrunedObservationsLogMessage(
-    val reportId: ReportId,
-    private val filteredIdMap: Map<String, List<String>>,
-) : ActionLogDetail {
-    override val scope = ActionLogScope.report
-    override val message = "Observations were pruned from receivers for reportID $reportId\n" +
-        filteredIdMap.map {
-            "${it.key}: ${it.value.joinToString(", ")}"
-        }.joinToString("\n")
-    override val errorCode = ErrorCode.UNKNOWN
+class PrunedObservationsLogMessage(override val message: String) : GenericActionLogDetail(
+    message, ActionLogScope.report
+) {
+    constructor(reportId: ReportId, filteredIdMap: Map<String, List<String>>) : this(
+        "Observations were pruned from receivers for reportID $reportId\n" +
+            filteredIdMap.map { "${it.key}: ${it.value.joinToString(", ")}" }.joinToString("\n")
+        )
 }
