@@ -3,39 +3,39 @@ hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 extends: ../../../ORU_R01/ORU_R01-base
 elements:
   # MSH 3-1
-  - name: sending-application-namespace-id
+  - name: ri-sending-application-namespace-id
     value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
     hl7Spec: [ MSH-3-1 ]
 
   # MSH 3-2
-  - name: sending-application-universal-id
+  - name: ri-sending-application-universal-id
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
     hl7Spec: [ MSH-3-2 ]
 
   # MSH 3-3
-  - name: sending-application-universal-id-type
+  - name: ri-sending-application-universal-id-type
     value: [ '"ISO"' ]
     hl7Spec: [ MSH-3-3 ]
 
   # MSH 5
-  - name: receiving-application
+  - name: ri-receiving-application
     value: [ '"RIDOH"' ]
     hl7Spec: [ MSH-5 ]
 
   # MSH 6
-  - name: receiving-facility
+  - name: ri-receiving-facility
     value: [ '"RIDOH"' ]
     hl7Spec: [ MSH-6 ]
 
   # PID 5-7
-  - name: patient-name_use
+  - name: ri-patient-name_use
     condition: true
     resource: 'Bundle'
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-5-7' ]
 
   # PID 22-1
-  - name: patient-ethnicity_identifier-code
+  - name: ri-patient-ethnicity_identifier-code
     value:
       - 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code'
       - 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code'
@@ -46,28 +46,28 @@ elements:
         N: 2186-5
 
   # PID 22-3
-  - name: patient-ethnicity_identifier-system
+  - name: ri-patient-ethnicity_identifier-system
     condition: true
     resource: 'Bundle'
     value: [ '"CDCREC"' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-3' ]
 
   # PID 22-7
-  - name: patient-ethnicity_identifier-version
+  - name: ri-patient-ethnicity_identifier-version
     condition: true
     resource: 'Bundle'
     value: [ '"3.1.0"' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-7' ]
 
   # ORC 12-1
-  - name: order-ordering-provider_xcn-id-number
+  - name: ri-order-ordering-provider_xcn-id-number
     condition: true
     resource: 'Bundle'
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION*/ORC-12-1' ]
 
   # OBR 16-1
-  - name: ordering-provider_xcn-id-number
+  - name: ri-ordering-provider_xcn-id-number
     condition: true
     resource: 'Bundle'
     value: [ '""' ]
