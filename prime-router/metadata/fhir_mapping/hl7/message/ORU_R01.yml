@@ -8,11 +8,13 @@ resources:
     additionalSegments:
       - SFT
 
-  - resourceName: Provenance
+  - resourceName: Provenance-Source
     segment: MSH
-    resourcePath: resource/Provenance
-    additionalSegments:
-      - ORC
+    resourcePath: segments/MSH/Provenance-Source
+
+  - resourceName: Provenance-Transformation
+    segment: MSH
+    resourcePath: segments/MSH/Provenance-Transformation
 
   - resourceName: Patient
     segment: .PID
@@ -25,6 +27,11 @@ resources:
       - MSH
       - .NTE
       - .NK1
+
+  - resourceName: Provenance-Patient
+    group: PATIENT_RESULT.PATIENT
+    segment: .PID
+    resourcePath: segments/PID/Provenance-Patient
 
   - resourceName: RelatedPerson
     segment: .NK1
