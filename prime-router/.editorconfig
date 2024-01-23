@@ -41,6 +41,9 @@ indent_style = space
 ktlint_code_style = intellij_idea
 # the following rule prevented EOL comments in some places where it is useful
 ktlint_standard_discouraged-comment-location = disabled
+# version 1.1.1 allow same line comments
+ktlint_standard_value-argument-comment = disabled
+ktlint_standard_value-parameter-comment = disabled
 # the following rule was required to disable `discouraged-comment-location`
 ktlint_standard_if-else-wrapping = disabled
 # the following rule is unnecessarily strict about comment placement and type

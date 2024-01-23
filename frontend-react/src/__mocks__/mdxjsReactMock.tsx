@@ -1,5 +1,7 @@
+import { ReactNode } from "react";
+
 interface MDXProviderProps {
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
 export function MDXProvider({ children }: MDXProviderProps) {
