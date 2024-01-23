@@ -859,7 +859,8 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                     it in ObservationMappingConstants.CONDITION_KEYS // fetch existing condition data for this oid
                 }
                 update.value.toMappings(conditionData)
-            }.flatten() + tableOIDMap.filterKeys { it !in updateOIDMap.keys }.values.flatten() // flatten + add carryover
+            // flatten + add carryover
+            }.flatten() + tableOIDMap.filterKeys { it !in updateOIDMap.keys }.values.flatten()
         }
 
         /**
