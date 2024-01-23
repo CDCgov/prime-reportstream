@@ -13,9 +13,9 @@ __metadata:
   linkType: hard
 
 "@adobe/css-tools@npm:^4.3.1":
-  version: 4.3.1
-  resolution: "@adobe/css-tools@npm:4.3.1"
-  checksum: ad43456379ff391132aff687ece190cb23ea69395e23c9b96690eeabe2468da89a4aaf266e4f8b6eaab53db3d1064107ce0f63c3a974e864f4a04affc768da3f
+  version: 4.3.2
+  resolution: "@adobe/css-tools@npm:4.3.2"
+  checksum: 9667d61d55dc3b0a315c530ae84e016ce5267c4dd8ac00abb40108dc98e07b98e3090ce8b87acd51a41a68d9e84dcccb08cdf21c902572a9cf9dcaf830da4ae3
   languageName: node
   linkType: hard
 
@@ -2945,14 +2945,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.37.1":
-  version: 1.40.1
-  resolution: "@playwright/test@npm:1.40.1"
+"@playwright/test@npm:^1.41.0":
+  version: 1.41.0
+  resolution: "@playwright/test@npm:1.41.0"
   dependencies:
-    playwright: 1.40.1
+    playwright: 1.41.0
   bin:
     playwright: cli.js
-  checksum: ae094e6cb809365c0707ee2b184e42d2a2542569ada020d2d44ca5866066941262bd9a67af185f86c2fb0133c9b712ea8cb73e2959a289e4261c5fd17077283c
+  checksum: 3a7039f8cd14dd242154255417c100a99c3254a3c1fd26df2a11be24c10b06ef77d2736336d7743dedc5e1a6a52748e58ced730b6048f8bd75d8867ce81661e0
   languageName: node
   linkType: hard
 
@@ -5192,10 +5192,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/downloadjs@npm:^1.4.4":
-  version: 1.4.4
-  resolution: "@types/downloadjs@npm:1.4.4"
-  checksum: 226faa39f1d1863e97305473894ed2952cffa5f96402528e1bfded7ecc1e74422e876aa5e1bbcbcfe07b48171d161c96cbf6bff985148f4a664141555af4f6e3
+"@types/downloadjs@npm:^1.4.6":
+  version: 1.4.6
+  resolution: "@types/downloadjs@npm:1.4.6"
+  checksum: 0e98425946c12315a7b9646edb75285bcc0fda2d59f9d296fa3bf9455ef62d6d73383c52ee86eec50e9b4cee6f9af9dba78c6fb56bc6444395b4ac4f76a86ec0
   languageName: node
   linkType: hard
 
@@ -5345,10 +5345,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/html-to-text@npm:^9.0.2":
-  version: 9.0.2
-  resolution: "@types/html-to-text@npm:9.0.2"
-  checksum: 9ad76f5ff2c303c6a66f6a03ecccee60da85bed06769c14bc31bf1113c88ac1ea323790f2340b1b6bd7560570fb9e3d8ba0158c123e249a1c3779ddcb78635d5
+"@types/html-to-text@npm:^9.0.4":
+  version: 9.0.4
+  resolution: "@types/html-to-text@npm:9.0.4"
+  checksum: 58ab5564080febdf7a5db99e713bdcf1be8b1ca31c40dae76f8278eba6b1cf62a0291082abe1e00537350aaf1c5d64f92ff37b718c1f880bf5e6174fceb41b78
   languageName: node
   linkType: hard
 
@@ -5661,12 +5661,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-scroll-sync@npm:^0.8.5":
-  version: 0.8.5
-  resolution: "@types/react-scroll-sync@npm:0.8.5"
+"@types/react-scroll-sync@npm:^0.8.7":
+  version: 0.8.7
+  resolution: "@types/react-scroll-sync@npm:0.8.7"
   dependencies:
     "@types/react": "*"
-  checksum: d06895643d831de415ddec7ec2a4f57f6740765f3619ebd92cbdf1a26e66048b4095d99f8874a955fe852fe42ce310a201d93564e2161d3ab059d602f50cd175
+  checksum: e147ff4588d3b97c17ba5b3f683ea0baf7514189a9ad6e2ef24eb2f92b7af18017698099c993b704c74683aaac1fa711e17ba2088a4435181132b02b74812e85
   languageName: node
   linkType: hard
 
@@ -5681,12 +5681,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sanitize-html@npm:^2.9.2":
-  version: 2.9.2
-  resolution: "@types/sanitize-html@npm:2.9.2"
+"@types/sanitize-html@npm:^2.9.5":
+  version: 2.9.5
+  resolution: "@types/sanitize-html@npm:2.9.5"
   dependencies:
     htmlparser2: ^8.0.0
-  checksum: bdd0db4a39125b8836573ede5ec5cc2f7b0dff5ecfbeae68aefb40163c916429cfb500d581ad3a18613e8d6a53f707abb279350e0811122e84e21b0223b8d560
+  checksum: fd0afee5dac91aa2c42391f0c8c9254204f4ee1f10b902aa04e8f7809043d785e28af2732f75277ef09e46838013ad60abedb02ba1424b6218264f3333437fb5
   languageName: node
   linkType: hard
 
@@ -6647,14 +6647,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.6.3":
-  version: 1.6.3
-  resolution: "axios@npm:1.6.3"
+"axios@npm:^1.6.5":
+  version: 1.6.5
+  resolution: "axios@npm:1.6.5"
   dependencies:
-    follow-redirects: ^1.15.0
+    follow-redirects: ^1.15.4
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
-  checksum: 07ef3bb83fc2dacc1ae2c97f2bbd04ef7701f5655f9037789d79ee78b698ffa50eaa8465c2017d4d3e9ce7d94cb779f730acaab32ce9036d0a4933c1e89df4da
+  checksum: e28d67b2d9134cb4608c44d8068b0678cfdccc652742e619006f27264a30c7aba13b2cd19c6f1f52ae195b5232734925928fb192d5c85feea7edd2f273df206d
   languageName: node
   linkType: hard
 
@@ -7268,14 +7268,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^10.2.0":
-  version: 10.2.0
-  resolution: "chromatic@npm:10.2.0"
+"chromatic@npm:^10.2.2":
+  version: 10.2.2
+  resolution: "chromatic@npm:10.2.2"
   bin:
     chroma: dist/bin.js
     chromatic: dist/bin.js
     chromatic-cli: dist/bin.js
-  checksum: 91cc4fac72789552121084399d5e6e0f560261e0c69d4678b112c446b629b0f3cd85ea8380d328c03a2bd595162d508fc07d541b97655c1278a4013eccad7f0f
+  checksum: 1d4adb0ce1a68fd96e91ab6c524c1b27269f4b9fc1b0a1330c4eee721b66c0863250fee0b9af59e657cfc04f8453415c52c36ee74cdb9b53ca4edab097309ab9
   languageName: node
   linkType: hard
 
@@ -9745,7 +9745,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.15.0":
+"follow-redirects@npm:^1.15.4":
   version: 1.15.4
   resolution: "follow-redirects@npm:1.15.4"
   peerDependenciesMeta:
@@ -14723,27 +14723,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.40.1":
-  version: 1.40.1
-  resolution: "playwright-core@npm:1.40.1"
+"playwright-core@npm:1.41.0":
+  version: 1.41.0
+  resolution: "playwright-core@npm:1.41.0"
   bin:
     playwright-core: cli.js
-  checksum: 84d92fb9b86e3c225b16b6886bf858eb5059b4e60fa1205ff23336e56a06dcb2eac62650992dede72f406c8e70a7b6a5303e511f9b4bc0b85022ede356a01ee0
+  checksum: 14671265916a1fd0c71d94640de19c48bcce3f7dec35530f10e349e97030ea44ffa8ee518cbf811501e3ab2b74874aecf917e46bf40fea0570db1d4bea1fe7ac
   languageName: node
   linkType: hard
 
-"playwright@npm:1.40.1":
-  version: 1.40.1
-  resolution: "playwright@npm:1.40.1"
+"playwright@npm:1.41.0":
+  version: 1.41.0
+  resolution: "playwright@npm:1.41.0"
   dependencies:
     fsevents: 2.3.2
-    playwright-core: 1.40.1
+    playwright-core: 1.41.0
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: 9e36791c1b4a649c104aa365fdd9d049924eeb518c5967c0e921aa38b9b00994aa6ee54784d6c2af194b3b494b6f69772673081ef53c6c4a4b2065af9955c4ba
+  checksum: e7c32136911c58e06b964fe7d33f8b3d8f6a067ae5218662a0811dd6c90e007db1774eb7e161f4aa748d760f404f4c066b7b7303c2b617f7448b6ee4b86c9999
   languageName: node
   linkType: hard
 
@@ -14774,14 +14774,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.3.11, postcss@npm:^8.4.31, postcss@npm:^8.4.32":
-  version: 8.4.32
-  resolution: "postcss@npm:8.4.32"
+"postcss@npm:^8.3.11, postcss@npm:^8.4.32, postcss@npm:^8.4.33":
+  version: 8.4.33
+  resolution: "postcss@npm:8.4.33"
   dependencies:
     nanoid: ^3.3.7
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
-  checksum: 220d9d0bf5d65be7ed31006c523bfb11619461d296245c1231831f90150aeb4a31eab9983ac9c5c89759a3ca8b60b3e0d098574964e1691673c3ce5c494305ae
+  checksum: 6f98b2af4b76632a3de20c4f47bf0e984a1ce1a531cf11adcb0b1d63a6cbda0aae4165e578b66c32ca4879038e3eaad386a6be725a8fb4429c78e3c1ab858fe9
   languageName: node
   linkType: hard
 
@@ -15158,6 +15158,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-error-boundary@npm:^4.0.11":
+  version: 4.0.11
+  resolution: "react-error-boundary@npm:4.0.11"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+  peerDependencies:
+    react: ">=16.13.1"
+  checksum: b3c157fea4e8f78411e9aa0fbf5241f6907b66ede1cd8b7bb22faaeb0339ebeb3dc8e63bf90ef3f740bfa8fd994ca6edf975089cd371b664ad6c2735e7512d38
+  languageName: node
+  linkType: hard
+
 "react-fast-compare@npm:^3.2.0":
   version: 3.2.0
   resolution: "react-fast-compare@npm:3.2.0"
@@ -15186,7 +15197,7 @@ __metadata:
     "@microsoft/applicationinsights-web": ^3.0.7
     "@okta/okta-react": ^6.7.0
     "@okta/okta-signin-widget": ^7.13.1
-    "@playwright/test": ^1.37.1
+    "@playwright/test": ^1.41.0
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
     "@storybook/addon-a11y": ^7.4.6
@@ -15213,9 +15224,9 @@ __metadata:
     "@trussworks/react-uswds": ^5.4.0
     "@types/dompurify": ^3.0.3
     "@types/dotenv-flow": ^3
-    "@types/downloadjs": ^1.4.4
+    "@types/downloadjs": ^1.4.6
     "@types/github-slugger": ^1.3.0
-    "@types/html-to-text": ^9.0.2
+    "@types/html-to-text": ^9.0.4
     "@types/jest": ^29.5.11
     "@types/lodash.chunk": ^4.2.7
     "@types/lodash.omit": ^4.5.7
@@ -15227,20 +15238,20 @@ __metadata:
     "@types/react": 18.0.28
     "@types/react-dom": ^18.2.18
     "@types/react-router-dom": ^5.3.3
-    "@types/react-scroll-sync": ^0.8.5
-    "@types/sanitize-html": ^2.9.2
+    "@types/react-scroll-sync": ^0.8.7
+    "@types/sanitize-html": ^2.9.5
     "@typescript-eslint/eslint-plugin": ^6.16.0
     "@typescript-eslint/parser": ^6.16.0
     "@uswds/uswds": 3.4.1
     "@vitejs/plugin-react": ^4.2.1
     autoprefixer: ^10.4.16
-    axios: ^1.6.3
+    axios: ^1.6.5
     babel-jest: ^29.7.0
     bfj: 8.0.0
     browserslist: ^4.22.1
     browserslist-useragent-regexp: ^4.1.1
     camelcase: ^6.3.0
-    chromatic: ^10.2.0
+    chromatic: ^10.2.2
     classnames: ^2.5.1
     confusing-browser-globals: ^1.0.11
     cross-env: ^7.0.3
@@ -15283,18 +15294,19 @@ __metadata:
     otpauth: ^9.1.4
     otplib: ^12.0.1
     patch-package: ^8.0.0
-    postcss: ^8.4.31
+    postcss: ^8.4.33
     prettier: ^3.0.3
     react: ^18.2.0
     react-dom: ^18.2.0
+    react-error-boundary: ^4.0.11
     react-helmet-async: ^1.3.0
     react-idle-timer: ^5.7.2
     react-loader-spinner: ^6.1.6
-    react-markdown: ^9.0.0
+    react-markdown: ^9.0.1
     react-query-kit: ^2.0.8
     react-router: ^6.21.1
     react-router-dom: ^6.21.1
-    react-scroll-sync: ^0.11.0
+    react-scroll-sync: ^0.11.2
     react-toastify: ^9.1.3
     rehype-raw: ^7.0.0
     rehype-slug: ^5.1.0
@@ -15395,16 +15407,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-markdown@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "react-markdown@npm:9.0.0"
+"react-markdown@npm:^9.0.1":
+  version: 9.0.1
+  resolution: "react-markdown@npm:9.0.1"
   dependencies:
     "@types/hast": ^3.0.0
     devlop: ^1.0.0
     hast-util-to-jsx-runtime: ^2.0.0
     html-url-attributes: ^3.0.0
     mdast-util-to-hast: ^13.0.0
-    micromark-util-sanitize-uri: ^2.0.0
     remark-parse: ^11.0.0
     remark-rehype: ^11.0.0
     unified: ^11.0.0
@@ -15413,7 +15424,7 @@ __metadata:
   peerDependencies:
     "@types/react": ">=18"
     react: ">=18"
-  checksum: 7057f60f0657d5c6210f02a2c80d537176d0d29c141e4b52a8f8fa335ee454248c37c29caf27e8bd28a180bc8e14b5522f63e2a61e3ec3ea5201a58ad43f43c6
+  checksum: ca1daa650d48b84a5a9771683cdb3f3d2d418247ce0faf73ede3207c65f2a21cdebb9df37afda67f6fc8f0f0a7b9ce00eb239781954a4d6c7ad88ea4df068add
   languageName: node
   linkType: hard
 
@@ -15507,15 +15518,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-scroll-sync@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "react-scroll-sync@npm:0.11.0"
+"react-scroll-sync@npm:^0.11.2":
+  version: 0.11.2
+  resolution: "react-scroll-sync@npm:0.11.2"
   dependencies:
     prop-types: ^15.5.7
   peerDependencies:
     react: 16.x || 17.x || 18.x
     react-dom: 16.x || 17.x || 18.x
-  checksum: 8b505cc8c4e83aa3e11d9a7f60677694a10dcd0f9d5818767b3364dff5b461b32ee707bd7bac0ebefd1662c8c49f066ef9871703208f4bd6a23937d37e73809f
+  checksum: 42220e7606c3f28a58ce579313044d5dc2c370c2db25737432e74065805ff50baf7f94136597ae7b1c192657c13ee16d6a9274316ab9481ba05595cefd7a2f07
   languageName: node
   linkType: hard
 

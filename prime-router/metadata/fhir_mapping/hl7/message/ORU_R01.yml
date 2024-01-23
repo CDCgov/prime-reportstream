@@ -14,11 +14,10 @@ resources:
     additionalSegments:
       - ORC
 
-
   - resourceName: Patient
     segment: .PID
     group: PATIENT_RESULT.PATIENT
-    resourcePath: resource/Patient
+    resourcePath: segments/PID/Patient
     isReferenced: true
     repeats: false
     additionalSegments:
@@ -57,7 +56,7 @@ resources:
   - resourceName: Specimen
     segment: .SPECIMEN.SPM
     group: PATIENT_RESULT.ORDER_OBSERVATION
-    resourcePath: resource/Specimen
+    resourcePath: segments/SPM/Specimen
     repeats: true
     isReferenced: true
     additionalSegments:

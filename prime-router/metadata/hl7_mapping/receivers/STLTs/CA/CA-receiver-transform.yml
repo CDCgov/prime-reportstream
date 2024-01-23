@@ -174,10 +174,6 @@ elements:
   - name: specimen-observation-result-with-aoe
     condition: false
 
-  # PID-3-4 Max length: 20
-  - name: patient-assigning-authority
-    value: [ '%patientOrganization.name.substring(0,20)' ]
-
   # PID-10-2 gets either display or text
   - name: patient-race-display
     condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
@@ -185,12 +181,6 @@ elements:
       - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].display'
       - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text'
     hl7Spec: [ '%{hl7PIDField}-10-2' ]
-
-  # PID-10-3 for default value
-  - name: patient-race-coding-system
-    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
-    value: [ '"HL70005"' ]
-    hl7Spec: [ '%{hl7PIDField}-10-3' ]
 
   # PID-22 use coded element mapping
   - name: patient-ethnicity
@@ -223,10 +213,6 @@ elements:
       %resource.extension(%`namespaceExtName`).exists().not() and 
       %resource.value.exists().not() and 
       %resource.name.exists()
-
-  # override xpn-person-name.use to set a default
-  - name: use
-    value: [ '%resource.use', '"official"' ]
 
   # OBR-10
   - name: entered-by

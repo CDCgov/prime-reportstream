@@ -31,4 +31,3 @@ elements:
     constants:
       hl7XCNField: '%{hl7NotePath}/NTE(%{noteIndex})-5'
       contactIndex: '0'
-

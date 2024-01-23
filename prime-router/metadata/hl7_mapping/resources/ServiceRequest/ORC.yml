@@ -66,7 +66,7 @@ elements:
     resource: '%resource.requester.resolve().organization.resolve().address'
     schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD
     constants:
-      hl7SpecXADField: '%{hl7Order}-22'
+      xadField: '%{hl7Order}-22'
 
   - name: ordering-facility-phone-number
     condition: '%context.requester.resolve().is(PractitionerRole)'
@@ -81,32 +81,34 @@ elements:
     resource: '%resource.requester.resolve().address'
     schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD
     constants:
-      hl7SpecXADField: '%{hl7Order}-24'
+      xadField: '%{hl7Order}-24'
 
   - name: ordering-provider-address-from-practitioner-role
     condition: '%context.requester.resolve().is(PractitionerRole)'
     resource: '%resource.requester.resolve().practitioner.resolve().address'
     schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD
     constants:
-      hl7SpecXADField: '%{hl7Order}-24'
+      xadField: '%{hl7Order}-24'
 
   - name: order-status-modifier
     resource: '%resource.extension(%`rsext-status-modifier`).value'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
+    resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{hl7Order}-25'
+      cweField: '%{hl7Order}-25(%{cweIndex})'
 
   - name: order-type
     resource: '%resource.locationCode'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
+    resourceIndex: cweIndex
     constants:
-      cweFieldPath: '%{hl7Order}-29'
+      cweField: '%{hl7Order}-29(%{cweIndex})'
 
   - name: alternate-placer-order-number
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "orc-33-alternate-placer-order-number")'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX
     constants:
-      cxFieldPath: '%{hl7Order}-33'
+      cxField: '%{hl7Order}-33'
 
   - name: orc-extension
     resource: '%resource.extension(%`rsext-orc-common-order`)'

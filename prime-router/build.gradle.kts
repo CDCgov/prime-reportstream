@@ -396,7 +396,7 @@ tasks.register("fatJar") {
 
 configure<KtlintExtension> {
     // See ktlint versions at https://github.com/pinterest/ktlint/releases
-    version.set("1.0.0")
+    version.set("1.1.1")
 }
 tasks.ktlintCheck {
     // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration

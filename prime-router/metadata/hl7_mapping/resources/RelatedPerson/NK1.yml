@@ -10,20 +10,20 @@ elements:
     resource: '%resource.name.where(extension(%`rsext-hl7v2Name`).value = "name")'
     resourceIndex: xpnIndex
     constants:
-      hl7xpnField: '%{hl7NK1FieldPath}-2(%{xpnIndex})'
+      xpnField: '%{hl7NK1FieldPath}-2(%{xpnIndex})'
     schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN
 
   - name: relationship
     resource: '%resource.relationship.where(extension(%`rsext-hl7v2Name`).value = "relationship")'
     constants:
-      cweFieldPath: '%{hl7NK1FieldPath}-3'
+      cweField: '%{hl7NK1FieldPath}-3'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
 
   - name: address
     resource: '%resource.address.where(extension(%`rsext-hl7v2Name`).value = "address")'
     resourceIndex: xadIndex
     constants:
-      hl7SpecXADField: '%{hl7NK1FieldPath}-4(%{xadIndex})'
+      xadField: '%{hl7NK1FieldPath}-4(%{xadIndex})'
     schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD
 
   - name: phone-number
@@ -43,8 +43,13 @@ elements:
   - name: contact-role
     resource: '%resource.relationship.where(extension(%`rsext-hl7v2Name`).value = "contact-role")'
     constants:
+<<<<<<< HEAD
       cweFieldPath: '%{hl7NK1FieldPath}-7'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
+=======
+      cweField: '%{hl7NK1FieldPath}-7'
+    schema: ../../datatypes/codeableConcept/CWE
+>>>>>>> origin/master
 
   - name: start-date
     resource: '%resource.period.start'
@@ -62,7 +67,7 @@ elements:
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "next-of-kin-employee-number")'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX
     constants:
-      cxFieldPath: '%{hl7NK1FieldPath}-12'
+      cxField: '%{hl7NK1FieldPath}-12'
 
   - name: organization-name
     resource: '%resource.extension(%`rsext-nk1-13-organization-name`).value.resolve()'
@@ -74,8 +79,13 @@ elements:
   - name: administrative-sex
     resource: '%resource.gender.extension(%`rsext-nk1-15-administrative-sex`).value'
     constants:
+<<<<<<< HEAD
       cweFieldPath: '%{hl7NK1FieldPath}-15'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
+=======
+      cweField: '%{hl7NK1FieldPath}-15'
+    schema: ../../datatypes/codeableConcept/CWE
+>>>>>>> origin/master
 
   - name: birth-date
     resource: '%resource.extension(%`rsext-nk1-16-birth-date`).value'
@@ -86,15 +96,25 @@ elements:
   - name: primary-language
     resource: '%resource.communication.language'
     constants:
+<<<<<<< HEAD
       cweFieldPath: '%{hl7NK1FieldPath}-20'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
+=======
+      cweField: '%{hl7NK1FieldPath}-20'
+    schema: ../../datatypes/codeableConcept/CWE
+>>>>>>> origin/master
 
   - name: contact-person-name
     resource: '%resource.name.where(extension(%`rsext-hl7v2Name`).value = "contact-person-name")'
     resourceIndex: xpnIndex
     constants:
+<<<<<<< HEAD
       hl7xpnField: '%{hl7NK1FieldPath}-30(%{xpnIndex})'
     schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN
+=======
+      xpnField: '%{hl7NK1FieldPath}-30(%{xpnIndex})'
+    schema: ../../datatypes/HumanName/XPN
+>>>>>>> origin/master
 
   - name: contact-person-phone-number
     resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "contact-person-telephone-number")'
@@ -107,15 +127,25 @@ elements:
     resource: '%resource.address.where(extension(%`rsext-hl7v2Name`).value = "contact-person-address")'
     resourceIndex: xadIndex
     constants:
+<<<<<<< HEAD
       hl7SpecXADField: '%{hl7NK1FieldPath}-32(%{xadIndex})'
     schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD
+=======
+      xadField: '%{hl7NK1FieldPath}-32(%{xadIndex})'
+    schema: ../../datatypes/Address/XAD
+>>>>>>> origin/master
 
   - name: next-of-kin-identifier
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "next-of-kin-identifier")'
     resourceIndex: cxIndex
     constants:
+<<<<<<< HEAD
       cxFieldPath: '%{hl7NK1FieldPath}-33(%{cxIndex})'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX
+=======
+      cxField: '%{hl7NK1FieldPath}-33(%{cxIndex})'
+    schema: ../../datatypes/identifier/CX
+>>>>>>> origin/master
 
   - name: contact-person-ssn
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).exists().not())'
