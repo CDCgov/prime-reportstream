@@ -563,6 +563,17 @@
 - id: "episode-of-care-name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/episode-of-care-name"
 
+# NTE -> Annotation
+# Source of comment
+- id: "note-source"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source"
+# Comment type
+- id: "note-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
+# Identifier type
+- id: "identifier-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type"
+
 ## Multipurpose
 # internal indicator of sender, usable for filtering
 - id: "sender-id"
@@ -598,13 +609,3 @@
 - id: "order-effective-date"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date"
 
-# TODO used in datatype/Annotation which needs to get deprecated
-# Source of comment
-- id: "note-source"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source"
-# Comment type
-- id: "note-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
-# Identifier type
-- id: "identifier-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type"
