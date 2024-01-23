@@ -280,6 +280,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
         HL70131("http://terminology.hl7.org/CodeSystem/v2-0131", "HL70131"),
         UCUM("http://unitsofmeasure.org", "UCUM"),
         NONE("", ""),
+        NULLFL("http://terminology.hl7.org/CodeSystem/v3-NullFlavor", "NULLFL"),
         ;
 
         companion object {
