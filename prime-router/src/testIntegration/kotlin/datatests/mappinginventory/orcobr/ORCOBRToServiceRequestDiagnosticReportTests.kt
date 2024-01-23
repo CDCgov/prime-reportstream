@@ -11,16 +11,16 @@ class ORCOBRToServiceRequestDiagnosticReportTests {
         assert(verifyHL7ToFHIRToHL7Mapping(testFileName).passed)
     }
 
-//    @Test
-//    fun `test OBR populated`() {
+    @Test
+    fun `test OBR populated`() {
 //        assert(verifyHL7ToFHIRToHL7Mapping("orcobr/orc_obr-to-servicerequest_diagnosticreport-obr-populated").passed)
-//    }
+    }
 
-//    @Test
-//    fun `test OBR and ORC populated`() {
+    @Test
+    fun `test OBR and ORC populated`() {
 //        val testFileName = "orcobr/orc_obr-to-servicerequest_diagnosticreport-orc-obr-populated"
 //        assert(verifyHL7ToFHIRToHL7Mapping(testFileName).passed)
-//    }
+    }
 
     @Test
     fun `test handles different specimen action codes`() {

@@ -77,7 +77,7 @@ elements:
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     resource: '%resource.value'
     constants:
-      cweFieldPath: '%{hl7OBXField}-5'
+      cweField: '%{hl7OBXField}-5'
 
   - name: obx-value-is
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "IS"'

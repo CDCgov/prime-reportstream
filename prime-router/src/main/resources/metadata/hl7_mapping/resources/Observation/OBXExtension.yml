@@ -8,7 +8,7 @@ elements:
     resource: '%resource.extension.where(url = "obx-6-units").value'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7OBXField}-6'
+      cweField: '%{hl7OBXField}-6'
 
   - name: obx-9-probability
     value: [ '%resource.extension.where(url = "obx-9-probability").value' ]

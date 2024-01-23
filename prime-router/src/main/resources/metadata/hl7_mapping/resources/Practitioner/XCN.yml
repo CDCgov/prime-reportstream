@@ -33,7 +33,7 @@ elements:
   - name: xcn-source-table
     resource: '%resource.extension(%`rsext-xcn8-source-table`).value'
     constants:
-      cweFieldPath: '%{hl7XCNField}-8'
+      cweField: '%{hl7XCNField}-8'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
 
   - name: xcn-assigning-authority
@@ -71,7 +71,7 @@ elements:
   - name: xcn-name-context
     resource: '%resource.extension(%`rsext-xcn16-name-context`).value'
     constants:
-      cweFieldPath: '%{hl7XCNField}-16'
+      cweField: '%{hl7XCNField}-16'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
 
   - name: xcn-name-validity-range-start
@@ -101,11 +101,11 @@ elements:
   - name: xcn-assigning-jurisdiction
     resource: '%resource.extension(%`rsext-xcn22-assigning-jurisdiction`).value'
     constants:
-      cweFieldPath: '%{hl7XCNField}-22'
+      cweField: '%{hl7XCNField}-22'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
 
   - name: xcn-assigning-agency-or-department
     resource: '%resource.extension(%`rsext-xcn23-assigning-agency-or-department`).value'
     constants:
-      cweFieldPath: '%{hl7XCNField}-23'
+      cweField: '%{hl7XCNField}-23'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE

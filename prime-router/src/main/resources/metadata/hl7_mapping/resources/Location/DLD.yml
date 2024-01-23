@@ -4,7 +4,7 @@ elements:
     resource: '%resource.type'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     constants:
-      cweFieldPath: '%{hl7DLDField}-1'
+      cweField: '%{hl7DLDField}-1'
 
   - name: dld-effective-date
     value: [ '%resource.extension(%`rsext-dld2-effective-date`).value' ]
