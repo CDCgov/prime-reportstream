@@ -425,8 +425,9 @@ class FhirToHl7ConverterTests {
             ).convert(bundle)
             // under the hood folder will be prepend classpath:/, and schema will be suffixed with .yml
         }
+        println(missingDataEx.message)
         assertThat(missingDataEx.message).isEqualTo(
-            "Error encountered while applying: message-headers in \n" +
+            "Error encountered while applying: message-headers in " +
                     "/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml to FHIR bundle. \n" +
                 "Error was: Required element message-headers conditional was false or value was empty."
         )
