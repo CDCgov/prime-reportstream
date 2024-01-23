@@ -135,22 +135,7 @@ class FHIRRouter(
 
         var finalReceivers = mutableListOf<Receiver>()
         if (listOfReceivers.isNotEmpty()) {
-            if (message.topic == Topic.SEND_ORIGINAL) {
-                listOfReceivers.forEach { receiver ->
-                    val originalMessageFormat = getOriginalMessageBodyFormat(message.reportId, WorkflowEngine())
-                    if ((originalMessageFormat == "HL7" && receiver.format == Report.Format.HL7) ||
-                        (originalMessageFormat == "FHIR" && receiver.format == Report.Format.FHIR)
-                    ) {
-                        finalReceivers.add(receiver)
-                    }
-                }
-            } else {
-                finalReceivers = listOfReceivers.toMutableList()
-            }
-
-            if (finalReceivers.isEmpty()) {
-                ActionHistory(TaskAction.process_warning, true)
-            }
+            finalReceivers = findReceiversForBundle(message, listOfReceivers, finalReceivers)
         }
 
         // check if there are any receivers
@@ -264,6 +249,31 @@ class FHIRRouter(
 
             return emptyList()
         }
+    }
+
+    private fun findReceiversForBundle(
+        message: ReportPipelineMessage,
+        listOfReceivers: List<Receiver>,
+        finalReceivers: MutableList<Receiver>,
+    ): MutableList<Receiver> {
+        var finalReceivers1 = finalReceivers
+        if (message.topic == Topic.SEND_ORIGINAL) {
+            listOfReceivers.forEach { receiver ->
+                val originalMessageFormat = getOriginalMessageBodyFormat(message.reportId, WorkflowEngine())
+                if ((originalMessageFormat == "HL7" && receiver.format == Report.Format.HL7) ||
+                    (originalMessageFormat == "FHIR" && receiver.format == Report.Format.FHIR)
+                ) {
+                    finalReceivers1.add(receiver)
+                }
+            }
+        } else {
+            finalReceivers1 = listOfReceivers.toMutableList()
+        }
+
+        if (finalReceivers1.isEmpty()) {
+            ActionHistory(TaskAction.process_warning, true)
+        }
+        return finalReceivers1
     }
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.ROUTED_AT

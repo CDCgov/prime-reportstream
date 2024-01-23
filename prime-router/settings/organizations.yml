@@ -248,7 +248,7 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-    - name: FULL_ELR_PASSTHROUGH
+    - name: FULL_ELR_PASSTHROUGH_FHIR
       externalName: Ignore FULL_ELR Passthrough
       organizationName: ignore
       topic: send-original
@@ -259,8 +259,6 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<FHIR>
-        # Uncomment next line to verify fhir receiver transforms
-        # schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
         type: "FHIR"
       transport:
         type: SFTP
