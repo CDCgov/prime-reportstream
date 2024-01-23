@@ -28,11 +28,12 @@ object ConfigSchemaReader : Logging {
         schemaName: String,
         folder: String? = null,
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
     ): ConfigSchema<*> {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
         val schemaList = when (URI(schemaName).scheme) {
             null -> fromRelative(schemaName, folder, schemaClass)
-            else -> fromUri(URI(schemaName), schemaClass)
+            else -> fromUri(URI(schemaName), schemaClass, blobConnectionInfo)
         }
 
         // Now merge the parent with all the child schemas
@@ -75,9 +76,10 @@ object ConfigSchemaReader : Logging {
     private fun fromUri(
         schemaUri: URI,
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
     ): List<ConfigSchema<*>> {
         val schemaList = mutableListOf<ConfigSchema<*>>()
-        schemaList.add(readSchemaTreeUri(schemaUri, schemaClass = schemaClass))
+        schemaList.add(readSchemaTreeUri(schemaUri, schemaClass = schemaClass, blobConnectionInfo = blobConnectionInfo))
         while (!schemaList.last().extends.isNullOrBlank()) {
             // Make sure there are no circular dependencies
             if (schemaList.any {
@@ -86,7 +88,13 @@ object ConfigSchemaReader : Logging {
             ) {
                 throw SchemaException("Schema circular dependency found while loading schema ${schemaUri.path}")
             }
-            schemaList.add(readSchemaTreeUri(URI(schemaList.last().extends!!), schemaClass = schemaClass))
+            schemaList.add(
+                readSchemaTreeUri(
+                    URI(schemaList.last().extends!!),
+                    schemaClass = schemaClass,
+                    blobConnectionInfo = blobConnectionInfo
+                )
+            )
         }
 
         return schemaList
@@ -126,6 +134,7 @@ object ConfigSchemaReader : Logging {
         schemaUri: URI,
         ancestry: List<String> = listOf(),
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
     ): ConfigSchema<*> {
         val rawSchema = when (schemaUri.scheme) {
             "file" -> {
@@ -138,9 +147,9 @@ object ConfigSchemaReader : Logging {
                     ?: throw SchemaException("Cannot read $schemaUri")
                 readOneYamlSchema(input, schemaClass)
             }
-            "azure" -> {
-                // TODO: #10487 will add a new function to download schemas, so this is just a temporary placeholder
-                val blob = BlobAccess.downloadBlobAsByteArray(schemaUri.toString())
+            "http", "https" -> {
+                val blob =
+                    BlobAccess.downloadBlobAsByteArray(schemaUri.toString(), blobConnectionInfo)
                 readOneYamlSchema(blob.inputStream(), schemaClass)
             }
             else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")
@@ -202,7 +211,7 @@ object ConfigSchemaReader : Logging {
      * Read one YAML formatted schema of type [schemaClass] from the given [inputStream].
      * @return the schema
      */
-    fun readOneYamlSchema(
+    internal fun readOneYamlSchema(
         inputStream: InputStream,
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java,
     ): ConfigSchema<*> {

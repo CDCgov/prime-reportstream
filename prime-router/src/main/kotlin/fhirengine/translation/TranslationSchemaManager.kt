@@ -20,6 +20,7 @@ class TranslationSchemaManager {
         directory: String,
         blobContainerInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
         schemaType: Report.Format,
+        blobEndpoint: String,
     ): Boolean {
         val sourceContainer = BlobAccess.getBlobContainer(blobContainerInfo)
         val blobs =
@@ -27,19 +28,18 @@ class TranslationSchemaManager {
         val transforms = blobs.filter { it.currentBlobItem.name.endsWith(".yml") }
         transforms.forEach { currentTransform ->
             val currentTransformName = currentTransform.currentBlobItem.name
-
-            val transformBlobClient = sourceContainer.getBlobClient(currentTransformName)
-            val transform = transformBlobClient.downloadContent()
-
             val transformDirectoryPath = Regex("(.*/).*").find(currentTransformName)!!.groups[1]!!.value
+
             val inputBlobClient = sourceContainer.getBlobClient(transformDirectoryPath + "input.fhir")
             val input = inputBlobClient.downloadContent()
             val inputBundle = FhirTranscoder.decode(input.toString())
 
             if (schemaType == Report.Format.FHIR) {
-                val configSchema = ConfigSchemaReader.readOneYamlSchema(
-                    transform.toStream(),
-                    FhirTransformSchema::class.java
+                val configSchema = ConfigSchemaReader.fromFile(
+                    blobEndpoint + "/" + blobContainerInfo.containerName + "/" + currentTransformName,
+                    null,
+                    FhirTransformSchema::class.java,
+                    blobContainerInfo
                 )
                 val transformedInputBundle = if (configSchema is FhirTransformSchema) {
                     FhirTransformer(configSchema).transform(inputBundle)
@@ -55,7 +55,12 @@ class TranslationSchemaManager {
                     return false
                 }
             } else {
-                val converterSchema = ConfigSchemaReader.readOneYamlSchema(transform.toStream())
+                val converterSchema = ConfigSchemaReader.fromFile(
+                    blobEndpoint + "/" + blobContainerInfo.containerName + "/" + currentTransformName,
+                    null,
+                    ConverterSchema::class.java,
+                    blobContainerInfo
+                )
                 val hl7Transform = FhirToHl7Converter(
                     converterSchema as ConverterSchema,
                     false,

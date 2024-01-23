@@ -4,6 +4,8 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.BlobAccess
+import io.mockk.clearAllMocks
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
@@ -20,15 +22,22 @@ class TranslationSchemaManagerTests {
         azuriteContainer1.start()
     }
 
+    @AfterEach
+    fun afterEach() {
+        clearAllMocks()
+    }
+
     @Test
     fun `validateSchemas - fhir to fhir`() {
+        val blobEndpoint = "http://${azuriteContainer1.host}:${
+            azuriteContainer1.getMappedPort(
+                10000
+            )
+        }/devstoreaccount1"
+        val containerName = "container1"
         val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
-            "container1",
-            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                azuriteContainer1.getMappedPort(
-                    10000
-                )
-            }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+            containerName,
+            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=$blobEndpoint;QueueEndpoint=http://${azuriteContainer1.host}:${
                 azuriteContainer1.getMappedPort(
                     10001
                 )
@@ -69,21 +78,23 @@ class TranslationSchemaManagerTests {
             TranslationSchemaManager().validateSchemas(
                 "dev/bar",
                 sourceBlobContainerMetadata,
-                Report.Format.FHIR
+                Report.Format.FHIR,
+                blobEndpoint,
             )
         ).isEqualTo(true)
     }
 
     @Test
     fun `validateSchemas - fhir to hl7`() {
+        val blobEndpoint = "http://${azuriteContainer1.host}:${
+            azuriteContainer1.getMappedPort(
+                10000
+            )
+        }/devstoreaccount1"
         val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
             "container1",
             """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
-                """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                """AccountKey=keydevstoreaccount1;BlobEndpoint=$blobEndpoint;QueueEndpoint=http://${azuriteContainer1.host}:${
                     azuriteContainer1.getMappedPort(
                         10001
                     )
@@ -121,7 +132,8 @@ class TranslationSchemaManagerTests {
             TranslationSchemaManager().validateSchemas(
                 "dev/foo",
                 sourceBlobContainerMetadata,
-                Report.Format.HL7
+                Report.Format.HL7,
+                blobEndpoint
             )
         ).isEqualTo(true)
     }
