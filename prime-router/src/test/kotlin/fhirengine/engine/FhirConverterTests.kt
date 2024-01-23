@@ -299,7 +299,7 @@ class FhirConverterTests {
         ).isNull()
 
         assertThat(
-            engine.getTransformerFromSchema("src/test/resources/fhir_sender_transforms/sample_schema")
+            engine.getTransformerFromSchema("fhir_sender_transforms/sample_schema")
         ).isNotNull()
     }
 

@@ -170,6 +170,7 @@ tasks.test {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
     dependsOn("compileKotlin")
     finalizedBy("jacocoTestReport")
+
     // Run the test task if specified configuration files are changed
     inputs.files(
         fileTree("./") {
@@ -177,6 +178,7 @@ tasks.test {
             include("metadata/**/*")
         }
     )
+
     outputs.upToDateWhen {
         // Call gradle with the -Pforcetest option will force the unit tests to run
         if (project.hasProperty("forcetest")) {
@@ -186,6 +188,7 @@ tasks.test {
             true
         }
     }
+
     configure<JacocoTaskExtension> {
         // This excludes classes from being analyzed, but not from being added to the report
         excludes = coverageExcludedClasses
@@ -319,6 +322,7 @@ tasks.register<Copy>("copyApiSwaggerUI") {
     // to folder /build/swagger-ui, in azure functions docker,
     // the api docs and swagger ui resources are upload to azure
     // blob container 'apidocs' - where the api docs is hosted.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(apiDocsSpecDir) {
         include("*.yaml")
     }
@@ -329,6 +333,32 @@ tasks.register<Copy>("copyApiSwaggerUI") {
 
 tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+}
+
+tasks.register("printSourceSetInformation") {
+
+    doLast {
+        sourceSets.forEach { srcSet ->
+            println("[" + srcSet.name + "]")
+            println("-->Source directories: " + srcSet.allJava.srcDirs)
+            println("-->Output directories: " + srcSet.output.classesDirs.files)
+            println("-->Compile classpath:")
+            srcSet.compileClasspath.files.forEach {
+                println(it.path)
+            }
+            println()
+            println("-->Runtime classpath:")
+            srcSet.runtimeClasspath.files.forEach {
+                println(it.path)
+            }
+            println()
+            println("-->Runtime classpath:")
+            srcSet.runtimeClasspath.files.forEach {
+                println(it.path)
+            }
+            println()
+        }
+    }
 }
 
 tasks.processResources {
@@ -498,6 +528,7 @@ tasks.register<Copy>("gatherAzureResources") {
     include("metadata/**/*.csv")
     include("settings/**/*.yml")
     include("assets/**/*__inline.html")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.register("copyAzureResources") {
@@ -519,6 +550,7 @@ tasks.register<Copy>("gatherAzureScripts") {
     include(primeScriptName)
     include(startFuncScriptName)
     include(apiDocsSetupScriptName)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.register("copyAzureScripts") {

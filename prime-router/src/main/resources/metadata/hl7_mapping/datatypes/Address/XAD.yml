@@ -1,0 +1,73 @@
+elements:
+
+  - name: street-address
+    value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad1-sad1-street-or-mailing-address`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-1-1' ]
+
+  - name: street-number
+    value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad1-sad2-street-name`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-1-2' ]
+
+  - name: dwelling-number
+    value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad1-sad3-dwelling-number`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-1-3' ]
+
+  - name: other-designation
+    value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad2-other-designation`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-2' ]
+
+  - name: city
+    value: [ '%deidentifiedValue', '%resource.city' ]
+    hl7Spec: [ '%{hl7SpecXADField}-3' ]
+
+  - name: state
+    value: [ '%resource.state' ]
+    hl7Spec: [ '%{hl7SpecXADField}-4' ]
+
+  - name: postal-code
+    value: [ '%deidentifiedValue', '%resource.postalCode' ]
+    hl7Spec: [ '%{hl7SpecXADField}-5' ]
+
+  - name: country
+    value: [ '%resource.country' ]
+    hl7Spec: [ '%{hl7SpecXADField}-6' ]
+
+  - name: address-type
+    value: [ '%resource.extension(%`rsext-xad7-address-type`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-7' ]
+
+  - name: other-geographic-destination
+    value: [ '%resource.extension(%`rsext-xad8-other-geographic-destination`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-8' ]
+
+  - name: district
+    value: [ '%resource.district' ]
+    hl7Spec: [ '%{hl7SpecXADField}-9' ]
+
+  - name: census-tract
+    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract").value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-10' ]
+
+  - name: other-geographic-destination
+    value: [ '%resource.extension(%`rsext-xad11-address-representation-code`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-11' ]
+
+  - name: period
+    value: [ '%resource.extension(%`rsext-xad12-address-validity-range`).extension(%`rsext-xad12-address-validity-start`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-12-1' ]
+
+  - name: period
+    value: [ '%resource.extension(%`rsext-xad12-address-validity-range`).extension(%`rsext-xad12-address-validity-end`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-12-2' ]
+
+  - name: effective-date
+    value: [ '%resource.extension(%`rsext-xad13-effective-date`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-13' ]
+
+  - name: expiration-date
+    value: [ '%resource.extension(%`rsext-xad14-expiration-date`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-14' ]
+
+  - name: addressee
+    value: [ '%resource.extension(%`rsext-xad19-addressee`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-19' ]

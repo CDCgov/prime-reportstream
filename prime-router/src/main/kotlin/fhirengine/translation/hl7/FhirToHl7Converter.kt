@@ -9,6 +9,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElemen
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromURI
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
@@ -17,6 +18,7 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import java.net.URI
 
 /**
  * Convert a FHIR bundle to an HL7 message using the [schemaRef] to perform the conversion.
@@ -51,6 +53,19 @@ class FhirToHl7Converter(
         context: FhirToHl7Context? = null,
     ) : this(
         schemaRef = converterSchemaFromFile(schema, schemaFolder),
+        strict = strict,
+        terser = terser,
+        context = context
+    )
+
+    constructor(
+        schemaUri: URI,
+        strict: Boolean = false,
+        terser: Terser? = null,
+        context: FhirToHl7Context? = null,
+    ) : this(
+//        schemaRef = ConfigSchemaReader.fromFile(schemaUri, schemaClass = ConverterSchema::class.java),
+        schemaRef = converterSchemaFromURI(schemaUri),
         strict = strict,
         terser = terser,
         context = context

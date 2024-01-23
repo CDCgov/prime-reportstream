@@ -9,10 +9,28 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
  * @throws Exception if the schema is invalid or is of the wrong type
  */
 fun fhirTransformSchemaFromFile(schemaName: String, folder: String? = null): FhirTransformSchema {
-    val schema = ConfigSchemaReader.fromFile(schemaName, folder, schemaClass = FhirTransformSchema::class.java)
+    val schema = ConfigSchemaReader.fromFile(
+        getURI(folder, schemaName),
+        schemaClass = FhirTransformSchema::class.java
+    )
+
     if (schema is FhirTransformSchema) {
         return schema
     } else {
         throw SchemaException("Schema ${schema.name} is not a FHIRTransformSchema")
     }
+}
+
+/**
+ * helper
+ */
+fun getURI(folder: String?, schemaName: String): String {
+    var path = if (folder.isNullOrBlank()) schemaName else "$folder/$schemaName"
+    if (!path.startsWith("classpath:/")) {
+        path = if (path.startsWith("/")) "classpath:$path" else "classpath:/$path"
+    }
+    if (!path.endsWith(".yml")) {
+        path = "$path.yml"
+    }
+    return path
 }

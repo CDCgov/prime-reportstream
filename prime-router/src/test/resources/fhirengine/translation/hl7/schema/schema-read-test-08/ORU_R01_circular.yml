@@ -19,5 +19,5 @@ elements:
     resource: Bundle.entry.resource.ofType(DiagnosticReport)
     condition: '%resource.count() > 0'
     required: true
-    schema: classpath:/fhirengine/translation/hl7/schema/schema-read-test-07/ORU_R01/order-observation.yml
+    schema: classpath:/fhirengine/translation/hl7/schema/schema-read-test-07/ORU_R01/order-observation
     resourceIndex: orderIndex

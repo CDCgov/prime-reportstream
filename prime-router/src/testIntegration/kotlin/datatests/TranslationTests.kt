@@ -30,7 +30,6 @@ import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
-import org.apache.commons.io.FilenameUtils
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
@@ -346,7 +345,15 @@ class TranslationTests {
                             }
                             check(!config.outputSchema.isNullOrBlank())
                             val actualStream =
-                                translateFromFhir(afterSenderTransform, config.outputSchema, config.receiver)
+                                translateFromFhir(
+                                    afterSenderTransform,
+                                    if (config.outputSchema.startsWith("classpath:")) {
+                                        config.outputSchema
+                                    } else {
+                                        "classpath:/" + config.outputSchema
+                                    },
+                                    config.receiver
+                                )
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
@@ -474,9 +481,8 @@ class TranslationTests {
             }
 
             val hl7 = FhirToHl7Converter(
-                FilenameUtils.getName(schema),
-                FilenameUtils.getPath(schema),
-                context = FhirToHl7Context(
+                schema,
+                    context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = translationConfig,
                     translationFunctions = CustomTranslationFunctions()

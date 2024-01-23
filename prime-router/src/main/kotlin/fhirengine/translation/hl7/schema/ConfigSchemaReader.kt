@@ -44,6 +44,29 @@ object ConfigSchemaReader : Logging {
         return mergedSchema
     }
 
+    fun fromFile(
+        schemaUri: URI,
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
+    ): ConfigSchema<*> {
+        // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
+//        val schemaList = when (schemaUri.scheme) {
+//            null -> fromRelative(schemaName, folder, schemaClass)
+//            else -> fromUri(schemaUri, schemaClass)
+//        }
+
+        val schemaList = when (schemaUri.scheme) {
+            "classpath" -> fromUri(schemaUri, schemaClass)
+            else -> throw Exception("Not support relative schema path.")
+        }
+        // Now merge the parent with all the child schemas
+        val mergedSchema = mergeSchemas(schemaList)
+
+        if (!mergedSchema.isValid()) {
+            throw SchemaException("Invalid schema $schemaUri: \n${mergedSchema.errors.joinToString("\n")}")
+        }
+        return mergedSchema
+    }
+
     /**
      * Reads a schema from the file directory via relative pathing.  This is the deprecated way of reading schemas
      * and continues to exist while the transition is executed
@@ -134,7 +157,8 @@ object ConfigSchemaReader : Logging {
                 readOneYamlSchema(file.inputStream(), schemaClass)
             }
             "classpath" -> {
-                val input = javaClass.classLoader.getResourceAsStream(schemaUri.path.substring(1))
+                val schemaYml = if (schemaUri.path.endsWith(".yml")) schemaUri.path else schemaUri.path + ".yml"
+                val input = javaClass.classLoader.getResourceAsStream(schemaYml.substring(1))
                     ?: throw SchemaException("Cannot read $schemaUri")
                 readOneYamlSchema(input, schemaClass)
             }
