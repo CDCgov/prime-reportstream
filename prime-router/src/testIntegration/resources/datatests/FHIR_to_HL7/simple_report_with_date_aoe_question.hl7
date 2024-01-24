@@ -10,4 +10,4 @@ NTE|1|L|95419-8 Has symptoms related to condition of interest: Yes Y HL70136
 NTE|2|L|11368-8 Illness or injury onset date and time: 2023-12-31
 NTE|3|L|95418-0 Employed in a healthcare setting: Yes Y HL70136
 NTE|4|L|95421-4 Resides in a congregate care setting: No N HL70136
-SPM|1|300ce2b5-5497-42f7-b950-231dd52484f6&Testing Lab&12D4567890&CLIA^300ce2b5-5497-42f7-b950-231dd52484f6&Testing Lab&12D4567890&CLIA||258467004^Nasopharyngeal washings^SCT^^^^2.67||||53342003^^SCT^^^^^^Internal nose structure (body structure)|||||||||20240104023154+0000|20240104023154+0000
+SPM|1|300ce2b5-5497-42f7-b950-231dd52484f6&Testing Lab&12D4567890&CLIA^300ce2b5-5497-42f7-b950-231dd52484f6&Testing Lab&12D4567890&CLIA||258467004^Nasopharyngeal washings^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^^^Internal nose structure (body structure)|||||||||20240104023154+0000|20240104023154+0000
