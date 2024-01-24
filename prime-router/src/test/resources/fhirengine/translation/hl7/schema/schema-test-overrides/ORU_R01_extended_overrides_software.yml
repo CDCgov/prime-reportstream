@@ -31,4 +31,4 @@ elements:
   - name: software-segment
     condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    schema: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/sft2.yml'
+    schema: classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/sft2
