@@ -339,6 +339,9 @@ updates:
       swagger:
         patterns:
           - "io.swagger.core*"
+      skrapeit:
+        patterns:
+          - "it.skrape:skrapeit*"
     ignore:
       # ignore updates to sshj so we don't run into future issues connecting to STLTs
       - dependency-name: "sshj"
