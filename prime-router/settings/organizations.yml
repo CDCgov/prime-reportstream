@@ -137,12 +137,12 @@
       format: FHIR
     - name: ignore-fhir-passthrough      # Use this to test fhir passthrough
       organizationName: ignore
-      topic: send-original
+      topic: elr-elims
       customerStatus: active
       format: FHIR
     - name: ignore-hl7-passthrough      # Use this to test hl7 passthrough
       organizationName: ignore
-      topic: send-original
+      topic: elr-elims
       customerStatus: active
       format: HL7
     - name: ignore-strac      # Use this to test sending strac data
@@ -251,7 +251,7 @@
     - name: FULL_ELR_PASSTHROUGH_FHIR
       externalName: Ignore FULL_ELR Passthrough
       organizationName: ignore
-      topic: send-original
+      topic: elr-elims
       customerStatus: active
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
@@ -269,7 +269,7 @@
     - name: FULL_ELR_PASSTHROUGH_HL7
       externalName: Ignore HL7 Passthrough
       organizationName: ignore
-      topic: send-original
+      topic: elr-elims
       customerStatus: active
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:

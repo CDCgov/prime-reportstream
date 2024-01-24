@@ -101,19 +101,19 @@
       format: HL7
     - name: ignore-fhir-passthrough      # Use this to test fhir passthrough
       organizationName: ignore
-      topic: send-original
+      topic: elr_elims
       customerStatus: active
       format: FHIR
     - name: ignore-hl7-passthrough      # Use this to test fhir passthrough
       organizationName: ignore
-      topic: send-original
+      topic: elr_elims
       customerStatus: active
       format: HL7
   receivers:
     - name: FULL_ELR_PASSTHROUGH
       externalName: Ignore FULL_ELR Passthrough
       organizationName: ignore
-      topic: send-original
+      topic: elr-elims
       customerStatus: active
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
@@ -133,7 +133,7 @@
     - name: FULL_ELR_PASSTHROUGH_HL7
       externalName: Ignore HL7 Passthrough
       organizationName: ignore
-      topic: send-original
+      topic: elr-elims
       customerStatus: active
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:

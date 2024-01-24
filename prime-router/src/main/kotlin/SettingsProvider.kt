@@ -45,12 +45,15 @@ enum class CustomerStatus {
  * A submission with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions
  * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
  */
-enum class Topic(@JsonValue val jsonVal: String, val isUniversalPipeline: Boolean = true) {
-    SEND_ORIGINAL("send-original", true),
-    FULL_ELR("full-elr", true),
-    ETOR_TI("etor-ti", true),
-    ELR_ELIMS("elr-elims", true),
-    COVID_19("covid-19", false),
-    MONKEYPOX("monkeypox", false),
-    TEST("test", false),
+enum class Topic(
+    @JsonValue val jsonVal: String,
+    val isUniversalPipeline: Boolean = true,
+    val isSendOriginal: Boolean = false,
+) {
+    FULL_ELR("full-elr", true, false),
+    ETOR_TI("etor-ti", true, false),
+    ELR_ELIMS("elr-elims", true, true),
+    COVID_19("covid-19", false, false),
+    MONKEYPOX("monkeypox", false, false),
+    TEST("test", false, false),
 }

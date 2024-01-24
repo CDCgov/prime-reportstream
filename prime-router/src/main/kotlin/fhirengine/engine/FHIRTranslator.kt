@@ -14,7 +14,6 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.BlobAccess.Companion.downloadBlobAsByteArray
@@ -73,7 +72,7 @@ class FHIRTranslator(
                     ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
                 actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
 
-                val bodyBytes = if (receiver.topic == Topic.SEND_ORIGINAL) {
+                val bodyBytes = if (receiver.topic.isSendOriginal) {
                     getOriginalMessage(message.originalReportId as ReportId, WorkflowEngine())
                 } else {
                     getByteArrayFromBundle(receiver, bundle)

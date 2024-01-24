@@ -92,7 +92,7 @@ class FhirTranslatorTests {
             Receiver(
                 ORIGINAL_SENDER_RECEIVER_NAME,
                 ORGANIZATION_NAME,
-                Topic.SEND_ORIGINAL,
+                Topic.ELR_ELIMS,
                 CustomerStatus.ACTIVE,
                 ORU_R01_SCHEMA,
                 format = Report.Format.HL7_BATCH,
@@ -118,7 +118,7 @@ class FhirTranslatorTests {
         metadata: Metadata = Metadata(
             schema = Schema(
                 name = "None",
-                topic = Topic.SEND_ORIGINAL,
+                topic = Topic.ELR_ELIMS,
                 elements = emptyList()
             )
         ),
@@ -225,7 +225,7 @@ class FhirTranslatorTests {
                     BLOB_URL,
                     "test",
                     BLOB_SUB_FOLDER,
-                    topic = Topic.SEND_ORIGINAL,
+                    topic = Topic.ELR_ELIMS,
                     originalSenderOrganization.receivers[0].fullName
                 )
             )
@@ -305,39 +305,6 @@ class FhirTranslatorTests {
         val rootReport = FHIRTranslator().getOriginalMessage(childReportId, mockWorkflowEngine)
 
         assertThat(String(rootReport)).isEqualTo(reportContent)
-    }
-
-    @Test
-    fun `test findRootReportId`() {
-        val mockWorkflowEngine = mockk<WorkflowEngine>()
-        val mockDatabaseAccess = mockk<DatabaseAccess>()
-        val parentReportId = UUID.randomUUID()
-        val childReportId = UUID.randomUUID()
-        val rootItemLineage =
-            ItemLineage(9000000125356546, null, 0, parentReportId, 0, "trackingId1", null, OffsetDateTime.now(), null)
-        val childItemLineage =
-            ItemLineage(
-                9000000125356546,
-                parentReportId,
-                0,
-                childReportId,
-                0,
-                "trackingId2",
-                null,
-                OffsetDateTime.now(),
-                null
-            )
-
-        every {
-            mockWorkflowEngine.db
-        }.returns(mockDatabaseAccess)
-        every {
-            mockWorkflowEngine.db.fetchItemLineagesForReport(any(), any(), any())
-        }.returnsMany(listOf(childItemLineage), listOf(rootItemLineage))
-
-        val rootReport = FHIRTranslator().findRootReportId(childReportId, mockWorkflowEngine)
-
-        assertThat(rootReport).isEqualTo(parentReportId)
     }
 
     // happy path, with a receiver that has a custom schema

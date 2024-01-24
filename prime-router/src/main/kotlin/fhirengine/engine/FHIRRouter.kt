@@ -259,23 +259,31 @@ class FHIRRouter(
         finalReceivers: MutableList<Receiver>,
     ): MutableList<Receiver> {
         var finalReceivers1 = finalReceivers
-        if (message.topic == Topic.SEND_ORIGINAL) {
+        if (message.topic.isSendOriginal) {
+            val originalMessageFormat =
+                getOriginalMessageBodyFormat(message.originalReportId as ReportId, WorkflowEngine())
             listOfReceivers.forEach { receiver ->
-                val originalMessageFormat =
-                    getOriginalMessageBodyFormat(message.originalReportId as ReportId, WorkflowEngine())
                 if ((originalMessageFormat == "HL7" && receiver.format == Report.Format.HL7) ||
                     (originalMessageFormat == "FHIR" && receiver.format == Report.Format.FHIR)
                 ) {
                     finalReceivers1.add(receiver)
                 }
             }
+
+            if (finalReceivers1.isEmpty()) {
+                ActionHistory(
+                    TaskAction.process_warning,
+                    true
+                )
+                logger.error(
+                    "All receivers filtered out because no receiver is set up to" +
+                    " receive the original message in format $originalMessageFormat"
+                )
+            }
         } else {
             finalReceivers1 = listOfReceivers.toMutableList()
         }
 
-        if (finalReceivers1.isEmpty()) {
-            ActionHistory(TaskAction.process_warning, true)
-        }
         return finalReceivers1
     }
 

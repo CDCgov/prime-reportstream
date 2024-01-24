@@ -111,8 +111,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         message.eventAction,
                         message.reportId,
                         message.emptyBatch,
-                        at,
-                        null
+                        at
                     )
                 }
                 is BatchEventQueueMessage -> {
@@ -140,8 +139,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         message.options,
                         message.defaults,
                         message.routeTo,
-                        at,
-                        null
+                        at
                     )
                 }
                 else -> error("Internal Error: invalid event type: $event")
@@ -246,8 +244,7 @@ class BatchEvent(
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
         val queueMessage = BatchEventQueueMessage(
-            eventAction, receiverName, isEmptyBatch, afterClause,
-//            originalReportId, originalMessageFormat
+            eventAction, receiverName, isEmptyBatch, afterClause
         )
         return JacksonMapperUtilities.objectMapper.writeValueAsString(queueMessage)
     }
