@@ -2,7 +2,6 @@ package gov.cdc.prime.router.fhirengine.translation
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.BlobAccess
 import io.mockk.clearAllMocks
 import org.junit.jupiter.api.AfterEach
@@ -45,7 +44,7 @@ class TranslationSchemaManagerTests {
         )
 
         BlobAccess.uploadBlob(
-            "dev/bar/input.fhir",
+            "fhir_transforms/dev/bar/input.fhir",
             File(
                 Paths.get("").toAbsolutePath().toString() +
                     "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/input.fhir"
@@ -55,7 +54,7 @@ class TranslationSchemaManagerTests {
         )
 
         BlobAccess.uploadBlob(
-            "dev/bar/output.fhir",
+            "fhir_transforms/dev/bar/output.fhir",
             File(
                 Paths.get("").toAbsolutePath().toString() +
                     "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/output.fhir"
@@ -65,7 +64,7 @@ class TranslationSchemaManagerTests {
         )
 
         BlobAccess.uploadBlob(
-            "dev/bar/simple-transform.yml",
+            "fhir_transforms/dev/bar/simple-transform.yml",
             File(
                 Paths.get("").toAbsolutePath().toString() +
                     "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/simple-transform.yml"
@@ -75,10 +74,9 @@ class TranslationSchemaManagerTests {
         )
 
         assertThat(
-            TranslationSchemaManager().validateSchemas(
-                "dev/bar",
+            TranslationSchemaManager().validateManagedSchemas(
+                TranslationSchemaManager.SchemaType.FHIR,
                 sourceBlobContainerMetadata,
-                Report.Format.FHIR,
                 blobEndpoint,
             )
         ).isEqualTo(true)
@@ -102,7 +100,7 @@ class TranslationSchemaManagerTests {
         )
 
         BlobAccess.uploadBlob(
-            "dev/foo/input.fhir",
+            "hl7_mapping/dev/foo/input.fhir",
             File(
                 Paths.get("").toAbsolutePath().toString() +
                     "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/input.fhir"
@@ -111,7 +109,7 @@ class TranslationSchemaManagerTests {
         )
 
         BlobAccess.uploadBlob(
-            "dev/foo/output.hl7",
+            "hl7_mapping/dev/foo/output.hl7",
             File(
                 Paths.get("").toAbsolutePath().toString() +
                     "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/output.hl7"
@@ -120,7 +118,7 @@ class TranslationSchemaManagerTests {
         )
 
         BlobAccess.uploadBlob(
-            "dev/foo/sender-transform.yml",
+            "hl7_mapping/dev/foo/sender-transform.yml",
             File(
                 Paths.get("").toAbsolutePath().toString() +
                     "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/sender-transform.yml"
@@ -129,10 +127,9 @@ class TranslationSchemaManagerTests {
         )
 
         assertThat(
-            TranslationSchemaManager().validateSchemas(
-                "dev/foo",
+            TranslationSchemaManager().validateManagedSchemas(
+                TranslationSchemaManager.SchemaType.HL7,
                 sourceBlobContainerMetadata,
-                Report.Format.HL7,
                 blobEndpoint
             )
         ).isEqualTo(true)
