@@ -8879,12 +8879,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-chai-friendly@npm:^0.7.2":
-  version: 0.7.2
-  resolution: "eslint-plugin-chai-friendly@npm:0.7.2"
+"eslint-plugin-chai-friendly@npm:^0.7.4":
+  version: 0.7.4
+  resolution: "eslint-plugin-chai-friendly@npm:0.7.4"
   peerDependencies:
     eslint: ">=3.0.0"
-  checksum: a9c70da37361b54d9cdd4f7c26a3d83caed106a239d21268b8fdaa6b30c0a097dab6ff76a320e40325fd6d27f395eb5cf914c56f5aaf5215d5614f515bbfc975
+  checksum: d271fad24650319028c7c0bcb4486715a6c2f7059244a572e337e92e8d2cad4edcd758b42c8a9da35477cceddc8a956e51ef7a10ddc38a05b263759146361f05
   languageName: node
   linkType: hard
 
@@ -15260,7 +15260,7 @@ __metadata:
     downloadjs: ^1.4.7
     eslint: ^8.56.0
     eslint-config-prettier: ^9.0.0
-    eslint-plugin-chai-friendly: ^0.7.2
+    eslint-plugin-chai-friendly: ^0.7.4
     eslint-plugin-import: ^2.29.1
     eslint-plugin-jest: ^27.6.0
     eslint-plugin-jest-dom: ^5.1.0
