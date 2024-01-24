@@ -140,7 +140,7 @@
       topic: send-original
       customerStatus: active
       format: FHIR
-    - name: ignore-hl7-passthrough      # Use this to test fhir passthrough
+    - name: ignore-hl7-passthrough      # Use this to test hl7 passthrough
       organizationName: ignore
       topic: send-original
       customerStatus: active

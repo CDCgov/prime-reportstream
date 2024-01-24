@@ -53,6 +53,14 @@ those with a topic matching the sender topic. Topics include:
    <td>ELR project with ELIMS
    </td>
   </tr>
+  <tr>
+     <td>send-original
+     </td>
+    <td>Universal
+     </td>
+     <td>Passes through the original message without changes
+     </td>
+  </tr>
 </table>
 
 ### FHIRPath for Routing
