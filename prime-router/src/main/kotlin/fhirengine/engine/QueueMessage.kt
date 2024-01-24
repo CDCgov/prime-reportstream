@@ -138,8 +138,6 @@ data class BatchEventQueueMessage(
     val receiverName: String,
     val emptyBatch: Boolean,
     val at: String,
-//    override val originalReportId: UUID,
-//    override val originalReportFormat: Report.Format,
 ) : WithEventAction()
 
 @JsonTypeName("report")
@@ -148,8 +146,6 @@ data class ReportEventQueueMessage(
     val emptyBatch: Boolean,
     val reportId: UUID,
     val at: String,
-//    override val originalReportId: UUID,
-//    override val originalReportFormat: Report.Format,
 ) : WithEventAction()
 
 @JsonTypeName("process")
@@ -160,6 +156,4 @@ data class ProcessEventQueueMessage(
     val defaults: Map<String, String>,
     val routeTo: List<String>,
     val at: String,
-//    override val originalReportId: UUID,
-//    override val originalReportFormat: Report.Format,
 ) : WithEventAction()

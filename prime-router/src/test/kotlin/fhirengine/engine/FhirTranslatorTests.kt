@@ -340,37 +340,6 @@ class FhirTranslatorTests {
         assertThat(rootReport).isEqualTo(parentReportId)
     }
 
-//    @Test
-//    fun `test findRootReportId`() {
-//        val metadata = Metadata(schema = Schema(name = "one", topic = Topic.TEST))
-//        val mockWorkflowEngine = makeEngine(metadata, MockSettings())
-//        val parentReportId = UUID.randomUUID()
-//        val childReportId = UUID.randomUUID()
-//        val rootItemLineage =
-//            ItemLineage(9000000125356546, null, 0, parentReportId, 0, "trackingId1", null, OffsetDateTime.now(), null)
-//        val childItemLineage =
-//            ItemLineage(
-//                9000000125356546,
-//                parentReportId,
-//                0,
-//                childReportId,
-//                0,
-//                "trackingId2",
-//                null,
-//                OffsetDateTime.now(),
-//                null
-//            )
-//
-//        every { mockWorkflowEngine.db } returns accessSpy
-//        every {
-//            mockWorkflowEngine.db.fetchItemLineagesForReport(any(), any(), any())
-//        }.returns(listOf(childItemLineage, rootItemLineage))
-//
-//        val rootReport = FHIRTranslator().findRootReportId(childReportId, mockWorkflowEngine)
-//
-//        assertThat(rootReport == parentReportId)
-//    }
-
     // happy path, with a receiver that has a custom schema
     @Test
     fun `test full elr translation happy path, custom schema`() {

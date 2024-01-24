@@ -219,8 +219,6 @@ class TopicReceiver : SubmissionReceiver {
         options: Options,
         defaults: Map<String, String>,
         routeTo: List<String>,
-//        originalReportId: UUID,
-//        originalMessageFormat: Report.Format,
     ) {
         val report = parsedReport.copy()
         val senderSource = parsedReport.sources.firstOrNull()
@@ -239,8 +237,6 @@ class TopicReceiver : SubmissionReceiver {
             routeTo,
             null,
             null
-//            originalReportId,
-//            originalMessageFormat
         )
 
         val bodyBytes = ReportWriter.getBodyBytes(report)
@@ -366,9 +362,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
             defaults,
             routeTo,
             null,
-            null,
-//            report.id,
-//            originalReportFormat
+            null
         )
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
 

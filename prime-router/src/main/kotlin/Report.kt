@@ -1651,8 +1651,6 @@ class Report : Logging {
             metadata: Metadata,
             actionHistory: ActionHistory,
             topic: Topic,
-//            originalReportId: UUID,
-//            originalMessageFormat: Report.Format,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {
             check(messageBody.isNotEmpty())
             check(sourceReportIds.isNotEmpty())
@@ -1705,9 +1703,7 @@ class Report : Logging {
                         report.id,
                         false,
                         null,
-                        null,
-//                        originalReportId,
-//                        originalMessageFormat
+                        null
                     )
                 } else {
                     ProcessEvent(
@@ -1717,9 +1713,7 @@ class Report : Logging {
                         emptyMap(),
                         emptyList(),
                         at = time,
-                        null,
-//                        originalReportId,
-//                        originalMessageFormat
+                        null
                     )
                 }
 
