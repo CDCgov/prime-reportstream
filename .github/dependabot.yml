@@ -339,6 +339,12 @@ updates:
       swagger:
         patterns:
           - "io.swagger.core*"
+      skrapeit:
+        patterns:
+          - "it.skrape:skrapeit*"
+      jwt-verifier:
+        patterns:
+          - "com.okta.jwt:okta-jwt-verifier"
     ignore:
       # ignore updates to sshj so we don't run into future issues connecting to STLTs
       - dependency-name: "sshj"
