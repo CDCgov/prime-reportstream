@@ -206,7 +206,9 @@ class FHIRRouter(
                             BlobAccess.digestToString(blobInfo.digest),
                             message.blobSubFolderName,
                             message.topic,
-                            receiver.fullName
+                            receiver.fullName,
+                            message.originalReportId,
+                            message.originalReportFormat
                         )
                     )
                 )
@@ -259,7 +261,8 @@ class FHIRRouter(
         var finalReceivers1 = finalReceivers
         if (message.topic == Topic.SEND_ORIGINAL) {
             listOfReceivers.forEach { receiver ->
-                val originalMessageFormat = getOriginalMessageBodyFormat(message.reportId, WorkflowEngine())
+                val originalMessageFormat =
+                    getOriginalMessageBodyFormat(message.originalReportId as ReportId, WorkflowEngine())
                 if ((originalMessageFormat == "HL7" && receiver.format == Report.Format.HL7) ||
                     (originalMessageFormat == "FHIR" && receiver.format == Report.Format.FHIR)
                 ) {
@@ -392,8 +395,7 @@ class FHIRRouter(
     /**
      * Takes a [reportId] and returns the format of the original message, should be either FHIR or HL7
      */
-    internal fun getOriginalMessageBodyFormat(reportId: ReportId, workflowEngine: WorkflowEngine): String {
-        val rootReportId = FHIRTranslator().findRootReportId(reportId, workflowEngine)
+    internal fun getOriginalMessageBodyFormat(rootReportId: ReportId, workflowEngine: WorkflowEngine): String {
         val report = workflowEngine.db.fetchReportFile(rootReportId)
         return report.bodyFormat
     }

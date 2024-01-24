@@ -155,7 +155,9 @@ class FHIRConverter(
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
                         queueMessage.blobSubFolderName,
-                        queueMessage.topic
+                        queueMessage.topic,
+                        queueMessage.originalReportId,
+                        queueMessage.originalReportFormat
                     )
                 )
             }

@@ -74,7 +74,7 @@ class FHIRTranslator(
                 actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
 
                 val bodyBytes = if (receiver.topic == Topic.SEND_ORIGINAL) {
-                    getOriginalMessage(message.reportId, WorkflowEngine())
+                    getOriginalMessage(message.originalReportId as ReportId, WorkflowEngine())
                 } else {
                     getByteArrayFromBundle(receiver, bundle)
                 }
@@ -110,22 +110,9 @@ class FHIRTranslator(
     /**
      * Takes a reportId and returns the content of the original message as a ByteArray
      */
-    internal fun getOriginalMessage(reportId: ReportId, workflowEngine: WorkflowEngine): ByteArray {
-        val rootReportId = findRootReportId(reportId, workflowEngine)
-        val report = workflowEngine.db.fetchReportFile(rootReportId)
+    internal fun getOriginalMessage(originalReportId: ReportId, workflowEngine: WorkflowEngine): ByteArray {
+        val report = workflowEngine.db.fetchReportFile(originalReportId)
         return downloadBlobAsByteArray(report.bodyUrl)
-    }
-
-    /**
-     * Takes a [reportId] and returns the ReportId of the original message that was sent
-     */
-    fun findRootReportId(reportId: ReportId, workflowEngine: WorkflowEngine): ReportId {
-        val itemLineages = workflowEngine.db.fetchItemLineagesForReport(reportId, 1)
-        return if (itemLineages != null && itemLineages[0].parentReportId != null) {
-            findRootReportId(itemLineages[0].parentReportId, workflowEngine)
-        } else {
-            return reportId
-        }
     }
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.TRANSLATED_AT

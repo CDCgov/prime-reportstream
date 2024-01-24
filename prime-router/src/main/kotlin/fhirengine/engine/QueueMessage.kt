@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
@@ -81,7 +82,16 @@ interface ReportIdentifyingInformation {
     val topic: Topic
 }
 
-abstract class ReportPipelineMessage : ReportIdentifyingInformation, WithDownloadableReport, QueueMessage()
+interface OriginalMessageInformation {
+    val originalReportId: UUID?
+    val originalReportFormat: Report.Format?
+}
+
+abstract class ReportPipelineMessage :
+    ReportIdentifyingInformation,
+    WithDownloadableReport,
+    QueueMessage(),
+    OriginalMessageInformation
 
 @JsonTypeName("convert")
 data class FhirConvertQueueMessage(
@@ -91,6 +101,8 @@ data class FhirConvertQueueMessage(
     override val blobSubFolderName: String,
     override val topic: Topic,
     val schemaName: String = "",
+    override val originalReportId: UUID? = null,
+    override val originalReportFormat: Report.Format? = null,
 ) : ReportPipelineMessage()
 
 @JsonTypeName("route")
@@ -100,6 +112,8 @@ data class FhirRouteQueueMessage(
     override val digest: String,
     override val blobSubFolderName: String,
     override val topic: Topic,
+    override val originalReportId: UUID? = null,
+    override val originalReportFormat: Report.Format? = null,
 ) : ReportPipelineMessage()
 
 @JsonTypeName("translate")
@@ -110,6 +124,8 @@ data class FhirTranslateQueueMessage(
     override val blobSubFolderName: String,
     override val topic: Topic,
     val receiverFullName: String,
+    override val originalReportId: UUID? = null,
+    override val originalReportFormat: Report.Format? = null,
 ) : ReportPipelineMessage()
 
 abstract class WithEventAction : QueueMessage() {
@@ -122,6 +138,8 @@ data class BatchEventQueueMessage(
     val receiverName: String,
     val emptyBatch: Boolean,
     val at: String,
+//    override val originalReportId: UUID,
+//    override val originalReportFormat: Report.Format,
 ) : WithEventAction()
 
 @JsonTypeName("report")
@@ -130,6 +148,8 @@ data class ReportEventQueueMessage(
     val emptyBatch: Boolean,
     val reportId: UUID,
     val at: String,
+//    override val originalReportId: UUID,
+//    override val originalReportFormat: Report.Format,
 ) : WithEventAction()
 
 @JsonTypeName("process")
@@ -140,4 +160,6 @@ data class ProcessEventQueueMessage(
     val defaults: Map<String, String>,
     val routeTo: List<String>,
     val at: String,
+//    override val originalReportId: UUID,
+//    override val originalReportFormat: Report.Format,
 ) : WithEventAction()

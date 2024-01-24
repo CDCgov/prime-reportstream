@@ -111,7 +111,11 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         message.eventAction,
                         message.reportId,
                         message.emptyBatch,
-                        at
+                        at,
+                        null
+
+//                        message.originalReportId,
+//                        message.originalReportFormat
                     )
                 }
                 is BatchEventQueueMessage -> {
@@ -124,7 +128,9 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         message.eventAction,
                         message.receiverName,
                         message.emptyBatch,
-                        at
+                        at,
+//                        message.originalReportId,
+//                        message.originalReportFormat
                     )
                 }
                 is ProcessEventQueueMessage -> {
@@ -139,7 +145,10 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         message.options,
                         message.defaults,
                         message.routeTo,
-                        at
+                        at,
+                        null,
+//                        message.originalReportId,
+//                        message.originalReportFormat
                     )
                 }
                 else -> error("Internal Error: invalid event type: $event")
@@ -166,11 +175,14 @@ class ProcessEvent(
     val routeTo: List<String>,
     at: OffsetDateTime? = null,
     val retryToken: RetryToken? = null,
+//    val originalReportId: UUID,
+//    val originalMessageFormat: Report.Format,
 ) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
         val queueMessage = ProcessEventQueueMessage(
-            eventAction, reportId, options, defaults, routeTo, afterClause
+            eventAction, reportId, options, defaults, routeTo, afterClause,
+//            originalReportId, originalMessageFormat
         )
         return JacksonMapperUtilities.objectMapper.writeValueAsString(queueMessage)
     }
@@ -202,12 +214,15 @@ class ReportEvent(
     val isEmptyBatch: Boolean,
     at: OffsetDateTime? = null,
     val retryToken: RetryToken? = null,
+//    val originalReportId: UUID,
+//    val originalMessageFormat: Report.Format,
 ) : Event(eventAction, at) {
 
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
         val queueMessage = ReportEventQueueMessage(
-            eventAction, isEmptyBatch, reportId, afterClause
+            eventAction, isEmptyBatch, reportId, afterClause,
+//            originalReportId, originalMessageFormat
         )
         return JacksonMapperUtilities.objectMapper.writeValueAsString(queueMessage)
     }
@@ -240,11 +255,14 @@ class BatchEvent(
     val receiverName: String,
     val isEmptyBatch: Boolean,
     at: OffsetDateTime? = null,
+//    val originalReportId: UUID,
+//    val originalMessageFormat: Report.Format,
 ) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
         val queueMessage = BatchEventQueueMessage(
-            eventAction, receiverName, isEmptyBatch, afterClause
+            eventAction, receiverName, isEmptyBatch, afterClause,
+//            originalReportId, originalMessageFormat
         )
         return JacksonMapperUtilities.objectMapper.writeValueAsString(queueMessage)
     }
