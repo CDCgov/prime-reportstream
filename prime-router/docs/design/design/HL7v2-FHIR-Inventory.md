@@ -55,6 +55,9 @@ implementation differs from what is in the spreadsheets.
 
 ### OBR/ORC -> ServiceRequest
 
+- The inventory lists ORC as a required segment with a DiagnosticReport created for each ORC. However, NIST lists
+  ORC is an optional segment. Both sources list OBR as a required segment. Thus, this implementation DiagnosticReport
+  created for each OBR.
 - There is a discrepancy on where to pull identifiers from, for ORC/OBR 2,3 the mapping contradictorily states that both
   should be preferred over the other.
   The implementation opts to operate with the same logic for mapping to DiagnosticReport and to prefer ORC when
@@ -101,6 +104,7 @@ implementation differs from what is in the spreadsheets.
 - Mapping comments
   in [ORU_R01](https://docs.google.com/spreadsheets/d/1gHK6_PFyr7PXns7wLDs0LSLsbjm0x-4bWUu3crXMKMI/edit#gid=0)
   indicate that NK1 can be mapped to Patient or Related Person. We have decided Related Person is more appropriate.
+
 ### PV1/PV2 -> Encounter
 
 - The inventory says PV1.16 should go to a property on an Encounter, but that property exists on

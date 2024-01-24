@@ -57,10 +57,10 @@ parent:
 type:
   valueOf: datatypes/CWE/CodeableConcept
   expressionType: resource
-  specs: SPM.4
+  specs: SPM.4 |OBR.15.1
 
 container:
-  condition: $spm6 NOT_NULL || $spm27 NOT_NULL
+  condition: $spm6 NOT_NULL ||$spm27 NOT_NULL
   expressionType: nested
   generateList: true
   vars:
@@ -68,17 +68,27 @@ container:
     spm27: SPM.27
   expressionsMap:
     additiveCodeableConcept:
-      condition: $spm6 NOT_NULL
-      valueOf: datatypes/CWE/CodeableConcept
-      expressionType: resource
-      specs: SPM.6 *
+      expressionType: nested
+      expressions:
+        - condition: $spm6 NOT_NULL
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: SPM.6 *
+        - condition: $spm6 NULL
+          expressionType: nested
+          expressionsMap:
+            text:
+              type: STRING
+              valueOf: OBR.15.2
+              expressionType: HL7Spec
+    
     type:
       valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
       specs: SPM.27
 
 collection:
-  condition: $spm7 NOT_NULL || $spm8 NOT_NULL || $spm9 NOT_NULL || $spm12 NOT_NULL || $spm17 NOT_NULL
+  condition: $spm7 NOT_NULL ||$spm8 NOT_NULL ||$spm9 NOT_NULL ||$spm12 NOT_NULL ||$spm17 NOT_NULL
   expressionType: nested
   generateList: true
   vars:
@@ -95,7 +105,7 @@ collection:
     bodySite:
       valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
-      specs: SPM.8
+      specs: SPM.8 |OBR.15.4
     extension:
       condition: $spm9 NOT_NULL
       expressionType: nested
@@ -111,25 +121,47 @@ collection:
     quantity:
       valueOf: datatypes/CQ/Quantity
       expressionType: resource
-      specs: SPM.12
+      specs: SPM.12 |OBR.9
     collectedPeriod:
-      condition: $end NOT_NULL
-      valueOf: datatypes/DR/Period
-      expressionType: resource
-      specs: SPM.17
+      expressionType: nested
       vars:
-        start: SPM.17.1
-        end: SPM.17.2
-        dateTimeIn: SPM.17.1
-        dateTimeOut: SPM.17.2
+        spm17: SPM.17
+      expressions:
+        - condition: $end NOT_NULL
+          valueOf: datatypes/DR/Period
+          expressionType: resource
+          specs: SPM.17
+          vars:
+            start: SPM.17.1
+            end: SPM.17.2
+            dateTimeIn: SPM.17.1
+            dateTimeOut: SPM.17.2
+        - condition: $spm17 NULL && $end NOT_NULL
+          valueOf: datatypes/DR/Period
+          expressionType: resource
+          vars:
+            start: OBR.7
+            end: OBR.8
+            dateTimeIn: OBR.7
+            dateTimeOut: OBR.8
     collectedDateTime:
-      condition: $end NULL
-      type: STRING
-      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-      expressionType: JEXL
-      vars:
-        dateTimeIn: SPM.17.1
-        end: SPM.17.2
+      expressionType: nested
+      expressions:
+        - condition: $end NULL
+          type: STRING
+          valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+          expressionType: JEXL
+          vars:
+            dateTimeIn: SPM.17.1
+            end: SPM.17.2
+        - condition: $end NULL && $spm17 NULL
+          type: STRING
+          valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+          expressionType: JEXL
+          vars:
+            dateTimeIn: OBR.7
+            end: OBR.8
+            spm17: SPM.17
     _collectedDateTime:
       condition: $dateTimeIn NOT_NULL && $end NULL
       expressionType: nested
@@ -148,6 +180,13 @@ collection:
               type: STRING
               valueOf: $dateTimeIn
               expressionType: HL7Spec
+    collector:
+      condition: $obr10 NOT_NULL
+      vars:
+        obr10: OBR.10
+      expressionType: reference
+      valueOf: datatypes/XCN/Practitioner
+      specs: OBR.10
 
 note:
   condition: $spm14 NOT_NULL
@@ -172,6 +211,36 @@ note:
           type: STRING
           valueOf: specimen-description
 
+note_specimen-source:
+  condition: $obr153 NOT_NULL
+  expressionType: nested
+  generateList: true
+  vars:
+    obr153: OBR.15.3
+  expressionsMap:
+    text:
+      type: STRING
+      valueOf: OBR.15.3
+      expressionType: HL7Spec
+    extension:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Name
+        valueString:
+          type: STRING
+          valueOf: specimen-source
+
+note_collectors-comment:
+  condition: $obr39 NOT_NULL
+  generateList: true
+  vars:
+    obr39: STRING_ALL, OBR.39
+  specs: OBR.39 *
+  valueOf: datatypes/CWE/Annotation
+  expressionType: resource
 
 receivedTime:
   condition: $dateTimeIn NOT_NULL
@@ -179,12 +248,12 @@ receivedTime:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: SPM.18.1
+    dateTimeIn: SPM.18.1 |OBR.14.1
 _receivedTime:
   condition: $dateTimeIn NOT_NULL
   expressionType: nested
   vars:
-    dateTimeIn: SPM.18.1
+    dateTimeIn: SPM.18.1 |OBR.14.1
   expressionsMap:
     extension:
       generateList: true
@@ -224,13 +293,21 @@ extension:
           expressionType: resource
 
 condition:
-  condition: $spm24 NOT_NULL
   vars:
     spm24: SPM.24
+  condition: $spm24 NOT_NULL
   valueOf: datatypes/CWE/CodeableConcept
   expressionType: resource
   generateList: true
   specs: SPM.24 *
+
+condition_obr:
+  vars:
+    spm24: SPM.24
+  condition: $spm24 NULL
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  specs: OBR.15.6
 
 accessionIdentifier:
   condition: $spm30 NOT_NULL
