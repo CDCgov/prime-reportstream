@@ -1,6 +1,6 @@
 import { screen, fireEvent } from "@testing-library/react";
 
-import { FeatureFlagActionType } from "../../contexts/FeatureFlagContext";
+import { FeatureFlagActionType } from "../../contexts/FeatureFlag";
 import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
 import { renderApp } from "../../utils/CustomRenderUtils";
 

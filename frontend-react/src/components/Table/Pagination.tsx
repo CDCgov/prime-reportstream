@@ -1,10 +1,11 @@
 import classnames from "classnames";
 import { Button, Icon } from "@trussworks/react-uswds";
+import { FC } from "react";
 
 export const OVERFLOW_INDICATOR = "…";
 export type SlotItem = number | typeof OVERFLOW_INDICATOR;
 
-const PaginationOverflow: React.FC = () => (
+const PaginationOverflow: FC = () => (
     <li
         className="usa-pagination__item usa-pagination__overflow"
         role="listitem presentation"
@@ -20,7 +21,7 @@ interface PaginationPageNumberProps {
     isLastPage: boolean;
 }
 
-const PaginationPageNumber: React.FC<PaginationPageNumberProps> = ({
+const PaginationPageNumber: FC<PaginationPageNumberProps> = ({
     pageNum,
     setSelectedPage,
     isCurrentPage,
@@ -54,7 +55,7 @@ interface PaginationArrowProps {
     direction: "previous" | "next";
 }
 
-const PaginationArrow: React.FC<PaginationArrowProps> = ({
+const PaginationArrow: FC<PaginationArrowProps> = ({
     pageNum,
     setSelectedPage,
     direction,
@@ -90,7 +91,7 @@ export interface PaginationProps {
     label?: string;
 }
 
-const Pagination: React.FC<PaginationProps> = ({
+const Pagination: FC<PaginationProps> = ({
     slots,
     setSelectedPage,
     currentPageNum,

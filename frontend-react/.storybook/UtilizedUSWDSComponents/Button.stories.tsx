@@ -1,70 +1,70 @@
 import { Button } from "@trussworks/react-uswds";
-import React from "react";
+import React, { ReactElement } from "react";
 
 export default {
     title: "Components/Button",
     component: Button,
 };
 
-export const defaultButton = (): React.ReactElement => (
+export const defaultButton = (): ReactElement => (
     <Button type="button">Click Me</Button>
 );
 
-export const secondary = (): React.ReactElement => (
+export const secondary = (): ReactElement => (
     <Button type="button" secondary>
         Click Me
     </Button>
 );
 
-export const accentCool = (): React.ReactElement => (
+export const accentCool = (): ReactElement => (
     <Button type="button" accentStyle="cool">
         Click Me
     </Button>
 );
 
-export const accentWarm = (): React.ReactElement => (
+export const accentWarm = (): ReactElement => (
     <Button type="button" accentStyle="warm">
         Click Me
     </Button>
 );
 
-export const base = (): React.ReactElement => (
+export const base = (): ReactElement => (
     <Button type="button" base>
         Click Me
     </Button>
 );
 
-export const outline = (): React.ReactElement => (
+export const outline = (): ReactElement => (
     <Button type="button" outline>
         Click Me
     </Button>
 );
 
-export const inverse = (): React.ReactElement => (
+export const inverse = (): ReactElement => (
     <Button type="button" inverse>
         Click Me
     </Button>
 );
 
-export const big = (): React.ReactElement => (
+export const big = (): ReactElement => (
     <Button type="button" size="big">
         Click Me
     </Button>
 );
 
-export const unstyled = (): React.ReactElement => (
+export const unstyled = (): ReactElement => (
     <Button type="button" unstyled>
         Click Me
     </Button>
 );
 
-export const customClass = (): React.ReactElement => (
+export const customClass = (): ReactElement => (
     <Button type="button" className="custom-class">
         Click Me
     </Button>
 );
 
-export const disabled = (): React.ReactElement => (
+export const disabled = (): ReactElement => (
     <Button type="button" disabled>
         Click Me
     </Button>
