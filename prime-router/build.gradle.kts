@@ -925,7 +925,7 @@ dependencies {
     // TODO: move this to a test dependency when CompareFhirData lives under src/test
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.14")
 
-    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
+    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.8")
     // pin com.squareup.okio:okio@3.4.0
     runtimeOnly("com.squareup.okio:okio:3.4.0")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
