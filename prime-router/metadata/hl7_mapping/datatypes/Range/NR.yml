@@ -1,9 +1,0 @@
-elements:
-
-  - name: nr-range-low
-    value: [ '%resource.low.value' ]
-    hl7Spec: [ '%{hl7NRField}-1' ]
-
-  - name: nr-range-high
-    value: [ '%resource.high.value' ]
-    hl7Spec: [ '%{hl7NRField}-2' ]
