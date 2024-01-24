@@ -30,10 +30,11 @@ elements:
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-5-7 ]
 
-  - name: ak-patient-race-system
-    condition: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.system.contains("v3-NullFlavor")'
-    value: [ '"NULLFL"' ]
-    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-3 ]
+  - name: vi-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
 
   - name: ak-ordering-provider-address-city
     condition: 'Bundle.entry.resource.ofType(Organization).address.city.exists().not()'
