@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1705008162916292000.4e581d62-e00a-4d85-bf28-351dd98e6b0b",
+  "id" : "1706116987340556000.a0aefc82-4a48-4f34-851c-d5018f688839",
   "meta" : {
-    "lastUpdated" : "2024-01-11T15:22:42.935-06:00"
+    "lastUpdated" : "2024-01-24T11:23:07.355-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -10,261 +10,375 @@
   },
   "type" : "message",
   "timestamp" : "2023-05-01T09:25:31.000-05:00",
-  "entry" : [ {
-    "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-    "resource" : {
-      "resourceType" : "MessageHeader",
-      "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-      "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
-        "valueString" : "^~\\&#"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
-        "valueString" : "20230501102531-0400"
-      } ],
-      "eventCoding" : {
-        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-        "code" : "R01",
-        "display" : "ORU^R01^ORU_R01"
-      },
-      "source" : {
-        "_endpoint" : {
-          "extension" : [ {
-            "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
-            "valueCode" : "unknown"
-          } ]
-        }
-      }
-    }
-  }, {
-    "fullUrl" : "Provenance/1705008163542933000.8b6af888-4ec2-4011-b1c4-4e7083897ec7",
-    "resource" : {
-      "resourceType" : "Provenance",
-      "id" : "1705008163542933000.8b6af888-4ec2-4011-b1c4-4e7083897ec7",
-      "recorded" : "2023-05-01T10:25:31-04:00",
-      "_recorded" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-          "valueString" : "20230501102531-0400"
-        } ]
-      },
-      "activity" : {
-        "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
+  "entry" : [
+    {
+      "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+      "resource" : {
+        "resourceType" : "MessageHeader",
+        "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+            "valueString" : "^~\\&#"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
+            "valueString" : "20230501102531-0400"
+          }
+        ],
+        "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU_R01"
-        } ]
-      },
-      "agent" : [ {
-        "type" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-            "code" : "author"
-          } ]
-        }
-      } ],
-      "entity" : [ {
-        "role" : "source",
-        "what" : {
-          "reference" : "Device/1705008163547496000.d35c09dd-7dc9-4aa5-b1e0-5b4181813d9c"
-        }
-      } ]
-    }
-  }, {
-    "fullUrl" : "Device/1705008163547496000.d35c09dd-7dc9-4aa5-b1e0-5b4181813d9c",
-    "resource" : {
-      "resourceType" : "Device",
-      "id" : "1705008163547496000.d35c09dd-7dc9-4aa5-b1e0-5b4181813d9c"
-    }
-  }, {
-    "fullUrl" : "Patient/1705008163590242000.3e24d00f-a43a-4cf7-8418-2d1a1716ca4a",
-    "resource" : {
-      "resourceType" : "Patient",
-      "id" : "1705008163590242000.3e24d00f-a43a-4cf7-8418-2d1a1716ca4a",
-      "name" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
-          "valueString" : "BB SARAH"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
-          "valueString" : "L"
-        } ],
-        "use" : "official",
-        "family" : "SMITH",
-        "given" : [ "BB SARAH" ]
-      } ],
-      "contact" : [ {
-        "name" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
-            "valueString" : "LUDWIG"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn3-second-given-name",
-            "valueString" : "B"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn14-professional-suffix",
-            "valueString" : "MD"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn4-suffix",
-            "valueString" : "2ND"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn6-degree",
-            "valueString" : "MD"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
-            "valueString" : "B"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn8-name-representation-code",
-            "valueString" : "A"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn9-name-context",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "extension" : [ {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString" : "coding"
-                } ],
-                "code" : "Coding"
-              } ]
-            }
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-range",
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-end",
-              "valueString" : "20230501102531-0400"
-            }, {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-start",
-              "valueString" : "20220501102531-0400"
-            } ]
-          }, {
-            "url" : "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",
-            "valueCode" : "F"
-          } ],
-          "use" : "official",
-          "family" : "BEETHOVEN",
-          "_family" : {
-            "extension" : [ {
-              "url" : "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
-              "valueString" : "VAN"
-            }, {
-              "url" : "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
-              "valueString" : "BEETHOVEN"
-            }, {
-              "url" : "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix",
-              "valueString" : "VAL"
-            }, {
-              "url" : "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
-              "valueString" : "ROGER"
-            } ]
-          },
-          "given" : [ "LUDWIG", "B" ],
-          "prefix" : [ "DR" ],
-          "suffix" : [ "2ND", "MD", "MD" ],
-          "period" : {
-            "start" : "2022-05-01T10:25:31-04:00",
-            "end" : "2023-05-01T10:25:31-04:00"
-          }
-        }
-      } ]
-    }
-  }, {
-    "fullUrl" : "RelatedPerson/1705008163597445000.e700853e-7539-42d9-9018-caf06bcc951b",
-    "resource" : {
-      "resourceType" : "RelatedPerson",
-      "id" : "1705008163597445000.e700853e-7539-42d9-9018-caf06bcc951b",
-      "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-        "valueString" : "NK1"
-      } ],
-      "patient" : {
-        "reference" : "Patient/1705008163590242000.3e24d00f-a43a-4cf7-8418-2d1a1716ca4a"
-      },
-      "name" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
-          "valueString" : "LUDWIG"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn3-second-given-name",
-          "valueString" : "B"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn14-professional-suffix",
-          "valueString" : "MD"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-          "valueString" : "name"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn4-suffix",
-          "valueString" : "2ND"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn6-degree",
-          "valueString" : "MD"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
-          "valueString" : "B"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn8-name-representation-code",
-          "valueString" : "A"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn9-name-context",
-          "valueCodeableConcept" : {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-              "valueString" : "name"
-            } ],
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                "valueString" : "coding"
-              } ],
-              "code" : "Coding"
-            } ]
-          }
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-range",
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-end",
-            "valueString" : "20230501102531-0400"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-start",
-            "valueString" : "20220501102531-0400"
-          } ]
-        }, {
-          "url" : "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",
-          "valueCode" : "F"
-        } ],
-        "use" : "official",
-        "family" : "BEETHOVEN",
-        "_family" : {
-          "extension" : [ {
-            "url" : "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
-            "valueString" : "VAN"
-          }, {
-            "url" : "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
-            "valueString" : "BEETHOVEN"
-          }, {
-            "url" : "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix",
-            "valueString" : "VAL"
-          }, {
-            "url" : "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
-            "valueString" : "ROGER"
-          } ]
+          "display" : "ORU^R01^ORU_R01"
         },
-        "given" : [ "LUDWIG", "B" ],
-        "prefix" : [ "DR" ],
-        "suffix" : [ "2ND", "MD", "MD" ],
-        "period" : {
-          "start" : "2022-05-01T10:25:31-04:00",
-          "end" : "2023-05-01T10:25:31-04:00"
+        "source" : {
+          "_endpoint" : {
+            "extension" : [
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode" : "unknown"
+              }
+            ]
+          }
         }
-      } ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706116987729824000.3e36f753-da12-44d0-aa47-47aba61e9e99",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706116987729824000.3e36f753-da12-44d0-aa47-47aba61e9e99",
+        "recorded" : "2023-05-01T10:25:31-04:00",
+        "activity" : {
+          "coding" : [
+            {
+              "display" : "ORU^R01^ORU_R01"
+            }
+          ]
+        },
+        "entity" : [
+          {
+            "role" : "source"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706116987740539000.4edbd610-55b1-473e-981e-b8d2272631fc",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706116987740539000.4edbd610-55b1-473e-981e-b8d2272631fc",
+        "recorded" : "2024-01-24T11:23:07Z",
+        "activity" : {
+          "coding" : [
+            {
+              "code" : "v2-FHIR transformation"
+            }
+          ]
+        },
+        "agent" : [
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code" : "assembler"
+                }
+              ]
+            }
+          }
+        ],
+        "entity" : [
+          {
+            "role" : "source"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Patient/1706116987758042000.2616c9cd-54b2-420b-bc5f-a7c4ca93e5b2",
+      "resource" : {
+        "resourceType" : "Patient",
+        "id" : "1706116987758042000.2616c9cd-54b2-420b-bc5f-a7c4ca93e5b2",
+        "name" : [
+          {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
+                "valueString" : "BB SARAH"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
+                "valueString" : "L"
+              }
+            ],
+            "use" : "official",
+            "family" : "SMITH",
+            "given" : [
+              "BB SARAH"
+            ]
+          }
+        ],
+        "contact" : [
+          {
+            "name" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
+                  "valueString" : "LUDWIG"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn3-second-given-name",
+                  "valueString" : "B"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn14-professional-suffix",
+                  "valueString" : "MD"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn4-suffix",
+                  "valueString" : "2ND"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn6-degree",
+                  "valueString" : "MD"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
+                  "valueString" : "B"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn8-name-representation-code",
+                  "valueString" : "A"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn9-name-context",
+                  "valueCodeableConcept" : {
+                    "coding" : [
+                      {
+                        "extension" : [
+                          {
+                            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                            "valueString" : "coding"
+                          }
+                        ],
+                        "code" : "Coding"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-range",
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-end",
+                      "valueString" : "20230501102531-0400"
+                    },
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-start",
+                      "valueString" : "20220501102531-0400"
+                    }
+                  ]
+                },
+                {
+                  "url" : "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",
+                  "valueCode" : "F"
+                }
+              ],
+              "use" : "official",
+              "family" : "BEETHOVEN",
+              "_family" : {
+                "extension" : [
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+                    "valueString" : "VAN"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+                    "valueString" : "BEETHOVEN"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix",
+                    "valueString" : "VAL"
+                  },
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
+                    "valueString" : "ROGER"
+                  }
+                ]
+              },
+              "given" : [
+                "LUDWIG",
+                "B"
+              ],
+              "prefix" : [
+                "DR"
+              ],
+              "suffix" : [
+                "2ND",
+                "MD",
+                "MD"
+              ],
+              "period" : {
+                "start" : "2022-05-01T10:25:31-04:00",
+                "end" : "2023-05-01T10:25:31-04:00"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706116987760250000.70b6c544-5b5e-4b53-adef-c89a8dec3177",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706116987760250000.70b6c544-5b5e-4b53-adef-c89a8dec3177",
+        "target" : [
+          {
+            "reference" : "Patient/1706116987758042000.2616c9cd-54b2-420b-bc5f-a7c4ca93e5b2"
+          }
+        ],
+        "recorded" : "2024-01-24T11:23:07Z",
+        "activity" : {
+          "coding" : [
+            {
+              "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+              "code" : "UPDATE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl" : "RelatedPerson/1706116987764213000.076d0731-3ff9-4911-a1c4-afd80d4ba7f7",
+      "resource" : {
+        "resourceType" : "RelatedPerson",
+        "id" : "1706116987764213000.076d0731-3ff9-4911-a1c4-afd80d4ba7f7",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "NK1"
+          }
+        ],
+        "patient" : {
+          "reference" : "Patient/1706116987758042000.2616c9cd-54b2-420b-bc5f-a7c4ca93e5b2"
+        },
+        "name" : [
+          {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
+                "valueString" : "LUDWIG"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn3-second-given-name",
+                "valueString" : "B"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn14-professional-suffix",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+                "valueString" : "name"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn4-suffix",
+                "valueString" : "2ND"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn6-degree",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
+                "valueString" : "B"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn8-name-representation-code",
+                "valueString" : "A"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn9-name-context",
+                "valueCodeableConcept" : {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+                      "valueString" : "name"
+                    }
+                  ],
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "Coding"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-range",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-end",
+                    "valueString" : "20230501102531-0400"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-start",
+                    "valueString" : "20220501102531-0400"
+                  }
+                ]
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",
+                "valueCode" : "F"
+              }
+            ],
+            "use" : "official",
+            "family" : "BEETHOVEN",
+            "_family" : {
+              "extension" : [
+                {
+                  "url" : "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+                  "valueString" : "VAN"
+                },
+                {
+                  "url" : "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+                  "valueString" : "BEETHOVEN"
+                },
+                {
+                  "url" : "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix",
+                  "valueString" : "VAL"
+                },
+                {
+                  "url" : "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
+                  "valueString" : "ROGER"
+                }
+              ]
+            },
+            "given" : [
+              "LUDWIG",
+              "B"
+            ],
+            "prefix" : [
+              "DR"
+            ],
+            "suffix" : [
+              "2ND",
+              "MD",
+              "MD"
+            ],
+            "period" : {
+              "start" : "2022-05-01T10:25:31-04:00",
+              "end" : "2023-05-01T10:25:31-04:00"
+            }
+          }
+        ]
+      }
     }
-  } ]
+  ]
 }

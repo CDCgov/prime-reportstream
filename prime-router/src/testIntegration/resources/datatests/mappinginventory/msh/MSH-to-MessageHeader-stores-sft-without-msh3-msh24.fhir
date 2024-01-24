@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1700014669636763000.094dc547-cf60-480a-82f8-d8a30d9aa2c0",
+  "id" : "1706116004540627000.4a2bfb51-4bd3-4ec5-9eab-37957ecad4d1",
   "meta" : {
-    "lastUpdated" : "2023-11-14T21:17:49.649-05:00"
+    "lastUpdated" : "2024-01-24T11:06:44.555-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T10:25:31.000-04:00",
+  "timestamp" : "2023-05-01T09:25:31.000-05:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
@@ -48,7 +48,7 @@
             {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
               "valueReference" : {
-                "reference" : "Organization/1700014669711945000.cd38e1d2-20e0-460f-8b98-cd12175d1165"
+                "reference" : "Organization/1706116004635967000.1ec56cd5-25dd-420d-a926-5668c6f1ef0d"
               }
             }
           ],
@@ -66,10 +66,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1700014669711945000.cd38e1d2-20e0-460f-8b98-cd12175d1165",
+      "fullUrl" : "Organization/1706116004635967000.1ec56cd5-25dd-420d-a926-5668c6f1ef0d",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1700014669711945000.cd38e1d2-20e0-460f-8b98-cd12175d1165",
+        "id" : "1706116004635967000.1ec56cd5-25dd-420d-a926-5668c6f1ef0d",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon10-organization-identifier",
@@ -118,31 +118,35 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1700014670004576000.ff5034b6-94ec-45d9-8300-c46cd523898e",
+      "fullUrl" : "Provenance/1706116004945533000.3d942c17-ab9e-4da1-a54b-575d764e0ec3",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1700014670004576000.ff5034b6-94ec-45d9-8300-c46cd523898e",
+        "id" : "1706116004945533000.3d942c17-ab9e-4da1-a54b-575d764e0ec3",
         "recorded" : "2023-05-01T10:25:31-04:00",
-        "_recorded" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230501102531-0400"
-            }
-          ]
-        },
         "activity" : {
           "coding" : [
             {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-              "code" : "R01",
-              "display" : "ORU_R01"
+              "display" : "ORU^R01^ORU_R01"
+            }
+          ]
+        },
+        "entity" : [
+          {
+            "role" : "source"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706116004956082000.334e3e8c-a67b-4e94-9f91-b6d5386c91d7",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706116004956082000.334e3e8c-a67b-4e94-9f91-b6d5386c91d7",
+        "recorded" : "2024-01-24T11:06:44Z",
+        "activity" : {
+          "coding" : [
+            {
+              "code" : "v2-FHIR transformation"
             }
           ]
         },
@@ -151,14 +155,8 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-                  "code" : "author"
+                  "code" : "assembler"
                 }
               ]
             }
@@ -166,19 +164,9 @@
         ],
         "entity" : [
           {
-            "role" : "source",
-            "what" : {
-              "reference" : "Device/1700014670006684000.8b5f0490-cc22-4254-87b0-039e2b5ca9d2"
-            }
+            "role" : "source"
           }
         ]
-      }
-    },
-    {
-      "fullUrl" : "Device/1700014670006684000.8b5f0490-cc22-4254-87b0-039e2b5ca9d2",
-      "resource" : {
-        "resourceType" : "Device",
-        "id" : "1700014670006684000.8b5f0490-cc22-4254-87b0-039e2b5ca9d2"
       }
     }
   ]

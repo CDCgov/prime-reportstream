@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1699927578078943000.2baa56e7-1a93-47a9-a7c4-c828f71f6891",
+  "id" : "1706116080681822000.f6d96155-5422-42ca-8a82-02641a85c681",
   "meta" : {
-    "lastUpdated" : "2023-11-13T21:06:18.093-05:00"
+    "lastUpdated" : "2024-01-24T11:08:00.695-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T10:25:31.000-04:00",
+  "timestamp" : "2023-05-01T09:25:31.000-05:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
@@ -50,6 +50,7 @@
               "valueString" : "sending-application"
             }
           ],
+          "name" : "Sending App-CLIA:Sending App Universal",
           "_endpoint" : {
             "extension" : [
               {
@@ -57,37 +58,40 @@
                 "valueCode" : "unknown"
               }
             ]
-          },
-          "name" : "Sending App-CLIA:Sending App Universal"
+          }
         }
       }
     },
     {
-      "fullUrl" : "Provenance/1699927578457155000.9b588b77-aff6-48d9-bbc5-492b640580d3",
+      "fullUrl" : "Provenance/1706116081087603000.ac136123-379c-4cab-8db5-240d9a9d2dc9",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1699927578457155000.9b588b77-aff6-48d9-bbc5-492b640580d3",
+        "id" : "1706116081087603000.ac136123-379c-4cab-8db5-240d9a9d2dc9",
         "recorded" : "2023-05-01T10:25:31-04:00",
-        "_recorded" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230501102531-0400"
-            }
-          ]
-        },
         "activity" : {
           "coding" : [
             {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-              "code" : "R01",
-              "display" : "ORU_R01"
+              "display" : "ORU^R01^ORU_R01"
+            }
+          ]
+        },
+        "entity" : [
+          {
+            "role" : "source"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706116081098295000.70c4d47c-0461-4d3e-a7c7-f8563a2c1a41",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706116081098295000.70c4d47c-0461-4d3e-a7c7-f8563a2c1a41",
+        "recorded" : "2024-01-24T11:08:01Z",
+        "activity" : {
+          "coding" : [
+            {
+              "code" : "v2-FHIR transformation"
             }
           ]
         },
@@ -96,14 +100,8 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-                  "code" : "author"
+                  "code" : "assembler"
                 }
               ]
             }
@@ -111,42 +109,7 @@
         ],
         "entity" : [
           {
-            "role" : "source",
-            "what" : {
-              "reference" : "Device/1699927578460038000.c3ed14a7-9bdc-48f5-a0e6-94bd34aedc3a"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Device/1699927578460038000.c3ed14a7-9bdc-48f5-a0e6-94bd34aedc3a",
-      "resource" : {
-        "resourceType" : "Device",
-        "id" : "1699927578460038000.c3ed14a7-9bdc-48f5-a0e6-94bd34aedc3a",
-        "identifier" : [
-          {
-            "type" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
-                  "system" : "http://terminology.hl7.org/NamingSystem/uri",
-                  "code" : "Sending App Universal",
-                  "display" : "Sending App"
-                }
-              ]
-            }
-          }
-        ],
-        "deviceName" : [
-          {
-            "name" : "Sending App",
-            "type" : "user-friendly-name"
+            "role" : "source"
           }
         ]
       }
