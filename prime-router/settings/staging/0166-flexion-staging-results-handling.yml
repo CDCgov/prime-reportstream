@@ -6,9 +6,10 @@
 # ./prime multiple-settings set --env staging --input ./settings/staging/0166-flexion-staging-results-handling.yml
 #
 # Then add keys to it, as needed, like this:
-#  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-hospital --doit
-#  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.etor-service-sender --doit
-#  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-lab --doit
+#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-hospital --doit
+#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.etor-service-sender --doit
+#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-lab --doit
+#
 #
 # This FHIR ndjson (aka 'FHIR all on one line') data submission curl works for me, with a valid token in `TOK` env var:
 #
@@ -127,9 +128,21 @@
         type: "FHIR"
         schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
         useBatching: false
-      transport:
-        type: "SFTP"
-        host: "172.17.6.20" # use "sftp" if running locally
-        port: 22
-        filePath: "./upload"
-        credentialName: null # use "DEFAULT-SFTP" if running locally
+      transport: !<REST>
+        type: "REST"
+        authType: "two-legged"
+        authTokenUrl: "https://cdcti-stg-api.azurewebsites.net/v1/auth/token"
+        reportUrl: "https://cdcti-stg-api.azurewebsites.net/v1/etor/results"
+        # Uncomment below for local Trusted-Intermediary server
+        # authTokenUrl: "http://host.docker.internal:8080/v1/auth/token"
+        # reportUrl: "http://host.docker.internal:8080/v1/etor/results"
+        tlsKeystore: null
+        parameters:
+          scope: "report-stream"
+          client_assertion: "client_secret"
+        headers:
+          Content-Type: "text/fhir+ndjson"
+          RecordId: "header.reportFile.reportId"
+        authHeaders:
+          Content-Type: "application/x-www-form-urlencoded"
+          Host: "cdcti-stg-api.azurewebsites.net"
