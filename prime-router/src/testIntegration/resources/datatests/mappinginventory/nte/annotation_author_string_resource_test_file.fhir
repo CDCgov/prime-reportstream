@@ -492,19 +492,24 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
                 "valueCodeableConcept" : {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid",
+                      "valueOid" : "urn:oid:2.16.840.1.113883.12.364"
+                    }
+                  ],
                   "coding" : [
                     {
                       "extension" : [
                         {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid",
-                          "valueOid" : "urn:oid:2.16.840.1.113883.12.364"
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
                         },
                         {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                          "valueString" : "identifier"
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString" : "HL70364"
                         }
                       ],
-                      "system" : "HL70364",
                       "version" : "2.5.1",
                       "code" : "RE",
                       "display" : "Remark"
@@ -514,20 +519,7 @@
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                          "valueString" : "identifier"
-                        }
-                      ],
-                      "system" : "http://terminology.hl7.org/CodeSystem/v2-0105",
-                      "code" : "L"
-                    }
-                  ]
-                }
+                "valueId" : "L"
               }
             ],
             "authorString" : "Ringo Starr",
