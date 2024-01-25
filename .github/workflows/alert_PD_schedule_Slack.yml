@@ -31,8 +31,14 @@ jobs:
       uses: ricosandyca/convert-env-json@main
       with:
         type: env-to-json
-        input_path: .env
-        output_path: output/json-result.json
+        input_path: ${env:PDSchedules}
+        output_path: json-result.json
+
+    - name: Get PD onCall Details
+      id: PDOnCallDetails
+      shell: pwsh
+      run: |
+        echo  json-result.json
 
     # - name: Slack Notification
     #   uses: ./.github/actions/notifications
