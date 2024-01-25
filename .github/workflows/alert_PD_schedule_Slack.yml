@@ -25,20 +25,20 @@ jobs:
       id: PDOnCall
       shell: pwsh
       run: |
-        echo  ${env:PDSchedules}
+        echo  "PDSchedules=${env:PDSchedules}" >> $GITHUB_OUTPUT
 
-    - name: convert .env to JSON
-      uses: ricosandyca/convert-env-json@main
-      with:
-        type: env-to-json
-        input_path: ${env:PDSchedules}
-        output_path: json-result.json
+    # - name: convert .env to JSON
+    #   uses: ricosandyca/convert-env-json@main
+    #   with:
+    #     type: env-to-json
+    #     input_path: ${env:PDSchedules}
+    #     output_path: json-result.json
 
     - name: Get PD onCall Details
       id: PDOnCallDetails
       shell: pwsh
       run: |
-        echo  json-result.json
+        echo  JSON.parse(JSON.stringify(${{ steps.PDOnCall.outputs.PDSchedules }}))
 
     # - name: Slack Notification
     #   uses: ./.github/actions/notifications
