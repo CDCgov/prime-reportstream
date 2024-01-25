@@ -1,5 +1,9 @@
 name: Find next person on call
 on:
+  workflow_dispatch:
+  push: 
+    branches:
+      - feature/12965-SlackNotification
   schedule:
     - cron: "7 13 * * Mon-Fri"  #UTC-5
 jobs:
@@ -15,27 +19,33 @@ jobs:
       id: PD
       shell: pwsh
       run: |
-        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}" -ScheduleId "${{ secrets.PD_ReportStream_ScheduleId }}"
+        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}" -ScheduleIds "${{ secrets.PD_ReportStream_ScheduleId }}"
     
     - name: Get PD onCall Details
       id: PDOnCall
       shell: pwsh
       run: |
-        echo  ${env:PersonName}
-        echo  ${env:NextPersonName}
-   
-    - name: Slack Notification
-      uses: ./.github/actions/notifications
+        echo  ${env:PDSchedules}
+
+    - name: convert .env to JSON
+      uses: ricosandyca/convert-env-json@main
       with:
-        method: slack
-        title: Pagerduty 
-        message: |
-          "Prime ReportStream PagerDuty on-call person Now": "${{ env.PersonName }}"
-          "Prime ReportStream PagerDuty on-call person until": "${{ env.Until }}"
-          "Prime ReportStream PagerDuty Next person on-call": "${{ env.NextPersonName }}"
-          "Prime ReportStream PagerDuty Next person on-call from": "${{ env.NextFrom }}"
-          "Prime ReportStream PagerDuty Next person on-call until": "${{ env.NextUntil }}"
-        icon-emoji: ':bell:'
-        channel:  prime-reportstream-engineering
-        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        color: warning
+        type: env-to-json
+        input_path: .env
+        output_path: output/json-result.json
+
+    # - name: Slack Notification
+    #   uses: ./.github/actions/notifications
+    #   with:
+    #     method: slack
+    #     title: Pagerduty 
+    #     message: |
+    #       "Prime ReportStream PagerDuty on-call person Now": "${{ env.PersonName }}"
+    #       "Prime ReportStream PagerDuty on-call person until": "${{ env.Until }}"
+    #       "Prime ReportStream PagerDuty Next person on-call": "${{ env.NextPersonName }}"
+    #       "Prime ReportStream PagerDuty Next person on-call from": "${{ env.NextFrom }}"
+    #       "Prime ReportStream PagerDuty Next person on-call until": "${{ env.NextUntil }}"
+    #     icon-emoji: ':bell:'
+    #     channel:  prime-reportstream-engineering
+    #     webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+    #     color: warning
