@@ -141,7 +141,7 @@ jobs:
         uses: JosiahSiegel/checksum-validate-action@f14bb2ae5ca3cb0b61ba697885cb501368242d93
         with:
           key: backend
-          input: $(az functionapp config appsettings list -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -n pdh${{ needs.pre_job.outputs.env_name }}-functionapp)
+          input: $(az functionapp config appsettings list -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -n pdh${{ needs.pre_job.outputs.env_name }}-functionapp -o tsv | sort)
 
   approve_frontend_release:
     name: "Approve Frontend Release: ${{ needs.pre_job.outputs.env_name }}"
