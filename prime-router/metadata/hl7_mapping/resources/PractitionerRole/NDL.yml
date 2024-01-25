@@ -31,7 +31,7 @@ elements:
     hl7Spec: [ '%{hl7NDLField}-6' ]
 
   - name: facility
-    schema: classpath:/metadata/hl7_mapping/resources/Location/HD
+    schema: classpath:/metadata/hl7_mapping/resources/PractitionerRole/Location/HD
     resource: '%resource.location.resolve().where(physicalType.coding.code = "si")'
     constants:
       hl7NDLHDField: '%{hl7NDLField}-7'
