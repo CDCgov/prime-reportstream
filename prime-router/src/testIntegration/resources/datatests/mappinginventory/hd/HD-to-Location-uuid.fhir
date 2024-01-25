@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706115760760941000.45937820-3b20-4075-80d6-3e2decdecf9c",
+  "id" : "1706210636416663000.bb0fe78f-0a5e-44f9-8265-b4367bc5371d",
   "meta" : {
-    "lastUpdated" : "2024-01-24T11:02:40.775-06:00"
+    "lastUpdated" : "2024-01-25T13:23:56.429-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -42,15 +42,15 @@
           }
         },
         "responsible" : {
-          "reference" : "Organization/1706115760864417000.022b3203-23ed-43cc-9db1-a3764641df89"
+          "reference" : "Organization/1706210636508010000.3d6996dd-369d-4dcb-bee5-41526443cee5"
         }
       }
     },
     {
-      "fullUrl" : "Location/1706115760863302000.05476ceb-09e5-4f3c-861c-2806cfb24caa",
+      "fullUrl" : "Location/1706210636506632000.7ee77414-3cbc-4c2b-8928-4aced21f59c0",
       "resource" : {
         "resourceType" : "Location",
-        "id" : "1706115760863302000.05476ceb-09e5-4f3c-861c-2806cfb24caa",
+        "id" : "1706210636506632000.7ee77414-3cbc-4c2b-8928-4aced21f59c0",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -80,17 +80,17 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706115760864417000.022b3203-23ed-43cc-9db1-a3764641df89",
+      "fullUrl" : "Organization/1706210636508010000.3d6996dd-369d-4dcb-bee5-41526443cee5",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706115760864417000.022b3203-23ed-43cc-9db1-a3764641df89",
+        "id" : "1706210636508010000.3d6996dd-369d-4dcb-bee5-41526443cee5",
         "identifier" : [
           {
             "extension" : [
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
                 "valueReference" : {
-                  "reference" : "Location/1706115760863302000.05476ceb-09e5-4f3c-861c-2806cfb24caa"
+                  "reference" : "Location/1706210636506632000.7ee77414-3cbc-4c2b-8928-4aced21f59c0"
                 }
               }
             ]
@@ -99,10 +99,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706115761186214000.70f250b8-6470-4475-9100-0913f7812a79",
+      "fullUrl" : "Provenance/1706210636793609000.9828227d-9c19-41a9-a798-dfe44ec0772c",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706115761186214000.70f250b8-6470-4475-9100-0913f7812a79",
+        "id" : "1706210636793609000.9828227d-9c19-41a9-a798-dfe44ec0772c",
         "recorded" : "2023-05-01T10:25:31-04:00",
         "activity" : {
           "coding" : [
@@ -122,7 +122,7 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706115761186026000.0de0b47d-3e40-4eeb-a3c4-be0a69944884"
+              "reference" : "Organization/1706210636793373000.8ec968d8-5dff-4df3-806f-b7aeebf89da8"
             }
           }
         ],
@@ -134,10 +134,10 @@
       }
     },
     {
-      "fullUrl" : "Location/1706115761185353000.9be35976-d8c7-474f-b0be-7cc0827f2f8e",
+      "fullUrl" : "Location/1706210636792536000.1e0b75bf-f289-48c5-9240-33fdefdc563a",
       "resource" : {
         "resourceType" : "Location",
-        "id" : "1706115761185353000.9be35976-d8c7-474f-b0be-7cc0827f2f8e",
+        "id" : "1706210636792536000.1e0b75bf-f289-48c5-9240-33fdefdc563a",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -167,17 +167,17 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706115761186026000.0de0b47d-3e40-4eeb-a3c4-be0a69944884",
+      "fullUrl" : "Organization/1706210636793373000.8ec968d8-5dff-4df3-806f-b7aeebf89da8",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706115761186026000.0de0b47d-3e40-4eeb-a3c4-be0a69944884",
+        "id" : "1706210636793373000.8ec968d8-5dff-4df3-806f-b7aeebf89da8",
         "identifier" : [
           {
             "extension" : [
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
                 "valueReference" : {
-                  "reference" : "Location/1706115761185353000.9be35976-d8c7-474f-b0be-7cc0827f2f8e"
+                  "reference" : "Location/1706210636792536000.1e0b75bf-f289-48c5-9240-33fdefdc563a"
                 }
               }
             ]
@@ -186,11 +186,14 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706115761198574000.c233df20-0e04-4058-8434-04efdd5ce7fc",
+      "fullUrl" : "Provenance/1706210636806472000.fa08b7c2-0808-4b76-8f21-1304333401d1",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706115761198574000.c233df20-0e04-4058-8434-04efdd5ce7fc",
-        "recorded" : "2024-01-24T11:02:41Z",
+        "id" : "1706210636806472000.fa08b7c2-0808-4b76-8f21-1304333401d1",
+        "recorded" : "2024-01-25T13:23:56Z",
+        "policy" : [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
         "activity" : {
           "coding" : [
             {
@@ -207,12 +210,38 @@
                   "code" : "assembler"
                 }
               ]
+            },
+            "who" : {
+              "reference" : "Organization/1706210636806046000.8189c1d1-1889-429f-b653-b2ae7b3d39c0"
             }
           }
         ],
         "entity" : [
           {
             "role" : "source"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Organization/1706210636806046000.8189c1d1-1889-429f-b653-b2ae7b3d39c0",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1706210636806046000.8189c1d1-1889-429f-b653-b2ae7b3d39c0",
+        "identifier" : [
+          {
+            "value" : "CDC PRIME - Atlanta"
+          },
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.237821"
           }
         ]
       }

@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706115261723062000.c2c50a29-d2ee-4a63-bbe0-b0d9974c72a8",
+  "id" : "1706210163786118000.bdd3a75d-966e-46ce-a6e1-0aa45fe72d8c",
   "meta" : {
-    "lastUpdated" : "2024-01-24T10:54:21.736-06:00"
+    "lastUpdated" : "2024-01-25T13:16:03.800-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -44,13 +44,13 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706115262086653000.3b08d738-34d2-4358-98d6-f0bf6c70d9c1",
+      "fullUrl" : "Provenance/1706210164165153000.0cbd296a-3979-4588-9678-4fdc74d57ccd",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706115262086653000.3b08d738-34d2-4358-98d6-f0bf6c70d9c1",
+        "id" : "1706210164165153000.0cbd296a-3979-4588-9678-4fdc74d57ccd",
         "target" : [
           {
-            "reference" : "DiagnosticReport/1706115262250259000.c0f83f01-32a6-41bc-8610-c65940c242c4"
+            "reference" : "DiagnosticReport/1706210164333586000.ca2f9946-7ffc-4855-b88a-ccc6c9ab206e"
           }
         ],
         "recorded" : "2023-05-01T10:25:31-04:00",
@@ -69,11 +69,14 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706115262096080000.2602cd29-5be1-4fcb-91ec-f12b1a37acf1",
+      "fullUrl" : "Provenance/1706210164176664000.08c4ad60-c14b-4812-908a-e396baa9af8e",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706115262096080000.2602cd29-5be1-4fcb-91ec-f12b1a37acf1",
-        "recorded" : "2024-01-24T10:54:22Z",
+        "id" : "1706210164176664000.08c4ad60-c14b-4812-908a-e396baa9af8e",
+        "recorded" : "2024-01-25T13:16:04Z",
+        "policy" : [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
         "activity" : {
           "coding" : [
             {
@@ -90,6 +93,9 @@
                   "code" : "assembler"
                 }
               ]
+            },
+            "who" : {
+              "reference" : "Organization/1706210164176080000.6130a955-23c5-4504-b476-af57cf400f01"
             }
           }
         ],
@@ -101,10 +107,33 @@
       }
     },
     {
-      "fullUrl" : "ServiceRequest/1706115262109992000.a3edbe75-ef85-42ba-ba06-08665e76e176",
+      "fullUrl" : "Organization/1706210164176080000.6130a955-23c5-4504-b476-af57cf400f01",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1706210164176080000.6130a955-23c5-4504-b476-af57cf400f01",
+        "identifier" : [
+          {
+            "value" : "CDC PRIME - Atlanta"
+          },
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.237821"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "ServiceRequest/1706210164192721000.e00d964a-1f06-49c0-afa5-c0dd8e12983f",
       "resource" : {
         "resourceType" : "ServiceRequest",
-        "id" : "1706115262109992000.a3edbe75-ef85-42ba-ba06-08665e76e176",
+        "id" : "1706210164192721000.e00d964a-1f06-49c0-afa5-c0dd8e12983f",
         "identifier" : [
           {
             "extension" : [
@@ -145,7 +174,7 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
                 "valueReference" : {
-                  "reference" : "Organization/1706115262104330000.ed148b96-d184-4059-b7b3-0af0320a5c13"
+                  "reference" : "Organization/1706210164186922000.5acbcdfa-d3bf-4810-96ca-500154190211"
                 }
               },
               {
@@ -280,10 +309,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706115262104330000.ed148b96-d184-4059-b7b3-0af0320a5c13",
+      "fullUrl" : "Organization/1706210164186922000.5acbcdfa-d3bf-4810-96ca-500154190211",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706115262104330000.ed148b96-d184-4059-b7b3-0af0320a5c13",
+        "id" : "1706210164186922000.5acbcdfa-d3bf-4810-96ca-500154190211",
         "identifier" : [
           {
             "extension" : [
@@ -315,10 +344,10 @@
       }
     },
     {
-      "fullUrl" : "DiagnosticReport/1706115262250259000.c0f83f01-32a6-41bc-8610-c65940c242c4",
+      "fullUrl" : "DiagnosticReport/1706210164333586000.ca2f9946-7ffc-4855-b88a-ccc6c9ab206e",
       "resource" : {
         "resourceType" : "DiagnosticReport",
-        "id" : "1706115262250259000.c0f83f01-32a6-41bc-8610-c65940c242c4",
+        "id" : "1706210164333586000.ca2f9946-7ffc-4855-b88a-ccc6c9ab206e",
         "identifier" : [
           {
             "extension" : [
@@ -351,7 +380,7 @@
         ],
         "basedOn" : [
           {
-            "reference" : "ServiceRequest/1706115262109992000.a3edbe75-ef85-42ba-ba06-08665e76e176"
+            "reference" : "ServiceRequest/1706210164192721000.e00d964a-1f06-49c0-afa5-c0dd8e12983f"
           }
         ],
         "status" : "unknown",

@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706116036386271000.d93188fd-c0f9-4a57-9154-4323ae6e069f",
+  "id" : "1706210887096652000.ea5fc389-a030-4436-b7e8-230b246e2ae9",
   "meta" : {
-    "lastUpdated" : "2024-01-24T11:07:16.401-06:00"
+    "lastUpdated" : "2024-01-25T13:28:07.110-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -64,10 +64,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706116036840833000.e7baa064-9a98-4c8d-8f02-fc5467d87f89",
+      "fullUrl" : "Provenance/1706210887463425000.6b12581c-1540-4330-84f1-b5f78106d503",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706116036840833000.e7baa064-9a98-4c8d-8f02-fc5467d87f89",
+        "id" : "1706210887463425000.6b12581c-1540-4330-84f1-b5f78106d503",
         "recorded" : "2023-05-01T10:25:31-04:00",
         "activity" : {
           "coding" : [
@@ -84,11 +84,14 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706116036855894000.82e7bfd4-1c4f-4f4e-bfe0-ca421abe922e",
+      "fullUrl" : "Provenance/1706210887474158000.5ca2a178-cac7-4fd5-8603-22f84029da2b",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706116036855894000.82e7bfd4-1c4f-4f4e-bfe0-ca421abe922e",
-        "recorded" : "2024-01-24T11:07:16Z",
+        "id" : "1706210887474158000.5ca2a178-cac7-4fd5-8603-22f84029da2b",
+        "recorded" : "2024-01-25T13:28:07Z",
+        "policy" : [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
         "activity" : {
           "coding" : [
             {
@@ -105,12 +108,38 @@
                   "code" : "assembler"
                 }
               ]
+            },
+            "who" : {
+              "reference" : "Organization/1706210887472819000.a4d481e4-4034-4164-af4f-c7bcd315424a"
             }
           }
         ],
         "entity" : [
           {
             "role" : "source"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Organization/1706210887472819000.a4d481e4-4034-4164-af4f-c7bcd315424a",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1706210887472819000.a4d481e4-4034-4164-af4f-c7bcd315424a",
+        "identifier" : [
+          {
+            "value" : "CDC PRIME - Atlanta"
+          },
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.237821"
           }
         ]
       }
