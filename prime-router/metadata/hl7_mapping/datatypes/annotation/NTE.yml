@@ -21,7 +21,7 @@ elements:
     resource: '%resource.extension(%`rsext-note-type`).value'
     constants:
       cweField: '%{hl7NotePath}/NTE(%{noteIndex})-4'
-    schema: classpath:/hl7_mapping/datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
 
   - name: note-author
     condition: '%context.author.exists() and %context.author.is(Reference)'
