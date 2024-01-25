@@ -1,4 +1,4 @@
-extends: ../original-pipeline-transforms
+extends: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms
 constants:
   serviceRequest: 'Bundle.entry.resource.ofType(ServiceRequest)'
   diagnosticReport: 'Bundle.entry.resource.ofType(DiagnosticReport)'
@@ -158,7 +158,7 @@ elements:
   - name: sr-patient-telecom
     resource: '%patient.telecom'
     resourceIndex: telecomIndex
-    schema: datatypes/simple-report-telecom
+    schema: classpath:/metadata/fhir_transforms/senders/SimpleReport/datatypes/simple-report-telecom
 
   # Covid pipeline populates this by looking at the hl70005 value-set version
   - name: sr-patient-race-version
@@ -424,13 +424,13 @@ elements:
   - name: sr-ordering-facility-phone
     resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact[0].telecom'
     resourceIndex: telecomIndex
-    schema: datatypes/simple-report-telecom
+    schema: classpath:/metadata/fhir_transforms/senders/SimpleReport/datatypes/simple-report-telecom
 
   - name: sr-ordering-facility-telecom
     condition: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact.empty()'
     resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom'
     resourceIndex: telecomIndex
-    schema: datatypes/simple-report-telecom
+    schema: classpath:/metadata/fhir_transforms/senders/SimpleReport/datatypes/simple-report-telecom
 
   # To populate SPM-2 appropriately, we need to overwrite the existing specimen.identifier[0]
   # The value that exists in there is not used anywhere in the expected HL7 while the expected
@@ -525,7 +525,7 @@ elements:
   - name: sr-service-request-requester-telecom
     resource: '%serviceRequest.requester.resolve().practitioner.resolve().telecom'
     resourceIndex: telecomIndex
-    schema: datatypes/simple-report-telecom
+    schema: classpath:/metadata/fhir_transforms/senders/SimpleReport/datatypes/simple-report-telecom
 
   - name: sr-service-request-requester-callback-number-extension
     bundleProperty: '%serviceRequest.requester.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number").value[x]'

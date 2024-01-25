@@ -2,7 +2,7 @@ constants:
   fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
 elements:
   - name: observation-request
-    schema: ../../common/observation-request
+    schema: classpath:/metadata/hl7_mapping/common/observation-request
 
   - name: order-organization-identifier
     condition: '%diagnostic.identifier.type.empty()'
@@ -10,34 +10,34 @@ elements:
     constants:
       organizationIdFieldPath: '%{fieldPath}-3'
       identifier: '%diagnostic.identifier[0].value'
-    schema: ../../common/organization-identifier
+    schema: classpath:/metadata/hl7_mapping/common/organization-identifier
 
   - name: observation-request-date-time
     condition: '%context.effective.exists() and %context.effective.is(dateTime)'
     resource: '%resource.effective'
     constants:
       dtmFieldPath: '%{fieldPath}-7'
-    schema: ../../datatypes/dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT
 
   - name: observation-request-date-time-start
     condition: '%context.effective.exists() and %context.effective.is(Period)'
     resource: '%resource.effective.start'
     constants:
       dtmFieldPath: '%{fieldPath}-7'
-    schema: ../../datatypes/dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT
 
   - name: observation-date-time-end
     condition: '%context.effective.exists() and %context.effective.is(Period)'
     resource: '%resource.effective.end'
     constants:
       dtmFieldPath: '%{fieldPath}-8'
-    schema: ../../datatypes/dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT
 
   - name: collector-identifier
     resource: '%service.extension(%`rsext-collector-identifier`).value.resolve()'
     constants:
       hl7XCNField: '%{fieldPath}-10'
-    schema: ../../resources/Practitioner/XCN
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN
     resourceIndex: contactIndex
 
   - name: relevant-clinical-information
@@ -50,7 +50,7 @@ elements:
     resource: '%service.requester.resolve().practitioner.resolve()'
     constants:
       hl7XCNField: '%{fieldPath}-16'
-    schema: ../../common/datatype/xcn-contact
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xcn-contact
     resourceIndex: contactIndex
 
   - name: callback-phone-number
@@ -58,7 +58,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '%{fieldPath}-17'
-    schema: ../../common/datatype/xtn-telecom
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xtn-telecom
     resourceIndex: telecomIndex
 
   - name: placer-field
@@ -89,7 +89,7 @@ elements:
     resource: '%resource.issued'
     constants:
       dtmFieldPath: '%{fieldPath}-22'
-    schema: ../../datatypes/dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT
 
   - name: diagnostic-serv-sect-id
     value: [ '%resource.category.coding.code' ]
@@ -113,7 +113,7 @@ elements:
     resource: '%resource.identifier.where(type.coding[0].system = "http://loinc.org").type'
     constants:
       ceFieldPath: '%{fieldPath}-26-1'
-    schema: ../../common/datatype/ce-coded-element
+    schema: classpath:/metadata/hl7_mapping/common/datatype/ce-coded-element
 
   - name: parent-observation-sub-id
     resource: '%resource.extension(%`rsext-parent-observation-sub-id`)'
@@ -132,7 +132,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-29-1'
-    schema: ../../common/datatype/ei-entity-identifier
+    schema: classpath:/metadata/hl7_mapping/common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: filler-assigned-identifier
@@ -140,14 +140,14 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-29-2'
-    schema: ../../common/datatype/ei-entity-identifier
+    schema: classpath:/metadata/hl7_mapping/common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: reason-for-study
     resource: '%service.reasonCode'
     constants:
       ceFieldPath: '%{fieldPath}-31(%{reasonIndex})'
-    schema: ../../common/datatype/ce-coded-element
+    schema: classpath:/metadata/hl7_mapping/common/datatype/ce-coded-element
     resourceIndex: reasonIndex
 
 
@@ -159,4 +159,4 @@ elements:
     resourceIndex: cweIndex
     constants:
       cweField: '%{fieldPath}-39(%{cweIndex})'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/codeableConcept/CWE

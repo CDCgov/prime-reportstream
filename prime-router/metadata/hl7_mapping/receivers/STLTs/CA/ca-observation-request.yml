@@ -7,7 +7,7 @@ elements:
     resource: '%resource.code'
     constants:
       ceFieldPath: '%{fieldPath}-4'
-    schema: ../../../common/datatype/ce-coded-element
+    schema: classpath:/metadata/hl7_mapping/common/datatype/ce-coded-element
 
   # OBR-3-2: Max length 20
   - name: ca-order-organization-identifier-name

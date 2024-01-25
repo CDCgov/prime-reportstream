@@ -41,7 +41,7 @@ elements:
       namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"'
       universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"'
       universalIdTypeExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"'
-    schema: hd-hierarchic-designator
+    schema: classpath:/metadata/hl7_mapping/common/datatype/hd-hierarchic-designator
 
   - name: xcn-name-type-code
     condition: '%resource.name.use.exists() and %resource.name.use = "official"'
@@ -61,7 +61,7 @@ elements:
       namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"'
       universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"'
       universalIdTypeExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"'
-    schema: hd-hierarchic-designator
+    schema: classpath:/metadata/hl7_mapping/common/datatype/hd-hierarchic-designator
 
   - name: xcn-suffix-professional
     condition: '%resource.name.extension(%`rsext-name-suffix-professional`).exists()'

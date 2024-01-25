@@ -160,6 +160,12 @@ tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
 
+
+//    sourceSets {
+//        test {
+//            runtimeClasspath+=listOf(azureResourcesFinalDir)
+//        }
+//    }
     // Set the environment to local for the tests
     environment["PRIME_ENVIRONMENT"] = "local"
     environment["POSTGRES_URL"] = dbUrl
@@ -190,6 +196,7 @@ tasks.test {
         // This excludes classes from being analyzed, but not from being added to the report
         excludes = coverageExcludedClasses
     }
+    dependsOn("copyMetadataToMainResources")
 }
 
 tasks.javadoc.configure {
@@ -246,10 +253,12 @@ testlogger {
 }
 
 // Add the testIntegration tests
+val testResourceDir = File(buildDir, "resources/test")
 sourceSets.create("testIntegration") {
     java.srcDir("src/testIntegration/kotlin")
     compileClasspath += sourceSets["main"].output
     runtimeClasspath += sourceSets["main"].output
+    runtimeClasspath += files(testResourceDir)
 }
 
 val compileTestIntegrationKotlin: KotlinCompile by tasks
@@ -269,6 +278,7 @@ tasks.register<Test>("testIntegration") {
     dependsOn("compileTestIntegrationKotlin")
     dependsOn("compileTestIntegrationJava")
     shouldRunAfter("test")
+
 
     // Set the environment to local for the tests
     environment["PRIME_ENVIRONMENT"] = "local"
@@ -312,6 +322,7 @@ tasks.register<ResolveTask>("generateOpenApi") {
     resourcePackages = setOf("gov.cdc.prime.router.azure")
     outputDir = apiDocsSpecDir
     dependsOn("compileKotlin")
+    dependsOn("copyMetadataToMainResources")
 }
 
 tasks.register<Copy>("copyApiSwaggerUI") {
@@ -350,11 +361,13 @@ tasks.jar {
         attributes("Main-Class" to primeMainClass)
         attributes("Multi-Release" to true)
     }
+    dependsOn("copyMetadataToMainResources")
 }
 
 tasks.shadowJar {
     // our fat jar is getting fat! Or over 65K files in this case
     isZip64 = true
+    dependsOn("copyMetadataToMainResources")
 }
 
 // Just a nicer name to create the fat jar
@@ -537,10 +550,20 @@ tasks.azureFunctionsPackage {
     finalizedBy("copyAzureScripts")
 }
 
+// copy metadata to main resources
+val mainResourcesDir = File(buildDir, "resources/main")
+tasks.register<Copy>("copyMetadataToMainResources") {
+    from("./")
+    into(mainResourcesDir)
+    include("metadata/hl7_mapping/**")
+    include("metadata/fhir_transforms/**")
+}
+
 tasks.register("package") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions"
     // copy the api docs swagger ui to the build location
+    dependsOn("copyMetadataToMainResources")
     dependsOn("copyApiSwaggerUI")
     dependsOn("azureFunctionsPackage")
     dependsOn("fatJar").mustRunAfter("azureFunctionsPackage")
@@ -549,6 +572,16 @@ tasks.register("package") {
 tasks.register("quickPackage") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions skipping unit tests and migration"
+//    sourceSets {
+//        main {
+//            resources {
+//                srcDirs += listOf(File(metaDataDir, "hl7_mapping"),
+//                    File(metaDataDir, "fhir_transforms"))
+//            }
+//        }
+//    }
+    // copy metadata schemas to the main resources
+    dependsOn("copyMetadataToMainResources")
     // copy the api docs swagger ui to the build location
     dependsOn("copyApiSwaggerUI")
     // Quick package for development purposes.  Use with caution.

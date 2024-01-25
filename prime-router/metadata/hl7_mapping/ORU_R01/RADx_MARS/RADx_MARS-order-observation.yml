@@ -6,10 +6,10 @@ elements:
 
   - name: radx-mars-order-segment
     condition: '%service.extension(%`rsext-order-control`).exists()'
-    schema: RADx_MARS-order
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-order
 
   - name: radx-mars-observation-request
-    schema: RADx_MARS-observation-request
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-observation-request
 
   - name: radx-mars-observation-result
     resource: >
@@ -18,5 +18,5 @@ elements:
       %service.supportingInfo.resolve().where(code.coding.code = %patientAgeAoeLoinc) |
       %service.supportingInfo.resolve().where(code.coding.code = %symptomaticAoeLoinc) |
       %service.supportingInfo.resolve().where(code.coding.code = %illnessOnsetAoeLoinc)
-    schema: RADx_MARS-observation-result
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-observation-result
     resourceIndex: resultIndex

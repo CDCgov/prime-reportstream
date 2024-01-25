@@ -14,7 +14,7 @@ elements:
     constants:
       entityIdFieldPath: '%{hl7ORCField}(%{entityIdIndex})-2'
     resourceIndex: entityIdIndex
-    schema: ../../common/datatype/ei-entity-identifier
+    schema: classpath:/metadata/hl7_mapping/common/datatype/ei-entity-identifier
 
   - name: order-status
     value: [ '%resource.status' ]
@@ -31,10 +31,10 @@ elements:
     resource: '%resource.authoredOn'
     constants:
       dtmFieldPath: '%{hl7ORCField}-9'
-    schema: ../../datatypes/dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT
 
   - name: ordering-facility-name
     resource: '%resource.requester.resolve().organization.resolve()'
-    schema: ../../common/datatype/xon-organization
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7ORCField}-21'

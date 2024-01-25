@@ -2,7 +2,7 @@ elements:
 
   - name: ed-source-application
     resource: '%resource.extension(%`rsext-ed-1-source-application`)'
-    schema: ../extensionHD/HD
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionHD/HD
     constants:
       hl7HDField: '%{hl7EDField}-1'
 

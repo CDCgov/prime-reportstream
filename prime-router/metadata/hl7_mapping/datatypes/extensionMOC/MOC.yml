@@ -10,6 +10,6 @@ elements:
 
   - name: charge-code
     resource: '%resource.extension.where(url = "moc-2-charge-code").value'
-    schema: ../codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     constants:
       cweField: '%{hl7MOCField}-2'

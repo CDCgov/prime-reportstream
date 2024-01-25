@@ -7,7 +7,7 @@ elements:
     condition: '%resource.extension.where(url = "spm-3-specimen-parent-id-placer").exists().not()'
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-3'
-    schema: ../../datatypes/identifier-placerAssignedIdentifier/EIP
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP
 
   - name: specimen-identifier-backup
     resource: '%resource.parent.resolve().identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-filler")'
@@ -16,14 +16,14 @@ elements:
       %resource.extension.where(url = "spm-3-specimen-parent-id-placer").exists().not()
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-3'
-    schema: ../../datatypes/identifier-fillerAssignedIdentifier/EIP
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-fillerAssignedIdentifier/EIP
 
   - name: specimen-parent-identifier
     resource: '%resource.extension.where(url = "spm-3-specimen-parent-id-placer").value'
     resourceIndex: eipIndex
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-3(%{eipIndex})'
-    schema: ../../datatypes/identifier-placerAssignedIdentifier/EIP
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP
 
   - name: specimen-parent-identifier-backup
     resource: '%resource.extension.where(url = "spm-3-specimen-parent-id-filler").value'
@@ -31,31 +31,31 @@ elements:
     resourceIndex: eipIndex
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-3(%{eipIndex})'
-    schema: ../../datatypes/identifier-fillerAssignedIdentifier/EIP
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-fillerAssignedIdentifier/EIP
 
   - name: specimen-type-modifier
     resource: '%resource.extension.where(url = "spm-5-specimen-type-modifier").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7SpecimenFieldPath}-5(%{cweIndex})'
 
   - name: specimen-additives
     resource: '%resource.extension.where(url = "spm-6-specimen-additives").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7SpecimenFieldPath}-6(%{cweIndex})'
 
   - name: specimen-collection-site
     resource: '%resource.extension.where(url = "spm-10-specimen-collection-site").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     constants:
       cweField: '%{hl7SpecimenFieldPath}-10'
 
   - name: specimen-role
     resource: '%resource.extension.where(url = "spm-11-specimen-role").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7SpecimenFieldPath}-11(%{cweIndex})'
@@ -66,14 +66,14 @@ elements:
 
   - name: specimen-handling-code
     resource: '%resource.extension.where(url = "spm-15-specimen-handling-code").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7SpecimenFieldPath}-15(%{cweIndex})'
 
   - name: specimen-risk-code
     resource: '%resource.extension.where(url = "spm-16-specimen-risk-code").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7SpecimenFieldPath}-16(%{cweIndex})'
@@ -88,19 +88,19 @@ elements:
 
   - name: specimen-quality
     resource: '%resource.extension.where(url = "spm-22-specimen-quality").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     constants:
       cweField: '%{hl7SpecimenFieldPath}-22'
 
   - name: specimen-appropriateness
     resource: '%resource.extension.where(url = "spm-23-specimen-appropriateness").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     constants:
       cweField: '%{hl7SpecimenFieldPath}-23'
 
   - name: specimen-current-quantity
     resource: '%resource.extension.where(url = "spm-25-specimen-current-quantity").value'
-    schema: ../../datatypes/Quantity/CQ
+    schema: classpath:/metadata/hl7_mapping/datatypes/Quantity/CQ
     constants:
       cqFieldPath: '%{hl7SpecimenFieldPath}-25'
 
@@ -110,12 +110,12 @@ elements:
 
   - name: container-condition
     resource: '%resource.extension.where(url = "spm-28-container-condition").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     constants:
       cweField: '%{hl7SpecimenFieldPath}-28'
 
   - name: specimen-child-role
     resource: '%resource.extension.where(url = "spm-29-specimen-child-role").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     constants:
       cweField: '%{hl7SpecimenFieldPath}-29'

@@ -14,14 +14,14 @@ elements:
   - name: assigning-authority
     resource: '%resource.assigner.resolve()'
     condition: '%resource.exists()'
-    schema: ../../resources/Organization/HD
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/HD
     constants:
       hl7HDField: '%{cxField}-4'
 
   - name: system
     resource: '%resource.system'
     condition: '%resource.exists()'
-    schema: ../../datatypes/URI/HD
+    schema: classpath:/metadata/hl7_mapping/datatypes/URI/HD
     constants:
       hl7HDField: '%{cxField}-4'
 
@@ -33,7 +33,7 @@ elements:
   - name: assigning-facility
     resource: '%resource.extension(%`rsext-assigning-facility`).value.resolve()'
     condition: '%resource.exists()'
-    schema: ../../resources/Organization/HD
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/HD
     constants:
       hl7HDField: '%{cxField}-6'
 
@@ -41,22 +41,22 @@ elements:
     resource: '%resource.period.start'
     constants:
       dtmFieldPath: '%{cxField}-7'
-    schema: ../dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT
 
   - name: expiration-date
     resource: '%resource.period.end'
     constants:
       dtmFieldPath: '%{cxField}-8'
-    schema: ../dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT
 
   - name: assigning-jurisdiction
     resource: '%resource.extension(%`rsext-assigning-jurisdiction`).value'
-    schema: ../codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     constants:
       cweField: '%{cxField}-9'
 
   - name: assigning-agency-or-department
     resource: '%resource.extension(%`rsext-assigning-agency-or-department`).value'
-    schema: ../codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
     constants:
       cweField: '%{cxField}-10'

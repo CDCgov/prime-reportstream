@@ -5,7 +5,7 @@ constants:
 elements:
   - name: software-1
     resource: '%resource.event'
-    schema: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/xon.yml'
+    schema: classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/xon
 
   - name: software-2
     value: [ '"1"' ]

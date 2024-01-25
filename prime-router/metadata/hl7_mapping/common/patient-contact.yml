@@ -10,20 +10,20 @@ elements:
     condition: '%resource.exists()'
     constants:
       xpnField: '%{hl7NK1Field}-2'
-    schema: ../datatypes/HumanName/XPN
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN
 
   - name: contact-relationship-id
     resource: '%resource.relationship.where(coding.system != "http://hl7.org/fhir/ValueSet/patient-contactrelationship")'
     constants:
       cweFieldPath: '%{hl7NK1Field}-3'
-    schema: ../common/datatype/ce-coded-with-exceptions
+    schema: classpath:/metadata/hl7_mapping/common/datatype/ce-coded-with-exceptions
 
   - name: contact-address
     resource: '%resource.address'
     condition: '%resource.exists()'
     constants:
       hl7AddressField: '%{hl7NK1Field}-4'
-    schema: datatype/xad-extended-address
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xad-extended-address
     resourceIndex: orderIndex
 
   - name: contact-phone-number
@@ -31,7 +31,7 @@ elements:
     condition: '%resource.exists() and %context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7NK1Field}-5'
-    schema: datatype/xtn-telecom
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xtn-telecom
     resourceIndex: telecomIndex
 
   - name: contact-business-phone-number
@@ -39,27 +39,27 @@ elements:
     condition: '%resource.exists() and %context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7NK1Field}-6'
-    schema: datatype/xtn-telecom
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xtn-telecom
     resourceIndex: telecomIndex
 
   - name: contact-start-date
     resource: '%resource.period.start'
     constants:
       dtmFieldPath: '%{hl7NK1Field}-8'
-    schema: ../datatypes/dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT
 
   - name: contact-end-date
     resource: '%resource.period.end'
     constants:
       dtmFieldPath: '%{hl7NK1Field}-9'
-    schema: ../datatypes/dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT
 
   - name: contact-persons-phone-number
     resource: '%resource.organization.resolve().contact.telecom'
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '%{hl7NK1Field}-31'
-    schema: datatype/xtn-telecom
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xtn-telecom
     resourceIndex: telecomIndex
 
   - name: contact-persons-address
@@ -67,7 +67,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       xadField: '%{hl7NK1Field}-32(%{xadIndex})'
-    schema: ../datatypes/Address/XAD
+    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD
     resourceIndex: xadIndex
 
   - name: next-of-kin-telecomm-info
@@ -75,5 +75,5 @@ elements:
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '%{hl7NK1Field}-40'
-    schema: ../datatypes/contactPoint/XTN
+    schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN
     resourceIndex: telecomIndex

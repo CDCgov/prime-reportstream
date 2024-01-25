@@ -8,7 +8,7 @@ elements:
     resource: '%resource.name.family'
     constants:
       hl7fnField: '%{hl7XCNField}-2'
-    schema: ../../datatypes/HumanName/FN
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/FN
 
   - name: xcn-given-name
     value: [ '%resource.extension(%`rsext-xcn3-given-name`).value' ]
@@ -34,13 +34,13 @@ elements:
     resource: '%resource.extension(%`rsext-xcn8-source-table`).value'
     constants:
       cweField: '%{hl7XCNField}-8'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
 
   - name: xcn-assigning-authority
     resource: '%resource.extension(%`rsext-assigning-authority`)'
     constants:
       hl7HDField: '%{hl7XCNField}-9'
-    schema: ../../datatypes/extensionAssigningAuthority/HD
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionAssigningAuthority/HD
 
   - name: xcn-name-type-code
     value: [ '%resource.extension(%`rsext-xcn10-name-type-code`).value' ]
@@ -62,7 +62,7 @@ elements:
     resource: '%resource.identifier.extension(%`rsext-assigning-facility`).value.resolve()'
     constants:
       hl7HDField: '%{hl7XCNField}-14'
-    schema: ../Location/HD
+    schema: classpath:/metadata/hl7_mapping/resources/Location/HD
 
   - name: xcn-name-representation-code
     value: [ '%resource.extension(%`rsext-xcn15-name-representation-code`).value' ]
@@ -72,7 +72,7 @@ elements:
     resource: '%resource.extension(%`rsext-xcn16-name-context`).value'
     constants:
       cweField: '%{hl7XCNField}-16'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
 
   - name: xcn-name-validity-range-start
     value: [ '%resource.extension(%`rsext-xcn17-name-validity-range`).extension(%`rsext-xcn17-name-validity-start`).value' ]
@@ -102,10 +102,10 @@ elements:
     resource: '%resource.extension(%`rsext-xcn22-assigning-jurisdiction`).value'
     constants:
       cweField: '%{hl7XCNField}-22'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
 
   - name: xcn-assigning-agency-or-department
     resource: '%resource.extension(%`rsext-xcn23-assigning-agency-or-department`).value'
     constants:
       cweField: '%{hl7XCNField}-23'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE

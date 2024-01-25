@@ -22,12 +22,12 @@ elements:
     resource: '%resource.extension(%`rsext-note-type`).value'
     constants:
       cweFieldPath: '%{hl7NotePath}/NTE(%{noteIndex})-4'
-    schema: datatype/ce-coded-with-exceptions
+    schema: classpath:/metadata/hl7_mapping/common/datatype/ce-coded-with-exceptions
 
   - name: note-author
     condition: '%context.author.exists() and %context.author.is(Reference)'
     resource: '%resource.author.resolve()'
-    schema: datatype/xcn-contact
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xcn-contact
     constants:
       hl7XCNField: '%{hl7NotePath}/NTE(%{noteIndex})-5'
       contactIndex: '0'

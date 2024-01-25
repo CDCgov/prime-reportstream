@@ -47,13 +47,13 @@ elements:
     resource: '%resource.period.start'
     constants:
       dtmFieldPath: '%{hl7TelecomPath}-13'
-    schema: ../dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT
 
   - name: xtn-expiration-date
     resource: '%resource.period.end'
     constants:
       dtmFieldPath: '%{hl7TelecomPath}-14'
-    schema: ../dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT
 
   - name: xtn-preference-order
     value: [ '%resource.rank' ]

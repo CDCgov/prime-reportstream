@@ -865,8 +865,7 @@ class FhirTransformerTests {
         val bundle = messages[0]
 
         val childSchema = ConfigSchemaReader.fromFile(
-            "test_extension_schema",
-            "src/test/resources/fhir_sender_transforms",
+            "classpath:/fhir_sender_transforms/test_extension_schema",
             schemaClass = FhirTransformSchema::class.java,
         ) as FhirTransformSchema
 

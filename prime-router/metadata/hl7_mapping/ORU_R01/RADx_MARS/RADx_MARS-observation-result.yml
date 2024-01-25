@@ -17,4 +17,4 @@ elements:
     resource: '%resource.code'
     constants:
       ceFieldPath: '%{hl7ObservationPath}/OBX-3'
-    schema: ../../common/datatype/ce-coded-element
+    schema: classpath:/metadata/hl7_mapping/common/datatype/ce-coded-element

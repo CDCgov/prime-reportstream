@@ -1,5 +1,5 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
-extends: ../../../ORU_R01/ORU_R01-base
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base
 elements:
   #########################
   # ReportStream specific #
@@ -53,7 +53,7 @@ elements:
   - name: co-order-observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
     condition: '%resource.count() > 0'
-    schema: co-order-observation
+    schema: classpath:/metadata/hl7_mapping/receivers/STLTs/CO/co-order-observation
     resourceIndex: orderIndex
 
   ###############################

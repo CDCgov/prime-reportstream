@@ -114,7 +114,7 @@
       organizationName: test
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/HCI/hci-sender-transform
+      schemaName: classpath:/metadata/fhir_transforms/senders/HCI/hci-sender-transform
       format: HL7
   receivers:
     - name: DEV_FULL_ELR
@@ -187,7 +187,7 @@
       topic: "elr-elims"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useTestProcessingMode: false
         useBatchHeaders: false
         suppressQstForAoe: false
@@ -404,7 +404,7 @@
       topic: "full-elr"
       customerStatus: "testing"
       enrichmentSchemaNames:
-        - "/src/test/resources/enrichments/testing,/src/test/resources/enrichments/testing2"
+        - "/enrichments/testing,/enrichments/testing2"
       translation: !<HL7>
         useTestProcessingMode: false
         useBatchHeaders: true

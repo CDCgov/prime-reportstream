@@ -346,7 +346,15 @@ class TranslationTests {
                             }
                             check(!config.outputSchema.isNullOrBlank())
                             val actualStream =
-                                translateFromFhir(afterSenderTransform, config.outputSchema, config.receiver)
+                                translateFromFhir(
+                                    afterSenderTransform,
+                                    if (config.outputSchema.startsWith("classpath:")) {
+                                        config.outputSchema
+                                    } else {
+                                        "classpath:/" + config.outputSchema
+                                    },
+                                    config.receiver
+                                )
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
@@ -474,9 +482,8 @@ class TranslationTests {
             }
 
             val hl7 = FhirToHl7Converter(
-                FilenameUtils.getName(schema),
-                FilenameUtils.getPath(schema),
-                context = FhirToHl7Context(
+                schema,
+                    context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = translationConfig,
                     translationFunctions = CustomTranslationFunctions()

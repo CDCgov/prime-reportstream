@@ -4,7 +4,7 @@ elements:
     resource: '%resource.family'
     constants:
       hl7fnField: '%{xpnField}-1'
-    schema: ./FN
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/FN
 
   - name: xpn-given-name
     value: [ '%resource.extension(%`rsext-xpn2-given-name`).value' ]
@@ -50,7 +50,7 @@ elements:
     resource: '%resource.extension(%`rsext-xpn9-name-context`).value'
     constants:
       cweField: '%{xpnField}-9'
-    schema: ../codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
 
   - name: xpn-name-validity-range-start
     value: [ '%resource.extension(%`rsext-xpn10-name-validity-range`).extension(%`rsext-xpn10-name-validity-start`).value' ]

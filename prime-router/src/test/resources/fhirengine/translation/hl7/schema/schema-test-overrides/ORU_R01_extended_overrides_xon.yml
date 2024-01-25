@@ -36,7 +36,7 @@ elements:
   # software-1 is defined in sft.yml and the schema is getting overridden
   - name: software-1
     resource: '%resource.event'
-    schema: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/xon2.yml'
+    schema: classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/xon2
 
   # This exercises adding a new element that would be "part" of xon which is also getting overridden
   # to a new schema

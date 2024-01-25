@@ -1,5 +1,5 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
-extends: RADx_MARS-base
+extends: classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base
 elements:
   # PID 3.1
   - name: patient-identifier-list

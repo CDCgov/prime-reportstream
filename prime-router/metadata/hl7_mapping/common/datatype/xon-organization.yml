@@ -17,7 +17,7 @@ elements:
       namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id"'
       universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id"'
       universalIdTypeExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"'
-    schema: hd-hierarchic-designator
+    schema: classpath:/metadata/hl7_mapping/common/datatype/hd-hierarchic-designator
 
   - name: xon-organization-id-type
     resource: '%resource.identifier.type.where(coding.system = ''http://terminology.hl7.org/CodeSystem/v2-0203'')'
@@ -29,7 +29,7 @@ elements:
     resource: '%resource.identifier.extension(%`rsext-assigning-facility`).value.resolve()'
     constants:
       hl7HDField: '%{hl7OrgField}-8'
-    schema: ../../resources/Location/HD
+    schema: classpath:/metadata/hl7_mapping/resources/Location/HD
 
   - name: xon-name-representation-code
     value: [ '%resource.identifier.extension(%`rsext-name-representation-code`).value' ]

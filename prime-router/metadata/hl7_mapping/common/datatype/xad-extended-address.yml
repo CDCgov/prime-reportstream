@@ -49,6 +49,6 @@ elements:
   - name: xad-address-validity-range
     resource: '%resource.period'
     condition: '%resource.exists()'
-    schema: ../../resources/Patient/DR
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/DR
     constants:
       hl7DRField: '%{hl7XADField}-10'

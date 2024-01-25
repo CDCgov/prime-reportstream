@@ -42,16 +42,16 @@ elements:
     resource: '%resource.resultsInterpreter.resolve()'
     constants:
       hl7NDLField: '%{obrFieldPath}-32'
-    schema: ../PractitionerRole/NDL
+    schema: classpath:/metadata/hl7_mapping/resources/PractitionerRole/NDL
 
   - name: technician
     resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "SPRF")'
     constants:
       hl7NDLField: '%{obrFieldPath}-34'
-    schema: ../PractitionerRole/NDL
+    schema: classpath:/metadata/hl7_mapping/resources/PractitionerRole/NDL
 
   - name: transcriptionist
     resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "TRANS")'
     constants:
       hl7NDLField: '%{obrFieldPath}-35'
-    schema: ../PractitionerRole/NDL
+    schema: classpath:/metadata/hl7_mapping/resources/PractitionerRole/NDL
