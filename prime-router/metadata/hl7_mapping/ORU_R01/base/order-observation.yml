@@ -52,7 +52,7 @@ elements:
 
   - name: order-note
     resource: '%service.note'
-    schema: classpath:/metadata/hl7_mapping/common/note
+    schema: classpath://metadata/hl7_mapping/datatypes/annotation/NTE
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7Order}'

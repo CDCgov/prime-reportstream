@@ -4,8 +4,7 @@ elements:
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-1' ]
 
   - name: note-source
-    value:
-      - '%resource.extension(%`rsext-note-source`).value.coding.code'
+    value: [ '%resource.extension(%`rsext-note-source`).value' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-2' ]
 
   - name: note-comment
@@ -21,13 +20,13 @@ elements:
   - name: note-comment-type-identifier
     resource: '%resource.extension(%`rsext-note-type`).value'
     constants:
-      cweFieldPath: '%{hl7NotePath}/NTE(%{noteIndex})-4'
-    schema: classpath:/metadata/hl7_mapping/common/datatype/ce-coded-with-exceptions
+      cweField: '%{hl7NotePath}/NTE(%{noteIndex})-4'
+    schema: classpath:/hl7_mapping/datatypes/codeableConcept/CWE
 
   - name: note-author
     condition: '%context.author.exists() and %context.author.is(Reference)'
     resource: '%resource.author.resolve()'
-    schema: classpath:/metadata/hl7_mapping/common/datatype/xcn-contact
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN
     constants:
       hl7XCNField: '%{hl7NotePath}/NTE(%{noteIndex})-5'
       contactIndex: '0'

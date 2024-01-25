@@ -5,6 +5,6 @@ elements:
 
   - name: note
     condition: '%resource is string'
-    schema: classpath:/metadata/hl7_mapping/common/note
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE
     constants:
       noteDetails: '%resource.note'

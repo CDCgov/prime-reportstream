@@ -132,7 +132,7 @@ elements:
 
   - name: observation-note
     resource: '%resource.note'
-    schema: classpath:/metadata/hl7_mapping/common/note
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7ObservationPath}'
