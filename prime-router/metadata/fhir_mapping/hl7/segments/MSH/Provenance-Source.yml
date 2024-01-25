@@ -18,21 +18,7 @@ entity_1:
       type: STRING
       valueOf: "source"
 
-entity_2:
-  expressionType: nested
-  generateList: true
-  vars:
-    msh24: STRING_ALL, MSH.24
-    msh3: STRING_ALL, MSH.3
-  condition: $msh3 NOT_NULL && $msh24 NOT_NULL
-  expressionsMap:
-    role:
-      type: STRING
-      valueOf: "source"
-    what:
-      valueOf: segments/MSH/datatypes/HD/Device
-      expressionType: reference
-      specs: MSH.3
+# second entity value may be added after a mapping update based on MSH.3
 
 agent_1:
   expressionType: nested

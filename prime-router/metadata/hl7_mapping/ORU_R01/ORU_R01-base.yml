@@ -53,7 +53,7 @@ elements:
     resourceIndex: orderIndex
 
   - name: participation-request
-    resource: 'Bundle.entry.resource.ofType(Device)'
+    resource: 'Bundle.entry.resource.ofType(Device).where(udiCarrier.exists())'
     condition: 'Bundle.entry.resource.ofType(Device).udiCarrier.exists()'
     constants:
       hl7SegmentGroup: '/PATIENT_RESULT/PATIENT/PATIENT_OBSERVATION'

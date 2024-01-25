@@ -27,7 +27,7 @@ recorded:
 
 policy:
   type: SYSTEM_URL
-  valueOf: "v2-to-fhir-inventory" #TODO: fill with /uri of the policy governing transformation of the v2 to FHIR/
+  valueOf: "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
 
 agent:
   expressionType: nested
@@ -45,10 +45,9 @@ agent:
             system:
               type: SYSTEM_URL
               valueOf: "http://terminology.hl7.org/CodeSystem/provenance-participant-type"
-#    who: #TODO: populate this with /the organization owning or device performing the transformation by the mapping tool/
-#      valueOf: datatypes/HD/Organization
-#      expressionType: reference
-#      specs: ???
+    who:
+      valueOf: segments/MSH/datatypes/HD/ReportStreamOrganization
+      expressionType: reference
 
 entity:
   expressionType: nested

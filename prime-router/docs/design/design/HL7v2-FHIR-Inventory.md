@@ -53,6 +53,12 @@ implementation differs from what is in the spreadsheets.
 - The inventory specifies that MessageHeader.destination should have a reference to a device, but there is no mapping so
   that is not implemented
 
+### MSH -> Provenance
+
+- The inventory for [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
+  maps MSH.3 to a Device reference, but the referenced mapping, [HD[MessageHeader.source.endpoint]](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0),
+  is incompatible with the Device type in the FHIR spec.
+
 ### OBR/ORC -> ServiceRequest
 
 - There is a discrepancy on where to pull identifiers from, for ORC/OBR 2,3 the mapping contradictorily states that both
