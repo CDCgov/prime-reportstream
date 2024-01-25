@@ -160,12 +160,6 @@ tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
 
-
-//    sourceSets {
-//        test {
-//            runtimeClasspath+=listOf(azureResourcesFinalDir)
-//        }
-//    }
     // Set the environment to local for the tests
     environment["PRIME_ENVIRONMENT"] = "local"
     environment["POSTGRES_URL"] = dbUrl
@@ -278,7 +272,6 @@ tasks.register<Test>("testIntegration") {
     dependsOn("compileTestIntegrationKotlin")
     dependsOn("compileTestIntegrationJava")
     shouldRunAfter("test")
-
 
     // Set the environment to local for the tests
     environment["PRIME_ENVIRONMENT"] = "local"
