@@ -21,8 +21,7 @@ interface AzureCustomDimensionsSerializable {
             .valueToTree<ObjectNode>(this)
             .fields()
             .asSequence()
-            .map { it.key to serializeValue(it.value) }
-            .toMap()
+            .associate { it.key to serializeValue(it.value) }
     }
 
     /**

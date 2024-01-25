@@ -6,7 +6,7 @@ import org.slf4j.MDC
 /**
  * A few helpful functions for adding complex objects to the MDC
  *
- * Unfortunately there does not seem to be a way to add a "static" extension
+ * Unfortunately, there does not seem to be a way to add a "static" extension
  * method on a Java class
  */
 object MDCUtils {
