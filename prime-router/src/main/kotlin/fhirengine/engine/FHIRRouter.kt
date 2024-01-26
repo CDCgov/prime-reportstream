@@ -34,6 +34,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
+import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
 import org.hl7.fhir.r4.model.Base
@@ -386,7 +387,8 @@ class FHIRRouter(
                         bundle
                     )
                 }
-                passes = passes && filteredObservations.isNotEmpty()
+                passes = passes && filteredObservations.isNotEmpty() && // don't pass a bundle with only AOEs
+                    !filteredObservations.all { it.getMappedConditions().all { code -> code == "AOE" } }
             }
 
             // if all filters pass, add this receiver to the list of valid receivers
