@@ -349,10 +349,8 @@ note:
   specs: NTE
 
 supportingInfo:
-  vars:
-    obx: STRING_ALL, OBX
-  condition: $obx NOT_NULL
-  valueOf: segments/OBX/Observation
-  expressionType: reference
-  constants:
-    suppressNote: 'true'
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Observation
+  useGroup: true
+  generateList: true

@@ -535,7 +535,7 @@ note_observation:
   generateList: true
   specs: NTE
 
-specimen:
+focus:
   valueOf: datatype/Reference
   expressionType: resource
   specs: $Specimen
