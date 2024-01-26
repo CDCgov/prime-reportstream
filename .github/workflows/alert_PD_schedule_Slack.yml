@@ -34,7 +34,7 @@ jobs:
         prefix: Schedules
       
     - name: Show schedules
-      run: echo "The time was ${{ env.Schedules_value }}, ${{ env.Schedules_array_0_value }}"
+      run: echo "The variables are ${{ env }}"
 
     - uses: MeilCli/slack-upload-file@a999cb4bce8f6b4910c1bd43ac77d18d9cbc316c
       id: PagerDutySchedules
