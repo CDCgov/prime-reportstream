@@ -4,12 +4,6 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
-target:
-  valueOf: datatype/Reference
-  generateList: true
-  expressionType: resource
-  specs: $Bundle
-
 activity:
   expressionType: nested
   expressionsMap:
@@ -46,12 +40,5 @@ agent:
               type: SYSTEM_URL
               valueOf: "http://terminology.hl7.org/CodeSystem/provenance-participant-type"
     who:
-      valueOf: segments/MSH/datatypes/HD/ReportStreamOrganization
+      valueOf: segments/MSH/ReportStreamOrganization
       expressionType: reference
-
-entity:
-  expressionType: nested
-  expressionsMap:
-    role:
-      type: STRING
-      valueOf: "source"

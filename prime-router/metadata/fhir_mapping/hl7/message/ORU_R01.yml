@@ -4,15 +4,15 @@ resources:
     segment: MSH
     resourcePath: segments/MSH/MessageHeader
     repeats: false
-    isReferenced: false
+    isReferenced: true
     additionalSegments:
       - SFT
 
-  - resourceName: Provenance-Source
+  - resourceName: Provenance
     segment: MSH
     resourcePath: segments/MSH/Provenance-Source
 
-  - resourceName: Provenance-Transformation
+  - resourceName: Provenance
     segment: MSH
     resourcePath: segments/MSH/Provenance-Transformation
 
@@ -28,7 +28,7 @@ resources:
       - .NTE
       - .NK1
 
-  - resourceName: Provenance-Patient
+  - resourceName: Provenance
     group: PATIENT_RESULT.PATIENT
     segment: .PID
     resourcePath: segments/PID/Provenance-Patient
