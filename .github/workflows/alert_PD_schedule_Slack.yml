@@ -36,12 +36,14 @@ jobs:
     - name: Show schedules
       run: echo "The time was ${{ env.Schedules_value }}, ${{ env.Schedules_array_0_value }}"
 
-
-    - name: Get PD onCall Details
-      id: PDOnCallDetails
-      shell: pwsh
-      run: |
-        echo  JSON.parse(JSON.stringify(${{ steps.PDOnCall.outputs.PDSchedules }}))
+    - uses: MeilCli/slack-upload-file@a999cb4bce8f6b4910c1bd43ac77d18d9cbc316c
+      id: PagerDutySchedules
+      continue-on-error: true
+      with:
+        slack_token: ${{ secrets.SLACK_TOKEN }}
+        channel_id: 'C01HFHPNJEL'
+        file_path: 'PDSchedules.json'
+        initial_comment: 'Pager Duty Schedule'
 
     # - name: Slack Notification
     #   uses: ./.github/actions/notifications
