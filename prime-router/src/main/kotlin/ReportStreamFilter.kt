@@ -25,8 +25,7 @@ abstract class ConditionFilter(val value: String) {
 }
 
 class CodeStringConditionFilter(value: String) : ConditionFilter(value) {
-    val codeList = value.split(",")
-
+    private val codeList = value.split(",").map { it.trim() }
     override fun codes() = codeList
 }
 

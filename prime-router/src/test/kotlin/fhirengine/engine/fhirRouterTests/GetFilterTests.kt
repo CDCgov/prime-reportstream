@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import gov.cdc.prime.router.CodeStringConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -424,5 +426,11 @@ class GetFilterTests {
         val filters = engine.getMappedConditionFilter(receiverWithFilters, orgFilters)
         assert(filters.size == 1)
         assert(filters.any { it == receiverWithFilters.mappedConditionFilter[0] })
+    }
+
+    @Test
+    fun `test CodeStringConditionFilter parse`() {
+        val filter = CodeStringConditionFilter("c1,c2, c3,c4 , c 5 ")
+        assertThat(filter.codes()).isEqualTo(listOf("c1", "c2", "c3", "c4", "c 5"))
     }
 }
