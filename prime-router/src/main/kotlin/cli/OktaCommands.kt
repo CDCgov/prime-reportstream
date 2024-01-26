@@ -192,7 +192,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
     data class AccessTokenFile(val token: String, val clientId: String, val expiresAt: LocalDateTime)
 
     fun abort(message: String): Nothing {
-        throw PrintMessage(message, error = true)
+        throw PrintMessage(message, printError = true)
     }
 
     companion object {

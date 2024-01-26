@@ -16,6 +16,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
+import com.github.ajalt.mordant.terminal.YesNoPrompt
 import com.github.difflib.text.DiffRow
 import com.github.difflib.text.DiffRowGenerator
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
@@ -63,7 +64,9 @@ class LookupTableEndpointUtilities(
      * The Access Token.
      */
     private val accessToken = useThisToken ?: OktaCommand.fetchAccessToken(environment.oktaApp)
-    ?: throw PrintMessage("Missing access token. Run ./prime login to fetch/refresh your access token.", true)
+    ?: throw PrintMessage(
+        "Missing access token. Run ./prime login to fetch/refresh your access token.", printError = true
+    )
 
     /**
      * Fetches the list of tables from the API.
@@ -126,10 +129,14 @@ class LookupTableEndpointUtilities(
         val tableList = try {
             this.fetchList()
         } catch (e: IOException) {
-            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", printError = true)
         }
         val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
-        if (activeVersion == 0) throw PrintMessage("Could not find lookup table: $tableName", true)
+        if (activeVersion == 0) {
+            throw PrintMessage(
+            "Could not find lookup table: $tableName", printError = true
+        )
+        }
         return activeVersion
     }
 
@@ -518,9 +525,12 @@ class LookupTableGetCommand(httpClient: HttpClient? = null) : GenericLookupTable
         val tableList = try {
             tableUtil.fetchTableContent(tableName, version)
         } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
-            throw PrintMessage("The table $tableName version $version was not found.", true)
+            throw PrintMessage("The table $tableName version $version was not found.", printError = true)
         } catch (e: IOException) {
-            throw PrintMessage("Error fetching the contents of table $tableName version $version: ${e.message}", true)
+            throw PrintMessage(
+                "Error fetching the contents of table $tableName version $version: ${e.message}",
+                printError = true
+            )
         }
         if (tableList.isNotEmpty()) {
             // Output to a file if requested, otherwise output to the screen.
@@ -654,7 +664,7 @@ class LookupTableCompareMappingCommand(httpClient: HttpClient? = null) : Generic
 
         // Check the supplied compendium
         if (inputData.isEmpty()) {
-            throw PrintMessage("Input file ${inputFile.absolutePath} has no data.", true)
+            throw PrintMessage("Input file ${inputFile.absolutePath} has no data.", printError = true)
         }
         arrayOf(SENDER_COMPENDIUM_CODE_KEY, SENDER_COMPENDIUM_CODESYSTEM_KEY).forEach {
             if (it !in inputData[0].keys) throw PrintMessage("Supplied compendium is missing column: $it")
@@ -666,11 +676,11 @@ class LookupTableCompareMappingCommand(httpClient: HttpClient? = null) : Generic
         try {
             tableUtil.fetchTableInfo(tableName, loadTableVersion)
         } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
-            throw PrintMessage("The table $tableName version $loadTableVersion was not found.", true)
+            throw PrintMessage("The table $tableName version $loadTableVersion was not found.", printError = true)
         } catch (e: IOException) {
             throw PrintMessage(
                 "Error fetching table version for $tableName version $loadTableVersion: ${e.message}",
-                true
+                printError = true
             )
         }
 
@@ -678,7 +688,7 @@ class LookupTableCompareMappingCommand(httpClient: HttpClient? = null) : Generic
         val tableData = try {
             tableUtil.fetchTableContent(tableName, loadTableVersion)
         } catch (e: Exception) {
-            throw PrintMessage("Error fetching table content for table $tableName: ${e.message}", true)
+            throw PrintMessage("Error fetching table content for table $tableName: ${e.message}", printError = true)
         }
 
         // Check loaded table for needed columns
@@ -877,7 +887,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
             if (inputFile != null) { // Start with data from a file
                 val inputData = csvReader().readAllWithHeader(inputFile)
                 inputData.ifEmpty {
-                    throw PrintMessage("Input file ${inputFile.absolutePath} has no data.", true)
+                    throw PrintMessage("Input file ${inputFile.absolutePath} has no data.", printError = true)
                 }
             } else { // Start with data from existing lookup table
                 val loadTableVersion: Int = tableVersion ?: tableUtil.findActiveVersion(tableName)
@@ -887,14 +897,19 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                     tableUtil.fetchTableInfo(tableName, loadTableVersion)
                     tableUtil.fetchTableContent(tableName, loadTableVersion)
                 } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
-                    throw PrintMessage("The table $tableName version $loadTableVersion was not found.", true)
+                    throw PrintMessage(
+                        "The table $tableName version $loadTableVersion was not found.", printError = true
+                    )
                 } catch (e: IOException) {
                     throw PrintMessage(
                         "Error fetching table version for $tableName version $loadTableVersion: ${e.message}",
-                        true
+                        printError = true
                     )
                 } catch (e: Exception) {
-                    throw PrintMessage("Error fetching table content for table $tableName: ${e.message}", true)
+                    throw PrintMessage(
+                        "Error fetching table content for table $tableName: ${e.message}",
+                        printError = true
+                    )
                 }
             }.also { tableData ->
                 // Verify the loaded table contains the appropriate columns
@@ -931,9 +946,10 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
 
         // Save local csv of updated table
         if ((
-                !silent && confirm(
-                    "Save an updated local observation-mapping.csv with ${outputData.size} rows?"
-                ) == true
+                !silent && YesNoPrompt(
+                    "Save an updated local observation-mapping.csv with ${outputData.size} rows?",
+                    currentContext.terminal
+                ).ask() == true
                 ) || silent
         ) {
             val outputCSV = File(OBX_MAPPING_CSV_PATH)
@@ -943,14 +959,16 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
 
         // Save updated table to the database
         if ((
-                !silent && confirm("Continue to create a new version of $tableName with ${outputData.size} rows?")
-                    == true
-                ) || silent
+                !silent && YesNoPrompt(
+                    "Continue to create a new version of $tableName with ${outputData.size} rows?",
+                    currentContext.terminal
+                ).ask() == true
+        ) || silent
         ) {
             val newTableInfo = try {
                 tableUtil.createTable(tableName, outputData, true)
             } catch (e: IOException) {
-                throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
+                throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", printError = true)
             } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
                 val dupVersion = e.message?.substringAfterLast("version")
                 echo(
@@ -967,7 +985,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                     throw PrintMessage(
                         "\tError activating table $tableName version ${newTableInfo.tableVersion}. " +
                             "Table was created.  Try to activate it. : ${e.message}",
-                        true
+                        printError = true
                     )
                 }
                 echo("\tTable version ${newTableInfo.tableVersion} is now active.")
@@ -1064,14 +1082,16 @@ class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTa
         val tableList = try {
             tableUtil.fetchList()
         } catch (e: IOException) {
-            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", printError = true)
         }
         val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
         if (!silent && activeVersion > 0) {
             val activeTable = try {
                 tableUtil.fetchTableContent(tableName, activeVersion)
             } catch (e: Exception) {
-                throw PrintMessage("Error fetching active table content for table $tableName: ${e.message}", true)
+                throw PrintMessage(
+                    "Error fetching active table content for table $tableName: ${e.message}", printError = true
+                )
             }
             echo("Generating a diff view of the changes.  For large tables this can take a while...")
             val diffOutput = LookupTableCommands.generateDiff(activeTable, inputData, false)
@@ -1090,14 +1110,16 @@ class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTa
 
         // Now we are ready.  Ask if we should proceed.
         if ((
-                    !silent && confirm("Continue to create a new version of $tableName with ${inputData.size} rows?")
-                            == true
-                    ) || silent
+                !silent && YesNoPrompt(
+                    "Continue to create a new version of $tableName with ${inputData.size} rows?",
+                    currentContext.terminal
+                ).ask() == true
+                ) || silent
         ) {
             val newTableInfo = try {
                 tableUtil.createTable(tableName, inputData, forceTableToCreate)
             } catch (e: IOException) {
-                throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
+                throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", printError = true)
             } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
                 val dupVersion = e.message?.substringAfterLast("version")
                 echo(
@@ -1117,8 +1139,8 @@ class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTa
                 } catch (e: Exception) {
                     throw PrintMessage(
                         "\tError activating table $tableName version ${newTableInfo.tableVersion}. " +
-                                "Table was created.  Try to activate it. : ${e.message}",
-                        true
+                            "Table was created.  Try to activate it. : ${e.message}",
+                        printError = true
                     )
                 }
                 echo("\tTable version ${newTableInfo.tableVersion} is now active.")
@@ -1152,7 +1174,7 @@ class LookupTableListCommand(httpClient: HttpClient? = null) : GenericLookupTabl
         val data = try {
             tableUtil.fetchList(showInactive)
         } catch (e: IOException) {
-            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", printError = true)
         }
         if (showInactive) {
             echo("Listing all lookup tables including inactive.")
@@ -1213,28 +1235,36 @@ class LookupTableDiffCommand(httpClient: HttpClient? = null) : GenericLookupTabl
         val version1Info = try {
             tableUtil.fetchTableInfo(tableName, version1)
         } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
-            throw PrintMessage("The table $tableName version $version1 was not found.", true)
+            throw PrintMessage("The table $tableName version $version1 was not found.", printError = true)
         } catch (e: IOException) {
-            throw PrintMessage("Error fetching table version for $tableName version $version1: ${e.message}", true)
+            throw PrintMessage(
+                "Error fetching table version for $tableName version $version1: ${e.message}", printError = true
+            )
         }
         val version2Info = try {
             tableUtil.fetchTableInfo(tableName, version2)
         } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
-            throw PrintMessage("The table $tableName version $version2 was not found.", true)
+            throw PrintMessage("The table $tableName version $version2 was not found.", printError = true)
         } catch (e: IOException) {
-            throw PrintMessage("Error fetching table version for $tableName version $version2: ${e.message}", true)
+            throw PrintMessage(
+                "Error fetching table version for $tableName version $version2: ${e.message}", printError = true
+            )
         }
 
         // Now get the content.
         val version1Table = try {
             tableUtil.fetchTableContent(tableName, version1)
         } catch (e: Exception) {
-            throw PrintMessage("Error fetching table content for $tableName version $version1: ${e.message}", true)
+            throw PrintMessage(
+                "Error fetching table content for $tableName version $version1: ${e.message}", printError = true
+            )
         }
         val version2Table = try {
             tableUtil.fetchTableContent(tableName, version2)
         } catch (e: Exception) {
-            throw PrintMessage("Error fetching table content for $tableName version $version2: ${e.message}", true)
+            throw PrintMessage(
+                "Error fetching table content for $tableName version $version2: ${e.message}", printError = true
+            )
         }
 
         // Generate the diff.
@@ -1276,16 +1306,18 @@ class LookupTableActivateCommand(httpClient: HttpClient? = null) : GenericLookup
         try {
             tableUtil.fetchTableInfo(tableName, version)
         } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
-            throw PrintMessage("The table $tableName version $version was not found.", true)
+            throw PrintMessage("The table $tableName version $version was not found.", printError = true)
         } catch (e: IOException) {
-            throw PrintMessage("Error fetching table version for $tableName version $version: ${e.message}", true)
+            throw PrintMessage(
+                "Error fetching table version for $tableName version $version: ${e.message}", printError = true
+            )
         }
 
         // Find the currently active version
         val tableList = try {
             tableUtil.fetchList(true)
         } catch (e: IOException) {
-            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", printError = true)
         }
         val currentlyActiveTable = tableList.firstOrNull { it.tableName == tableName && it.isActive }
         when {
@@ -1305,7 +1337,7 @@ class LookupTableActivateCommand(httpClient: HttpClient? = null) : GenericLookup
                 )
         }
 
-        if (confirm("Set $version as active?") == true) {
+        if (YesNoPrompt("Set $version as active?", currentContext.terminal).ask() == true) {
             val activatedStatus = tableUtil.activateTable(tableName, version)
             if (activatedStatus.isActive) {
                 echo("Version $version for lookup table $tableName was set active.")

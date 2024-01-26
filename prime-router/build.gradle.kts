@@ -817,11 +817,13 @@ dependencies {
     }
     implementation("org.apache.logging.log4j:log4j-api:2.22.0")
     implementation("org.apache.logging.log4j:log4j-core:2.22.0")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.22.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.22.0")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.22.0")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.3.0")
+    implementation("io.github.oshai:kotlin-logging-jvm:6.0.3")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.2")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.5.4")
+    implementation("com.github.ajalt.clikt:clikt-jvm:4.2.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
@@ -925,7 +927,6 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
-    testImplementation("com.wolpl.clikt-testkit:clikt-testkit:1.0.0")
     testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
     implementation(kotlin("script-runtime"))
 }

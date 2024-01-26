@@ -147,7 +147,7 @@ class CommandUtilities {
          * Nice way to abort a command
          */
         fun abort(message: String): Nothing {
-            throw PrintMessage(message, error = true)
+            throw PrintMessage(message, printError = true)
         }
     }
 }

@@ -52,7 +52,7 @@ class OktaAuthTests : CoolTest() {
         private const val accessTokenDummy = "dummy"
 
         fun abort(message: String): Nothing {
-            throw PrintMessage(message, error = true)
+            throw PrintMessage(message, printError = true)
         }
 
         /**
