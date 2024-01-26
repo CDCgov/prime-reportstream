@@ -11,9 +11,15 @@ extension:
   expressionType: nested
   expressions:
     - expressionType: resource
+      vars:
+        xad1: STRING_ALL, XAD.1
+      condition: $xad1 NOT_NULL
       valueOf: datatypes/XAD/SADExtension
       specs: XAD.1
     - expressionType: nested
+      vars:
+        xad2: STRING_ALL, XAD.2
+      condition: $xad2 NOT_NULL
       expressionsMap:
         url:
           type: STRING
@@ -23,6 +29,9 @@ extension:
           valueOf: XAD.2
           expressionType: HL7Spec
     - expressionType: nested
+      vars:
+        xad7: STRING_ALL, XAD.7
+      condition: $xad7 NOT_NULL
       expressionsMap:
         url:
           type: STRING
@@ -32,6 +41,9 @@ extension:
           valueOf: XAD.7
           expressionType: HL7Spec
     - expressionType: nested
+      vars:
+        xad8: STRING_ALL, XAD.8
+      condition: $xad8 NOT_NULL
       expressionsMap:
         url:
           type: STRING
@@ -41,6 +53,9 @@ extension:
           valueOf: XAD.8
           expressionType: HL7Spec
     - expressionType: nested
+      vars:
+        xad11: STRING_ALL, XAD.11
+      condition: $xad11 NOT_NULL
       expressionsMap:
         url:
           type: STRING
@@ -108,6 +123,9 @@ extension:
           valueOf: XAD.14
           expressionType: HL7Spec
     - expressionType: nested
+      vars:
+        xad19: STRING_ALL, XAD.19
+      condition: $xad19 NOT_NULL
       expressionsMap:
         url:
           type: STRING
