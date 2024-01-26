@@ -428,6 +428,13 @@ tasks.register("testEnd2End") {
     finalizedBy("primeCLI")
 }
 
+tasks.register("testS2S") {
+    group = rootProject.description ?: ""
+    description = "Run the end to end server t server auth tests.  Requires running a Docker instance"
+    project.extra["cliArgs"] = listOf("test", "--run", "server2serverauth")
+    finalizedBy("primeCLI")
+}
+
 tasks.register("generateDocs") {
     group = rootProject.description ?: ""
     description = "Generate the schema documentation in markup format"
