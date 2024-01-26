@@ -351,6 +351,10 @@
 
 # XAD -> Address
 # TODO: collapse
+- id: "xad-address"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address"
+- id: "sad-address-line"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line"
 - id: "xad1-sad1-street-or-mailing-address"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address"
 - id: "xad1-sad2-street-name"

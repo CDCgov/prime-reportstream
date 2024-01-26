@@ -1,0 +1,35 @@
+url:
+  type: SYSTEM_URL
+  value: sad-address-line
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: SAD.1
+        valueString:
+          type: STRING
+          valueOf: SAD.1
+          expressionType: HL7Spec
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: SAD.2
+        valueString:
+          type: STRING
+          valueOf: SAD.2
+          expressionType: HL7Spec
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: SAD.3
+        valueString:
+          type: STRING
+          valueOf: SAD.3
+          expressionType: HL7Spec

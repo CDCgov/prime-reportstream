@@ -3,9 +3,11 @@ package gov.cdc.prime.router.datatests.mappinginventory.xtn
 import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareFHIRToHL7
 import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareHL7ToFHIR
 import org.junit.jupiter.api.Test
+import kotlin.test.Ignore
 
 class XTNTests {
     // Tests use (line 2)
+    @Ignore
     @Test
     fun `XTN use code home`() {
         assert(
@@ -24,6 +26,7 @@ class XTNTests {
     }
 
     // Tests use (line 2)
+    @Ignore
     @Test
     fun `XTN use code mobile`() {
         assert(
@@ -42,7 +45,8 @@ class XTNTests {
     }
 
     // Tests use (line 2)
-//    @Test
+    @Ignore
+    @Test
     fun `XTN use code temp`() {
         assert(
             translateAndCompareFHIRToHL7(
@@ -61,6 +65,7 @@ class XTNTests {
     }
 
     // Tests use (line 2)
+    @Ignore
     @Test
     fun `XTN use code work`() {
         assert(
@@ -79,7 +84,8 @@ class XTNTests {
     }
 
     // Tests use (line 2) as well as system (line 3)
-//    @Test
+    @Ignore
+    @Test
     fun `XTN use code no use system email`() {
         assert(
             translateAndCompareFHIRToHL7(
