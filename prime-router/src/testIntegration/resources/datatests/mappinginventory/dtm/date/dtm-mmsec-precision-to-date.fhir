@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1701889480218899000.4dd06fc2-7f8c-4375-8283-c8cf64219203",
+  "id" : "1703276149663797000.240d4cf4-411a-4c5e-9a7b-705a3bf72ac3",
   "meta" : {
-    "lastUpdated" : "2023-12-06T14:04:40.235-05:00"
+    "lastUpdated" : "2023-12-22T15:15:49.695-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,10 +37,10 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1701889480576408000.f11d5a58-825c-4d52-a400-a4047f18e0af",
+    "fullUrl" : "Provenance/1703276150334724000.4a654fe1-b9dd-4ebb-bea2-88d06687c063",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1701889480576408000.f11d5a58-825c-4d52-a400-a4047f18e0af",
+      "id" : "1703276150334724000.4a654fe1-b9dd-4ebb-bea2-88d06687c063",
       "recorded" : "2023-08-16T12:33:58-05:00",
       "_recorded" : {
         "extension" : [ {
@@ -74,21 +74,21 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1701889480578730000.d52cbbfc-9f8e-4e61-b1c4-f9861e525830"
+          "reference" : "Device/1703276150339522000.5c0c16e0-b60e-4153-aec3-a3f37f45914d"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1701889480578730000.d52cbbfc-9f8e-4e61-b1c4-f9861e525830",
+    "fullUrl" : "Device/1703276150339522000.5c0c16e0-b60e-4153-aec3-a3f37f45914d",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1701889480578730000.d52cbbfc-9f8e-4e61-b1c4-f9861e525830"
+      "id" : "1703276150339522000.5c0c16e0-b60e-4153-aec3-a3f37f45914d"
     }
   }, {
-    "fullUrl" : "Patient/1701889480591427000.e7cdffb5-91a9-4f8f-9794-5876352ca366",
+    "fullUrl" : "Patient/1703276150384107000.0e4125e1-3ca7-49ce-ba3c-7d02e1c8e572",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1701889480591427000.e7cdffb5-91a9-4f8f-9794-5876352ca366",
+      "id" : "1703276150384107000.0e4125e1-3ca7-49ce-ba3c-7d02e1c8e572",
       "birthDate" : "1970-10-31",
       "_birthDate" : {
         "extension" : [ {

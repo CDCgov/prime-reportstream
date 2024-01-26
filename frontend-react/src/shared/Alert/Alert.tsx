@@ -1,5 +1,10 @@
 // AutoUpdateFileChromatic
-import React, { AriaRole } from "react";
+import React, {
+    AriaRole,
+    ComponentProps,
+    HTMLAttributes,
+    ReactElement,
+} from "react";
 import classnames from "classnames";
 import { Alert as OrigAlert } from "@trussworks/react-uswds";
 
@@ -7,7 +12,7 @@ import Icon, { IconName, SubcomponentIconProp } from "../Icon/Icon";
 
 import styles from "./Alert.module.scss";
 
-type OrigAlertProps = React.ComponentProps<typeof OrigAlert>;
+type OrigAlertProps = ComponentProps<typeof OrigAlert>;
 
 export interface AlertProps
     extends Omit<OrigAlertProps, "validation" | "type" | "headingLevel"> {
@@ -63,7 +68,7 @@ export const Alert = ({
     icon,
     noIcon,
     ...props
-}: AlertProps & React.HTMLAttributes<HTMLDivElement>): React.ReactElement => {
+}: AlertProps & HTMLAttributes<HTMLDivElement>): ReactElement => {
     const classes = classnames(
         styles.Alert,
         {

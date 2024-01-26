@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { ChangeEvent, FormEvent, useRef } from "react";
 import {
     Button,
     Form,
@@ -10,18 +10,15 @@ import {
 
 import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import { showError } from "../AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import { RSSender } from "../../config/endpoints/settings";
 import useSenderResource from "../../hooks/UseSenderResource";
 import Spinner from "../Spinner";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 import { WatersResponse } from "../../config/endpoints/waters";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../contexts/AppInsightsContext";
+import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
 import { MembershipSettings } from "../../utils/OrganizationUtils";
 
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
@@ -101,9 +98,7 @@ export default function FileHandlerFileUploadStep({
     const { mutateAsync: sendFile, isPending: isUploading } =
         useWatersUploader();
 
-    async function handleFileChange(
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) {
+    async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
         // TODO: consolidate with upcoming FileUtils generic function
         if (!event?.target?.files?.length) {
             onFileSubmitError();
@@ -119,7 +114,7 @@ export default function FileHandlerFileUploadStep({
                 selectedFileContent,
             );
             if (localCsvError) {
-                showError(localCsvError);
+                showToast(localCsvError, "error");
                 return;
             }
         }
@@ -127,11 +122,11 @@ export default function FileHandlerFileUploadStep({
         onFileChange(selectedFile, selectedFileContent);
     }
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         if (fileContent.length === 0) {
-            showError("No file contents to validate");
+            showToast("No file contents to validate", "error");
             return;
         }
 
@@ -170,7 +165,7 @@ export default function FileHandlerFileUploadStep({
                 };
             }
 
-            showError("File validation error. Please try again.");
+            showToast("File validation error. Please try again.", "error");
 
             onFileSubmitError();
         }

@@ -203,7 +203,7 @@ requester:
           vars:
             XADAddress: ORC.24
           constants:
-            hlv2Name: orc-12-ordering-provider
+            XCNHL7Use: orc-12-ordering-provider
         - expressionType: reference
           condition: $orc12 NULL && $obr16 NOT_NULL
           valueOf: datatypes/XCN/Practitioner
@@ -211,7 +211,7 @@ requester:
           vars:
             XADAddress: ORC.24
           constants:
-            hlv2Name: obr-16-ordering-provider
+            XCNHL7Use: obr-16-ordering-provider
 
 _requester:
   vars:

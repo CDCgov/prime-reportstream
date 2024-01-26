@@ -14,11 +14,10 @@ resources:
     additionalSegments:
       - ORC
 
-
   - resourceName: Patient
     segment: .PID
     group: PATIENT_RESULT.PATIENT
-    resourcePath: resource/Patient
+    resourcePath: segments/PID/Patient
     isReferenced: true
     repeats: false
     additionalSegments:
@@ -27,10 +26,17 @@ resources:
       - .NTE
       - .NK1
 
+  - resourceName: RelatedPerson
+    segment: .NK1
+    group: PATIENT_RESULT.PATIENT
+    resourcePath: segments/NK1/RelatedPerson
+    isReferenced: false
+    repeats: true
+
   - resourceName: Encounter
     segment: .PV1
     group: PATIENT_RESULT.PATIENT.VISIT
-    resourcePath: resource/Encounter
+    resourcePath: segments/PV1/Encounter
     isReferenced: true
     repeats: false
     additionalSegments:
@@ -50,7 +56,7 @@ resources:
   - resourceName: Specimen
     segment: .SPECIMEN.SPM
     group: PATIENT_RESULT.ORDER_OBSERVATION
-    resourcePath: resource/Specimen
+    resourcePath: segments/SPM/Specimen
     repeats: true
     isReferenced: true
     additionalSegments:

@@ -3,14 +3,14 @@ import {
     ProcessListItem,
     ProcessListHeading,
 } from "@trussworks/react-uswds";
-import React from "react";
+import React, { ReactElement } from "react";
 
 export default {
     title: "Components/ProcessList",
     component: ProcessList,
 };
 
-export const processListDefault = (): React.ReactElement => (
+export const processListDefault = (): ReactElement => (
     <ProcessList>
         <ProcessListItem>
             <ProcessListHeading type="h4">Start a process</ProcessListHeading>
@@ -57,7 +57,7 @@ export const processListDefault = (): React.ReactElement => (
     </ProcessList>
 );
 
-export const processListNoTextCustomSizing = (): React.ReactElement => (
+export const processListNoTextCustomSizing = (): ReactElement => (
     <ProcessList>
         <ProcessListItem className="padding-bottom-4">
             <ProcessListHeading
@@ -86,7 +86,7 @@ export const processListNoTextCustomSizing = (): React.ReactElement => (
     </ProcessList>
 );
 
-export const processListCustomSizing = (): React.ReactElement => (
+export const processListCustomSizing = (): ReactElement => (
     <ProcessList>
         <ProcessListItem className="padding-bottom-4">
             <ProcessListHeading

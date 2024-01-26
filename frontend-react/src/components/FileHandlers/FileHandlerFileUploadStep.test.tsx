@@ -29,11 +29,6 @@ import FileHandlerFileUploadStep, {
     getClientHeader,
 } from "./FileHandlerFileUploadStep";
 
-jest.mock("../AlertNotifications", () => ({
-    ...jest.requireActual("../AlertNotifications"),
-    showError: jest.fn(),
-}));
-
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
         ...INITIAL_STATE,
