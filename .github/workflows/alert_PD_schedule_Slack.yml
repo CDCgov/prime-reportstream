@@ -25,14 +25,17 @@ jobs:
       id: PDOnCall
       shell: pwsh
       run: |
-        echo  "PDSchedules=${env:PDSchedules}" >> $GITHUB_OUTPUT
+        echo  "${env:PDSchedules}" >> PDSchedules.json
 
-    # - name: convert .env to JSON
-    #   uses: ricosandyca/convert-env-json@main
-    #   with:
-    #     type: env-to-json
-    #     input_path: ${env:PDSchedules}
-    #     output_path: json-result.json
+    - name: JSON to variables
+      uses: antifree/json-to-variables@HEAD
+      with:
+        filename: 'PDSchedules.json'
+        prefix: Schedules
+      
+    - name: Show schedules
+      run: echo "The time was ${{ env.Schedules_value }}, ${{ env.Schedules_array_0_value }}"
+
 
     - name: Get PD onCall Details
       id: PDOnCallDetails
