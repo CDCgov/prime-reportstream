@@ -76,8 +76,10 @@ locals {
     "OKTA_authKey",
     "OKTA_ClientId",
     "OKTA_scope",
-    "RS_OKTA_authKey",
+    "RS_OKTA_authkey",
+    "RS_OKTA_baseUrl",
     "RS_OKTA_ClientId",
+    "RS_OKTA_redirect",
     "RS_OKTA_scope",
     "PartnerStorage",
     "POSTGRES_URL",
@@ -104,7 +106,8 @@ locals {
   cors_lower = [
     "https://${var.environment}.reportstream.cdc.gov",
     "https://${var.environment}.prime.cdc.gov",
-    "https://swaggeruiapidocs.z13.web.core.windows.net"
+    "https://swaggeruiapidocs.z13.web.core.windows.net",
+    "https://reportstream.oktapreview.com"
   ]
   cors_trial_frontends = [
     "https://pdhstagingpublictrial01.z13.web.core.windows.net",
@@ -123,7 +126,8 @@ locals {
   })
 
   candidate_slot_settings = merge(local.all_app_settings, {
-    "POSTGRES_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
+    "POSTGRES_URL"         = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
+    "POSTGRES_REPLICA_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql-replica.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
     # HHS Protect Storage Account
     "PartnerStorage" = var.primary_connection_string
     "OKTA_scope"     = var.OKTA_scope

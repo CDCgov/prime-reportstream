@@ -8,7 +8,7 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
-import org.hl7.fhir.r4.utils.FHIRPathEngine
+import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
 
 /**
  * Custom FHIR functions created by report stream to help map from FHIR -> HL7
@@ -48,10 +48,10 @@ class CustomFhirPathFunctions : FhirPathFunctions {
     override fun resolveFunction(
         functionName: String?,
         additionalFunctions: FhirPathFunctions?,
-    ): FHIRPathEngine.IEvaluationContext.FunctionDetails? {
+    ): FunctionDetails? {
         return when (CustomFhirPathFunctionNames.get(functionName)) {
             CustomFhirPathFunctionNames.LivdTableLookup -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails(
+                FunctionDetails(
                     "looks up data in the LIVD table that match the information provided",
                     1,
                     1

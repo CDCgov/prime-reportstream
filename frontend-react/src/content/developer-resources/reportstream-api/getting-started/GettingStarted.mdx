@@ -1,5 +1,12 @@
-import Method1 from "./Method1.mdx";
-import Method2 from "./Method2.mdx";
+---
+metaTitle: Getting started with ReportStream's API
+metaDescription: Resources and support to set up your connection and format your data. Our onboarding guide will walk you through the steps needed to get started.
+---
+
+import Step1 from "./Step1.mdx";
+import Step2 from "./Step2.mdx";
+import Step3 from "./Step3.mdx";
+import Step4 from "./Step4.mdx";
 import Sidenav from "../Sidenav.mdx";
 
 <LayoutSidenav><Sidenav /></LayoutSidenav>
@@ -12,7 +19,7 @@ import Sidenav from "../Sidenav.mdx";
 Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system.
 You can also use a program like Postman to test submissions.
 
-<p className="text-base">**Last updated:** 9/21/23</p>
+<p className="text-base">**Last updated:** 11/14/23</p>
 
 ***
 
@@ -58,14 +65,11 @@ ReportStream will use the client-id to look up the associated data model and for
 
 Your first step in this phase is to set up your authentication.
 
-### Set up authentication
+### Set up authentication with a public/private key pair
 
-There are two methods of authenticating to ReportStream’s REST API:
+    ReportStream uses token-based authentication with a public/private key pair.
 
-* **Method 1:** Token-based authentication with a public/private key pair (Note: This method is the recommended best practice.)
-* **Method 2:** Shared secret API key
-
-The examples below use the fake `client-id healthy-labs` that you will change for your submissions.
+    The examples below uses the fake `client-id healthy-labs` that you will change for your submissions.
 The examples submit the payload contained in the file `./healthy-labs-nonPII-data.csv` (or .hl7).
 In the examples, data are submitted via an HTTP POST to the ReportStream staging system `reports` endpoint.
 The data submitted are sent as the payload of the POST, as is, with no changes.
@@ -73,15 +77,27 @@ The data submitted are sent as the payload of the POST, as is, with no changes.
 <Accordion bordered multiselectable items={[
     {
         headingLevel: "h3",
-        title: "Method 1: Token-based authentication with public/private key pair (Recommended)",
-        content: <Method1 />,
+        title: "Step 1: Prior to submission, send your public key to ReportStream.",
+        content: <Step1 />,
         id: 1
     },
     {
         headingLevel: "h3",
-        title: "Method 2: Shared secret key authorization",
-        content: <Method2 />,
+        title: "Step 2: At the time of submission, generate a signed JWT using your private key",
+        content: <Step2 />,
         id: 2
+    },
+    {
+        headingLevel: "h3",
+        title: "Step 3: Send the signed JWT to ReportStream to get a temporary bearer token",
+        content: <Step3 />,
+        id: 3
+    },
+    {
+        headingLevel: "h3",
+        title: "Step 4: Submit data to ReportStream using the bearer token",
+        content: <Step4 />,
+        id: 4
     },
 ]} />
 

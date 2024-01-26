@@ -1,0 +1,184 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1705683023940415000.eeb94f53-fecd-4a0c-af0b-61f7bb3c685e",
+  "meta" : {
+    "lastUpdated" : "2024-01-19T10:50:23.961-06:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "12345"
+  },
+  "type" : "message",
+  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "827ccb0e-ea8a-306c-8c34-a16891f84e7b",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
+        "valueString" : "20230501102531-0400"
+      } ],
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU^R01^ORU_R01"
+      },
+      "source" : {
+        "_endpoint" : {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+            "valueCode" : "unknown"
+          } ]
+        }
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1705683024504811000.97126dce-7bc3-41f8-aab7-14934135b7ed",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1705683024504811000.97126dce-7bc3-41f8-aab7-14934135b7ed",
+      "target" : [ {
+        "reference" : "DiagnosticReport/1705683024762907000.37ae184c-f681-4fe2-8e34-fe9c365e1dd5"
+      } ],
+      "recorded" : "2023-05-01T10:25:31-04:00",
+      "_recorded" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+          "valueString" : "20230501102531-0400"
+        } ]
+      },
+      "activity" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code" : "R01",
+          "display" : "ORU_R01"
+        } ]
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "author"
+          } ]
+        }
+      } ],
+      "entity" : [ {
+        "role" : "source",
+        "what" : {
+          "reference" : "Device/1705683024510038000.dc0ebbd7-f647-45e1-91f7-493b1b113fe0"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Device/1705683024510038000.dc0ebbd7-f647-45e1-91f7-493b1b113fe0",
+    "resource" : {
+      "resourceType" : "Device",
+      "id" : "1705683024510038000.dc0ebbd7-f647-45e1-91f7-493b1b113fe0"
+    }
+  }, {
+    "fullUrl" : "Patient/1705683024538159000.fc0b8d57-cc30-49fa-8a6d-71f9e9199118",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1705683024538159000.fc0b8d57-cc30-49fa-8a6d-71f9e9199118"
+    }
+  }, {
+    "fullUrl" : "Specimen/1705683024547362000.0905670b-2fba-4ce4-9b38-cc631ae0d172",
+    "resource" : {
+      "resourceType" : "Specimen",
+      "id" : "1705683024547362000.0905670b-2fba-4ce4-9b38-cc631ae0d172",
+      "collection" : {
+        "quantity" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cq-units",
+            "valueCodeableConcept" : {
+              "coding" : [ {
+                "extension" : [ {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                }, {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                } ],
+                "system" : "http://loinc.org",
+                "version" : "1",
+                "code" : "1234-5",
+                "display" : "TestText"
+              }, {
+                "extension" : [ {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "alt-coding"
+                }, {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                } ],
+                "system" : "http://loinc.org",
+                "version" : "2",
+                "code" : "1234-5",
+                "display" : "TestAltText"
+              } ],
+              "text" : "OriginalText"
+            }
+          } ],
+          "value" : 1769.859285,
+          "unit" : "OriginalText"
+        }
+      }
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/1705683024759015000.020e5289-38ed-4158-8625-d3284581f326",
+    "resource" : {
+      "resourceType" : "ServiceRequest",
+      "id" : "1705683024759015000.020e5289-38ed-4158-8625-d3284581f326",
+      "status" : "unknown",
+      "code" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "coding"
+          } ],
+          "code" : "TEST"
+        } ]
+      },
+      "subject" : {
+        "reference" : "Patient/1705683024538159000.fc0b8d57-cc30-49fa-8a6d-71f9e9199118"
+      }
+    }
+  }, {
+    "fullUrl" : "DiagnosticReport/1705683024762907000.37ae184c-f681-4fe2-8e34-fe9c365e1dd5",
+    "resource" : {
+      "resourceType" : "DiagnosticReport",
+      "id" : "1705683024762907000.37ae184c-f681-4fe2-8e34-fe9c365e1dd5",
+      "basedOn" : [ {
+        "reference" : "ServiceRequest/1705683024759015000.020e5289-38ed-4158-8625-d3284581f326"
+      } ],
+      "status" : "final",
+      "code" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "coding"
+          } ],
+          "code" : "TEST"
+        } ]
+      },
+      "subject" : {
+        "reference" : "Patient/1705683024538159000.fc0b8d57-cc30-49fa-8a6d-71f9e9199118"
+      },
+      "specimen" : [ {
+        "reference" : "Specimen/1705683024547362000.0905670b-2fba-4ce4-9b38-cc631ae0d172"
+      } ]
+    }
+  } ]
+}

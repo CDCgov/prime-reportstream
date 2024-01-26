@@ -390,8 +390,8 @@ module.exports = {
         },
         {
             files: [
-                "./src/**/__tests__/**/*.[jt]s?(x)",
-                "./src/**/?(*.)+(spec|test).[jt]s?(x)",
+                "./src/**/__tests__/**/*.[jt]sx?",
+                "./src/**/?(*.)+(spec|test).[jt]sx?)",
             ],
             extends: [
                 "plugin:testing-library/react",
@@ -407,16 +407,6 @@ module.exports = {
                 "testing-library/prefer-screen-queries": "warn",
                 "testing-library/no-unnecessary-act": "warn",
                 "testing-library/no-await-sync-queries": "warn",
-            },
-        },
-        {
-            plugins: ["chai-friendly"],
-            files: ["**/cypress/**/*.[jt]s?(x)"],
-            extends: ["plugin:cypress/recommended"],
-            rules: {
-                "no-unused-expressions": "off",
-                "@typescript-eslint/no-unused-expressions": "off",
-                "chai-friendly/no-unused-expressions": "error",
             },
         },
     ],

@@ -43,7 +43,7 @@ Transform elements either specify the value to be transformed, or link to anothe
 Here's an example of a transform schema (specifically, a sender transform):
 
 ```
-extends: ../default-sender-transform
+extends: ../original-pipeline-transforms
 constants:
     patientPath: "Bundle.entry.resource.ofType(Patient)"
 elements:

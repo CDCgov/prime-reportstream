@@ -2,7 +2,6 @@ package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.base.CharMatcher
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.Options
@@ -16,6 +15,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.common.SystemExitCodes
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import kotlinx.coroutines.delay
@@ -53,7 +53,7 @@ class Ping : CoolTest() {
             exitProcess(SystemExitCodes.FAILURE.exitCode) // other tests won't work.
         }
         try {
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             if (tree["errorCount"].intValue() != 0 || tree["warningCount"].intValue() != 0) {
                 return bad("***Ping/CheckConnections Test FAILED***")
             } else {
@@ -152,27 +152,7 @@ class End2EndUniversalPipeline : CoolTest() {
             if (!passed) {
                 bad("***async end2end_up FAILED***: Route result invalid")
             }
-
-            // check translate step
-            val routeReportId = getSingleChildReportId(convertReportId)
-                ?: return bad("***async end2end_up FAILED***: Route report id null")
-            val translateResults = pollForStepResult(routeReportId, TaskAction.translate)
-            // verify each result is valid
-            for (result in translateResults.values)
-                passed = passed && examineStepResponse(result, "translate", sender.topic)
-            if (!passed) {
-                bad("***async end2end_up FAILED***: Translate result invalid")
-            }
-
-            // check batch step
-            val translateReportIds = getAllChildrenReportId(routeReportId)
-            if (translateReportIds.size < expectedReceivers.size) {
-                return bad(
-                    "***async end2end_up FAILED***: Expected at least ${expectedReceivers.size} translate" +
-                        "report id(s), but got ${translateReportIds.size}."
-                )
-            }
-            val receiverNames = translateResults.values.flatMap { it?.reports ?: emptyList() }
+            val receiverNames = routeResults.values.flatMap { it?.reports ?: emptyList() }
                 .map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
             expectedReceivers.forEach { receiver ->
                 if (!receiverNames.contains(receiver.fullName)) {
@@ -180,7 +160,31 @@ class End2EndUniversalPipeline : CoolTest() {
                     passed = false
                 }
             }
-            translateReportIds.forEach { translateReportId ->
+
+            // check translate step
+            val routeReportIds = getAllChildrenReportId(convertReportId)
+            if (routeReportIds.size < expectedReceivers.size) {
+                return bad(
+                    "***async end2end_up FAILED***: Expected at least ${expectedReceivers.size} route" +
+                        "report id(s), but got ${routeReportIds.size}."
+                )
+            }
+            routeReportIds.forEach { routeReportId ->
+                val translateResults = pollForStepResult(routeReportId, TaskAction.translate)
+                // verify each result is valid
+                for (result in translateResults.values)
+                    passed = passed && examineStepResponse(result, "translate", sender.topic)
+                if (!passed) {
+                    bad("***async end2end_up FAILED***: Translate result invalid")
+                }
+
+                // check batch step
+                val translateReportId = getSingleChildReportId(routeReportId)
+                    ?: return bad(
+                        "***async end2end_up FAILED***:" +
+                            " Did not find a translate report id from route: $routeReportId"
+                    )
+
                 val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
                 if (batchResults.isEmpty()) {
                     return bad(
@@ -565,7 +569,7 @@ class TooManyCols : CoolTest() {
         echo("Response to POST: $responseCode")
         echo(json)
         try {
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val firstError = (tree["errors"][0]) as ObjectNode
             if (firstError["message"].textValue().contains("columns")) {
                 return good("toomanycols Test passed.")
@@ -607,7 +611,7 @@ class BadCsv : CoolTest() {
                 passed = false
             }
             try {
-                val tree = jacksonObjectMapper().readTree(json)
+                val tree = jacksonObjectMapper.readTree(json)
                 if (tree["id"] == null || tree["id"].isNull) {
                     good("Test of Bad CSV file $filename passed: No UUID was returned.")
                 } else {
@@ -664,7 +668,7 @@ class Strac : CoolTest() {
             return bad("**Strac Test FAILED***:  response code $responseCode")
         }
         try {
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val reportId = getReportIdFromResponse(json)
                 ?: return bad("***$name Test FAILED***: A report ID came back as null")
             echo("Id of submitted report: $reportId")
@@ -759,7 +763,7 @@ class Garbage : CoolTest() {
         echo("Response to POST: $responseCode")
         echo(json)
         try {
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val reportId = getReportIdFromResponse(json)
             echo("Id of submitted report: $reportId")
             val warningCount = tree["warningCount"].intValue()
@@ -831,7 +835,7 @@ class QualityFilter : CoolTest() {
     private fun checkJsonItemCountForReceiver(receiver: Receiver, expectedCount: Int, json: String): Boolean {
         try {
             echo(json)
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val reportId = ReportId.fromString(tree["reportId"].textValue())
             echo("Id of submitted report: $reportId")
             val destinations = tree["destinations"] as ArrayNode
@@ -1079,7 +1083,7 @@ class DbConnections : CoolTest() {
                 bad("***dbconnections Test FAILED***:  response code $responseCode")
                 return false
             }
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val reportId = ReportId.fromString(tree["id"].textValue())
             echo("Id of submitted report: $reportId")
             reportId
@@ -1286,7 +1290,7 @@ class SantaClaus : CoolTest() {
                 good("Posting of report succeeded with response code $responseCode")
             }
             echo(json)
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val reportId = getReportIdFromResponse(json)
                 ?: return bad("***$name Test FAILED***: A report ID came back as null")
             val destinations = tree["destinations"]

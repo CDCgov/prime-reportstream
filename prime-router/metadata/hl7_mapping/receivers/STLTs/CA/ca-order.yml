@@ -31,6 +31,12 @@ elements:
     value: [ '%resource.name.substring(0,50)' ]
     hl7Spec: [ '%{hl7Order}-21-1' ]
 
+  # ORC-22-2
+  - name: ca-ordering-facility-name-type-code
+    value: [ '' ]
+    hl7Spec: [ '%{hl7Order}-21-2' ]
+
+
   # Not required for CA
   # if this is sent it triggers validation errors for fields we don't have
   - name: ca-ordering-facility-identifier

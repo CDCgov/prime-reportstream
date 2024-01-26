@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import React from "react";
+import React, { isValidElement } from "react";
 
 import { appRoutes } from "../../AppRouter";
 
@@ -18,7 +18,7 @@ const isAuthenticatedPath = (pathname: string) => {
         return route.path?.includes(basePath);
     });
 
-    if (!matchedRoute || !React.isValidElement(matchedRoute.element)) {
+    if (!matchedRoute || !isValidElement(matchedRoute.element)) {
         return false;
     }
 

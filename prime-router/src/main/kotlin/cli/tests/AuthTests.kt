@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.cli.tests
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
@@ -24,6 +23,7 @@ import gov.cdc.prime.router.cli.PutSenderSetting
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Scope
@@ -47,7 +47,7 @@ class OktaAuthTests : CoolTest() {
         private const val accessTokenDummy = "dummy"
 
         fun abort(message: String): Nothing {
-            throw PrintMessage(message, error = true)
+            throw PrintMessage(message, printError = true)
         }
 
         /**
@@ -489,7 +489,7 @@ class Server2ServerAuthTests : CoolTest() {
                 SettingCommand
                     .SettingType.SENDER,
                 newSender.fullName,
-                jacksonObjectMapper().writeValueAsString(newSender)
+                jacksonObjectMapper.writeValueAsString(newSender)
             )
 
         // query the API get the sender previously written
@@ -528,7 +528,7 @@ class Server2ServerAuthTests : CoolTest() {
                 OktaAuthTests.getOktaAccessToken(settingsEnv),
                 SettingCommand.SettingType.ORGANIZATION,
                 organizationPlusNewKey.name,
-                jacksonObjectMapper().writeValueAsString(organizationPlusNewKey)
+                jacksonObjectMapper.writeValueAsString(organizationPlusNewKey)
             )
         return organizationPlusNewKey
     }
@@ -595,7 +595,7 @@ class Server2ServerAuthTests : CoolTest() {
             passed = false
         }
 
-        val accessToken = jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
+        val accessToken = jacksonObjectMapper.readTree(responseGetToken).get("access_token").textValue()
         val headers = mutableListOf<Pair<String, String>>()
         val clientStr = org1.name
         headers.add("client" to clientStr)
@@ -619,7 +619,7 @@ class Server2ServerAuthTests : CoolTest() {
         val getUrl = "${environment.url}/api/settings/organizations/${org1.name}/public-keys"
         val (httpStatusGeyKey, getKeyResponse) = HttpUtilities.getHttp(getUrl, headers)
         val parsedGetResponse =
-            jacksonObjectMapper().readTree(getKeyResponse).get("keys").flatMap { it.get("keys") }
+            jacksonObjectMapper.readTree(getKeyResponse).get("keys").flatMap { it.get("keys") }
                 .map { it.get("kid").textValue() }
         if (httpStatusGeyKey == 200 && parsedGetResponse.contains("${org1.name}.reportunique")) {
             good("Found the added key")
@@ -693,7 +693,8 @@ class Server2ServerAuthTests : CoolTest() {
                 // get a valid private key
                 val (httpStatusGetToken, responseGetToken) =
                     getServer2ServerAccessTok(org1, environment, end2EndExampleECPrivateKeyStr, kid, myScope)
-                val watersAccessTok = jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
+
+                val watersAccessTok = jacksonObjectMapper.readTree(responseGetToken).get("access_token").textValue()
 
                 if (httpStatusGetToken == 200) {
                     good("EC key: Attempt to get a token with valid organization key succeeded.")
@@ -758,7 +759,7 @@ class Server2ServerAuthTests : CoolTest() {
                 val (httpStatusGetToken, responseGetToken) =
                     getServer2ServerAccessTok(org1, environment, end2EndExampleRSAPrivateKeyStr, kid, myScope)
                 val server2ServerAccessTok =
-                    jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
+                    jacksonObjectMapper.readTree(responseGetToken).get("access_token").textValue()
 
                 if (httpStatusGetToken == 200) {
                     good("RSA key: Attempt to get a token with valid organization key succeeded.")
@@ -849,7 +850,7 @@ class Server2ServerAuthTests : CoolTest() {
                 bad(submitResponseToken1)
                 return bad("Should get a 200 response to getToken instead got $submitHttpStatus1")
             }
-            val submitToken1 = jacksonObjectMapper().readTree(submitResponseToken1).get("access_token").textValue()
+            val submitToken1 = jacksonObjectMapper.readTree(submitResponseToken1).get("access_token").textValue()
 
             // 1a) Now request 5-minute token for the first org, USING THE GENERAL READ/WRITE Submission SCOPE
             val (httpStatus1, responseToken1) =
@@ -857,7 +858,8 @@ class Server2ServerAuthTests : CoolTest() {
             if (httpStatus1 != 200) {
                 return bad("Should get a 200 response to getToken instead got $httpStatus1")
             }
-            val token1 = jacksonObjectMapper().readTree(responseToken1).get("access_token").textValue()
+
+            val token1 = jacksonObjectMapper.readTree(responseToken1).get("access_token").textValue()
 
             // 2) And a 5-minute token from the second org2
             val (httpStatus2, responseToken2) =
@@ -865,7 +867,8 @@ class Server2ServerAuthTests : CoolTest() {
             if (httpStatus2 != 200) {
                 return bad("Should get a 200 response to getToken instead got $httpStatus2")
             }
-            val token2 = jacksonObjectMapper().readTree(responseToken2).get("access_token").textValue()
+
+            val token2 = jacksonObjectMapper.readTree(responseToken2).get("access_token").textValue()
 
             // Since we're getting tokens, test getting a primeadmin token, which we have no rights to get.
             val (httpStatusBad1, _) =

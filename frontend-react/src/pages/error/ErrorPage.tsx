@@ -1,4 +1,4 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 
 import { ErrorDisplayMessage } from "../../content/error/ErrorMessages";
 
@@ -6,7 +6,7 @@ import { BasicErrorDisplay } from "./Generic";
 
 /** @deprecated Move div over to render in RSErrorBoundary when NetworkErrorBoundary is
  * removed */
-export const ErrorDisplayWrapper = (props: React.PropsWithChildren<{}>) => {
+export const ErrorDisplayWrapper = (props: PropsWithChildren<{}>) => {
     return (
         <div data-testid={"error-display-wrapper"} className="grid-container">
             {props.children}

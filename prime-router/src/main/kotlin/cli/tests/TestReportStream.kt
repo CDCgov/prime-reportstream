@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.cli.tests
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
@@ -28,6 +27,7 @@ import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.common.SystemExitCodes
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
@@ -742,8 +742,7 @@ abstract class CoolTest {
                 actionsList.forEach { action ->
                     val useRecevingServiceName = !(
                         (action == TaskAction.receive && asyncProcessMode) ||
-                            action == TaskAction.convert ||
-                            action == TaskAction.route
+                            action == TaskAction.convert
                         )
                     val count = itemLineageCountQuery(
                         txn = txn,
@@ -784,7 +783,7 @@ abstract class CoolTest {
      */
     fun getReportIdFromResponse(jsonResponse: String): ReportId? {
         var reportId: ReportId? = null
-        val tree = jacksonObjectMapper().readTree(jsonResponse)
+        val tree = jacksonObjectMapper.readTree(jsonResponse)
         if (!tree.isNull && !tree["reportId"].isNull) {
             reportId = ReportId.fromString(tree["reportId"].textValue())
         }
@@ -801,7 +800,7 @@ abstract class CoolTest {
     fun examinePostResponse(jsonResponse: String, shouldHaveDestination: Boolean): Boolean {
         var passed = true
         try {
-            val tree = jacksonObjectMapper().readTree(jsonResponse)
+            val tree = jacksonObjectMapper.readTree(jsonResponse)
             val reportId = getReportIdFromResponse(jsonResponse)
             echo("Id of submitted report: $reportId")
             val topic = tree["topic"]

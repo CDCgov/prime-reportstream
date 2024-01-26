@@ -1,5 +1,5 @@
 import { GridContainer } from "@trussworks/react-uswds";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 
 import Crumbs, { CrumbsProps } from "../../Crumbs";
 import { FeatureName } from "../../../utils/FeatureName";
@@ -10,7 +10,7 @@ import styles from "./FacilityProviderSubmitterDetails.module.scss";
 import { FacilityProviderSubmitterSummary } from "./FacilityProviderSubmitterSummary";
 import FacilityProviderSubmitterTable from "./FacilityProviderSubmitterTable";
 
-export type FacilityProviderSubmitterDetailsProps = React.PropsWithChildren<{
+export type FacilityProviderSubmitterDetailsProps = PropsWithChildren<{
     senderType: SenderType;
 }>;
 

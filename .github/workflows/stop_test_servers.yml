@@ -28,7 +28,7 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
       # Login to Azure
-      - uses: azure/login@4c88f01b0e3a5600e08a37889921afd060f75cf0
+      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 

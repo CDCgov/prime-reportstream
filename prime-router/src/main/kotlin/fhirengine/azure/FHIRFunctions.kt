@@ -16,8 +16,8 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.Message
-import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
+import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
@@ -133,7 +133,7 @@ class FHIRFunctions(
     /**
      * Deserializes the message, create the DB transaction and then runs the FHIR engine
      *
-     * @param message the raw message to process
+     * @param message the fhir convert/route/translate message to process
      * @param dequeueCount the number of times the messages has been processed
      * @param fhirEngine the engine that will do the work
      * @param actionHistory the history to record results to
@@ -144,7 +144,7 @@ class FHIRFunctions(
         dequeueCount: Int,
         fhirEngine: FHIREngine,
         actionHistory: ActionHistory,
-    ): List<RawSubmission> {
+    ): List<QueueMessage> {
         val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
 
         val newMessages = databaseAccess.transactReturning { txn ->
@@ -157,19 +157,15 @@ class FHIRFunctions(
     }
 
     /**
-     * Deserializes the [message] into a RawSubmission, verifies it is of the correct type.
+     * Deserializes the [message] into a Fhir Convert/Route/Translate Message, verifies it is of the correct type.
      * Logs the [engineType] and [dequeueCount]
      */
-    private fun readMessage(engineType: String, message: String, dequeueCount: Int): RawSubmission {
+    private fun readMessage(engineType: String, message: String, dequeueCount: Int): ReportPipelineMessage {
         logger.debug(
             "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
-        val messageContent = Message.deserialize(message)
-        check(messageContent is RawSubmission) {
-            "An unknown message was received by the FHIR $engineType Function " +
-                "${messageContent.javaClass.kotlin.qualifiedName}"
-        }
-        return messageContent
+
+        return QueueMessage.deserialize(message) as ReportPipelineMessage
     }
 
     /**

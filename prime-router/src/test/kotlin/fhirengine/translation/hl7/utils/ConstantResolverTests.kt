@@ -136,23 +136,27 @@ class ConstantResolverTests {
     fun `test fhir path resolver multiple values`() {
         val integerValue = 99
         val stringValue = "Ninety-Nine"
+        val giantStringValue = "9999999999999999999"
 
         mockkObject(FhirPathUtils)
         every { FhirPathUtils.evaluate(any(), any(), any(), any()) } returns
-            listOf<Base>(StringType(stringValue), StringType(integerValue.toString()))
+            listOf<Base>(StringType(stringValue), StringType(integerValue.toString()), StringType(giantStringValue))
 
         val constants = sortedMapOf("const1" to "'value1'") // this does not matter but context wants something
         val context = CustomContext.addConstants(constants, CustomContext(Bundle(), Bundle()))
         val result = FhirPathCustomResolver().resolveConstant(context, "const1", false)
         assertThat(result).isNotNull()
         assertThat(result.isNotEmpty())
-        assertThat(result.size == 2)
+        assertThat(result.size == 3)
         assertThat(result[0].isPrimitive).isTrue()
         assertThat(result[0]).isInstanceOf(StringType::class.java)
         assertThat((result[0] as StringType).value).isEqualTo(stringValue)
         assertThat(result[1].isPrimitive).isTrue()
         assertThat(result[1] is IntegerType).isTrue()
         assertThat((result[1] as IntegerType).value).isEqualTo(integerValue)
+        assertThat(result[2].isPrimitive).isTrue()
+        assertThat(result[2]).isInstanceOf(StringType::class.java)
+        assertThat((result[2] as StringType).value).isEqualTo(giantStringValue)
     }
 
     @Test

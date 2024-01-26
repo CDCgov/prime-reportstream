@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import { Meta } from "@storybook/react";
 import { Alert, Button } from "@trussworks/react-uswds";
 
@@ -14,31 +14,31 @@ const testText = (
     </>
 );
 
-export const Success = (): React.ReactElement => (
+export const Success = (): ReactElement => (
     <Alert type="success" heading="Success status" headingLevel="h4">
         {testText}
     </Alert>
 );
 
-export const Warning = (): React.ReactElement => (
+export const Warning = (): ReactElement => (
     <Alert type="warning" heading="Warning status" headingLevel="h4">
         {testText}
     </Alert>
 );
 
-export const Error = (): React.ReactElement => (
+export const Error = (): ReactElement => (
     <Alert type="error" heading="Error status" headingLevel="h4">
         {testText}
     </Alert>
 );
 
-export const Info = (): React.ReactElement => (
+export const Info = (): ReactElement => (
     <Alert type="info" heading="Informative status" headingLevel="h4">
         {testText}
     </Alert>
 );
 
-export const Slim = (): React.ReactElement => (
+export const Slim = (): ReactElement => (
     <>
         <Alert type="success" headingLevel="h4" slim>
             {testText}
@@ -55,7 +55,7 @@ export const Slim = (): React.ReactElement => (
     </>
 );
 
-export const NoIcon = (): React.ReactElement => (
+export const NoIcon = (): ReactElement => (
     <>
         <Alert type="success" headingLevel="h4" noIcon>
             {testText}
@@ -72,7 +72,7 @@ export const NoIcon = (): React.ReactElement => (
     </>
 );
 
-export const SlimNoIcon = (): React.ReactElement => (
+export const SlimNoIcon = (): ReactElement => (
     <>
         <Alert type="success" headingLevel="h4" slim noIcon>
             {testText}
@@ -89,7 +89,7 @@ export const SlimNoIcon = (): React.ReactElement => (
     </>
 );
 
-export const HeadingLevels = (): React.ReactElement => (
+export const HeadingLevels = (): ReactElement => (
     <>
         <h1>Heading Level 1</h1>
         <Alert type="info" heading="Heading level 2" headingLevel="h2">
@@ -97,7 +97,7 @@ export const HeadingLevels = (): React.ReactElement => (
         </Alert>
     </>
 );
-export const WithCTA = (): React.ReactElement => (
+export const WithCTA = (): ReactElement => (
     <Alert
         type="warning"
         heading="Warning status"

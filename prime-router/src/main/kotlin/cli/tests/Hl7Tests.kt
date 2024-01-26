@@ -1,11 +1,11 @@
 package gov.cdc.prime.router.cli.tests
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import java.io.IOException
 import java.net.HttpURLConnection
 
@@ -192,7 +192,7 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                     continue
                 }
 
-                val tree = jacksonObjectMapper().readTree(jsonResponse)
+                val tree = jacksonObjectMapper.readTree(jsonResponse)
                 if (tree["id"].isNull) {
                     good("Test for $name ${pair.first} passed: id is null.")
                 } else {

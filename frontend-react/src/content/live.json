@@ -10,6 +10,10 @@
         },
         {
             "status": "Live",
+            "state": "Arkansas"
+        },
+        {
+            "status": "Live",
             "state": "Arizona"
         },
         {
@@ -155,6 +159,10 @@
         {
             "status": "Live",
             "state": "Washington"
+        },
+        {
+            "status": "Live",
+            "state": "Wisconsin"
         },
         {
             "status": "Live",

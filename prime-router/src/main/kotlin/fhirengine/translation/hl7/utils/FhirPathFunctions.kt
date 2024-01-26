@@ -1,8 +1,7 @@
 package fhirengine.translation.hl7.utils
 
 import org.hl7.fhir.r4.model.Base
-import org.hl7.fhir.r4.utils.FHIRPathEngine
-
+import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
 /**
  * This interface contains the required method signatures required to implement custom FHIR functions
  */
@@ -15,7 +14,7 @@ interface FhirPathFunctions {
     fun resolveFunction(
         functionName: String?,
         additionalFunctions: FhirPathFunctions? = null,
-    ): FHIRPathEngine.IEvaluationContext.FunctionDetails?
+    ): FunctionDetails?
 
     /**
      * Execute the function on a [focus] resource for a given [functionName] and [parameters].

@@ -35,7 +35,8 @@ extension_2:
 assigner_1:
   vars:
     cx43: String, CX.4.3
-  condition: $cx43 NULL
+    cx4: STRING_ALL, CX.4
+  condition: $cx43 NULL && $cx4 NOT_NULL
   valueOf: datatypes/HD/Organization
   expressionType: reference
   specs: CX.4
@@ -122,6 +123,7 @@ type:
   vars:
     code: $code | CX.5
     system: $system
+  condition: $code NOT_NULL || $system NOT_NULL
   expressions:
     - expressionType: nested
       expressionsMap:
@@ -130,9 +132,15 @@ type:
           expressionType: nested
           expressionsMap:
             code:
+              type: STRING
               valueOf: $code
             system:
+              type: STRING
               valueOf: $system
+        text:
+          type: STRING
+          condition: $CXIdentifierText NOT_NULL
+          valueOf: $CXIdentifierText
 
 extension_type:
   generateList: true
@@ -152,6 +160,9 @@ extension_type:
 extension_assigningFacility:
   generateList: true
   expressionType: nested
+  condition: $cx6 NOT_NULL
+  vars:
+    cx6: CX.6
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -208,6 +219,9 @@ period:
 extension_4:
   generateList: true
   expressionType: nested
+  vars:
+    cx9: STRING_ALL, CX.9
+  condition: $cx9 NOT_NULL
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -220,6 +234,9 @@ extension_4:
 extension_5:
   generateList: true
   expressionType: nested
+  vars:
+    cx10: STRING_ALL, CX.10
+  condition: $cx10 NOT_NULL
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -232,6 +249,7 @@ extension_5:
 extension_6:
   generateList: true
   expressionType: nested
+  condition: $identifierIndexName NOT_NULL
   expressionsMap:
     url:
       type: SYSTEM_URL

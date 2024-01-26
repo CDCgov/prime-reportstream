@@ -41,9 +41,10 @@ import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.messageTracker.MessageActionLog
-import org.apache.logging.log4j.ThreadContext
+import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
+import org.flywaydb.database.postgresql.PostgreSQLConfigurationExtension
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.Field
@@ -1303,15 +1304,18 @@ class DatabaseAccess(val create: DSLContext) : Logging {
 
         // log for app insights
         val actionEndTime = LocalDateTime.now()
-        ThreadContext.put("action_id", actionHistory.action.actionId.toString())
-        ThreadContext.put("action_name", actionHistory.action.actionName.name)
-        ThreadContext.put("username", actionHistory.action.username)
-        ThreadContext.put("sending_organization", actionHistory.action.sendingOrg)
-        ThreadContext.put("start_time", actionHistory.startTime.toString())
-        ThreadContext.put("end_time", actionEndTime.toString())
-        ThreadContext.put("duration", Duration.between(actionHistory.startTime, actionEndTime).toMillis().toString())
-        logger.info("Action history for action '${actionHistory.action.actionName}' has been recorded")
-        ThreadContext.clearAll()
+        val contextMap = mapOf(
+            "action_id" to actionHistory.action.actionId.toString(),
+            "action_name" to actionHistory.action.actionName.name,
+            "username" to actionHistory.action.username,
+            "sending_organization" to actionHistory.action.sendingOrg,
+            "start_time" to actionHistory.startTime.toString(),
+            "end_time" to actionEndTime.toString(),
+            "duration" to Duration.between(actionHistory.startTime, actionEndTime).toMillis().toString()
+        )
+        withLoggingContext(contextMap) {
+            logger.info("Action history for action '${actionHistory.action.actionName}' has been recorded")
+        }
     }
 
     /**
@@ -1444,10 +1448,12 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             config.maxLifetime = 180000
             val dataSource = HikariDataSource(config)
 
+            val flywayConfig = Flyway.configure()
+            val pgConfig = flywayConfig.pluginRegister.getPlugin(PostgreSQLConfigurationExtension::class.java)
             // This setting makes flyway fall back to session locks as concurrent index creation cannot be done
             // within a transaction. This setting is needed as of flyway 9.19.4.
-            val flyway = Flyway.configure().configuration(mapOf(Pair("flyway.postgresql.transactional.lock", "false")))
-                .dataSource(dataSource).load()
+            pgConfig.setTransactionalLock(false)
+            val flyway = flywayConfig.dataSource(dataSource).load()
             if (isFlywayMigrationOK) {
                 // TODO https://github.com/CDCgov/prime-reportstream/issues/10526
                 // Investigate why this is required

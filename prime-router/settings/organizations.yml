@@ -104,25 +104,30 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/original-pipeline-transforms
       format: HL7
     - name: dev-simple-report      # Use this to test full-elr
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform
       format: FHIR
     - name: ignore-etor-ti      # Use this to test etor-ti
       organizationName: ignore
       topic: etor-ti
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/original-pipeline-transforms
       format: HL7
     - name: ignore-elr-elims      # Use this to test elr-elims
       organizationName: ignore
       topic: elr-elims
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/CDC-ELIMS/elims-sender-transform
+      format: HL7
+    - name: ignore-hci      # Use this to test hci
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      schemaName: metadata/fhir_transforms/senders/HCI/hci-sender-transform
       format: HL7
     - name: ignore-fhir      # Use this to test fhir
       organizationName: ignore
@@ -205,6 +210,16 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
+      qualityFilter:
+        - "%messageId.exists()"
+        - "%patient.name.family.exists()"
+        - "%patient.name.given.count() > 0"
+        - "%patient.birthDate.exists()"
+        - "%specimen.type.exists()"
+        - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
+        - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
+      processingModeFilter:
+        - "%processingId.exists() and %processingId = 'P'"
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
         operation: MERGE
@@ -228,6 +243,10 @@
       organizationName: ignore
       topic: etor-ti
       customerStatus: active
+      qualityFilter:
+        - "%messageId.exists()"
+      processingModeFilter:
+        - "%processingId.exists() and %processingId = 'P'"
       jurisdictionalFilter:
         - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"
@@ -253,6 +272,8 @@
       organizationName: ignore
       topic: elr-elims
       customerStatus: active
+      qualityFilter:
+        - "true"
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
         operation: MERGE
@@ -273,6 +294,16 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
+      qualityFilter:
+      - "%messageId.exists()"
+      - "%patient.name.family.exists()"
+      - "%patient.name.given.count() > 0"
+      - "%patient.birthDate.exists()"
+      - "%specimen.type.exists()"
+      - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
+      - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
+      processingModeFilter:
+      - "%processingId.exists() and %processingId = 'P'"
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
         operation: MERGE
@@ -454,9 +485,9 @@
       customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
       qualityFilter:
-        - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
-        - hasAtLeastOneOf(message_id,blankField)
-        - matches(ordering_facility_county, QUALITY_PASS)
+      - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+      - hasAtLeastOneOf(message_id,blankField)
+      - matches(ordering_facility_county, QUALITY_PASS)
       translation:
         type: CUSTOM
         schemaName: empty
@@ -467,9 +498,9 @@
       customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
       qualityFilter:
-        - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
-        - hasAtLeastOneOf(message_id,blankField)
-        - matches(ordering_facility_county, QUALITY_REVERSED)
+      - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+      - hasAtLeastOneOf(message_id,blankField)
+      - matches(ordering_facility_county, QUALITY_REVERSED)
       # Get 'not(qualityFilter)'
       reverseTheQualityFilter: true
       translation:
@@ -919,7 +950,6 @@
       organizationName: development
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/CDC-ELIMS/elims-sender-transform
       format: HL7
   receivers:
     # THIS RECEIVER IS NOT USED IN ANY TESTS AND CAN BE UPDATED TO YOUR HEARTS CONTENT

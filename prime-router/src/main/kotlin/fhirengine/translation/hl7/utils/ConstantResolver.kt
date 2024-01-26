@@ -16,7 +16,9 @@ import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TypeDetails
 import org.hl7.fhir.r4.model.ValueSet
 import org.hl7.fhir.r4.utils.FHIRPathEngine
-import org.hl7.fhir.r4.utils.FHIRPathEngine.IEvaluationContext.FunctionDetails
+import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
+import java.lang.IllegalArgumentException
+import java.lang.NumberFormatException
 
 /**
  * Context used for resolving [constants] and custom FHIR functions. The class is for us to add our customer function
@@ -164,7 +166,13 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
                 // Convert string constants that are whole integers to Integer type to facilitate math operations
                 values.map {
                     if (it is StringType && StringUtils.isNumeric(it.primitiveValue())) {
-                        IntegerType(it.primitiveValue())
+                        try {
+                            IntegerType(it.primitiveValue())
+                        } catch (e: IllegalArgumentException) {
+                            // fallback to string; see https://github.com/CDCgov/prime-reportstream/issues/12609
+                            if (e.cause !is NumberFormatException) throw e
+                            it
+                        }
                     } else {
                         it
                     }
