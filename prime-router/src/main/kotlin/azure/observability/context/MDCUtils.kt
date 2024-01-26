@@ -17,7 +17,7 @@ object MDCUtils {
      * example:
      * ```kotlin
      * data class HelloWorld(val prop1: String, val prop2: Int)
-     * MDC.putAll(HelloWorld("abc", 5))
+     * MDCUtils.putAll(HelloWorld("abc", 5))
      *
      * // what happens under the hood
      * MDC.put("prop1", "abc")
@@ -36,7 +36,7 @@ object MDCUtils {
      * example:
      * ```kotlin
      * data class HelloWorld(val prop1: String, val prop2: Int)
-     * MDC.put("HelloWorld", HelloWorld("abc", 5))
+     * MDCUtils.put("HelloWorld", HelloWorld("abc", 5))
      *
      * // what happens under the hood
      * MDC.put("HelloWorld", "{\"prop1\":\"abc\",\"prop2\":5}")
