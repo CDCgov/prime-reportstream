@@ -699,7 +699,48 @@ class FHIRBundleHelpersTests {
     }
 
     @Test
-    fun `Ensure a partially mapped observation is stamped and logs the unmapped code`() {
+    fun `Ensure a fully unmappable observation logs the unmapped code`() {
+        val metadata = Metadata(UnitTestUtils.simpleSchema)
+
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                listOf(
+                    listOf(
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY
+                    ),
+                    listOf(
+                        "80382-5",
+                        "6142004",
+                        "SNOMEDCT",
+                        "Influenza (disorder)"
+                    ),
+                    listOf(
+                        "260373001",
+                        "Some Condition Code",
+                        "Condition Code System",
+                        "Condition Name"
+                    )
+                )
+            )
+        )
+
+        val entry = Observation()
+        val code = CodeableConcept()
+        code.addCoding(Coding("system", "some-unmapped-code", "display"))
+        entry.setCode(code)
+
+        val logs = entry.addMappedCondition(metadata)
+        assertThat(logs.size).isEqualTo(1)
+        assertThat(logs[0].message).isEqualTo("Missing mapping for code(s): some-unmapped-code")
+        assertThat((logs[0] as UnmappableConditionMessage).fieldMapping).isEqualTo("observation.code.coding.code")
+    }
+
+    @Test
+    fun `Ensure a partially mapped observation is stamped and does not log an unmapped code`() {
         val metadata = Metadata(UnitTestUtils.simpleSchema)
 
         metadata.lookupTableStore += mapOf(
@@ -735,8 +776,10 @@ class FHIRBundleHelpersTests {
         entry.setCode(code)
 
         val logs = entry.addMappedCondition(metadata)
-        assertThat(logs.size).isEqualTo(1)
-        assertThat(logs[0].message).isEqualTo("Missing mapping for code(s): some-unmapped-code")
-        assertThat((logs[0] as UnmappableConditionMessage).fieldMapping).isEqualTo("observation.code.coding.code")
+        assertThat(logs.size).isEqualTo(0)
+
+        val extension = code.coding.first().extension.first()
+        assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
+        assertThat((extension.value as? Coding)?.code).isEqualTo("6142004")
     }
 }

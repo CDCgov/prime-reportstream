@@ -95,6 +95,7 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
  */
 fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
     val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
+    var mappedSomething = false
     if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
 
     return codeSourcesMap.mapNotNull { codeSourceEntry ->
@@ -104,12 +105,13 @@ fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
                     code.code
                 } else { // code found, add extension and return null to avoid mapping this as an error
                     code.addExtension(conditionCodeExtensionURL, conditionCode)
+                    mappedSomething = true
                     null
                 }
             }
         }.let {
             // create log message for any unmapped codes
-            if (it.isEmpty()) null else UnmappableConditionMessage(it, codeSourceEntry.key)
+            if (it.isEmpty() || mappedSomething) null else UnmappableConditionMessage(it, codeSourceEntry.key)
         }
     }
 }
