@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.azure.observability
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.ContainerNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 
@@ -33,7 +33,7 @@ interface AzureCustomDimensionsSerializable {
      */
     private fun serializeValue(valueNode: JsonNode): String {
         return when (valueNode) {
-            is ObjectNode, is ArrayNode -> valueNode.toString()
+            is ContainerNode<*> -> valueNode.toString() // object or array
             else -> valueNode.asText()
         }
     }
