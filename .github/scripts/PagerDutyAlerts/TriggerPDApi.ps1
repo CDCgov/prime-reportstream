@@ -24,6 +24,7 @@ foreach ($ScheduleId in $Schedules) {
     $val = Invoke-RestMethod -Uri $endpoint -Headers $headers -Method Get
 
     $jsonstring = $val.oncalls | ConvertTo-Json -Compress -Depth 100
+    $ScheduleName=$val.oncalls.schedule.summary
     # Write-Host "current on call person name - " $val.oncalls.user.name
     # Write-Host "current on call person email - " $val.oncalls.user.email
     $enddate = [DateTime]$val.oncalls.end
@@ -46,7 +47,7 @@ foreach ($ScheduleId in $Schedules) {
     $NextUntil = $Nextoncallval.oncalls.end
 
     $data.oncallSchedule += @{
-        ScheduleId       = $ScheduleId
+        ScheduleName     = $ScheduleName
         OnCallPersonName = $Name
         Until            = $Until
         NextPersonName   = $NextPersonName
