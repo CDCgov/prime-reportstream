@@ -36,7 +36,15 @@ jobs:
     - name: Show schedules
       run: echo "The variables are ${{ env.Schedules_oncallSchedule_0_NextFrom }},${{ env.Schedules_oncallSchedule_0_NextPersonName }}"
 
-    
+    - name: Loop through numbers
+      id: loop
+      run: |
+        for i in 1 2 3 4 5
+        do
+          echo "Schedule Name: $i"
+          var $name="Schedules_oncallSchedule_${i}_NextFrom"
+          echo $name
+        done
 
     # - name: Slack Notification
     #   uses: ./.github/actions/notifications
