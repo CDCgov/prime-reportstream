@@ -43,7 +43,7 @@ jobs:
         do
           echo "Schedule Name: $i"
           name="Schedules_oncallSchedule_${i}_NextFrom"
-          echo env.${name}
+          echo "${env.${name}}"
         done
 
     # - name: Slack Notification
