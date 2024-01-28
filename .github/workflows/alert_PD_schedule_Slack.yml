@@ -42,8 +42,8 @@ jobs:
         for i in 1 2 3 4 5
         do
           echo "Schedule Name: $i"
-          var $name="Schedules_oncallSchedule_${i}_NextFrom"
-          echo $name
+          name="Schedules_oncallSchedule_${i}_NextFrom"
+          echo env.${name}
         done
 
     # - name: Slack Notification
