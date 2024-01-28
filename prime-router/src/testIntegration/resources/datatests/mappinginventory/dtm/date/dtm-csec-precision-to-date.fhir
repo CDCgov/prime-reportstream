@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706210269103328000.ae9674ce-b6ed-412d-97c8-a0596b6da351",
+  "id" : "1706310567906244000.36bde712-4543-4c43-a730-1ad68783b323",
   "meta" : {
-    "lastUpdated" : "2024-01-25T13:17:49.118-06:00"
+    "lastUpdated" : "2024-01-26T17:09:27.922-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -44,10 +44,15 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706210269481658000.d35be57a-39bb-4118-b1d8-53390df0caa8",
+      "fullUrl" : "Provenance/1706310568327311000.0e6cd1af-103a-4cb1-ae07-5d8d6f3b9f70",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706210269481658000.d35be57a-39bb-4118-b1d8-53390df0caa8",
+        "id" : "1706310568327311000.0e6cd1af-103a-4cb1-ae07-5d8d6f3b9f70",
+        "target" : [
+          {
+            "reference" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435"
+          }
+        ],
         "recorded" : "2023-08-16T12:33:58-05:00",
         "activity" : {
           "coding" : [
@@ -55,20 +60,15 @@
               "display" : "ORU^R01^ORU_R01"
             }
           ]
-        },
-        "entity" : [
-          {
-            "role" : "source"
-          }
-        ]
+        }
       }
     },
     {
-      "fullUrl" : "Provenance/1706210269490867000.82a9b1ca-7b67-4906-8d9b-51932803d7bd",
+      "fullUrl" : "Provenance/1706310568334126000.55f4daf0-5a9b-4bc6-8ec6-1a13514806b8",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706210269490867000.82a9b1ca-7b67-4906-8d9b-51932803d7bd",
-        "recorded" : "2024-01-25T13:17:49Z",
+        "id" : "1706310568334126000.55f4daf0-5a9b-4bc6-8ec6-1a13514806b8",
+        "recorded" : "2024-01-26T17:09:28Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -90,22 +90,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706210269490369000.a286151f-7235-4ee9-8097-b8b33405cd12"
+              "reference" : "Organization/1706310568333605000.62e70f7a-ba5f-475b-80da-9c501ccf403b"
             }
-          }
-        ],
-        "entity" : [
-          {
-            "role" : "source"
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706210269490369000.a286151f-7235-4ee9-8097-b8b33405cd12",
+      "fullUrl" : "Organization/1706310568333605000.62e70f7a-ba5f-475b-80da-9c501ccf403b",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706210269490369000.a286151f-7235-4ee9-8097-b8b33405cd12",
+        "id" : "1706310568333605000.62e70f7a-ba5f-475b-80da-9c501ccf403b",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -125,10 +120,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1706210269503495000.08aac84b-3d55-4369-b326-c10beee7ccc7",
+      "fullUrl" : "Patient/1706310568348819000.6a40bcbd-bbf9-4213-992c-772e7d435486",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1706210269503495000.08aac84b-3d55-4369-b326-c10beee7ccc7",
+        "id" : "1706310568348819000.6a40bcbd-bbf9-4213-992c-772e7d435486",
         "birthDate" : "1970-10-31",
         "_birthDate" : {
           "extension" : [
@@ -145,16 +140,16 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706210269504127000.1153c165-0541-45ca-bb98-2b9e1e0ccbf5",
+      "fullUrl" : "Provenance/1706310568349495000.705783f6-1aa6-46fc-9d3c-cb9a5dfe7735",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706210269504127000.1153c165-0541-45ca-bb98-2b9e1e0ccbf5",
+        "id" : "1706310568349495000.705783f6-1aa6-46fc-9d3c-cb9a5dfe7735",
         "target" : [
           {
-            "reference" : "Patient/1706210269503495000.08aac84b-3d55-4369-b326-c10beee7ccc7"
+            "reference" : "Patient/1706310568348819000.6a40bcbd-bbf9-4213-992c-772e7d435486"
           }
         ],
-        "recorded" : "2024-01-25T13:17:49Z",
+        "recorded" : "2024-01-26T17:09:28Z",
         "activity" : {
           "coding" : [
             {

@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706210878545498000.d1e3f751-5d98-4c36-8c1b-ab01372b0feb",
+  "id" : "1706311201330707000.bb0ccf3c-1993-4331-9a19-470bacdf0a81",
   "meta" : {
-    "lastUpdated" : "2024-01-25T13:27:58.558-06:00"
+    "lastUpdated" : "2024-01-26T17:20:01.343-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -63,10 +63,15 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706210878921196000.e33080d4-07ae-4866-bde9-8d40eaccd352",
+      "fullUrl" : "Provenance/1706311201711436000.f5600d54-e780-432f-bd85-0ac5a388dabc",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706210878921196000.e33080d4-07ae-4866-bde9-8d40eaccd352",
+        "id" : "1706311201711436000.f5600d54-e780-432f-bd85-0ac5a388dabc",
+        "target" : [
+          {
+            "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
+          }
+        ],
         "recorded" : "2023-05-01T10:25:31-04:00",
         "activity" : {
           "coding" : [
@@ -74,20 +79,15 @@
               "display" : "ORU^R01^ORU_R01"
             }
           ]
-        },
-        "entity" : [
-          {
-            "role" : "source"
-          }
-        ]
+        }
       }
     },
     {
-      "fullUrl" : "Provenance/1706210878931554000.e067df20-09a7-4391-a905-08b5314c0bd7",
+      "fullUrl" : "Provenance/1706311201718144000.f784af42-9d81-4aee-82db-3816dd112e6c",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706210878931554000.e067df20-09a7-4391-a905-08b5314c0bd7",
-        "recorded" : "2024-01-25T13:27:58Z",
+        "id" : "1706311201718144000.f784af42-9d81-4aee-82db-3816dd112e6c",
+        "recorded" : "2024-01-26T17:20:01Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -109,22 +109,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706210878930329000.af80a74a-8508-4102-914b-5256ebf93fb3"
+              "reference" : "Organization/1706311201717610000.60e1b07e-bf05-43b2-a4c9-4612765275de"
             }
-          }
-        ],
-        "entity" : [
-          {
-            "role" : "source"
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706210878930329000.af80a74a-8508-4102-914b-5256ebf93fb3",
+      "fullUrl" : "Organization/1706311201717610000.60e1b07e-bf05-43b2-a4c9-4612765275de",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706210878930329000.af80a74a-8508-4102-914b-5256ebf93fb3",
+        "id" : "1706311201717610000.60e1b07e-bf05-43b2-a4c9-4612765275de",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"

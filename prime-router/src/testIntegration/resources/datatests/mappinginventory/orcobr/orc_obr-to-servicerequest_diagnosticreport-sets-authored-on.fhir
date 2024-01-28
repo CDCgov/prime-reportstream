@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706211382787676000.47bc3c67-b6df-4354-943d-3af608804bea",
+  "id" : "1706311706048971000.e3559c98-ff6e-42a9-a9e2-ae116e3c07be",
   "meta" : {
-    "lastUpdated" : "2024-01-25T13:36:22.802-06:00"
+    "lastUpdated" : "2024-01-26T17:28:26.063-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -44,13 +44,16 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706211383153173000.93ebf956-b8c9-4700-90e0-74f94df92859",
+      "fullUrl" : "Provenance/1706311706425159000.76db1ffe-b931-4110-9c10-0b9598d38d66",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706211383153173000.93ebf956-b8c9-4700-90e0-74f94df92859",
+        "id" : "1706311706425159000.76db1ffe-b931-4110-9c10-0b9598d38d66",
         "target" : [
           {
-            "reference" : "DiagnosticReport/1706211383308570000.299b03cd-9051-4053-b2dc-531b6c9d17d7"
+            "reference" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435"
+          },
+          {
+            "reference" : "DiagnosticReport/1706311706590997000.cafdc0c4-bae7-4e12-83f5-f6c54f853060"
           }
         ],
         "recorded" : "2023-08-16T12:33:58-05:00",
@@ -60,20 +63,15 @@
               "display" : "ORU^R01^ORU_R01"
             }
           ]
-        },
-        "entity" : [
-          {
-            "role" : "source"
-          }
-        ]
+        }
       }
     },
     {
-      "fullUrl" : "Provenance/1706211383163518000.56001c4d-401e-4459-b02e-50dba271d290",
+      "fullUrl" : "Provenance/1706311706431447000.80c0c25d-66e9-4f33-afe6-bc514df6cd95",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706211383163518000.56001c4d-401e-4459-b02e-50dba271d290",
-        "recorded" : "2024-01-25T13:36:23Z",
+        "id" : "1706311706431447000.80c0c25d-66e9-4f33-afe6-bc514df6cd95",
+        "recorded" : "2024-01-26T17:28:26Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -95,22 +93,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706211383162801000.706b338d-a7ff-4814-a8e2-db8677331c86"
+              "reference" : "Organization/1706311706431051000.22f8a9d5-f2a1-4b06-988b-5ba347ab56c1"
             }
-          }
-        ],
-        "entity" : [
-          {
-            "role" : "source"
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706211383162801000.706b338d-a7ff-4814-a8e2-db8677331c86",
+      "fullUrl" : "Organization/1706311706431051000.22f8a9d5-f2a1-4b06-988b-5ba347ab56c1",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706211383162801000.706b338d-a7ff-4814-a8e2-db8677331c86",
+        "id" : "1706311706431051000.22f8a9d5-f2a1-4b06-988b-5ba347ab56c1",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -130,23 +123,23 @@
       }
     },
     {
-      "fullUrl" : "Patient/1706211383173254000.b337d2c8-8166-4e16-9d47-fd41b4b791c8",
+      "fullUrl" : "Patient/1706311706444375000.46dd978e-dec0-4a5d-95cf-2c635db43637",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1706211383173254000.b337d2c8-8166-4e16-9d47-fd41b4b791c8"
+        "id" : "1706311706444375000.46dd978e-dec0-4a5d-95cf-2c635db43637"
       }
     },
     {
-      "fullUrl" : "Provenance/1706211383174170000.160f45c5-cef5-4ecf-9789-1011ab2bf6dc",
+      "fullUrl" : "Provenance/1706311706444950000.2290083a-9fec-47a5-9fb2-4b1e77b04051",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706211383174170000.160f45c5-cef5-4ecf-9789-1011ab2bf6dc",
+        "id" : "1706311706444950000.2290083a-9fec-47a5-9fb2-4b1e77b04051",
         "target" : [
           {
-            "reference" : "Patient/1706211383173254000.b337d2c8-8166-4e16-9d47-fd41b4b791c8"
+            "reference" : "Patient/1706311706444375000.46dd978e-dec0-4a5d-95cf-2c635db43637"
           }
         ],
-        "recorded" : "2024-01-25T13:36:23Z",
+        "recorded" : "2024-01-26T17:28:26Z",
         "activity" : {
           "coding" : [
             {
@@ -158,10 +151,10 @@
       }
     },
     {
-      "fullUrl" : "ServiceRequest/1706211383178300000.307ef4a4-d1be-4fa2-a9b0-9f297f3d9497",
+      "fullUrl" : "ServiceRequest/1706311706448665000.5b12e860-e1bb-4e8d-8ade-1ff64cdcdeee",
       "resource" : {
         "resourceType" : "ServiceRequest",
-        "id" : "1706211383178300000.307ef4a4-d1be-4fa2-a9b0-9f297f3d9497",
+        "id" : "1706311706448665000.5b12e860-e1bb-4e8d-8ade-1ff64cdcdeee",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
@@ -174,7 +167,7 @@
         ],
         "status" : "unknown",
         "subject" : {
-          "reference" : "Patient/1706211383173254000.b337d2c8-8166-4e16-9d47-fd41b4b791c8"
+          "reference" : "Patient/1706311706444375000.46dd978e-dec0-4a5d-95cf-2c635db43637"
         },
         "authoredOn" : "2023-08-16T12:33:58-05:00",
         "_authoredOn" : {
@@ -188,18 +181,18 @@
       }
     },
     {
-      "fullUrl" : "DiagnosticReport/1706211383308570000.299b03cd-9051-4053-b2dc-531b6c9d17d7",
+      "fullUrl" : "DiagnosticReport/1706311706590997000.cafdc0c4-bae7-4e12-83f5-f6c54f853060",
       "resource" : {
         "resourceType" : "DiagnosticReport",
-        "id" : "1706211383308570000.299b03cd-9051-4053-b2dc-531b6c9d17d7",
+        "id" : "1706311706590997000.cafdc0c4-bae7-4e12-83f5-f6c54f853060",
         "basedOn" : [
           {
-            "reference" : "ServiceRequest/1706211383178300000.307ef4a4-d1be-4fa2-a9b0-9f297f3d9497"
+            "reference" : "ServiceRequest/1706311706448665000.5b12e860-e1bb-4e8d-8ade-1ff64cdcdeee"
           }
         ],
         "status" : "unknown",
         "subject" : {
-          "reference" : "Patient/1706211383173254000.b337d2c8-8166-4e16-9d47-fd41b4b791c8"
+          "reference" : "Patient/1706311706444375000.46dd978e-dec0-4a5d-95cf-2c635db43637"
         }
       }
     }

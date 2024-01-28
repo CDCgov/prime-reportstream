@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706210043200211000.92d8449f-aa8a-451c-b034-bb601d19d7e1",
+  "id" : "1706310331264034000.5322b53e-29e1-4321-9e77-bd9359134388",
   "meta" : {
-    "lastUpdated" : "2024-01-25T13:14:03.214-06:00"
+    "lastUpdated" : "2024-01-26T17:05:31.278-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -36,7 +36,7 @@
           "display" : "ORU^R01^ORU_R01"
         },
         "sender" : {
-          "reference" : "Organization/1706210043299757000.ad12640e-cad8-40f5-9fd3-04f52a0ed7e6"
+          "reference" : "Organization/1706310331364058000.38f68ee3-ae58-423b-b20e-1dd847a72011"
         },
         "source" : {
           "_endpoint" : {
@@ -51,10 +51,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706210043299757000.ad12640e-cad8-40f5-9fd3-04f52a0ed7e6",
+      "fullUrl" : "Organization/1706310331364058000.38f68ee3-ae58-423b-b20e-1dd847a72011",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706210043299757000.ad12640e-cad8-40f5-9fd3-04f52a0ed7e6",
+        "id" : "1706310331364058000.38f68ee3-ae58-423b-b20e-1dd847a72011",
         "address" : [
           {
             "country" : "USA"
@@ -63,10 +63,15 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706210043589542000.4b59dec7-5912-4d75-ae6f-1ba54e7dc9a6",
+      "fullUrl" : "Provenance/1706310331688261000.5d5381e4-d5ef-4efa-8363-adccabbba61c",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706210043589542000.4b59dec7-5912-4d75-ae6f-1ba54e7dc9a6",
+        "id" : "1706310331688261000.5d5381e4-d5ef-4efa-8363-adccabbba61c",
+        "target" : [
+          {
+            "reference" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b"
+          }
+        ],
         "recorded" : "2023-05-01T10:25:31-04:00",
         "activity" : {
           "coding" : [
@@ -74,20 +79,15 @@
               "display" : "ORU^R01^ORU_R01"
             }
           ]
-        },
-        "entity" : [
-          {
-            "role" : "source"
-          }
-        ]
+        }
       }
     },
     {
-      "fullUrl" : "Provenance/1706210043601127000.50d3a83a-2f57-4a22-8661-47289f095b50",
+      "fullUrl" : "Provenance/1706310331696389000.d3978e01-baf6-49d4-a0e1-342a50d50983",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706210043601127000.50d3a83a-2f57-4a22-8661-47289f095b50",
-        "recorded" : "2024-01-25T13:14:03Z",
+        "id" : "1706310331696389000.d3978e01-baf6-49d4-a0e1-342a50d50983",
+        "recorded" : "2024-01-26T17:05:31Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -109,22 +109,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706210043599899000.ce5f7fa1-59e5-4fe2-80ff-82779bc01107"
+              "reference" : "Organization/1706310331695564000.54bfd752-13f2-468a-a08a-9e291393d0e6"
             }
-          }
-        ],
-        "entity" : [
-          {
-            "role" : "source"
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706210043599899000.ce5f7fa1-59e5-4fe2-80ff-82779bc01107",
+      "fullUrl" : "Organization/1706310331695564000.54bfd752-13f2-468a-a08a-9e291393d0e6",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706210043599899000.ce5f7fa1-59e5-4fe2-80ff-82779bc01107",
+        "id" : "1706310331695564000.54bfd752-13f2-468a-a08a-9e291393d0e6",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -144,10 +139,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1706210043611460000.68cc5cd9-421c-492a-aa32-38145aaa9b5a",
+      "fullUrl" : "Patient/1706310331711313000.aba8ad7e-3104-4647-9074-e11c2e41a5a9",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1706210043611460000.68cc5cd9-421c-492a-aa32-38145aaa9b5a",
+        "id" : "1706310331711313000.aba8ad7e-3104-4647-9074-e11c2e41a5a9",
         "extension" : [
           {
             "url" : "http://hl7.org/fhir/StructureDefinition/patient-citizenship",
@@ -184,16 +179,16 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706210043612131000.fe2ebd2d-5710-4228-b9e1-281c7f3344e1",
+      "fullUrl" : "Provenance/1706310331712117000.f3e92b07-0ca3-48f3-a520-15c2884f801d",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706210043612131000.fe2ebd2d-5710-4228-b9e1-281c7f3344e1",
+        "id" : "1706310331712117000.f3e92b07-0ca3-48f3-a520-15c2884f801d",
         "target" : [
           {
-            "reference" : "Patient/1706210043611460000.68cc5cd9-421c-492a-aa32-38145aaa9b5a"
+            "reference" : "Patient/1706310331711313000.aba8ad7e-3104-4647-9074-e11c2e41a5a9"
           }
         ],
-        "recorded" : "2024-01-25T13:14:03Z",
+        "recorded" : "2024-01-26T17:05:31Z",
         "activity" : {
           "coding" : [
             {
