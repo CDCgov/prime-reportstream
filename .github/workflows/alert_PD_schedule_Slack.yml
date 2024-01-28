@@ -36,7 +36,7 @@ jobs:
     - name: Show schedules
       run: |
          echo "Prime ReportStream PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_0_ScheduleName }}"
-            "Prime ReportStream PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_0_OnCallPersonName }}"
+         "Prime ReportStream PagerDuty on-call person until": "${{ env.Schedules_oncallSchedule_0_Until }}"
            
       
     # - name: Show schedules
