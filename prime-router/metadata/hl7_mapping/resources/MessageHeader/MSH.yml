@@ -33,7 +33,6 @@ elements:
   - name: message-date-time
     value:
       - '%resource.extension(%`rsext-msh-7-datetime-of-message`).value'
-    required: true
     hl7Spec: [ MSH-7 ]
 
   - name: security
