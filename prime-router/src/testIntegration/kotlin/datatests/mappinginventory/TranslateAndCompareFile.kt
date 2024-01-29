@@ -5,7 +5,7 @@ import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.datatests.TranslationTests
 
 fun translateAndCompareFHIRToHL7(inputFile: String, expectedOutputFile: String): CompareData.Result {
-    val outputSchemaPath = "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-test"
+    val outputSchemaPath = "classpath:/hl7_mapping/ORU_R01/ORU_R01-test"
 
     val testConfig = TranslationTests.TestConfig(
         inputFile, Report.Format.FHIR, "", expectedOutputFile,
@@ -58,7 +58,7 @@ fun verifyHL7ToFHIRToHL7Mapping(
             "",
             "mappinginventory/$testFileName.hl7",
             Report.Format.HL7,
-            "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-test",
+            "classpath:/hl7_mapping/ORU_R01/ORU_R01-test",
             true,
             null,
             null,
@@ -76,7 +76,7 @@ fun verifyHL7ToFHIRToHL7Mapping(
             "",
             "mappinginventory/$testFileName.hl7",
             Report.Format.HL7,
-            "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-test",
+            "classpath:/hl7_mapping/ORU_R01/ORU_R01-test",
             true,
             null,
             null,

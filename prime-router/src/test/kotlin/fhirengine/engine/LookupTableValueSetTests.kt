@@ -8,7 +8,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.getTransformSchema
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -39,14 +39,14 @@ class LookupTableValueSetTests {
         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
 
         assertThat(
-            fhirTransformSchemaFromFile(
+            getTransformSchema(
                 "lookup_value_set",
                 "fhir_sender_transforms",
             ).isValid()
         ).isTrue()
 
         assertFailure {
-            fhirTransformSchemaFromFile(
+            getTransformSchema(
                 "invalid_lookup_value_set",
                 "fhir_sender_transforms",
             )

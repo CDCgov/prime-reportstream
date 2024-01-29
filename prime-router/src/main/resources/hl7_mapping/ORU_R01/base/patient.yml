@@ -1,0 +1,18 @@
+constants:
+  hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+
+elements:
+
+  - name: patient-identification
+    schema: classpath:/hl7_mapping/resources/Patient/PID
+
+  - name: patient-identification-extensions
+    resource: '%resource.extension(%`rsext-pid-patient`)'
+    schema: classpath:/hl7_mapping/resources/Patient/PIDExtension
+
+  - name: additional-demographics
+    schema: classpath:/hl7_mapping/resources/Patient/PD1
+
+  - name: additional-demographics-extensions
+    resource: '%resource.extension(%`rsext-pd1-patient`)'
+    schema: classpath:/hl7_mapping/resources/Patient/PD1Extension

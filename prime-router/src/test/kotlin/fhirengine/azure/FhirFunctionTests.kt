@@ -90,7 +90,7 @@ class FhirFunctionTests {
                 "phd",
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
-                "metadata/hl7_mapping/ORU_R01/ORU_R01-base",
+                "hl7_mapping/ORU_R01/ORU_R01-base",
                 timing = timing1,
                 jurisdictionalFilter = listOf("true"),
                 qualityFilter = listOf("true"),

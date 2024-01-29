@@ -12,15 +12,16 @@ import assertk.assertions.messageContains
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.getConvertSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.getTransformSchema
 import io.mockk.every
 import io.mockk.mockkObject
 import java.io.File
 import java.net.URI
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class ConfigSchemaReaderTests {
     @Test
@@ -179,15 +180,15 @@ class ConfigSchemaReaderTests {
             )
         }
 
-        assertThat(
-            converterSchemaFromFile(
+        assertTrue(
+            getConvertSchema(
                 "ORU_R01",
                 "fhirengine/translation/hl7/schema/schema-read-test-01"
             ).isValid()
-        ).isTrue()
+        )
 
         assertFailure {
-            converterSchemaFromFile(
+            getConvertSchema(
                 "ORU_R01_incomplete",
                 "fhirengine/translation/hl7/schema/schema-read-test-02"
             )
@@ -287,28 +288,28 @@ class ConfigSchemaReaderTests {
 
         assertThat(
             // converted to classpath under hood
-            fhirTransformSchemaFromFile(
+            getTransformSchema(
                 "sample_schema",
                 "fhir_sender_transforms",
             ).isValid()
         ).isTrue()
 
         assertFailure {
-            fhirTransformSchemaFromFile(
+            getTransformSchema(
                 "invalid_value_set",
                 "fhir_sender_transforms",
             )
         }
 
         assertFailure {
-            fhirTransformSchemaFromFile(
+            getTransformSchema(
                 "incomplete_schema",
                 "fhir_sender_transforms",
             )
         }
 
         assertFailure {
-            fhirTransformSchemaFromFile(
+            getTransformSchema(
                 "no_schema_nor_value",
                 "fhir_sender_transforms",
             )

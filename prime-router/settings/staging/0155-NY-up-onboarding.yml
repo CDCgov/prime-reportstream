@@ -13,7 +13,7 @@
       topic: "full-elr"
       customerStatus: "testing"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/NY/NY-receiver-transform"
+        schemaName: "hl7_mapping/receivers/STLTs/NY/NY-receiver-transform"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "ECLRS"

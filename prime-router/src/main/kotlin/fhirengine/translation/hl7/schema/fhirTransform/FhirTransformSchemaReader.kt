@@ -9,7 +9,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.getURI
  * @return the validated schema
  * @throws Exception if the schema is invalid or is of the wrong type
  */
-fun fhirTransformSchemaFromFile(schemaName: String, folder: String? = null): FhirTransformSchema {
+fun getTransformSchema(schemaName: String, folder: String? = null): FhirTransformSchema {
     val schema = ConfigSchemaReader.fromFile(
         getURI(folder, schemaName),
         schemaClass = FhirTransformSchema::class.java

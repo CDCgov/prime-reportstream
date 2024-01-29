@@ -34,7 +34,7 @@
       topic: "etor-ti"
       customerStatus: "active"
       format: "FHIR"
-      schemaName: "metadata/fhir_transforms/senders/Flexion/TILabOrder"
+      schemaName: "fhir_transforms/senders/Flexion/TILabOrder"
     # Results Senders
     # PHL => RS
     - name: "simulated-lab"
@@ -61,7 +61,7 @@
         initialTime: "00:00"
       translation: !<FHIR>
         type: "FHIR"
-        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        schemaName: "fhir_transforms/receivers/fhir-transform-sample"
         useBatching: false
       transport: !<REST>
         type: "REST"
@@ -99,7 +99,7 @@
         initialTime: "00:00"
       translation: !<HL7>
         type: "HL7"
-        schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
+        schemaName: "hl7_mapping/receivers/Flexion/TILabOrder"
         useTestProcessingMode: false
         useBatchHeaders: false
       transport:
@@ -125,7 +125,7 @@
         initialTime: "00:00"
       translation: !<FHIR>
         type: "FHIR"
-        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        schemaName: "fhir_transforms/receivers/fhir-transform-sample"
         useBatching: false
       transport:
         type: "SFTP"

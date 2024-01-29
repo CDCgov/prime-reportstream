@@ -1,0 +1,6 @@
+extends: classpath:/fhir_transforms/senders/baseline-sender-transform
+
+elements:
+  - name: sender-identifier
+    condition: true
+    value: [ '"hcintegrations"' ]

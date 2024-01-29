@@ -17,7 +17,7 @@
     topic: "etor-ti"
     customerStatus: "active"
     translation: !<FHIR>
-      schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+      schemaName: "classpath:/fhir_transforms/receivers/fhir-transform-sample"
       useBatching: false
       nameFormat: "standard"
       receivingOrganization: null

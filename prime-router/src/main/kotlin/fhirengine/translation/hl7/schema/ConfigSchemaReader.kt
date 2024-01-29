@@ -48,12 +48,6 @@ object ConfigSchemaReader : Logging {
         schemaUri: URI,
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
     ): ConfigSchema<*> {
-        // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
-//        val schemaList = when (schemaUri.scheme) {
-//            null -> fromRelative(schemaName, folder, schemaClass)
-//            else -> fromUri(schemaUri, schemaClass)
-//        }
-
         val schemaList = when (schemaUri.scheme) {
             "classpath" -> fromUri(schemaUri, schemaClass)
             else -> throw Exception("Not support relative schema path.")

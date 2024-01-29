@@ -31,7 +31,7 @@
     topic: "etor-ti"
     customerStatus: "active"
     translation: !<HL7>
-      schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
+      schemaName: "hl7_mapping/receivers/Flexion/TILabOrder"
       useTestProcessingMode: false
       useBatchHeaders: true
       receivingApplicationName: "LA-PHL"

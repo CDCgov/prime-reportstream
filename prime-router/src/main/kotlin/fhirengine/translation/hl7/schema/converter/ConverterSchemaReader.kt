@@ -10,7 +10,7 @@ import java.net.URI
  * @return the validated schema
  * @throws Exception if the schema is invalid or is of the wrong type
  */
-fun converterSchemaFromFile(schemaName: String, folder: String? = null): ConverterSchema {
+fun getConvertSchema(schemaName: String, folder: String? = null): ConverterSchema {
     val schemaUri = getURI(folder, schemaName)
     val schema =
         ConfigSchemaReader.fromFile(schemaUri, schemaClass = ConverterSchema::class.java)
@@ -21,7 +21,7 @@ fun converterSchemaFromFile(schemaName: String, folder: String? = null): Convert
     }
 }
 
-fun converterSchemaFromURI(schemaUri: URI): ConverterSchema {
+fun getConvertSchema(schemaUri: URI): ConverterSchema {
     val schema =
         ConfigSchemaReader.fromFile(schemaUri, schemaClass = ConverterSchema::class.java)
     if (schema is ConverterSchema) {

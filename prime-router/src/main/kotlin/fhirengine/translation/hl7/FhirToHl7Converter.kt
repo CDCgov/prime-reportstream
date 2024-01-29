@@ -8,8 +8,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromURI
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.getConvertSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
@@ -52,7 +51,7 @@ class FhirToHl7Converter(
         terser: Terser? = null,
         context: FhirToHl7Context? = null,
     ) : this(
-        schemaRef = converterSchemaFromFile(schema, schemaFolder),
+        schemaRef = getConvertSchema(schema, schemaFolder),
         strict = strict,
         terser = terser,
         context = context
@@ -65,7 +64,7 @@ class FhirToHl7Converter(
         context: FhirToHl7Context? = null,
     ) : this(
 //        schemaRef = ConfigSchemaReader.fromFile(schemaUri, schemaClass = ConverterSchema::class.java),
-        schemaRef = converterSchemaFromURI(schemaUri),
+        schemaRef = getConvertSchema(schemaUri),
         strict = strict,
         terser = terser,
         context = context
@@ -84,7 +83,7 @@ class FhirToHl7Converter(
         terser: Terser? = null,
         context: FhirToHl7Context? = null,
     ) : this(
-        schemaRef = converterSchemaFromFile(
+        schemaRef = getConvertSchema(
             FilenameUtils.getName(schema),
             FilenameUtils.getPathNoEndSeparator(schema)
         ),

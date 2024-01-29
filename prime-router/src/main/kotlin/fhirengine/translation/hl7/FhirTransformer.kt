@@ -3,7 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.getTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -28,7 +28,7 @@ class FhirTransformer(
         schema: String,
         schemaFolder: String,
     ) : this(
-        schemaRef = fhirTransformSchemaFromFile(schema, schemaFolder),
+        schemaRef = getTransformSchema(schema, schemaFolder),
     )
 
     /**
