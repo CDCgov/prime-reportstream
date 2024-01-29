@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706311982453820000.c15cd6ce-da9c-47fa-bc88-09d835e92d36",
+  "id" : "1706548711139857000.90f56855-a608-4536-940e-163d7df91677",
   "meta" : {
-    "lastUpdated" : "2024-01-26T17:33:02.466-06:00"
+    "lastUpdated" : "2024-01-29T12:18:31.147-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
@@ -36,7 +36,7 @@
           "display" : "ORU^R01^ORU_R01"
         },
         "sender" : {
-          "reference" : "Organization/1706311982538563000.58b5b09d-5be9-4092-a849-47d9d283e69f"
+          "reference" : "Organization/1706548711214791000.4173c212-c686-4524-9db0-c3536b46195c"
         },
         "source" : {
           "_endpoint" : {
@@ -51,10 +51,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311982538563000.58b5b09d-5be9-4092-a849-47d9d283e69f",
+      "fullUrl" : "Organization/1706548711214791000.4173c212-c686-4524-9db0-c3536b46195c",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311982538563000.58b5b09d-5be9-4092-a849-47d9d283e69f",
+        "id" : "1706548711214791000.4173c212-c686-4524-9db0-c3536b46195c",
         "address" : [
           {
             "country" : "USA"
@@ -63,10 +63,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706311982840468000.47365fcb-b904-41e0-baf6-f52067b74321",
+      "fullUrl" : "Provenance/1706548711607056000.d5379f5d-6ecf-4bb1-aa18-a3bb333481e9",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311982840468000.47365fcb-b904-41e0-baf6-f52067b74321",
+        "id" : "1706548711607056000.d5379f5d-6ecf-4bb1-aa18-a3bb333481e9",
         "target" : [
           {
             "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
@@ -83,11 +83,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706311982847355000.58d989e0-6a79-4010-8013-557755bd2299",
+      "fullUrl" : "Provenance/1706548711614624000.fa2d3558-9991-4cee-85e6-1e441b97dc1d",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311982847355000.58d989e0-6a79-4010-8013-557755bd2299",
-        "recorded" : "2024-01-26T17:33:02Z",
+        "id" : "1706548711614624000.fa2d3558-9991-4cee-85e6-1e441b97dc1d",
+        "recorded" : "2024-01-29T12:18:31Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -109,17 +109,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706311982846838000.3b1394f2-9c0b-4633-903e-110c44d34236"
+              "reference" : "Organization/1706548711614175000.ffaadc19-f5be-4df4-be11-f2f01e23f547"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706311982846838000.3b1394f2-9c0b-4633-903e-110c44d34236",
+      "fullUrl" : "Organization/1706548711614175000.ffaadc19-f5be-4df4-be11-f2f01e23f547",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311982846838000.3b1394f2-9c0b-4633-903e-110c44d34236",
+        "id" : "1706548711614175000.ffaadc19-f5be-4df4-be11-f2f01e23f547",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -139,10 +139,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1706311982868047000.3535bd19-cac3-477a-82a7-e205d319c937",
+      "fullUrl" : "Patient/1706548711639666000.1c7911f7-1564-47b6-bd05-e53e77795cf6",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1706311982868047000.3535bd19-cac3-477a-82a7-e205d319c937",
+        "id" : "1706548711639666000.1c7911f7-1564-47b6-bd05-e53e77795cf6",
         "identifier" : [
           {
             "extension" : [
@@ -187,68 +187,78 @@
         "contact" : [
           {
             "organization" : {
-              "reference" : "Organization/1706311982864050000.7642433e-9862-4582-ad61-a33a7b3800f2"
+              "reference" : "Organization/1706548711633718000.b17e7adc-3f86-4ea1-894b-abdde742a73a"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706311982864050000.7642433e-9862-4582-ad61-a33a7b3800f2",
+      "fullUrl" : "Organization/1706548711633718000.b17e7adc-3f86-4ea1-894b-abdde742a73a",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311982864050000.7642433e-9862-4582-ad61-a33a7b3800f2",
+        "id" : "1706548711633718000.b17e7adc-3f86-4ea1-894b-abdde742a73a",
         "contact" : [
           {
             "address" : {
               "extension" : [
                 {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
-                  "valueCode" : "HV"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
-                  "valueString" : "4861"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad3-dwelling-number",
-                  "valueString" : "1"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad11-address-representation-code",
-                  "valueCode" : "A"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad2-street-name",
-                  "valueString" : "20TH AVE"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad2-other-designation",
-                  "valueString" : "Other Designation"
-                },
-                {
                   "url" : "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
                   "valueCode" : "6059"
                 },
                 {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad8-other-geographic-destination",
-                  "valueString" : "Other Geographic Designation"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad13-effective-date",
-                  "valueString" : "20220501102531-0400"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad19-addressee",
-                  "valueCode" : "Adressee"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad14-expiration-date",
-                  "valueString" : "20230501102531-0400"
-                },
-                {
                   "url" : "http://hl7.org/fhir/StructureDefinition/iso21090-AD-use",
                   "valueCode" : "HV"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                      "extension" : [
+                        {
+                          "url" : "SAD.1",
+                          "valueString" : "4861"
+                        },
+                        {
+                          "url" : "SAD.2",
+                          "valueString" : "20TH AVE"
+                        },
+                        {
+                          "url" : "SAD.3",
+                          "valueString" : "1"
+                        }
+                      ]
+                    },
+                    {
+                      "url" : "XAD.2",
+                      "valueString" : "Other Designation"
+                    },
+                    {
+                      "url" : "XAD.7",
+                      "valueCode" : "HV"
+                    },
+                    {
+                      "url" : "XAD.8",
+                      "valueString" : "Other Geographic Designation"
+                    },
+                    {
+                      "url" : "XAD.11",
+                      "valueCode" : "A"
+                    },
+                    {
+                      "url" : "XAD.13",
+                      "valueString" : "20220501102531-0400"
+                    },
+                    {
+                      "url" : "XAD.14",
+                      "valueString" : "20230501102531-0400"
+                    },
+                    {
+                      "url" : "XAD.19",
+                      "valueCode" : "Adressee"
+                    }
+                  ]
                 }
               ],
               "line" : [
@@ -273,16 +283,16 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706311982870012000.d6b1e53f-d14f-4edf-aaed-8cf807cc2e81",
+      "fullUrl" : "Provenance/1706548711641694000.ff3232e7-07d3-411b-b023-a58613312179",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311982870012000.d6b1e53f-d14f-4edf-aaed-8cf807cc2e81",
+        "id" : "1706548711641694000.ff3232e7-07d3-411b-b023-a58613312179",
         "target" : [
           {
-            "reference" : "Patient/1706311982868047000.3535bd19-cac3-477a-82a7-e205d319c937"
+            "reference" : "Patient/1706548711639666000.1c7911f7-1564-47b6-bd05-e53e77795cf6"
           }
         ],
-        "recorded" : "2024-01-26T17:33:02Z",
+        "recorded" : "2024-01-29T12:18:31Z",
         "activity" : {
           "coding" : [
             {
@@ -294,10 +304,10 @@
       }
     },
     {
-      "fullUrl" : "RelatedPerson/1706311982872707000.4d75a29d-31fd-44d3-b206-54cd49ca7d83",
+      "fullUrl" : "RelatedPerson/1706548711644385000.ebfeda60-60bc-4181-be6e-97bb43859602",
       "resource" : {
         "resourceType" : "RelatedPerson",
-        "id" : "1706311982872707000.4d75a29d-31fd-44d3-b206-54cd49ca7d83",
+        "id" : "1706548711644385000.ebfeda60-60bc-4181-be6e-97bb43859602",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
@@ -305,62 +315,72 @@
           }
         ],
         "patient" : {
-          "reference" : "Patient/1706311982868047000.3535bd19-cac3-477a-82a7-e205d319c937"
+          "reference" : "Patient/1706548711639666000.1c7911f7-1564-47b6-bd05-e53e77795cf6"
         },
         "address" : [
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
+                "url" : "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+                "valueCode" : "6059"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/iso21090-AD-use",
                 "valueCode" : "HV"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
-                "valueString" : "4861"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad3-dwelling-number",
-                "valueString" : "1"
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
                 "valueString" : "contact-person-address"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad11-address-representation-code",
-                "valueCode" : "A"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad2-street-name",
-                "valueString" : "20TH AVE"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad2-other-designation",
-                "valueString" : "Other Designation"
-              },
-              {
-                "url" : "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
-                "valueCode" : "6059"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad8-other-geographic-destination",
-                "valueString" : "Other Geographic Designation"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad13-effective-date",
-                "valueString" : "20220501102531-0400"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad19-addressee",
-                "valueCode" : "Adressee"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad14-expiration-date",
-                "valueString" : "20230501102531-0400"
-              },
-              {
-                "url" : "http://hl7.org/fhir/StructureDefinition/iso21090-AD-use",
-                "valueCode" : "HV"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                    "extension" : [
+                      {
+                        "url" : "SAD.1",
+                        "valueString" : "4861"
+                      },
+                      {
+                        "url" : "SAD.2",
+                        "valueString" : "20TH AVE"
+                      },
+                      {
+                        "url" : "SAD.3",
+                        "valueString" : "1"
+                      }
+                    ]
+                  },
+                  {
+                    "url" : "XAD.2",
+                    "valueString" : "Other Designation"
+                  },
+                  {
+                    "url" : "XAD.7",
+                    "valueCode" : "HV"
+                  },
+                  {
+                    "url" : "XAD.8",
+                    "valueString" : "Other Geographic Designation"
+                  },
+                  {
+                    "url" : "XAD.11",
+                    "valueCode" : "A"
+                  },
+                  {
+                    "url" : "XAD.13",
+                    "valueString" : "20220501102531-0400"
+                  },
+                  {
+                    "url" : "XAD.14",
+                    "valueString" : "20230501102531-0400"
+                  },
+                  {
+                    "url" : "XAD.19",
+                    "valueCode" : "Adressee"
+                  }
+                ]
               }
             ],
             "line" : [
