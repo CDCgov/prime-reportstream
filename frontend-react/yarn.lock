@@ -5455,15 +5455,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash.pick@npm:^4.4.7":
-  version: 4.4.7
-  resolution: "@types/lodash.pick@npm:4.4.7"
-  dependencies:
-    "@types/lodash": "*"
-  checksum: 78428a83b5d85e75bd13fb632030f9adb08dfc5bde3a9b6a302434fe7ac98e62919f87a7337e0ba674017d63bc57a8855ef863f5fcecd25e63b1d39eba2e4697
-  languageName: node
-  linkType: hard
-
 "@types/lodash.range@npm:^3.2.7":
   version: 3.2.7
   resolution: "@types/lodash.range@npm:3.2.7"
@@ -15230,7 +15221,6 @@ __metadata:
     "@types/jest": ^29.5.11
     "@types/lodash.chunk": ^4.2.7
     "@types/lodash.omit": ^4.5.7
-    "@types/lodash.pick": ^4.4.7
     "@types/lodash.range": ^3.2.7
     "@types/lodash.uniq": ^4.5.7
     "@types/mdx": ^2.0.8
@@ -15283,7 +15273,6 @@ __metadata:
     lint-staged: ^15.2.0
     lodash.chunk: ^4.2.0
     lodash.omit: ^4.5.0
-    lodash.pick: ^4.4.0
     lodash.range: ^3.2.0
     lodash.uniq: ^4.5.0
     mockdate: ^3.0.5
