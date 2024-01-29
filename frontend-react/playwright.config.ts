@@ -1,4 +1,4 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 import dotenvflow from "dotenv-flow";
 
 import type { TestOptions } from "./e2e/helpers/rs-test";
@@ -40,19 +40,19 @@ export default defineConfig<TestOptions>({
         // { name: "setup", testMatch: /.*\.setup\.ts/ },
         {
             name: "chromium",
-            use: { browserName: "chromium" },
+            use: { ...devices["Desktop Chrome"] },
             // dependencies: ["setup"],
         },
 
         {
             name: "firefox",
-            use: { browserName: "firefox" },
+            use: { ...devices["Desktop Firefox"] },
             // dependencies: ["setup"],
         },
 
         {
             name: "webkit",
-            use: { browserName: "webkit" },
+            use: { ...devices["Desktop Safari"] },
             // dependencies: ["setup"],
         },
 
