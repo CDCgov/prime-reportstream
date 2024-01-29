@@ -31,55 +31,39 @@ jobs:
       uses: antifree/json-to-variables@HEAD
       with:
         filename: 'PDSchedules.json'
-        prefix: Schedules
-    
-    - name: Show schedules
-      run: |
-         echo "Prime ReportStream PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_0_ScheduleName }}" 
-         echo "Prime ReportStream PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_0_OnCallPersonName }}"
-           
-      
-    - name: Show schedules
-      run: |
-         echo "Prime ReportStream PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_0_ScheduleName }}"
-         echo "Prime ReportStream PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_0_OnCallPersonName }}"
-         echo "Prime ReportStream PagerDuty on-call person until": "${{ env.Schedules_oncallSchedule_0_Until }}"
-         echo   "Prime ReportStream PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_0_NextPersonName }}"
-         echo   "Prime ReportStream PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_0_NextFrom }}"
-         echo  "Prime ReportStream PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_0_NextUntil }}"
-         echo   "ReportStream Dependabot PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_1_ScheduleName }}"
-         echo   "ReportStream Dependabot PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_1_OnCallPersonName }}"
-         echo   "ReportStream Dependabot PagerDuty on-call person until": "${{ env.Schedules_oncallSchedule_1_Until }}"
-         echo   "ReportStream Dependabot PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_1_NextPersonName }}"
-         echo   "ReportStream Dependabot PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_1_NextFrom }}"
-         echo   "ReportStream Dependabot PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_1_NextUntil }}"
-         echo   "ReportStream Deployment PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_2_ScheduleName }}"
-         echo   "ReportStream Deployment PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_2_OnCallPersonName }}"
-         echo   "ReportStream Deployment PagerDuty on-call person until": "${{ env.Schedules_oncallSchedule_2_Until }}"
-         echo   "ReportStream Deployment PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_2_NextPersonName }}"
-         echo   "ReportStream Deployment PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_2_NextFrom }}"
-         echo   "ReportStream Deployment PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_2_NextUntil }}"
-         echo   "ReportStream Front End Checks PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_3_ScheduleName }}"
-         echo   "ReportStream Front End Checks PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_3_OnCallPersonName }}"
-         echo   "ReportStream Front End Checks PagerDuty on-call person until": "${{ env.Schedules_oncallSchedule_3_Until }}"
-         echo   "ReportStream Front End Checks PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_3_NextPersonName }}"
-         echo   "ReportStream Front End Checks PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_3_NextFrom }}"
-         echo   "ReportStream Front End Checks PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_3_NextUntil }}"
-  
+        prefix: Schedules  
 
-    # - name: Slack Notification
-    #   uses: ./.github/actions/notifications
-    #   with:
-    #     method: slack
-    #     title: Pagerduty 
-    #     message: |
-    #       "Prime ReportStream PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_0_NextUntil }}"
-    #       "Prime ReportStream PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_0_PersonName }}"
-    #       "Prime ReportStream PagerDuty on-call person until": "${{ env.Schedules_oncallSchedule_0_Until }}"
-    #       "Prime ReportStream PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_0_NextPersonName }}"
-    #       "Prime ReportStream PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_0_NextFrom }}"
-    #       "Prime ReportStream PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_0_NextUntil }}"
-    #     icon-emoji: ':bell:'
-    #     channel:  prime-reportstream-engineering
-    #     webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-    #     color: warning
+    - name: Slack Notification
+      uses: ./.github/actions/notifications
+      with:
+        method: slack
+        title: Pagerduty 
+        message: |
+          "Prime ReportStream PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_0_ScheduleName }}"
+          "Prime ReportStream PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_0_OnCallPersonName }}"
+          "Prime ReportStream PagerDuty on-call person until": "${{ env.Schedules_oncallSchedule_0_Until }}"
+          "Prime ReportStream PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_0_NextPersonName }}"
+          "Prime ReportStream PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_0_NextFrom }}"
+          "Prime ReportStream PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_0_NextUntil }}"
+          "ReportStream Dependabot PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_1_ScheduleName }}"
+          "ReportStream Dependabot PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_1_OnCallPersonName }}"
+          "ReportStream Dependabot PagerDuty on-call person until": "${{ env.Schedules_oncallSchedule_1_Until }}"
+          "ReportStream Dependabot PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_1_NextPersonName }}"
+          "ReportStream Dependabot PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_1_NextFrom }}"
+          "ReportStream Dependabot PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_1_NextUntil }}"
+          "ReportStream Deployment PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_2_ScheduleName }}"
+          "ReportStream Deployment PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_2_OnCallPersonName }}"
+          "ReportStream Deployment PagerDuty on-call person until": "${{ env.Schedules_oncallSchedule_2_Until }}"
+          "ReportStream Deployment PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_2_NextPersonName }}"
+          "ReportStream Deployment PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_2_NextFrom }}"
+          "ReportStream Deployment PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_2_NextUntil }}"
+          "ReportStream Front End Checks PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_3_ScheduleName }}"
+          "ReportStream Front End Checks PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_3_OnCallPersonName }}"
+          "ReportStream Front End Checks PagerDuty on-call person until": "${{ env.Schedules_oncallSchedule_3_Until }}"
+          "ReportStream Front End Checks PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_3_NextPersonName }}"
+          "ReportStream Front End Checks PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_3_NextFrom }}"
+          "ReportStream Front End Checks PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_3_NextUntil }}"
+        icon-emoji: ':bell:'
+        channel:  prime-reportstream-engineering
+        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        color: warning
