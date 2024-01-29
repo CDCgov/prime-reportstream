@@ -1,167 +1,246 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1703276988107143000.f9c450d2-0132-4d7f-a0a5-cec5fbeba8e6",
+  "id" : "1706311759644731000.b88aba8a-3c44-4fab-bef5-e257685ca7ef",
   "meta" : {
-    "lastUpdated" : "2023-12-22T15:29:48.143-05:00"
+    "lastUpdated" : "2024-01-26T17:29:19.667-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "12345"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T10:25:31.000-04:00",
-  "entry" : [ {
-    "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
-    "resource" : {
-      "resourceType" : "MessageHeader",
-      "id" : "827ccb0e-ea8a-306c-8c34-a16891f84e7b",
-      "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
-        "valueString" : "^~\\&#"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
-        "valueString" : "20230501102531-0400"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-        "valueString" : "UNICODE UTF-8"
-      } ],
-      "eventCoding" : {
-        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-        "code" : "R01",
-        "display" : "ORU^R01^ORU_R01"
-      },
-      "sender" : {
-        "reference" : "Organization/1703276988266770000.9fadb82e-eb8e-416c-a691-1fe7124b4118"
-      },
-      "source" : {
-        "_endpoint" : {
-          "extension" : [ {
-            "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
-            "valueCode" : "unknown"
-          } ]
-        }
-      }
-    }
-  }, {
-    "fullUrl" : "Organization/1703276988266770000.9fadb82e-eb8e-416c-a691-1fe7124b4118",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "1703276988266770000.9fadb82e-eb8e-416c-a691-1fe7124b4118",
-      "address" : [ {
-        "country" : "USA"
-      } ]
-    }
-  }, {
-    "fullUrl" : "Provenance/1703276988818802000.ae4b45e5-5404-4acc-a788-84b4714a3403",
-    "resource" : {
-      "resourceType" : "Provenance",
-      "id" : "1703276988818802000.ae4b45e5-5404-4acc-a788-84b4714a3403",
-      "target" : [ {
-        "reference" : "DiagnosticReport/1703276989113408000.4fc3afd7-6f52-4cc7-8d37-a2af0d48afe9"
-      } ],
-      "recorded" : "2023-05-01T10:25:31-04:00",
-      "_recorded" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-          "valueString" : "20230501102531-0400"
-        } ]
-      },
-      "activity" : {
-        "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
+  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "entry" : [
+    {
+      "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
+      "resource" : {
+        "resourceType" : "MessageHeader",
+        "id" : "827ccb0e-ea8a-306c-8c34-a16891f84e7b",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+            "valueString" : "^~\\&#"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
+            "valueString" : "20230501102531-0400"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
+            "valueString" : "UNICODE UTF-8"
+          }
+        ],
+        "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU_R01"
-        } ]
-      },
-      "agent" : [ {
-        "type" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-            "code" : "author"
-          } ]
+          "display" : "ORU^R01^ORU_R01"
+        },
+        "sender" : {
+          "reference" : "Organization/1706311759733724000.447f556e-3ee0-403e-b62b-7b598b96966e"
+        },
+        "source" : {
+          "_endpoint" : {
+            "extension" : [
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode" : "unknown"
+              }
+            ]
+          }
         }
-      } ],
-      "entity" : [ {
-        "role" : "source",
-        "what" : {
-          "reference" : "Device/1703276988824275000.a14006ba-1c57-4b9a-9fb2-7956ca792b57"
+      }
+    },
+    {
+      "fullUrl" : "Organization/1706311759733724000.447f556e-3ee0-403e-b62b-7b598b96966e",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1706311759733724000.447f556e-3ee0-403e-b62b-7b598b96966e",
+        "address" : [
+          {
+            "country" : "USA"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706311760024958000.0f7b52ab-069c-4005-98dd-8320fbfa1533",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706311760024958000.0f7b52ab-069c-4005-98dd-8320fbfa1533",
+        "target" : [
+          {
+            "reference" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b"
+          },
+          {
+            "reference" : "DiagnosticReport/1706311760193732000.57142b4e-dc07-42c8-af8b-3d65d685143f"
+          }
+        ],
+        "recorded" : "2023-05-01T10:25:31-04:00",
+        "activity" : {
+          "coding" : [
+            {
+              "display" : "ORU^R01^ORU_R01"
+            }
+          ]
         }
-      } ]
-    }
-  }, {
-    "fullUrl" : "Device/1703276988824275000.a14006ba-1c57-4b9a-9fb2-7956ca792b57",
-    "resource" : {
-      "resourceType" : "Device",
-      "id" : "1703276988824275000.a14006ba-1c57-4b9a-9fb2-7956ca792b57"
-    }
-  }, {
-    "fullUrl" : "Patient/1703276988861824000.64187a62-18c3-48b3-bbec-4495a4737afd",
-    "resource" : {
-      "resourceType" : "Patient",
-      "id" : "1703276988861824000.64187a62-18c3-48b3-bbec-4495a4737afd",
-      "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
-        "extension" : [ {
-          "url" : "pid-30-patient-death-indicator",
-          "valueString" : "N"
-        } ]
-      } ],
-      "deceasedDateTime" : "2012-06-17T00:00:00-05:00",
-      "_deceasedDateTime" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-          "valueString" : "201206170000-0500"
-        } ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706311760032579000.1240d186-fa5d-4aa3-b1b0-86c47e0b1cfa",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706311760032579000.1240d186-fa5d-4aa3-b1b0-86c47e0b1cfa",
+        "recorded" : "2024-01-26T17:29:20Z",
+        "policy" : [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
+        "activity" : {
+          "coding" : [
+            {
+              "code" : "v2-FHIR transformation"
+            }
+          ]
+        },
+        "agent" : [
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code" : "assembler"
+                }
+              ]
+            },
+            "who" : {
+              "reference" : "Organization/1706311760032173000.1cc5954e-e171-4a64-8018-d826e3f94393"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Organization/1706311760032173000.1cc5954e-e171-4a64-8018-d826e3f94393",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1706311760032173000.1cc5954e-e171-4a64-8018-d826e3f94393",
+        "identifier" : [
+          {
+            "value" : "CDC PRIME - Atlanta"
+          },
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.237821"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Patient/1706311760045361000.8d1b0d4d-287f-4929-977b-21f312dd4609",
+      "resource" : {
+        "resourceType" : "Patient",
+        "id" : "1706311760045361000.8d1b0d4d-287f-4929-977b-21f312dd4609",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
+            "extension" : [
+              {
+                "url" : "pid-30-patient-death-indicator",
+                "valueString" : "N"
+              }
+            ]
+          }
+        ],
+        "deceasedDateTime" : "2012-06-17T00:00:00-05:00",
+        "_deceasedDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "201206170000-0500"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706311760046088000.c4d34bc9-3139-4afc-ae93-2bd930645f31",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706311760046088000.c4d34bc9-3139-4afc-ae93-2bd930645f31",
+        "target" : [
+          {
+            "reference" : "Patient/1706311760045361000.8d1b0d4d-287f-4929-977b-21f312dd4609"
+          }
+        ],
+        "recorded" : "2024-01-26T17:29:20Z",
+        "activity" : {
+          "coding" : [
+            {
+              "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+              "code" : "UPDATE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl" : "ServiceRequest/1706311760050516000.cac167ce-1bb5-43ef-b9a8-65b44e3282df",
+      "resource" : {
+        "resourceType" : "ServiceRequest",
+        "id" : "1706311760050516000.cac167ce-1bb5-43ef-b9a8-65b44e3282df",
+        "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                }
+              ],
+              "code" : "TEST"
+            }
+          ]
+        },
+        "subject" : {
+          "reference" : "Patient/1706311760045361000.8d1b0d4d-287f-4929-977b-21f312dd4609"
+        }
+      }
+    },
+    {
+      "fullUrl" : "DiagnosticReport/1706311760193732000.57142b4e-dc07-42c8-af8b-3d65d685143f",
+      "resource" : {
+        "resourceType" : "DiagnosticReport",
+        "id" : "1706311760193732000.57142b4e-dc07-42c8-af8b-3d65d685143f",
+        "basedOn" : [
+          {
+            "reference" : "ServiceRequest/1706311760050516000.cac167ce-1bb5-43ef-b9a8-65b44e3282df"
+          }
+        ],
+        "status" : "final",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                }
+              ],
+              "code" : "TEST"
+            }
+          ]
+        },
+        "subject" : {
+          "reference" : "Patient/1706311760045361000.8d1b0d4d-287f-4929-977b-21f312dd4609"
+        }
       }
     }
-  }, {
-    "fullUrl" : "ServiceRequest/1703276988872192000.a8517dbc-c06a-447b-b707-5010405069cd",
-    "resource" : {
-      "resourceType" : "ServiceRequest",
-      "id" : "1703276988872192000.a8517dbc-c06a-447b-b707-5010405069cd",
-      "status" : "unknown",
-      "code" : {
-        "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-            "valueString" : "coding"
-          } ],
-          "code" : "TEST"
-        } ]
-      },
-      "subject" : {
-        "reference" : "Patient/1703276988861824000.64187a62-18c3-48b3-bbec-4495a4737afd"
-      }
-    }
-  }, {
-    "fullUrl" : "DiagnosticReport/1703276989113408000.4fc3afd7-6f52-4cc7-8d37-a2af0d48afe9",
-    "resource" : {
-      "resourceType" : "DiagnosticReport",
-      "id" : "1703276989113408000.4fc3afd7-6f52-4cc7-8d37-a2af0d48afe9",
-      "basedOn" : [ {
-        "reference" : "ServiceRequest/1703276988872192000.a8517dbc-c06a-447b-b707-5010405069cd"
-      } ],
-      "status" : "final",
-      "code" : {
-        "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-            "valueString" : "coding"
-          } ],
-          "code" : "TEST"
-        } ]
-      },
-      "subject" : {
-        "reference" : "Patient/1703276988861824000.64187a62-18c3-48b3-bbec-4495a4737afd"
-      }
-    }
-  } ]
+  ]
 }
