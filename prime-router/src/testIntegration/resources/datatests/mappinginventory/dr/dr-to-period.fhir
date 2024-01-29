@@ -213,14 +213,8 @@
                       "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
                       "extension" : [
                         {
-                          "url" : "SAD.1"
-                        },
-                        {
                           "url" : "SAD.2",
                           "valueString" : "1"
-                        },
-                        {
-                          "url" : "SAD.3"
                         }
                       ]
                     },

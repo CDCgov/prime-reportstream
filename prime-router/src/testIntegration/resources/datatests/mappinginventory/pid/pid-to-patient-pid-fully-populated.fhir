@@ -1423,12 +1423,6 @@
                       {
                         "url" : "SAD.1",
                         "valueString" : "123 North 102nd Street"
-                      },
-                      {
-                        "url" : "SAD.2"
-                      },
-                      {
-                        "url" : "SAD.3"
                       }
                     ]
                   },
