@@ -132,6 +132,7 @@ elements:
 
   - name: observation-note
     resource: '%resource.note'
+    condition: '%resource.exists()'
     schema: ../../common/note
     resourceIndex: noteIndex
     constants:
