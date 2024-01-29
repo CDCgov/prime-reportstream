@@ -99,6 +99,9 @@ extension:
   expressionType: nested
   expressions:
     - expressionType: nested
+      vars:
+        xad10: STRING_ALL, XAD.10
+      condition: $xad10 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL

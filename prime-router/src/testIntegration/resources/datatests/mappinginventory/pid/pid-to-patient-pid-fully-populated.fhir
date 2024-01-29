@@ -1459,12 +1459,6 @@
                       {
                         "url" : "SAD.1",
                         "valueString" : "111 South"
-                      },
-                      {
-                        "url" : "SAD.2"
-                      },
-                      {
-                        "url" : "SAD.3"
                       }
                     ]
                   },
