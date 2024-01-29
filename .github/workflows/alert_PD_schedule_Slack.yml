@@ -1,9 +1,5 @@
 name: Find next person on call
 on:
-  workflow_dispatch:
-  push: 
-    branches:
-      - feature/12965-SlackNotification
   schedule:
     - cron: "7 13 * * Mon-Fri"  #UTC-5
 jobs:
