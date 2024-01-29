@@ -73,6 +73,21 @@ implementation differs from what is in the spreadsheets.
 - The inventory specifies that MessageHeader.destination should have a reference to a device, but there is no mapping so
   that is not implemented
 
+### MSH -> Provenance
+
+- The inventory for [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
+  maps MSH.3 to a Device reference, but the referenced mapping, [HD[MessageHeader.source.endpoint]](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0),
+  is incompatible with the Device type in the FHIR spec.
+- The [ORU_R01](https://docs.google.com/spreadsheets/d/1gHK6_PFyr7PXns7wLDs0LSLsbjm0x-4bWUu3crXMKMI/edit#gid=0) inventory
+  shows that [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
+  and [MSH[Provenance-Transformation]](https://docs.google.com/spreadsheets/d/1byfzqOfOvIVdRkHv2Tto5a-a0YMYWWP0eryaZBvibIo/edit#gid=0)
+  should both reference the Bundle id. The converter library we use obfuscates the creation of the Bundle id, so it would
+  require a library update to be able to reference that value from another resource.
+- [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
+  and [MSH[Provenance-Transformation]](https://docs.google.com/spreadsheets/d/1byfzqOfOvIVdRkHv2Tto5a-a0YMYWWP0eryaZBvibIo/edit#gid=0)
+  both include entity values to contain the original HL7v2 message. Since we currently don't have a good way to include
+  real references to those messages, we've omitted the associated `entity` fields altogether.
+
 ### OBR/ORC -> ServiceRequest
 
 - There is a discrepancy on where to pull identifiers from, for ORC/OBR 2,3 the mapping contradictorily states that both
