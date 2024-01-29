@@ -30,8 +30,9 @@ HL7 message.
 
 ### Use of extensions to capture HL7 data
 
-The FHIR bundles that are produced the conversion process are then translated back to HL7 for receivers that want that
-format. In order to ensure:
+The FHIR bundles that are produced via the conversion process are then translated back to HL7 for receivers that want
+that
+format. The code needs to ensure the following during the conversion:
 
 - The incoming HL7 message matches exactly the outgoing one
 - The incoming FHIR message can deterministically produce an HL7
@@ -75,13 +76,18 @@ implementation differs from what is in the spreadsheets.
 
 ### MSH -> Provenance
 
-- The inventory for [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
-  maps MSH.3 to a Device reference, but the referenced mapping, [HD[MessageHeader.source.endpoint]](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0),
+- The inventory
+  for [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
+  maps MSH.3 to a Device reference, but the referenced
+  mapping, [HD[MessageHeader.source.endpoint]](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0),
   is incompatible with the Device type in the FHIR spec.
-- The [ORU_R01](https://docs.google.com/spreadsheets/d/1gHK6_PFyr7PXns7wLDs0LSLsbjm0x-4bWUu3crXMKMI/edit#gid=0) inventory
-  shows that [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
+- The [ORU_R01](https://docs.google.com/spreadsheets/d/1gHK6_PFyr7PXns7wLDs0LSLsbjm0x-4bWUu3crXMKMI/edit#gid=0)
+  inventory
+  shows
+  that [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
   and [MSH[Provenance-Transformation]](https://docs.google.com/spreadsheets/d/1byfzqOfOvIVdRkHv2Tto5a-a0YMYWWP0eryaZBvibIo/edit#gid=0)
-  should both reference the Bundle id. The converter library we use obfuscates the creation of the Bundle id, so it would
+  should both reference the Bundle id. The converter library we use obfuscates the creation of the Bundle id, so it
+  would
   require a library update to be able to reference that value from another resource.
 - [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
   and [MSH[Provenance-Transformation]](https://docs.google.com/spreadsheets/d/1byfzqOfOvIVdRkHv2Tto5a-a0YMYWWP0eryaZBvibIo/edit#gid=0)
