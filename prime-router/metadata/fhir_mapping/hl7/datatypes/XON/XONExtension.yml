@@ -20,7 +20,7 @@ extension:
           valueOf: XON.3
     - expressionType: nested
       vars:
-        xon3: STRING_ALL, XON.10
+        xon10: STRING_ALL, XON.10
       condition: $xon10 NOT_NULL
       expressionsMap:
         url:

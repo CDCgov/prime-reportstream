@@ -13,16 +13,12 @@ elements:
       cweField: '%{hl7XONField}-2'
     schema: ../../datatypes/codeableConcept/CWE
 
-  - name: id-number
-    value: [ '%resource.extension(%`rsext-xon3-id-number`).value' ]
-    hl7Spec: [ '%{hl7XONField}-3' ]
-
   - name: identifier-check-digit
-    value: [ '%resource.identifier.extension(%`rsext-check-digit`).value' ]
+    value: [ '%resource.identifier.extension(%`ext-identifier-checkDigit`).value' ]
     hl7Spec: [ '%{hl7XONField}-4' ]
 
   - name: identifier-check-digit-scheme
-    value: [ '%resource.identifier.extension(%`rsext-check-digit-scheme`).value' ]
+    value: [ '%resource.identifier.extension(%`ext-namingsystem-checkDigit`).value' ]
     hl7Spec: [ '%{hl7XONField}-5' ]
 
   - name: xon-assigning-authority
@@ -47,6 +43,6 @@ elements:
     value: [ '%resource.extension(%`rsext-name-representation-code`).value' ]
     hl7Spec: [ '%{hl7XONField}-9' ]
 
-  - name: xon-organization-id
-    value: [ '%resource.extension(%`rsext-xon10-organization-identifier`).value' ]
-    hl7Spec: [ '%{hl7XONField}-10' ]
+  - name: xon-extension-value
+    resource: '%resource.extension(%`rsext-xon-organization`)'
+    schema: ./XONExtension

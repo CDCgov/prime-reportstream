@@ -11,7 +11,7 @@ extension:
       specs: ED.1
       constants:
         extensionUrl: ED.1
-        stringUrl: true
+        isStringUrl: true
     - expressionType: nested
       vars:
         ed2: STRING_ALL, ED.2

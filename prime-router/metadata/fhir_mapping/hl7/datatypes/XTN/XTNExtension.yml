@@ -1,0 +1,80 @@
+url:
+  type: SYSTEM_URL
+  value: xtn-contact-point
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - condition: $telNum NOT_NULL
+      generateList: true
+      expressionType: nested
+      vars:
+        telNum: String, XTN.1
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.1
+        valueString:
+          value: $telNum
+    - condition: $xtnUse NOT_NULL
+      expressionType: nested
+      vars:
+        xtnUse: String, XTN.2
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.2
+        valueString:
+          value: $xtnUse
+    - condition: $equipType NOT_NULL
+      expressionType: nested
+      vars:
+        equipType: String, XTN.3
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.3
+        valueString:
+          value: $equipType
+    - condition: $commAddress NOT_NULL
+      expressionType: nested
+      vars:
+        commAddress: String, XTN.4
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.4
+        valueString:
+          value: $commAddress
+    - condition: $localNum NOT_NULL
+      expressionType: nested
+      vars:
+        localNum: String, XTN.7
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.7
+        valueString:
+          value: $localNum
+    - condition: $anyText NOT_NULL
+      expressionType: nested
+      vars:
+        anyText: String, XTN.9
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.9
+        valueString:
+          type: STRING
+          valueOf: $anyText
+    - condition: $unformattedTelNum NOT_NULL
+      expressionType: nested
+      vars:
+        unformattedTelNum: String, XTN.12
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.12
+        valueString:
+          value: $unformattedTelNum

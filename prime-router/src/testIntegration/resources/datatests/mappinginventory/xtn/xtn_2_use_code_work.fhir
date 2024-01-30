@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706548528674421000.b7648b08-5033-413c-a459-f1915879b0e4",
+  "id" : "1706636951160548000.08442993-6f4b-4291-a80d-529d20cdad6a",
   "meta" : {
-    "lastUpdated" : "2024-01-29T12:15:28.681-05:00"
+    "lastUpdated" : "2024-01-30T12:49:11.167-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -44,10 +44,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706548529111473000.dbf7b400-ef6f-4a26-b798-af1b36ed863f",
+      "fullUrl" : "Provenance/1706636951527558000.1ee657be-23c7-41d3-97f3-80c580465517",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706548529111473000.dbf7b400-ef6f-4a26-b798-af1b36ed863f",
+        "id" : "1706636951527558000.1ee657be-23c7-41d3-97f3-80c580465517",
         "target" : [
           {
             "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
@@ -64,11 +64,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706548529120787000.de29497f-b657-41f5-8f7c-c534dd5792d3",
+      "fullUrl" : "Provenance/1706636951534848000.8eae6b2a-6097-41a0-8d57-57ccf5b6c89e",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706548529120787000.de29497f-b657-41f5-8f7c-c534dd5792d3",
-        "recorded" : "2024-01-29T12:15:29Z",
+        "id" : "1706636951534848000.8eae6b2a-6097-41a0-8d57-57ccf5b6c89e",
+        "recorded" : "2024-01-30T12:49:11Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -90,17 +90,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706548529120264000.3682f838-da08-42b4-89cd-8c7582af04fe"
+              "reference" : "Organization/1706636951534405000.d3f2ec24-b5eb-4c9c-8c19-ab71e034b1f1"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706548529120264000.3682f838-da08-42b4-89cd-8c7582af04fe",
+      "fullUrl" : "Organization/1706636951534405000.d3f2ec24-b5eb-4c9c-8c19-ab71e034b1f1",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706548529120264000.3682f838-da08-42b4-89cd-8c7582af04fe",
+        "id" : "1706636951534405000.d3f2ec24-b5eb-4c9c-8c19-ab71e034b1f1",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -120,10 +120,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1706548529156968000.a2e2b309-3766-4c72-a5b9-f11372c04d80",
+      "fullUrl" : "Patient/1706636951558746000.946159f8-e96a-4596-b371-ec5c0eea494b",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1706548529156968000.a2e2b309-3766-4c72-a5b9-f11372c04d80",
+        "id" : "1706636951558746000.946159f8-e96a-4596-b371-ec5c0eea494b",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
@@ -202,7 +202,7 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
                 "valueReference" : {
-                  "reference" : "Organization/1706548529129570000.accaf42f-8da9-42f9-9add-b78981e72948"
+                  "reference" : "Organization/1706636951541174000.c3a41f12-527e-4d12-8e3b-65ab18ea6904"
                 }
               },
               {
@@ -228,16 +228,21 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
-                "valueString" : "Stephenie"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn3-second-given-name",
-                "valueString" : "Davis"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
-                "valueString" : "L"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                "extension" : [
+                  {
+                    "url" : "XPN.2",
+                    "valueString" : "Stephenie"
+                  },
+                  {
+                    "url" : "XPN.3",
+                    "valueString" : "Davis"
+                  },
+                  {
+                    "url" : "XPN.7",
+                    "valueString" : "L"
+                  }
+                ]
               }
             ],
             "use" : "official",
@@ -252,12 +257,8 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
-                "valueString" : "WPN"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
-                "valueString" : "7595016"
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                "valueString" : "1"
               },
               {
                 "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
@@ -268,16 +269,25 @@
                 "valueString" : "7595016"
               },
               {
-                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
-                "valueString" : "1"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
-                "valueString" : "BP"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
-                "valueString" : "+1 260 759 5016"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                "extension" : [
+                  {
+                    "url" : "XTN.2",
+                    "valueString" : "WPN"
+                  },
+                  {
+                    "url" : "XTN.3",
+                    "valueString" : "BP"
+                  },
+                  {
+                    "url" : "XTN.7",
+                    "valueString" : "7595016"
+                  },
+                  {
+                    "url" : "XTN.12",
+                    "valueString" : "+1 260 759 5016"
+                  }
+                ]
               }
             ],
             "system" : "pager",
@@ -287,16 +297,21 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
-                "valueString" : "WPN"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn4-communication-address",
-                "valueString" : "otto.daugherty@email.com"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
-                "valueString" : "Internet"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                "extension" : [
+                  {
+                    "url" : "XTN.2",
+                    "valueString" : "WPN"
+                  },
+                  {
+                    "url" : "XTN.3",
+                    "valueString" : "Internet"
+                  },
+                  {
+                    "url" : "XTN.4",
+                    "valueString" : "otto.daugherty@email.com"
+                  }
+                ]
               }
             ],
             "system" : "email",
@@ -318,12 +333,6 @@
                       {
                         "url" : "SAD.1",
                         "valueString" : "96633 Gilberto Course"
-                      },
-                      {
-                        "url" : "SAD.2"
-                      },
-                      {
-                        "url" : "SAD.3"
                       }
                     ]
                   }
@@ -339,10 +348,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706548529129570000.accaf42f-8da9-42f9-9add-b78981e72948",
+      "fullUrl" : "Organization/1706636951541174000.c3a41f12-527e-4d12-8e3b-65ab18ea6904",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706548529129570000.accaf42f-8da9-42f9-9add-b78981e72948",
+        "id" : "1706636951541174000.c3a41f12-527e-4d12-8e3b-65ab18ea6904",
         "identifier" : [
           {
             "extension" : [
@@ -357,16 +366,16 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706548529161833000.a65472aa-b2cb-439f-b4cb-6d9894964898",
+      "fullUrl" : "Provenance/1706636951562663000.868a5145-a345-4a99-94d9-0fbc062776c3",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706548529161833000.a65472aa-b2cb-439f-b4cb-6d9894964898",
+        "id" : "1706636951562663000.868a5145-a345-4a99-94d9-0fbc062776c3",
         "target" : [
           {
-            "reference" : "Patient/1706548529156968000.a2e2b309-3766-4c72-a5b9-f11372c04d80"
+            "reference" : "Patient/1706636951558746000.946159f8-e96a-4596-b371-ec5c0eea494b"
           }
         ],
-        "recorded" : "2024-01-29T12:15:29Z",
+        "recorded" : "2024-01-30T12:49:11Z",
         "activity" : {
           "coding" : [
             {
