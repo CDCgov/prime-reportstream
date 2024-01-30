@@ -22,6 +22,7 @@ source:
   expressionType: nested
   vars:
     msh3: STRING_ALL, MSH.3
+    msh24: STRING_ALL, MSH.24
   expressions:
     - constants:
         messageHeaderSourceField: sending-application
