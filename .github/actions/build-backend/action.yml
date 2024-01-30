@@ -151,7 +151,7 @@ runs:
 
     - name: Dump docker logs
       if: always() && inputs.run-integration-tests == 'true'
-      uses: jwalton/gh-docker-logs@59c9656cd3cb7542525f3dce7ae2f44c0ff85d66
+      uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e
 
     - name: Cleanup Gradle Cache
       if: inputs.run-integration-tests == 'true'
