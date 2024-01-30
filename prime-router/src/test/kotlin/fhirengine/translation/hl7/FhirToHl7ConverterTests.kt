@@ -17,6 +17,7 @@ import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
@@ -30,6 +31,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import io.mockk.verify
@@ -40,6 +42,7 @@ import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.ServiceRequest
 import org.junit.jupiter.api.Nested
 import java.io.File
+import java.util.Properties
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -389,6 +392,11 @@ class FhirToHl7ConverterTests {
 
     @Test
     fun `test convert`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
+        System.setProperties(Properties())
         val bundle = Bundle()
         bundle.id = "abc123"
 

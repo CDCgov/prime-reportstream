@@ -10,6 +10,7 @@ import assertk.assertions.isNotSameAs
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
@@ -21,6 +22,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import org.apache.logging.log4j.kotlin.KotlinLogger
@@ -859,6 +861,10 @@ class FhirTransformerTests {
 
     @Test
     fun `test extending schema overwrite element`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)

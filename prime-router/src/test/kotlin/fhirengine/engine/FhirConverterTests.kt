@@ -294,6 +294,10 @@ class FhirConverterTests {
     fun `test getTransformerFromSchema`() {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
 
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         assertThat(
             engine.getTransformerFromSchema("")
         ).isNull()

@@ -17,6 +17,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.Fhir
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import io.mockk.every
+import io.mockk.mockkClass
 import io.mockk.mockkObject
 import java.io.File
 import java.net.URI
@@ -206,6 +207,9 @@ class ConfigSchemaReaderTests {
 
     @Test
     fun `test read from file with extends`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
         assertFailure {
             ConfigSchemaReader.fromFile(
                 "ORU_R01_circular",
@@ -407,7 +411,10 @@ class ConfigSchemaReaderTests {
 
     @Test
     fun `reads a file with an azure protocol`() {
+        mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         every { BlobAccess.downloadBlobAsByteArray(any()) } returns File(
             "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07",
             "ORU_R01.yml"
@@ -416,7 +423,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.readSchemaTreeUri(
                 URI(
                     """
-                    azure://azure.container.com/src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07/ORU_R01.yml
+                    http://azure.container.com/src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07/ORU_R01.yml
                     """.trimIndent()
                 )
             )
