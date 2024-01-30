@@ -21,6 +21,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -72,8 +73,10 @@ class FHIRTranslator(
                     ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
                 actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
 
-                val bodyBytes = if (receiver.topic.isSendOriginal) {
-                    getOriginalMessage(message.originalReportId as ReportId, WorkflowEngine())
+                val originalMessage = getOriginalMessage(message.reportId, WorkflowEngine())
+
+                val bodyBytes = if (originalMessage.schemaTopic.isSendOriginal) {
+                    downloadBlobAsByteArray(originalMessage.bodyUrl)
                 } else {
                     getByteArrayFromBundle(receiver, bundle)
                 }
@@ -107,11 +110,23 @@ class FHIRTranslator(
     }
 
     /**
-     * Takes a reportId and returns the content of the original message as a ByteArray
+     * Takes a [reportId] and returns the content of the original message as a ByteArray
      */
-    internal fun getOriginalMessage(originalReportId: ReportId, workflowEngine: WorkflowEngine): ByteArray {
-        val report = workflowEngine.db.fetchReportFile(originalReportId)
-        return downloadBlobAsByteArray(report.bodyUrl)
+    internal fun getOriginalMessage(reportId: ReportId, workflowEngine: WorkflowEngine): ReportFile {
+        val rootReportId = findRootReportId(reportId, workflowEngine)
+        return workflowEngine.db.fetchReportFile(rootReportId)
+    }
+
+    /**
+     * Takes a [reportId] and returns the ReportId of the original message that was sent
+     */
+    fun findRootReportId(reportId: ReportId, workflowEngine: WorkflowEngine): ReportId {
+        val itemLineages = workflowEngine.db.fetchItemLineagesForReport(reportId, 1)
+        return if (itemLineages != null && itemLineages[0].parentReportId != null) {
+            findRootReportId(itemLineages[0].parentReportId, workflowEngine)
+        } else {
+            return reportId
+        }
     }
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.TRANSLATED_AT

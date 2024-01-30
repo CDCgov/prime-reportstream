@@ -23,9 +23,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
-import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -133,14 +131,9 @@ class FHIRRouter(
         // get the receivers that this bundle should go to
         val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
 
-        var finalReceivers = mutableListOf<Receiver>()
-        if (listOfReceivers.isNotEmpty()) {
-            finalReceivers = findReceiversForBundle(message, listOfReceivers, finalReceivers)
-        }
-
         // check if there are any receivers
-        if (finalReceivers.isNotEmpty()) {
-            return finalReceivers.flatMap { receiver ->
+        if (listOfReceivers.isNotEmpty()) {
+            return listOfReceivers.flatMap { receiver ->
                 val sources = emptyList<Source>()
                 val report = Report(
                     Report.Format.FHIR,
@@ -206,9 +199,7 @@ class FHIRRouter(
                             BlobAccess.digestToString(blobInfo.digest),
                             message.blobSubFolderName,
                             message.topic,
-                            receiver.fullName,
-                            message.originalReportId,
-                            message.originalReportFormat
+                            receiver.fullName
                         )
                     )
                 )
@@ -251,40 +242,6 @@ class FHIRRouter(
 
             return emptyList()
         }
-    }
-
-    private fun findReceiversForBundle(
-        message: ReportPipelineMessage,
-        listOfReceivers: List<Receiver>,
-        finalReceivers: MutableList<Receiver>,
-    ): MutableList<Receiver> {
-        var finalReceivers1 = finalReceivers
-        if (message.topic.isSendOriginal) {
-            val originalMessageFormat =
-                getOriginalMessageBodyFormat(message.originalReportId as ReportId, WorkflowEngine())
-            listOfReceivers.forEach { receiver ->
-                if ((originalMessageFormat == "HL7" && receiver.format == Report.Format.HL7) ||
-                    (originalMessageFormat == "FHIR" && receiver.format == Report.Format.FHIR)
-                ) {
-                    finalReceivers1.add(receiver)
-                }
-            }
-
-            if (finalReceivers1.isEmpty()) {
-                ActionHistory(
-                    TaskAction.process_warning,
-                    true
-                )
-                logger.error(
-                    "All receivers filtered out because no receiver is set up to" +
-                    " receive the original message in format $originalMessageFormat"
-                )
-            }
-        } else {
-            finalReceivers1 = listOfReceivers.toMutableList()
-        }
-
-        return finalReceivers1
     }
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.ROUTED_AT
@@ -398,14 +355,6 @@ class FHIRRouter(
         }
 
         return listOfReceivers
-    }
-
-    /**
-     * Takes a [reportId] and returns the format of the original message, should be either FHIR or HL7
-     */
-    internal fun getOriginalMessageBodyFormat(rootReportId: ReportId, workflowEngine: WorkflowEngine): String {
-        val report = workflowEngine.db.fetchReportFile(rootReportId)
-        return report.bodyFormat
     }
 
     /**

@@ -1701,9 +1701,7 @@ class Report : Logging {
                     ReportEvent(
                         nextAction,
                         report.id,
-                        false,
-                        null,
-                        null
+                        false
                     )
                 } else {
                     ProcessEvent(
@@ -1712,8 +1710,7 @@ class Report : Logging {
                         Options.None,
                         emptyMap(),
                         emptyList(),
-                        at = time,
-                        null
+                        at = time
                     )
                 }
 

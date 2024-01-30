@@ -203,7 +203,7 @@ class FhirRouterTests {
             Receiver(
                 "send-original",
                 ORGANIZATION_NAME,
-                Topic.SEND_ORIGINAL,
+                Topic.ELR_ELIMS,
                 CustomerStatus.ACTIVE,
                 "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform",
                 format = Report.Format.HL7,
@@ -827,7 +827,7 @@ class FhirRouterTests {
                 BLOB_URL,
                 "test",
                 BLOB_SUB_FOLDER_NAME,
-                topic = Topic.SEND_ORIGINAL,
+                topic = Topic.ELR_ELIMS,
             )
         )
 
@@ -921,7 +921,7 @@ class FhirRouterTests {
                 BLOB_URL,
                 "test",
                 BLOB_SUB_FOLDER_NAME,
-                topic = Topic.SEND_ORIGINAL,
+                topic = Topic.ELR_ELIMS,
             )
         )
 

@@ -229,15 +229,7 @@ class TopicReceiver : SubmissionReceiver {
             error("Processing a non internal report async.")
         }
 
-        val processEvent = ProcessEvent(
-            Event.EventAction.PROCESS,
-            report.id,
-            options,
-            defaults,
-            routeTo,
-            null,
-            null
-        )
+        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
 
         val bodyBytes = ReportWriter.getBodyBytes(report)
         val blobInfo = workflowEngine.blob.uploadReport(report, bodyBytes, senderName, processEvent.eventAction)
@@ -275,17 +267,12 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         // check that our input is valid HL7. Additional validation will happen at a later step
 
         val report: Report
-        var originalReportFormat: Format = Report.Format.INTERNAL
 
         when (sender.format) {
             Sender.Format.HL7 -> {
                 val messages = HL7Reader(actionLogs).getMessages(content)
                 val isBatch = HL7Reader(actionLogs).isBatch(content, messages.size)
                 // create a Report for this incoming HL7 message to use for tracking in the database
-
-                if (!isBatch) {
-                    originalReportFormat = Report.Format.HL7
-                }
 
                 report = Report(
                     if (isBatch) Format.HL7_BATCH else Format.HL7,
@@ -310,7 +297,6 @@ class UniversalPipelineReceiver : SubmissionReceiver {
             }
 
             Sender.Format.FHIR -> {
-                originalReportFormat = Report.Format.FHIR
                 val bundles = FhirTranscoder.getBundles(content, actionLogs)
                 report = Report(
                     Format.FHIR,
@@ -355,15 +341,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         actionHistory.trackLogs(actionLogs.logs)
 
         // add task to task table
-        val processEvent = ProcessEvent(
-            eventAction,
-            report.id,
-            options,
-            defaults,
-            routeTo,
-            null,
-            null
-        )
+        val processEvent = ProcessEvent(eventAction, report.id, options, defaults, routeTo)
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
 
         // Only add to queue if the sender/ is enabled
@@ -377,9 +355,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                     BlobAccess.digestToString(blobInfo.digest),
                     sender.fullName,
                     sender.topic,
-                    sender.schemaName,
-                    report.id,
-                    originalReportFormat
+                    sender.schemaName
                 ).serialize()
             )
         }
