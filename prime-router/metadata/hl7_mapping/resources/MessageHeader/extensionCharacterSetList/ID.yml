@@ -1,4 +1,0 @@
-elements:
-  - name: message-character-set
-    value: [ '%resource' ]
-    hl7Spec: [ 'MSH-18(%{characterSetIndex})' ]
