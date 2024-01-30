@@ -33,9 +33,9 @@ runs:
     - name: Run lint and unit tests
       uses: ./.github/actions/retry
       with:
-        timeout_minutes: 40
-        max_attempts: 2
-        retry_wait_seconds: 30
+        timeout_minutes: 10
+        max_attempts: 3
+        retry_wait_seconds: 10
         command: |
           set -e pipefail
           cd frontend-react
@@ -50,6 +50,9 @@ runs:
       if: inputs.env-name == 'prod'
       uses: ./.github/actions/retry
       with:
+        timeout_minutes: 10
+        max_attempts: 1
+        retry_wait_seconds: 0
         command: |
           set -e pipefail
           cd frontend-react
@@ -62,6 +65,9 @@ runs:
       if: inputs.env-name != 'prod'
       uses: ./.github/actions/retry
       with:
+        timeout_minutes: 10
+        max_attempts: 1
+        retry_wait_seconds: 0
         command: |
           set -e pipefail
           cd frontend-react
