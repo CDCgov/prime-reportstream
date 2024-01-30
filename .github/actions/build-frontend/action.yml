@@ -43,8 +43,16 @@ runs:
           yarn test:ci
         shell: bash
 
+    - name: Install Playwright
+      working-directory: frontend-react
+      run: |
+        npx playwright install --with-deps
+      shell: bash
+
     - name: Run E2E tests
-      uses: ./.github/actions/frontend-e2e
+      working-directory: frontend-react
+      run: npx playwright test
+      shell: bash
 
     - name: Build release for production branch (conditional check)
       if: inputs.env-name == 'prod'
