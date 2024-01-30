@@ -48,6 +48,7 @@ runs:
 
     - name: Build release for production branch (conditional check)
       if: inputs.env-name == 'prod'
+      uses: ./.github/actions/retry
       with:
         command: |
           set -e pipefail
@@ -59,6 +60,7 @@ runs:
 
     - name: Build release for non-production branch (conditional check)
       if: inputs.env-name != 'prod'
+      uses: ./.github/actions/retry
       with:
         command: |
           set -e pipefail
