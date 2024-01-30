@@ -133,11 +133,11 @@ elements:
     schema: ./SPMExtension
 
   - name: specimen-observation-result-with-aoe
-    resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id and (meta.exists().not() or meta.tag.code != "AOE"))'
+    resource: 'Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = %resource.id)'
     schema: ../Observation/OBX
     resourceIndex: specimenObservationIndex
     constants:
       hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION'
       hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION(%{specimenObservationIndex})/OBX'
-      observation: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)[%specimenObservationIndex]'
+      observation: 'Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = %resource.id)[%specimenObservationIndex]'
       resultIndex: '%specimenObservationIndex'
