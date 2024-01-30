@@ -36,7 +36,7 @@
       topic: "etor-ti"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "AL-PHL"
