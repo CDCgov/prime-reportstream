@@ -1,20 +1,23 @@
 name: Frontend E2E Tests
 on:
   workflow_call:
-runs:
-  using: "docker"
-  image: mcr.microsoft.com/playwright:v1.41.1-jammy
-  steps:
-    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-    - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8
-      with:
-        node-version-file: "frontend-react/package.json"
-    - name: Install dependencies
-      run: yarn install
-      working-directory: frontend-react
-      shell: bash
-    - name: Run tests
-      working-directory: frontend-react
-      run: yarn playwright test
-      env:
-        HOME: /root
+jobs:
+  playwright:
+    name: "Playwright Tests"
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.41.1-jammy
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8
+        with:
+          node-version-file: "frontend-react/package.json"
+      - name: Install dependencies
+        run: yarn install
+        working-directory: frontend-react
+        shell: bash
+      - name: Run tests
+        working-directory: frontend-react
+        run: yarn playwright test
+        env:
+          HOME: /root
