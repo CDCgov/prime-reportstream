@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706311177009587000.58dc315f-2cdc-442b-87df-d46afbd21cca",
+  "id" : "1706654009176421000.2a19fdab-ac66-41bf-81f9-6ac7138e0ae6",
   "meta" : {
-    "lastUpdated" : "2024-01-26T17:19:37.023-06:00"
+    "lastUpdated" : "2024-01-30T17:33:29.183-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
@@ -48,7 +48,7 @@
             {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
               "valueReference" : {
-                "reference" : "Organization/1706311177097188000.9b910026-2ad4-4046-bc79-2a6539d6a8af"
+                "reference" : "Organization/1706654009245230000.34ba2e21-aa13-4667-a659-72aafe1dac0c"
               }
             }
           ],
@@ -66,14 +66,19 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311177097188000.9b910026-2ad4-4046-bc79-2a6539d6a8af",
+      "fullUrl" : "Organization/1706654009245230000.34ba2e21-aa13-4667-a659-72aafe1dac0c",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311177097188000.9b910026-2ad4-4046-bc79-2a6539d6a8af",
+        "id" : "1706654009245230000.34ba2e21-aa13-4667-a659-72aafe1dac0c",
         "extension" : [
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon10-organization-identifier",
-            "valueString" : "CDC CLIA"
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization",
+            "extension" : [
+              {
+                "url" : "XON.10",
+                "valueString" : "CDC CLIA"
+              }
+            ]
           }
         ],
         "identifier" : [
@@ -118,10 +123,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706311177388988000.21d70300-f0cb-43b8-812d-febdfd702bcd",
+      "fullUrl" : "Provenance/1706654009552625000.aca79f5d-b21f-4a1b-8148-8c20fc381642",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311177388988000.21d70300-f0cb-43b8-812d-febdfd702bcd",
+        "id" : "1706654009552625000.aca79f5d-b21f-4a1b-8148-8c20fc381642",
         "target" : [
           {
             "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
@@ -138,11 +143,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706311177397027000.a6e60338-bf4e-4c21-8c99-088a62aee61d",
+      "fullUrl" : "Provenance/1706654009560426000.154c18da-bf45-4f70-9040-5af21f32108f",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311177397027000.a6e60338-bf4e-4c21-8c99-088a62aee61d",
-        "recorded" : "2024-01-26T17:19:37Z",
+        "id" : "1706654009560426000.154c18da-bf45-4f70-9040-5af21f32108f",
+        "recorded" : "2024-01-30T17:33:29Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -164,17 +169,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706311177396693000.f6c349aa-9364-4c3a-b956-410b3bf3feae"
+              "reference" : "Organization/1706654009560042000.695aec20-0cdd-44eb-bf83-abab0a2aff30"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706311177396693000.f6c349aa-9364-4c3a-b956-410b3bf3feae",
+      "fullUrl" : "Organization/1706654009560042000.695aec20-0cdd-44eb-bf83-abab0a2aff30",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311177396693000.f6c349aa-9364-4c3a-b956-410b3bf3feae",
+        "id" : "1706654009560042000.695aec20-0cdd-44eb-bf83-abab0a2aff30",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"

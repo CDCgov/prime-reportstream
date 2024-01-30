@@ -11,7 +11,7 @@ elements:
     hl7Spec: [ '%{xpnField}-5' ]
 
   - name: xpn-name-type-code-mapped
-    condition: '%resource.extension(%`rsext-xpn-practitioner`).extension("XPN.8").exists().not()'
+    condition: '%resource.extension(%`rsext-xpn-human-name`).extension("XPN.7").exists().not()'
     value: [ '%resource.use' ]
     hl7Spec: [ '%{xpnField}-7' ]
     valueSet:
