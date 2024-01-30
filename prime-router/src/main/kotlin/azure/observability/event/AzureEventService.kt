@@ -15,7 +15,7 @@ class AzureEventService(
      */
     fun trackEvent(event: AzureCustomEvent) {
         val name = event.javaClass.simpleName
-        logger.info("Sending event of type $name to Azure AppInsights")
+        logger.debug("Sending event of type $name to Azure AppInsights")
         telemetryClient.trackEvent(name, event.serialize(), emptyMap())
     }
 }
