@@ -4,15 +4,17 @@ resources:
     segment: MSH
     resourcePath: segments/MSH/MessageHeader
     repeats: false
-    isReferenced: false
+    isReferenced: true
     additionalSegments:
       - SFT
 
   - resourceName: Provenance
     segment: MSH
-    resourcePath: resource/Provenance
-    additionalSegments:
-      - ORC
+    resourcePath: segments/MSH/Provenance-Source
+
+  - resourceName: Provenance
+    segment: MSH
+    resourcePath: segments/MSH/Provenance-Transformation
 
   - resourceName: Patient
     segment: .PID
@@ -25,6 +27,11 @@ resources:
       - MSH
       - .NTE
       - .NK1
+
+  - resourceName: Provenance
+    group: PATIENT_RESULT.PATIENT
+    segment: .PID
+    resourcePath: segments/PID/Provenance-Patient
 
   - resourceName: RelatedPerson
     segment: .NK1
@@ -56,7 +63,7 @@ resources:
   - resourceName: Specimen
     segment: .SPECIMEN.SPM
     group: PATIENT_RESULT.ORDER_OBSERVATION
-    resourcePath: resource/Specimen
+    resourcePath: segments/SPM/Specimen
     repeats: true
     isReferenced: true
     additionalSegments:
