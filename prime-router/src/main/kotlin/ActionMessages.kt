@@ -284,16 +284,3 @@ class EvaluateFilterConditionErrorMessage(message: String?) : ActionLogDetail {
     override val message = message ?: "An unknown filter condition error occurred."
     override val errorCode = ErrorCode.UNKNOWN
 }
-
-/**
- * A message for when a [receiver] is set up for original message passthrough, but does not have a
- * compatible [originalMessageFormat]]
- */
-class IncompatibleOriginalFormatReceiverMessage(
-    receiver: Receiver,
-    originalMessageFormat: Report.Format,
-) : ActionLogDetail {
-    override val scope = ActionLogScope.internal
-    override val message = "Receiver ${receiver.name} not set up to receive messages of format $originalMessageFormat"
-    override val errorCode = ErrorCode.UNKNOWN
-}

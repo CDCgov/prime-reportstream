@@ -21,7 +21,6 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
-import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -73,10 +72,8 @@ class FHIRTranslator(
                     ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
                 actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
 
-                val originalMessage = getOriginalMessage(message.reportId, WorkflowEngine())
-
-                val bodyBytes = if (originalMessage.schemaTopic.isSendOriginal) {
-                    downloadBlobAsByteArray(originalMessage.bodyUrl)
+                val bodyBytes = if (message.topic.isSendOriginal) {
+                    getOriginalMessage(message.reportId, WorkflowEngine())
                 } else {
                     getByteArrayFromBundle(receiver, bundle)
                 }
@@ -103,7 +100,7 @@ class FHIRTranslator(
             }
             else -> {
                 throw RuntimeException(
-                    "Message was not a FhirConvert and cannot be processed: $message"
+                    "Message was not a FhirTranslateQueueMessage and cannot be processed by FHIRTranslator: $message"
                 )
             }
         }
@@ -112,9 +109,10 @@ class FHIRTranslator(
     /**
      * Takes a [reportId] and returns the content of the original message as a ByteArray
      */
-    internal fun getOriginalMessage(reportId: ReportId, workflowEngine: WorkflowEngine): ReportFile {
+    internal fun getOriginalMessage(reportId: ReportId, workflowEngine: WorkflowEngine): ByteArray {
         val rootReportId = findRootReportId(reportId, workflowEngine)
-        return workflowEngine.db.fetchReportFile(rootReportId)
+        val originalMessage = workflowEngine.db.fetchReportFile(rootReportId)
+        return downloadBlobAsByteArray(originalMessage.bodyUrl)
     }
 
     /**

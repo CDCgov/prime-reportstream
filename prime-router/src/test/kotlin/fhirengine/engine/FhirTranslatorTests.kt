@@ -304,7 +304,7 @@ class FhirTranslatorTests {
 
         val rootReport = FHIRTranslator().getOriginalMessage(childReportId, mockWorkflowEngine)
 
-        assertThat(String(downloadBlobAsByteArray(rootReport.bodyUrl))).isEqualTo(reportContent)
+        assertThat(String(rootReport)).isEqualTo(reportContent)
     }
 
     // happy path, with a receiver that has a custom schema
@@ -320,7 +320,7 @@ class FhirTranslatorTests {
         val engine = makeFhirEngine(settings = settings)
         val message = spyk(
             FhirTranslateQueueMessage(
-                childReportId,
+                UUID.randomUUID(),
                 BLOB_URL,
                 "test",
                 BLOB_SUB_FOLDER,
