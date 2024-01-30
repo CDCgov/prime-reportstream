@@ -30,8 +30,7 @@ runs:
       working-directory: frontend-react
       shell: bash
 
-    - name: Build release for production branch (conditional check)
-      if: inputs.env-name == 'prod'
+    - name: Run lint and unit tests
       uses: ./.github/actions/retry
       with:
         timeout_minutes: 40
@@ -40,19 +39,27 @@ runs:
         command: |
           set -e pipefail
           cd frontend-react
+          yarn lint
+          yarn test:ci
+        shell: bash
+
+    - name: Run E2E tests
+      uses: ./.github/actions/frontend-e2e
+
+    - name: Build release for production branch (conditional check)
+      if: inputs.env-name == 'prod'
+      with:
+        command: |
+          set -e pipefail
+          cd frontend-react
           echo "" >> .env.production
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
-          yarn test:ci
           yarn build:production
         shell: bash
 
     - name: Build release for non-production branch (conditional check)
       if: inputs.env-name != 'prod'
-      uses: ./.github/actions/retry
       with:
-        timeout_minutes: 40
-        max_attempts: 2
-        retry_wait_seconds: 30
         command: |
           set -e pipefail
           cd frontend-react
@@ -60,8 +67,6 @@ runs:
           if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
           echo "" >> .env.$ENV
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
-          yarn lint
-          yarn test:ci
           yarn build:$ENV
         shell: bash
 
