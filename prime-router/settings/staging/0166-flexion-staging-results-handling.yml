@@ -46,7 +46,7 @@
       format: "HL7"
   receivers:
     # Orders Receivers
-    # RS => TI: translates OML_O21 from HL7 to FHIR and sends the message to the TI service orders API
+    # RS => TI: translates ORM_O01 from HL7 to FHIR and sends the message to the TI service orders API
     - name: "etor-service-receiver-orders"
       externalName: "ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 FHIR orders"
       organizationName: "flexion"
