@@ -4,11 +4,11 @@ constants:
 
 elements:
   - name: participation-set-id
-    value: [ '%orderIndex' ]
+    value: [ '%prtDeviceIndex + 1' ]
     hl7Spec: [ '%{hl7PRTFieldPath}-1' ]
 
   - name: observation-set-id
-    value: [ '%orderIndex' ]
+    value: [ '%prtDeviceIndex + 1' ]
     hl7Spec: [ '%{hl7OBXFieldPath}-1' ]
 
   - name: placer-order-number

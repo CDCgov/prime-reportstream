@@ -295,15 +295,15 @@
       topic: full-elr
       customerStatus: active
       qualityFilter:
-      - "%messageId.exists()"
-      - "%patient.name.family.exists()"
-      - "%patient.name.given.count() > 0"
-      - "%patient.birthDate.exists()"
-      - "%specimen.type.exists()"
-      - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
-      - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
+        - "%messageId.exists()"
+        - "%patient.name.family.exists()"
+        - "%patient.name.given.count() > 0"
+        - "%patient.birthDate.exists()"
+        - "%specimen.type.exists()"
+        - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
+        - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
       processingModeFilter:
-      - "%processingId.exists() and %processingId = 'P'"
+        - "%processingId.exists() and %processingId = 'P'"
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
         operation: MERGE
@@ -485,9 +485,9 @@
       customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
       qualityFilter:
-      - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
-      - hasAtLeastOneOf(message_id,blankField)
-      - matches(ordering_facility_county, QUALITY_PASS)
+        - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+        - hasAtLeastOneOf(message_id,blankField)
+        - matches(ordering_facility_county, QUALITY_PASS)
       translation:
         type: CUSTOM
         schemaName: empty
@@ -498,9 +498,9 @@
       customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
       qualityFilter:
-      - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
-      - hasAtLeastOneOf(message_id,blankField)
-      - matches(ordering_facility_county, QUALITY_REVERSED)
+        - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+        - hasAtLeastOneOf(message_id,blankField)
+        - matches(ordering_facility_county, QUALITY_REVERSED)
       # Get 'not(qualityFilter)'
       reverseTheQualityFilter: true
       translation:
@@ -960,7 +960,6 @@
       customerStatus: active
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() and %patientState = 'CA')" ]
       qualityFilter:
-        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
         # Flu B Test Performed LOINCs 85478-6, 76080-1, 92141-1, 80383-3, 82170-2
         # Flu A Test Performed LOINCs 85477-8, 76078-5, 77026-3, 77028-9, 77027-1, 92142-9, 80382-5, 82166-0, 82167-8, 82169-4, 82168-6, 92809-3, 92808-5
         # Special Snowflake LOINC - 95423-0 (Snomed CT code determines if it was the flu A or flu B result)
