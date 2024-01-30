@@ -12,7 +12,6 @@ import ca.uhn.hl7v2.model.Varies
 import org.apache.commons.lang3.StringUtils
 
 class HL7DiffHelper {
-
     fun filterNames(message: Message, names: Array<String>, map: MutableMap<String, Segment>) {
         names.filter { name -> message.getAll(name).isNotEmpty() }.forEach { messageName ->
             val children = message.getAll(messageName)
@@ -38,7 +37,6 @@ class HL7DiffHelper {
         filterNames(output, outputNames, outputMap)
 
         val mapNumOfSegment = mutableMapOf<String, Int>()
-
         inputMap.forEach { (segmentIndex, segment) ->
             val outputSegment = outputMap[segmentIndex]
             if (outputSegment == null) {
@@ -75,55 +73,63 @@ class HL7DiffHelper {
                     }
                     if (outputFields.size > inputFields.size) {
                         outputFields.foldIndexed(differences) { index, differenceAccumulator, output ->
+                            if (effectivelyBlank(outputFields, inputFields)) {
+                                differenceAccumulator
+                            } else {
+                                try {
+                                    inputFields[index]
+                                    differenceAccumulator
+                                } catch (ex: IndexOutOfBoundsException) {
+                                    differenceAccumulator.add(
+                                        Hl7Diff(
+                                            segmentIndex,
+                                            "Output had more repeating types for ${output.name}, " +
+                                                    "input has ${inputFields.size} and output has ${outputFields.size}",
+                                            "",
+                                            i,
+                                            if (inputFields.size == 1) null else (index + 1),
+                                            null,
+                                            segment.name
+                                        )
+                                    )
+                                    differenceAccumulator
+                                }
+                            }
+                        }
+                    }
+                    inputFields.foldIndexed(differences) { index, differenceAccumulator, input ->
+                        if (effectivelyBlank(inputFields, outputFields)) {
+                            differenceAccumulator
+                        } else {
                             try {
-                                inputFields[index]
+                                val outputField = outputFields[index]
+                                differenceAccumulator.addAll(
+                                    compareHl7Type(
+                                        segmentIndex,
+                                        input,
+                                        outputField,
+                                        segment.name,
+                                        i,
+                                        if (inputFields.size == 1) null else index + 1,
+                                        null
+                                    )
+                                )
                                 differenceAccumulator
                             } catch (ex: IndexOutOfBoundsException) {
                                 differenceAccumulator.add(
                                     Hl7Diff(
                                         segmentIndex,
-                                        "Output had more repeating types for ${output.name}, " +
-                                            "input has ${inputFields.size} and output has ${outputFields.size}",
+                                        "Input had more repeating types for ${input.name}, " +
+                                                "input has ${inputFields.size} and output has ${outputFields.size}",
                                         "",
                                         i,
-                                        if (inputFields.size == 1) null else (index + 1),
+                                        index + 1,
                                         null,
                                         segment.name
                                     )
                                 )
                                 differenceAccumulator
                             }
-                        }
-                    }
-                    inputFields.foldIndexed(differences) { index, differenceAccumulator, input ->
-                        try {
-                            val outputField = outputFields[index]
-                            differenceAccumulator.addAll(
-                                compareHl7Type(
-                                    segmentIndex,
-                                    input,
-                                    outputField,
-                                    segment.name,
-                                    i,
-                                    if (inputFields.size == 1) null else index + 1,
-                                    null
-                                )
-                            )
-                            differenceAccumulator
-                        } catch (ex: IndexOutOfBoundsException) {
-                            differenceAccumulator.add(
-                                Hl7Diff(
-                                    segmentIndex,
-                                    "Input had more repeating types for ${input.name}, " +
-                                        "input has ${inputFields.size} and output has ${outputFields.size}",
-                                    "",
-                                    i,
-                                    index + 1,
-                                    null,
-                                    segment.name
-                                )
-                            )
-                            differenceAccumulator
                         }
                     }
                 }
@@ -245,7 +251,12 @@ class HL7DiffHelper {
                 }
             }
 
-            input.javaClass != output.javaClass -> {
+            // heuristic check to avoid false positive:
+            // either input vs output class identical or
+            // both are ca.uhn.hl7v2.model.AbstractPrimitive
+            // and since value check done by above value compare logic,
+            // input vs output are type compatible
+            !typeCompatible(input, output) -> {
                 return listOf(
                     Hl7Diff(
                         segmentIndex,
@@ -258,7 +269,6 @@ class HL7DiffHelper {
                     )
                 )
             }
-
             else -> {
                 return listOf()
             }
@@ -335,5 +345,28 @@ class HL7DiffHelper {
                 "$fieldNumberText$secondaryFieldNumberText$tertiaryFieldNumberText" +
                 " Differences: $input$outputText"
         }
+    }
+
+    /**
+     * helper
+     * Check that v1 and v2 are effectively both blank value
+     */
+    fun effectivelyBlank(v1: Array<ca.uhn.hl7v2.model.Type>, v2: Array<ca.uhn.hl7v2.model.Type>): Boolean {
+        return (
+            v1.size == 1 &&
+            v1[0].isEmpty &&
+            v2.isEmpty()
+        )
+    }
+
+    /**
+     * helper - heuristically check input and output are compatible types
+     */
+    private fun typeCompatible(t1: Any, t2: Any): Boolean {
+        return (t1.javaClass == t2.javaClass) ||
+                (
+                    t1 is ca.uhn.hl7v2.model.AbstractPrimitive &&
+                t2 is ca.uhn.hl7v2.model.AbstractPrimitive
+                )
     }
 }
