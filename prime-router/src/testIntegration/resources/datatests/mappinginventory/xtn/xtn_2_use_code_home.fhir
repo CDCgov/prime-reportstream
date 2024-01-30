@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706312367459687000.3158ef5c-1d0b-45cb-bad4-4881cd5d7b3d",
+  "id" : "1706548494312856000.c9cd966c-a57a-4934-8c20-cc5df0bd0b5e",
   "meta" : {
-    "lastUpdated" : "2024-01-26T17:39:27.474-06:00"
+    "lastUpdated" : "2024-01-29T12:14:54.318-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
@@ -44,10 +44,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706312367828217000.1324bc95-db54-4c11-82c3-055d4ffffedd",
+      "fullUrl" : "Provenance/1706548494744230000.cd2fc334-7564-4a09-b979-28fc5219c8a6",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706312367828217000.1324bc95-db54-4c11-82c3-055d4ffffedd",
+        "id" : "1706548494744230000.cd2fc334-7564-4a09-b979-28fc5219c8a6",
         "target" : [
           {
             "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
@@ -64,11 +64,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706312367836006000.c0401656-53da-417c-aef8-30fa50a21c4d",
+      "fullUrl" : "Provenance/1706548494751632000.dea06a66-c0a9-48b3-be2b-4f68d6696fde",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706312367836006000.c0401656-53da-417c-aef8-30fa50a21c4d",
-        "recorded" : "2024-01-26T17:39:27Z",
+        "id" : "1706548494751632000.dea06a66-c0a9-48b3-be2b-4f68d6696fde",
+        "recorded" : "2024-01-29T12:14:54Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -90,17 +90,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706312367835592000.e6a52804-399a-46c1-a651-3c81b1ca64ce"
+              "reference" : "Organization/1706548494751117000.10ba571d-d3f8-476e-a8c2-1ae7b2db48ac"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706312367835592000.e6a52804-399a-46c1-a651-3c81b1ca64ce",
+      "fullUrl" : "Organization/1706548494751117000.10ba571d-d3f8-476e-a8c2-1ae7b2db48ac",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706312367835592000.e6a52804-399a-46c1-a651-3c81b1ca64ce",
+        "id" : "1706548494751117000.10ba571d-d3f8-476e-a8c2-1ae7b2db48ac",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -120,10 +120,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1706312367859157000.d57be7c5-15c9-4a3f-8f4f-236e68b81a62",
+      "fullUrl" : "Patient/1706548494778404000.75ea1474-ce98-4a04-89b6-5cb711a7d4ac",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1706312367859157000.d57be7c5-15c9-4a3f-8f4f-236e68b81a62",
+        "id" : "1706548494778404000.75ea1474-ce98-4a04-89b6-5cb711a7d4ac",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
@@ -202,7 +202,7 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
                 "valueReference" : {
-                  "reference" : "Organization/1706312367842211000.53273389-70bd-45d2-bf41-1f61ee0ce013"
+                  "reference" : "Organization/1706548494759359000.839d7b24-ba6e-47e2-ae6b-231079a3f471"
                 }
               },
               {
@@ -310,8 +310,24 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
-                "valueString" : "96633 Gilberto Course"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                    "extension" : [
+                      {
+                        "url" : "SAD.1",
+                        "valueString" : "96633 Gilberto Course"
+                      },
+                      {
+                        "url" : "SAD.2"
+                      },
+                      {
+                        "url" : "SAD.3"
+                      }
+                    ]
+                  }
+                ]
               }
             ],
             "line" : [
@@ -323,10 +339,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706312367842211000.53273389-70bd-45d2-bf41-1f61ee0ce013",
+      "fullUrl" : "Organization/1706548494759359000.839d7b24-ba6e-47e2-ae6b-231079a3f471",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706312367842211000.53273389-70bd-45d2-bf41-1f61ee0ce013",
+        "id" : "1706548494759359000.839d7b24-ba6e-47e2-ae6b-231079a3f471",
         "identifier" : [
           {
             "extension" : [
@@ -341,16 +357,16 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706312367863189000.2899bf48-6e6f-44c9-8334-a59207a873ee",
+      "fullUrl" : "Provenance/1706548494782017000.4e594ed9-1099-4fe0-868e-13eadbceb1df",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706312367863189000.2899bf48-6e6f-44c9-8334-a59207a873ee",
+        "id" : "1706548494782017000.4e594ed9-1099-4fe0-868e-13eadbceb1df",
         "target" : [
           {
-            "reference" : "Patient/1706312367859157000.d57be7c5-15c9-4a3f-8f4f-236e68b81a62"
+            "reference" : "Patient/1706548494778404000.75ea1474-ce98-4a04-89b6-5cb711a7d4ac"
           }
         ],
-        "recorded" : "2024-01-26T17:39:27Z",
+        "recorded" : "2024-01-29T12:14:54Z",
         "activity" : {
           "coding" : [
             {
