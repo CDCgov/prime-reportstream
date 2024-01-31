@@ -1,5 +1,5 @@
 import { Method, AxiosRequestConfig } from "axios";
-import omit from "lodash/omit.js";
+import { omit } from "lodash";
 
 import { StringIndexed } from "../../utils/UsefulTypes";
 import config from "..";

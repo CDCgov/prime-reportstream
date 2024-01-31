@@ -1,5 +1,5 @@
 import { Dispatch, useReducer } from "react";
-import pick from "lodash/pick.js";
+import { pick } from "lodash";
 
 import { ResponseError, WatersResponse } from "../config/endpoints/waters";
 import { Destination } from "../resources/ActionDetailsResource";
