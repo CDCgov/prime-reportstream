@@ -1,9 +1,9 @@
 import { defineConfig } from "@playwright/test";
 import dotenvflow from "dotenv-flow";
 
-import type { TestOptions } from "./e2e/helpers/rs-test";
+import type { TestOptions } from "./e2e/helpers/rs-test.ts";
 
-dotenvflow.config();
+dotenvflow.config({ purge_dotenv: true, silent: true });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -37,11 +37,11 @@ export default defineConfig<TestOptions>({
 
     /* Configure projects for major browsers */
     projects: [
-        // { name: "setup", testMatch: /.*\.setup\.ts/ },
+        { name: "setup", testMatch: /.*\.setup\.ts/ },
         {
             name: "chromium",
             use: { browserName: "chromium" },
-            // dependencies: ["setup"],
+            dependencies: ["setup"],
         },
 
         {
@@ -82,6 +82,7 @@ export default defineConfig<TestOptions>({
         command: "yarn run preview",
         url: "http://localhost:4173",
         timeout: 1000 * 180,
+        stdout: "pipe",
         // reuseExistingServer: !process.env.CI,
     },
 });

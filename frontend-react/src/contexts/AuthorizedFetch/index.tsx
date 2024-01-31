@@ -81,3 +81,5 @@ export function useAuthorizedFetch<
         AuthorizedFetchContext,
     );
 }
+
+export default AuthorizedFetchProvider;

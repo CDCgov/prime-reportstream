@@ -114,3 +114,5 @@ export const FeatureFlagProvider = ({ children }: PropsWithChildren<{}>) => {
 // an extra level of indirection here to allow for generic typing of the returned fetch function
 export const useFeatureFlags = (): FeatureFlagContextValues =>
     useContext(FeatureFlagContext);
+
+export default FeatureFlagProvider;

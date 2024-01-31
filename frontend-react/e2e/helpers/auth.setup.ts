@@ -21,13 +21,12 @@ async function logIntoOkta(page: Page, login: TestLogin) {
 
     await page.getByLabel("Enter Code ").fill(totp.generate());
     await page.getByRole("button", { name: "Verify" }).click();
-
-    await page.waitForURL("/");
+    await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
 }
 
 setup("authenticate as admin", async ({ page, adminLogin }) => {
     await logIntoOkta(page, adminLogin);
-    await expect(page.getByRole("button", { name: "Admin" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "PrimeAdmins" })).toBeVisible();
 
     await page.context().storageState({ path: adminFile });
 });

@@ -74,8 +74,8 @@ module.exports = {
     extends: [
         "plugin:import/recommended",
         "plugin:import/typescript",
-        "prettier",
         "plugin:storybook/recommended",
+        "prettier",
     ],
     plugins: [
         "@typescript-eslint",
@@ -83,10 +83,10 @@ module.exports = {
         "testing-library",
         "unused-imports",
         "jest-dom",
-        "prettier",
         "import",
         "jsx-a11y",
         "react-hooks",
+        "prettier",
     ],
     env: {
         browser: true,
@@ -380,6 +380,19 @@ module.exports = {
                 ],
                 "no-useless-constructor": "off",
                 "@typescript-eslint/no-useless-constructor": "warn",
+            },
+        },
+        {
+            files: ["./scripts/**/*"],
+            env: {
+                browser: false,
+                commonjs: true,
+                es6: true,
+                jest: false,
+                node: true,
+            },
+            rules: {
+                "no-console": "off",
             },
         },
         {
