@@ -20,8 +20,8 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.addMappedCondition
+import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Observation
 import org.jooq.Field
 import java.time.OffsetDateTime
 
@@ -92,7 +92,7 @@ class FHIRConverter(
                 transformer?.transform(bundle)
 
                 // 'stamp' observations with their condition code
-                bundle.entry.map { it.resource }.filterIsInstance<Observation>().forEach {
+                bundle.getObservations().forEach {
                     it.addMappedCondition(metadata).run {
                         actionLogger.getItemLogger(bundleIndex + 1, it.id)
                             .setReportId(queueMessage.reportId)
