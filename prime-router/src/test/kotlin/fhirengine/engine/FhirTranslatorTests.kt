@@ -303,8 +303,8 @@ class FhirTranslatorTests {
         every { downloadBlobAsByteArray(any()) }.returns(reportContent.toByteArray())
 
         val rootReport = FHIRTranslator().getOriginalMessage(childReportId, mockWorkflowEngine)
-
-        assertThat(String(rootReport)).isEqualTo(reportContent)
+        val message = downloadBlobAsByteArray(rootReport.bodyUrl)
+        assertThat(String(message)).isEqualTo(reportContent)
     }
 
     // happy path, with a receiver that has a custom schema

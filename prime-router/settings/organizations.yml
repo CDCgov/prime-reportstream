@@ -253,7 +253,7 @@
       organizationName: ignore
       topic: elr-elims
       customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      jurisdictionalFilter: [ "true" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -348,15 +348,15 @@
       topic: full-elr
       customerStatus: active
       qualityFilter:
-      - "%messageId.exists()"
-      - "%patient.name.family.exists()"
-      - "%patient.name.given.count() > 0"
-      - "%patient.birthDate.exists()"
-      - "%specimen.type.exists()"
-      - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
-      - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
+        - "%messageId.exists()"
+        - "%patient.name.family.exists()"
+        - "%patient.name.given.count() > 0"
+        - "%patient.birthDate.exists()"
+        - "%specimen.type.exists()"
+        - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
+        - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
       processingModeFilter:
-      - "%processingId.exists() and %processingId = 'P'"
+        - "%processingId.exists() and %processingId = 'P'"
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
         operation: MERGE
@@ -536,9 +536,9 @@
       customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
       qualityFilter:
-      - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
-      - hasAtLeastOneOf(message_id,blankField)
-      - matches(ordering_facility_county, QUALITY_PASS)
+        - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+        - hasAtLeastOneOf(message_id,blankField)
+        - matches(ordering_facility_county, QUALITY_PASS)
       translation:
         type: CUSTOM
         schemaName: empty
@@ -549,9 +549,9 @@
       customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
       qualityFilter:
-      - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
-      - hasAtLeastOneOf(message_id,blankField)
-      - matches(ordering_facility_county, QUALITY_REVERSED)
+        - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+        - hasAtLeastOneOf(message_id,blankField)
+        - matches(ordering_facility_county, QUALITY_REVERSED)
       # Get 'not(qualityFilter)'
       reverseTheQualityFilter: true
       translation:

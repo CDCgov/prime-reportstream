@@ -1651,6 +1651,7 @@ class Report : Logging {
             metadata: Metadata,
             actionHistory: ActionHistory,
             topic: Topic,
+            externalName: String? = null,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {
             check(messageBody.isNotEmpty())
             check(sourceReportIds.isNotEmpty())
@@ -1714,11 +1715,16 @@ class Report : Logging {
                     )
                 }
 
+            var blobName = report.name
+            if (!externalName.isNullOrEmpty()) {
+                blobName = externalName + "-" + report.name
+            }
+
             // upload the translated copy to blobstore
             val blobInfo = BlobAccess.uploadBody(
                 reportFormat,
                 messageBody,
-                report.name,
+                blobName,
                 receiver.fullName,
                 event.eventAction
             )

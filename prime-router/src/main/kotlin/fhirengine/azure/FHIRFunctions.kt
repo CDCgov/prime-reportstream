@@ -17,6 +17,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
+import gov.cdc.prime.router.fhirengine.engine.ReportEventQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
@@ -127,7 +128,14 @@ class FHIRFunctions(
         fhirEngine: FHIRTranslator,
         actionHistory: ActionHistory = ActionHistory(TaskAction.translate),
     ) {
-        runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        messagesToDispatch.forEach {
+            val currentMessage = it as ReportEventQueueMessage
+            queueAccess.sendMessage(
+                currentMessage.eventAction.name.lowercase(),
+                it.serialize()
+            )
+        }
     }
 
     /**
