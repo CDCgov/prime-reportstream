@@ -192,6 +192,20 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
     }
 
     /**
+     * Log an [actionDetail] as an info log.
+     */
+    fun info(actionDetail: ActionLogDetail) {
+        log(actionDetail, ActionLogLevel.info)
+    }
+
+    /**
+     * Log a list of [actionDetails] as info logs.
+     */
+    fun info(actionDetails: List<ActionLogDetail>) {
+        actionDetails.forEach { info(it) }
+    }
+
+    /**
      * Log an [actionDetail] as a warning log.
      */
     fun warn(actionDetail: ActionLogDetail) {
