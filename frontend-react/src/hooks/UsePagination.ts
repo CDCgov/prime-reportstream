@@ -1,5 +1,5 @@
-import chunk from "lodash.chunk";
-import range from "lodash.range";
+import chunk from "lodash/chunk.js";
+import range from "lodash/range.js";
 import { useCallback, useEffect, useReducer } from "react";
 import useDeepCompareEffect from "use-deep-compare-effect";
 

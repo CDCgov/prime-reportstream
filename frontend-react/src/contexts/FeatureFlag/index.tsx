@@ -7,7 +7,7 @@ import React, {
     Dispatch,
     PropsWithChildren,
 } from "react";
-import uniq from "lodash.uniq";
+import uniq from "lodash/uniq.js";
 
 import config from "../../config";
 import {
