@@ -43,43 +43,60 @@ class TranslationSchemaManagerTests {
             }/devstoreaccount1;"""
         )
 
+        val inputFilePath = "fhir_transforms/dev/bar/input.fhir"
+        val outputFilePath = "fhir_transforms/dev/bar/output.fhir"
+        val transformFilePath = "fhir_transforms/dev/bar/simple-transform.yml"
         BlobAccess.uploadBlob(
-            "fhir_transforms/dev/bar/input.fhir",
+            inputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/input.fhir"
+                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_FHIR/input.fhir"
             )
                 .inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
 
         BlobAccess.uploadBlob(
-            "fhir_transforms/dev/bar/output.fhir",
+            outputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/output.fhir"
+                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_FHIR/output.fhir"
             )
                 .inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
 
         BlobAccess.uploadBlob(
-            "fhir_transforms/dev/bar/simple-transform.yml",
+            transformFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/azure/resources/validationTests/FHIR_to_FHIR/simple-transform.yml"
+                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_FHIR/simple-transform.yml"
             )
                 .inputStream().readAllBytes(),
             sourceBlobContainerMetadata
+        )
+
+        val validationResults = TranslationSchemaManager().validateManagedSchemas(
+            TranslationSchemaManager.SchemaType.FHIR,
+            sourceBlobContainerMetadata,
+            blobEndpoint,
         )
 
         assertThat(
-            TranslationSchemaManager().validateManagedSchemas(
-                TranslationSchemaManager.SchemaType.FHIR,
-                sourceBlobContainerMetadata,
-                blobEndpoint,
-            )
-        ).isEqualTo(true)
+            validationResults.size
+        ).isEqualTo(1)
+
+        assertThat(
+            validationResults[0].inputFilePath
+        ).isEqualTo(inputFilePath)
+
+        assertThat(
+            validationResults[0].outputFilePath
+        ).isEqualTo(outputFilePath)
+
+        assertThat(
+            validationResults[0].transformFilePath
+        ).isEqualTo(transformFilePath)
     }
 
     @Test
@@ -99,39 +116,65 @@ class TranslationSchemaManagerTests {
                 }/devstoreaccount1;"""
         )
 
+        val inputFilePath = "hl7_mapping/dev/foo/input.fhir"
+        val outputFilePath = "hl7_mapping/dev/foo/output.hl7"
+        val transformFilePath = "hl7_mapping/dev/foo/sender-transform.yml"
         BlobAccess.uploadBlob(
-            "hl7_mapping/dev/foo/input.fhir",
+            inputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/input.fhir"
+                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/input.fhir"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
 
         BlobAccess.uploadBlob(
-            "hl7_mapping/dev/foo/output.hl7",
+            outputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/output.hl7"
+                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/output.hl7"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
 
         BlobAccess.uploadBlob(
-            "hl7_mapping/dev/foo/sender-transform.yml",
+            transformFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/azure/resources/validationTests/FHIR_to_HL7/sender-transform.yml"
+                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/sender-transform.yml"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
+        )
+
+        BlobAccess.uploadBlob(
+            "hl7_mapping/dev/foo/distraction/sender-transform.yml",
+            File(
+                Paths.get("").toAbsolutePath().toString() +
+                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/sender-transform.yml"
+            ).inputStream().readAllBytes(),
+            sourceBlobContainerMetadata
+        )
+
+        val validationResults = TranslationSchemaManager().validateManagedSchemas(
+            TranslationSchemaManager.SchemaType.HL7,
+            sourceBlobContainerMetadata,
+            blobEndpoint
         )
 
         assertThat(
-            TranslationSchemaManager().validateManagedSchemas(
-                TranslationSchemaManager.SchemaType.HL7,
-                sourceBlobContainerMetadata,
-                blobEndpoint
-            )
-        ).isEqualTo(true)
+            validationResults.size
+        ).isEqualTo(1)
+
+        assertThat(
+            validationResults[0].inputFilePath
+        ).isEqualTo(inputFilePath)
+
+        assertThat(
+            validationResults[0].outputFilePath
+        ).isEqualTo(outputFilePath)
+
+        assertThat(
+            validationResults[0].transformFilePath
+        ).isEqualTo(transformFilePath)
     }
 }

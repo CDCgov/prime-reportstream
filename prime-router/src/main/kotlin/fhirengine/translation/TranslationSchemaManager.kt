@@ -8,9 +8,10 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.Converte
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import org.apache.logging.log4j.kotlin.Logging
 import javax.ws.rs.InternalServerErrorException
 
-class TranslationSchemaManager {
+class TranslationSchemaManager : Logging {
     enum class SchemaType(val directory: String) {
         FHIR("fhir_transforms"),
         HL7("hl7_mapping"),
@@ -24,20 +25,21 @@ class TranslationSchemaManager {
         schemaType: SchemaType,
         blobContainerInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
         blobEndpoint: String,
-    ): Boolean {
+    ): MutableList<ValidationResults> {
         val sourceContainer = BlobAccess.getBlobContainer(blobContainerInfo)
         val blobs =
             BlobAccess.listBlobs(schemaType.directory, blobContainerInfo, false)
-        val inputs = blobs.filter { it.currentBlobItem.name.startsWith("input.") }
+        val inputs = blobs.filter { it.currentBlobItem.name.contains("/input.") }
+        val validationResults = mutableListOf<ValidationResults>()
 
         inputs.forEach { currentInput ->
             val inputDirectoryPath = Regex("(.*/).*").find(currentInput.currentBlobItem.name)!!.groups[1]!!.value
-            val input = sourceContainer.getBlobClient(inputDirectoryPath + "input.fhir")
+            val input = sourceContainer.getBlobClient(inputDirectoryPath + "input.fhir").downloadContent()
             val inputBundle = FhirTranscoder.decode(input.toString())
 
             val transformBlob = blobs.filter {
-                it.currentBlobItem.name.startsWith(inputDirectoryPath) &&
-                it.currentBlobItem.name.endsWith(".yml")
+                val find = Regex("$inputDirectoryPath[^/]+.yml").find(it.currentBlobItem.name)
+                find != null && find.groups.isNotEmpty()
             }
             val transformBlobName = transformBlob[0].currentBlobItem.name
 
@@ -59,8 +61,24 @@ class TranslationSchemaManager {
                     val expectedOutput = FhirTranscoder.decode(output.toString())
                     // .equals is required here == does not compare it properly, despite what IntelliJ says
                     if (transformedInputBundle.equals(expectedOutput)) {
-                        BlobAccess.logger.error("Validation failed for transform $transformBlobName")
-                        return false
+                        logger.error("Validation failed for transform $transformBlobName")
+                        validationResults.add(
+                            ValidationResults(
+                            currentInput.currentBlobItem.name,
+                            inputDirectoryPath + "output.fhir",
+                            transformBlobName,
+                            false
+                        )
+                        )
+                    } else {
+                        validationResults.add(
+                            ValidationResults(
+                            currentInput.currentBlobItem.name,
+                            inputDirectoryPath + "output.fhir",
+                            transformBlobName,
+                            true
+                        )
+                        )
                     }
                 }
                 SchemaType.HL7 -> {
@@ -79,13 +97,36 @@ class TranslationSchemaManager {
                     ).convert(inputBundle)
                     val output = sourceContainer.getBlobClient(inputDirectoryPath + "output.hl7").downloadContent()
                     if (!hl7Transform.toString().trim().equals(output.toString().trim())) {
-                        BlobAccess.logger.error("Validation failed for transform $transformBlobName")
-                        return false
+                        logger.error("Validation failed for transform $transformBlobName")
+                        validationResults.add(
+                            ValidationResults(
+                            currentInput.currentBlobItem.name,
+                            inputDirectoryPath + "output.hl7",
+                            transformBlobName,
+                            false
+                        )
+                        )
+                    } else {
+                        validationResults.add(
+                            ValidationResults(
+                            currentInput.currentBlobItem.name,
+                            inputDirectoryPath + "output.hl7",
+                            transformBlobName,
+                            true
+                        )
+                        )
                     }
                 }
             }
         }
 
-        return true
+        return validationResults
     }
+
+    data class ValidationResults(
+        val inputFilePath: String,
+        val outputFilePath: String,
+        val transformFilePath: String,
+        val passes: Boolean,
+    )
 }
