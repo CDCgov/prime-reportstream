@@ -140,7 +140,7 @@ class FHIRRouter(
 
         // check if there are any receivers
         if (listOfReceivers.isNotEmpty()) {
-            val filteredIdMap: MutableMap<String, List<String>> = mutableMapOf()
+            val filteredIdMap: MutableMap<String, MutableList<String>> = mutableMapOf()
             return listOfReceivers.flatMap { receiver ->
                 val sources = emptyList<Source>()
                 val report = Report(
@@ -183,7 +183,7 @@ class FHIRRouter(
                     val (filteredIds, filteredBundle) = receiverBundle.filterMappedObservations(
                         receiver.mappedConditionFilter
                     )
-                    filteredIds.forEach { id -> filteredIdMap.getOrDefault(id, mutableListOf(receiver.fullName)) }
+                    filteredIds.forEach { id -> filteredIdMap.getOrPut(id) { mutableListOf() }.add(receiver.fullName) }
                     receiverBundle = filteredBundle
                 }
 
