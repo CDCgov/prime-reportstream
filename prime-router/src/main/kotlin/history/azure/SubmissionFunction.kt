@@ -68,8 +68,6 @@ class SubmissionFunction(
         return submissionsFacade.findSubmissionsAsJson(
             userOrgName,
             sendingOrgSvc,
-            params.reportId,
-            params.fileName,
             params.sortDir,
             params.sortColumn,
             params.cursor,

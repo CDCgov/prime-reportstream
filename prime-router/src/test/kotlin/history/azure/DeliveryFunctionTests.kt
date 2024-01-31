@@ -1,69 +1,7 @@
 package gov.cdc.prime.router.history.azure
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.google.common.net.HttpHeaders
-import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.azure.ApiSearchResult
-import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.MockHttpRequestMessage
-import gov.cdc.prime.router.azure.MockSettings
-import gov.cdc.prime.router.azure.WorkflowEngine
-import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.pojos.Action
-import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
-import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.common.BaseEngine
-import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.history.DeliveryFacility
-import gov.cdc.prime.router.history.DeliveryHistory
-import gov.cdc.prime.router.history.db.Delivery
-import gov.cdc.prime.router.history.db.DeliveryDatabaseAccess
-import gov.cdc.prime.router.history.db.ReportGraph
-import gov.cdc.prime.router.history.db.Submitter
-import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
-import gov.cdc.prime.router.history.db.SubmitterType
-import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticationType
-import gov.cdc.prime.router.tokens.OktaAuthentication
-import gov.cdc.prime.router.tokens.TestDefaultJwt
-import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
-import gov.cdc.prime.router.unittest.UnitTestUtils
-import io.mockk.clearAllMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkClass
-import io.mockk.mockkConstructor
-import io.mockk.mockkObject
-import io.mockk.spyk
-import io.mockk.unmockkObject
-import org.apache.logging.log4j.kotlin.Logging
-import org.jooq.exception.DataAccessException
-import org.jooq.tools.jdbc.MockConnection
-import org.jooq.tools.jdbc.MockDataProvider
-import org.jooq.tools.jdbc.MockResult
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.TestInstance
-import java.time.Instant
-import java.time.OffsetDateTime
-import java.util.UUID
-import kotlin.test.Test
-
-//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-//class DeliveryFunctionTests : Logging {
+// @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// class DeliveryFunctionTests : Logging {
 //    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 //
 //    private val organizationName = "test-lab"
@@ -1144,4 +1082,4 @@ import kotlin.test.Test
 //            assertThat(response.status).isEqualTo(HttpStatus.OK)
 //        }
 //    }
-//}
+// }

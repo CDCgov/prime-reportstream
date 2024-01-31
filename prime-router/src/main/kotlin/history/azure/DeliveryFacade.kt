@@ -9,7 +9,6 @@ import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import org.apache.logging.log4j.util.Lazy.lazy
-import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -40,14 +39,14 @@ class DeliveryFacade(
     fun findDeliveries(
         organization: String,
         receivingOrgSvc: String?,
-        reportId: String?,
-        fileName: String?,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         pageSize: Int,
+        reportIdStr: String?,
+        fileName: String?,
     ): List<DeliveryHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."
@@ -58,13 +57,11 @@ class DeliveryFacade(
         require(since == null || until == null || until > since) {
             "End date must be after start date."
         }
-        val repId = if (reportId != null) UUID.fromString(reportId) else null
+        val reportId = if (reportIdStr != null) UUID.fromString(reportIdStr) else null
 
         return dbDeliveryAccess.fetchActions(
             organization,
             receivingOrgSvc,
-            repId,
-            fileName,
             sortDir,
             sortColumn,
             cursor,
@@ -72,7 +69,9 @@ class DeliveryFacade(
             until,
             pageSize,
             true,
-            DeliveryHistory::class.java
+            DeliveryHistory::class.java,
+            reportId,
+            fileName
         )
     }
 

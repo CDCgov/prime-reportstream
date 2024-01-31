@@ -224,8 +224,6 @@ abstract class ReportFileFunction(
      * @property fileName is the fileName to get results for.
      */
     data class HistoryApiParameters(
-        val reportId: String?,
-        val fileName: String?,
         val sortDir: HistoryDatabaseAccess.SortDir,
         val sortColumn: HistoryDatabaseAccess.SortColumn,
         val cursor: OffsetDateTime?,
@@ -237,8 +235,6 @@ abstract class ReportFileFunction(
         val fileName: String?,
     ) {
         constructor(query: Map<String, String>) : this(
-            reportId = query["reportId"],
-            fileName = query["fileName"],
             sortDir = extractSortDir(query),
             sortColumn = extractSortCol(query),
             cursor = extractDateTime(query, "cursor"),

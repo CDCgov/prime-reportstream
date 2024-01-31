@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.history.azure
 
-import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
@@ -64,8 +63,6 @@ abstract class HistoryDatabaseAccess(
     fun <T> fetchActions(
         organization: String,
         orgService: String?,
-        reportId: UUID?,
-        fileName: String?,
         sortDir: SortDir,
         sortColumn: SortColumn,
         cursor: OffsetDateTime?,
