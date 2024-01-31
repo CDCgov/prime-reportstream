@@ -90,6 +90,8 @@ class DeliveryFunction(
         val deliveries = deliveryFacade.findDeliveries(
             userOrgName,
             receivingOrgSvc,
+            params.reportId,
+            params.fileName,
             params.sortDir,
             params.sortColumn,
             params.cursor,

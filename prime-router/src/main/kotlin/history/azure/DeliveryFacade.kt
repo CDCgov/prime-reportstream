@@ -9,6 +9,7 @@ import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import org.apache.logging.log4j.util.Lazy.lazy
+import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -33,22 +34,20 @@ class DeliveryFacade(
      * @param since is the OffsetDateTime minimum date to get results for.
      * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize Int of items to return per page.
-     * @param reportIdStr is the reportId to get results for.
-     * @param fileName is the fileName to get results for.
      *
      * @return a List of Actions
      */
     fun findDeliveries(
         organization: String,
         receivingOrgSvc: String?,
+        reportId: String?,
+        fileName: String?,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         pageSize: Int,
-        reportIdStr: String?,
-        fileName: String?,
     ): List<DeliveryHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."
@@ -59,17 +58,13 @@ class DeliveryFacade(
         require(since == null || until == null || until > since) {
             "End date must be after start date."
         }
-
-        var reportId: UUID? = null
-        try {
-            reportId = if (reportIdStr != null) UUID.fromString(reportIdStr) else null
-        } catch (e: IllegalArgumentException) {
-            logger.error("Invalid format for report ID: $reportIdStr", e)
-        }
+        val repId = if (reportId != null) UUID.fromString(reportId) else null
 
         return dbDeliveryAccess.fetchActions(
             organization,
             receivingOrgSvc,
+            repId,
+            fileName,
             sortDir,
             sortColumn,
             cursor,
@@ -77,9 +72,7 @@ class DeliveryFacade(
             until,
             pageSize,
             true,
-            DeliveryHistory::class.java,
-            reportId,
-            fileName
+            DeliveryHistory::class.java
         )
     }
 

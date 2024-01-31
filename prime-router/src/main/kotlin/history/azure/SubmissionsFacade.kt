@@ -9,6 +9,7 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import org.apache.logging.log4j.util.Lazy.lazy
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -43,6 +44,8 @@ class SubmissionsFacade(
     fun findSubmissionsAsJson(
         organization: String,
         sendingOrgService: String?,
+        reportId: String?,
+        fileName: String?,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -54,6 +57,8 @@ class SubmissionsFacade(
         val result = findSubmissions(
             organization,
             sendingOrgService,
+            reportId,
+            fileName,
             sortDir,
             sortColumn,
             cursor,
@@ -83,6 +88,8 @@ class SubmissionsFacade(
     private fun findSubmissions(
         organization: String,
         sendingOrgService: String?,
+        reportId: String?,
+        fileName: String?,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -98,6 +105,8 @@ class SubmissionsFacade(
         return dbSubmissionAccess.fetchActions(
             organization,
             sendingOrgService,
+            UUID.fromString(reportId),
+            fileName,
             sortDir,
             sortColumn,
             cursor,
