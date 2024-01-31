@@ -161,7 +161,7 @@ object ConfigSchemaReader : Logging {
                 val blob = BlobAccess.downloadBlobAsByteArray(schemaUri.toString())
                 readOneYamlSchema(blob.inputStream(), schemaClass)
             }
-            else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")
+            else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}, schemaUri: $schemaUri")
         }
         rawSchema.name = schemaUri.path
 

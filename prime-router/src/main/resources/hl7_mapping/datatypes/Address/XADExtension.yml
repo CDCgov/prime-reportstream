@@ -2,7 +2,7 @@ elements:
 
   - name: xad-1-street-address
     resource: '%resource.extension.where(url = %`rsext-sad-address-line`)'
-    schema: ./SADExtension
+    schema: classpath:/hl7_mapping/datatypes/Address/SADExtension
     constants:
       SADField: '%{xadField}-1'
 
