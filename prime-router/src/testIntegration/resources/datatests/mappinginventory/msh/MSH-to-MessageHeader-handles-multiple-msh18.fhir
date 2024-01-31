@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706653909236545000.f1e7288f-b7f6-403d-9661-ff736233873b",
+  "id" : "1706714380670154000.8408fd4b-d1fb-4d4e-b73c-64c23a642870",
   "meta" : {
-    "lastUpdated" : "2024-01-30T17:31:49.243-05:00"
+    "lastUpdated" : "2024-01-31T10:19:40.676-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -19,14 +19,17 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
         "valueString" : "^~\\&#"
       }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
-        "valueString" : "20230501102531-0400"
-      }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
         "valueString" : "UTF-8"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
         "valueString" : "UNICODE"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+        "extension" : [ {
+          "url" : "MSH.7",
+          "valueString" : "20230501102531-0400"
+        } ]
       } ],
       "eventCoding" : {
         "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
@@ -43,10 +46,10 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1706653909622272000.bc312a22-5681-4f5b-9d84-1559d878be8b",
+    "fullUrl" : "Provenance/1706714381046832000.50a1bf8e-d446-4c27-aaf6-2bc2fa1f7221",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1706653909622272000.bc312a22-5681-4f5b-9d84-1559d878be8b",
+      "id" : "1706714381046832000.50a1bf8e-d446-4c27-aaf6-2bc2fa1f7221",
       "target" : [ {
         "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
       } ],
@@ -58,11 +61,11 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1706653909629735000.f8cddeb3-5cf9-472c-9329-1f8c2f1b2575",
+    "fullUrl" : "Provenance/1706714381055263000.20449ff6-ceea-4ff1-8379-e42ba61f89b2",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1706653909629735000.f8cddeb3-5cf9-472c-9329-1f8c2f1b2575",
-      "recorded" : "2024-01-30T17:31:49Z",
+      "id" : "1706714381055263000.20449ff6-ceea-4ff1-8379-e42ba61f89b2",
+      "recorded" : "2024-01-31T10:19:41Z",
       "policy" : [ "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle" ],
       "activity" : {
         "coding" : [ {
@@ -77,15 +80,15 @@
           } ]
         },
         "who" : {
-          "reference" : "Organization/1706653909629208000.ee7b830a-8264-4940-a5c9-26049cf8bcbb"
+          "reference" : "Organization/1706714381054786000.a4a449df-cede-4aaa-98c0-13c589545745"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1706653909629208000.ee7b830a-8264-4940-a5c9-26049cf8bcbb",
+    "fullUrl" : "Organization/1706714381054786000.a4a449df-cede-4aaa-98c0-13c589545745",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1706653909629208000.ee7b830a-8264-4940-a5c9-26049cf8bcbb",
+      "id" : "1706714381054786000.a4a449df-cede-4aaa-98c0-13c589545745",
       "identifier" : [ {
         "value" : "CDC PRIME - Atlanta"
       }, {
