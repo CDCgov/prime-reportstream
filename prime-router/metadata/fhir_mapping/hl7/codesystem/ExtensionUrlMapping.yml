@@ -363,17 +363,6 @@
 - id: "business-event"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event"
 
-
-# ExtensionSN
-- id: "sn-1-comparator"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sn-1-comparator"
-- id: "sn-2-num1"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sn-2-num1"
-- id: "sn-3-separator"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sn-3-separator"
-- id: "sn-4-num2"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sn-4-num2"
-
 # CWE -> Organization
 - id: "cwe-organization"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization"
