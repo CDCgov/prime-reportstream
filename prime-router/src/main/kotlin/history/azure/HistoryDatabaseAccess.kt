@@ -1,9 +1,11 @@
 package gov.cdc.prime.router.history.azure
 
+import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.common.BaseEngine
+import org.apache.commons.lang3.compare.ComparableUtils.ge
 import org.jooq.Condition
 import org.jooq.SortField
 import org.jooq.impl.DSL
@@ -60,6 +62,8 @@ abstract class HistoryDatabaseAccess(
     fun <T> fetchActions(
         organization: String,
         orgService: String?,
+        reportId: UUID?,
+        fileName: String?,
         sortDir: SortDir,
         sortColumn: SortColumn,
         cursor: OffsetDateTime?,
@@ -70,7 +74,7 @@ abstract class HistoryDatabaseAccess(
         klass: Class<T>,
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
-        val whereClause = createWhereCondition(organization, orgService, since, until, showFailed)
+        val whereClause = createWhereCondition(organization, orgService, reportId, fileName, since, until, showFailed)
 
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
@@ -136,11 +140,21 @@ abstract class HistoryDatabaseAccess(
     private fun createWhereCondition(
         organization: String,
         orgService: String?,
+        reportId: UUID?,
+        fileName: String?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         showFailed: Boolean,
     ): Condition {
         var filter = this.organizationFilter(organization, orgService)
+
+        if (reportId != null) {
+            filter = filter.and(REPORT_FILE.REPORT_ID.eq(reportId))
+        }
+
+        if (fileName != null) {
+            filter = filter.and(REPORT_FILE.BODY_URL.likeIgnoreCase("%$fileName"))
+        }
 
         if (since != null) {
             filter = filter.and(ACTION.CREATED_AT.ge(since))
