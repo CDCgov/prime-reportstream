@@ -138,6 +138,13 @@ OBX|1|ST|40726-2^Hepatitis C (aHCV)^LN||Reactive|||A^^HL70078|||F|||202308151643
 OBR|4||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|56888-1^HIV Ag/Ab Combo (CHIV)^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164500-0500|||F|||||||||&Chriscoe&Matthew
 OBX|1|ST|56888-1^HIV Ag/Ab Combo (CHIV)^LN||Non-Reactive||||||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530
 SPM|1|^232270000212&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT|||||||||20230815164300-0500|20230815164500-0500"""
+    private val MsgWith4Seg = """MSH|^~\&#|ProPhase^2.16.840.1.114222.4.1.238646^ISO|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20230816123358-0500||ORU^R01^ORU_R01|20230816123358|P|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO|
+SFT|Orchard|9.0|Orchard Enterprise|9.0.211217.220208||20220411
+PID|1||0008115-23-02^^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO^PI^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO||Test^Male||19701031|M||2131-1^Other Race^HL70005|1234 Adams place^^New York^NY^10457||^^^noemail@prophasedx.com^^^|||||||||U^Unknown^HL70189^^^^2.5.1||||||||N||||||
+SPM|1|^232270000212&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT|||||||||20230815164300-0500|20230815164500-0500"""
+    private val MsgSegSFTRemoved = """MSH|^~\&#|ProPhase^2.16.840.1.114222.4.1.238646^ISO|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20230816123358-0500||ORU^R01^ORU_R01|20230816123358|P|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO|
+PID|1||0008115-23-02^^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO^PI^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO||Test^Male||19701031|M||2131-1^Other Race^HL70005|1234 Adams place^^New York^NY^10457||^^^noemail@prophasedx.com^^^|||||||||U^Unknown^HL70189^^^^2.5.1||||||||N||||||
+SPM|1|^232270000212&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT|||||||||20230815164300-0500|20230815164500-0500"""
 
     @Test
     fun `diff hl7`() {
@@ -345,5 +352,21 @@ SPM|1|^232270000212&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal 
         assertThat(differences.size).isEqualTo(0)
         val differences2 = hL7DiffHelper.diffHl7(outputMessage[0], inputMessage[0])
         assertThat(differences2.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `diff output, input missing segments`() {
+        val actionLogger = ActionLogger()
+        val hl7Reader = HL7Reader(actionLogger)
+        val inputMessage = hl7Reader.getMessages(MsgWith4Seg)
+        val outputMessage = hl7Reader.getMessages(MsgSegSFTRemoved)
+        val differences = hL7DiffHelper.diffHl7(inputMessage[0], outputMessage[0])
+        // input missing seg
+        assertThat(differences.size).isEqualTo(1)
+        assertThat(differences[0].toString().contains("Output missing segment SFT"))
+        val differences2 = hL7DiffHelper.diffHl7(outputMessage[0], inputMessage[0])
+        // output missing seg
+        assertThat(differences2.size).isEqualTo(1)
+        assertThat(differences[0].toString().contains("Input missing segment SFT"))
     }
 }

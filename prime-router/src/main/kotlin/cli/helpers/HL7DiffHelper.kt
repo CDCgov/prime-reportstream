@@ -71,35 +71,30 @@ class HL7DiffHelper {
                         )
                         continue
                     }
-                    if (outputFields.size > inputFields.size) {
-                        if (effectivelyBlank(outputFields, inputFields)) {
-                            continue
-                        }
-                        outputFields.foldIndexed(differences) { index, differenceAccumulator, output ->
-                            try {
-                                inputFields[index]
-                                differenceAccumulator
-                            } catch (ex: IndexOutOfBoundsException) {
-                                differenceAccumulator.add(
-                                    Hl7Diff(
-                                        segmentIndex,
-                                        "Output had more repeating types for ${output.name}, " +
-                                                "input has ${inputFields.size} and output has ${outputFields.size}",
-                                        "",
-                                        i,
-                                        if (inputFields.size == 1) null else (index + 1),
-                                        null,
-                                        segment.name
+                    if (!effectivelyBlank(outputFields, inputFields)) {
+                        if (outputFields.size > inputFields.size) {
+                            outputFields.foldIndexed(differences) { index, differenceAccumulator, output ->
+                                try {
+                                    inputFields[index]
+                                    differenceAccumulator
+                                } catch (ex: IndexOutOfBoundsException) {
+                                    differenceAccumulator.add(
+                                        Hl7Diff(
+                                            segmentIndex,
+                                            "Output had more repeating types for ${output.name}, " +
+                                                    "input has ${inputFields.size} and output has ${outputFields.size}",
+                                            "",
+                                            i,
+                                            if (inputFields.size == 1) null else (index + 1),
+                                            null,
+                                            segment.name
+                                        )
                                     )
-                                )
-                                differenceAccumulator
+                                    differenceAccumulator
+                                }
                             }
                         }
-                    }
-                    inputFields.foldIndexed(differences) { index, differenceAccumulator, input ->
-                        if (effectivelyBlank(inputFields, outputFields)) {
-                            differenceAccumulator
-                        } else {
+                        inputFields.foldIndexed(differences) { index, differenceAccumulator, input ->
                             try {
                                 val outputField = outputFields[index]
                                 differenceAccumulator.addAll(
