@@ -1,5 +1,16 @@
-import React, { FormEvent, useCallback, useRef, useState } from "react";
-import { Button, DateRangePicker } from "@trussworks/react-uswds";
+import React, {
+    FormEvent,
+    useCallback,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
+import {
+    Button,
+    ComboBox,
+    DateRangePicker,
+    TimePicker,
+} from "@trussworks/react-uswds";
 
 import "./TableFilters.css";
 
@@ -23,11 +34,12 @@ export enum StyleClass {
 }
 
 export enum TableFilterDateLabel {
-    START_DATE = "From (Start Range):",
-    END_DATE = "Until (End Range):",
+    START_DATE = "From",
+    END_DATE = "To",
 }
 
 interface TableFilterProps {
+    receivers: { value: string; label: string }[];
     startDateLabel: string;
     endDateLabel: string;
     showDateHints?: boolean;
@@ -56,6 +68,7 @@ export function isValidDateString(dateStr?: string) {
  * and will use the context to get these values.
  */
 function TableFilters({
+    receivers,
     startDateLabel,
     endDateLabel,
     showDateHints,
@@ -145,6 +158,17 @@ function TableFilters({
         [applyToFilterManager, rangeFrom, rangeTo],
     );
 
+    const comboBoxMemo = useMemo(() => {
+        return (
+            <ComboBox
+                id="input-ComboBox"
+                name="input-ComboBox"
+                options={receivers}
+                onChange={function noRefCheck() {}}
+            />
+        );
+    }, [receivers]);
+
     return (
         <div data-testid="filter-container" className={StyleClass.CONTAINER}>
             <form
@@ -153,49 +177,109 @@ function TableFilters({
                 onSubmit={submitHandler}
                 onReset={resetHandler}
             >
-                <DateRangePicker
-                    className={StyleClass.DATE_CONTAINER}
-                    startDateLabel={startDateLabel}
-                    startDateHint={showDateHints ? "mm/dd/yyyy" : ""}
-                    startDatePickerProps={{
-                        id: "start-date",
-                        name: "start-date-picker",
-                        onChange: (val?: string) => {
-                            if (isValidDateString(val)) {
-                                setRangeFrom(new Date(val!!).toISOString());
-                            } else {
-                                setRangeFrom("");
-                            }
-                        },
-                        defaultValue: rangeFrom,
-                    }}
-                    endDateLabel={endDateLabel}
-                    endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
-                    endDatePickerProps={{
-                        id: "end-date",
-                        name: "end-date-picker",
-                        onChange: (val?: string) => {
-                            if (isValidDateString(val)) {
-                                setRangeTo(
-                                    getEndOfDay(new Date(val!!)).toISOString(),
-                                );
-                            } else {
-                                setRangeTo("");
-                            }
-                        },
-                        defaultValue: rangeTo,
-                    }}
-                />
-                <div className="button-container">
-                    <div className={StyleClass.DATE_CONTAINER}>
-                        <Button disabled={!isFilterEnabled} type={"submit"}>
-                            Filter
-                        </Button>
-                    </div>
-                    <div className={StyleClass.DATE_CONTAINER}>
-                        <Button type={"reset"} name="clear-button" unstyled>
-                            Clear
-                        </Button>
+                <div className="grid-container">
+                    <div className="grid-row">
+                        <div className="grid-col-4">
+                            <label
+                                id="start-date-label"
+                                data-testid="label"
+                                className="usa-label"
+                                htmlFor="input-ComboBox"
+                            >
+                                Receiver
+                            </label>
+                            <div className="usa-hint" id="start-date-hint">
+                                Your connection could have multiple receivers,
+                                such as one specific to COVID.
+                            </div>
+                            <ComboBox
+                                key={receivers.length}
+                                id="input-ComboBox"
+                                name="input-ComboBox"
+                                options={receivers}
+                                onChange={function noRefCheck() {}}
+                            />
+                        </div>
+                        <div className="grid-col-4">
+                            <DateRangePicker
+                                className={StyleClass.DATE_CONTAINER}
+                                startDateLabel={startDateLabel}
+                                startDateHint={
+                                    showDateHints ? "mm/dd/yyyy" : ""
+                                }
+                                startDatePickerProps={{
+                                    id: "start-date",
+                                    name: "start-date-picker",
+                                    onChange: (val?: string) => {
+                                        if (isValidDateString(val)) {
+                                            setRangeFrom(
+                                                new Date(val!!).toISOString(),
+                                            );
+                                        } else {
+                                            setRangeFrom("");
+                                        }
+                                    },
+                                    defaultValue: rangeFrom,
+                                }}
+                                endDateLabel={endDateLabel}
+                                endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
+                                endDatePickerProps={{
+                                    id: "end-date",
+                                    name: "end-date-picker",
+                                    onChange: (val?: string) => {
+                                        if (isValidDateString(val)) {
+                                            setRangeTo(
+                                                getEndOfDay(
+                                                    new Date(val!!),
+                                                ).toISOString(),
+                                            );
+                                        } else {
+                                            setRangeTo("");
+                                        }
+                                    },
+                                    defaultValue: rangeTo,
+                                }}
+                            />
+                            <div className="grid-row">
+                                <TimePicker
+                                    hint="hh:mm"
+                                    id="start-time"
+                                    label="Start time"
+                                    name="start-time"
+                                    step={1}
+                                    onChange={function noRefCheck() {}}
+                                />
+                                <TimePicker
+                                    hint="hh:mm"
+                                    id="end-time"
+                                    label="End time"
+                                    name="end-time"
+                                    step={1}
+                                    onChange={function noRefCheck() {}}
+                                />
+                            </div>
+                        </div>
+                        <div className="grid-col-4">
+                            <div className="button-container">
+                                <div className={StyleClass.DATE_CONTAINER}>
+                                    <Button
+                                        disabled={!isFilterEnabled}
+                                        type={"submit"}
+                                    >
+                                        Apply
+                                    </Button>
+                                </div>
+                                <div className={StyleClass.DATE_CONTAINER}>
+                                    <Button
+                                        type={"reset"}
+                                        name="clear-button"
+                                        unstyled
+                                    >
+                                        Reset
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>

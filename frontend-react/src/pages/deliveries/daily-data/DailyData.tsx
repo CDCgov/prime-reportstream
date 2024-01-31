@@ -34,36 +34,6 @@ import ServicesDropdown from "./ServicesDropdown";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
-const ServiceDisplay = ({
-    services,
-    activeService,
-    handleSetActive,
-}: {
-    services: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    handleSetActive: (v: string) => void;
-}) => {
-    return (
-        <div className="grid-col-12">
-            {services && services?.length > 1 ? (
-                <ServicesDropdown
-                    services={services}
-                    active={activeService?.name || ""}
-                    chosenCallback={handleSetActive}
-                />
-            ) : (
-                <p>
-                    Default service:{" "}
-                    <strong>
-                        {(services?.length && services[0].name.toUpperCase()) ||
-                            ""}
-                    </strong>
-                </p>
-            )}
-        </div>
-    );
-};
-
 interface DeliveriesTableContentProps {
     filterManager: FilterManager;
     paginationProps?: PaginationProps;
@@ -102,13 +72,13 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         },
         {
             dataAttr: DeliveriesDataAttr.BATCH_READY,
-            columnHeader: "Available",
+            columnHeader: "Time received",
             sortable: true,
             transform: transformDate,
         },
         {
             dataAttr: DeliveriesDataAttr.EXPIRES,
-            columnHeader: "Expires",
+            columnHeader: "File available until",
             sortable: true,
             transform: transformDate,
         },
@@ -118,13 +88,17 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         },
         {
             dataAttr: DeliveriesDataAttr.FILE_NAME,
-            columnHeader: "File",
+            columnHeader: "Filename",
             feature: {
                 action: handleFetchAndDownload,
                 param: DeliveriesDataAttr.REPORT_ID,
                 actionButtonHandler: handleExpirationDate,
                 actionButtonParam: DeliveriesDataAttr.EXPIRES,
             },
+        },
+        {
+            dataAttr: DeliveriesDataAttr.RECEIVER,
+            columnHeader: "Receiver",
         },
     ];
 
@@ -191,28 +165,49 @@ const DeliveriesFilterAndTable = ({
     if (paginationProps) {
         paginationProps.label = "Deliveries pagination";
     }
-
+    const receiverDropdown = [
+        ...new Set(
+            serviceReportsList.map((data) => {
+                return data.receiver;
+            }),
+        ),
+    ].map((receiver) => {
+        return { value: receiver, label: receiver };
+    });
+    console.log("isLoading = ", isLoading);
+    console.log("receiverDropdown = ", receiverDropdown);
     return (
         <>
-            <ServiceDisplay
-                services={services}
-                activeService={activeService}
-                handleSetActive={handleSetActive}
-            />
-            <TableFilters
-                startDateLabel={TableFilterDateLabel.START_DATE}
-                endDateLabel={TableFilterDateLabel.END_DATE}
-                showDateHints={true}
-                filterManager={filterManager}
-                onFilterClick={({ from, to }: { from: string; to: string }) =>
-                    appInsights?.trackEvent({
-                        name: featureEvent,
-                        properties: {
-                            tableFilter: { startRange: from, endRange: to },
-                        },
-                    })
-                }
-            />
+            <section className="bg-blue-5 padding-4">
+                <p className="text-bold">
+                    View data from a specific receiver or date and time range
+                </p>
+
+                <TableFilters
+                    receivers={receiverDropdown}
+                    startDateLabel={TableFilterDateLabel.START_DATE}
+                    endDateLabel={TableFilterDateLabel.END_DATE}
+                    showDateHints={true}
+                    filterManager={filterManager}
+                    onFilterClick={({
+                        from,
+                        to,
+                    }: {
+                        from: string;
+                        to: string;
+                    }) =>
+                        appInsights?.trackEvent({
+                            name: featureEvent,
+                            properties: {
+                                tableFilter: {
+                                    startRange: from,
+                                    endRange: to,
+                                },
+                            },
+                        })
+                    }
+                />
+            </section>
             <DeliveriesTable
                 filterManager={filterManager}
                 paginationProps={paginationProps}

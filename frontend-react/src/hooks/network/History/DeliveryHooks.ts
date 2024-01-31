@@ -25,6 +25,7 @@ export enum DeliveriesDataAttr {
     EXPIRES = "expires",
     ITEM_COUNT = "reportItemCount",
     FILE_NAME = "fileName",
+    RECEIVER = "receiver",
 }
 
 const filterManagerDefaults: FilterManagerDefaults = {
