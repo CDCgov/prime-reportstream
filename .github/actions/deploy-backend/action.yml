@@ -239,7 +239,7 @@ runs:
         echo "swap_utc=$SWAP_UTC" >> $GITHUB_OUTPUT
       shell: bash
 
-    - uses: Azure/functions-container-action@0aec6197033a72d3ca813f1aebd9391f639c2a8f
+    - uses: JosiahSiegel/functions-container-action@095007f503ed653fc182644df44f13c7bf2d7fd7
       id: deploy-candidate
       with:
         app-name: ${{ env.FUNCTION_APP }}
