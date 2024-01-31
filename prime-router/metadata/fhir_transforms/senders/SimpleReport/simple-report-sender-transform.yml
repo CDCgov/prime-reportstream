@@ -113,14 +113,6 @@ elements:
     bundleProperty: '%diagnosticReport.identifier[1].type.coding[0].system'
     value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
 
-  # SR sends AOEs under ServiceRequest.supportingInfo, but our FHIR to HL7 mappings map Observations
-  # under supportingInfo to SPM OBX segments. To be able to exclude this Observations from being map under SPM we need
-  # to identify with the AOE tag
-  - name: sr-supporting-info-aoe-tag
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
-    bundleProperty: '%resource.meta.tag.code'
-    value: [ '"AOE"' ]
-
   # This is populated as a sender transform in the Covid pipeline
   - name: sr-ordering-facility-name-type-code
     bundleProperty: '%serviceRequest.requester.resolve().organization.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type").valueCoding.code'

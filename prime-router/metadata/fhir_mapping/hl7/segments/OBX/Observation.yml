@@ -26,7 +26,6 @@ code_noCE:
   vars:
     obx2: STRING, OBX.2
   condition: $obx2 NOT_EQUALS CE || $obx2 NULL
-  required: true
   expressionType: resource
   valueOf: datatypes/CWE/CodeableConcept
   specs: OBX.3
@@ -35,7 +34,6 @@ code_supportsCE:
   vars:
     obx2: STRING, OBX.2
   condition: $obx2 EQUALS CE
-  required: true
   expressionType: resource
   valueOf: datatypes/CE/CodeableConcept
   specs: OBX.3

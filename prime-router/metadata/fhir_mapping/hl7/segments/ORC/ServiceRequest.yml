@@ -347,10 +347,3 @@ note:
   expressionType: resource
   generateList: true
   specs: NTE
-
-supportingInfo:
-  valueOf: datatype/Reference
-  expressionType: resource
-  specs: $Observation
-  useGroup: true
-  generateList: true

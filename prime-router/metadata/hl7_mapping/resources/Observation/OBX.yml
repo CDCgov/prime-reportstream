@@ -112,7 +112,7 @@ elements:
       hl7XCNField: '%{hl7OBXField}-25'
 
   - name: observation-aoe-identifier
-    condition: '%resource.meta.tag.code="AOE"'
+    condition: '%resource.identifier.type.coding.code = "81959-9"'
     value: [ '"QST"' ]
     hl7Spec: [ '%{hl7OBXField}-29' ]
 

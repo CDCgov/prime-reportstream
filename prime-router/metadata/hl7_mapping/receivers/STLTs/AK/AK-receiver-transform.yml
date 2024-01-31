@@ -4,11 +4,6 @@ extends: ../../../ORU_R01/ORU_R01-base
 
 elements:
 
-
-  - name: observation-result-with-aoe
-    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
-    resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not()) | %service.supportingInfo.resolve().where(meta.tag.code = "AOE")'
-
   # XTN
   - name: xtn-use-code-from-system
     condition: '%resource.system = "email"'
@@ -63,7 +58,7 @@ elements:
   - name: ak-specimen-source-site-text
     condition: true
     value: [ 'Bundle.entry.resource.ofType(Specimen).collection.bodySite.text' ]
-    hl7Spec: ['/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-2']
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-2' ]
 
   - name: ak-receiving-facility
     condition: true
