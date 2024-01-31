@@ -48,6 +48,7 @@ open class Receiver(
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val conditionFilter: ReportStreamFilter = emptyList(),
+    val mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
     val deidentify: Boolean = false,
     val deidentifiedValue: String = "",
     val timing: Timing? = null,
@@ -94,6 +95,7 @@ open class Receiver(
         routingFilter: ReportStreamFilter = emptyList(),
         processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
+        mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false,
         enrichmentSchemaNames: List<String> = emptyList(),
     ) : this(
@@ -107,6 +109,7 @@ open class Receiver(
         routingFilter = routingFilter,
         processingModeFilter = processingModeFilter,
         conditionFilter = conditionFilter,
+        mappedConditionFilter = mappedConditionFilter,
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
@@ -127,6 +130,7 @@ open class Receiver(
         copy.processingModeFilter,
         copy.reverseTheQualityFilter,
         copy.conditionFilter,
+        copy.mappedConditionFilter,
         copy.deidentify,
         copy.deidentifiedValue,
         copy.timing,
@@ -241,9 +245,9 @@ open class Receiver(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
-        if (conditionFilter.isNotEmpty()) {
+        if (conditionFilter.isNotEmpty() || mappedConditionFilter.isNotEmpty()) {
             if (!topic.isUniversalPipeline) {
-                return "Condition filter not allowed for receivers with topic '${topic.jsonVal}'"
+                return "Condition filter(s) not allowed for receivers with topic '${topic.jsonVal}'"
             }
         }
 
