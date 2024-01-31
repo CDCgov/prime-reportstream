@@ -216,8 +216,6 @@ abstract class ReportFileFunction(
      * @property showFailed whether to include actions that failed to be sent.
      */
     data class HistoryApiParameters(
-        val reportId: String?,
-        val fileName: String?,
         val sortDir: HistoryDatabaseAccess.SortDir,
         val sortColumn: HistoryDatabaseAccess.SortColumn,
         val cursor: OffsetDateTime?,
@@ -225,17 +223,19 @@ abstract class ReportFileFunction(
         val until: OffsetDateTime?,
         val pageSize: Int,
         val showFailed: Boolean,
+        val reportId: String?,
+        val fileName: String?,
     ) {
         constructor(query: Map<String, String>) : this(
-            reportId = query["reportId"],
-            fileName = query["fileName"],
             sortDir = extractSortDir(query),
             sortColumn = extractSortCol(query),
             cursor = extractDateTime(query, "cursor"),
             since = extractDateTime(query, "since"),
             until = extractDateTime(query, "until"),
             pageSize = extractPageSize(query),
-            showFailed = extractShowFailed(query)
+            showFailed = extractShowFailed(query),
+            reportId = query["reportId"],
+            fileName = query["fileName"],
         )
 
         companion object {

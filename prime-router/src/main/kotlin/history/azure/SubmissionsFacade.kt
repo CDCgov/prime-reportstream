@@ -44,8 +44,6 @@ class SubmissionsFacade(
     fun findSubmissionsAsJson(
         organization: String,
         sendingOrgService: String?,
-        reportId: String?,
-        fileName: String?,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -57,8 +55,6 @@ class SubmissionsFacade(
         val result = findSubmissions(
             organization,
             sendingOrgService,
-            reportId,
-            fileName,
             sortDir,
             sortColumn,
             cursor,
@@ -88,8 +84,6 @@ class SubmissionsFacade(
     private fun findSubmissions(
         organization: String,
         sendingOrgService: String?,
-        reportId: String?,
-        fileName: String?,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -105,8 +99,6 @@ class SubmissionsFacade(
         return dbSubmissionAccess.fetchActions(
             organization,
             sendingOrgService,
-            UUID.fromString(reportId),
-            fileName,
             sortDir,
             sortColumn,
             cursor,

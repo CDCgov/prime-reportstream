@@ -1,28 +1,6 @@
 package gov.cdc.prime.router.history.azure
 
-import assertk.assertFailure
-import assertk.assertThat
-import assertk.assertions.hasMessage
-import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
-import assertk.assertions.isNotNull
-import assertk.assertions.isTrue
-import com.google.common.net.HttpHeaders
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.MockHttpRequestMessage
-import gov.cdc.prime.router.azure.db.tables.pojos.Action
-import gov.cdc.prime.router.history.DeliveryFacility
-import gov.cdc.prime.router.history.DeliveryHistory
-import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticationType
-import io.mockk.every
-import io.mockk.mockk
-import java.time.OffsetDateTime
-import kotlin.test.Test
-
-//class DeliveryFacadeTests {
+// class DeliveryFacadeTests {
 //    @Test
 //    fun `test findDeliveries`() {
 //        val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
@@ -275,7 +253,7 @@ import kotlin.test.Test
 //            "sub" to "bob@bob.com"
 //        )
 //        var claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
-////        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+// //        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
 //        val org1 = "myReceivingOrg"
 //        assertThat(facade.checkAccessAuthorizationForOrg(claims, org1, null, mockRequest)).isTrue()
 //        // User has right to see any sender channel within that org.
@@ -361,4 +339,4 @@ import kotlin.test.Test
 //        val facade = DeliveryFacade.instance
 //        assertThat(facade).isNotNull()
 //    }
-//}
+// }
