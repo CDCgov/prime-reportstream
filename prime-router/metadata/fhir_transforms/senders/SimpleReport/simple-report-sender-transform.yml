@@ -25,6 +25,15 @@ elements:
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
     value: [ '"ISO"' ]
 
+  - name: message-date-time
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message").value.exists().not()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message").value[x]'
+    value:
+      - Bundle.entry.resource.ofType(Provenance).recorded.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value
+      - Bundle.entry.resource.ofType(Provenance).recorded
+      - Bundle.timestamp
+
   - name: sending-application-target-msh3
     condition: true
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
@@ -132,28 +141,12 @@ elements:
     bundleProperty: '%diagnosticReport.specimen.resolve().identifier.value'
     value: [ '%diagnosticReport.identifier.value' ]
 
-  # The Covid pipeline checks if this is a valid NPI and adds the NPI identifier type if it is
-  - name: sr-ordering-provider-id-authority-type
-    condition: '%resource.identifier.value.empty().not()'
-    resource: 'Bundle.entry.resource.ofType(Practitioner)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type").valueCodeableConcept.coding.code'
-    value: [ '"NPI"' ]
-
   # This is populated as a sender transform in the Covid pipeline
   - name: sr-ordering-provider-name-type-code
     condition: '%resource.name.use.exists().not()'
     resource: 'Bundle.entry.resource.ofType(Practitioner)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code").value[x]'
     value: [ '"L"' ]
-
-  # This were being populated as CA Receiver transforms, but should be Sender Transforms
-  - name: sr-patient-assigning-facility-name
-    bundleProperty: '%patient.identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id").value[x]'
-    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
-
-  - name: sr-patient-assigning-facility-id
-    bundleProperty: '%patient.identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id").value[x]'
-    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
 
   - name: sr-patient-telecom
     resource: '%patient.telecom'
@@ -186,7 +179,7 @@ elements:
     value: [ '"official"' ]
 
   - name: sr-patient-address-street
-    bundleProperty: '%patient.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address").value[x]'
+    bundleProperty: '%patient.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
     value: [ '%patient.address.line[0]' ]
 
   ## Code
@@ -378,11 +371,6 @@ elements:
 
   - name: sr-observation-producer-id-identifier
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id").value[x]'
-    value: [ '%diagnosticReport.basedOn.resolve().performer' ]
-
-  - name: sr-observation-producer-id-identifier
-    resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.performer.exists().not()'
     bundleProperty: '%resource.performer'
     value: [ '%diagnosticReport.basedOn.resolve().performer' ]
@@ -556,7 +544,7 @@ elements:
     value: [ '%serviceRequest.requester.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number").value' ]
 
   - name: sr-service-request-requester-address-street
-    bundleProperty: '%serviceRequest.requester.resolve().practitioner.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address").value[x]'
+    bundleProperty: '%serviceRequest.requester.resolve().practitioner.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
     value: [ '%serviceRequest.requester.resolve().practitioner.resolve().address.line[0]' ]
 
   # order-effective-date
@@ -567,12 +555,12 @@ elements:
   # Organization
   - name: sr-organization-address-street
     resource: 'Bundle.entry.resource.ofType(Organization)'
-    bundleProperty: '%resource.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address").value[x]'
+    bundleProperty: '%resource.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
     value: [ '%resource.address.line[0]' ]
 
   - name: sr-organization-address-street-dwelling
     resource: 'Bundle.entry.resource.ofType(Organization)'
-    bundleProperty: '%resource.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad2-other-designation").value[x]'
+    bundleProperty: '%resource.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("XAD.2").value[x]'
     value: [ '%resource.address.line[1]' ]
 
   - name: sr-organization-identifier
