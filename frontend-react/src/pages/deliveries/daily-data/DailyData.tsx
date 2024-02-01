@@ -30,7 +30,6 @@ import {
 } from "../../../contexts/AppInsights";
 
 import { getReportAndDownload } from "./ReportsUtils";
-import ServicesDropdown from "./ServicesDropdown";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
@@ -131,7 +130,7 @@ const DeliveriesFilterAndTable = ({
 }) => {
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
-    const handleSetActive = (name: string) => {
+    const handleSetActiveService = (name: string) => {
         setActiveService(services.find((item) => item.name === name));
     };
 
@@ -165,17 +164,16 @@ const DeliveriesFilterAndTable = ({
     if (paginationProps) {
         paginationProps.label = "Deliveries pagination";
     }
+
     const receiverDropdown = [
         ...new Set(
-            serviceReportsList.map((data) => {
-                return data.receiver;
+            services.map((data) => {
+                return data.name;
             }),
         ),
     ].map((receiver) => {
         return { value: receiver, label: receiver };
     });
-    console.log("isLoading = ", isLoading);
-    console.log("receiverDropdown = ", receiverDropdown);
     return (
         <>
             <section className="bg-blue-5 padding-4">
@@ -189,6 +187,7 @@ const DeliveriesFilterAndTable = ({
                     endDateLabel={TableFilterDateLabel.END_DATE}
                     showDateHints={true}
                     filterManager={filterManager}
+                    handleSetActiveService={handleSetActiveService}
                     onFilterClick={({
                         from,
                         to,

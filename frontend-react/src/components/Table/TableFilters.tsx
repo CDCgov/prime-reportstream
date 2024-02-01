@@ -44,6 +44,7 @@ interface TableFilterProps {
     endDateLabel: string;
     showDateHints?: boolean;
     filterManager: FilterManager;
+    handleSetActiveService: (s: string) => void;
     cursorManager?: CursorManager;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
 }
@@ -73,6 +74,7 @@ function TableFilters({
     endDateLabel,
     showDateHints,
     filterManager,
+    handleSetActiveService,
     cursorManager,
     onFilterClick,
 }: TableFilterProps) {
@@ -158,17 +160,6 @@ function TableFilters({
         [applyToFilterManager, rangeFrom, rangeTo],
     );
 
-    const comboBoxMemo = useMemo(() => {
-        return (
-            <ComboBox
-                id="input-ComboBox"
-                name="input-ComboBox"
-                options={receivers}
-                onChange={function noRefCheck() {}}
-            />
-        );
-    }, [receivers]);
-
     return (
         <div data-testid="filter-container" className={StyleClass.CONTAINER}>
             <form
@@ -197,7 +188,10 @@ function TableFilters({
                                 id="input-ComboBox"
                                 name="input-ComboBox"
                                 options={receivers}
-                                onChange={function noRefCheck() {}}
+                                onChange={(selection) => {
+                                    if (selection)
+                                        handleSetActiveService(selection);
+                                }}
                             />
                         </div>
                         <div className="grid-col-4">
