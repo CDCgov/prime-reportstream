@@ -101,12 +101,12 @@
       format: HL7
     - name: ignore-fhir-passthrough      # Use this to test fhir passthrough
       organizationName: ignore
-      topic: elr_elims
+      topic: elr-elims
       customerStatus: active
       format: FHIR
     - name: ignore-hl7-passthrough      # Use this to test fhir passthrough
       organizationName: ignore
-      topic: elr_elims
+      topic: elr-elims
       customerStatus: active
       format: HL7
   receivers:
