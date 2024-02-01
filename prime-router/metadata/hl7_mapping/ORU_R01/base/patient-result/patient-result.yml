@@ -1,0 +1,11 @@
+elements:
+
+  - name: patient
+    schema: ./base/patient-result/patient-base
+
+  - name: order-observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.count() > 0'
+    required: true
+    schema: ./base/patient-result/patient/order-observation-base
+    resourceIndex: orderIndex

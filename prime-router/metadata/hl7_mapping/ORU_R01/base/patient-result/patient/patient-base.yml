@@ -1,0 +1,18 @@
+constants:
+  hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+
+elements:
+
+  - name: patient
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.count() = 1'
+    required: true
+    schema: ./patient
+
+  - name: participation-observation
+    schema: ./patient-observation
+
+  - name: visit
+    resource: 'Bundle.entry.resource.ofType(Encounter)'
+    condition: '%resource.count() = 1'
+    schema: ./visit

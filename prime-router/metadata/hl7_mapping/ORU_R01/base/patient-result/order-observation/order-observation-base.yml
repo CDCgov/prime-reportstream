@@ -1,0 +1,24 @@
+constants:
+  diagnostic: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex]'
+  service: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].basedOn.resolve()'
+  specimen: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].specimen.resolve()'
+#  hl7ObservationNotes: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
+#  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
+elements:
+  - name: order-observation
+    schema: ./base/patient-result/order-observation/order-observation
+
+  - name: timing-quantity
+    resource: '%service'
+    condition: >
+      %resource.occurrence.repeat.bounds.start.exists() or
+      %resource.occurrence.repeat.bounds.end.exists() or
+      %resource.priority.exists() or
+      %resource.extension(%`rsext-service-priority`).exists()
+    schema: timing-quantity
+
+  - name: observation
+    schema: ./base/patient-result/order-observation/observation
+
+  - name: specimen
+    schema: ./base/patient-result/order-observation/specimen

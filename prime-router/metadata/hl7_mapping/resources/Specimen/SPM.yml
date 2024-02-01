@@ -127,17 +127,3 @@ elements:
     constants:
       eiFieldPath: '%{hl7SpecimenFieldPath}-32'
     schema: ../../datatypes/identifier-extension/EI
-
-  - name: spm-extension
-    resource: '%resource.extension(%`rsext-spm-specimen`)'
-    schema: ./SPMExtension
-
-  - name: specimen-observation-result-with-aoe
-    resource: 'Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = %resource.id)'
-    schema: ../Observation/OBX
-    resourceIndex: specimenObservationIndex
-    constants:
-      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION'
-      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION(%{specimenObservationIndex})/OBX'
-      observation: 'Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = %resource.id)[%specimenObservationIndex]'
-      resultIndex: '%specimenObservationIndex'
