@@ -12343,13 +12343,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.pick@npm:^4.4.0":
-  version: 4.4.0
-  resolution: "lodash.pick@npm:4.4.0"
-  checksum: 2c36cab7da6b999a20bd3373b40e31a3ef81fa264f34a6979c852c5bc8ac039379686b27380f0cb8e3781610844fafec6949c6fbbebc059c98f8fa8570e3675f
-  languageName: node
-  linkType: hard
-
 "lodash@npm:^4.17.15, lodash@npm:^4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
@@ -14945,7 +14938,7 @@ __metadata:
     typescript: ^5.3.3
     use-deep-compare-effect: ^1.8.1
     vite: ^5.0.12
-    vite-plugin-checker: ^0.6.2
+    vite-plugin-checker: ^0.6.4
     vite-plugin-svgr: ^4.2.0
     web-vitals: ^3.4.0
     whatwg-fetch: ^3.6.20
@@ -17760,9 +17753,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-checker@npm:^0.6.2":
-  version: 0.6.2
-  resolution: "vite-plugin-checker@npm:0.6.2"
+"vite-plugin-checker@npm:^0.6.4":
+  version: 0.6.4
+  resolution: "vite-plugin-checker@npm:0.6.4"
   dependencies:
     "@babel/code-frame": ^7.12.13
     ansi-escapes: ^4.3.0
@@ -17771,8 +17764,6 @@ __metadata:
     commander: ^8.0.0
     fast-glob: ^3.2.7
     fs-extra: ^11.1.0
-    lodash.debounce: ^4.0.8
-    lodash.pick: ^4.4.0
     npm-run-path: ^4.0.1
     semver: ^7.5.0
     strip-ansi: ^6.0.0
@@ -17808,7 +17799,7 @@ __metadata:
       optional: true
     vue-tsc:
       optional: true
-  checksum: 83306deba88ff4b9a2e2bf0a74962bb45117736c51b9fa2de005b9d7b020d69fec480ac7638e774d1316b065ca442ae4cf3641b98c118652324fb31ce28fd783
+  checksum: 2bd1467ec03e9d9ba7bf6da8bfb6ebed232c55d5253c9ccc4fdd6f38c0cb621e637b76426a3730e37574b351a0386791f37893f6768b700731168acfb12a9d61
   languageName: node
   linkType: hard
 
