@@ -77,10 +77,10 @@ class FHIRTranslator(
                 var queueMessage: ReportEventQueueMessage? = null
                 val bodyBytes = if (message.topic.isSendOriginal) {
                     nextAction = Event.EventAction.SEND
-                    val originalMessage = getOriginalMessage(message.reportId, WorkflowEngine())
-                    externalName = originalMessage.externalName
+                    val originalReport = getOriginalReport(message.reportId, WorkflowEngine())
+                    externalName = originalReport.externalName
                     queueMessage = ReportEventQueueMessage(nextAction, false, message.reportId, "")
-                    BlobAccess.downloadBlobAsByteArray(originalMessage.bodyUrl)
+                    BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
                 } else {
                     getByteArrayFromBundle(receiver, bundle)
                 }
@@ -119,9 +119,9 @@ class FHIRTranslator(
     }
 
     /**
-     * Takes a [reportId] and returns the content of the original message as a ByteArray
+     * Takes a [reportId] and returns the content of the first ancestor as submitted by the sender as a ByteArray
      */
-    internal fun getOriginalMessage(
+    internal fun getOriginalReport(
         reportId: ReportId,
         workflowEngine: WorkflowEngine,
     ): ReportFile {

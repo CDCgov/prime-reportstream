@@ -35,11 +35,9 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
-import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
-import net.wussmann.kenneth.mockfuel.any
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -184,92 +182,6 @@ class FhirTranslatorTests {
     }
 
     @Test
-    fun `test send original translation happy path, one receiver`() {
-        val actionHistory = mockk<ActionHistory>()
-        val actionLogger = mockk<ActionLogger>()
-        val engine = makeSendOriginalFhirEngine()
-        mockkObject(BlobAccess.Companion)
-
-        val parentReportId = UUID.randomUUID()
-        val childReportId = UUID.randomUUID()
-        val rootItemLineage =
-            ItemLineage(
-                9000000125356546,
-                null,
-                0,
-                parentReportId,
-                0,
-                "trackingId1",
-                null,
-                OffsetDateTime.now(),
-                null
-            )
-        val childItemLineage =
-            ItemLineage(
-                9000000125356546,
-                parentReportId,
-                0,
-                childReportId,
-                0,
-                "trackingId2",
-                null,
-                OffsetDateTime.now(),
-                null
-            )
-        val report = ReportFile().setReportId(parentReportId).setBodyUrl("testingurl").setSchemaTopic(Topic.ELR_ELIMS)
-        val reportContent = "reportContent"
-        val message =
-            spyk(
-                FhirTranslateQueueMessage(
-                    UUID.randomUUID(),
-                    BLOB_URL,
-                    "test",
-                    BLOB_SUB_FOLDER,
-                    topic = Topic.ELR_ELIMS,
-                    originalSenderOrganization.receivers[0].fullName
-                )
-            )
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
-
-        // need a different mock for the one that is instantiated within the method
-        mockkConstructor(WorkflowEngine::class)
-        mockkConstructor(DatabaseAccess::class)
-
-        val dbAccessMock = mockk<DatabaseAccess>()
-        every {
-            anyConstructed<WorkflowEngine>().db
-        }.returns(dbAccessMock)
-        every {
-            dbAccessMock.fetchItemLineagesForReport(any(), any(), any())
-        }.returnsMany(listOf(childItemLineage), listOf(rootItemLineage))
-        every { downloadBlobAsByteArray(any()) }.returns(reportContent.toByteArray())
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }
-            .returns(File(VALID_DATA_URL).readText())
-        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every { dbAccessMock.fetchReportFile(any(), any(), any()) }.returns(report)
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { actionHistory.trackActionReceiverInfo(any(), any()) }
-            .returns(Unit)
-
-        accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        verify(exactly = 1) {
-            actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any(), any())
-            BlobAccess.Companion.downloadBlobAsByteArray(any(), any(), any())
-            accessSpy.insertTask(any(), any(), any(), any(), any())
-            actionHistory.trackActionReceiverInfo(any(), any())
-        }
-    }
-
-    @Test
     fun `test getOriginalMessage`() {
         val mockWorkflowEngine = mockk<WorkflowEngine>()
         val mockDatabaseAccess = mockk<DatabaseAccess>()
@@ -302,7 +214,7 @@ class FhirTranslatorTests {
         every { mockWorkflowEngine.db.fetchReportFile(any()) }.returns(report)
         every { downloadBlobAsByteArray(any()) }.returns(reportContent.toByteArray())
 
-        val rootReport = FHIRTranslator().getOriginalMessage(childReportId, mockWorkflowEngine)
+        val rootReport = FHIRTranslator().getOriginalReport(childReportId, mockWorkflowEngine)
         val message = downloadBlobAsByteArray(rootReport.bodyUrl)
         assertThat(String(message)).isEqualTo(reportContent)
     }

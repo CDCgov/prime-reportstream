@@ -20,11 +20,11 @@ import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 
-const val sendQueueName = "send"
 class FHIRFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionLogger: ActionLogger = ActionLogger(),
@@ -131,7 +131,7 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
-                sendQueueName,
+                elrSendQueueName,
                 it.serialize()
             )
         }

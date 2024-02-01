@@ -1715,9 +1715,10 @@ class Report : Logging {
                     )
                 }
 
-            var blobName = report.name
-            if (!externalName.isNullOrEmpty()) {
-                blobName = externalName + "-" + report.name
+            var blobName = if (!externalName.isNullOrEmpty()) {
+                externalName + "-" + report.name
+            } else {
+                report.name
             }
 
             // upload the translated copy to blobstore
