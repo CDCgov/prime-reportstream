@@ -14,6 +14,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
+import org.hl7.fhir.exceptions.FHIRException
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Coding
@@ -66,8 +67,24 @@ private fun lookupCondition(code: Coding, metadata: Metadata): Coding? {
  */
 fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
     val toReturn = mutableMapOf<String, List<Coding>>()
-    toReturn[ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER] = this.code.coding
-    toReturn[ObservationMappingConstants.BUNDLE_VALUE_IDENTIFIER] = this.valueCodeableConcept.coding
+    try {
+        toReturn[ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER] = this.code.coding
+    } catch (error: FHIRException) {
+        if (error.message == null ||
+            !error.message!!.startsWith("Type mismatch: the type CodeableConcept was expected")
+            ) {
+            throw error
+        }
+    }
+    try {
+        toReturn[ObservationMappingConstants.BUNDLE_VALUE_IDENTIFIER] = this.valueCodeableConcept.coding
+    } catch (error: FHIRException) {
+        if (error.message == null ||
+            !error.message!!.startsWith("Type mismatch: the type CodeableConcept was expected")
+            ) {
+            throw error
+        }
+    }
     return toReturn
 }
 
