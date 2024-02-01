@@ -36,7 +36,7 @@ class DeliveryFacade(
      *
      * @return a List of Actions
      */
-    fun findDeliveries(
+    fun  findDeliveries(
         organization: String,
         receivingOrgSvc: String?,
         sortDir: HistoryDatabaseAccess.SortDir,

@@ -187,6 +187,22 @@ class DeliveryFacadeTests {
                 null
             )
         )
+
+        // Happy Path: reportId
+        assertThat(
+            facade.findDeliveries(
+                "ca-dph",
+                "elr",
+                HistoryDatabaseAccess.SortDir.ASC,
+                HistoryDatabaseAccess.SortColumn.CREATED_AT,
+                null,
+                null,
+                null,
+                10,
+                "b9f63105-bbed-4b41-b1ad-002a90f07e62",
+                null
+            )
+        )
     }
 
     @Test
