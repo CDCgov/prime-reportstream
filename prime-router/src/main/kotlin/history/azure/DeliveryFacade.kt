@@ -57,7 +57,13 @@ class DeliveryFacade(
         require(since == null || until == null || until > since) {
             "End date must be after start date."
         }
-        val reportId = if (reportIdStr != null) UUID.fromString(reportIdStr) else null
+
+        var reportId: UUID? = null
+        try {
+            reportId = if (reportIdStr != null) UUID.fromString(reportIdStr) else null
+        } catch (e: IllegalArgumentException){
+            logger.debug("Invalid format for report ID: $reportIdStr", e)
+        }
 
         return dbDeliveryAccess.fetchActions(
             organization,
