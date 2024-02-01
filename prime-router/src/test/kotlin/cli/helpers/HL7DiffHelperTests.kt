@@ -92,60 +92,18 @@ class HL7DiffHelperTests {
         "SPM|1|230011927&SPHL-000034&2.16.840.1.114222.4.1.3661&ISO^3003786103&STARLIMS.CDC.Stag&" +
         "2.16.840.1.114222.4.3.3.2.1.2&ISO||119365002^Specimen from wound^SCT^WND^Wound^L^0912017^Adobe_Code" +
         "^Wound||||56459004^Foot^SCT^FOT^Foot^L^09012017^Adobe_Code^Foot||||||Isolate,|||20230322|20230421124150+0000\n"
-
-    private val originalHL7Msg = """MSH|^~\&#|ProPhase^2.16.840.1.114222.4.1.238646^ISO|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20230816123358-0500||ORU^R01^ORU_R01|20230816123358|P|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO|
+    private val msgMSH8Blank = """MSH|^~\&#|ProPhase^2.16.840.1.114222.4.1.238646^ISO|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20230816123358-0500| |ORU^R01^ORU_R01|20230816123358|P|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO|
 SFT|Orchard|9.0|Orchard Enterprise|9.0.211217.220208||20220411
 PID|1||0008115-23-02^^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO^PI^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO||Test^Male||19701031|M||2131-1^Other Race^HL70005|1234 Adams place^^New York^NY^10457||^^^noemail@prophasedx.com^^^|||||||||U^Unknown^HL70189^^^^2.5.1||||||||N||||||
 ORC|RE||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|^^^|||||20230815164300-0500|1234567890^Chriscoe^Matthew||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD|^^^ProPhase Labs NY Clinical&CL||20230815164300-0500||||||ProPhase Diagnostics|711 Stewart Ave Ste 200^^Garden City^NY^11530|^^PH^^1^866^7522837|711 Stewart Ave Ste 200^^Garden City^NY^11530
-OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-3^Hemoglobin A1C ^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164519-0500|||F|||||||||&Chriscoe&Matthew||||||||||||||||||||||||||
-OBX|1|NM|55454-3^Hemoglobin A1C ^LN||5.8|mg/dL^^UCUM|0.0 - 5.6|H^^HL70078|||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530||
-NTE|1||Interpretation: \X0d0a\Normal <5.7\X0d0a\Prediabetes: 5.7-6.4\X0d0a\Diabetic: \T\#8805;6.5|||
-ORC|RE||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|^^^|||||20230815164300-0500|1234567890^Chriscoe^Matthew||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD|^^^ProPhase Labs NY Clinical&CL||20230815164300-0500||||||ProPhase Diagnostics|711 Stewart Ave Ste 200^^Garden City^NY^11530|^^PH^^1^866^7522837|711 Stewart Ave Ste 200^^Garden City^NY^11530
-OBR|2||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|5196-1^Hepatitis B surface Antigen II (HBsII)^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164436-0500|||F|||||||||&Chriscoe&Matthew||||||||||||||||||||||||||
-OBX|1|ST|5196-1^Hepatitis B surface Antigen II (HBsII)^LN||Reactive|||A^^HL70078|||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530||
-OBR|3||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|40726-2^Hepatitis C (aHCV)^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164446-0500|||F|||||||||&Chriscoe&Matthew||||||||||||||||||||||||||
-OBX|1|ST|40726-2^Hepatitis C (aHCV)^LN||Reactive|||A^^HL70078|||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530||
-OBR|4||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|56888-1^HIV Ag/Ab Combo (CHIV)^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164500-0500|||F|||||||||&Chriscoe&Matthew||||||||||||||||||||||||||
-OBX|1|ST|56888-1^HIV Ag/Ab Combo (CHIV)^LN||Non-Reactive||||||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530||
-SPM|1|^232270000212&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT|||||||||20230815164300-0500|20230815164500-0500"""
-    private val compareToHL7Msg = """MSH|^~\&#|ProPhase^2.16.840.1.114222.4.1.238646^ISO|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20230816123358-0500||ORU^R01^ORU_R01|20230816123358|P|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
-SFT|Orchard|9.0|Orchard Enterprise|9.0.211217.220208||20220411
-PID|1||0008115-23-02^^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO^PI^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO||Test^Male||19701031|M||2131-1^Other Race^HL70005|1234 Adams place^^New York^NY^10457||^^^noemail@prophasedx.com|||||||||U^Unknown^HL70189^^^^2.5.1||||||||N
-ORC|RE||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO||||||20230815164300-0500|1234567890^Chriscoe^Matthew||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD|^^^ProPhase Labs NY Clinical&CL||20230815164300-0500||||||ProPhase Diagnostics|711 Stewart Ave Ste 200^^Garden City^NY^11530|^^PH^^1^866^7522837|711 Stewart Ave Ste 200^^Garden City^NY^11530
-OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-3^Hemoglobin A1C ^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164519-0500|||F|||||||||&Chriscoe&Matthew
-OBX|1|NM|55454-3^Hemoglobin A1C ^LN||5.8|mg/dL^^UCUM|0.0 - 5.6|H^^HL70078|||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530
-NTE|1||Interpretation: \X0d0a\Normal <5.7\X0d0a\Prediabetes: 5.7-6.4\X0d0a\Diabetic: \T\#8805;6.5
-ORC|RE||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO||||||20230815164300-0500|1234567890^Chriscoe^Matthew||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD|^^^ProPhase Labs NY Clinical&CL||20230815164300-0500||||||ProPhase Diagnostics|711 Stewart Ave Ste 200^^Garden City^NY^11530|^^PH^^1^866^7522837|711 Stewart Ave Ste 200^^Garden City^NY^11530
-OBR|2||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|5196-1^Hepatitis B surface Antigen II (HBsII)^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164436-0500|||F|||||||||&Chriscoe&Matthew
-OBX|1|ST|5196-1^Hepatitis B surface Antigen II (HBsII)^LN||Reactive|||A^^HL70078|||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530
-OBR|3||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|40726-2^Hepatitis C (aHCV)^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164446-0500|||F|||||||||&Chriscoe&Matthew
-OBX|1|ST|40726-2^Hepatitis C (aHCV)^LN||Reactive|||A^^HL70078|||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530
-OBR|4||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|56888-1^HIV Ag/Ab Combo (CHIV)^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164500-0500|||F|||||||||&Chriscoe&Matthew
-OBX|1|ST|56888-1^HIV Ag/Ab Combo (CHIV)^LN||Non-Reactive||||||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530
-SPM|1|^232270000212&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT|||||||||20230815164300-0500|20230815164500-0500"""
-    private val fhirdataCLIOutputHL7Msg = """MSH|^~\&#|ProPhase^2.16.840.1.114222.4.1.238646^ISO|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20230816123358-0500||ORU^R01^ORU_R01|20230816123358|P|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
-SFT|Orchard|9.0|Orchard Enterprise|9.0.211217.220208||20220411
-PID|1||0008115-23-02^^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO^PI^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO||Test^Male||19701031|M||2131-1^Other Race^HL70005|1234 Adams place^^New York^NY^10457||^^^noemail@prophasedx.com|||||||||U^Unknown^HL70189^^^^2.5.1||||||||N
-ORC|RE||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO||||||20230815164300-0500|1234567890^Chriscoe^Matthew||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD|^^^ProPhase Labs NY Clinical&CL||20230815164300-0500||||||ProPhase Diagnostics|711 Stewart Ave Ste 200^^Garden City^NY^11530|^^PH^^1^866^7522837|711 Stewart Ave Ste 200^^Garden City^NY^11530
-OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-3^Hemoglobin A1C ^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164519-0500|||F|||||||||&Chriscoe&Matthew
-OBX|1|NM|55454-3^Hemoglobin A1C ^LN||5.8|mg/dL^^UCUM|0.0 - 5.6|H^^HL70078|||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530
-NTE|1||Interpretation: \X0d0a\Normal <5.7\X0d0a\Prediabetes: 5.7-6.4\X0d0a\Diabetic: \T\#8805;6.5
-ORC|RE||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO||||||20230815164300-0500|1234567890^Chriscoe^Matthew||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD|^^^ProPhase Labs NY Clinical&CL||20230815164300-0500||||||ProPhase Diagnostics|711 Stewart Ave Ste 200^^Garden City^NY^11530|^^PH^^1^866^7522837|711 Stewart Ave Ste 200^^Garden City^NY^11530
-OBR|2||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|5196-1^Hepatitis B surface Antigen II (HBsII)^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164436-0500|||F|||||||||&Chriscoe&Matthew
-OBX|1|ST|5196-1^Hepatitis B surface Antigen II (HBsII)^LN||Reactive|||A^^HL70078|||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530
-OBR|3||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|40726-2^Hepatitis C (aHCV)^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164446-0500|||F|||||||||&Chriscoe&Matthew
-OBX|1|ST|40726-2^Hepatitis C (aHCV)^LN||Reactive|||A^^HL70078|||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530
-OBR|4||232270000213^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|56888-1^HIV Ag/Ab Combo (CHIV)^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164500-0500|||F|||||||||&Chriscoe&Matthew
-OBX|1|ST|56888-1^HIV Ag/Ab Combo (CHIV)^LN||Non-Reactive||||||F|||20230815164300-0500|CL|1234567890^Chriscoe^Matthew|||20230815164500-0500||||ProPhase Diagnostics^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^ISO^^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530
-SPM|1|^232270000212&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT|||||||||20230815164300-0500|20230815164500-0500"""
-    private val MsgWith4Seg = """MSH|^~\&#|ProPhase^2.16.840.1.114222.4.1.238646^ISO|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20230816123358-0500||ORU^R01^ORU_R01|20230816123358|P|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO|
+OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-3^Hemoglobin A1C ^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164519-0500|||F|||||||||&Chriscoe&Matthew||||||||||||||||||||||||||"""
+    private val msgMSH8Empty = """MSH|^~\&#|ProPhase^2.16.840.1.114222.4.1.238646^ISO|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20230816123358-0500||ORU^R01^ORU_R01|20230816123358|P|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO|
 SFT|Orchard|9.0|Orchard Enterprise|9.0.211217.220208||20220411
 PID|1||0008115-23-02^^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO^PI^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO||Test^Male||19701031|M||2131-1^Other Race^HL70005|1234 Adams place^^New York^NY^10457||^^^noemail@prophasedx.com^^^|||||||||U^Unknown^HL70189^^^^2.5.1||||||||N||||||
-SPM|1|^232270000212&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT|||||||||20230815164300-0500|20230815164500-0500"""
-    private val MsgSegSFTRemoved = """MSH|^~\&#|ProPhase^2.16.840.1.114222.4.1.238646^ISO|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20230816123358-0500||ORU^R01^ORU_R01|20230816123358|P|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO|
-PID|1||0008115-23-02^^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO^PI^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO||Test^Male||19701031|M||2131-1^Other Race^HL70005|1234 Adams place^^New York^NY^10457||^^^noemail@prophasedx.com^^^|||||||||U^Unknown^HL70189^^^^2.5.1||||||||N||||||
-SPM|1|^232270000212&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT|||||||||20230815164300-0500|20230815164500-0500"""
+ORC|RE||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|^^^|||||20230815164300-0500|1234567890^Chriscoe^Matthew||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD|^^^ProPhase Labs NY Clinical&CL||20230815164300-0500||||||ProPhase Diagnostics|711 Stewart Ave Ste 200^^Garden City^NY^11530|^^PH^^1^866^7522837|711 Stewart Ave Ste 200^^Garden City^NY^11530
+OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-3^Hemoglobin A1C ^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164519-0500|||F|||||||||&Chriscoe&Matthew||||||||||||||||||||||||||"""
 
+// Difference between messages at MSH(1).8.1 Differences: Input had more repeating types for ST, input has 1 and output has 0
     @Test
     fun `diff hl7`() {
         val actionLogger = ActionLogger()
@@ -316,38 +274,12 @@ SPM|1|^232270000212&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal 
         assertThat(differentVaries).isNotNull()
     }
 
-    /**
-     * added for ticket 12004: fix false positives
-     * note: originalHL7Msg taken from hci.hl7 (integration test data)
-     * compareToHL7Msg taken from hci-expected.hl7 (integration test data)
-     */
     @Test
-    fun `diff hl7data expect no diff`() {
+    fun `expect no diff messages have blank vs empty MSH 8 (ST) respectively`() {
         val actionLogger = ActionLogger()
         val hl7Reader = HL7Reader(actionLogger)
-        val inputMessage = hl7Reader.getMessages(originalHL7Msg)
-        val outputMessage = hl7Reader.getMessages(compareToHL7Msg)
-        val differences = hL7DiffHelper.diffHl7(inputMessage[0], outputMessage[0])
-        assertThat(differences.size).isEqualTo(0)
-        val differences2 = hL7DiffHelper.diffHl7(outputMessage[0], inputMessage[0])
-        assertThat(differences2.size).isEqualTo(0)
-    }
-
-    /**
-     * added for ticket 12004: fix false positives
-     * note: originalHL7Msg taken from hci.hl7 (integration test data)
-     * fhirdataCLIOutputHL7Msg taken from the output of:
-     * ./gradlew primeCLI --args="fhirdata
-     * --input-file 'src/testIntegration/resources/datatests/HL7_to_FHIR_to_HL7/hci.hl7'
-     * -r metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
-     * --output-format HL7 --diff-hl7-output=true
-     */
-    @Test
-    fun `diff fhirdata output expect no diff`() {
-        val actionLogger = ActionLogger()
-        val hl7Reader = HL7Reader(actionLogger)
-        val inputMessage = hl7Reader.getMessages(originalHL7Msg)
-        val outputMessage = hl7Reader.getMessages(fhirdataCLIOutputHL7Msg)
+        val inputMessage = hl7Reader.getMessages(msgMSH8Blank)
+        val outputMessage = hl7Reader.getMessages(msgMSH8Empty)
         val differences = hL7DiffHelper.diffHl7(inputMessage[0], outputMessage[0])
         assertThat(differences.size).isEqualTo(0)
         val differences2 = hL7DiffHelper.diffHl7(outputMessage[0], inputMessage[0])
@@ -358,15 +290,17 @@ SPM|1|^232270000212&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal 
     fun `diff output, input missing segments`() {
         val actionLogger = ActionLogger()
         val hl7Reader = HL7Reader(actionLogger)
-        val inputMessage = hl7Reader.getMessages(MsgWith4Seg)
-        val outputMessage = hl7Reader.getMessages(MsgSegSFTRemoved)
+        val msg = originalMessage.split("\n").toMutableList()
+        msg.removeAt(1)
+        val inputMessage = hl7Reader.getMessages(msg.joinToString("\n"))
+        val outputMessage = hl7Reader.getMessages(originalMessage)
         val differences = hL7DiffHelper.diffHl7(inputMessage[0], outputMessage[0])
-        // input missing seg
+        // input missing seg SFT
         assertThat(differences.size).isEqualTo(1)
-        assertThat(differences[0].toString().contains("Output missing segment SFT"))
-        val differences2 = hL7DiffHelper.diffHl7(outputMessage[0], inputMessage[0])
-        // output missing seg
-        assertThat(differences2.size).isEqualTo(1)
         assertThat(differences[0].toString().contains("Input missing segment SFT"))
+        val differences2 = hL7DiffHelper.diffHl7(outputMessage[0], inputMessage[0])
+        // output missing seg SFT
+        assertThat(differences2.size).isEqualTo(1)
+        assertThat(differences[0].toString().contains("Output missing segment SFT"))
     }
 }
