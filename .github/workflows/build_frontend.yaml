@@ -5,15 +5,9 @@ on:
     branches:
       - master
       - production
-    paths:
-      - "frontend-react/**"
-      - ".github/actions/build-frontend/**"
   push:
     branches:
       - master
-    paths:
-      - "frontend-react/**"
-      - ".github/actions/build-frontend/**"
 
 jobs:
   pre_job:
