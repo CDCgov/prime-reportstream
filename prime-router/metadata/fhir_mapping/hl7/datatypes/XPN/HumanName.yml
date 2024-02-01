@@ -87,18 +87,6 @@ period_2:
         periodEnd: XPN.13
 
 extension:
-  vars:
-    xpn2: String, XPN.2
-    xpn3: String, XPN.3
-    xpn4: String, XPN.4
-    xpn6: String, XPN.6
-    xpn7: String, XPN.7
-    xpn8: String, XPN.8
-    xpn9: STRING_ALL, XPN.9
-    xpn10: String, XPN.10
-    xpn12: String, XPN.12
-    xpn13: String, XPN.13
-    xpn14: String, XPN.14
   generateList: true
   expressionType: nested
   expressions:

@@ -17,64 +17,64 @@ extension:
           value: XTN.1
         valueString:
           value: $telNum
-    - condition: $xtnUse NOT_NULL
+    - condition: $xtn2 NOT_NULL
       expressionType: nested
       vars:
-        xtnUse: String, XTN.2
+        xtn2: String, XTN.2
       expressionsMap:
         url:
           type: STRING
           value: XTN.2
         valueString:
-          value: $xtnUse
-    - condition: $equipType NOT_NULL
+          value: $xtn2
+    - condition: $xtn3 NOT_NULL
       expressionType: nested
       vars:
-        equipType: String, XTN.3
+        xtn3: String, XTN.3
       expressionsMap:
         url:
           type: STRING
           value: XTN.3
         valueString:
-          value: $equipType
-    - condition: $commAddress NOT_NULL
+          value: $xtn3
+    - condition: $xtn4 NOT_NULL
       expressionType: nested
       vars:
-        commAddress: String, XTN.4
+        xtn4: String, XTN.4
       expressionsMap:
         url:
           type: STRING
           value: XTN.4
         valueString:
-          value: $commAddress
-    - condition: $localNum NOT_NULL
+          value: $xtn4
+    - condition: $xtn7 NOT_NULL
       expressionType: nested
       vars:
-        localNum: String, XTN.7
+        xtn7: String, XTN.7
       expressionsMap:
         url:
           type: STRING
           value: XTN.7
         valueString:
-          value: $localNum
-    - condition: $anyText NOT_NULL
+          value: $xtn7
+    - condition: $xtn9 NOT_NULL
       expressionType: nested
       vars:
-        anyText: String, XTN.9
+        xtn9: String, XTN.9
       expressionsMap:
         url:
           type: STRING
           value: XTN.9
         valueString:
           type: STRING
-          valueOf: $anyText
-    - condition: $unformattedTelNum NOT_NULL
+          valueOf: $xtn9
+    - condition: $xtn12 NOT_NULL
       expressionType: nested
       vars:
-        unformattedTelNum: String, XTN.12
+        xtn12: String, XTN.12
       expressionsMap:
         url:
           type: STRING
           value: XTN.12
         valueString:
-          value: $unformattedTelNum
+          value: $xtn12

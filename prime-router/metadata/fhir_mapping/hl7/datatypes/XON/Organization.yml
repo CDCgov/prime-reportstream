@@ -139,10 +139,10 @@ extension:
           specs: XON.2
           constants:
             hl7v2Name: organization-name-type-code
-    - condition: $value NOT_NULL
+    - condition: $xon9 NOT_NULL
       expressionType: nested
       vars:
-        value: String, XON.9
+        xon9: String, XON.9
       expressionsMap:
         url:
           type: SYSTEM_URL
