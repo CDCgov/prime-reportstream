@@ -10,6 +10,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.messageContains
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
@@ -18,14 +19,23 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.Fhir
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.getTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.URIScheme
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkObject
+import org.junit.jupiter.api.BeforeEach
 import java.io.File
 import java.net.URI
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class ConfigSchemaReaderTests {
+    @BeforeEach
+    fun reset() {
+        clearAllMocks()
+    }
+
     @Test
     fun `test read one yaml schema`() {
         var yaml = """
@@ -485,7 +495,31 @@ class ConfigSchemaReaderTests {
     }
 
     @Test
+    fun `test read FHIR Transform throw schema exception`() {
+        mockkObject(ConfigSchemaReader)
+        every { ConfigSchemaReader.fromFile(any(), any(), any()) } returns
+                ConverterSchema()
+        assertFailsWith<SchemaException>(
+            message = "No SchemaException thrown",
+            block = {
+                getTransformSchema(
+                    "sample_schema",
+                    "${URIScheme.CLASSPATH}:/fhir_sender_transforms",
+                )
+            }
+        )
+    }
+
+    @Test
     fun `test read FHIR Transform from classpath URI`() {
+        assertThat(
+            // converted to classpath under hood with flexible scheme prefix
+            getTransformSchema(
+                "sample_schema",
+                "${URIScheme.CLASSPATH}:/fhir_sender_transforms",
+            ).isValid()
+        ).isTrue()
+
         assertThat(
             // converted to classpath under hood
             getTransformSchema(
