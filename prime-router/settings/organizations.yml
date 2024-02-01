@@ -1089,6 +1089,9 @@
       qualityFilter:
         - "true"
       processingModeFilter: [ "true" ]
+      mappedConditionFilter: # this filter will only pass observations stamped with condition codes AOE or 840539006
+        - type: codeString
+          value: 840539006,AOE
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
