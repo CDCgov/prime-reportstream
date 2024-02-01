@@ -20,7 +20,7 @@ elements:
     resource: '%resource.extension("XCN.8").value'
     constants:
       cweField: '%{hl7XCNField}-8'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
 
   - name: xcn-10-name-type-code
     value: [ '%resource.extension("XCN.10").value' ]
@@ -34,7 +34,7 @@ elements:
     resource: '%resource.extension("XCN.16").value'
     constants:
       cweField: '%{hl7XCNField}-16'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
 
   - name: xcn-17-1-name-validity-start
     value: [ '%resource.extension("XCN.17").extension("XCN.17.1").value' ]
@@ -60,10 +60,10 @@ elements:
     resource: '%resource.extension("XCN.22").value'
     constants:
       cweField: '%{hl7XCNField}-22'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
 
   - name: xcn-23-assigning-agency-or-department
     resource: '%resource.extension("XCN.23").value'
     constants:
       cweField: '%{hl7XCNField}-23'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml

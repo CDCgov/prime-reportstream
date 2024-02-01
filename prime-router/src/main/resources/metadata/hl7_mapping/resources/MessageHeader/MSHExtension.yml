@@ -23,7 +23,7 @@ elements:
 
   - name: msh-19-principal-lanuage-of-message
     resource: '%resource.extension("MSH.19").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: 'MSH-19'
 
@@ -40,12 +40,12 @@ elements:
 
   - name: sending-network-address-from-extension
     resource: '%resource.extension("MSH.24")'
-    schema: ../../datatypes/extensionHD/HD
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionHD/HD.yml
     constants:
       hl7HDField: 'MSH-24'
 
   - name: msh-25-receiving-network-address-duplicates-receiving-application
     resource: '%resource.extension("MSH.25")'
-    schema: ../../datatypes/extensionHD/HD
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionHD/HD.yml
     constants:
       hl7HDField: 'MSH-25'

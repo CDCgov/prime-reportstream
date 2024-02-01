@@ -5,10 +5,10 @@ elements:
     resourceIndex: xonIndex
     constants:
       hl7XONField: '%{hl7NK1FieldPath}-13(%{xonIndex})'
-    schema: ../Organization/XON
+    schema: classpath:/metadata/hl7_mapping/Organization/XON.yml
 
   - name: nk1-16-birth-date
     resource: '%resource.extension("NK1.16").value'
     constants:
       dtmFieldPath: '%{hl7NK1FieldPath}-16'
-    schema: ../../datatypes/dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/resources/dateTime/DTMorDT.yml
