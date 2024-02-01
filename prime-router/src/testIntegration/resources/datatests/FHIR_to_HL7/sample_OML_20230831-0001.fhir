@@ -2336,20 +2336,25 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text",
-                "valueString" : "(763)555-5555"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
-                "valueString" : "(763)555-5555"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
-                "valueString" : "PH"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
-                "valueString" : "PRN"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                "extension" : [
+                  {
+                    "url" : "XTN.9",
+                    "valueString" : "(763)555-5555"
+                  },
+                  {
+                    "url" : "XTN.12",
+                    "valueString" : "(763)555-5555"
+                  },
+                  {
+                    "url" : "XTN.3",
+                    "valueString" : "PH"
+                  },
+                  {
+                    "url" : "XTN.2",
+                    "valueString" : "PRN"
+                  }
+                ]
               }
             ],
             "system" : "phone",
@@ -2402,8 +2407,13 @@
             "name" : {
               "extension" : [
                 {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
-                  "valueString" : "Leia"
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                  "extension" : [
+                    {
+                      "url" : "XPN.2",
+                      "valueString" : "Leia"
+                    }
+                  ]
                 }
               ],
               "family" : "Organa",
