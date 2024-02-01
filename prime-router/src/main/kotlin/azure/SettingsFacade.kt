@@ -10,6 +10,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.Sender
@@ -379,6 +380,7 @@ class ReceiverAPI
     processingModeFilter: ReportStreamFilter = emptyList(),
     reverseTheQualityFilter: Boolean = false,
     conditionalFilter: ReportStreamFilter = emptyList(),
+    mappedConditionalFilter: ReportStreamConditionFilter = emptyList(),
     deidentify: Boolean = false,
     deidentifiedValue: String = "",
     timing: Timing? = null,
@@ -399,6 +401,7 @@ class ReceiverAPI
     processingModeFilter,
     reverseTheQualityFilter,
     conditionalFilter,
+    mappedConditionalFilter,
     deidentify,
     deidentifiedValue,
     timing,
