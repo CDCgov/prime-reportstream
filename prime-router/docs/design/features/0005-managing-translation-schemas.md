@@ -62,7 +62,7 @@ This solution would involve a drastic re-write from the existing functionality a
 This solution would maintain the majority of the existing functionality and just provide updates to use the azure blob storage as the underlying "file" storage rather than disk.  This solution would get versioning automatically by enabling [azure blob versioning](https://learn.microsoft.com/en-us/azure/storage/blobs/versioning-overview); this functionality enables automatically creating new versions when uploading a new file and then APIs for rolling back file updates in the event that there was a problem.
 
 Additionally, the versioning has the added flexibility of referencing a specific version of a blob so translation schemas could reference version 3 while the next version is iterated on.
-`https://<storage-account>.blob.core.windows.net/<container>/<blob-name>?versionid=<version-id>` . If the decision is made to continue to store some of the common translation schemas in source code this is an approach that could be adopted here as well by adding a version to the directory paths `file:///{BASE_DIR}/metadata/hl7_mapping/common/patient/v1/patient.yml``
+`https://<storage-account>.blob.core.windows.net/<container>/<blob-name>?versionid=<version-id>` . If the decision is made to continue to store some of the common translation schemas in source code this is an approach that could be adopted here as well by adding a version to the directory paths `file:///{BASE_DIR}/src/main/resources/hl7_mapping/common/patient/v1/patient.yml``
 
 #### FHIR -> FHIR, FHIR -> HL7
 Steps for migrating:
@@ -70,7 +70,7 @@ Steps for migrating:
 1. Update the code to use the URI to determine if the translation schema should be read from disk or azure by looking at the URI scheme
     - Fallback to the existing behavior if it is not a valid URI (i.e. we're resolving an old translation schema with relative paths)
 2. Update all the translation schema references (i.e. `extends`, `schemaRef`, `schemaName`, etc.) in the existing translation schemas and settings to reference absolute paths as URLs
-    - `schema: ../common/patient` -> `schema: file:///{BASE_DIR}/metadata/hl7_mapping/common/patient.yml`
+    - `schema: ../common/patient` -> `schema: file:///{BASE_DIR}/src/main/resources/hl7_mapping/common/patient.yml`
 3. Update all receiver/sender translation schemas to reference azure blobs (i.e `azure:///{AZURE_STORAGE_LOCATION}/metadata/hl7_mapping/common/patient.yml`) and upload translation schemas to azure blob service
 4. Update all UP sender and receivers to reference the azure translation schema
 
