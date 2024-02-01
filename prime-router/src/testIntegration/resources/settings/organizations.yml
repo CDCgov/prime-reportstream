@@ -154,7 +154,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "classpath:/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        schemaName: classpath:/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -187,7 +187,7 @@
       topic: "elr-elims"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "classpath:/hl7_mapping/ORU_R01/ORU_R01-base"
+        schemaName: classpath:/hl7_mapping/ORU_R01/ORU_R01-base
         useTestProcessingMode: false
         useBatchHeaders: false
         suppressQstForAoe: false
@@ -251,7 +251,7 @@
       topic: "full-elr"
       customerStatus: "testing"
       translation: !<HL7>
-        schemaName: "classpath:/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        schemaName: classpath:/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: ""
@@ -329,7 +329,7 @@
       topic: "full-elr"
       customerStatus: "testing"
       translation: !<HL7>
-        schemaName: "classpath:/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        schemaName: classpath:/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: ""

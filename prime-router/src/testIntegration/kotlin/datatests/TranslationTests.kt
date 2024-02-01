@@ -24,6 +24,7 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.URIScheme
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
@@ -38,6 +39,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
+import java.net.URI
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
@@ -347,10 +349,10 @@ class TranslationTests {
                             val actualStream =
                                 translateFromFhir(
                                     afterSenderTransform,
-                                    if (config.outputSchema.startsWith("classpath:")) {
+                                    if (config.outputSchema.startsWith("${URIScheme.CLASSPATH}:")) {
                                         config.outputSchema
                                     } else {
-                                        "classpath:/" + config.outputSchema
+                                        "${URIScheme.CLASSPATH}:/" + config.outputSchema
                                     },
                                     config.receiver
                                 )
@@ -481,7 +483,7 @@ class TranslationTests {
             }
 
             val hl7 = FhirToHl7Converter(
-                schema,
+                URI(schema),
                     context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = translationConfig,

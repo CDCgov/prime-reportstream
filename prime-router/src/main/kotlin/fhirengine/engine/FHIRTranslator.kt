@@ -24,9 +24,11 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.URIScheme
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
+import java.net.URI
 import java.time.OffsetDateTime
 
 /**
@@ -147,10 +149,18 @@ class FHIRTranslator(
                 receiver
             )
         }
-        val converter = FhirToHl7Converter(
-            receiver.schemaName,
-            context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
-        )
+        val converter = if (receiver.schemaName.startsWith("${URIScheme.CLASSPATH}:")) {
+            FhirToHl7Converter(
+                URI(receiver.schemaName),
+                context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
+            )
+        } else {
+            FhirToHl7Converter(
+                receiver.schemaName,
+                context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
+            )
+        }
+
         val hl7Message = converter.convert(bundle)
 
         // if receiver is 'testing' or useTestProcessingMode is true, set to 'T', otherwise leave it as is

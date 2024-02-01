@@ -43,6 +43,7 @@ import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class FhirToHl7ConverterTests {
     @Test
@@ -416,19 +417,22 @@ class FhirToHl7ConverterTests {
         schema =
             ConverterSchema(elements = mutableListOf(element))
         assertFailure { FhirToHl7Converter(schema).convert(bundle) }
-
+        val schemaName = "ORU_R01"
+        val schemaFolder = "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
         // Use a file based schema which will fail as we do not have enough data in the bundle
         val missingDataEx = assertFailsWith<ConfigSchemaElementProcessingException> {
             FhirToHl7Converter(
-                "ORU_R01",
-                "fhirengine/translation/hl7/schema/schema-read-test-01"
+                schemaName,
+                schemaFolder
             ).convert(bundle)
-            // under the hood folder will be prepend classpath:/, and schema will be suffixed with .yml
         }
-        assertThat(missingDataEx.message).isEqualTo(
-            "Error encountered while applying: message-headers in " +
-                    "/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml to FHIR bundle. \n" +
-                "Error was: Required element message-headers conditional was false or value was empty."
+        assertTrue(
+            missingDataEx.message.contains(
+            "Error encountered while applying: message-headers in"
+            ) &&
+                missingDataEx.message.contains(
+            "Error was: Required element message-headers conditional was false or value was empty."
+                )
         )
     }
 

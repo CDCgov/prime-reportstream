@@ -500,6 +500,10 @@ tasks.register<Copy>("gatherAzureResources") {
     include("metadata/**/*.csv")
     include("settings/**/*.yml")
     include("assets/**/*__inline.html")
+    from("./src/main/resources")
+    into(azureResourcesTmpDir)
+    include("hl7_mapping/**")
+    include("fhir_transforms/**")
 }
 
 tasks.register("copyAzureResources") {

@@ -9,6 +9,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.URIScheme
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
@@ -30,9 +31,12 @@ object ConfigSchemaReader : Logging {
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
     ): ConfigSchema<*> {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
-        val schemaList = when (URI(schemaName).scheme) {
-            null -> fromRelative(schemaName, folder, schemaClass)
-            else -> fromUri(URI(schemaName), schemaClass)
+        val schemaList = if (schemaName.startsWith("${URIScheme.CLASSPATH}:")) {
+            fromUri(URI(schemaName), schemaClass)
+        } else {
+            val file = File(folder, "$schemaName.yml")
+            if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
+            fromUri(file.toURI(), schemaClass)
         }
 
         // Now merge the parent with all the child schemas
@@ -40,23 +44,6 @@ object ConfigSchemaReader : Logging {
 
         if (!mergedSchema.isValid()) {
             throw SchemaException("Invalid schema $schemaName: \n${mergedSchema.errors.joinToString("\n")}")
-        }
-        return mergedSchema
-    }
-
-    fun fromFile(
-        schemaUri: URI,
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
-    ): ConfigSchema<*> {
-        val schemaList = when (schemaUri.scheme) {
-            "classpath" -> fromUri(schemaUri, schemaClass)
-            else -> throw Exception("Not support relative schema path.")
-        }
-        // Now merge the parent with all the child schemas
-        val mergedSchema = mergeSchemas(schemaList)
-
-        if (!mergedSchema.isValid()) {
-            throw SchemaException("Invalid schema $schemaUri: \n${mergedSchema.errors.joinToString("\n")}")
         }
         return mergedSchema
     }
@@ -74,7 +61,11 @@ object ConfigSchemaReader : Logging {
         schemaList.add(readSchemaTreeRelative(schemaName, folder, schemaClass = schemaClass))
         while (!schemaList.last().extends.isNullOrBlank()) {
             // Make sure there are no circular dependencies
-            if (schemaList.any { FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends) }
+            if (schemaList.any {
+                val ymlName = normalizeYmlName(FilenameUtils.getName(schemaName))
+                val extendYmlName = normalizeYmlName(FilenameUtils.getName(schemaList.last().extends))
+                ymlName == extendYmlName
+            }
             ) {
                 throw SchemaException("Schema circular dependency found while loading schema $schemaName")
             }
@@ -98,7 +89,9 @@ object ConfigSchemaReader : Logging {
         while (!schemaList.last().extends.isNullOrBlank()) {
             // Make sure there are no circular dependencies
             if (schemaList.any {
-                    FilenameUtils.getName(schemaUri.path) == FilenameUtils.getName(schemaList.last().extends)
+                    val ymlName = normalizeYmlName(FilenameUtils.getName(schemaUri.path))
+                    val extendYmlName = normalizeYmlName(FilenameUtils.getName(schemaList.last().extends))
+                    ymlName == extendYmlName
                 }
             ) {
                 throw SchemaException("Schema circular dependency found while loading schema ${schemaUri.path}")
@@ -145,18 +138,18 @@ object ConfigSchemaReader : Logging {
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java,
     ): ConfigSchema<*> {
         val rawSchema = when (schemaUri.scheme) {
-            "file" -> {
+            URIScheme.FILE.toString() -> {
                 val file = File(schemaUri)
                 if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
                 readOneYamlSchema(file.inputStream(), schemaClass)
             }
-            "classpath" -> {
+            URIScheme.CLASSPATH.toString() -> {
                 val schemaYml = if (schemaUri.path.endsWith(".yml")) schemaUri.path else schemaUri.path + ".yml"
                 val input = javaClass.classLoader.getResourceAsStream(schemaYml.substring(1))
                     ?: throw SchemaException("Cannot read $schemaUri")
                 readOneYamlSchema(input, schemaClass)
             }
-            "azure" -> {
+            URIScheme.AZURE.toString() -> {
                 // TODO: #10487 will add a new function to download schemas, so this is just a temporary placeholder
                 val blob = BlobAccess.downloadBlobAsByteArray(schemaUri.toString())
                 readOneYamlSchema(blob.inputStream(), schemaClass)
@@ -191,29 +184,8 @@ object ConfigSchemaReader : Logging {
     ): ConfigSchema<*> {
         val file = File(folder, "$schemaName.yml")
         if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
-        val rawSchema = try {
-            readOneYamlSchema(file.inputStream(), schemaClass)
-        } catch (e: Exception) {
-            val msg = "Error while reading schema configuration from file ${file.absolutePath}"
-            logger.error(msg, e)
-            throw SchemaException(msg, e)
-        }
-
-        // set schema name to match the filename
-        rawSchema.name = schemaName
-
-        if (ancestry.contains(rawSchema.name)) {
-            throw HL7ConversionException("Circular reference detected for schema ${rawSchema.name}")
-        }
-        rawSchema.ancestry = ancestry + rawSchema.name!!
-
-        // Process any schema references
-        val rootFolder = file.parent
-        rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
-            element.schemaRef =
-                readSchemaTreeRelative(element.schema!!, rootFolder, rawSchema.ancestry, schemaClass)
-        }
-        return rawSchema
+        // delegate to URI based schema loading
+        return readSchemaTreeUri(file.toURI(), ancestry, schemaClass)
     }
 
     /**
@@ -232,5 +204,9 @@ object ConfigSchemaReader : Logging {
             throw SchemaException("Invalid empty element found in schema. Check that all array items are elements.")
         }
         return rawSchema
+    }
+
+    private fun normalizeYmlName(n: String): String {
+        return if (n.endsWith("yml")) n else n + ".yml"
     }
 }
