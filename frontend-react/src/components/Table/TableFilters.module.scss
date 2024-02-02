@@ -1,0 +1,45 @@
+@use "../../global-modules.scss" as *;
+
+$column-gutter: 48px;
+
+.TableFilters {
+  :global {
+    .filter-container {
+        display: flex;
+        align-items: flex-end;
+        margin-bottom: 1em;
+    }
+    
+    .button-container {
+        display: flex;
+        align-items: flex-end;
+        height: 100%;
+    }
+    
+    .apply-button {
+        background: none;
+        border: none;
+    }
+    
+    .date-picker-container {
+        display: flex;
+        margin-right: 32px;
+    }
+    
+    .filter-column {
+      &__one {
+        padding-right: $column-gutter;
+      }
+    
+      &__two {
+        border-left: 1px solid color(gray-20);
+        border-right: 1px solid color(gray-20);
+        padding: 0 $column-gutter;
+      }
+    
+      &__three {
+        padding-left: $column-gutter;
+      }
+    }
+  }
+}

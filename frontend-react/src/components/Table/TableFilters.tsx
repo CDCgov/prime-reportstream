@@ -6,8 +6,6 @@ import {
     TimePicker,
 } from "@trussworks/react-uswds";
 
-import "./TableFilters.css";
-
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
 import {
     CursorActionType,
@@ -21,6 +19,8 @@ import {
     getEndOfDay,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
+
+import styles from "./TableFilters.module.scss";
 
 export enum StyleClass {
     CONTAINER = "filter-container",
@@ -167,16 +167,16 @@ function TableFilters({
     );
 
     return (
-        <div data-testid="filter-container" className={StyleClass.CONTAINER}>
+        <div data-testid="filter-container" className={styles.TableFilters}>
             <form
                 className="grid-row display-flex flex-align-end"
                 ref={formRef}
                 onSubmit={submitHandler}
                 onReset={resetHandler}
             >
-                <div className="grid-container">
+                <div>
                     <div className="grid-row">
-                        <div className="grid-col-4">
+                        <div className="grid-col-4 filter-column__one">
                             <label
                                 id="start-date-label"
                                 data-testid="label"
@@ -200,7 +200,7 @@ function TableFilters({
                                 }}
                             />
                         </div>
-                        <div className="grid-col-4">
+                        <div className="grid-col-6 filter-column__two">
                             <DateRangePicker
                                 className={StyleClass.DATE_CONTAINER}
                                 startDateLabel={startDateLabel}
@@ -263,7 +263,7 @@ function TableFilters({
                                 />
                             </div>
                         </div>
-                        <div className="grid-col-4">
+                        <div className="grid-col-2 filter-column__three">
                             <div className="button-container">
                                 <div className={StyleClass.DATE_CONTAINER}>
                                     <Button
