@@ -647,6 +647,29 @@
             }
           },
           {
+            "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
+            "valueCodeableConcept" : {
+              "coding" : [
+                {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                      "valueString" : "coding"
+                    },
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                      "valueString" : "HL70005"
+                    }
+                  ],
+                  "system" : "http://terminology.hl7.org/CodeSystem/v3-Race",
+                  "version" : "2.5.1",
+                  "code" : "1002-5",
+                  "display" : "American Indian or Alaska Native"
+                }
+              ]
+            }
+          },
+          {
             "url" : "http://hl7.org/fhir/StructureDefinition/patient-religion",
             "valueCodeableConcept" : {
               "extension" : [
@@ -761,8 +784,8 @@
                   ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0189",
                   "version" : "2.5.1",
-                  "code" : "N",
-                  "display" : "Not Hispanic or Latino"
+                  "code" : "U",
+                  "display" : "Unknown"
                 },
                 {
                   "extension" : [
@@ -777,8 +800,8 @@
                   ],
                   "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
                   "version" : "4",
-                  "code" : "NH",
-                  "display" : "Non hispanic"
+                  "code" : "U",
+                  "display" : "Unknown"
                 }
               ]
             }
