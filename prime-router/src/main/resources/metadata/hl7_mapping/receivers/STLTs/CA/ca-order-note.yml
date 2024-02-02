@@ -1,10 +1,10 @@
 elements:
   - name: aoe-note
     condition: '%resource is Observation'
-    schema: 'ca-aoe-note'
+    schema: classpath:/metadata/hl7_mapping/receivers/STLTs/CA/ca-aoe-note.yml
 
   - name: note
     condition: '%resource is string'
-    schema: '../../../datatypes/annotation/NTE'
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
     constants:
       noteDetails: '%resource.note'

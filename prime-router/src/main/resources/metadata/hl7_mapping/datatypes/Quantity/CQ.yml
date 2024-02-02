@@ -9,4 +9,4 @@ elements:
     resource: '%resource.extension(%`rsext-cq-units`).value'
     constants:
       cweField: '%{cqFieldPath}-2'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml

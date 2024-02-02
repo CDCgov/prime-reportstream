@@ -53,28 +53,28 @@ elements:
 
   - name: obx-value-sn
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "SN"'
-    schema: ../../datatypes/extensionSN/SN
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionSN/SN.yml
     resource: '%resource.extension(%`rsext-obx-5-value-sn`)'
     constants:
       hl7SNField: '%{hl7OBXField}-5'
 
   - name: obx-value-cne
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "CNE"'
-    schema: ../../datatypes/codeableConcept/CNE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CNE.yml
     resource: '%resource.value'
     constants:
       cneFieldPath: '%{hl7OBXField}-5'
 
   - name: obx-value-ce
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "CE"'
-    schema: ../../datatypes/codeableConcept/CE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CE.yml
     resource: '%resource.value'
     constants:
       ceFieldPath: '%{hl7OBXField}-5'
 
   - name: obx-value-cwe
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "CWE"'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     resource: '%resource.value'
     constants:
       cweField: '%{hl7OBXField}-5'
@@ -87,7 +87,7 @@ elements:
   - name: obx-value-dr
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "DR"'
     resource: '%resource.value'
-    schema: ../Patient/DR # TODO this should be moved
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/DR.yml # TODO this should be moved
     constants:
       hl7DRField: '%{hl7OBXField}-5'
 
@@ -98,7 +98,7 @@ elements:
 
   - name: obx-value-nr
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "obx-2-value-type").value = "NR"'
-    schema: ../../datatypes/Range/NR
+    schema: classpath:/metadata/hl7_mapping/datatypes/Range/NR.yml
     resource: '%resource.value'
     constants:
       hl7NRField: '%{hl7OBXField}-5'

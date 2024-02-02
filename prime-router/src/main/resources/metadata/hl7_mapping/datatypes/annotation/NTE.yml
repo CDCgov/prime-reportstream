@@ -21,12 +21,12 @@ elements:
     resource: '%resource.extension(%`rsext-note-type`).value'
     constants:
       cweField: '%{hl7NotePath}/NTE(%{noteIndex})-4'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
 
   - name: note-author
     condition: '%context.author.exists() and %context.author.is(Reference)'
     resource: '%resource.author.resolve()'
-    schema: ../../resources/Practitioner/XCN
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     constants:
       hl7XCNField: '%{hl7NotePath}/NTE(%{noteIndex})-5'
       contactIndex: '0'

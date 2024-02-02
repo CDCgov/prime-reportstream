@@ -6,7 +6,7 @@ elements:
 
   - name: pv2-clinic-organization-name
     resource: '%resource.extension.where(url = "pv2-23-clinic-organization-name").value.resolve()'
-    schema: ../Organization/XON
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
     resourceIndex: xonIndex
     constants:
       hl7XONField: '%{hl7PV2Field}-23(%{xonIndex})'

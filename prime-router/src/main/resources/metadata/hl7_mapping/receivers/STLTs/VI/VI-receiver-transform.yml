@@ -1,6 +1,6 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
-extends: ../../../ORU_R01/ORU_R01-base
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 elements:
 
   - name: sending-application-namespace-id
@@ -16,7 +16,7 @@ elements:
     hl7Spec: [ MSH-3-3 ]
 
   - name: receiving_application-namespace-id
-    value: [ '"VI-DOH"']
+    value: [ '"VI-DOH"' ]
     hl7Spec: [ MSH-5-1 ]
 
   - name: receiving_facility-namespace-id
@@ -66,7 +66,7 @@ elements:
   - name: vi-patient-race-coding-system
     resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
     condition: '%resource.code.exists()'
-    value: [ '%resource.system.getCodingSystemMapping()']
+    value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
 
   - name: observation-result-with-aoe

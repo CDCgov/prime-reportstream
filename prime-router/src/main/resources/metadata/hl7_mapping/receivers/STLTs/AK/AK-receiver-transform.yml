@@ -1,6 +1,6 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
-extends: ../../../ORU_R01/ORU_R01-base
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 
 elements:
 
@@ -64,7 +64,7 @@ elements:
   - name: ak-specimen-source-site-text
     condition: true
     value: [ 'Bundle.entry.resource.ofType(Specimen).collection.bodySite.text' ]
-    hl7Spec: ['/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-2']
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-2' ]
 
   - name: ak-receiving-facility
     condition: true

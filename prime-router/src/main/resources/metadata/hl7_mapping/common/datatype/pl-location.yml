@@ -22,4 +22,4 @@ elements:
       namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id"'
       universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id"'
       universalIdTypeExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"'
-    schema: hd-hierarchic-designator
+    schema: classpath:/metadata/hl7_mapping/common/datatype/hd-hierarchic-designator.yml

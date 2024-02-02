@@ -2,13 +2,13 @@ elements:
 
   - name: pv1-preadmit-test-indicator
     resource: '%resource.extension.where(url = "pv1-12-preadmit-test-indicator").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7PV1Field}-12'
 
   - name: pv1-patient-type
     resource: '%resource.extension.where(url = "pv1-18-patient-type").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7PV1Field}-18'
 
@@ -18,7 +18,7 @@ elements:
 
   - name: pv1-bad-debt-agency-code
     resource: '%resource.extension.where(url = "pv1-31-bad-debt-agency-code").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7PV1Field}-31'
 
@@ -32,7 +32,7 @@ elements:
 
   - name: pv1-delete-account-indicator
     resource: '%resource.extension.where(url = "pv1-34-delete-account-indicator").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7PV1Field}-34'
 
@@ -42,13 +42,13 @@ elements:
 
   - name: pv1-servicing-facility
     resource: '%resource.extension.where(url = "pv1-39-servicing-facility").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7PV1Field}-39'
 
   - name: pv1-account-status
     resource: '%resource.extension.where(url = "pv1-41-account-status").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7PV1Field}-41'
 
@@ -70,6 +70,6 @@ elements:
 
   - name: pv1-visit-indicator
     resource: '%resource.extension.where(url = "pv1-51-visit-indicator").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7PV1Field}-51'

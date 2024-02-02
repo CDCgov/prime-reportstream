@@ -1,28 +1,28 @@
 elements:
 
   - name: pl-point-of-care
-    schema: PLBranch
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PLBranch.yml
     resource: '%resource'
     constants:
       hl7PLHDField: '%{hl7PLField}-1'
       physicalTypeCode: '"poc"'
 
   - name: pl-room
-    schema: PLBranch
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PLBranch.yml
     resource: '%resource'
     constants:
       hl7PLHDField: '%{hl7PLField}-2'
       physicalTypeCode: '"ro"'
 
   - name: pl-bed
-    schema: PLBranch
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PLBranch.yml
     resource: '%resource'
     constants:
       hl7PLHDField: '%{hl7PLField}-3'
       physicalTypeCode: '"bd"'
 
   - name: pl-facility
-    schema: PLBranch
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PLBranch.yml
     resource: '%resource'
     constants:
       hl7PLHDField: '%{hl7PLField}-4'
@@ -37,14 +37,14 @@ elements:
     hl7Spec: [ '%{hl7PLField}-6' ]
 
   - name: pl-building
-    schema: PLBranch
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PLBranch.yml
     resource: '%resource'
     constants:
       hl7PLHDField: '%{hl7PLField}-7'
       physicalTypeCode: '"bu"'
 
   - name: pl-floor
-    schema: PLBranch
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PLBranch.yml
     resource: '%resource'
     constants:
       hl7PLHDField: '%{hl7PLField}-8'
@@ -58,12 +58,12 @@ elements:
 
   - name: pl-comprehensive-location-identifier
     resource: '%resource.identifier.where(extension(%`rsext-ei-assigner-organization-type`).exists())'
-    schema: ../../../datatypes/identifier/EI
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/EI.yml
     constants:
       hl7EIField: '%{hl7PLField}-10'
 
   - name: pl-assigning-authority-for-location
     resource: '%resource.identifier.where(extension(%`rsext-ei-assigner-organization-type`).value = "organization").assigner.resolve()'
-    schema: ../../Organization/HD
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/HD.yml
     constants:
       hl7HDField: '%{hl7PLField}-11'

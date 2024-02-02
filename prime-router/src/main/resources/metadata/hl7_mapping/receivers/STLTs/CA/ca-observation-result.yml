@@ -12,7 +12,7 @@ elements:
     resource: '%resource.code'
     constants:
       ceFieldPath: '%{hl7ObservationPath}/OBX-3'
-    schema: ../../../common/datatype/ce-coded-element
+    schema: classpath:/metadata/hl7_mapping/common/datatype/ce-coded-element.yml
 
   - name: ca-observation-abnormal-flag-version
     condition: '%resource.interpretation.exists() and %resource.interpretation.coding[0].version.exists().not()'
@@ -68,7 +68,7 @@ elements:
     condition: >-
       (%observation.note.exists() or %service.note.exists() or %service.supportingInfo.exists())
       and (%diagnostic.result.count() - 1) = %resultIndex
-    schema: ca-order-note
+    schema: classpath:/metadata/hl7_mapping/receivers/STLTs/CA/ca-order-note.yml
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7ObservationPath}'

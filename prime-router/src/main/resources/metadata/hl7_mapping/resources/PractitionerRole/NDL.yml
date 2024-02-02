@@ -1,7 +1,7 @@
 elements:
 
   - name: practitioner-name
-    schema: '../Practitioner/CNN'
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/CNN.yml
     resource: '%resource.practitioner.resolve()'
     constants:
       hl7CNNField: '%{hl7NDLField}-1'
@@ -10,13 +10,13 @@ elements:
     resource: '%resource.period.start'
     constants:
       dtmFieldPath: '%{hl7NDLField}-2'
-    schema: ../../datatypes/dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
 
   - name: end-datetime
     resource: '%resource.period.end'
     constants:
       dtmFieldPath: '%{hl7NDLField}-3'
-    schema: ../../datatypes/dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
 
   - name: point-of-care
     value: [ '%resource.location.resolve().where(physicalType.coding.code.extension(%`rsext-location-physical-type-poc`).value = "poc").identifier.value' ]
@@ -31,7 +31,7 @@ elements:
     hl7Spec: [ '%{hl7NDLField}-6' ]
 
   - name: facility
-    schema: Location/HD
+    schema: classpath:/metadata/hl7_mapping/resources/Location/HD.yml
     resource: '%resource.location.resolve().where(physicalType.coding.code = "si")'
     constants:
       hl7NDLHDField: '%{hl7NDLField}-7'

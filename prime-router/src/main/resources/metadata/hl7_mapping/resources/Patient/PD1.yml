@@ -4,7 +4,7 @@ constants:
 elements:
   - name: ordering-facility-name
     resource: '%resource.generalPractitioner.resolve().ofType(Organization)'
-    schema: ../Organization/XON
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
     resourceIndex: xonIndex
     constants:
       hl7XONField: '%{hl7PD1Field}-3(%{xonIndex})'
@@ -15,7 +15,7 @@ elements:
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7PD1Field}-5'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
 
   - name: handicap
     condition: '%context.extension(%`ext-patient-disability`).exists()'
@@ -23,7 +23,7 @@ elements:
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7PD1Field}-6'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
 
   - name: living-will-code
     condition: '%context.extension(%`rsext-livingWill`).exists()'
@@ -31,7 +31,7 @@ elements:
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7PD1Field}-7'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
 
   - name: place-of-worship
     condition: '%context.extension(%`ext-patient-congregation`).exists()'
@@ -39,4 +39,4 @@ elements:
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7PD1Field}-14(%{cweIndex})'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml

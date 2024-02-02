@@ -27,5 +27,5 @@ elements:
 
   - name: co-observation-result
     resource: '%resource.result.resolve()'
-    schema: co-observation-result
+    schema: classpath:/metadata/hl7_mapping/receivers/STLTs/CO/co-observation-result.yml
     resourceIndex: resultIndex

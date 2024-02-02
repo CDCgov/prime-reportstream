@@ -1,4 +1,4 @@
-extends: ../../OML_O21/OML_O21-base
+extends: classpath:/metadata/hl7_mapping/OML_O21/OML_O21-base.yml
 
 elements:
   - name: order-observation-specimen-action-code

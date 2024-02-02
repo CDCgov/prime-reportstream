@@ -5,7 +5,7 @@ constants:
   illnessOnsetAoeLoinc: '"65222-2"'
   symptomaticAoeLoinc: '"95419-8"'
   patientAgeAoeLoinc: '"35659-2"'
-extends: ../ORU_R01-base
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 elements:
   - name: patient-race-codeable-concept
     condition: false
@@ -65,7 +65,7 @@ elements:
   - name: radx-mars-order-observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
     condition: '%resource.count() > 0'
-    schema: RADx_MARS-order-observation
+    schema: classpath:/metadata/hl7_mapping/RADx_MARS/RADx_MARS-order-observation.yml
     resourceIndex: orderIndex
 
   # RADx Format Requirement:

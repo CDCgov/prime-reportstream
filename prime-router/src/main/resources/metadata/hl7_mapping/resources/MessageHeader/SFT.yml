@@ -3,7 +3,7 @@ elements:
     resource: '%resource.source.extension(%`rsext-software-vendor-org`).value.resolve()'
     constants:
       hl7XONField: 'SFT-1'
-    schema: ../Organization/XON
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
 
   - name: software-version
     value: [ '%resource.source.version' ]
@@ -25,4 +25,4 @@ elements:
     resource: '%resource.source.extension(%`rsext-software-install-date`).value'
     constants:
       dtmFieldPath: 'SFT-6'
-    schema: ../../datatypes/dateTime/DTMorDT
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml

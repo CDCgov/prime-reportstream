@@ -9,25 +9,25 @@ elements:
 
   - name: order-status
     resource: '%resource.extension.where (url = "orc-8-parent-order").value'
-    schema: ../../datatypes/identifier-placerAssignedIdentifier/EIP
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP.yml
     constants:
       eipFieldPath: '%{hl7Order}-8'
 
   - name: entered-by
     resource: '%resource.extension.where (url = "orc-10-entered-by").value.resolve()'
-    schema: ../Practitioner/XCN
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     constants:
       hl7XCNField: '%{hl7Order}-10'
 
   - name: verified-by
     resource: '%resource.extension.where(url = "orc-11-verified-by").value.resolve()'
-    schema: ../Practitioner/XCN
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     constants:
       hl7XCNField: '%{hl7Order}-11'
 
   - name: enterers-location
     resource: '%resource.extension.where(url = "orc-13-enterers-location").value.resolve()'
-    schema: ../Location/PL/PL
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PL.yml
     constants:
       hl7PLField: '%{hl7Order}-13'
 
@@ -37,21 +37,21 @@ elements:
 
   - name: entering-organization
     resource: '%resource.extension.where(url = "orc-17-entering-organization").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7Order}-17(%{cweIndex})'
 
   - name: entering-organization
     resource: '%resource.extension.where(url = "orc-18-entering-device").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7Order}-18(%{cweIndex})'
 
   - name: entered-by
     resource: '%resource.extension.where (url = "orc-19-action-by").value.resolve()'
-    schema: ../Practitioner/XCN
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     constants:
       hl7XCNField: '%{hl7Order}-19'
 
@@ -62,19 +62,19 @@ elements:
 
   - name: confidentiality-code
     resource: '%resource.extension.where(url = "orc-28-confidentiality-code").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7Order}-28(%{cweIndex})'
 
   - name: enterer-authorization-mode
     resource: '%resource.extension.where(url = "orc-30-enterer-authorization-mode").value'
-    schema: ../../datatypes/codeableConcept/CNE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CNE.yml
     constants:
       cneFieldPath: '%{hl7Order}-30'
 
   - name: parent-universal-service-identifier
     resource: '%resource.extension.where(url = "orc-31-parent-universal-service-identifier").value'
-    schema: ../../datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7Order}-31'

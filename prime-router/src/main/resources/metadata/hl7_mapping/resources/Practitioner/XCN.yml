@@ -8,7 +8,7 @@ elements:
     resource: '%resource.name.family'
     constants:
       hl7fnField: '%{hl7XCNField}-2'
-    schema: ../../datatypes/HumanName/FN
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/FN.yml
 
   - name: xcn-prefix
     value: [ '%resource.name.prefix' ]
@@ -18,7 +18,7 @@ elements:
     resource: '%resource.extension(%`rsext-assigning-authority`)'
     constants:
       hl7HDField: '%{hl7XCNField}-9'
-    schema: ../../datatypes/extensionAssigningAuthority/HD
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionAssigningAuthority/HD.yml
 
   - name: xcn-check-digit
     value: [ '%resource.identifier.extension(%`ext-identifier-checkDigit`).value' ]
@@ -36,7 +36,7 @@ elements:
     resource: '%resource.identifier.extension(%`rsext-assigning-facility`).value.resolve()'
     constants:
       hl7HDField: '%{hl7XCNField}-14'
-    schema: ../Location/HD
+    schema: classpath:/metadata/hl7_mapping/resources/Location/HD.yml
 
   - name: xcn-name-assembly-order
     value: [ '%resource.name.extension(%`ext-humanname-assembly-order`).value' ]
@@ -44,4 +44,4 @@ elements:
 
   - name: xcn-extension-value
     resource: '%resource.extension(%`rsext-xcn-practitioner`)'
-    schema: ./XCNExtension
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCNExtension.yml

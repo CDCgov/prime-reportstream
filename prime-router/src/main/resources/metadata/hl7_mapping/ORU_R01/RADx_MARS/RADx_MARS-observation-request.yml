@@ -7,7 +7,7 @@ elements:
     resource: '%resource.code'
     constants:
       ceFieldPath: '%{fieldPath}-4'
-    schema: ../../common/datatype/ce-coded-element
+    schema: classpath:/metadata/hl7_mapping/common/datatype/ce-coded-element.yml
 
   - name: radx-mars-ordering-provider-id-assigner-oid
     resource: '%service.requester.resolve().practitioner.exists()'

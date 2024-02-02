@@ -7,7 +7,7 @@ elements:
   - name: sending-application-source
     condition: '%resource.extension(%`rsext-hl7-use`).value = "sending-application"'
     resource: '%resource.source'
-    schema: Source/HD
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/Source/HD.yml
     constants:
       hl7HDField: 'MSH-3'
 
@@ -16,17 +16,17 @@ elements:
     condition: '%resource.exists()'
     constants:
       hl7HDField: 'MSH-4'
-    schema: ../Organization/HD
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/HD.yml
 
   - name: receiving-application
     resource: '%resource.destination.where(extension(%`rsext-hl7-use`).value = "receiving-application")'
-    schema: Destination/HD
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/Destination/HD.yml
     constants:
       hl7HDField: 'MSH-5'
 
   - name: receiving-facility
     resource: '%resource.destination.receiver.resolve().where(extension(%`rsext-hl7-use`).value = "receiving-facility")'
-    schema: ../Organization/HD
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/HD.yml
     constants:
       hl7HDField: 'MSH-6'
 
@@ -35,7 +35,7 @@ elements:
     hl7Spec: [ MSH-8-1 ]
 
   - name: message-event-coding
-    schema: ../../datatypes/coding/MSG
+    schema: classpath:/metadata/hl7_mapping/datatypes/coding/MSG.yml
     condition: '%resource.is(Coding)'
     resource: '%resource.event'
     constants:
@@ -47,7 +47,7 @@ elements:
     hl7Spec: [ MSH-10 ]
 
   - name: message-processing
-    schema: ../../datatypes/meta/PT
+    schema: classpath:/metadata/hl7_mapping/datatypes/meta/PT.yml
     resource: '%resource.meta'
     constants:
       hl7PTField: MSH-11
@@ -63,35 +63,35 @@ elements:
   - name: message-character-set
     resource: '%resource.extension(%`rsext-character-set`).value'
     resourceIndex: characterSetIndex
-    schema: extensionCharacterSetList/ID
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/extensionCharacterSetList/ID.yml
 
   - name: responsible
     resource: '%resource.responsible.resolve()'
     condition: '%resource.exists()'
-    schema: ../Organization/XON
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
     constants:
       hl7XONField: 'MSH-22'
 
   - name: receiving-responsible-organization
     resource: '%resource.destination.receiver.resolve().where(extension(%`rsext-hl7-use`).value = "receiving-responsible-organization")'
-    schema: ../Organization/XON
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
     constants:
       hl7XONField: 'MSH-23'
 
   - name: sending-network-address-from-source
     resource: '%resource.source'
     condition: '%resource.extension(%`rsext-hl7-use`).value = "sending-network-address"'
-    schema: Source/HD
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/Source/HD.yml
     constants:
       hl7HDField: 'MSH-24'
 
   - name: receiving-network-address
     resource: '%resource.destination.where(extension(%`rsext-hl7-use`).value = "receiving-network-address")'
-    schema: Destination/HD
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/Destination/HD.yml
     constants:
       hl7HDField: 'MSH-25'
 
   - name: msh-extension-values
     resource: '%resource.extension(%`rsext-msh-message-header`)'
-    schema: ./MSHExtension
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/MSHExtension.yml
 

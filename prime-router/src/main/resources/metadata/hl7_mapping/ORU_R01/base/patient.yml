@@ -4,15 +4,15 @@ constants:
 elements:
 
   - name: patient-identification
-    schema: ../../resources/Patient/PID
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PID.yml
 
   - name: patient-identification-extensions
     resource: '%resource.extension(%`rsext-pid-patient`)'
-    schema: ../../resources/Patient/PIDExtension
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PIDExtension.yml
 
   - name: additional-demographics
-    schema: ../../resources/Patient/PD1
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PD1.yml
 
   - name: additional-demographics-extensions
     resource: '%resource.extension(%`rsext-pd1-patient`)'
-    schema: ../../resources/Patient/PD1Extension
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PD1Extension.yml
