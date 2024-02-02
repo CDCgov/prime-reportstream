@@ -26,7 +26,7 @@ elements:
   - name: patient-note
     resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value'
     condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists()'
-    schema: ../common/note
+    schema: ../datatypes/annotation/NTE
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '/PATIENT_RESULT/PATIENT'
@@ -53,12 +53,12 @@ elements:
     resourceIndex: orderIndex
 
   - name: participation-request
-    resource: 'Bundle.entry.resource.ofType(Device)'
+    resource: 'Bundle.entry.resource.ofType(Device).where(udiCarrier.exists())'
     condition: 'Bundle.entry.resource.ofType(Device).udiCarrier.exists()'
     constants:
       hl7SegmentGroup: '/PATIENT_RESULT/PATIENT/PATIENT_OBSERVATION'
     schema: ../resources/Device/PRT
-    resourceIndex: orderIndex
+    resourceIndex: prtDeviceIndex
 
   - name: related-person-nk1
     resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Name`).value = "NK1")'

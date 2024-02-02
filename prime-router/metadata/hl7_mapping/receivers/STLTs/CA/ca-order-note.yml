@@ -5,6 +5,6 @@ elements:
 
   - name: note
     condition: '%resource is string'
-    schema: '../../../common/note'
+    schema: '../../../datatypes/annotation/NTE'
     constants:
       noteDetails: '%resource.note'

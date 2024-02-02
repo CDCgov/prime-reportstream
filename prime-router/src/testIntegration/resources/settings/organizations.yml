@@ -148,6 +148,9 @@
         # Accept all conditions except Covid results in the LIVD look up table
         # Covid flows through the Covid pipeline
         - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
+      mappedConditionFilter:
+        - type: codeString
+          value: 840539006,1234
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
