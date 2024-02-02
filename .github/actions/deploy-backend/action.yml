@@ -258,6 +258,7 @@ runs:
       shell: bash
 
     - name: Pass if slot swap completes
+      if: inputs.env-name == 'staging' || inputs.env-name == 'prod'
       run: |
         NEW_SWAP_UTC=$(az functionapp deployment slot list \
         --name ${{ env.FUNCTION_APP }} --resource-group ${{ env.RESOURCE_GROUP }} \
@@ -282,7 +283,7 @@ runs:
         key: backend
         validate: true
         fail-invalid: false
-        input: $(az functionapp config appsettings list -g prime-data-hub-${{ inputs.env-name }} -n pdh${{ inputs.env-name }}-functionapp)
+        input: $(az functionapp config appsettings list -g prime-data-hub-${{ inputs.env-name }} -n pdh${{ inputs.env-name }}-functionapp -o tsv | sort)
 
     - name: Remove GitHub action IP whitelist
       if: ${{ always() }} # This should happen even on a failure
