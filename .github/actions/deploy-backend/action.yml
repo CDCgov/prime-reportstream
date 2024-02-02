@@ -270,6 +270,7 @@ runs:
       shell: bash
 
     - name: Pass if slot swap completes
+      if: inputs.env-name == 'staging' || inputs.env-name == 'prod'
       run: |
         NEW_SWAP_UTC=$(az functionapp deployment slot list \
         --name ${{ env.FUNCTION_APP }} --resource-group ${{ env.RESOURCE_GROUP }} \

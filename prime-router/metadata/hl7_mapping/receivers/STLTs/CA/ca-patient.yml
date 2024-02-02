@@ -1,7 +1,7 @@
 constants:
   hl7PIDField: '%{hl7SegmentGroup}/PID'
 elements:
-  
+
   - name: ca-patient-identifier
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "patient-identifier-list")'
     resourceIndex: cxIndex
@@ -30,11 +30,11 @@ elements:
 
   # override xpn-name-type-code to set a default
   - name: xpn-name-type-code
-    value: [ '%resource.extension(%`rsext-xpn7-name-type-code`).value', '"official"' ]
+    value: [ '%resource.extension(%`rsext-xpn-human-name`).extension("XPN.7").value', '"official"' ]
     hl7Spec: [ '%{hl7PIDField}-5-7' ]
 
   - name: xpn-name-type-code-mapped
-    condition: '%resource.extension(%`rsext-xpn7-name-type-code`).exists().not()'
+    condition: '%resource.extension(%`rsext-xpn-human-name`).extension("XPN.7").exists().not()'
     value: [ '%resource.use', '"official"' ]
     hl7Spec: [ '%{hl7PIDField}-5-7' ]
     valueSet:

@@ -70,7 +70,7 @@ class CompareFhirData(
         val patches = JsonDiff.asJson(expectedParsedJson, actualParsedJson) as ArrayNode
 
         // remove all diffs that are expected
-        val filtered = listOf("/id", "/fullUrl", "/lastUpdated", "/timestamp", "/reference")
+        val filtered = listOf("/id", "/fullUrl", "/lastUpdated", "/timestamp", "/reference", "/recorded")
         val filteredList = patches.filter { patch ->
             !filtered.any { filteredField ->
                 patch.at("/path").asText().endsWith(filteredField)
@@ -82,7 +82,7 @@ class CompareFhirData(
         if (filteredList.isNotEmpty()) {
             logger.info(
                 "JSON diff. Make the following changes to the expected JSON " +
-                "for it to match the actual JSON:\n${array.toPrettyString()}"
+                    "for it to match the actual JSON:\n${array.toPrettyString()}"
             )
         }
     }

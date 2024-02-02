@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1699996320474611000.9a6fad3d-dfba-41a7-91d7-27020b1d61ec",
+  "id" : "1706654038345533000.be1f87d2-7326-499c-8588-b6539295e68a",
   "meta" : {
-    "lastUpdated" : "2023-11-14T16:12:00.489-05:00"
+    "lastUpdated" : "2024-01-30T17:33:58.352-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -63,31 +63,38 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1699996320852618000.43c59cf1-0d53-40ec-a6b4-32a852357068",
+      "fullUrl" : "Provenance/1706654038710871000.c7f0c6c8-c7c8-4788-92a2-e9e84f7f88e4",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1699996320852618000.43c59cf1-0d53-40ec-a6b4-32a852357068",
+        "id" : "1706654038710871000.c7f0c6c8-c7c8-4788-92a2-e9e84f7f88e4",
+        "target" : [
+          {
+            "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
+          }
+        ],
         "recorded" : "2023-05-01T10:25:31-04:00",
-        "_recorded" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230501102531-0400"
-            }
-          ]
-        },
         "activity" : {
           "coding" : [
             {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-              "code" : "R01",
-              "display" : "ORU_R01"
+              "display" : "ORU^R01^ORU_R01"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706654038718052000.d26d0fa2-058e-4f11-82d6-91ab2078efac",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706654038718052000.d26d0fa2-058e-4f11-82d6-91ab2078efac",
+        "recorded" : "2024-01-30T17:33:58Z",
+        "policy" : [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
+        "activity" : {
+          "coding" : [
+            {
+              "code" : "v2-FHIR transformation"
             }
           ]
         },
@@ -96,34 +103,39 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-                  "code" : "author"
+                  "code" : "assembler"
                 }
               ]
-            }
-          }
-        ],
-        "entity" : [
-          {
-            "role" : "source",
-            "what" : {
-              "reference" : "Device/1699996320854981000.fbe1c608-9173-40ea-96b0-24c7c6eb562a"
+            },
+            "who" : {
+              "reference" : "Organization/1706654038717542000.96689ea3-95de-48cf-bd72-604ff6944e4f"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1699996320854981000.fbe1c608-9173-40ea-96b0-24c7c6eb562a",
+      "fullUrl" : "Organization/1706654038717542000.96689ea3-95de-48cf-bd72-604ff6944e4f",
       "resource" : {
-        "resourceType" : "Device",
-        "id" : "1699996320854981000.fbe1c608-9173-40ea-96b0-24c7c6eb562a"
+        "resourceType" : "Organization",
+        "id" : "1706654038717542000.96689ea3-95de-48cf-bd72-604ff6944e4f",
+        "identifier" : [
+          {
+            "value" : "CDC PRIME - Atlanta"
+          },
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.237821"
+          }
+        ]
       }
     }
   ]

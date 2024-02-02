@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1699995260268122000.8ffe2485-78b5-4529-b565-3124c336e4b9",
+  "id" : "1706654149509162000.b224b277-ec18-44a4-b504-1212e20bd6a2",
   "meta" : {
-    "lastUpdated" : "2023-11-14T15:54:20.281-05:00"
+    "lastUpdated" : "2024-01-30T17:35:49.516-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -64,7 +64,7 @@
             {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
               "valueReference" : {
-                "reference" : "Organization/1699995260353863000.0e4974ed-2f4d-4a81-b63d-861ae5cc7b98"
+                "reference" : "Organization/1706654149583534000.e8655be7-c1cc-4470-87f7-01ea41b9217a"
               }
             }
           ],
@@ -75,14 +75,19 @@
       }
     },
     {
-      "fullUrl" : "Organization/1699995260353863000.0e4974ed-2f4d-4a81-b63d-861ae5cc7b98",
+      "fullUrl" : "Organization/1706654149583534000.e8655be7-c1cc-4470-87f7-01ea41b9217a",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1699995260353863000.0e4974ed-2f4d-4a81-b63d-861ae5cc7b98",
+        "id" : "1706654149583534000.e8655be7-c1cc-4470-87f7-01ea41b9217a",
         "extension" : [
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon10-organization-identifier",
-            "valueString" : "CDC CLIA"
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization",
+            "extension" : [
+              {
+                "url" : "XON.10",
+                "valueString" : "CDC CLIA"
+              }
+            ]
           }
         ],
         "identifier" : [
@@ -127,31 +132,38 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1699995260651397000.410c4a11-25b9-4b64-89f8-fdbc12db66d8",
+      "fullUrl" : "Provenance/1706654149930606000.3d520c77-3674-4e72-b9a4-bd3a3fda3765",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1699995260651397000.410c4a11-25b9-4b64-89f8-fdbc12db66d8",
+        "id" : "1706654149930606000.3d520c77-3674-4e72-b9a4-bd3a3fda3765",
+        "target" : [
+          {
+            "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
+          }
+        ],
         "recorded" : "2023-05-01T10:25:31-04:00",
-        "_recorded" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230501102531-0400"
-            }
-          ]
-        },
         "activity" : {
           "coding" : [
             {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-              "code" : "R01",
-              "display" : "ORU_R01"
+              "display" : "ORU^R01^ORU_R01"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706654149938557000.235bb853-7956-48c3-aeab-1ad36d686699",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706654149938557000.235bb853-7956-48c3-aeab-1ad36d686699",
+        "recorded" : "2024-01-30T17:35:49Z",
+        "policy" : [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
+        "activity" : {
+          "coding" : [
+            {
+              "code" : "v2-FHIR transformation"
             }
           ]
         },
@@ -160,57 +172,37 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-                  "code" : "author"
+                  "code" : "assembler"
                 }
               ]
-            }
-          }
-        ],
-        "entity" : [
-          {
-            "role" : "source",
-            "what" : {
-              "reference" : "Device/1699995260653592000.35f848d7-1b6d-446c-89a0-fef3b136c9c2"
+            },
+            "who" : {
+              "reference" : "Organization/1706654149938158000.08987b42-a41e-4606-b01d-df4a1a19aad8"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1699995260653592000.35f848d7-1b6d-446c-89a0-fef3b136c9c2",
+      "fullUrl" : "Organization/1706654149938158000.08987b42-a41e-4606-b01d-df4a1a19aad8",
       "resource" : {
-        "resourceType" : "Device",
-        "id" : "1699995260653592000.35f848d7-1b6d-446c-89a0-fef3b136c9c2",
+        "resourceType" : "Organization",
+        "id" : "1706654149938158000.08987b42-a41e-4606-b01d-df4a1a19aad8",
         "identifier" : [
+          {
+            "value" : "CDC PRIME - Atlanta"
+          },
           {
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
-                  "system" : "http://terminology.hl7.org/NamingSystem/uri",
-                  "code" : "Sending App Universal",
-                  "display" : "Sending App"
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
                 }
               ]
-            }
-          }
-        ],
-        "deviceName" : [
-          {
-            "name" : "Sending App",
-            "type" : "user-friendly-name"
+            },
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.237821"
           }
         ]
       }

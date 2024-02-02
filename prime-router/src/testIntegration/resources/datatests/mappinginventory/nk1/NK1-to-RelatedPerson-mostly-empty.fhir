@@ -1,136 +1,221 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1705008091107461000.5432fb25-f660-48f6-8b81-0a33213abccd",
+  "id" : "1706654254407225000.c13770c2-3821-45fd-b822-e268cd29bb8a",
   "meta" : {
-    "lastUpdated" : "2024-01-11T15:21:31.126-06:00"
+    "lastUpdated" : "2024-01-30T17:37:34.414-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T09:25:31.000-05:00",
-  "entry" : [ {
-    "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-    "resource" : {
-      "resourceType" : "MessageHeader",
-      "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-      "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
-        "valueString" : "^~\\&#"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
-        "valueString" : "20230501102531-0400"
-      } ],
-      "eventCoding" : {
-        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-        "code" : "R01",
-        "display" : "ORU^R01^ORU_R01"
-      },
-      "source" : {
-        "_endpoint" : {
-          "extension" : [ {
-            "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
-            "valueCode" : "unknown"
-          } ]
-        }
-      }
-    }
-  }, {
-    "fullUrl" : "Provenance/1705008091767933000.1999ecaa-a92e-41c8-83fe-47f527d71e72",
-    "resource" : {
-      "resourceType" : "Provenance",
-      "id" : "1705008091767933000.1999ecaa-a92e-41c8-83fe-47f527d71e72",
-      "recorded" : "2023-05-01T10:25:31-04:00",
-      "_recorded" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-          "valueString" : "20230501102531-0400"
-        } ]
-      },
-      "activity" : {
-        "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
+  "entry" : [
+    {
+      "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+      "resource" : {
+        "resourceType" : "MessageHeader",
+        "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+            "valueString" : "^~\\&#"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
+            "valueString" : "20230501102531-0400"
+          }
+        ],
+        "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU_R01"
-        } ]
-      },
-      "agent" : [ {
-        "type" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-            "code" : "author"
-          } ]
+          "display" : "ORU^R01^ORU_R01"
+        },
+        "source" : {
+          "_endpoint" : {
+            "extension" : [
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode" : "unknown"
+              }
+            ]
+          }
         }
-      } ],
-      "entity" : [ {
-        "role" : "source",
-        "what" : {
-          "reference" : "Device/1705008091772488000.21f24b98-2b34-4b77-9455-6b225abadecf"
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706654254817354000.a41af763-4292-46bf-a9c4-f992e3626252",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706654254817354000.a41af763-4292-46bf-a9c4-f992e3626252",
+        "target" : [
+          {
+            "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
+          }
+        ],
+        "recorded" : "2023-05-01T10:25:31-04:00",
+        "activity" : {
+          "coding" : [
+            {
+              "display" : "ORU^R01^ORU_R01"
+            }
+          ]
         }
-      } ]
-    }
-  }, {
-    "fullUrl" : "Device/1705008091772488000.21f24b98-2b34-4b77-9455-6b225abadecf",
-    "resource" : {
-      "resourceType" : "Device",
-      "id" : "1705008091772488000.21f24b98-2b34-4b77-9455-6b225abadecf"
-    }
-  }, {
-    "fullUrl" : "Patient/1705008091808576000.dfbe32fe-8083-485a-96e2-782f860a96bb",
-    "resource" : {
-      "resourceType" : "Patient",
-      "id" : "1705008091808576000.dfbe32fe-8083-485a-96e2-782f860a96bb",
-      "contact" : [ {
-        "name" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
-            "valueString" : "Bee"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
-            "valueString" : "L"
-          } ],
-          "use" : "official",
-          "family" : "Bob",
-          "given" : [ "Bee" ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706654254829641000.2df09465-c278-4377-a3e0-de78b652f5c4",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706654254829641000.2df09465-c278-4377-a3e0-de78b652f5c4",
+        "recorded" : "2024-01-30T17:37:34Z",
+        "policy" : [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
+        "activity" : {
+          "coding" : [
+            {
+              "code" : "v2-FHIR transformation"
+            }
+          ]
+        },
+        "agent" : [
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code" : "assembler"
+                }
+              ]
+            },
+            "who" : {
+              "reference" : "Organization/1706654254828427000.df2457be-0ee7-48ba-824a-ea5b93dda425"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Organization/1706654254828427000.df2457be-0ee7-48ba-824a-ea5b93dda425",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1706654254828427000.df2457be-0ee7-48ba-824a-ea5b93dda425",
+        "identifier" : [
+          {
+            "value" : "CDC PRIME - Atlanta"
+          },
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.237821"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Patient/1706654254849082000.0610f400-691d-4c46-ad7f-6ea71462e2e0",
+      "resource" : {
+        "resourceType" : "Patient",
+        "id" : "1706654254849082000.0610f400-691d-4c46-ad7f-6ea71462e2e0",
+        "contact" : [
+          {
+            "name" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                  "extension" : [
+                    {
+                      "url" : "XPN.2",
+                      "valueString" : "Bee"
+                    },
+                    {
+                      "url" : "XPN.7",
+                      "valueString" : "L"
+                    }
+                  ]
+                }
+              ],
+              "use" : "official",
+              "family" : "Bob",
+              "given" : [
+                "Bee"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706654254850303000.f25319eb-4939-4b00-8fca-ccd349bedc88",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706654254850303000.f25319eb-4939-4b00-8fca-ccd349bedc88",
+        "target" : [
+          {
+            "reference" : "Patient/1706654254849082000.0610f400-691d-4c46-ad7f-6ea71462e2e0"
+          }
+        ],
+        "recorded" : "2024-01-30T17:37:34Z",
+        "activity" : {
+          "coding" : [
+            {
+              "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+              "code" : "UPDATE"
+            }
+          ]
         }
-      } ]
+      }
+    },
+    {
+      "fullUrl" : "RelatedPerson/1706654254852645000.4dd585ce-1346-4e44-bf20-31a27279abd1",
+      "resource" : {
+        "resourceType" : "RelatedPerson",
+        "id" : "1706654254852645000.4dd585ce-1346-4e44-bf20-31a27279abd1",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "NK1"
+          }
+        ],
+        "patient" : {
+          "reference" : "Patient/1706654254849082000.0610f400-691d-4c46-ad7f-6ea71462e2e0"
+        },
+        "name" : [
+          {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+                "valueString" : "name"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                "extension" : [
+                  {
+                    "url" : "XPN.2",
+                    "valueString" : "Bee"
+                  },
+                  {
+                    "url" : "XPN.7",
+                    "valueString" : "L"
+                  }
+                ]
+              }
+            ],
+            "use" : "official",
+            "family" : "Bob",
+            "given" : [
+              "Bee"
+            ]
+          }
+        ]
+      }
     }
-  }, {
-    "fullUrl" : "RelatedPerson/1705008091812753000.c67940d1-467b-4bad-b0fb-5c10ff8aa2cf",
-    "resource" : {
-      "resourceType" : "RelatedPerson",
-      "id" : "1705008091812753000.c67940d1-467b-4bad-b0fb-5c10ff8aa2cf",
-      "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-        "valueString" : "NK1"
-      } ],
-      "patient" : {
-        "reference" : "Patient/1705008091808576000.dfbe32fe-8083-485a-96e2-782f860a96bb"
-      },
-      "name" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
-          "valueString" : "Bee"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-          "valueString" : "name"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
-          "valueString" : "L"
-        } ],
-        "use" : "official",
-        "family" : "Bob",
-        "given" : [ "Bee" ]
-      } ]
-    }
-  } ]
+  ]
 }
