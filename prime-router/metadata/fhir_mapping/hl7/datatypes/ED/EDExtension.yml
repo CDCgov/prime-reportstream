@@ -40,7 +40,7 @@ extension:
     - expressionType: nested
       vars:
         ed5: STRING, ED.5
-      condition: $ed5 NOT_EQUALS Base64
+      condition: $ed5 NOT_NULL
       expressionsMap:
         url:
           type: STRING
