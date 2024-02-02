@@ -19,7 +19,7 @@ elements:
 
   - name: patient-note
     resource: '%resource.extension(%`rsext-patient-notes`).value'
-    schema: ../../../../common/note
+    schema: ../../../../datatypes/annotation/NTE
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7SegmentGroup}'

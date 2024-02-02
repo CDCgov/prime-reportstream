@@ -206,14 +206,6 @@ elements:
   - name: xon-assigning-authority
     resource: '%resource'
 
-  - name: designator-namespace-id-from-name
-    condition: >
-      %resource.is(Organization).not() and
-      %resource.system.exists().not() and 
-      %resource.extension(%`namespaceExtName`).exists().not() and 
-      %resource.value.exists().not() and 
-      %resource.name.exists()
-
   # OBR-10
   - name: entered-by
     condition: false

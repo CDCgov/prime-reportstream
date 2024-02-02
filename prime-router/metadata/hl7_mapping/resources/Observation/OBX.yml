@@ -132,8 +132,7 @@ elements:
 
   - name: observation-note
     resource: '%resource.note'
-    condition: '%resource.exists()'
-    schema: ../../common/note
+    schema: ../../datatypes/annotation/NTE
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7ObservationPath}'

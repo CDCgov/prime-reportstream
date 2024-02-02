@@ -28,6 +28,27 @@ either store
 HL7 data not translated to FHIR or information on where a particular piece of a FHIR bundle should be mapped to in the
 HL7 message.
 
+### Use of extensions to capture HL7 data
+
+The FHIR bundles that are produced via the conversion process are then translated back to HL7 for receivers that want
+that
+format. The code needs to ensure the following during the conversion:
+
+- The incoming HL7 message matches exactly the outgoing one
+- The incoming FHIR message can deterministically produce an HL7
+
+ReportStream uses a series of custom extensions to capture data about how a FHIR bundle should be translated back into
+HL7. There are two primary instances where this is required:
+
+- The HL7->FHIR mapping does not map a particular HL7 field
+- The conversion process loses data when going from HL7 to FHIR; a concrete example is the conversion of XAD -> Address.
+  XAD.1 has three subcomponents, XAD.1.1:Street Number, XAD.1.2:Street Name, XAD.1.3:Dwelling number and these three
+  values plus XAD.2 and XAD.19 all go into an array of strings called `line` in the FHIR datatype. In the case where
+  these fields are sparsely populated there is no way to determine which string should map to which specific HL7 field.
+    - Another similar case is where an array consists of multiple FHIR datatypes (i.e. a list of identifiers), similarly
+      to the previous case, an extension is required to track where in the HL7 each identifier should be translated
+      into.
+
 ## Differences from the inventory
 
 The v2-FHIR inventory is more of a rough target then an official spec and does contain inconsistencies, contradictions,
@@ -52,6 +73,26 @@ implementation differs from what is in the spreadsheets.
   as it is more specific
 - The inventory specifies that MessageHeader.destination should have a reference to a device, but there is no mapping so
   that is not implemented
+
+### MSH -> Provenance
+
+- The inventory
+  for [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
+  maps MSH.3 to a Device reference, but the referenced
+  mapping, [HD[MessageHeader.source.endpoint]](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0),
+  is incompatible with the Device type in the FHIR spec.
+- The [ORU_R01](https://docs.google.com/spreadsheets/d/1gHK6_PFyr7PXns7wLDs0LSLsbjm0x-4bWUu3crXMKMI/edit#gid=0)
+  inventory
+  shows
+  that [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
+  and [MSH[Provenance-Transformation]](https://docs.google.com/spreadsheets/d/1byfzqOfOvIVdRkHv2Tto5a-a0YMYWWP0eryaZBvibIo/edit#gid=0)
+  should both reference the Bundle id. The converter library we use obfuscates the creation of the Bundle id, so it
+  would
+  require a library update to be able to reference that value from another resource.
+- [MSH[Provenance-Source]](https://docs.google.com/spreadsheets/d/1F5aYk6tFCYTQd_qEaEc5G85ZcCm98R5B-sq2JGqUagk/edit#gid=0)
+  and [MSH[Provenance-Transformation]](https://docs.google.com/spreadsheets/d/1byfzqOfOvIVdRkHv2Tto5a-a0YMYWWP0eryaZBvibIo/edit#gid=0)
+  both include entity values to contain the original HL7v2 message. Since we currently don't have a good way to include
+  real references to those messages, we've omitted the associated `entity` fields altogether.
 
 ### OBR/ORC -> ServiceRequest
 

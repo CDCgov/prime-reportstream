@@ -151,7 +151,7 @@ runs:
 
     - name: Dump docker logs
       if: always() && inputs.run-integration-tests == 'true'
-      uses: jwalton/gh-docker-logs@59c9656cd3cb7542525f3dce7ae2f44c0ff85d66
+      uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e
 
     - name: Cleanup Gradle Cache
       if: inputs.run-integration-tests == 'true'
@@ -163,7 +163,7 @@ runs:
 
     - name: Upload Artifact
       if: inputs.upload-build == 'true'
-      uses: actions/upload-artifact@694cdabd8bdb0f10b2cea11669e1bf5453eed0a6
+      uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz
