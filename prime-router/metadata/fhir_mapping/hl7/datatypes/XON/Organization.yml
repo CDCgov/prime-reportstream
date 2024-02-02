@@ -10,26 +10,7 @@ name:
   valueOf: XON.1
   expressionType: HL7Spec
 
-extension_1-nameType:
-  condition: xon2 NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    xon2: XON.2
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: organization-name-type
-    valueCoding:
-      valueOf: datatypes/CWE/Coding
-      generateList: true
-      expressionType: resource
-      specs: XON.2
-      constants:
-        hl7v2Name: organization-name-type-code
-
-
-identifier_1:
+identifier:
   expressionType: nested
   vars:
     xon3: XON.3
@@ -65,7 +46,7 @@ identifier_1:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: check-digit-scheme
+          value: naming-system-check-digit
         valueCode:
           valueOf: XON.5
           type: STRING
@@ -77,7 +58,7 @@ identifier_1:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: check-digit
+          value: identifier-check-digit
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -102,57 +83,6 @@ identifier_1:
           expressionType: reference
           valueOf: datatypes/HD/Location
           specs: XON.8
-
-extension_1-name-representation-code:
-  condition: $value NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    value: String, XON.9
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: name-representation-code
-    valueString:
-      type: STRING
-      expressionType: HL7Spec
-      valueOf: XON.9
-
-extension_2-xon3IdNumber:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: xon3-id-number
-    valueString:
-      expressionType: HL7Spec
-      type: STRING
-      valueOf: XON.3
-
-extension_3-xon10OrganizationIdentifier:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: xon10-organization-identifier
-    valueString:
-      expressionType: HL7Spec
-      type: STRING
-      valueOf: XON.10
-
-extension_hl7Use:
-  generateList: true
-  expressionType: nested
-  condition: $xonOrganizationHL7Use NOT_NULL
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: hl7-use
-    valueString:
-      type: STRING
-      valueOf: $xonOrganizationHL7Use
 
 address:
   condition: $XADAddress NOT_NULL
@@ -189,3 +119,46 @@ contact:
       generateList: true
       expressionType: resource
       specs: $XADContactAddress *
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - condition: xon2 NOT_NULL
+      expressionType: nested
+      vars:
+        xon2: XON.2
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: organization-name-type
+        valueCoding:
+          valueOf: datatypes/CWE/Coding
+          generateList: true
+          expressionType: resource
+          specs: XON.2
+          constants:
+            hl7v2Name: organization-name-type-code
+    - condition: $xon9 NOT_NULL
+      expressionType: nested
+      vars:
+        xon9: String, XON.9
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: name-representation-code
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XON.9
+    - expressionType: resource
+      valueOf: datatypes/XON/XONExtension
+    - expressionType: nested
+      condition: $xonOrganizationHL7Use NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7-use
+        valueString:
+          type: STRING
+          valueOf: $xonOrganizationHL7Use

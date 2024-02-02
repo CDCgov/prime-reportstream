@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706310866254879000.bb739088-473b-4a5e-af8d-33af60ff7940",
+  "id" : "1706653646475719000.eec02622-e16d-4578-83e6-4561da96cab8",
   "meta" : {
-    "lastUpdated" : "2024-01-26T17:14:26.268-06:00"
+    "lastUpdated" : "2024-01-30T17:27:26.482-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
@@ -44,16 +44,16 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706310866632221000.32d3fadd-cfa0-4516-ba24-f1554a1a89a6",
+      "fullUrl" : "Provenance/1706653646857278000.5f4a0875-e1cb-454c-a598-25e3b5c5e07e",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706310866632221000.32d3fadd-cfa0-4516-ba24-f1554a1a89a6",
+        "id" : "1706653646857278000.5f4a0875-e1cb-454c-a598-25e3b5c5e07e",
         "target" : [
           {
             "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
           },
           {
-            "reference" : "DiagnosticReport/1706310866795460000.320f705f-613f-4419-a767-12424cee066e"
+            "reference" : "DiagnosticReport/1706653647042136000.5c1da1e6-5dd2-4295-a2cc-86b0ffef7afc"
           }
         ],
         "recorded" : "2023-05-01T10:25:31-04:00",
@@ -67,11 +67,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706310866638584000.c69a198a-e061-401a-a06d-fd452b95a14b",
+      "fullUrl" : "Provenance/1706653646865249000.9b5c5bb3-76e4-415a-a42a-da1178df4fa4",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706310866638584000.c69a198a-e061-401a-a06d-fd452b95a14b",
-        "recorded" : "2024-01-26T17:14:26Z",
+        "id" : "1706653646865249000.9b5c5bb3-76e4-415a-a42a-da1178df4fa4",
+        "recorded" : "2024-01-30T17:27:26Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -93,17 +93,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706310866638036000.3607786b-e636-438f-982a-0dc82aacfc09"
+              "reference" : "Organization/1706653646864526000.3d6a302d-9619-4633-b8f3-145099892487"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706310866638036000.3607786b-e636-438f-982a-0dc82aacfc09",
+      "fullUrl" : "Organization/1706653646864526000.3d6a302d-9619-4633-b8f3-145099892487",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706310866638036000.3607786b-e636-438f-982a-0dc82aacfc09",
+        "id" : "1706653646864526000.3d6a302d-9619-4633-b8f3-145099892487",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -123,10 +123,10 @@
       }
     },
     {
-      "fullUrl" : "ServiceRequest/1706310866658307000.5b789aef-7d64-4050-8862-4fa43d641567",
+      "fullUrl" : "ServiceRequest/1706653646886887000.dbac6b1c-d8d8-48df-a79b-a6f345d20210",
       "resource" : {
         "resourceType" : "ServiceRequest",
-        "id" : "1706310866658307000.5b789aef-7d64-4050-8862-4fa43d641567",
+        "id" : "1706653646886887000.dbac6b1c-d8d8-48df-a79b-a6f345d20210",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
@@ -241,16 +241,8 @@
               "valueContactPoint" : {
                 "extension" : [
                   {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
-                    "valueString" : "WPN"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-                    "valueString" : "obr-17-order-callback-phone-number"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
-                    "valueString" : "4744177"
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                    "valueString" : "1"
                   },
                   {
                     "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
@@ -261,16 +253,29 @@
                     "valueString" : "4744177"
                   },
                   {
-                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
-                    "valueString" : "1"
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                    "extension" : [
+                      {
+                        "url" : "XTN.2",
+                        "valueString" : "WPN"
+                      },
+                      {
+                        "url" : "XTN.3",
+                        "valueString" : "PH"
+                      },
+                      {
+                        "url" : "XTN.7",
+                        "valueString" : "4744177"
+                      },
+                      {
+                        "url" : "XTN.12",
+                        "valueString" : "+1 518 474 4177"
+                      }
+                    ]
                   },
                   {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
-                    "valueString" : "PH"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
-                    "valueString" : "+1 518 474 4177"
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+                    "valueString" : "obr-17-order-callback-phone-number"
                   }
                 ],
                 "system" : "phone",
@@ -279,20 +284,16 @@
               }
             }
           ],
-          "reference" : "Practitioner/1706310866648794000.00c3217c-a664-463f-86de-17ca493172ee"
+          "reference" : "Practitioner/1706653646876094000.fa24b9f8-44be-4531-a48c-430044bde07a"
         }
       }
     },
     {
-      "fullUrl" : "Practitioner/1706310866648794000.00c3217c-a664-463f-86de-17ca493172ee",
+      "fullUrl" : "Practitioner/1706653646876094000.fa24b9f8-44be-4531-a48c-430044bde07a",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1706310866648794000.00c3217c-a664-463f-86de-17ca493172ee",
+        "id" : "1706653646876094000.fa24b9f8-44be-4531-a48c-430044bde07a",
         "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-            "valueString" : "obr-16-ordering-provider"
-          },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
             "extension" : [
@@ -309,6 +310,10 @@
                 "valueCode" : "ISO"
               }
             ]
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "obr-16-ordering-provider"
           }
         ],
         "identifier" : [
@@ -338,10 +343,10 @@
       }
     },
     {
-      "fullUrl" : "DiagnosticReport/1706310866795460000.320f705f-613f-4419-a767-12424cee066e",
+      "fullUrl" : "DiagnosticReport/1706653647042136000.5c1da1e6-5dd2-4295-a2cc-86b0ffef7afc",
       "resource" : {
         "resourceType" : "DiagnosticReport",
-        "id" : "1706310866795460000.320f705f-613f-4419-a767-12424cee066e",
+        "id" : "1706653647042136000.5c1da1e6-5dd2-4295-a2cc-86b0ffef7afc",
         "identifier" : [
           {
             "extension" : [
@@ -410,7 +415,7 @@
         ],
         "basedOn" : [
           {
-            "reference" : "ServiceRequest/1706310866658307000.5b789aef-7d64-4050-8862-4fa43d641567"
+            "reference" : "ServiceRequest/1706653646886887000.dbac6b1c-d8d8-48df-a79b-a6f345d20210"
           }
         ],
         "status" : "final",
