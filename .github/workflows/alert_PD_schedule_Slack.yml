@@ -1,9 +1,5 @@
 name: Find next person on call
 on:
-  workflow_dispatch:
-  push: 
-    branches:
-      - feature/12965-SlackNotification
   schedule:
     - cron: "7 13 * * Tue-Fri"  #UTC-5
     - cron: "7 13 * * Mon"  #UTC-5
@@ -54,7 +50,7 @@ jobs:
         echo  "${env:PDSchedules}" >> PDSchedules.json
 
     - name: JSON to variables
-      uses: antifree/json-to-variables@HEAD
+      uses: antifree/json-to-variables@fceea3105eb6687f377bf24fc8e6e8e0e4d2945a
       with:
         filename: 'PDSchedules.json'
         prefix: Schedules  
@@ -151,7 +147,7 @@ jobs:
         echo  "${env:PDSchedules}" >> PDSchedules.json
 
     - name: JSON to variables
-      uses: antifree/json-to-variables@HEAD
+      uses: antifree/json-to-variables@fceea3105eb6687f377bf24fc8e6e8e0e4d2945a
       with:
         filename: 'PDSchedules.json'
         prefix: Schedules  
