@@ -6,4 +6,4 @@ elements:
 
   - name: ed-extension-value
     resource: '%resource.extension(%`rsext-ed-attachment`)'
-    schema: ./EDExtension
+    schema: classpath:/metadata/hl7_mapping/datatypes/Attachment/EDExtension.yml

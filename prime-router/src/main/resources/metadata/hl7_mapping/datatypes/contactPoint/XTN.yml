@@ -33,4 +33,4 @@ elements:
 
   - name: xtn-extension-value
     resource: '%resource.extension(%`rsext-xtn-contact-point`)'
-    schema: ./XTNExtension
+    schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTNExtension.yml

@@ -45,4 +45,4 @@ elements:
 
   - name: xon-extension-value
     resource: '%resource.extension(%`rsext-xon-organization`)'
-    schema: ./XONExtension
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XONExtension.yml

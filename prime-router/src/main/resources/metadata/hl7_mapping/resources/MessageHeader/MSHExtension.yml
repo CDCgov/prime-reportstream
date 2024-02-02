@@ -35,7 +35,7 @@ elements:
     resource: '%resource.extension("MSH.21").value'
     constants:
       eiFieldPath: 'MSH-21(%{entityIdIndex})'
-    schema: ../../datatypes/identifier-extension/EI
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-extension/EI.yml
     resourceIndex: entityIdIndex
 
   - name: sending-network-address-from-extension

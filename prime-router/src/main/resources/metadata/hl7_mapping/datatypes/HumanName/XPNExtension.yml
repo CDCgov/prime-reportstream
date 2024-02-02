@@ -29,7 +29,7 @@ elements:
     resource: '%resource.extension("XPN.9").value'
     constants:
       cweField: '%{xpnField}-9'
-    schema: ../codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
 
   - name: xpn-10-1-name-validity-start
     value: [ '%resource.extension("XPN.10").extension("XPN.10.1").value' ]
