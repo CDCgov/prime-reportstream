@@ -155,9 +155,7 @@
               "valueString": "sending-application"
             }
           ],
-          "endpoint": "urn:oid:1.2.840.114350.1.13.145.2.7.2.695071",
-          "software": "Purple PRIME ReportStream",
-          "version": "0.2-YELLOW"
+          "endpoint": "urn:oid:1.2.840.114350.1.13.145.2.7.2.695071"
         }
       }
     },
