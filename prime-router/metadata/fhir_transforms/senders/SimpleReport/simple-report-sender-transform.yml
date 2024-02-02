@@ -27,8 +27,8 @@ elements:
 
   - name: message-date-time
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message").value.exists().not()'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message").value[x]'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.7").value.exists().not()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.7").value[x]'
     value:
       - Bundle.entry.resource.ofType(Provenance).recorded.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value
       - Bundle.entry.resource.ofType(Provenance).recorded
@@ -145,7 +145,7 @@ elements:
   - name: sr-ordering-provider-name-type-code
     condition: '%resource.name.use.exists().not()'
     resource: 'Bundle.entry.resource.ofType(Practitioner)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner").extension("XCN.10").value[x]'
     value: [ '"L"' ]
 
   - name: sr-patient-telecom
@@ -166,11 +166,11 @@ elements:
     value: [ '"coding"' ]
 
   - name: sr-patient-given-name
-    bundleProperty: '%patient.name.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name").value[x]'
+    bundleProperty: '%patient.name.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name").extension("XPN.2").value[x]'
     value: [ '%patient.name.given[0]' ]
 
   - name: sr-patient-second-given-name
-    bundleProperty: '%patient.name.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xpn3-second-given-name").value[x]'
+    bundleProperty: '%patient.name.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name").extension("XPN.3").value[x]'
     value: [ '%patient.name.given[1]' ]
 
   # This is populated as a sender transform in the Covid pipeline
@@ -528,11 +528,11 @@ elements:
     value: [ '"orc-12-ordering-provider"' ]
 
   - name: sr-order-requester-given-name
-    bundleProperty: '%serviceRequest.requester.resolve().practitioner.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn3-given-name").value[x]'
+    bundleProperty: '%serviceRequest.requester.resolve().practitioner.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner").extension("XCN.3").value[x]'
     value: [ '%serviceRequest.requester.resolve().practitioner.resolve().name.given[0]' ]
 
   - name: sr-order-requester-second-given-name
-    bundleProperty: '%serviceRequest.requester.resolve().practitioner.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn4-second-given-name").value[x]'
+    bundleProperty: '%serviceRequest.requester.resolve().practitioner.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner").extension("XCN.4").value[x]'
     value: [ '%serviceRequest.requester.resolve().practitioner.resolve().name.given[1]' ]
 
   - name: sr-service-request-obr-ordering-provider-extension
@@ -565,7 +565,7 @@ elements:
 
   - name: sr-organization-identifier
     resource: 'Bundle.entry.resource.ofType(Organization)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xon10-organization-identifier").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization").extension("XON.10").value[x]'
     value: [ '%resource.identifier[0].value' ]
 
   - name: sr-ordering-facility-name-type-code-coding-hl7-name
