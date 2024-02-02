@@ -30,3 +30,11 @@ variable "dns_zones" {
 }
 
 variable "storage_account" {}
+
+variable "vnet1" {
+    type        = string
+}
+
+variable "vnet2" {
+    type        = string
+}

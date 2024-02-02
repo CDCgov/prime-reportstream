@@ -4,19 +4,19 @@
 locals {
   vnets = {
     default = {
-      name     = "vnet",
+      name     = var.azure_vns["vnet"].name,
       key_name = "default"
     },
     east = {
-      name     = "East-vnet",
+      name     = var.azure_vns["East-vnet"].name,
       key_name = "east"
     },
     west = {
-      name     = "West-vnet",
+      name     = var.azure_vns["West-vnet"].name,
       key_name = "west"
     },
     peer = {
-      name     = "vnet-peer",
+      name     = var.azure_vns["vnet-peer"].name,
       key_name = "peer"
     }
   }

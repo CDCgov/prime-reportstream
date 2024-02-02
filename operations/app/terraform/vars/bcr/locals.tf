@@ -61,7 +61,8 @@ locals {
     terraform_caller_ip_address = jsondecode(data.azurerm_key_vault_secret.caller_ip_addresses.value)
     config = {
       "East-vnet" = {
-        "address_space"           = "172.17.${local.address_id}.0/25"
+        "name" = "ddphss-prim-trn-moderate-pdhbcr01-east-app-vnet"
+        "address_space"           = "172.18.3.128/25"
         "dns_servers"             = ["172.17.0.135"]
         "location"                = "East Us"
         "nsg_prefix"              = "eastus-"
@@ -87,6 +88,7 @@ locals {
         ]
       },
       "West-vnet" = {
+        "name" = "ddphss-prim-trn-moderate-pdhbcr01-west-app-vnet"
         "address_space"           = "172.17.${local.address_id}.128/25"
         "dns_servers"             = ["172.17.0.135"]
         "location"                = "West Us"
@@ -113,6 +115,7 @@ locals {
         ]
       },
       "vnet" = {
+        "name" = "${local.init.resource_prefix}-vnet"
         "address_space"           = "10.0.0.0/16"
         "dns_server"              = [""]
         "location"                = "East Us"
@@ -147,6 +150,7 @@ locals {
         ]
       },
       "vnet-peer" = {
+        "name" = "${local.init.resource_prefix}-vnet-peer"
         "address_space"           = "10.1.0.0/16"
         "dns_servers"             = [""]
         "location"                = "West Us"

@@ -200,6 +200,7 @@ module "sftp" {
   sshnames                    = module.ssh.sshnames
   sshinstances                = module.ssh.sshinstances
   sftp_dir                    = module.ssh.sftp_dir
+  vnet_name = local.network.config.East-vnet.name
 
   depends_on = [
     module.ssh
@@ -218,6 +219,8 @@ module "sftp_container" {
   sa_primary_access_key = module.storage.sa_primary_access_key
   dns_zones             = module.network.dns_zones
   storage_account       = module.storage.storage_account
+  vnet1 = local.network.config.vnet.name
+  vnet2 = local.network.config.East-vnet.name
 }
 
 module "metabase" {
