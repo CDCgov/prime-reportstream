@@ -52,8 +52,8 @@ extension:
       expressionType: nested
       expressionsMap:
         url:
-          type: SYSTEM_URL
-          value: sn-3-separator
+          type: STRING
+          value: SN.3
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -64,8 +64,8 @@ extension:
       expressionType: nested
       expressionsMap:
         url:
-          type: SYSTEM_URL
-          value: sn-4-num2
+          type: STRING
+          value: SN.4
         valueString:
           type: STRING
           expressionType: HL7Spec
