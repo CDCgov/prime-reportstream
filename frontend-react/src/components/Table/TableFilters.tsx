@@ -1,10 +1,4 @@
-import React, {
-    FormEvent,
-    useCallback,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
+import React, { FormEvent, useCallback, useRef, useState } from "react";
 import {
     Button,
     ComboBox,
@@ -80,12 +74,16 @@ function TableFilters({
 }: TableFilterProps) {
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
-    const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
-    const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO);
+    const [rangeFrom, setRangeFrom] = useState<Date>(
+        new Date(FALLBACK_FROM_STRING),
+    );
+    const [rangeTo, setRangeTo] = useState<Date>(new Date(FALLBACK_TO_STRING));
     const isFilterEnabled = Boolean(
         rangeFrom && rangeTo && rangeFrom < rangeTo,
     );
     const formRef = useRef<HTMLFormElement>(null);
+    const [startTime, setStartTime] = useState("0:0");
+    const [endTime, setEndTime] = useState("0:0");
 
     const updateRange = useCallback(
         (from: string, to: string) => {
@@ -155,9 +153,17 @@ function TableFilters({
     const submitHandler = useCallback(
         (e: FormEvent) => {
             e.preventDefault();
-            applyToFilterManager(rangeFrom, rangeTo);
+            const [startHours, startMinutes] = startTime.split(":").map(Number);
+            const [endHours, endMinutes] = endTime.split(":").map(Number);
+            const rangeFromWithTime = new Date(
+                rangeFrom.setHours(startHours, startMinutes, 0, 0),
+            ).toISOString();
+            const rangeToWithTime = new Date(
+                rangeTo.setHours(endHours, endMinutes, 0, 0),
+            ).toISOString();
+            applyToFilterManager(rangeFromWithTime, rangeToWithTime);
         },
-        [applyToFilterManager, rangeFrom, rangeTo],
+        [applyToFilterManager, endTime, rangeFrom, rangeTo, startTime],
     );
 
     return (
@@ -206,14 +212,10 @@ function TableFilters({
                                     name: "start-date-picker",
                                     onChange: (val?: string) => {
                                         if (isValidDateString(val)) {
-                                            setRangeFrom(
-                                                new Date(val!!).toISOString(),
-                                            );
-                                        } else {
-                                            setRangeFrom("");
+                                            setRangeFrom(new Date(val!!));
                                         }
                                     },
-                                    defaultValue: rangeFrom,
+                                    defaultValue: rangeFrom.toISOString(),
                                 }}
                                 endDateLabel={endDateLabel}
                                 endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
@@ -223,15 +225,11 @@ function TableFilters({
                                     onChange: (val?: string) => {
                                         if (isValidDateString(val)) {
                                             setRangeTo(
-                                                getEndOfDay(
-                                                    new Date(val!!),
-                                                ).toISOString(),
+                                                getEndOfDay(new Date(val!!)),
                                             );
-                                        } else {
-                                            setRangeTo("");
                                         }
                                     },
-                                    defaultValue: rangeTo,
+                                    defaultValue: rangeTo.toISOString(),
                                 }}
                             />
                             <div className="grid-row">
@@ -241,7 +239,13 @@ function TableFilters({
                                     label="Start time"
                                     name="start-time"
                                     step={1}
-                                    onChange={function noRefCheck() {}}
+                                    onChange={(input) => {
+                                        if (input) {
+                                            setStartTime(input);
+                                        } else {
+                                            setStartTime("0:0");
+                                        }
+                                    }}
                                 />
                                 <TimePicker
                                     hint="hh:mm"
@@ -249,7 +253,13 @@ function TableFilters({
                                     label="End time"
                                     name="end-time"
                                     step={1}
-                                    onChange={function noRefCheck() {}}
+                                    onChange={(input) => {
+                                        if (input) {
+                                            setEndTime(input);
+                                        } else {
+                                            setEndTime("0:0");
+                                        }
+                                    }}
                                 />
                             </div>
                         </div>
