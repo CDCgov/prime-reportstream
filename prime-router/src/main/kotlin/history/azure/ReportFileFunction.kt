@@ -102,6 +102,10 @@ abstract class ReportFileFunction(
                 "Authorized request by org ${claims.scopes} to getListByOrg on organization $userOrgName."
             )
 
+            if (HistoryApiParameters(request.queryParameters).reportId != null && HistoryApiParameters(request.queryParameters).fileName != null){
+                return HttpUtilities.badRequestResponse(request, "Either reportId or fileName can be provided")
+            }
+
             return HttpUtilities.okResponse(request, this.historyAsJson(request.queryParameters, userOrgName))
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))

@@ -9,7 +9,6 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import org.apache.logging.log4j.util.Lazy.lazy
 import java.time.OffsetDateTime
 import java.util.UUID
 
