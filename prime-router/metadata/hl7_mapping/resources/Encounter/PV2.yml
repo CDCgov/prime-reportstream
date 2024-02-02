@@ -79,5 +79,5 @@ elements:
       cweField: '%{hl7PV2Field}-40'
 
   - name: pv2-extension-values
-    resource: '%resource.extension(%`rsext-pv2-encounter`)'
+    resource: '%resource.extension(%`rsext-pv2-patient-visit-additional-information`)'
     schema: ./PV2Extension
