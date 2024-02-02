@@ -281,6 +281,7 @@
 # NK1 -> RelatedPerson
 - id: "nk1-related-person"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person"
+# TODO: evaluate if this should get collapsed into the nk1-related-person extension
 - id: "nk1-15-administrative-sex"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-15-administrative-sex"
 
