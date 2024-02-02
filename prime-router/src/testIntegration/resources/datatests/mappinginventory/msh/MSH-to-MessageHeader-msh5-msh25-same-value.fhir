@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1700054887742648000.bd5acc77-3300-46c4-ac7c-bc586d2afe74",
+  "id" : "1706714428246596000.08c831ca-b97e-4e57-aadb-17cfb1469f3f",
   "meta" : {
-    "lastUpdated" : "2023-11-15T08:28:07.755-05:00"
+    "lastUpdated" : "2024-01-31T10:20:28.252-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -22,23 +22,28 @@
             "valueString" : "^~\\&#"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
-            "valueString" : "20230501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-25-hd-extension",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Sending App"
+                "url" : "MSH.7",
+                "valueString" : "20230501102531-0400"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString" : "Sending App Universal"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                "valueString" : "ISO"
+                "url" : "MSH.25",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString" : "Sending App"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                    "valueString" : "Sending App Universal"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueString" : "ISO"
+                  }
+                ]
               }
             ]
           }
@@ -81,31 +86,38 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1700054888105844000.97ca2049-4068-471b-a5d5-b0d530bc4153",
+      "fullUrl" : "Provenance/1706714428628062000.79eed521-c1f2-49f3-980b-76ff819ea67d",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1700054888105844000.97ca2049-4068-471b-a5d5-b0d530bc4153",
+        "id" : "1706714428628062000.79eed521-c1f2-49f3-980b-76ff819ea67d",
+        "target" : [
+          {
+            "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
+          }
+        ],
         "recorded" : "2023-05-01T10:25:31-04:00",
-        "_recorded" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230501102531-0400"
-            }
-          ]
-        },
         "activity" : {
           "coding" : [
             {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-              "code" : "R01",
-              "display" : "ORU_R01"
+              "display" : "ORU^R01^ORU_R01"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706714428637030000.f7db3a4b-849a-4038-8dd1-4038ba203c88",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706714428637030000.f7db3a4b-849a-4038-8dd1-4038ba203c88",
+        "recorded" : "2024-01-31T10:20:28Z",
+        "policy" : [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
+        "activity" : {
+          "coding" : [
+            {
+              "code" : "v2-FHIR transformation"
             }
           ]
         },
@@ -114,34 +126,39 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-                  "code" : "author"
+                  "code" : "assembler"
                 }
               ]
-            }
-          }
-        ],
-        "entity" : [
-          {
-            "role" : "source",
-            "what" : {
-              "reference" : "Device/1700054888108068000.4b9d1a77-c37e-4d8e-9230-2e6ece7414ce"
+            },
+            "who" : {
+              "reference" : "Organization/1706714428636511000.e582028a-7b8a-46c5-acdd-71468cde34ab"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1700054888108068000.4b9d1a77-c37e-4d8e-9230-2e6ece7414ce",
+      "fullUrl" : "Organization/1706714428636511000.e582028a-7b8a-46c5-acdd-71468cde34ab",
       "resource" : {
-        "resourceType" : "Device",
-        "id" : "1700054888108068000.4b9d1a77-c37e-4d8e-9230-2e6ece7414ce"
+        "resourceType" : "Organization",
+        "id" : "1706714428636511000.e582028a-7b8a-46c5-acdd-71468cde34ab",
+        "identifier" : [
+          {
+            "value" : "CDC PRIME - Atlanta"
+          },
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.237821"
+          }
+        ]
       }
     }
   ]
