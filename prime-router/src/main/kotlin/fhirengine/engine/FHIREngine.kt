@@ -20,6 +20,7 @@ import java.time.OffsetDateTime
 const val elrConvertQueueName = "elr-fhir-convert"
 const val elrRoutingQueueName = "elr-fhir-route"
 const val elrTranslationQueueName = "elr-fhir-translate"
+const val elrSendQueueName = "send"
 
 /**
  * All logical processing for full ELR / FHIR processing should be within this class.
