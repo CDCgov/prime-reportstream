@@ -20,6 +20,7 @@ import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
@@ -127,7 +128,14 @@ class FHIRFunctions(
         fhirEngine: FHIRTranslator,
         actionHistory: ActionHistory = ActionHistory(TaskAction.translate),
     ) {
-        runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        // Only dispatches event if Topic.isSendOriginal was true
+        messagesToDispatch.forEach {
+            queueAccess.sendMessage(
+                elrSendQueueName,
+                it.serialize()
+            )
+        }
     }
 
     /**

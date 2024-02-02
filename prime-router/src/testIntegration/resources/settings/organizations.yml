@@ -100,7 +100,6 @@
       schemaName: monkeypox
       format: HL7
 
-
 - name: test
   description: FOR DEVELOPMENT PURPOSES ONLY
   jurisdiction: FEDERAL

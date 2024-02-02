@@ -355,7 +355,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                     BlobAccess.digestToString(blobInfo.digest),
                     sender.fullName,
                     sender.topic,
-                    sender.schemaName,
+                    sender.schemaName
                 ).serialize()
             )
         }
