@@ -92,39 +92,5 @@ extension:
   generateList: true
   expressionType: nested
   expressions:
-    - expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          valueOf: cnn3-given-name
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: CNN.3
-    - expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          valueOf: cnn4-second-given-name
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: CNN.4
-    - expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          valueOf: cnn5-suffix
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: CNN.5
-    - expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          valueOf: cnn7-degree
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: CNN.7
+    - expressionType: resource
+      valueOf: datatypes/CNN/CNNExtension

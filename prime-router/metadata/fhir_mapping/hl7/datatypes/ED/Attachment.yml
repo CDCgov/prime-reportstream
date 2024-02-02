@@ -3,23 +3,7 @@ extension:
   expressionType: nested
   expressions:
     - expressionType: resource
-      valueOf: datatypes/HD/ExtensionHD
-      specs: ED.1
-      constants:
-        extensionUrl: ed-1-source-application
-    - expressionType: nested
-      vars:
-        ed2: STRING_ALL, ED.2
-        ed3: STRING_ALL, ED.3
-      condition: $ed3 NOT_NULL && $ed2 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: ed-2-type-of-data
-        valueCodeableConcept:
-          valueOf: datatypes/ID/CodeableConcept
-          specs: ED.2
-          expressionType: resource
+      valueOf: datatypes/ED/EDExtension
     - expressionType: nested
       vars:
         ed2: STRING_ALL, ED.2
@@ -33,30 +17,7 @@ extension:
           valueOf: datatypes/ID/CodeableConcept
           specs: ED.2
           expressionType: resource
-    - expressionType: nested
-      vars:
-        ed4: STRING, ED.4
-      condition: $ed4 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: ed-4-encoding
-        valueString:
-          valueOf: ED.4
-          expressionType: HL7Spec
-          type: STRING
-    - expressionType: nested
-      vars:
-        ed5: STRING, ED.5
-      condition: $ed5 NOT_EQUALS Base64
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: ed-5-data
-        valueString:
-          valueOf: ED.5
-          expressionType: HL7Spec
-          type: STRING
+
 
 contentType:
   valueOf: ED.3

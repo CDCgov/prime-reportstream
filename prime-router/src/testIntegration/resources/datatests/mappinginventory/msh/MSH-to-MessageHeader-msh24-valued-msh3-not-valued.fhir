@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706311111806711000.1360c366-60ba-4a66-8ca4-1e8161d2b841",
+  "id" : "1706714409387954000.7b4a25fe-45fa-4e54-b794-3b7d1f6c1164",
   "meta" : {
-    "lastUpdated" : "2024-01-26T17:18:31.822-06:00"
+    "lastUpdated" : "2024-01-31T10:20:09.394-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
@@ -22,23 +22,28 @@
             "valueString" : "^~\\&#"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
-            "valueString" : "20230501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-24-hd-extension",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Alt Sending App"
+                "url" : "MSH.7",
+                "valueString" : "20230501102531-0400"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString" : "Alt Sending App Universal"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                "valueString" : "UUID"
+                "url" : "MSH.24",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString" : "Alt Sending App"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                    "valueString" : "Alt Sending App Universal"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueString" : "UUID"
+                  }
+                ]
               }
             ]
           }
@@ -72,10 +77,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706311112182283000.69161a4b-8a37-4325-91a7-e9a56cc4039c",
+      "fullUrl" : "Provenance/1706714409754670000.93fe452d-c0d7-4656-8d40-f21b6e4e3f92",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311112182283000.69161a4b-8a37-4325-91a7-e9a56cc4039c",
+        "id" : "1706714409754670000.93fe452d-c0d7-4656-8d40-f21b6e4e3f92",
         "target" : [
           {
             "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
@@ -92,11 +97,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706311112191168000.4407887e-6ccb-4124-aa83-7ae8330476cd",
+      "fullUrl" : "Provenance/1706714409762921000.f9bc5b16-41aa-4306-b84f-742294878823",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311112191168000.4407887e-6ccb-4124-aa83-7ae8330476cd",
-        "recorded" : "2024-01-26T17:18:32Z",
+        "id" : "1706714409762921000.f9bc5b16-41aa-4306-b84f-742294878823",
+        "recorded" : "2024-01-31T10:20:09Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -118,17 +123,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706311112190605000.c52726f5-9a7b-4a56-8746-3865e8af79ae"
+              "reference" : "Organization/1706714409762475000.7c7cbc96-4459-47fb-bd33-76253ab5e3cb"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706311112190605000.c52726f5-9a7b-4a56-8746-3865e8af79ae",
+      "fullUrl" : "Organization/1706714409762475000.7c7cbc96-4459-47fb-bd33-76253ab5e3cb",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311112190605000.c52726f5-9a7b-4a56-8746-3865e8af79ae",
+        "id" : "1706714409762475000.7c7cbc96-4459-47fb-bd33-76253ab5e3cb",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
