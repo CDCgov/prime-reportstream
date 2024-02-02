@@ -129,6 +129,7 @@ class FHIRFunctions(
         actionHistory: ActionHistory = ActionHistory(TaskAction.translate),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        // Only dispatches event if Topic.isSendOriginal was true
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
                 elrSendQueueName,

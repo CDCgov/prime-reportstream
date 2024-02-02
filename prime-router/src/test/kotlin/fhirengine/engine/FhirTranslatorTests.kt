@@ -22,7 +22,6 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -58,7 +57,6 @@ class FhirTranslatorTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
@@ -70,7 +68,7 @@ class FhirTranslatorTests {
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 ORU_R01_SCHEMA,
-                format = Report.Format.HL7,
+                format = Report.Format.HL7_BATCH,
             )
         )
     )
