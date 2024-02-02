@@ -6,4 +6,4 @@ elements:
     constants:
       hl7SegmentGroup: '/PATIENT_RESULT/PATIENT/PATIENT_OBSERVATION'
     schema: ../../../../resources/Device/PRT
-    resourceIndex: orderIndex
+    resourceIndex: prtDeviceIndex
