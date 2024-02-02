@@ -69,61 +69,63 @@ class HL7DiffHelper {
                                 segment.name
                             )
                         )
+                        arrayOf()
+                    }
+
+                    if (effectivelyBlank(outputFields, inputFields)) {
                         continue
                     }
-                    if (!effectivelyBlank(outputFields, inputFields)) {
-                        if (outputFields.size > inputFields.size) {
-                            outputFields.foldIndexed(differences) { index, differenceAccumulator, output ->
-                                try {
-                                    inputFields[index]
-                                    differenceAccumulator
-                                } catch (ex: IndexOutOfBoundsException) {
-                                    differenceAccumulator.add(
-                                        Hl7Diff(
-                                            segmentIndex,
-                                            "Output had more repeating types for ${output.name}, " +
-                                                    "input has ${inputFields.size} and output has ${outputFields.size}",
-                                            "",
-                                            i,
-                                            if (inputFields.size == 1) null else (index + 1),
-                                            null,
-                                            segment.name
-                                        )
-                                    )
-                                    differenceAccumulator
-                                }
-                            }
-                        }
-                        inputFields.foldIndexed(differences) { index, differenceAccumulator, input ->
+                    if (outputFields.size > inputFields.size) {
+                        outputFields.foldIndexed(differences) { index, differenceAccumulator, output ->
                             try {
-                                val outputField = outputFields[index]
-                                differenceAccumulator.addAll(
-                                    compareHl7Type(
-                                        segmentIndex,
-                                        input,
-                                        outputField,
-                                        segment.name,
-                                        i,
-                                        if (inputFields.size == 1) null else index + 1,
-                                        null
-                                    )
-                                )
+                                inputFields[index]
                                 differenceAccumulator
                             } catch (ex: IndexOutOfBoundsException) {
                                 differenceAccumulator.add(
                                     Hl7Diff(
                                         segmentIndex,
-                                        "Input had more repeating types for ${input.name}, " +
+                                        "Output had more repeating types for ${output.name}, " +
                                                 "input has ${inputFields.size} and output has ${outputFields.size}",
                                         "",
                                         i,
-                                        index + 1,
+                                        if (inputFields.size == 1) null else (index + 1),
                                         null,
                                         segment.name
                                     )
                                 )
                                 differenceAccumulator
                             }
+                        }
+                    }
+                    inputFields.foldIndexed(differences) { index, differenceAccumulator, input ->
+                        try {
+                            val outputField = outputFields[index]
+                            differenceAccumulator.addAll(
+                                compareHl7Type(
+                                    segmentIndex,
+                                    input,
+                                    outputField,
+                                    segment.name,
+                                    i,
+                                    if (inputFields.size == 1) null else index + 1,
+                                    null
+                                )
+                            )
+                            differenceAccumulator
+                        } catch (ex: IndexOutOfBoundsException) {
+                            differenceAccumulator.add(
+                                Hl7Diff(
+                                    segmentIndex,
+                                    "Input had more repeating types for ${input.name}, " +
+                                            "input has ${inputFields.size} and output has ${outputFields.size}",
+                                    "",
+                                    i,
+                                    index + 1,
+                                    null,
+                                    segment.name
+                                )
+                            )
+                            differenceAccumulator
                         }
                     }
                 }
