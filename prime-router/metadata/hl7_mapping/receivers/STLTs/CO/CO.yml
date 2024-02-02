@@ -104,5 +104,5 @@ elements:
   - name: timing-segment
     condition: false
 
-  - name: specimen-observation-result-with-aoe
+  - name: specimen-observation
     condition: false

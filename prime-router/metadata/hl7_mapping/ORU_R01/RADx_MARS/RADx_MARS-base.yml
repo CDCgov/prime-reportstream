@@ -79,7 +79,7 @@ elements:
       %service.supportingInfo.resolve().where(code.coding.code = %symptomaticAoeLoinc) |
       %service.supportingInfo.resolve().where(code.coding.code = %illnessOnsetAoeLoinc)
 
-  - name: specimen-observation-result-with-aoe
+  - name: specimen-observation
     condition: false
 
   # OBX-2

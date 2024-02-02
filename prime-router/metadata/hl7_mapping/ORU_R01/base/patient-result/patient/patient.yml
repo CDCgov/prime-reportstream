@@ -4,29 +4,28 @@ constants:
 elements:
 
   - name: patient-identification
-    schema: ../../resources/Patient/PID
+    schema: ../../../../resources/Patient/PID
 
   - name: patient-identification-extensions
     resource: '%resource.extension(%`rsext-pid-patient`)'
-    schema: ../../resources/Patient/PIDExtension
+    schema: ../../../../resources/Patient/PIDExtension
 
   - name: additional-demographics
-    schema: ../../resources/Patient/PD1
+    schema: ../../../../resources/Patient/PD1
 
   - name: additional-demographics-extensions
     resource: '%resource.extension(%`rsext-pd1-patient`)'
-    schema: ../../resources/Patient/PD1Extension
+    schema: ../../../../resources/Patient/PD1Extension
 
   - name: patient-note
     resource: '%resource.extension(%`rsext-patient-notes`).value'
-    condition: '%resource.extension(%`rsext-patient-notes`).exists()'
-    schema: ../common/note
+    schema: ../../../../common/note
     resourceIndex: noteIndex
     constants:
-      hl7NotePath: '/PATIENT_RESULT/PATIENT'
+      hl7NotePath: '%{hl7SegmentGroup}'
 
   - name: related-person-nk1
     resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Name`).value = "NK1")'
     condition: '%resource.patient.exists()'
-    schema: ../resources/RelatedPerson/NK1
+    schema: ../../../../resources/RelatedPerson/NK1
     resourceIndex: relatedPersonIndex

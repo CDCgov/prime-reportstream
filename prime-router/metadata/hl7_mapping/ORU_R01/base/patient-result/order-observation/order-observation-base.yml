@@ -1,12 +1,10 @@
 constants:
   diagnostic: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex]'
   service: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].basedOn.resolve()'
-  specimen: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].specimen.resolve()'
-#  hl7ObservationNotes: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
-#  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
+  
 elements:
   - name: order-observation
-    schema: ./base/patient-result/order-observation/order-observation
+    schema: order-observation
 
   - name: timing-quantity
     resource: '%service'
@@ -18,7 +16,7 @@ elements:
     schema: timing-quantity
 
   - name: observation
-    schema: ./base/patient-result/order-observation/observation
+    schema: observation
 
   - name: specimen
-    schema: ./base/patient-result/order-observation/specimen
+    schema: specimen

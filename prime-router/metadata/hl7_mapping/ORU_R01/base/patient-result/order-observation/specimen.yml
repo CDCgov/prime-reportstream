@@ -1,5 +1,6 @@
 constants:
   specimen: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].specimen.resolve()'
+  hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
 
 elements:
 
@@ -7,21 +8,19 @@ elements:
     resource: '%specimen'
     resourceIndex: specimenIndex
     condition: '%specimen.exists()'
-    schema: ../../../resources/Specimen/SPM
+    schema: ../../../../resources/Specimen/SPM
     constants:
-      hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
       performerOrganization: '%diagnostic.basedOn.resolve().performer.resolve()'
 
   - name: specimen-extension
     resource: '%specimen.extension(%`rsext-spm-specimen`)'
-    schema: ./SPMExtension
+    schema: ../../../../resources/Specimen/SPMExtension
 
   - name: specimen-observation
-    resource: 'Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = %resource.id)'
-    schema: ../Observation/OBX
+    resource: 'Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = %specimen.id)'
+    schema: ../../../../resources/Observation/OBX
     resourceIndex: specimenObservationIndex
     constants:
-      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION'
-      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION(%{specimenObservationIndex})/OBX'
-      observation: 'Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = %resource.id)[%specimenObservationIndex]'
+      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPECIMEN_OBSERVATION'
+      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPECIMEN_OBSERVATION(%{specimenObservationIndex})/OBX'
       resultIndex: '%specimenObservationIndex'

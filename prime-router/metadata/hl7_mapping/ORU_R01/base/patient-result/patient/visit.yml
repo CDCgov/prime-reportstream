@@ -3,9 +3,9 @@ elements:
   - name: encounter-pv1
     constants:
       hl7PV1Field: '/PATIENT_RESULT/PATIENT/VISIT/PV1'
-    schema: ../../../resources/Encounter/PV1
+    schema: ../../../../resources/Encounter/PV1
 
   - name: encounter-pv2
     constants:
       hl7PV2Field: '/PATIENT_RESULT/PATIENT/VISIT/PV2'
-    schema: ../../../resources/Encounter/PV2
+    schema: ../../../../resources/Encounter/PV2
