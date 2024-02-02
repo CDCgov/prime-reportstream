@@ -25,8 +25,10 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import org.apache.commons.io.FilenameUtils
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
+import java.net.URI
 import java.time.OffsetDateTime
 
 /**
@@ -119,7 +121,13 @@ class FHIRTranslator(
         when (receiver.format) {
             Report.Format.FHIR -> {
                 if (receiver.schemaName.isNotEmpty()) {
-                    val transformer = FhirTransformer(receiver.schemaName)
+                    val transformer = when (URI(receiver.schemaName).scheme) {
+                        null -> FhirTransformer(
+                            schema = FilenameUtils.getName(receiver.schemaName),
+                            schemaFolder = FilenameUtils.getPathNoEndSeparator(receiver.schemaName)
+                        )
+                        else -> FhirTransformer(receiver.schemaName, "")
+                    }
                     transformer.transform(bundle)
                 }
                 return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
