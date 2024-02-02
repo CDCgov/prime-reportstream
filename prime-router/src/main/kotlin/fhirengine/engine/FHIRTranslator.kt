@@ -25,10 +25,8 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import org.apache.commons.io.FilenameUtils
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
-import java.net.URI
 import java.time.OffsetDateTime
 
 /**
@@ -114,20 +112,29 @@ class FHIRTranslator(
         if (receiver.enrichmentSchemaNames.isNotEmpty()) {
             receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
                 logger.info("Applying enrichment schema $enrichmentSchemaName")
-                val transformer = FhirTransformer(enrichmentSchemaName)
+                val transformer = FhirTransformer(
+                    // TODO remove once all settings have been updated
+                    if (enrichmentSchemaName.startsWith("classpath:/")) {
+                        enrichmentSchemaName
+                    } else {
+                        "classpath:/$enrichmentSchemaName.yml"
+                    },
+                    ""
+                )
                 transformer.transform(bundle)
             }
         }
         when (receiver.format) {
             Report.Format.FHIR -> {
                 if (receiver.schemaName.isNotEmpty()) {
-                    val transformer = when (URI(receiver.schemaName).scheme) {
-                        null -> FhirTransformer(
-                            schema = FilenameUtils.getName(receiver.schemaName),
-                            schemaFolder = FilenameUtils.getPathNoEndSeparator(receiver.schemaName)
-                        )
-                        else -> FhirTransformer(receiver.schemaName, "")
-                    }
+                    val transformer = FhirTransformer(
+                        if (receiver.schemaName.startsWith("classpath:/")) {
+                            receiver.schemaName
+                        } else {
+                            "classpath:/${receiver.schemaName}.yml"
+                        },
+                        ""
+                    )
                     transformer.transform(bundle)
                 }
                 return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
@@ -156,7 +163,11 @@ class FHIRTranslator(
             )
         }
         val converter = FhirToHl7Converter(
-            receiver.schemaName,
+            if (receiver.schemaName.startsWith("classpath:/")) {
+                receiver.schemaName
+            } else {
+                "classpath:/${receiver.schemaName}.yml"
+            },
             context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
         )
         val hl7Message = converter.convert(bundle)

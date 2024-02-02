@@ -348,8 +348,8 @@ class FhirTranslatorTests {
             schemaName,
             translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName),
             enrichmentSchemaNames = listOf(
-                "/src/test/resources/enrichments/testing",
-                "/src/test/resources/enrichments/testing2"
+                "classpath:/enrichments/testing.yml",
+                "classpath:/enrichments/testing2.yml"
             )
         )
 

@@ -86,7 +86,14 @@ class FHIRConverter(
         if (fhirBundles.isNotEmpty()) {
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
             actionHistory.trackExistingInputReport(queueMessage.reportId)
-            val transformer = getTransformerFromSchema(schemaName)
+            val transformer = getTransformerFromSchema(
+                // TODO remove once all settings have been updated
+                if (schemaName.startsWith("classpath:/")) {
+                    schemaName
+                } else {
+                    "classpath:/$schemaName.yml"
+                }
+            )
             return fhirBundles.mapIndexed { bundleIndex, bundle ->
                 // conduct FHIR Transform
                 transformer?.transform(bundle)
@@ -150,9 +157,9 @@ class FHIRConverter(
                 actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
                 azureEventService.trackEvent(
                     ReportCreatedEvent(
-                    report.id,
-                    queueMessage.topic
-                )
+                        report.id,
+                        queueMessage.topic
+                    )
                 )
 
                 FHIREngineRunResult(
@@ -179,8 +186,10 @@ class FHIRConverter(
      * transformer in tests.
      */
     fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
-        return if (schemaName.isNotBlank()) {
+        return if (schemaName.isNotBlank() && !schemaName.startsWith("classpath")) {
             FhirTransformer(schemaName)
+        } else if (schemaName.startsWith("classpath") && schemaName != "classpath:/.yml") {
+            FhirTransformer(schemaName, "")
         } else {
             null
         }
