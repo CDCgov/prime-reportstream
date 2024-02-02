@@ -18,7 +18,6 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
@@ -73,11 +72,11 @@ class FHIRTranslator(
                 actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
 
                 var nextAction = Event.EventAction.BATCH
-                var externalName = ""
+                var externalName: String? = null
                 var queueMessage: ReportEventQueueMessage? = null
                 val bodyBytes = if (message.topic.isSendOriginal) {
                     nextAction = Event.EventAction.SEND
-                    val originalReport = getOriginalReport(message.reportId, WorkflowEngine())
+                    val originalReport = getOriginalReport(message.reportId)
                     externalName = originalReport.externalName
                     queueMessage = ReportEventQueueMessage(nextAction, false, message.reportId, "")
                     BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
@@ -123,19 +122,18 @@ class FHIRTranslator(
      */
     internal fun getOriginalReport(
         reportId: ReportId,
-        workflowEngine: WorkflowEngine,
     ): ReportFile {
-        val rootReportId = findRootReportId(reportId, workflowEngine)
-        return workflowEngine.db.fetchReportFile(rootReportId)
+        val rootReportId = findRootReportId(reportId)
+        return db.fetchReportFile(rootReportId)
     }
 
     /**
      * Takes a [reportId] and returns the ReportId of the original message that was sent
      */
-    fun findRootReportId(reportId: ReportId, workflowEngine: WorkflowEngine): ReportId {
-        val itemLineages = workflowEngine.db.fetchItemLineagesForReport(reportId, 1)
+    fun findRootReportId(reportId: ReportId): ReportId {
+        val itemLineages = db.fetchItemLineagesForReport(reportId, 1)
         return if (itemLineages != null && itemLineages[0].parentReportId != null) {
-            findRootReportId(itemLineages[0].parentReportId, workflowEngine)
+            findRootReportId(itemLineages[0].parentReportId)
         } else {
             return reportId
         }

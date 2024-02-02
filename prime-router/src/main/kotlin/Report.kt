@@ -1715,17 +1715,11 @@ class Report : Logging {
                     )
                 }
 
-            var blobName = if (!externalName.isNullOrEmpty()) {
-                externalName + "-" + report.name
-            } else {
-                report.name
-            }
-
             // upload the translated copy to blobstore
             val blobInfo = BlobAccess.uploadBody(
                 reportFormat,
                 messageBody,
-                blobName,
+                if (!externalName.isNullOrEmpty()) "$externalName-${report.name}" else report.name,
                 receiver.fullName,
                 event.eventAction
             )

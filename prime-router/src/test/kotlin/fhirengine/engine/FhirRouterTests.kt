@@ -102,14 +102,14 @@ data object SampleFilters {
         "%patient.birthDate.exists()",
         "%specimen.type.exists()",
         "(%patient.address.line.exists() or " +
-                "%patient.address.postalCode.exists() or " +
-                "%patient.telecom.exists())",
+            "%patient.address.postalCode.exists() or " +
+            "%patient.telecom.exists())",
         "(" +
-                "(%specimen.collection.collectedPeriod.exists() or " +
-                "%specimen.collection.collected.exists()" +
-                ") or " +
-                "%serviceRequest.occurrence.exists() or " +
-                "%observation.effective.exists())",
+            "(%specimen.collection.collectedPeriod.exists() or " +
+            "%specimen.collection.collected.exists()" +
+            ") or " +
+            "%serviceRequest.occurrence.exists() or " +
+            "%observation.effective.exists())",
     )
 
     /**
@@ -186,22 +186,6 @@ class FhirRouterTests {
                 Topic.FULL_ELR,
                 CustomerStatus.INACTIVE,
                 "one"
-            )
-        )
-    )
-
-    private val originalSenderOrganization = DeepOrganization(
-        ORGANIZATION_NAME,
-        "test",
-        Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(
-            Receiver(
-                "send-original",
-                ORGANIZATION_NAME,
-                Topic.ELR_ELIMS,
-                CustomerStatus.ACTIVE,
-                "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform",
-                format = Report.Format.HL7,
             )
         )
     )

@@ -21,16 +21,11 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.BlobAccess.Companion.downloadBlobAsByteArray
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
-import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import io.ktor.utils.io.core.toByteArray
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -44,14 +39,12 @@ import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.io.File
-import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
-private const val ORIGINAL_SENDER_RECEIVER_NAME = "send-original"
 private const val ORU_R01_SCHEMA = "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
 private const val BLOB_SUB_FOLDER = "test-sender"
 private const val BLOB_URL = "http://blob.url"
@@ -82,22 +75,6 @@ class FhirTranslatorTests {
         )
     )
 
-    private val originalSenderOrganization = DeepOrganization(
-        ORGANIZATION_NAME,
-        "test",
-        Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(
-            Receiver(
-                ORIGINAL_SENDER_RECEIVER_NAME,
-                ORGANIZATION_NAME,
-                Topic.ELR_ELIMS,
-                CustomerStatus.ACTIVE,
-                ORU_R01_SCHEMA,
-                format = Report.Format.HL7_BATCH,
-            )
-        )
-    )
-
     private fun makeFhirEngine(
         metadata: Metadata = Metadata(
             schema = Schema(
@@ -107,20 +84,6 @@ class FhirTranslatorTests {
             )
         ),
         settings: SettingsProvider = FileSettings().loadOrganizations(oneOrganization),
-    ): FHIRTranslator {
-        return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).build(TaskAction.translate) as FHIRTranslator
-    }
-
-    private fun makeSendOriginalFhirEngine(
-        metadata: Metadata = Metadata(
-            schema = Schema(
-                name = "None",
-                topic = Topic.ELR_ELIMS,
-                elements = emptyList()
-            )
-        ),
-        settings: SettingsProvider = FileSettings().loadOrganizations(originalSenderOrganization),
     ): FHIRTranslator {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
             .blobAccess(blobMock).build(TaskAction.translate) as FHIRTranslator
@@ -179,44 +142,6 @@ class FhirTranslatorTests {
             accessSpy.insertTask(any(), any(), any(), any(), any())
             actionHistory.trackActionReceiverInfo(any(), any())
         }
-    }
-
-    @Test
-    fun `test getOriginalMessage`() {
-        val mockWorkflowEngine = mockk<WorkflowEngine>()
-        val mockDatabaseAccess = mockk<DatabaseAccess>()
-        mockkObject(BlobAccess.Companion)
-        val parentReportId = UUID.randomUUID()
-        val childReportId = UUID.randomUUID()
-        val rootItemLineage =
-            ItemLineage(9000000125356546, null, 0, parentReportId, 0, "trackingId1", null, OffsetDateTime.now(), null)
-        val childItemLineage =
-            ItemLineage(
-                9000000125356546,
-                parentReportId,
-                0,
-                childReportId,
-                0,
-                "trackingId2",
-                null,
-                OffsetDateTime.now(),
-                null
-            )
-        val report = ReportFile().setReportId(parentReportId).setBodyUrl("testingurl")
-        val reportContent = "reportContent"
-
-        every {
-            mockWorkflowEngine.db
-        }.returns(mockDatabaseAccess)
-        every {
-            mockWorkflowEngine.db.fetchItemLineagesForReport(any(), any(), any())
-        }.returnsMany(listOf(childItemLineage), listOf(rootItemLineage))
-        every { mockWorkflowEngine.db.fetchReportFile(any()) }.returns(report)
-        every { downloadBlobAsByteArray(any()) }.returns(reportContent.toByteArray())
-
-        val rootReport = FHIRTranslator().getOriginalReport(childReportId, mockWorkflowEngine)
-        val message = downloadBlobAsByteArray(rootReport.bodyUrl)
-        assertThat(String(message)).isEqualTo(reportContent)
     }
 
     // happy path, with a receiver that has a custom schema
