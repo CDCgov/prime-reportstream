@@ -13,13 +13,15 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.ReportCreatedEvent
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.addMappedCondition
+import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Observation
 import org.jooq.Field
 import java.time.OffsetDateTime
 
@@ -36,6 +38,7 @@ class FHIRConverter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
+    private val azureEventService: AzureEventService = AzureEventService(),
 ) : FHIREngine(metadata, settings, db, blob) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
@@ -89,7 +92,7 @@ class FHIRConverter(
                 transformer?.transform(bundle)
 
                 // 'stamp' observations with their condition code
-                bundle.entry.map { it.resource }.filterIsInstance<Observation>().forEach {
+                bundle.getObservations().forEach {
                     it.addMappedCondition(metadata).run {
                         actionLogger.getItemLogger(bundleIndex + 1, it.id)
                             .setReportId(queueMessage.reportId)
@@ -145,6 +148,12 @@ class FHIRConverter(
 
                 // track created report
                 actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
+                azureEventService.trackEvent(
+                    ReportCreatedEvent(
+                    report.id,
+                    queueMessage.topic
+                )
+                )
 
                 FHIREngineRunResult(
                     routeEvent,

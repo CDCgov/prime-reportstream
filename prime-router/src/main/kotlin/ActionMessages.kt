@@ -62,8 +62,7 @@ abstract class GenericActionLogDetail(
     override val message: String,
     override val scope: ActionLogScope,
     override val errorCode: ErrorCode = ErrorCode.UNKNOWN,
-) :
-    ActionLogDetail
+) : ActionLogDetail
 
 /**
  * Message for a missing field of [fieldMapping].
@@ -283,4 +282,16 @@ class EvaluateFilterConditionErrorMessage(message: String?) : ActionLogDetail {
     override val scope = ActionLogScope.internal
     override val message = message ?: "An unknown filter condition error occurred."
     override val errorCode = ErrorCode.UNKNOWN
+}
+
+/**
+ * A [message] for when observations have been pruned for any receiver of a report
+ */
+class PrunedObservationsLogMessage(override val message: String) : GenericActionLogDetail(
+    message, ActionLogScope.report
+) {
+    constructor(reportId: ReportId, filteredIdMap: Map<String, List<String>>) : this(
+        "Observations were pruned from receivers for reportID $reportId\n" +
+            filteredIdMap.map { "${it.key}: ${it.value.joinToString(", ")}" }.joinToString("\n")
+        )
 }

@@ -8,25 +8,9 @@ elements:
     value: [ '%resource.name.family' ]
     hl7Spec: [ '%{hl7CNNField}-2' ]
 
-  - name: cnn-given-name
-    value: [ '%resource.extension(%`rsext-cnn3-given-name`).value' ]
-    hl7Spec: [ '%{hl7CNNField}-3' ]
-
-  - name: cnn-second-given-name
-    value: [ '%resource.extension(%`rsext-cnn4-second-given-name`).value' ]
-    hl7Spec: [ '%{hl7CNNField}-4' ]
-
-  - name: cnn-suffix
-    value: [ '%resource.extension(%`rsext-cnn5-suffix`).value' ]
-    hl7Spec: [ '%{hl7CNNField}-5' ]
-
   - name: cnn-prefix
     value: [ '%resource.name.prefix' ]
     hl7Spec: [ '%{hl7CNNField}-6' ]
-
-  - name: cnn-degree
-    value: [ '%resource.extension(%`rsext-cnn7-degree`).value' ]
-    hl7Spec: [ '%{hl7CNNField}-7' ]
 
   - name: cnn-assigning-authority-namespace-id
     value: [ '%resource.identifier.extension(%`rsext-assigning-authority`).extension(%`rsext-namespace-id`).value' ]
@@ -39,3 +23,7 @@ elements:
   - name: cnn-assigning-authority-namespace-id
     value: [ '%resource.identifier.extension(%`rsext-assigning-authority`).extension(%`rsext-universal-id-type`).value' ]
     hl7Spec: [ '%{hl7CNNField}-11' ]
+
+  - name: cnn-extension-value
+    resource: '%resource.extension(%`rsext-cnn-practitioner`)'
+    schema: ./CNNExtension
