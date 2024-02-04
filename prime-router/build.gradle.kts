@@ -867,7 +867,7 @@ dependencies {
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.25")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.1")
-    implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
+    implementation("com.okta.jwt:okta-jwt-verifier:0.5.8")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
@@ -928,7 +928,7 @@ dependencies {
     // TODO: move this to a test dependency when CompareFhirData lives under src/test
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.14")
 
-    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
+    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.8")
     // pin com.squareup.okio:okio@3.4.0
     runtimeOnly("com.squareup.okio:okio:3.4.0")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
