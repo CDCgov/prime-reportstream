@@ -102,7 +102,9 @@ abstract class ReportFileFunction(
                 "Authorized request by org ${claims.scopes} to getListByOrg on organization $userOrgName."
             )
 
-            if (HistoryApiParameters(request.queryParameters).reportId != null && HistoryApiParameters(request.queryParameters).fileName != null){
+            if (HistoryApiParameters(request.queryParameters).reportId != null &&
+                HistoryApiParameters(request.queryParameters).fileName != null
+            ) {
                 return HttpUtilities.badRequestResponse(request, "Either reportId or fileName can be provided")
             }
 

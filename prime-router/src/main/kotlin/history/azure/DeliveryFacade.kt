@@ -5,7 +5,6 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.HttpException
-import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
@@ -39,7 +38,7 @@ class DeliveryFacade(
      *
      * @return a List of Actions
      */
-    fun  findDeliveries(
+    fun findDeliveries(
         organization: String,
         receivingOrgSvc: String?,
         sortDir: HistoryDatabaseAccess.SortDir,
@@ -64,7 +63,7 @@ class DeliveryFacade(
         var reportId: UUID?
         try {
             reportId = if (reportIdStr != null) UUID.fromString(reportIdStr) else null
-        } catch (e: IllegalArgumentException){
+        } catch (e: IllegalArgumentException) {
             throw HttpException("Invalid format for report ID: $reportIdStr", HttpStatus.UNPROCESSABLE_ENTITY)
         }
 
