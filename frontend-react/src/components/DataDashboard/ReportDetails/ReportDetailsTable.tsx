@@ -10,7 +10,7 @@ import { FeatureName } from "../../../utils/FeatureName";
 import {
     EventName,
     useAppInsightsContext,
-} from "../../../contexts/AppInsightsContext";
+} from "../../../contexts/AppInsights";
 
 import styles from "./ReportDetailsTable.module.scss";
 
@@ -49,7 +49,7 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
             <section id="facilities">
                 <h2>Facilities & Providers included in this report</h2>
                 <TableFilters
-                    startDateLabel="From: (mm/dd/yyy)"
+                    startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}
                     onFilterClick={({

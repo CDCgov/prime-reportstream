@@ -17,7 +17,7 @@ const val oktaSenderGroupPrefix = "DHSender_"
 const val oktaAdminGroupSuffix = "Admins"
 const val oktaSystemAdminGroup = "DHPrimeAdmins"
 const val oktaMembershipClaim = "organization"
-const val envVariableForOktaBaseUrl = "OKTA_baseUrl"
+const val envVariableForOktaBaseUrl = "RS_OKTA_baseUrl"
 
 /**
  * Allowed roles for human interaction with ReportStream

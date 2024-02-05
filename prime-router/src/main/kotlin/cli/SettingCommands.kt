@@ -19,6 +19,7 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.outputStream
+import com.github.ajalt.mordant.terminal.YesNoPrompt
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
@@ -479,12 +480,7 @@ abstract class SettingCommand(
         // clickt moved the echo command into the CliktCommand class, which means this needs to call
         // into the parent class, but Kotlin doesn't allow calls to super with default parameters
         if (!silent) {
-            super.echo(
-                message,
-                trailingNewline = true,
-                err = false,
-                currentContext.console.lineSeparator
-            )
+            super.echo(message, trailingNewline = true, err = false)
         }
     }
 
@@ -507,11 +503,11 @@ abstract class SettingCommand(
             if (silent) {
                 throw ProgramResult(statusCode = 1)
             } else {
-                throw PrintMessage(message, error = true)
+                throw PrintMessage(message, printError = true)
             }
         } catch (e: IllegalStateException) {
             // The if (silent) test can cause this exception if directly calling SettingsCommands, and not from cmdline.
-            throw PrintMessage(message, error = true)
+            throw PrintMessage(message, printError = true)
         }
     }
 
@@ -522,14 +518,8 @@ abstract class SettingCommand(
         // Clikt moved the TermUI library internal, and exposed methods on CliktCommand instead, so we
         // can call super to get the same functionality, BUT calls to super in Kotlin don't allow you
         // to use default parameter values, so we have to explicitly define them here
-        if (!silent && super.confirm(
-                message,
-                default = false,
-                abort = false,
-                promptSuffix = ": ",
-                showDefault = true
-            ) == false
-        ) {
+
+        if (!silent && YesNoPrompt(message, currentContext.terminal, false).ask() == false) {
             abort(abortMessage)
         }
     }
@@ -1048,12 +1038,14 @@ class GetMultipleSettings : SettingCommand(
                         it.processingModeFilter,
                         it.reverseTheQualityFilter,
                         it.conditionFilter,
+                        it.mappedConditionFilter,
                         it.deidentify,
                         it.deidentifiedValue,
                         it.timing,
                         it.description,
                         localTransport,
                         it.externalName,
+                        it.enrichmentSchemaNames,
                         it.timeZone,
                         it.dateTimeFormat
                     )

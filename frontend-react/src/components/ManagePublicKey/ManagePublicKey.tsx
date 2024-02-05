@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
 
 import Spinner from "../Spinner";
 import { USLink } from "../USLink";
-import { showError } from "../AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import { ApiKey } from "../../config/endpoints/settings";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
 import Alert from "../../shared/Alert/Alert";
 import { FeatureName } from "../../utils/FeatureName";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
 
 import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
@@ -55,13 +56,11 @@ export function ManagePublicKeyPage() {
         setUploadNewPublicKey(false);
     };
 
-    const handlePublicKeySubmit = async (
-        event: React.FormEvent<HTMLFormElement>,
-    ) => {
+    const handlePublicKeySubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (fileContent.length === 0) {
-            showError("No file contents to validate.");
+            showToast("No file contents to validate.", "error");
             return;
         }
 
@@ -86,13 +85,11 @@ export function ManagePublicKeyPage() {
                     },
                 },
             });
-            showError(`Uploading public key failed. ${e.toString()}`);
+            showToast(`Uploading public key failed. ${e.toString()}`, "error");
         }
     };
 
-    const handleFileChange = async (
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) => {
+    const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
         // No file selected
         if (!event?.target?.files?.length) {
             setFile(null);
@@ -106,11 +103,11 @@ export function ManagePublicKeyPage() {
 
         const fileTypeError = validateFileType(file, FORMAT, CONTENT_TYPE);
         if (fileTypeError) {
-            showError(fileTypeError);
+            showToast(fileTypeError, "error");
         }
         const fileSizeError = validateFileSize(file);
         if (fileSizeError) {
-            showError(fileSizeError);
+            showToast(fileSizeError, "error");
         }
 
         if (!fileTypeError && !fileSizeError) {
@@ -161,54 +158,63 @@ export function ManagePublicKeyPage() {
     }
 
     return (
-        <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
-            {!isUploading && (
-                <h1 className="margin-top-0 margin-bottom-5">
-                    Manage public key
-                </h1>
-            )}
-            {showUploadMsg && (
-                <>
-                    <p className="font-sans-md">
-                        Send your public key to begin the REST API
-                        authentication process.
-                    </p>
-                    <Alert type="tip" className="margin-bottom-6">
-                        <span className="padding-left-1">
-                            Learn more about{" "}
-                            <USLink href="/developer-resources/api/getting-started#set-up-authentication">
-                                generating your public key
-                            </USLink>{" "}
-                            and setting up authentication.
-                        </span>
-                    </Alert>
-                </>
-            )}
-            {!sender && (
-                <ManagePublicKeyChooseSender
-                    senders={senders || []}
-                    onSenderSelect={handleSenderSelect}
+        <>
+            <Helmet>
+                <title>ReportStream API - Manage public key</title>
+                <meta
+                    name="description"
+                    content="Send your public key to begin the REST API authentication process."
                 />
-            )}
-            {showPublicKeyConfigured && <ManagePublicKeyConfigured />}
-            {isUploadEnabled && (
-                <ManagePublicKeyUpload
-                    onPublicKeySubmit={handlePublicKeySubmit}
-                    onFileChange={handleFileChange}
-                    onBack={handleOnBack}
-                    hasBack={hasBack}
-                    publicKey={hasPublicKey ?? file}
-                    file={file}
-                />
-            )}
-            {(isUploading || isSendersLoading) && <Spinner />}
-            {isSuccess && <ManagePublicKeyUploadSuccess />}
-            {hasUploadError && (
-                <ManagePublicKeyUploadError
-                    onTryAgain={() => setFileSubmitted(false)}
-                />
-            )}
-        </GridContainer>
+            </Helmet>
+            <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
+                {!isUploading && (
+                    <h1 className="margin-top-0 margin-bottom-5">
+                        Manage public key
+                    </h1>
+                )}
+                {showUploadMsg && (
+                    <>
+                        <p className="font-sans-md">
+                            Send your public key to begin the REST API
+                            authentication process.
+                        </p>
+                        <Alert type="tip" className="margin-bottom-6">
+                            <span className="padding-left-1">
+                                Learn more about{" "}
+                                <USLink href="/developer-resources/api/getting-started#set-up-authentication">
+                                    generating your public key
+                                </USLink>{" "}
+                                and setting up authentication.
+                            </span>
+                        </Alert>
+                    </>
+                )}
+                {!sender && (
+                    <ManagePublicKeyChooseSender
+                        senders={senders || []}
+                        onSenderSelect={handleSenderSelect}
+                    />
+                )}
+                {showPublicKeyConfigured && <ManagePublicKeyConfigured />}
+                {isUploadEnabled && (
+                    <ManagePublicKeyUpload
+                        onPublicKeySubmit={handlePublicKeySubmit}
+                        onFileChange={handleFileChange}
+                        onBack={handleOnBack}
+                        hasBack={hasBack}
+                        publicKey={hasPublicKey ?? file}
+                        file={file}
+                    />
+                )}
+                {(isUploading || isSendersLoading) && <Spinner />}
+                {isSuccess && <ManagePublicKeyUploadSuccess />}
+                {hasUploadError && (
+                    <ManagePublicKeyUploadError
+                        onTryAgain={() => setFileSubmitted(false)}
+                    />
+                )}
+            </GridContainer>
+        </>
     );
 }
 

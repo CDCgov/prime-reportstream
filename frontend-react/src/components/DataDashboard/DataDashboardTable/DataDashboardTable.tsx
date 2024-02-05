@@ -22,7 +22,7 @@ import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import {
     EventName,
     useAppInsightsContext,
-} from "../../../contexts/AppInsightsContext";
+} from "../../../contexts/AppInsights";
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -122,7 +122,7 @@ function DashboardFilterAndTable({
                     handleSetActive={handleSetActive}
                 />
                 <TableFilters
-                    startDateLabel="From: (mm/dd/yyy)"
+                    startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}
                     onFilterClick={({

@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
@@ -45,12 +45,12 @@ class LookupTableValueSetTests {
             ).isValid()
         ).isTrue()
 
-        assertThat {
+        assertFailure {
             fhirTransformSchemaFromFile(
                 "invalid_lookup_value_set",
                 "src/test/resources/fhir_sender_transforms",
             )
-        }.isFailure()
+        }
         unmockkAll()
     }
 

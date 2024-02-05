@@ -83,3 +83,14 @@ data "azurerm_key_vault_secret" "caller_ip_addresses" {
   name         = "tf-caller-ip-addresses"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
+data "azurerm_key_vault_secret" "RS_OKTA_clientId" {
+  name         = "functionapp-RS-OKTA-ClientId"
+  key_vault_id = data.azurerm_key_vault.app_config.id
+
+}
+
+data "azurerm_key_vault_secret" "RS_OKTA_authKey" {
+  name         = "functionapp-RS-OKTA-authkey"
+  key_vault_id = data.azurerm_key_vault.app_config.id
+
+}

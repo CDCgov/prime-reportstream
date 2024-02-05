@@ -40,7 +40,7 @@ jobs:
         with:
           submodules: true
 
-      - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 

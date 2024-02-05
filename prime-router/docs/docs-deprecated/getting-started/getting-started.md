@@ -270,8 +270,8 @@ cd ./prime-router
 #  compare                   compares two CSV files so you can view the
 #                            differences within them
 #  test                      Run tests of the Router functions
-#  login                     Login to the HHS-PRIME authorization service
-#  logout                    Logout of the HHS-PRIME authorization service
+#  login                     Login to the ReportStream authorization service
+#  logout                    Logout of the ReportStream authorization service
 #  organization              Fetch and update settings for an organization
 #  sender                    Fetch and update settings for a sender
 #  receiver                  Fetch and update settings for a receiver

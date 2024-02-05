@@ -33,8 +33,7 @@ import io.ktor.util.Attributes
 import io.ktor.util.InternalAPI
 import io.ktor.util.date.GMTDate
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.bits.Memory
-import io.ktor.utils.io.core.Input
+import io.ktor.utils.io.core.ByteReadPacket
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -44,6 +43,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import java.time.format.DateTimeFormatter
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
@@ -157,7 +157,11 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         "two-legged",
         null,
         mapOf("mock-p1" to "value-p1", "mock-p2" to "value-p2"),
-        headers = mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
+        headers = mapOf(
+            "mock-h1" to "value-h1",
+            "mock-h2" to "value-h2",
+            "Content-Type" to "text/fhir+ndjson"
+        )
     )
 
     private val fakePrivateKey = """-----BEGIN RSA PRIVATE KEY-----
@@ -188,15 +192,6 @@ Q/U1SwKBgQDZF6UkkOeBh4TKDQl0aXTvstIQ/ChdGm6qVm9ksxlupudEeHhDO2MD
 hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 -----END RSA PRIVATE KEY-----
     """
-
-    private val nbsRestTransportTypeLive = RESTTransportType(
-        "dataingestion.datateam-cdc-nbs.eqsandbox.com/api/reports",
-        "dataingestion.datateam-cdc-nbs.eqsandbox.com/token",
-        headers = mapOf(
-            "Host" to "dataingestion.datateam-cdc-nbs.eqsandbox.com",
-            "msgType" to "HL7"
-        )
-    )
 
     private val task = Task(
         reportId,
@@ -240,13 +235,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         val call = mockk<HttpClientCall> {
             every { client } returns mockk {}
             coEvery { body(io.ktor.util.reflect.typeInfo<String>()) } returns "Rest Transport Test Call Body"
-            coEvery { bodyNullable(io.ktor.util.reflect.typeInfo<Input>()) } returns object : Input() {
-                override fun closeSource() {}
-
-                override fun fill(destination: Memory, offset: Int, length: Int): Int {
-                    return 0
-                }
-            }
+            coEvery { bodyNullable(io.ktor.util.reflect.typeInfo<ByteReadPacket>()) } returns ByteReadPacket.Empty
             every { coroutineContext } returns EmptyCoroutineContext
             every { attributes } returns Attributes()
             every { request } returns object : HttpRequest {
@@ -525,6 +514,26 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         assertThat(retryItems).isNull()
     }
 
+    private val nbsRestTransportTypeLive = RESTTransportType(
+        "https://dataingestion.test.nbspreview.com/api/reports",
+        "https://dataingestion.test.nbspreview.com/token",
+        authHeaders = mapOf(
+            "Authorization-Type" to "Basic Auth",
+            "ExpectSuccess" to "true",
+            "Host" to "dataingestion.test.nbspreview.com"
+        ),
+        headers = mapOf(
+            "Host" to "dataingestion.test.nbspreview.com",
+            "Content-Type" to "text/plain",
+            "Content-Length" to "<calculated when request is sent>",
+            "validationActive" to "true",
+            "msgType" to "HL7",
+            "RecordId" to "header.reportFile.reportId",
+            "senderLabName" to "CDC PRIME REPORTSTREAM",
+            "sourceLabName" to "CDC PRIME REPORTSTREAM"
+        )
+    )
+
     @Test
     fun `test getAuthTokenWithUserPass with transport for CDC NBS`() {
         val header = makeHeader()
@@ -552,7 +561,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         verify {
             runBlocking {
                 mockRestTransport.lookupDefaultCredential(any())
-                mockRestTransport.getAuthTokenWithUserPass(nbsRestTransportTypeLive.authTokenUrl, any(), any(), any())
+                mockRestTransport.getAuthTokenWithUserPass(nbsRestTransportTypeLive, any(), any(), any())
             }
         }
         assertThat(retryItems).isNull()
@@ -570,6 +579,120 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         val retryItems = mockRestTransport.send(
             nbsRestTransportTypeLive, header, reportId, null,
+            context, actionHistory
+        )
+        assertThat(retryItems).isNull()
+    }
+
+    private val natusRestTransportTypeLive = RESTTransportType(
+        "https://api.neometrics.com/natusAPI/api/v2/HL7",
+        "https://api.neometrics.com/natusAPI/api/v2/AUTH/Login",
+        authHeaders = mapOf(
+            "ExpectSuccess" to "true",
+            "Content-Type" to "application/json",
+            "Subscription" to "23edf66e1fe14685bb9dfa2cbb14eb3b",
+            "Host" to "api.neometrics.com",
+            "Authorization-Type" to "username/password"
+        ),
+        headers = mapOf(
+            "Content-Length" to "<calculated when request is sent>",
+            "Content-Type" to "multipart/form-data",
+            "Key" to "files",
+            "File-Name" to "cdc-up-reportId-withdate.hl7",
+            "Subscription" to "23edf66e1fe14685bb9dfa2cbb14eb3b",
+            "Host" to "api.neometrics.com"
+        )
+    )
+
+    @Test
+    fun `test getAuthTokenWithUserPass with transport for Natus`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientStringTokenOk()))
+
+        // Given:
+        //      lookupDefaultCredential returns mock UserPassCredential object to allow
+        //      the getAuthTokenWithUserPass() to be called.
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential(
+                "test-user",
+                "test-apikey"
+            )
+        )
+
+        // When:
+        //      RESTTransport is called WITH transport.parameters empty
+        val retryItems = mockRestTransport.send(
+            natusRestTransportTypeLive, header, reportId, null,
+            context, actionHistory
+        )
+
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
+        verify {
+            runBlocking {
+                mockRestTransport.lookupDefaultCredential(any())
+                mockRestTransport.getAuthTokenWithUserPass(natusRestTransportTypeLive, any(), any(), any())
+            }
+        }
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test  transport postReport with valid file name for Natus`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientStringTokenOk()))
+
+        // Given:
+        //      lookupDefaultCredential returns mock UserPassCredential object to allow
+        //      the getAuthTokenWithUserPass() to be called.
+        //      expectedFileName is file name to send to NATUS.
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+        val expectedFileName = "ignore-${header.reportFile.reportId}-" +
+            "${formatter.format(header.reportFile.createdAt)}.hl7"
+
+            every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential(
+                "test-user",
+                "test-apikey"
+            )
+        )
+
+        // When:
+        //      RESTTransport is called WITH transport.parameters empty
+        val retryItems = mockRestTransport.send(
+            natusRestTransportTypeLive, header, reportId, null,
+            context, actionHistory
+        )
+
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
+        verify {
+            runBlocking {
+                mockRestTransport.postReport(
+                    any(),
+                    expectedFileName,
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+        }
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test with localhost Natus`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential("mock-user", "mock-pass")
+        )
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserPass(any(), any(), any(), any()) } }.returns(
+            TokenInfo(accessToken = "MockToken", tokenType = "bearer")
+        )
+        val retryItems = mockRestTransport.send(
+            natusRestTransportTypeLive, header, reportId, null,
             context, actionHistory
         )
         assertThat(retryItems).isNull()

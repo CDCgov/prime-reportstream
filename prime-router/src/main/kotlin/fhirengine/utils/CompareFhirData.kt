@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.fhirengine.utils
 
 import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.flipkart.zjsonpatch.JsonDiff
 import gov.cdc.prime.router.cli.tests.CompareData
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -63,14 +63,14 @@ class CompareFhirData(
      * @see https://datatracker.ietf.org/doc/html/rfc6902
      */
     private fun logJsonDiff(expectedJson: String, actualJson: String) {
-        val mapper = jacksonObjectMapper()
+        val mapper = jacksonObjectMapper
         val expectedParsedJson = mapper.readTree(expectedJson)
         val actualParsedJson = mapper.readTree(actualJson)
 
         val patches = JsonDiff.asJson(expectedParsedJson, actualParsedJson) as ArrayNode
 
         // remove all diffs that are expected
-        val filtered = listOf("/id", "/fullUrl", "/lastUpdated", "/timestamp", "/reference")
+        val filtered = listOf("/id", "/fullUrl", "/lastUpdated", "/timestamp", "/reference", "/recorded")
         val filteredList = patches.filter { patch ->
             !filtered.any { filteredField ->
                 patch.at("/path").asText().endsWith(filteredField)
@@ -82,7 +82,7 @@ class CompareFhirData(
         if (filteredList.isNotEmpty()) {
             logger.info(
                 "JSON diff. Make the following changes to the expected JSON " +
-                "for it to match the actual JSON:\n${array.toPrettyString()}"
+                    "for it to match the actual JSON:\n${array.toPrettyString()}"
             )
         }
     }

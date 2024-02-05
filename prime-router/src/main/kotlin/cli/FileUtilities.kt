@@ -9,6 +9,7 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.io.File
+import java.io.OutputStream
 import java.util.Locale
 
 /**
@@ -151,7 +152,7 @@ object FileUtilities {
     /**
      * Save the passed in table as a CSV to the provided output file
      */
-    fun saveTableAsCSV(outputFile: File, tableRows: List<Map<String, String>>) {
+    fun saveTableAsCSV(outputStream: OutputStream, tableRows: List<Map<String, String>>) {
         val colNames = tableRows[0].keys.toList()
         val rows = mutableListOf(colNames)
         tableRows.forEach { row ->
@@ -161,6 +162,6 @@ object FileUtilities {
                 }
             )
         }
-        csvWriter().writeAll(rows, outputFile.outputStream())
+        csvWriter().writeAll(rows, outputStream)
     }
 }

@@ -10,19 +10,15 @@ elements:
       %context.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).value.where(extension(%`rsext-hl7v2Name`).value = "organization-name-type-code").exists()
     resource: '%resource.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).value'
     constants:
-      cweFieldPath: '%{hl7XONField}-2'
+      cweField: '%{hl7XONField}-2'
     schema: ../../datatypes/codeableConcept/CWE
 
-  - name: id-number
-    value: [ '%resource.extension(%`rsext-xon3-id-number`).value' ]
-    hl7Spec: [ '%{hl7XONField}-3' ]
-
   - name: identifier-check-digit
-    value: [ '%resource.identifier.extension(%`rsext-check-digit`).value' ]
+    value: [ '%resource.identifier.extension(%`ext-identifier-checkDigit`).value' ]
     hl7Spec: [ '%{hl7XONField}-4' ]
 
   - name: identifier-check-digit-scheme
-    value: [ '%resource.identifier.extension(%`rsext-check-digit-scheme`).value' ]
+    value: [ '%resource.identifier.extension(%`ext-namingsystem-checkDigit`).value' ]
     hl7Spec: [ '%{hl7XONField}-5' ]
 
   - name: xon-assigning-authority
@@ -44,9 +40,9 @@ elements:
     schema: ../Location/HD
 
   - name: xon-name-representation-code
-    value: [ '%resource.identifier.extension(%`rsext-name-representation-code`).value' ]
+    value: [ '%resource.extension(%`rsext-name-representation-code`).value' ]
     hl7Spec: [ '%{hl7XONField}-9' ]
 
-  - name: xon-organization-id
-    value: [ '%resource.extension(%`rsext-xon10-organization-identifier`).value' ]
-    hl7Spec: [ '%{hl7XONField}-10' ]
+  - name: xon-extension-value
+    resource: '%resource.extension(%`rsext-xon-organization`)'
+    schema: ./XONExtension

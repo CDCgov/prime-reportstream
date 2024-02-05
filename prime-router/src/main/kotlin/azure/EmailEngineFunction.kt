@@ -43,8 +43,8 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 const val SCHEDULE = "*/5 * * * *" // every 5 minutes
-const val OKTA_ISSUER = "https://hhs-prime.okta.com/oauth2/default"
-const val OKTA_GROUPS_API = "https://hhs-prime-admin.okta.com/api/v1/groups"
+const val OKTA_ISSUER = "https://reportstream.okta.com/oauth2/default"
+const val OKTA_GROUPS_API = "https://reportstream-admin.okta.com/api/v1/groups"
 const val FROM_EMAIL = "reportstream@cdc.gov"
 const val SUBJECT_EMAIL = "ReportStream Daily Email"
 const val FIVE_MINUTES_IN_SECONDS = 5 * 60

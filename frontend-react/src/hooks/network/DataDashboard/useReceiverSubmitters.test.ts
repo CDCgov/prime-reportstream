@@ -32,7 +32,7 @@ describe("useReceiverSubmitters", () => {
         test("returns undefined", async () => {
             const { result } = renderHook(() => useReceiverSubmitters());
             await waitFor(() => expect(result.current.data).toEqual(undefined));
-            expect(result.current.isLoading).toEqual(false);
+            expect(result.current.isLoading).toEqual(true);
         });
     });
 

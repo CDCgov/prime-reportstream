@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter
 
 import assertk.assertAll
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
@@ -234,14 +234,14 @@ class ConverterSchemaTests {
     fun `test invalid merge of element`() {
         val elementA = ConverterSchemaElement("name")
         val elementB = FhirTransformSchemaElement("name")
-        assertThat { elementA.merge(elementB) }.isFailure()
+        assertFailure { elementA.merge(elementB) }
     }
 
     @Test
     fun `test merge of schema with unnamed element`() {
         val schemaA = ConverterSchema(elements = mutableListOf((ConverterSchemaElement())))
         val schemaB = ConverterSchema(elements = mutableListOf((ConverterSchemaElement())))
-        assertThat { schemaA.override(schemaB) }.isFailure()
+        assertFailure { schemaA.override(schemaB) }
     }
 
     @Test

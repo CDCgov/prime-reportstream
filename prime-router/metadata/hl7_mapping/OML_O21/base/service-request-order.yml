@@ -28,8 +28,10 @@ elements:
     hl7Spec: [ '%{hl7ORCField}-5' ]
 
   - name: order-date-time-of-transaction
-    value: [ '%resource.authoredOn' ]
-    hl7Spec: [ '%{hl7ORCField}-9' ]
+    resource: '%resource.authoredOn'
+    constants:
+      dtmFieldPath: '%{hl7ORCField}-9'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: ordering-facility-name
     resource: '%resource.requester.resolve().organization.resolve()'

@@ -10,7 +10,7 @@ export function AdminMessageTracker() {
     return (
         <GridContainer>
             <Helmet>
-                <title>Message Id Search</title>
+                <title>Message ID search - Admin</title>
             </Helmet>
             <article>
                 <MessageTracker />

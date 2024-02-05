@@ -1,11 +1,11 @@
 package gov.cdc.prime.router
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
@@ -1244,8 +1244,7 @@ internal class ElementTests {
         assertThat(result.warnings).isEmpty()
 
         // Test an incorrect index
-        assertThat { elementJ.processValue(emptyMap(), schema, itemIndex = 0) }
-            .isFailure()
+        assertFailure { elementJ.processValue(emptyMap(), schema, itemIndex = 0) }
     }
 
     @Test

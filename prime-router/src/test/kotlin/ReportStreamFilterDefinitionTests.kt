@@ -1,11 +1,11 @@
 package gov.cdc.prime.router
 
 import assertk.Assert
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isTrue
 import assertk.assertions.support.expected
 import assertk.assertions.support.show
@@ -182,7 +182,7 @@ class ReportStreamFilterDefinitionTests {
         assertThat(filteredTable3.getString(1, "patient_county")).isEqualTo("Pima")
 
         val args4 = listOf("MD") // wrong num args
-        assertThat { filter.getSelection(args4, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(args4, table, rcvr) }
     }
 
     @Test
@@ -207,10 +207,10 @@ class ReportStreamFilterDefinitionTests {
         )
 
         val emptyArgs = listOf<String>()
-        assertThat { filter.getSelection(emptyArgs, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(emptyArgs, table, rcvr) }
 
         val missingArgs = listOf("colA", "A1", "colB") // must have even number of args
-        assertThat { filter.getSelection(missingArgs, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(missingArgs, table, rcvr) }
 
         val args1 = listOf("colA", "A1", "colB", "B3")
         val selection1 = filter.getSelection(args1, table, rcvr)
@@ -228,7 +228,7 @@ class ReportStreamFilterDefinitionTests {
         assertThat(filteredTable2.getString(2, "colB")).isEqualTo("B4")
 
         val args4 = listOf("colA", "([?:|") // malformed regex
-        assertThat { filter.getSelection(args4, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(args4, table, rcvr) }
     }
 
     @Test
@@ -294,7 +294,7 @@ class ReportStreamFilterDefinitionTests {
         )
 
         val emptyArgs = listOf<String>()
-        assertThat { filter.getSelection(emptyArgs, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(emptyArgs, table, rcvr) }
 
         val junkColNames = listOf("foo", "bar", "baz")
         var selection = filter.getSelection(junkColNames, table, rcvr)
@@ -348,7 +348,7 @@ class ReportStreamFilterDefinitionTests {
         )
 
         val emptyArgs = listOf<String>()
-        assertThat { filter.getSelection(emptyArgs, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(emptyArgs, table, rcvr) }
 
         val junkColNames = listOf("Y", "foo", "bar", "baz")
         var selection = filter.getSelection(junkColNames, table, rcvr)
@@ -395,7 +395,7 @@ class ReportStreamFilterDefinitionTests {
         )
 
         val colName = listOf("colA", "colB")
-        assertThat { filter.getSelection(colName, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(colName, table, rcvr) }
 
         val emptyArgs = listOf<String>()
         val selection = filter.getSelection(emptyArgs, table, rcvr)
@@ -414,7 +414,7 @@ class ReportStreamFilterDefinitionTests {
 
         // AllowNone takes no args, so passing args is an exception
         val colName = listOf("colA", "colB")
-        assertThat { filter.getSelection(colName, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(colName, table, rcvr) }
 
         val emptyArgs = listOf<String>()
         val selection = filter.getSelection(emptyArgs, table, rcvr)
@@ -443,7 +443,7 @@ class ReportStreamFilterDefinitionTests {
         )
 
         val emptyArgs = listOf<String>()
-        assertThat { filter.getSelection(emptyArgs, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(emptyArgs, table, rcvr) }
 
         val junkColNames = listOf("foo", "bar", "baz")
         var selection = filter.getSelection(junkColNames, table, rcvr)
@@ -501,11 +501,11 @@ class ReportStreamFilterDefinitionTests {
 
         // Test bad args
         val emptyArgs = listOf<String>()
-        assertThat { filter.getSelection(emptyArgs, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(emptyArgs, table, rcvr) }
         val emptyColArgs = listOf("", "", "")
-        assertThat { filter.getSelection(emptyColArgs, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(emptyColArgs, table, rcvr) }
         val badPeriodArgs = listOf("colA", "now", "20D")
-        assertThat { filter.getSelection(badPeriodArgs, table, rcvr) }.isFailure()
+        assertFailure { filter.getSelection(badPeriodArgs, table, rcvr) }
 
         // Test with 1 Month
         val oneMonth = filter.getSelection(
@@ -634,13 +634,13 @@ class ReportStreamFilterDefinitionTests {
         assertThat(oneBadMonth.toArray()).isEmpty()
 
         // Test with bad argument and bad data
-        assertThat {
+        assertFailure {
             filter.getSelection(
                 listOf("colBad", middleBadDate, "P1M"),
                 table,
                 rcvr
             )
-        }.isFailure()
+        }
 
         // Test with bad data and negative argument
         val nowLarge = filter.getSelection(

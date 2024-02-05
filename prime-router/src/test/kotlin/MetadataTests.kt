@@ -2,16 +2,15 @@ package gov.cdc.prime.router
 
 import assertk.Assert
 import assertk.all
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNotSameAs
 import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
 import assertk.assertions.isSameAs
-import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import assertk.assertions.prop
 import assertk.assertions.support.appendName
@@ -389,10 +388,10 @@ class MetadataTests {
     @Test
     fun `test schema validation`() {
         var schema = Schema("name", Topic.TEST, listOf(Element("a", type = Element.Type.TEXT)))
-        assertThat { Metadata(schema).validateSchemas() }.isSuccess()
+        assertThat(Metadata(schema).validateSchemas())
 
         schema = Schema("name", Topic.TEST, listOf(Element("a")))
-        assertThat { Metadata(schema).validateSchemas() }.isFailure()
+        assertFailure { Metadata(schema).validateSchemas() }
 
         schema = Schema(
             "name", Topic.TEST,
@@ -401,6 +400,6 @@ class MetadataTests {
                 Element("name")
             )
         )
-        assertThat { Metadata(schema).validateSchemas() }.isFailure()
+        assertFailure { Metadata(schema).validateSchemas() }
     }
 }

@@ -15,39 +15,35 @@ elements:
   - name: software-segment
     condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    schema: ../common/software
+    schema: ../resources/MessageHeader/SFT
 
   - name: patient-information
     resource: 'Bundle.entry.resource.ofType(Patient)'
     condition: '%resource.count() = 1'
     required: true
-    constants:
-      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
-    schema: ../common/patient
+    schema: base/patient
 
   - name: patient-note
-    resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value.text.split(''\n'')'
+    resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value'
     condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists()'
-    schema: ../common/note
+    schema: ../datatypes/annotation/NTE
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '/PATIENT_RESULT/PATIENT'
-      # Cannot use %resource here as this constant will be resolved in the note schema
-      noteDetails: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value'
 
-  - name: patient-contact
-    resource: 'Bundle.entry.resource.ofType(Patient).contact'
-    condition: '%resource.exists()'
-    constants:
-      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
-    schema: ../common/patient-contact
-
-  - name: patient-visit
+  - name: encounter-pv1
     resource: 'Bundle.entry.resource.ofType(Encounter)'
     condition: '%resource.count() = 1'
     constants:
-      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT/VISIT'
-    schema: ../common/patient-visit
+      hl7PV1Field: '/PATIENT_RESULT/PATIENT/VISIT/PV1'
+    schema: ../resources/Encounter/PV1
+
+  - name: encounter-pv2
+    resource: 'Bundle.entry.resource.ofType(Encounter)'
+    condition: '%resource.count() = 1'
+    constants:
+      hl7PV2Field: '/PATIENT_RESULT/PATIENT/VISIT/PV2'
+    schema: ../resources/Encounter/PV2
 
   - name: order-observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
@@ -55,3 +51,19 @@ elements:
     required: true
     schema: base/order-observation
     resourceIndex: orderIndex
+
+  - name: participation-request
+    resource: 'Bundle.entry.resource.ofType(Device).where(udiCarrier.exists())'
+    condition: 'Bundle.entry.resource.ofType(Device).udiCarrier.exists()'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT/PATIENT_OBSERVATION'
+    schema: ../resources/Device/PRT
+    resourceIndex: prtDeviceIndex
+
+  - name: related-person-nk1
+    resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Name`).value = "NK1")'
+    condition: '%resource.patient.exists()'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+    schema: ../resources/RelatedPerson/NK1
+    resourceIndex: relatedPersonIndex

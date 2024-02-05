@@ -148,11 +148,11 @@ directory structure is that a sample input and output file will be included in o
 The current process for creating or updating translation schemas provides a good guarantee that changes will work as expected
 and will not have any downstream impact since they exist in source code and integration tests guarantee the translation schemas are 
 correct before merging is allowed.  An example of a down stream impact is a translation schema that is used in a receiver's setting, but
-also used in an `extend` property. See [default-sender-transform.yml](https://github.com/CDCgov/prime-reportstream/blob/3e69f874c78d49bd69b8303a38ba3e0a747ef3f9/prime-router/metadata/fhir_transforms/senders/default-sender-transform.yml)
+also used in an `extend` property. See [original-pipeline-transforms.yml](https://github.com/CDCgov/prime-reportstream/blob/3e69f874c78d49bd69b8303a38ba3e0a747ef3f9/prime-router/metadata/fhir_transforms/senders/original-pipeline-transforms.yml)
 and [simple-report-sender-transform.yml](https://github.com/CDCgov/prime-reportstream/blob/3e69f874c78d49bd69b8303a38ba3e0a747ef3f9/prime-router/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml)
 as an example.
 
-A side effect of this is that translation schemas cannot be atomically edited and validated.  Using the above example, changing `default-sender-transform`
+A side effect of this is that translation schemas cannot be atomically edited and validated.  Using the above example, changing `original-pipeline-transforms`
 would necessitate at the minimum changing the sample out for `simple-report-sender-transform` and possibly require making a change
 to the translation schema itself.  This issue can end up involving many translation schemas as there are no limits on the use of the `extend` property.
 
@@ -233,7 +233,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
     <details>
@@ -247,7 +247,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
     <details>
@@ -261,7 +261,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
 2. Developer runs `./prime syncSchemas --from staging --to local`
@@ -276,7 +276,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
     <details>
@@ -290,7 +290,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
     <details>
@@ -304,7 +304,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
 3. Developer creates the new translation schema and make sure it works with `./prime validateSchemas`
@@ -319,7 +319,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -337,7 +337,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
     <details>
@@ -351,7 +351,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
 4. Developer syncs the translation schemas to staging `./prime syncSchemas --from local --to staging`
@@ -364,11 +364,11 @@ Example of the flow with a sample directories that shows adding a new translatio
                 /fhir_transforms
                     valid-2023-03-29T23:53:00.488Z.txt
                     previous-valid-2023-02-25T23:53:00.488Z.txt
-                    default-sender-transform.yml
+                    original-pipeline-transforms.yml
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -386,7 +386,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
     <details>
@@ -400,7 +400,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
 6. The new translation schema is copied to staging
@@ -432,7 +432,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                        /default
                            input.fhir
                            output.fhir
-                           default-sender-transform.yml
+                           original-pipeline-transforms.yml
                        /Flexion
                            flexion-sender-transform.yml
                            input.fhir
@@ -450,7 +450,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                        /default
                           input.fhir
                           output.fhir
-                          default-sender-transform.yml
+                          original-pipeline-transforms.yml
            ```
    </details>
 7. The command creates the validating file
@@ -465,7 +465,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -484,7 +484,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -502,7 +502,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
 8. The azure function is triggered and successfully validates all the translation schemas
@@ -517,7 +517,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -535,7 +535,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -553,7 +553,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
 9. The developer triggers the GitHub action and invokes the sync command
@@ -568,7 +568,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -586,7 +586,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -604,7 +604,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
         ```
     </details>
 10. Translation schemas are synced between staging and production and the `validating.txt` is created
@@ -619,7 +619,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -637,7 +637,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -656,7 +656,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -675,7 +675,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -693,7 +693,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir
@@ -711,7 +711,7 @@ Example of the flow with a sample directories that shows adding a new translatio
                     /default
                         input.fhir
                         output.fhir
-                        default-sender-transform.yml
+                        original-pipeline-transforms.yml
                     /Flexion
                         flexion-sender-transform.yml
                         input.fhir

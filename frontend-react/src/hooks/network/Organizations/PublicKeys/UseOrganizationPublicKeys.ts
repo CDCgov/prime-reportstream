@@ -5,8 +5,8 @@ import {
     RSApiKeysResponse,
     servicesEndpoints,
 } from "../../../../config/endpoints/settings";
-import { useAuthorizedFetch } from "../../../../contexts/AuthorizedFetchContext";
-import { useSessionContext } from "../../../../contexts/SessionContext";
+import { useAuthorizedFetch } from "../../../../contexts/AuthorizedFetch";
+import { useSessionContext } from "../../../../contexts/Session";
 
 const { publicKeys } = servicesEndpoints;
 
@@ -28,6 +28,6 @@ export default function useOrganizationPublicKeys() {
     return useQuery({
         queryKey: [publicKeys.queryKey, activeMembership],
         queryFn: memoizedDataFetch,
-        enabled: !!activeMembership?.parsedName && !!activeMembership.service,
+        enabled: !!activeMembership?.parsedName,
     });
 }

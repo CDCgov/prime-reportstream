@@ -54,9 +54,11 @@ elements:
     hl7Spec: [ '%{hl7Order}-6' ]
 
   - name: order-transaction-time
-    condition: "%resource.extension(%`rsext-business-event`).exists()"
-    value: [ "%resource.extension(%`rsext-business-event`).value" ]
-    hl7Spec: [ '%{hl7Order}-9' ]
+    condition: "%context.extension(%`rsext-business-event`).exists()"
+    resource: "%resource.extension(%`rsext-business-event`).value"
+    constants:
+      dtmFieldPath: '%{hl7Order}-9'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: order-entered-by
     resource: '%service.extension(%`rsext-entered-by`).value.resolve()'

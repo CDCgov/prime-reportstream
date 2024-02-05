@@ -12,26 +12,22 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.deleteResource
-import gov.cdc.prime.router.fhirengine.utils.getResourceReferences
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.DiagnosticReport
-import org.hl7.fhir.r4.model.Endpoint
-import org.hl7.fhir.r4.model.Provenance
 import org.jooq.Field
 import java.time.OffsetDateTime
 
@@ -55,11 +51,13 @@ class FHIRTranslator(
      *  element.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
-    override fun doWork(
-        message: RawSubmission,
+    override fun <T : QueueMessage> doWork(
+        message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
+        message as ReportPipelineMessage
+
         logger.trace("Translating FHIR file for receivers.")
         // pull fhir document and parse FHIR document
         val bundle = FhirTranscoder.decode(message.downloadContent())
@@ -67,49 +65,78 @@ class FHIRTranslator(
         // track input report
         actionHistory.trackExistingInputReport(message.reportId)
 
-        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        val receiverEndpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
+        when (message) {
+            is FhirTranslateQueueMessage -> {
+                val receiver = settings.findReceiver(message.receiverFullName)
+                    ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
+                actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
 
-        val receiverAndEndpoints: List<Pair<Endpoint, Receiver>> = receiverEndpoints.mapNotNull { endpoint ->
-            val receiver = settings.findReceiver(endpoint.identifier[0].value)
-            if (receiver != null) {
-                Pair(endpoint, receiver)
-            } else {
-                null
-            }
-        }
-
-        return receiverAndEndpoints
-            .map {
-                actionHistory.trackActionReceiverInfo(it.second.organizationName, it.second.name)
-                it
-            }
-            .filter {
-                it.second.topic.isUniversalPipeline
-            }
-            .map { (receiverEndpoint, receiver) ->
-                val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
-
-                val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
+                var nextAction = Event.EventAction.BATCH
+                var externalName: String? = null
+                var queueMessage: ReportEventQueueMessage? = null
+                val bodyBytes = if (message.topic.isSendOriginal) {
+                    nextAction = Event.EventAction.SEND
+                    val originalReport = getOriginalReport(message.reportId)
+                    externalName = originalReport.externalName
+                    queueMessage = ReportEventQueueMessage(nextAction, false, message.reportId, "")
+                    BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
+                } else {
+                    getByteArrayFromBundle(receiver, bundle)
+                }
 
                 // get a Report from the message
                 val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-                    Event.EventAction.BATCH,
+                    nextAction,
                     bodyBytes,
                     listOf(message.reportId),
                     receiver,
                     this.metadata,
                     actionHistory,
                     topic = message.topic,
+                    externalName
                 )
 
-                FHIREngineRunResult(
-                    event,
-                    report,
-                    blobInfo.blobUrl,
-                    null
+                if (queueMessage != null) {
+                    queueMessage = queueMessage.copy(reportId = report.id)
+                }
+
+                return listOf(
+                    FHIREngineRunResult(
+                        event,
+                        report,
+                        blobInfo.blobUrl,
+                        queueMessage
+                    )
                 )
             }
+            else -> {
+                throw RuntimeException(
+                    "Message was not a FhirTranslateQueueMessage and cannot be processed by FHIRTranslator: $message"
+                )
+            }
+        }
+    }
+
+    /**
+     * Takes a [reportId] and returns the content of the first ancestor as submitted by the sender as a ByteArray
+     */
+    internal fun getOriginalReport(
+        reportId: ReportId,
+    ): ReportFile {
+        val rootReportId = findRootReportId(reportId)
+        return db.fetchReportFile(rootReportId)
+    }
+
+    /**
+     * Takes a [reportId] and returns the ReportId of the original message that was sent
+     */
+    fun findRootReportId(reportId: ReportId): ReportId {
+        val itemLineages = db.fetchItemLineagesForReport(reportId, 1)
+        return if (itemLineages != null && itemLineages[0].parentReportId != null) {
+            findRootReportId(itemLineages[0].parentReportId)
+        } else {
+            return reportId
+        }
     }
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.TRANSLATED_AT
@@ -122,22 +149,31 @@ class FHIRTranslator(
     internal fun getByteArrayFromBundle(
         receiver: Receiver,
         bundle: Bundle,
-    ) = when (receiver.format) {
-        Report.Format.FHIR -> {
-            if (receiver.schemaName.isNotEmpty()) {
-                val transformer = FhirTransformer(receiver.schemaName)
+    ): ByteArray {
+        if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+            receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
+                logger.info("Applying enrichment schema $enrichmentSchemaName")
+                val transformer = FhirTransformer(enrichmentSchemaName)
                 transformer.transform(bundle)
             }
-            FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
         }
+        when (receiver.format) {
+            Report.Format.FHIR -> {
+                if (receiver.schemaName.isNotEmpty()) {
+                    val transformer = FhirTransformer(receiver.schemaName)
+                    transformer.transform(bundle)
+                }
+                return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
+            }
 
-        Report.Format.HL7, Report.Format.HL7_BATCH -> {
-            val hl7Message = getHL7MessageFromBundle(bundle, receiver)
-            hl7Message.encodePreserveEncodingChars().toByteArray()
-        }
+            Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                val hl7Message = getHL7MessageFromBundle(bundle, receiver)
+                return hl7Message.encodePreserveEncodingChars().toByteArray()
+            }
 
-        else -> {
-            error("Receiver format ${receiver.format} not supported.")
+            else -> {
+                error("Receiver format ${receiver.format} not supported.")
+            }
         }
     }
 
@@ -169,65 +205,6 @@ class FHIRTranslator(
         }
 
         return hl7Message
-    }
-
-    /**
-     * Removes observations from a [bundle] that are not referenced in [receiverEndpoint] and any endpoints that are
-     * not [receiverEndpoint]
-     *
-     * @return a copy of [bundle] with the unwanted observations/endpoints removed
-     */
-    fun pruneBundleForReceiver(bundle: Bundle, receiverEndpoint: Endpoint): Bundle {
-        // Copy bundle to make sure original stays untouched
-        val newBundle = bundle.copy()
-        newBundle.removeUnwantedConditions(receiverEndpoint)
-        newBundle.removeUnwantedProvenanceEndpoints(receiverEndpoint)
-        return newBundle
-    }
-
-    /**
-     * Removes observations from this bundle that are not referenced in [receiverEndpoint]
-     *
-     * @return the bundle with the unwanted observations removed
-     */
-    internal fun Bundle.removeUnwantedConditions(receiverEndpoint: Endpoint): Bundle {
-        // Get observation references to keep from the receiver endpoint
-        val observationsToKeep = receiverEndpoint.extension.flatMap { it.getResourceReferences() }
-
-        // If endpoint doesn't have any references don't remove any
-        if (observationsToKeep.isNotEmpty()) {
-            // Get all diagnostic reports in the bundle
-            val diagnosticReports =
-                FhirPathUtils.evaluate(null, this, this, "Bundle.entry.resource.ofType(DiagnosticReport)")
-
-            // Get all observation references in the diagnostic reports
-            val allObservations =
-                diagnosticReports.filterIsInstance<DiagnosticReport>().flatMap { it.result }.map { it.reference }
-
-            // Determine observations ids to remove
-            val observationsIdsToRemove = allObservations - observationsToKeep.toSet()
-
-            // Get observation resources to be removed from the bundle
-            val observationsToRemove = this.entry.filter { it.resource.id in observationsIdsToRemove }
-
-            observationsToRemove.forEach { this.deleteResource(it.resource) }
-        }
-        return this
-    }
-
-    /**
-     * Removes endpoints from this bundle that do not match [receiverEndpoint]
-     *
-     * @return the bundle with the unwanted endpoints removed
-     */
-    internal fun Bundle.removeUnwantedProvenanceEndpoints(receiverEndpoint: Endpoint): Bundle {
-        val provenance = this.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-        provenance.target.map { it.resource }.filterIsInstance<Endpoint>().forEach {
-            if (it != receiverEndpoint) {
-                this.deleteResource(it)
-            }
-        }
-        return this
     }
 }
 

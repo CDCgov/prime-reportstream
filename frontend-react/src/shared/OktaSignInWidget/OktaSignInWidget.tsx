@@ -1,11 +1,17 @@
-import React from "react";
+import React, {
+    HTMLAttributes,
+    PropsWithChildren,
+    useEffect,
+    useRef,
+} from "react";
 import OktaSignIn, { WidgetOptions } from "@okta/okta-signin-widget";
 import type { Tokens } from "@okta/okta-auth-js";
 
+import "@okta/okta-signin-widget/css/okta-sign-in.min.css";
 import "./OktaSignInWidget.scss";
 
 export interface OktaSigninWidgetProps
-    extends React.PropsWithChildren<React.HTMLAttributes<HTMLElement>> {
+    extends PropsWithChildren<HTMLAttributes<HTMLElement>> {
     config: WidgetOptions;
     onSuccess: (
         value: Tokens,
@@ -26,8 +32,8 @@ const OktaSignInWidget = ({
     id = "osw-container",
     ...props
 }: OktaSigninWidgetProps) => {
-    const widgetRef = React.useRef<HTMLElement | null>(null);
-    React.useEffect(() => {
+    const widgetRef = useRef<HTMLElement | null>(null);
+    useEffect(() => {
         if (!widgetRef.current) return void 0;
 
         const widget = new OktaSignIn(config);
@@ -39,7 +45,6 @@ const OktaSignInWidget = ({
             .then(onSuccess)
             .catch((e: any) => {
                 onError?.(e);
-                console.error("error logging in", e);
             });
 
         return () => widget.remove();

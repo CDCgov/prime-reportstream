@@ -1,0 +1,9 @@
+HL7 v2,,,,,,Condition (IF True),,,HL7 FHIR,,,,,,,,,Comments
+Sort Order,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute,,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,"Vocabulary Mapping
+(IS, ID, CE, CNE, CWE)",Assignment,,
+1,SFT-1,Software Vendor Organization,XON,1,1,,,,,source.extension??-vendorOrganization(Organization),Reference(Organization),1,1,XON[Organization],,,,
+2,SFT-2,Software Certified Version or Release Number,ST,1,1,,,,source.version,,string,0,1,,,,,
+3,SFT-3,Software Product Name,ST,1,1,,,,source.software,,string,0,1,,,,,
+4,SFT-4,Software Binary ID,ST,1,1,,,,,source.extension??-binaryIdentifier,string,0,1,,,,,
+5,SFT-5,Software Product Information,TX,0,1,,,,,source.extension??-description,string,0,1,,,,,
+6,SFT-6,Software Install Date,DTM,0,1,,,,,source.extension??-installDate,dateTime,0,1,DTM[DateTime],,,,

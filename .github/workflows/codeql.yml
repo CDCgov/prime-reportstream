@@ -14,11 +14,14 @@ name: "CodeQL"
 on: 
   push:
     branches: 
-     - master
-     - production
+      - master
   pull_request:
     branches: 
-     - master
+      - master
+    paths:
+      - "frontend-react/**"
+      - "prime-router/src/scripts/**"
+      - "/operations/app/functions/admin/**"
   schedule:
     - cron: '20 4 * * 1'
 

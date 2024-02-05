@@ -539,7 +539,7 @@ class ActionHistory(
             receiver.format,
             header.content,
             filename ?: UUID.randomUUID().toString(),
-            "send",
+            receiver.fullName,
             Event.EventAction.NONE
         )
         val reportFile = ReportFile()

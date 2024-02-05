@@ -1,11 +1,11 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.doesNotHaveClass
 import assertk.assertions.hasClass
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
@@ -60,26 +60,26 @@ class CustomFHIRFunctionsTests {
 
     @Test
     fun `test execute function`() {
-        assertThat {
+        assertFailure {
             CustomFHIRFunctions
                 .executeFunction(null, "dummy", null)
-        }.isFailure()
+        }
 
         val focus: MutableList<Base> = mutableListOf(StringType("data"))
-        assertThat {
+        assertFailure {
             CustomFHIRFunctions
                 .executeFunction(focus, "dummy", null)
-        }.isFailure()
+        }
 
         // Just checking we can access all the functions.
         // Individual function results are tested on their own unit tests.
         CustomFHIRFunctions.CustomFHIRFunctionNames.values().forEach {
             if (it == CustomFHIRFunctions.CustomFHIRFunctionNames.ChangeTimezone) {
                 // With bad inputs this will cause an error, but still verifies access to the function
-                assertThat {
+                assertFailure {
                     CustomFHIRFunctions
                         .executeFunction(focus, it.name, null)
-                }.isFailure().doesNotHaveClass(IllegalStateException::class.java)
+                }.doesNotHaveClass(IllegalStateException::class.java)
             }
         }
     }
@@ -459,26 +459,26 @@ class CustomFHIRFunctionsTests {
         val date: Date = isoFormat.parse("2021-08-09T08:52:00-04:00")
         val timezoneParameters: MutableList<MutableList<Base>> = mutableListOf(mutableListOf(StringType("Asia/Tokyo")))
 
-        assertThat {
+        assertFailure {
             CustomFHIRFunctions.changeTimezone(
                 mutableListOf(DateTimeType(date), DateTimeType(date)),
                 timezoneParameters
             )
-        }.isFailure()
+        }
 
-        assertThat {
+        assertFailure {
             CustomFHIRFunctions.changeTimezone(
                 mutableListOf(TimeType("12:34:56")),
                 timezoneParameters
             )
-        }.isFailure()
+        }
 
-        assertThat {
+        assertFailure {
             CustomFHIRFunctions.changeTimezone(
                 mutableListOf(DateTimeType(date)),
                 null
             )
-        }.isFailure()
+        }
     }
 
     @Test
@@ -487,20 +487,20 @@ class CustomFHIRFunctionsTests {
         val date: Date = isoFormat.parse("2021-08-09T08:52:00-04:00")
 
         val pst = StringType().also { it.value = "America/Blah" }
-        assertThat {
+        assertFailure {
             CustomFHIRFunctions.changeTimezone(
                 mutableListOf(DateTimeType(date)),
                 mutableListOf(mutableListOf(pst))
             )
-        }.isFailure().hasClass(SchemaException::class.java)
+        }.hasClass(SchemaException::class.java)
 
         // Different exception for single character, confirm still gets converted to schema exception
         pst.value = "A"
-        assertThat {
+        assertFailure {
             CustomFHIRFunctions.changeTimezone(
                 mutableListOf(DateTimeType(date)),
                 mutableListOf(mutableListOf(pst))
             )
-        }.isFailure().hasClass(SchemaException::class.java)
+        }.hasClass(SchemaException::class.java)
     }
 }

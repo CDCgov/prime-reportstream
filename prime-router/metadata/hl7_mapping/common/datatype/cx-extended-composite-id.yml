@@ -12,6 +12,7 @@ elements:
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
       namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"'
       universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"'
+      universalIdTypeExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"'
     schema: hd-hierarchic-designator
 
   - name: id-type-code
@@ -30,4 +31,5 @@ elements:
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
       namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"'
       universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"'
+      universalIdTypeExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"'
     schema: hd-hierarchic-designator

@@ -1,13 +1,12 @@
 package gov.cdc.prime.router
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
-import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import java.util.UUID
 import kotlin.test.Test
@@ -37,13 +36,13 @@ class ActionLogTests {
         assertThat(logger.errors[0].detail is InvalidTranslationMessage).isTrue()
 
         // Item logs
-        assertThat { logger.getItemLogger(0) }.isFailure()
-        assertThat { logger.getItemLogger(-100) }.isFailure()
+        assertFailure { logger.getItemLogger(0) }
+        assertFailure { logger.getItemLogger(-100) }
         val index = 1
         val trackingId = "tracking"
-        assertThat { logger.error(InvalidEquipmentMessage("some mapping")) }.isFailure()
+        assertFailure { logger.error(InvalidEquipmentMessage("some mapping")) }
         val itemLogger = logger.getItemLogger(index, trackingId)
-        assertThat { itemLogger.error(InvalidEquipmentMessage("some mapping")) }.isSuccess()
+        assertThat(itemLogger.error(InvalidEquipmentMessage("some mapping")))
         assertThat(logger.errors.size).isEqualTo(2)
         assertThat(logger.errors[1].index).isEqualTo(index)
         assertThat(logger.errors[1].trackingId).isEqualTo(trackingId)

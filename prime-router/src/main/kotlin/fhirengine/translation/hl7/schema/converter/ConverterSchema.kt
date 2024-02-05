@@ -98,11 +98,6 @@ class ConverterSchemaElement(
     valueSet = valueSet,
     debug = debug
 ) {
-
-    override fun toString(): String {
-        return "${if (schema != null) "$schema-" else ""}$name"
-    }
-
     override fun validate(): List<String> {
         when {
             !schema.isNullOrBlank() && hl7Spec.isNotEmpty() ->

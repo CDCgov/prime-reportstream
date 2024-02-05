@@ -38,7 +38,7 @@
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+          "display" : "ORU^R01^ORU_R01"
         },
         "destination" : [
           {
@@ -69,6 +69,22 @@
             {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id",
               "valueString" : "20210810"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+              "valueString" : "CDC PRIME - Atlanta"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+              "valueString" : "2.16.840.1.114222.4.1.237821"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+              "valueString" : "ISO"
+            },
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+              "valueString" : "sending-application"
             }
           ],
           "name" : "MEDITECH",
@@ -198,6 +214,10 @@
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+            "valueString" : "MEDITECH"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon10-organization-identifier",
             "valueString" : "MEDITECH"
           },
           {
@@ -9325,9 +9345,43 @@
         },
         "identifier" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -9422,9 +9476,43 @@
         },
         "identifier" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -9519,9 +9607,43 @@
         },
         "identifier" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -9596,9 +9718,43 @@
         },
         "identifier" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "M12776123"
+                  }
+                ]
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PGN"
+                }
+              ]
+            },
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "specimen-id-filler"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                    "valueString" : "09339017"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -9751,8 +9907,25 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "placer-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123.1"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -9763,7 +9936,6 @@
                 }
               ]
             },
-            "system" : "urn:id:M12776123.1",
             "value" : "09339017"
           },
           {
@@ -10178,6 +10350,10 @@
         },
         "extension" : [
           {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
+            "valueCode" : "RE"
+          },
+          {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2",
             "valueString" : "09339017"
           },
@@ -10267,6 +10443,27 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
                 "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-2-placer-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123.1"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -10282,6 +10479,21 @@
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-3-filler-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123.1"
+                  }
+                ]
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -10441,6 +10653,27 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
                 "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-4-placer-group-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -10458,8 +10691,25 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "placer-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123.2"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -10470,7 +10720,6 @@
                 }
               ]
             },
-            "system" : "urn:id:M12776123.2",
             "value" : "09339017"
           },
           {
@@ -10897,6 +11146,10 @@
         },
         "extension" : [
           {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
+            "valueCode" : "RE"
+          },
+          {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2",
             "valueString" : "09339017"
           },
@@ -10967,6 +11220,27 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
                 "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-4-placer-group-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -10986,6 +11260,10 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
                 "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-2-placer-order-number"
               }
             ],
             "type" : {
@@ -11001,6 +11279,12 @@
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-3-filler-order-number"
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -11168,6 +11452,27 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
                 "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-4-placer-group-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -11185,8 +11490,25 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "placer-order-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123.3"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -11197,7 +11519,6 @@
                 }
               ]
             },
-            "system" : "urn:id:M12776123.3",
             "value" : "09339017"
           },
           {
@@ -11633,6 +11954,10 @@
         },
         "extension" : [
           {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
+            "valueCode" : "RE"
+          },
+          {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2",
             "valueString" : "09339017"
           },
@@ -11703,6 +12028,27 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
                 "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-4-placer-group-number"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                    "valueString" : "M12776123"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                    "valueString" : "2.16.840.1.114222.4.1.144"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode" : "ISO"
+                  }
+                ]
               }
             ],
             "type" : {
@@ -11722,6 +12068,10 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
                 "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-2-placer-order-number"
               }
             ],
             "type" : {
@@ -11737,6 +12087,12 @@
             "value" : "09339017"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-3-filler-order-number"
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -12213,6 +12569,10 @@
         },
         "extension" : [
           {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
+            "valueCode" : "RE"
+          },
+          {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2",
             "valueString" : "09339017"
           },
@@ -12260,6 +12620,12 @@
             "value" : "20280808092805-0600"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-3-filler-order-number"
+              }
+            ],
             "type" : {
               "coding" : [
                 {
@@ -12703,6 +13069,10 @@
         },
         "extension" : [
           {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
+            "valueCode" : "RE"
+          },
+          {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2",
             "valueString" : "09339017"
           },
@@ -12750,6 +13120,12 @@
             "value" : "20280808092805-0600"
           },
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                "valueString" : "orc-3-filler-order-number"
+              }
+            ],
             "type" : {
               "coding" : [
                 {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
 
 import { Accordion } from "./Accordion";
@@ -93,15 +93,15 @@ const testItems: AccordionItemProps[] = [
     },
 ];
 
-export const Borderless = (): React.ReactElement => (
+export const Borderless = (): ReactElement => (
     <Accordion bordered={false} items={testItems} />
 );
 
-export const Bordered = (): React.ReactElement => (
+export const Bordered = (): ReactElement => (
     <Accordion bordered={true} items={testItems} />
 );
 
-export const Multiselectable = (): React.ReactElement => (
+export const Multiselectable = (): ReactElement => (
     <Accordion items={testItems} multiselectable={true} />
 );
 
@@ -160,6 +160,6 @@ const customTestItems: AccordionItemProps[] = [
     },
 ];
 
-export const CustomTitles = (): React.ReactElement => (
+export const CustomTitles = (): ReactElement => (
     <Accordion bordered={true} items={customTestItems} />
 );

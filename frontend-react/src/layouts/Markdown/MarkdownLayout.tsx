@@ -1,6 +1,6 @@
 import { MDXProvider } from "@mdx-js/react";
 import { Helmet } from "react-helmet-async";
-import React, { useMemo, useState } from "react";
+import React, { ComponentProps, ReactNode, useMemo, useState } from "react";
 import * as reactUSWDS from "@trussworks/react-uswds";
 import type { TocEntry } from "remark-mdx-toc";
 import { useMatches } from "react-router";
@@ -35,12 +35,12 @@ const uswdsComponents = filterComponents(reactUSWDS);
 const sharedComponents = filterComponents(shared);
 
 export interface MarkdownLayoutProps {
-    children: React.ReactNode;
+    children: ReactNode;
     frontmatter?: Frontmatter;
     toc?: TocEntry[];
-    article?: React.ReactNode;
-    nav?: React.ReactNode;
-    mdx?: React.ComponentProps<typeof MDXProvider>;
+    article?: ReactNode;
+    nav?: ReactNode;
+    mdx?: ComponentProps<typeof MDXProvider>;
 }
 
 /**
@@ -88,6 +88,8 @@ export function MarkdownLayout({
     mdx,
     frontmatter: {
         title,
+        metaTitle,
+        metaDescription,
         breadcrumbs,
         subtitle,
         callToAction,
@@ -97,9 +99,8 @@ export function MarkdownLayout({
     } = {},
     toc: tocEntries,
 }: MarkdownLayoutProps) {
-    const [sidenavContent, setSidenavContent] =
-        useState<React.ReactNode>(undefined);
-    const [mainContent, setMainContent] = useState<React.ReactNode>(undefined);
+    const [sidenavContent, setSidenavContent] = useState<ReactNode>(undefined);
+    const [mainContent, setMainContent] = useState<ReactNode>(undefined);
     const ctx = useMemo(() => {
         return {
             sidenavContent,
@@ -123,9 +124,12 @@ export function MarkdownLayout({
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
-            {title && (
+            {(metaTitle || metaDescription) && (
                 <Helmet>
-                    <title>{title}</title>
+                    {metaTitle && <title>{metaTitle}</title>}
+                    {metaDescription && (
+                        <meta name="description" content={metaDescription} />
+                    )}
                 </Helmet>
             )}
             {sidenavContent ? (

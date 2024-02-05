@@ -1,9 +1,12 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import assertk.assertFailure
 import assertk.assertThat
-import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isTrue
+import io.mockk.spyk
+import io.mockk.verify
+import org.apache.logging.log4j.kotlin.logger
 import org.hl7.fhir.r4.model.Base64BinaryType
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.CanonicalType
@@ -59,6 +62,12 @@ class FhirBundleUtilsTests {
         if (convertedValue is BooleanType) {
             assertThat(convertedValue.booleanValue()).isTrue()
         }
+
+        convertedValue = FhirBundleUtils.convertFhirType(BooleanType("true"), "boolean", "dateTime|boolean")
+        assertThat(convertedValue).isInstanceOf(BooleanType::class)
+        if (convertedValue is BooleanType) {
+            assertThat(convertedValue.booleanValue()).isTrue()
+        }
     }
 
     @Test
@@ -75,9 +84,16 @@ class FhirBundleUtilsTests {
         convertedValue =
             FhirBundleUtils.convertFhirType(DateType("2015-02-07"), "date", "dateTime")
         assertThat(convertedValue).isInstanceOf(DateTimeType::class)
+        convertedValue =
+            FhirBundleUtils.convertFhirType(
+                DateTimeType("2015-02-07T13:28:17.239+02:00"),
+                "dateTime",
+                "boolean|dateTime"
+            )
+        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
 
         // Incompatible type
-        assertThat { FhirBundleUtils.convertFhirType(DateType("13:28:17"), "time", "dateTime") }.isFailure()
+        assertFailure { FhirBundleUtils.convertFhirType(DateType("13:28:17"), "time", "dateTime") }
     }
 
     @Test
@@ -91,28 +107,36 @@ class FhirBundleUtilsTests {
 
     @Test
     fun `test convert invalid values`() {
-        assertThat {
-            FhirBundleUtils.convertFhirType(
-                StringType("testing"),
-                "string",
-                "date"
-            )
-        }.isFailure()
+        val logger = spyk(this.logger)
+        var convertedValue = FhirBundleUtils.convertFhirType(
+            StringType("testing"),
+            "string",
+            "date",
+            logger
+        )
 
-        assertThat {
-            FhirBundleUtils.convertFhirType(
-                StringType("testing"),
-                "string",
-                "dateTime"
-            )
-        }.isFailure()
+        assertThat(convertedValue).isInstanceOf(StringType::class)
 
-        assertThat {
-            FhirBundleUtils.convertFhirType(
-                StringType("testing"),
-                "string",
-                "instant"
-            )
-        }.isFailure()
+        convertedValue = FhirBundleUtils.convertFhirType(
+            StringType("testing"),
+            "string",
+            "dateTime",
+            logger
+        )
+
+        assertThat(convertedValue).isInstanceOf(StringType::class)
+
+        convertedValue = FhirBundleUtils.convertFhirType(
+            StringType("testing"),
+            "string",
+            "instant",
+            logger
+        )
+
+        assertThat(convertedValue).isInstanceOf(StringType::class)
+
+        verify(exactly = 3) {
+            logger.error(any<String>())
+        }
     }
 }

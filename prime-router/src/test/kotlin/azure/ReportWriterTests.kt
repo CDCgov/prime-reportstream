@@ -1,8 +1,7 @@
 package gov.cdc.prime.router.azure
 
-import assertk.assertThat
+import assertk.assertFailure
 import assertk.assertions.hasClass
-import assertk.assertions.isFailure
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
@@ -149,7 +148,6 @@ class ReportWriterTests {
             bodyFormat = Report.Format.FHIR, // so this test freaks out if fhir gets support
             metadata = metadata
         )
-        assertThat { ReportWriter.getBodyBytes(report) }.isFailure()
-            .hasClass(UnsupportedOperationException::class)
+        assertFailure { ReportWriter.getBodyBytes(report) }.hasClass(UnsupportedOperationException::class)
     }
 }

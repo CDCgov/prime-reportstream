@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1698785668951070000.254585fd-883b-44c1-9747-98d309fefbf9",
+  "id" : "1706812986718971000.9e095362-cc0b-437b-9f47-c68cf98aa1f0",
   "meta" : {
-    "lastUpdated" : "2023-10-31T16:54:28.975-04:00"
+    "lastUpdated" : "2024-02-01T13:43:06.726-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -10,132 +10,195 @@
   },
   "type" : "message",
   "timestamp" : "2023-05-01T10:25:31.000-04:00",
-  "entry" : [ {
-    "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
-    "resource" : {
-      "resourceType" : "MessageHeader",
-      "id" : "827ccb0e-ea8a-306c-8c34-a16891f84e7b",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
-      },
-      "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
-        "valueString" : "^~\\&#"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-        "valueString" : "UNICODE UTF-8"
-      } ],
-      "eventCoding" : {
-        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-        "code" : "R01",
-        "display" : "ORU/ACK - Unsolicited transmission of an observation message"
-      },
-      "sender" : {
-        "reference" : "Organization/1698785670495341000.9e2927b5-7f21-44b1-83d5-40e4d6c106ce"
-      }
-    }
-  }, {
-    "fullUrl" : "Organization/1698785670495341000.9e2927b5-7f21-44b1-83d5-40e4d6c106ce",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "1698785670495341000.9e2927b5-7f21-44b1-83d5-40e4d6c106ce",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
-      },
-      "address" : [ {
-        "country" : "USA"
-      } ]
-    }
-  }, {
-    "fullUrl" : "Provenance/1698785670985151000.b16dc059-cf59-413e-a020-55b292736069",
-    "resource" : {
-      "resourceType" : "Provenance",
-      "id" : "1698785670985151000.b16dc059-cf59-413e-a020-55b292736069",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
-      },
-      "recorded" : "2023-05-01T10:25:31-04:00",
-      "activity" : {
-        "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
+  "entry" : [
+    {
+      "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
+      "resource" : {
+        "resourceType" : "MessageHeader",
+        "id" : "827ccb0e-ea8a-306c-8c34-a16891f84e7b",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+            "valueString" : "^~\\&#"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
+            "valueString" : "UNICODE UTF-8"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+            "extension" : [
+              {
+                "url" : "MSH.7",
+                "valueString" : "20230501102531-0400"
+              }
+            ]
+          }
+        ],
+        "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU_R01"
-        } ]
-      },
-      "agent" : [ {
-        "type" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-            "code" : "author"
-          } ]
+          "display" : "ORU^R01^ORU_R01"
+        },
+        "sender" : {
+          "reference" : "Organization/1706812986771138000.d30829f2-f727-4a4a-af80-a018963e9dae"
+        },
+        "source" : {
+          "_endpoint" : {
+            "extension" : [
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode" : "unknown"
+              }
+            ]
+          }
         }
-      } ],
-      "entity" : [ {
-        "role" : "source",
-        "what" : {
-          "reference" : "Device/1698785670988539000.e0029673-63fe-407c-ba43-40b5f65eb24c"
+      }
+    },
+    {
+      "fullUrl" : "Organization/1706812986771138000.d30829f2-f727-4a4a-af80-a018963e9dae",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1706812986771138000.d30829f2-f727-4a4a-af80-a018963e9dae",
+        "address" : [
+          {
+            "country" : "USA"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706812987108064000.cda5c21e-351a-428d-838c-b59050f47bcf",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706812987108064000.cda5c21e-351a-428d-838c-b59050f47bcf",
+        "target" : [
+          {
+            "reference" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b"
+          }
+        ],
+        "recorded" : "2023-05-01T10:25:31-04:00",
+        "activity" : {
+          "coding" : [
+            {
+              "display" : "ORU^R01^ORU_R01"
+            }
+          ]
         }
-      } ]
-    }
-  }, {
-    "fullUrl" : "Device/1698785670988539000.e0029673-63fe-407c-ba43-40b5f65eb24c",
-    "resource" : {
-      "resourceType" : "Device",
-      "id" : "1698785670988539000.e0029673-63fe-407c-ba43-40b5f65eb24c",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706812987115569000.0a5186ad-b6da-4a9e-9dd0-d8a45903951c",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706812987115569000.0a5186ad-b6da-4a9e-9dd0-d8a45903951c",
+        "recorded" : "2024-02-01T13:43:07Z",
+        "policy" : [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
+        "activity" : {
+          "coding" : [
+            {
+              "code" : "v2-FHIR transformation"
+            }
+          ]
+        },
+        "agent" : [
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code" : "assembler"
+                }
+              ]
+            },
+            "who" : {
+              "reference" : "Organization/1706812987115041000.88a2bb57-0c11-46bb-91c0-f06b729dcadc"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Organization/1706812987115041000.88a2bb57-0c11-46bb-91c0-f06b729dcadc",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1706812987115041000.88a2bb57-0c11-46bb-91c0-f06b729dcadc",
+        "identifier" : [
+          {
+            "value" : "CDC PRIME - Atlanta"
+          },
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.237821"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Patient/1706812987130025000.79629655-bd9c-4d47-bbe5-875dfb6e57a1",
+      "resource" : {
+        "resourceType" : "Patient",
+        "id" : "1706812987130025000.79629655-bd9c-4d47-bbe5-875dfb6e57a1",
+        "extension" : [
+          {
+            "url" : "http://hl7.org/fhir/StructureDefinition/patient-citizenship",
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code",
+                "valueCodeableConcept" : {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+                      "valueString" : "tribal-citizenship"
+                    }
+                  ],
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "alt-coding"
+                        }
+                      ],
+                      "code" : "AltCode"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1706812987130724000.589c4428-2da3-4c12-b6dc-ee5be8f214c0",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1706812987130724000.589c4428-2da3-4c12-b6dc-ee5be8f214c0",
+        "target" : [
+          {
+            "reference" : "Patient/1706812987130025000.79629655-bd9c-4d47-bbe5-875dfb6e57a1"
+          }
+        ],
+        "recorded" : "2024-02-01T13:43:07Z",
+        "activity" : {
+          "coding" : [
+            {
+              "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+              "code" : "UPDATE"
+            }
+          ]
+        }
       }
     }
-  }, {
-    "fullUrl" : "Patient/1698785671016438000.593f3305-78c4-40d8-8c08-d16b99bfc412",
-    "resource" : {
-      "resourceType" : "Patient",
-      "id" : "1698785671016438000.593f3305-78c4-40d8-8c08-d16b99bfc412",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
-      },
-      "extension" : [ {
-        "url" : "http://hl7.org/fhir/StructureDefinition/patient-citizenship",
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code",
-          "valueCodeableConcept" : {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-              "valueString" : "tribal-citizenship"
-            } ],
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                "valueString" : "alt-coding"
-              } ],
-              "code" : "AltCode"
-            } ]
-          }
-        } ]
-      } ]
-    }
-  } ]
+  ]
 }

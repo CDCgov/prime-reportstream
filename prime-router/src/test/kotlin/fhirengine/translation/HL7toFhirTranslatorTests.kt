@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.fhirengine.translator
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
@@ -78,7 +78,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         """.trimIndent()
         message = HL7Reader(ActionLogger()).getMessages(unsupportedHL7)
         assertThat(message.size).isEqualTo(1)
-        assertThat { HL7toFhirTranslator.getInstance().getHL7MessageModel(message[0]) }.isFailure()
+        assertFailure { HL7toFhirTranslator.getInstance().getHL7MessageModel(message[0]) }
     }
 
     @Test

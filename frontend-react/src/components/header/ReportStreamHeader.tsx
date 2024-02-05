@@ -10,6 +10,9 @@ import {
 } from "@trussworks/react-uswds";
 import classnames from "classnames";
 import React, {
+    MutableRefObject,
+    PropsWithChildren,
+    ReactElement,
     Suspense,
     useCallback,
     useEffect,
@@ -20,10 +23,7 @@ import { useMatch } from "react-router-dom";
 
 import { USLink, USLinkButton, USSmartLink } from "../USLink";
 import SenderModeBanner from "../SenderModeBanner";
-import {
-    useSessionContext,
-    RSSessionContext,
-} from "../../contexts/SessionContext";
+import { useSessionContext, RSSessionContext } from "../../contexts/Session";
 import { Icon } from "../../shared";
 import site from "../../content/site.json";
 import Spinner from "../Spinner";
@@ -42,11 +42,11 @@ const primaryLinkClasses = (isActive: boolean) => {
     return "primary-nav-link";
 };
 
-export interface DropdownProps extends React.PropsWithChildren {
+export interface DropdownProps extends PropsWithChildren {
     onToggle: (name: string) => void;
 
     menuName: string;
-    dropdownList: React.ReactElement[];
+    dropdownList: ReactElement[];
     currentMenuName?: string;
 }
 
@@ -74,16 +74,16 @@ function Dropdown({
     );
 }
 
-export interface ReportStreamHeaderProps extends React.PropsWithChildren {
+export interface ReportStreamHeaderProps extends PropsWithChildren {
     blueVariant?: boolean;
     isNavHidden?: boolean;
 }
 
-interface ReportStreamNavbarProps extends React.PropsWithChildren {
+interface ReportStreamNavbarProps extends PropsWithChildren {
     onToggleMobileNav: () => void;
     isMobileNavOpen: boolean;
     user: RSSessionContext["user"];
-    containerRef: React.MutableRefObject<HTMLElement | null>;
+    containerRef: MutableRefObject<HTMLElement | null>;
 }
 
 function ReportStreamNavbar({
@@ -427,7 +427,7 @@ export const ReportStreamHeader = ({
                                                 }
                                                 outline
                                             >
-                                                Connect now
+                                                Contact us
                                             </USLinkButton>
                                         </>
                                     )}

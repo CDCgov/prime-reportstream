@@ -1,7 +1,10 @@
-# Just a placeholder to keep the object mapper happy for now; this will be the sender transform for Trusted Intermediary
+# Sender transform for Trusted Intermediary
 elements:
-  - name: placeholder-element
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    condition: false
-    bundleProperty: '%resource.name.text'
-    value: [ '"placeholder value"' ]
+  - name: message-date-time
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.7").value.exists().not()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.7").value[x]'
+    value:
+      - Bundle.entry.resource.ofType(Provenance).recorded.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value
+      - Bundle.entry.resource.ofType(Provenance).recorded
+      - Bundle.timestamp

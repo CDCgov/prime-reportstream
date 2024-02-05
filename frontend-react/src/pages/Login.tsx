@@ -1,28 +1,20 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import type { Location } from "react-router-dom";
 import type { Tokens } from "@okta/okta-auth-js";
+import { Helmet } from "react-helmet-async";
 
-import Alert from "../shared/Alert/Alert";
 import { oktaSignInConfig } from "../oktaConfig";
 import { USLink } from "../components/USLink";
 import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
-import { useSessionContext } from "../contexts/SessionContext";
-
-const MigrationAlert = () => (
-    <Alert type="info" heading="Changes to ReportStream login">
-        Your login information may have expired due to recent updates to
-        ReportStream's system. <br />
-        Check your email for an activation link and more information.
-    </Alert>
-);
+import { useSessionContext } from "../contexts/Session";
 
 export function Login() {
-    const { oktaAuth, authState, config } = useSessionContext();
+    const { oktaAuth, authState } = useSessionContext();
     const location: Location<{ originalUrl?: string } | undefined> =
         useLocation();
 
-    const onSuccess = React.useCallback(
+    const onSuccess = useCallback(
         (tokens: Tokens) => {
             oktaAuth.handleLoginRedirect(
                 tokens,
@@ -33,10 +25,7 @@ export function Login() {
         [location.state?.originalUrl, oktaAuth],
     );
 
-    const onError = React.useCallback((_: any) => {}, []);
-
-    // Remove this and MigrationAlert sometime after migration
-    const isMigrated = config.OKTA_URL.startsWith("https://reportstream.okta");
+    const onError = useCallback((_: any) => {}, []);
 
     if (authState.isAuthenticated) {
         return <Navigate replace to={"/"} />;
@@ -44,7 +33,9 @@ export function Login() {
 
     return (
         <>
-            {isMigrated && <MigrationAlert />}
+            <Helmet>
+                <title>ReportStream login</title>
+            </Helmet>
             <OktaSignInWidget
                 className="margin-top-6 margin-x-auto width-mobile-lg padding-x-8"
                 config={oktaSignInConfig}

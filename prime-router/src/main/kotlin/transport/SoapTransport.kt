@@ -13,6 +13,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.SoapCredential
+import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.serializers.SoapEnvelope
 import gov.cdc.prime.router.serializers.SoapObjectService
 import io.ktor.client.HttpClient
@@ -34,8 +35,13 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.withCharset
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.io.InputStream
 import java.io.StringReader
 import java.io.StringWriter
+import java.security.KeyStore
+import java.util.Base64
+import javax.net.ssl.KeyManagerFactory
+import javax.net.ssl.SSLContext
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamResult
@@ -71,41 +77,66 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
      * object and converted to XML
      * @param soapEndpoint The URL to post to when sending the message
      * @param soapAction The command to invoke on the remote server
+     * @param soapVersion Which SOAP version we are using
      * @param context Really just here to get logging injected
      */
     private suspend fun connectToSoapService(
         message: String,
         soapEndpoint: String,
         soapAction: String,
+        soapVersion: String?,
         context: ExecutionContext,
         httpClient: HttpClient,
     ): String {
         httpClient.use { client ->
             context.logger.info("Connecting to $soapEndpoint")
-
-            // once we've created te client, we will use it to call post on the endpoint
-            val response: HttpResponse = client.post(soapEndpoint) {
-                // tell ktor to throw an exception if not successful
-                expectSuccess = true
-                // adds the SOAPAction header
-                header("SOAPAction", soapAction)
-                // we want to pass text in the body of our request. You need to do it this
-                // way because the TextContent object sets other values like the charset, etc
-                // Ktor will balk if you try to set it some other way
-                setBody(
-                    TextContent(
-                        message,
-                        // force the encoding to be UTF-8. PA had issues understanding the message
-                        // unless it was explicitly set to UTF-8. Plus it's good to be explicit about
-                        // these things
-                        contentType = ContentType.Text.Xml.withCharset(Charsets.UTF_8)
-                    )
-                )
+            // once we've created the client, we will use it to call post on the endpoint
+            when (soapVersion) {
+                // SOAP verserion 1.2 has a different structure and requirements than SOAP 1.1. The receiver tranport setting soapVersion will detemine which version is used.
+                "SOAP12" -> {
+                    val response: HttpResponse = client.post(soapEndpoint) {
+                        // tell ktor to throw an exception if not successful
+                        expectSuccess = true
+                        // adds the SOAPAction header and content type headers. Content type has to be set here explicitly as KTOR doesn't have a built in option for application/soap+xml which is required for SOAP 1.2
+                        header(
+                            "content-type",
+                            "application/soap+xml;action=\"" + soapAction + "\""
+                        )
+                        setBody(
+                            message,
+                        )
+                        // get the response object
+                    }
+                    val body: String = response.body()
+                    // return just the body of the message
+                    return prettyPrintXmlResponse(body)
+                }
+                else -> {
+                    // default to this if we don't get SOAP12 in the receiver settings.
+                    val response: HttpResponse = client.post(soapEndpoint) {
+                        // tell ktor to throw an exception if not successful
+                        expectSuccess = true
+                        // adds the SOAPAction header
+                        header("SOAPAction", soapAction)
+                        // we want to pass text in the body of our request. You need to do it this
+                        // way because the TextContent object sets other values like the charset, etc
+                        // Ktor will balk if you try to set it some other way
+                        setBody(
+                            TextContent(
+                                message,
+                                // force the encoding to be UTF-8. PA had issues understanding the message
+                                // unless it was explicitly set to UTF-8. Plus it's good to be explicit about
+                                // these things
+                                contentType = ContentType.Text.Xml.withCharset(Charsets.UTF_8)
+                            )
+                        )
+                    }
+                    // get the response object
+                    val body: String = response.body()
+                    // return just the body of the message
+                    return prettyPrintXmlResponse(body)
+                }
             }
-            // get the response object
-            val body: String = response.body()
-            // return just the body of the message
-            return prettyPrintXmlResponse(body)
         }
     }
 
@@ -136,6 +167,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         // based on who we are sending this report to, we need to get the credentials, and we also need
         // to create the actual implementation object based on who we're sending to
         val credential = lookupCredentials(receiver)
+        val jksCredential = soapTransportType.tlsKeystore?.let { lookupJksCredentials(it) }
         // calling the SOAP serializer in an attempt to be somewhat abstract here. this is based on the
         // namespaces provided to the SOAP transport info. It's kind of BS magical string garbage, but the
         // reality is that each client could have different objects we have to create for them, and these
@@ -146,7 +178,11 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         val xmlObject = SoapObjectService.getXmlObjectForAction(soapTransportType, header, context, credential)
             ?: error("Unable to find a SOAP object for the namespaces provided")
         // wrap the object in the generic envelope. At least this gets to be generic
-        val soapEnvelope = SoapEnvelope(xmlObject, soapTransportType.namespaces ?: emptyMap())
+        val soapEnvelope = SoapEnvelope(
+            xmlObject,
+            soapTransportType.namespaces ?: emptyMap(),
+            soapTransportType.soapVersion ?: String()
+        )
 
         return try {
             // run our call to the endpoint in a blocking fashion
@@ -156,8 +192,9 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                         soapEnvelope.toXml(),
                         soapTransportType.endpoint,
                         soapTransportType.soapAction,
+                        soapTransportType.soapVersion,
                         context,
-                        httpClient ?: createDefaultHttpClient()
+                        httpClient ?: createDefaultHttpClient(jksCredential)
                     )
                     // update the action history
                     val msg = "Success: SOAP transport of $sentReportId to $soapTransportType:\n$responseBody"
@@ -252,12 +289,24 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
             ?: error("Unable to find SOAP credentials for $credentialName connectionId($credentialLabel)")
     }
 
+    /**
+     * Get a JKS from the credential service
+     * @param [tlsKeystore] is the label of the credential
+     */
+    fun lookupJksCredentials(tlsKeystore: String): UserJksCredential {
+        val credentialLabel = CredentialHelper.formCredentialLabel(tlsKeystore)
+        return CredentialHelper.getCredentialService().fetchCredential(
+            credentialLabel, "SOAPTransport", CredentialRequestReason.SOAP_UPLOAD
+        ) as? UserJksCredential?
+            ?: error("Unable to find JKS credentials for $tlsKeystore connectionId($credentialLabel)")
+    }
+
     companion object {
         /** A default value for the timeouts to connect and send messages */
         private const val TIMEOUT = 50_000
 
-        /** Our default Http Client */
-        private fun createDefaultHttpClient(): HttpClient {
+        /** Our default Http Client, with an optional SSL context */
+        private fun createDefaultHttpClient(jks: UserJksCredential?): HttpClient {
             return HttpClient(Apache) {
                 // installs logging into the call to post to the server
                 install(Logging) {
@@ -266,6 +315,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                 }
                 // configures the Apache client with our specified timeouts
                 engine {
+                    jks?.let { sslContext = getSslContext(jks) }
                     followRedirects = true
                     socketTimeout = TIMEOUT
                     connectTimeout = TIMEOUT
@@ -274,6 +324,26 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                     }
                 }
             }
+        }
+
+        /***
+         * Create an SSL context with the provided cert
+         * @param jksCredential containing the cert to use
+         */
+        private fun getSslContext(jksCredential: UserJksCredential): SSLContext? {
+            // Open the keystore in the UserJksCredential, it's a PKCS12 type
+            val jksDecoded = Base64.getDecoder().decode(jksCredential.jks)
+            val inStream: InputStream = jksDecoded.inputStream()
+            val jksPasscode = jksCredential.jksPasscode.toCharArray()
+            val keyStore: KeyStore = KeyStore.getInstance("PKCS12")
+            keyStore.load(inStream, jksPasscode)
+            // create keyManager with the keystore, use default SunX509 algorithm
+            val keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm()) // "SunX509")
+            keyManagerFactory.init(keyStore, jksPasscode)
+            // create the sslContext, type TLS, with the keyManager
+            val sslContext = SSLContext.getInstance("TLSv1.3")
+            sslContext.init(keyManagerFactory.keyManagers, null, null)
+            return sslContext
         }
     }
 }

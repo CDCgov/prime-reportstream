@@ -68,20 +68,16 @@ const ValueSetsTable = () => {
 
     const tableConfig: TableConfig = {
         columns: valueSetColumnConfig,
-        rows: toValueSetWithMeta(valueSetMeta, valueSetArray),
+        rows: toValueSetWithMeta(valueSetMeta!!, valueSetArray),
     };
 
-    return (
-        <>
-            <Table title="ReportStream Value Sets" config={tableConfig} />
-        </>
-    );
+    return <Table title="ReportStream Value Sets" config={tableConfig} />;
 };
 const ValueSetsIndexPage = () => {
     return (
         <>
             <Helmet>
-                <title>Value Sets | Admin</title>
+                <title>Value sets - Admin</title>
             </Helmet>
             <section className="grid-container">
                 {withCatchAndSuspense(<ValueSetsTable />)}

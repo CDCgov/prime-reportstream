@@ -13,6 +13,9 @@ locals {
     okta_base_url         = "hhs-prime.oktapreview.com"
     OKTA_scope            = "simple_report_dev"
     sftp_container_module = false
+    RS_okta_base_url      = "reportstream.oktapreview.com"
+    RS_okta_redirect_url  = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
+    RS_OKTA_scope         = "reportstream_dev"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig${local.init.random_id}"

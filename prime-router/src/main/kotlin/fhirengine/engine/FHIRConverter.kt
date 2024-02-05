@@ -13,10 +13,14 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.ReportCreatedEvent
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.fhirengine.utils.addMappedCondition
+import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
 import java.time.OffsetDateTime
@@ -34,6 +38,7 @@ class FHIRConverter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
+    private val azureEventService: AzureEventService = AzureEventService(),
 ) : FHIREngine(metadata, settings, db, blob) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
@@ -48,25 +53,52 @@ class FHIRConverter(
      * [message] is the incoming message to be turned into FHIR and saved
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
-    override fun doWork(
-        message: RawSubmission,
+    override fun <T : QueueMessage> doWork(
+        message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
-        val format = Report.getFormatFromBlobURL(message.blobURL)
+        return when (message) {
+            is FhirConvertQueueMessage -> {
+                fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
+            }
+            else -> {
+                throw RuntimeException(
+                    "Message was not a FhirConvert and cannot be processed: $message"
+                )
+            }
+        }
+    }
+
+    private fun fhirEngineRunResults(
+        queueMessage: ReportPipelineMessage,
+        schemaName: String,
+        actionLogger: ActionLogger,
+        actionHistory: ActionHistory,
+    ): List<FHIREngineRunResult> {
+        val format = Report.getFormatFromBlobURL(queueMessage.blobURL)
         logger.trace("Processing $format data for FHIR conversion.")
         val fhirBundles = when (format) {
-            Report.Format.HL7, Report.Format.HL7_BATCH -> getContentFromHL7(message, actionLogger)
-            Report.Format.FHIR -> getContentFromFHIR(message, actionLogger)
+            Report.Format.HL7, Report.Format.HL7_BATCH -> getContentFromHL7(queueMessage, actionLogger)
+            Report.Format.FHIR -> getContentFromFHIR(queueMessage, actionLogger)
             else -> throw NotImplementedError("Invalid format $format ")
         }
         if (fhirBundles.isNotEmpty()) {
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
-            actionHistory.trackExistingInputReport(message.reportId)
-            val transformer = getTransformerFromSchema(message.schemaName)
+            actionHistory.trackExistingInputReport(queueMessage.reportId)
+            val transformer = getTransformerFromSchema(schemaName)
             return fhirBundles.mapIndexed { bundleIndex, bundle ->
                 // conduct FHIR Transform
                 transformer?.transform(bundle)
+
+                // 'stamp' observations with their condition code
+                bundle.getObservations().forEach {
+                    it.addMappedCondition(metadata).run {
+                        actionLogger.getItemLogger(bundleIndex + 1, it.id)
+                            .setReportId(queueMessage.reportId)
+                            .warn(this)
+                    }
+                }
 
                 // make a 'report'
                 val report = Report(
@@ -77,14 +109,14 @@ class FHIRConverter(
                         ItemLineage()
                     ),
                     metadata = this.metadata,
-                    topic = message.topic,
+                    topic = queueMessage.topic,
                 )
 
                 // create item lineage
                 report.itemLineages = listOf(
                     ItemLineage(
                         null,
-                        message.reportId,
+                        queueMessage.reportId,
                         bundleIndex,
                         report.id,
                         1,
@@ -110,23 +142,29 @@ class FHIRConverter(
                     Report.Format.FHIR,
                     bodyBytes,
                     report.name,
-                    message.blobSubFolderName,
+                    queueMessage.blobSubFolderName,
                     routeEvent.eventAction
                 )
 
                 // track created report
                 actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
+                azureEventService.trackEvent(
+                    ReportCreatedEvent(
+                    report.id,
+                    queueMessage.topic
+                )
+                )
 
                 FHIREngineRunResult(
                     routeEvent,
                     report,
                     blobInfo.blobUrl,
-                    RawSubmission(
+                    FhirRouteQueueMessage(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
-                        message.blobSubFolderName,
-                        message.topic
+                        queueMessage.blobSubFolderName,
+                        queueMessage.topic
                     )
                 )
             }
@@ -149,19 +187,19 @@ class FHIRConverter(
     }
 
     /**
-     * Converts an incoming HL7 [message] into FHIR bundles and keeps track of any validation
+     * Converts an incoming HL7 [queueMessage] into FHIR bundles and keeps track of any validation
      * errors when reading the message into [actionLogger]
      *
      * @return one or more FHIR bundles
      */
     internal fun getContentFromHL7(
-        message: RawSubmission,
+        queueMessage: ReportPipelineMessage,
         actionLogger: ActionLogger,
     ): List<Bundle> {
         // create the hl7 reader
         val hl7Reader = HL7Reader(actionLogger)
         // get the hl7 from the blob store
-        val hl7messages = hl7Reader.getMessages(message.downloadContent())
+        val hl7messages = hl7Reader.getMessages(queueMessage.downloadContent())
 
         val bundles = if (actionLogger.hasErrors()) {
             val errMessage = actionLogger.errors.joinToString("\n") { it.detail.message }
@@ -179,15 +217,15 @@ class FHIRConverter(
     }
 
     /**
-     * Decodes a FHIR [message] into FHIR bundles and keeps track of any validation
+     * Decodes a FHIR [queueMessage] into FHIR bundles and keeps track of any validation
      * errors when reading the message into [actionLogger]
      * @return a list containing a FHIR bundle
      */
     internal fun getContentFromFHIR(
-        message: RawSubmission,
+        queueMessage: ReportPipelineMessage,
         actionLogger: ActionLogger,
     ): List<Bundle> {
-        return FhirTranscoder.getBundles(message.downloadContent(), actionLogger)
+        return FhirTranscoder.getBundles(queueMessage.downloadContent(), actionLogger)
     }
 
     /**

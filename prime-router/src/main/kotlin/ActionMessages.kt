@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.cli.ObservationMappingConstants
+
 /**
  * Possible error codes when parsing/processing messages. Includes Hl7, CSV, FHIR, et al.
  */
@@ -35,6 +37,7 @@ enum class ErrorCode {
     INVALID_MSG_PARSE_UNKNOWN,
     INVALID_MSG_MISSING_FIELD,
     INVALID_MSG_EQUIPMENT_MAPPING,
+    INVALID_MSG_CONDITION_MAPPING,
     INVALID_HL7_MSG_VALIDATION,
     INVALID_HL7_MSG_TYPE_MISSING,
     INVALID_HL7_MSG_TYPE_UNSUPPORTED,
@@ -59,8 +62,7 @@ abstract class GenericActionLogDetail(
     override val message: String,
     override val scope: ActionLogScope,
     override val errorCode: ErrorCode = ErrorCode.UNKNOWN,
-) :
-    ActionLogDetail
+) : ActionLogDetail
 
 /**
  * Message for a missing field of [fieldMapping].
@@ -69,6 +71,21 @@ class MissingFieldMessage(fieldMapping: String) : ItemActionLogDetail(fieldMappi
     override val message = "Blank value for element $fieldMapping. " +
         "Please refer to the ReportStream Programmer's Guide for required fields."
     override val errorCode = ErrorCode.INVALID_MSG_MISSING_FIELD
+}
+
+/**
+ * Message for an observation with [unmappableCodes] that could not be mapped to a condition
+ */
+class UnmappableConditionMessage(
+    unmappableCodes: List<String>? = null,
+    fieldMapping: String = ObservationMappingConstants.MAPPING_CODES_IDENTIFIER,
+) : ItemActionLogDetail(fieldMapping) {
+    override val message = if (unmappableCodes.isNullOrEmpty()) {
+        "Observation missing code"
+    } else {
+        "Missing mapping for code(s): " + unmappableCodes.joinToString(",")
+    }
+    override val errorCode = ErrorCode.INVALID_MSG_CONDITION_MAPPING
 }
 
 /**
@@ -265,4 +282,16 @@ class EvaluateFilterConditionErrorMessage(message: String?) : ActionLogDetail {
     override val scope = ActionLogScope.internal
     override val message = message ?: "An unknown filter condition error occurred."
     override val errorCode = ErrorCode.UNKNOWN
+}
+
+/**
+ * A [message] for when observations have been pruned for any receiver of a report
+ */
+class PrunedObservationsLogMessage(override val message: String) : GenericActionLogDetail(
+    message, ActionLogScope.report
+) {
+    constructor(reportId: ReportId, filteredIdMap: Map<String, List<String>>) : this(
+        "Observations were pruned from receivers for reportID $reportId\n" +
+            filteredIdMap.map { "${it.key}: ${it.value.joinToString(", ")}" }.joinToString("\n")
+        )
 }

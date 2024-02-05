@@ -28,38 +28,36 @@ class CustomTranslationFunctions(
         element: ConverterSchemaElement?,
         constantSubstitutor: ConstantSubstitutor?,
     ): String {
-        if (appContext?.config is HL7TranslationConfig) {
-            val receiver = appContext.config.receiver
-            val config = appContext.config.hl7Configuration
-            var dateTimeFormat = receiver?.dateTimeFormat
+        check(appContext != null)
+        check(appContext.config is HL7TranslationConfig)
+        val receiver = appContext.config.receiver
+        val config = appContext.config.hl7Configuration
+        var dateTimeFormat = receiver?.dateTimeFormat
 
-            if (config.convertTimestampToDateTime?.isNotEmpty() == true) {
-                dateTimeFormat = getDateTimeFormat(
-                    config.convertTimestampToDateTime,
-                    element,
-                    constantSubstitutor,
-                    appContext,
-                    dateTimeFormat
-                )
+        if (config.convertTimestampToDateTime?.isNotEmpty() == true) {
+            dateTimeFormat = getDateTimeFormat(
+                config.convertTimestampToDateTime,
+                element,
+                constantSubstitutor,
+                appContext,
+                dateTimeFormat
+            )
+        }
+
+        val tz =
+            if (config.convertDateTimesToReceiverLocalTime == true && !receiver?.timeZone?.zoneId.isNullOrBlank()) {
+                ZoneId.of(receiver?.timeZone?.zoneId)
+            } else {
+                DateUtilities.utcZone
             }
 
-            val tz =
-                if (config.convertDateTimesToReceiverLocalTime == true && !receiver?.timeZone?.zoneId.isNullOrBlank()) {
-                    ZoneId.of(receiver?.timeZone?.zoneId)
-                } else {
-                    DateUtilities.utcZone
-                }
-
-            return DateUtilities.formatDateForReceiver(
-                DateUtilities.parseDate(dateTime.asStringValue()),
-                tz,
-                dateTimeFormat ?: DateUtilities.DateTimeFormat.OFFSET,
-                config.convertPositiveDateTimeOffsetToNegative ?: false,
-                config.useHighPrecisionHeaderDateTimeFormat ?: false
-            )
-        } else {
-            return super.convertDateTimeToHL7(dateTime, appContext, element, constantSubstitutor)
-        }
+        return DateUtilities.formatDateForReceiver(
+            DateUtilities.parseDate(dateTime.asStringValue()),
+            tz,
+            dateTimeFormat ?: DateUtilities.DateTimeFormat.OFFSET,
+            config.convertPositiveDateTimeOffsetToNegative ?: false,
+            config.useHighPrecisionHeaderDateTimeFormat ?: false
+        )
     }
 
     /**

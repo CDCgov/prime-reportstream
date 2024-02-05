@@ -17,9 +17,11 @@ import com.github.ajalt.clikt.parameters.types.int
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
@@ -63,6 +65,14 @@ class ProcessFhirCommands : CliktCommand(
         .choice(Report.Format.HL7.toString(), Report.Format.FHIR.toString()).required()
 
     /**
+     * String of file names
+     */
+    private val enrichmentSchemaNames by option(
+        "--enrichment-schemas",
+        help = "comma separated enrichment schema name(s) from current directory"
+    )
+
+    /**
      * The message number to use if the file is an HL7 batch message.
      */
     private val hl7ItemIndex by option(
@@ -99,8 +109,10 @@ class ProcessFhirCommands : CliktCommand(
         when {
             // HL7 to FHIR conversion
             inputFileType == "HL7" && outputFormat == Report.Format.FHIR.toString() -> {
+                var fhirMessage = convertHl7ToFhir(contents, actionLogger).first
+                fhirMessage = applyEnrichmentSchemas(fhirMessage)
                 outputResult(
-                    handleSenderAndReceiverTransforms(convertHl7ToFhir(contents, actionLogger).first), actionLogger
+                    handleSenderAndReceiverTransforms(fhirMessage), actionLogger
                 )
             }
 
@@ -136,22 +148,34 @@ class ProcessFhirCommands : CliktCommand(
      * @return an HL7 message
      */
     private fun convertFhirToHl7(jsonString: String): Message {
+        var fhirMessage = FhirTranscoder.decode(jsonString)
+        fhirMessage = applyEnrichmentSchemas(fhirMessage)
         return when {
             receiverSchema == null ->
                 // Receiver schema required because if it's coming out as HL7, it would be getting any transform info
                 // for that from a receiver schema.
-                throw CliktError("You must specify a receiver schema.")
+                throw CliktError(" You must specify a receiver schema using --receiver-schema.")
 
             !receiverSchema!!.canRead() ->
                 throw CliktError("Unable to read schema file ${receiverSchema!!.absolutePath}.")
 
             else -> {
-                val bundle = applySenderTransforms(FhirTranscoder.decode(jsonString))
+                val bundle = applySenderTransforms(fhirMessage)
                 FhirToHl7Converter(
                     receiverSchema!!.name.split(".")[0], receiverSchema!!.parent,
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
-                        null,
+                        config = HL7TranslationConfig(
+                            Hl7Configuration(
+                                receivingApplicationOID = null,
+                                receivingFacilityOID = null,
+                                messageProfileId = null,
+                                receivingApplicationName = null,
+                                receivingFacilityName = null,
+                                receivingOrganization = null,
+                            ),
+                            null
+                        ),
                         translationFunctions = CustomTranslationFunctions()
                     )
                 ).convert(bundle)
@@ -163,11 +187,13 @@ class ProcessFhirCommands : CliktCommand(
      * convert an FHIR message to FHIR message
      */
     private fun convertFhirToFhir(jsonString: String): Bundle {
+        var fhirMessage = FhirTranscoder.decode(jsonString)
+        fhirMessage = applyEnrichmentSchemas(fhirMessage)
         if (receiverSchema == null && senderSchema == null) {
             // Must have at least one schema or else why are you doing this
             throw CliktError("You must specify a schema.")
         } else {
-            return handleSenderAndReceiverTransforms(FhirTranscoder.decode(jsonString))
+            return handleSenderAndReceiverTransforms(fhirMessage)
         }
     }
 
@@ -228,9 +254,12 @@ class ProcessFhirCommands : CliktCommand(
 
     /**
      * @throws CliktError if receiverSchema is present, but unable to be read.
+     * @throws CliktError if enrichmentSchemaName is present, but unable to be read.
      * @return If receiverSchema is present, apply it, otherwise just return the input bundle.
      */
-    private fun applyReceiverTransforms(bundle: Bundle): Bundle {
+    private fun applyReceiverEnrichmentAndTransforms(bundle: Bundle): Bundle {
+        val enrichedBundle = applyEnrichmentSchemas(bundle)
+
         return when {
             receiverSchema != null -> {
                 if (!receiverSchema!!.canRead()) {
@@ -239,11 +268,24 @@ class ProcessFhirCommands : CliktCommand(
                     FhirTransformer(
                         receiverSchema!!.name.split(".")[0],
                         receiverSchema!!.parent
-                    ).transform(bundle)
+                    ).transform(enrichedBundle)
                 }
             }
-            else -> bundle
+            else -> enrichedBundle
         }
+    }
+
+    /**
+     * Applies the enrichment schema to the bundle.
+     */
+    private fun applyEnrichmentSchemas(bundle: Bundle): Bundle {
+        if (!enrichmentSchemaNames.isNullOrEmpty()) {
+            enrichmentSchemaNames!!.split(",").forEach { currentEnrichmentSchemaName ->
+                val fileNamePieces = currentEnrichmentSchemaName.split(".")
+                FhirTransformer(fileNamePieces.first()).transform(bundle)
+            }
+        }
+        return bundle
     }
 
     /**
@@ -251,7 +293,7 @@ class ProcessFhirCommands : CliktCommand(
      * @return the FHIR bundle after having sender and/or receiver schemas applied to it.
      */
     private fun handleSenderAndReceiverTransforms(bundle: Bundle): Bundle {
-        return applyReceiverTransforms(applySenderTransforms(bundle))
+        return applyReceiverEnrichmentAndTransforms(applySenderTransforms(bundle))
     }
 
     /**

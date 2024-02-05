@@ -1,9 +1,9 @@
 package gov.cdc.prime.router
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
@@ -166,8 +166,6 @@ class FileSettingsTests {
                 Receiver("service1", "test", Topic.COVID_19, CustomerStatus.INACTIVE, "schema1")
             )
         )
-        assertThat {
-            settings.loadOrganizationList(listOf(org1))
-        }.isFailure()
+        assertFailure { settings.loadOrganizationList(listOf(org1)) }
     }
 }
