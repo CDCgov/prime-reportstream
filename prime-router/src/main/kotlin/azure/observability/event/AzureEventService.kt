@@ -6,14 +6,21 @@ import org.apache.logging.log4j.kotlin.Logging
 /**
  * Service to emit events to Azure AppInsights
  */
-class AzureEventService(
+interface AzureEventService {
+    fun trackEvent(event: AzureCustomEvent)
+}
+
+/**
+ * Default implementation
+ */
+class AzureEventServiceImpl(
     private val telemetryClient: TelemetryClient = TelemetryClient(),
-) : Logging {
+) : AzureEventService, Logging {
 
     /**
      * Send event to Azure AppInsights using the Azure TelemetryClient
      */
-    fun trackEvent(event: AzureCustomEvent) {
+    override fun trackEvent(event: AzureCustomEvent) {
         val name = event.javaClass.simpleName
         logger.debug("Sending event of type $name to Azure AppInsights")
         telemetryClient.trackEvent(name, event.serialize(), emptyMap())

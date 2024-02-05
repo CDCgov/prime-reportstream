@@ -11,6 +11,8 @@ import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -35,6 +37,7 @@ abstract class FHIREngine(
     val settings: SettingsProvider = this.settingsProviderSingleton,
     val db: DatabaseAccess = this.databaseAccessSingleton,
     val blob: BlobAccess = BlobAccess(),
+    val azureEventService: AzureEventService = AzureEventServiceImpl(),
 ) : BaseEngine() {
 
     /**
@@ -53,6 +56,7 @@ abstract class FHIREngine(
         var blobAccess: BlobAccess? = null,
         var hl7Serializer: Hl7Serializer? = null,
         var csvSerializer: CsvSerializer? = null,
+        var azureEventService: AzureEventService? = null,
     ) {
         /**
          * Set the metadata instance.
@@ -79,6 +83,14 @@ abstract class FHIREngine(
         fun blobAccess(blobAccess: BlobAccess) = apply { this.blobAccess = blobAccess }
 
         /**
+         * Set the azure event service instance.
+         * @return the modified workflow engine
+         */
+        fun azureEventService(azureEventService: AzureEventService) = apply {
+            this.azureEventService = azureEventService
+        }
+
+        /**
          * Build the fhir engine instance.
          * @return the fhir engine instance
          */
@@ -95,13 +107,15 @@ abstract class FHIREngine(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess()
+                    blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl()
                 )
                 TaskAction.route -> FHIRRouter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess()
+                    blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl()
                 )
                 TaskAction.translate -> FHIRTranslator(
                     metadata ?: Metadata.getInstance(),

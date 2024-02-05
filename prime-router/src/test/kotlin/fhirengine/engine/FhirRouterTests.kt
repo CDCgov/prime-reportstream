@@ -8,7 +8,9 @@ import assertk.assertions.hasClass
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isFalse
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -37,6 +39,8 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
+import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -157,6 +161,7 @@ class FhirRouterTests {
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
     private val actionHistory = ActionHistory(TaskAction.route)
+    private val azureEventService = InMemoryAzureEventService()
 
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
@@ -367,7 +372,7 @@ class FhirRouterTests {
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).build(TaskAction.route)
+            .blobAccess(blobMock).azureEventService(azureEventService).build(TaskAction.route)
     }
 
     /**
@@ -394,6 +399,7 @@ class FhirRouterTests {
         actionHistory.reportsIn.clear()
         actionHistory.reportsOut.clear()
         actionHistory.actionLogs.clear()
+        azureEventService.clear()
         clearAllMocks()
     }
 
@@ -1409,6 +1415,16 @@ class FhirRouterTests {
             assertThat(actionHistory.actionLogs).isEmpty()
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
+
+            val reportId = (messages.first() as ReportPipelineMessage).reportId
+            assertThat(azureEventService.getEvents().first()).isEqualTo(
+                    ReportRouteEvent(
+                    reportId,
+                    message.topic,
+                    orgWithMappedConditionFilter.receivers.first().fullName,
+                    setOf("6142004", "Some Condition Code")
+                )
+            )
         }
 
         // assert
@@ -1519,6 +1535,20 @@ class FhirRouterTests {
             assertThat(messages).isEmpty()
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
+
+            val azureEvent = azureEventService.getEvents().first()
+            val expectedEvent = ReportRouteEvent(
+                UUID.randomUUID(),
+                message.topic,
+                null,
+                setOf("840539006")
+            )
+            assertThat(azureEvent)
+                .isInstanceOf<ReportRouteEvent>()
+                .isEqualToIgnoringGivenProperties(
+                    expectedEvent,
+                    ReportRouteEvent::reportId // unable to access generated report ID since no message is generated
+                )
         }
 
         // assert

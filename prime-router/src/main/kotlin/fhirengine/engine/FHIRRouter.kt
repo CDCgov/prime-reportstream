@@ -27,6 +27,9 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -34,6 +37,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
+import gov.cdc.prime.router.fhirengine.utils.getAllMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
@@ -55,7 +59,8 @@ class FHIRRouter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-) : FHIREngine(metadata, settings, db, blob) {
+    azureEventService: AzureEventService = AzureEventServiceImpl(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService) {
 
     /**
      * The name of the lookup table to load the shorthand replacement key/value pairs from
@@ -207,6 +212,16 @@ class FHIRRouter(
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
+                // send event to Azure AppInsights
+                azureEventService.trackEvent(
+                    ReportRouteEvent(
+                        report.id,
+                        message.topic,
+                        receiver.fullName,
+                        receiverBundle.getAllMappedConditions()
+                    )
+                )
+
                 listOf(
                     FHIREngineRunResult(
                         nextEvent,
@@ -260,6 +275,16 @@ class FHIRRouter(
 
             // ensure tracking is set
             actionHistory.trackCreatedReport(nextEvent, report)
+
+            // send event to Azure AppInsights
+            azureEventService.trackEvent(
+                ReportRouteEvent(
+                    report.id,
+                    message.topic,
+                    null, // no receiver
+                    bundle.getAllMappedConditions()
+                )
+            )
 
             return emptyList()
         }
