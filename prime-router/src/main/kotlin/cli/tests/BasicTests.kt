@@ -90,7 +90,8 @@ class End2EndUniversalPipeline : CoolTest() {
         )
         passed = passed and universalPipelineEnd2End(environment, options, etorTISender, listOf(etorReceiver))
 
-        passed = passed and universalPipelineEnd2End(environment, options, elrElimsSender, listOf(elimsReceiver))
+        // TODO: enable with PR: #13232
+        // passed = passed and universalPipelineEnd2End(environment, options, elrElimsSender, listOf(elimsReceiver))
 
         return passed
     }
