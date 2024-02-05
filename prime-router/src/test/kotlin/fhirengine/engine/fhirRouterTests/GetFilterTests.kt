@@ -431,6 +431,6 @@ class GetFilterTests {
     @Test
     fun `test CodeStringConditionFilter parse`() {
         val filter = CodeStringConditionFilter("c1,c2, c3,c4 , c 5 ")
-        assertThat(filter.codes()).isEqualTo(listOf("c1", "c2", "c3", "c4", "c 5"))
+        assertThat(filter.codeList).isEqualTo(listOf("c1", "c2", "c3", "c4", "c 5"))
     }
 }

@@ -5,11 +5,9 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.UnmappableConditionMessage
 import gov.cdc.prime.router.cli.ObservationMappingConstants
-import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
@@ -365,32 +363,6 @@ fun Bundle.filterObservations(
         }
     }
     return filteredBundle
-}
-
-/**
- * Filter out observations that pass the condition filter for a [receiver]
- * The [bundle] and [shortHandLookupTable] will be used to evaluate whether
- * the observation passes the filter
- *
- * @return a pair containing a list of the filtered ids and copy of the bundle with filtered observations removed
- */
-fun Bundle.filterMappedObservations(
-    conditionFilter: ReportStreamConditionFilter,
-): Pair<List<String>, Bundle> {
-    val codes = conditionFilter.codes()
-    val observations = this.getObservations()
-    val toKeep = observations.filter { it.getMappedConditions().any(codes::contains) }.map { it.idBase }
-    val filteredBundle = this.copy()
-    val filteredIds = observations.mapNotNull {
-        val idBase = it.idBase
-        if (idBase !in toKeep) {
-            filteredBundle.deleteResource(it)
-            idBase
-        } else {
-            null
-        }
-    }
-    return Pair(filteredIds, filteredBundle)
 }
 
 private fun getFilteredObservations(

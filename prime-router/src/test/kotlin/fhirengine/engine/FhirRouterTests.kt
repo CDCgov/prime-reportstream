@@ -43,7 +43,6 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.conditionCodeExtensionURL
-import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.metadata.LookupTable
@@ -1378,8 +1377,7 @@ class FhirRouterTests {
             )
         )
 
-        val expectedBundle = bundle
-            .filterMappedObservations(listOf(CodeStringConditionFilter("6142004"))).second
+        val expectedBundle = bundle.copy().also { CodeStringConditionFilter("6142004").evaluate(it) }
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL

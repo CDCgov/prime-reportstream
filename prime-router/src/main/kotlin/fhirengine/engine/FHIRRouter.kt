@@ -27,16 +27,13 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
-import gov.cdc.prime.router.codes
+import gov.cdc.prime.router.evaluate
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
-import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
-import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
@@ -170,7 +167,7 @@ class FHIRRouter(
                 // TODO: merge with mapped condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
                 // If the receiver does not have a condition filter set send the entire bundle to the translate step
                 var receiverBundle = if (receiver.conditionFilter.isEmpty()) {
-                    bundle
+                    bundle.copy()
                 } else {
                     bundle.filterObservations(
                         receiver.conditionFilter,
@@ -180,11 +177,10 @@ class FHIRRouter(
 
                 // If the receiver does not have a mapped condition filter send the entire bundle to the translate step
                 if (receiver.mappedConditionFilter.isNotEmpty()) {
-                    val (filteredIds, filteredBundle) = receiverBundle.filterMappedObservations(
-                        receiver.mappedConditionFilter
-                    )
-                    filteredIds.forEach { id -> filteredIdMap.getOrPut(id) { mutableListOf() }.add(receiver.fullName) }
-                    receiverBundle = filteredBundle
+                    val result = receiver.mappedConditionFilter.evaluate(receiverBundle)
+                    result.fails.values.flatten().forEach {
+                        filteredIdMap.getOrPut(it.id) { mutableListOf() }.add(receiver.fullName)
+                    }
                 }
 
                 val nextEvent = ProcessEvent(
@@ -373,12 +369,11 @@ class FHIRRouter(
             // TODO: merge with condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
             // MAPPED CONDITION FILTER
             //  default: allowAll
-            if (bundle.getObservations().isNotEmpty() && receiver.mappedConditionFilter.isNotEmpty()) {
-                val codes = receiver.mappedConditionFilter.codes()
-                val filteredObservations = bundle.getObservationsWithCondition(codes)
-                if (filteredObservations.isEmpty()) {
+            if (receiver.mappedConditionFilter.isNotEmpty() && bundle.getObservations().isNotEmpty()) {
+                val result = receiver.mappedConditionFilter.evaluate(bundle, false)
+                if (!result.pass) {
                     logFilterResults(
-                        "mappedConditionFilter: $codes",
+                        "mappedConditionFilter: ${result.fails.keys.joinToString { "," }}",
                         bundle,
                         reportId,
                         actionHistory,
@@ -387,8 +382,7 @@ class FHIRRouter(
                         bundle
                     )
                 }
-                passes = passes && filteredObservations.isNotEmpty() && // don't pass a bundle with only AOEs
-                    !filteredObservations.all { it.getMappedConditions().all { code -> code == "AOE" } }
+                passes = passes && result.pass
             }
 
             // if all filters pass, add this receiver to the list of valid receivers
