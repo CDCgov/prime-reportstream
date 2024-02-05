@@ -176,7 +176,7 @@ function TableFilters({
             >
                 <div>
                     <div className="grid-row">
-                        <div className="grid-col-4 filter-column__one">
+                        <div className="grid-col-3 filter-column__one">
                             <label
                                 id="start-date-label"
                                 data-testid="label"
@@ -185,10 +185,13 @@ function TableFilters({
                             >
                                 Receiver
                             </label>
-                            <div className="usa-hint" id="start-date-hint">
-                                Your connection could have multiple receivers,
-                                such as one specific to COVID.
+                            <div>
+                                <p className="usa-hint" id="start-date-hint">
+                                    Your connection could have multiple
+                                    receivers, such as one specific to COVID.
+                                </p>
                             </div>
+
                             <ComboBox
                                 key={receivers.length}
                                 id="input-ComboBox"
@@ -200,7 +203,7 @@ function TableFilters({
                                 }}
                             />
                         </div>
-                        <div className="grid-col-6 filter-column__two">
+                        <div className="grid-col filter-column__two">
                             <DateRangePicker
                                 className={StyleClass.DATE_CONTAINER}
                                 startDateLabel={startDateLabel}
@@ -232,7 +235,7 @@ function TableFilters({
                                     defaultValue: rangeTo.toISOString(),
                                 }}
                             />
-                            <div className="grid-row">
+                            <div className="grid-row flex-no-wrap">
                                 <TimePicker
                                     hint="hh:mm"
                                     id="start-time"
@@ -265,23 +268,19 @@ function TableFilters({
                         </div>
                         <div className="grid-col-2 filter-column__three">
                             <div className="button-container">
-                                <div className={StyleClass.DATE_CONTAINER}>
-                                    <Button
-                                        disabled={!isFilterEnabled}
-                                        type={"submit"}
-                                    >
-                                        Apply
-                                    </Button>
-                                </div>
-                                <div className={StyleClass.DATE_CONTAINER}>
-                                    <Button
-                                        type={"reset"}
-                                        name="clear-button"
-                                        unstyled
-                                    >
-                                        Reset
-                                    </Button>
-                                </div>
+                                <Button
+                                    disabled={!isFilterEnabled}
+                                    type={"submit"}
+                                >
+                                    Apply
+                                </Button>
+                                <Button
+                                    type={"reset"}
+                                    name="clear-button"
+                                    unstyled
+                                >
+                                    Reset
+                                </Button>
                             </div>
                         </div>
                     </div>

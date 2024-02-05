@@ -1,6 +1,7 @@
 @use "../../global-modules.scss" as *;
 
-$column-gutter: 48px;
+$column-gutter: 40px;
+$column-gutter-tablet: 24px;
 
 .TableFilters {
   :global {
@@ -25,20 +26,42 @@ $column-gutter: 48px;
         display: flex;
         margin-right: 32px;
     }
+
+    .usa-time-picker {
+      margin-right: 48px;
+    }
+
+
+    .usa-time-picker,
+    .usa-date-picker__external-input {
+      width: 268px;
+    }
     
     .filter-column {
       &__one {
         padding-right: $column-gutter;
+
+        @media (max-width: $desktop) {
+          padding-right: $column-gutter-tablet;
+        }
       }
     
       &__two {
         border-left: 1px solid color(gray-20);
         border-right: 1px solid color(gray-20);
         padding: 0 $column-gutter;
+
+        @media (max-width: $desktop) {
+          padding: 0 $column-gutter-tablet;
+        }
       }
     
       &__three {
         padding-left: $column-gutter;
+
+        @media (max-width: $desktop) {
+          padding-left: $column-gutter-tablet;
+        }
       }
     }
   }
