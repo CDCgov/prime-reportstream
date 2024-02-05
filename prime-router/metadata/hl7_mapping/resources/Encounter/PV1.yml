@@ -156,5 +156,5 @@ elements:
       cxField: '%{hl7PV1Field}-54'
 
   - name: pv1-extension-values
-    resource: '%resource.extension(%`rsext-pv1-encounter`)'
+    resource: '%resource.extension(%`rsext-pv1-patient-visit`)'
     schema: ./PV1Extension
