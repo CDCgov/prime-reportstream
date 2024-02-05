@@ -64,24 +64,11 @@ elements:
     constants:
       cxField: '%{hl7NK1FieldPath}-12'
 
-  - name: organization-name
-    resource: '%resource.extension(%`rsext-nk1-13-organization-name`).value.resolve()'
-    resourceIndex: xonIndex
-    constants:
-      hl7XONField: '%{hl7NK1FieldPath}-13(%{xonIndex})'
-    schema: ../Organization/XON
-
   - name: administrative-sex
     resource: '%resource.gender.extension(%`rsext-nk1-15-administrative-sex`).value'
     constants:
       cweField: '%{hl7NK1FieldPath}-15'
     schema: ../../datatypes/codeableConcept/CWE
-
-  - name: birth-date
-    resource: '%resource.extension(%`rsext-nk1-16-birth-date`).value'
-    constants:
-      dtmFieldPath: '%{hl7NK1FieldPath}-16'
-    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: primary-language
     resource: '%resource.communication.language'
@@ -136,3 +123,7 @@ elements:
     constants:
       hl7TelecomField: '%{hl7NK1FieldPath}-41'
     resourceIndex: telecomIndex
+
+  - name: nk1-extension-values
+    resource: '%resource.extension(%`rsext-nk1-related-person`)'
+    schema: ./NK1Extension

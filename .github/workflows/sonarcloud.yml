@@ -48,7 +48,7 @@ jobs:
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@ae82ed4ae04587b665efad2f206578aa6f0e8539
+        uses: tj-actions/changed-files@90a06d6ba9543371ab4df8eeca0be07ca6054959
         with:
           files_yaml: |
             frontend:
@@ -66,7 +66,7 @@ jobs:
 
       - name: Gradle Validation
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
+        uses: gradle/wrapper-validation-action@27152f6fa06a6b8062ef7195c795692e51fc2c81
 
       - name: Spin up build containers
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'

@@ -38,36 +38,59 @@
         },
         "extension" : [
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-16-application-acknowledgement-type",
-            "valueString" : "AL"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-15-accept-acknowledgement-type",
-            "valueString" : "AL"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id",
-            "valueIdentifier" : {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                  "valueOid" : "urn:oid:2.16.840.1.113883.9.82"
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+            "extension" : [
+              {
+                "url" : "MSH.16",
+                "valueString" : "AL"
+              },
+              {
+                "url" : "MSH.15",
+                "valueString" : "AL"
+              },
+              {
+                "url" : "MSH.21",
+                "valueIdentifier" : {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                          "valueString" : "2.16.840.1.113883.9.82"
+                        },
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                          "valueCode" : "ISO"
+                        }
+                      ]
+                    }
+                  ],
+                  "value" : "LAB_PRU_COMPONENT"
                 }
-              ],
-              "value" : "LAB_PRU_COMPONENT"
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id",
-            "valueIdentifier" : {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                  "valueOid" : "urn:oid:2.16.840.1.113883.9.22"
+              },
+              {
+                "url" : "MSH.21",
+                "valueIdentifier" : {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                          "valueString" : "2.16.840.1.113883.9.22"
+                        },
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                          "valueCode" : "ISO"
+                        }
+                      ]
+                    }
+                  ],
+                  "value" : "LAB_TO_COMPONENT"
                 }
-              ],
-              "value" : "LAB_TO_COMPONENT"
-            }
+              }
+            ]
           }
         ],
         "eventCoding" : {
@@ -2336,20 +2359,25 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text",
-                "valueString" : "(763)555-5555"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
-                "valueString" : "(763)555-5555"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
-                "valueString" : "PH"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
-                "valueString" : "PRN"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                "extension" : [
+                  {
+                    "url" : "XTN.9",
+                    "valueString" : "(763)555-5555"
+                  },
+                  {
+                    "url" : "XTN.12",
+                    "valueString" : "(763)555-5555"
+                  },
+                  {
+                    "url" : "XTN.3",
+                    "valueString" : "PH"
+                  },
+                  {
+                    "url" : "XTN.2",
+                    "valueString" : "PRN"
+                  }
+                ]
               }
             ],
             "system" : "phone",
@@ -2402,8 +2430,13 @@
             "name" : {
               "extension" : [
                 {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
-                  "valueString" : "Leia"
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                  "extension" : [
+                    {
+                      "url" : "XPN.2",
+                      "valueString" : "Leia"
+                    }
+                  ]
                 }
               ],
               "family" : "Organa",

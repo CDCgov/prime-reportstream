@@ -1651,6 +1651,7 @@ class Report : Logging {
             metadata: Metadata,
             actionHistory: ActionHistory,
             topic: Topic,
+            externalName: String? = null,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {
             check(messageBody.isNotEmpty())
             check(sourceReportIds.isNotEmpty())
@@ -1718,7 +1719,7 @@ class Report : Logging {
             val blobInfo = BlobAccess.uploadBody(
                 reportFormat,
                 messageBody,
-                report.name,
+                if (!externalName.isNullOrEmpty()) "$externalName-${report.name}" else report.name,
                 receiver.fullName,
                 event.eventAction
             )
