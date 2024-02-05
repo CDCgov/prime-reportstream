@@ -7013,22 +7013,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^10.6.1":
-  version: 10.6.1
-  resolution: "chromatic@npm:10.6.1"
+"chromatic@npm:^10.7.1":
+  version: 10.7.1
+  resolution: "chromatic@npm:10.7.1"
   peerDependencies:
-    chromatic-cypress: ^0.4.0 || ^1.0.0
-    chromatic-playwright: ^0.4.0 || ^1.0.0
+    "@chromatic-com/cypress": ^0.5.2 || ^1.0.0
+    "@chromatic-com/playwright": ^0.5.2 || ^1.0.0
   peerDependenciesMeta:
-    chromatic-cypress:
+    "@chromatic-com/cypress":
       optional: true
-    chromatic-playwright:
+    "@chromatic-com/playwright":
       optional: true
   bin:
     chroma: dist/bin.js
     chromatic: dist/bin.js
     chromatic-cli: dist/bin.js
-  checksum: 71ae940cae633aa4ce48357b1ccd82bb504ec23655cd2beac0c367255f251a02aeb055fc68271e83e45d1bb000631aba7bf78f7aa27584e65b0e677edde53954
+  checksum: e917d8c4a8afc63e44ee3774548cd9bd2be49b4a9243446118d5bceb749fa2752364050cfab95fc490c5117a2854fce45e81714d6e9583514a94a7067a96c9c3
   languageName: node
   linkType: hard
 
@@ -14615,7 +14615,7 @@ __metadata:
     browserslist: ^4.22.1
     browserslist-useragent-regexp: ^4.1.1
     camelcase: ^6.3.0
-    chromatic: ^10.6.1
+    chromatic: ^10.7.1
     classnames: ^2.5.1
     confusing-browser-globals: ^1.0.11
     cross-env: ^7.0.3
