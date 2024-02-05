@@ -239,12 +239,13 @@ runs:
         echo "swap_utc=$SWAP_UTC" >> $GITHUB_OUTPUT
       shell: bash
 
-    - uses: Azure/functions-container-action@0aec6197033a72d3ca813f1aebd9391f639c2a8f
+    - name: Deploy to candidate slot
       id: deploy-candidate
-      with:
-        app-name: ${{ env.FUNCTION_APP }}
-        image: ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}
-        slot-name: candidate
+      run: |
+        az functionapp config container set -n ${{ env.FUNCTION_APP }} \
+        -g ${{ env.RESOURCE_GROUP }} --slot candidate \
+        --image ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}
+      shell: bash
 
     - name: Promote candidate slot
       id: promote-candidate
