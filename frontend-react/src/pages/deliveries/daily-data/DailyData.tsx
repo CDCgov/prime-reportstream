@@ -167,7 +167,7 @@ const DeliveriesFilterAndTable = ({
 
     const receiverDropdown = [
         ...new Set(
-            services.map((data) => {
+            services?.map((data) => {
                 return data.name;
             }),
         ),
@@ -234,8 +234,7 @@ export const DailyData = () => {
 
     if (
         !isLoading &&
-        (!activeService ||
-            activeService?.customerStatus === CustomerStatusType.INACTIVE)
+        activeService?.customerStatus === CustomerStatusType.INACTIVE
     )
         return (
             <div className="usa-section margin-bottom-5">
@@ -243,15 +242,11 @@ export const DailyData = () => {
             </div>
         );
     return (
-        <>
-            {activeService && (
-                <DeliveriesFilterAndTable
-                    services={services!!}
-                    activeService={activeService}
-                    setActiveService={setActiveService}
-                />
-            )}
-        </>
+        <DeliveriesFilterAndTable
+            services={services!!}
+            activeService={activeService}
+            setActiveService={setActiveService}
+        />
     );
 };
 

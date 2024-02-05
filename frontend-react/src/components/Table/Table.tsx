@@ -145,7 +145,6 @@ const Table = ({
             return datasetAction;
         }
     }, [addRow, datasetAction]);
-
     return (
         <div className={wrapperClasses}>
             <TableInfo

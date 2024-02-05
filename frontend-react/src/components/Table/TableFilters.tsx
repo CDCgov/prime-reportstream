@@ -18,6 +18,7 @@ import {
     FALLBACK_TO_STRING,
     getEndOfDay,
     RangeSettingsActionType,
+    DEFAULT_TIME,
 } from "../../hooks/filters/UseDateRange";
 
 import styles from "./TableFilters.module.scss";
@@ -82,8 +83,10 @@ function TableFilters({
         rangeFrom && rangeTo && rangeFrom < rangeTo,
     );
     const formRef = useRef<HTMLFormElement>(null);
-    const [startTime, setStartTime] = useState("0:0");
-    const [endTime, setEndTime] = useState("0:0");
+    const [startTime, setStartTime] = useState(DEFAULT_TIME);
+    const [endTime, setEndTime] = useState(DEFAULT_TIME);
+    const [activeService, setActiveService] = useState("");
+    const [reset, setReset] = useState(0);
 
     const updateRange = useCallback(
         (from: string, to: string) => {
@@ -115,39 +118,13 @@ function TableFilters({
     const resetHandler = useCallback(
         (e: FormEvent) => {
             e.preventDefault();
-            if (formRef.current) {
-                /*
-                 * can't use refs with DateRangePicker, so we go through
-                 * form. we set values manaully and also manually have to
-                 * invoke an input event (programatic value setting doesn't
-                 * trigger). the input event will allow DateRangePicker to
-                 * properly update internal state while we update the
-                 * filtermanager with our manual reset values.
-                 */
-                const startDateEle = formRef.current.elements.namedItem(
-                    "start-date",
-                ) as HTMLInputElement;
-                const endDateEle = formRef.current.elements.namedItem(
-                    "end-date",
-                ) as HTMLInputElement;
-
-                startDateEle.value = FALLBACK_FROM_STRING;
-                startDateEle.dispatchEvent(
-                    new InputEvent("input", {
-                        bubbles: true,
-                    }),
-                );
-                endDateEle.value = FALLBACK_TO_STRING;
-                endDateEle.dispatchEvent(
-                    new InputEvent("input", {
-                        bubbles: true,
-                    }),
-                );
-
-                applyToFilterManager(FALLBACK_FROM, FALLBACK_TO);
-            }
+            setReset(reset + 1);
+            setRangeFrom(new Date(FALLBACK_FROM_STRING));
+            setRangeTo(new Date(FALLBACK_TO_STRING));
+            setStartTime(DEFAULT_TIME);
+            setEndTime(DEFAULT_TIME);
         },
-        [applyToFilterManager],
+        [reset],
     );
 
     const submitHandler = useCallback(
@@ -162,8 +139,17 @@ function TableFilters({
                 rangeTo.setHours(endHours, endMinutes, 0, 0),
             ).toISOString();
             applyToFilterManager(rangeFromWithTime, rangeToWithTime);
+            handleSetActiveService(activeService);
         },
-        [applyToFilterManager, endTime, rangeFrom, rangeTo, startTime],
+        [
+            activeService,
+            applyToFilterManager,
+            endTime,
+            handleSetActiveService,
+            rangeFrom,
+            rangeTo,
+            startTime,
+        ],
     );
 
     return (
@@ -173,6 +159,8 @@ function TableFilters({
                 ref={formRef}
                 onSubmit={submitHandler}
                 onReset={resetHandler}
+                key={reset}
+                autoComplete="off"
             >
                 <div>
                     <div className="grid-row">
@@ -198,8 +186,11 @@ function TableFilters({
                                 name="input-ComboBox"
                                 options={receivers}
                                 onChange={(selection) => {
-                                    if (selection)
-                                        handleSetActiveService(selection);
+                                    if (selection) {
+                                        setActiveService(selection);
+                                    } else {
+                                        setActiveService("");
+                                    }
                                 }}
                             />
                         </div>
@@ -218,7 +209,6 @@ function TableFilters({
                                             setRangeFrom(new Date(val!!));
                                         }
                                     },
-                                    defaultValue: rangeFrom.toISOString(),
                                 }}
                                 endDateLabel={endDateLabel}
                                 endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
@@ -232,7 +222,6 @@ function TableFilters({
                                             );
                                         }
                                     },
-                                    defaultValue: rangeTo.toISOString(),
                                 }}
                             />
                             <div className="grid-row flex-no-wrap">
