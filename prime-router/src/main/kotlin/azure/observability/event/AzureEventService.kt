@@ -7,6 +7,11 @@ import org.apache.logging.log4j.kotlin.Logging
  * Service to emit events to Azure AppInsights
  */
 interface AzureEventService {
+    /**
+     * Tracks an event to be later queried against in Azure AppInsights
+     *
+     * @param event the event to be tracked
+     */
     fun trackEvent(event: AzureCustomEvent)
 }
 
