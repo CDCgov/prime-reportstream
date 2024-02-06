@@ -12,12 +12,14 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -68,33 +70,72 @@ class FHIRTranslator(
                 val receiver = settings.findReceiver(message.receiverFullName)
                     ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
                 actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
-                val bodyBytes = getByteArrayFromBundle(receiver, bundle)
+
+                var nextAction = Event.EventAction.BATCH
+                var externalName: String? = null
+                var queueMessage: ReportEventQueueMessage? = null
+                val bodyBytes = if (message.topic.isSendOriginal) {
+                    nextAction = Event.EventAction.SEND
+                    val originalReport = getOriginalReport(message.reportId)
+                    externalName = originalReport.externalName
+                    queueMessage = ReportEventQueueMessage(nextAction, false, message.reportId, "")
+                    BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
+                } else {
+                    getByteArrayFromBundle(receiver, bundle)
+                }
 
                 // get a Report from the message
                 val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-                    Event.EventAction.BATCH,
+                    nextAction,
                     bodyBytes,
                     listOf(message.reportId),
                     receiver,
                     this.metadata,
                     actionHistory,
                     topic = message.topic,
+                    externalName
                 )
+
+                if (queueMessage != null) {
+                    queueMessage = queueMessage.copy(reportId = report.id)
+                }
 
                 return listOf(
                     FHIREngineRunResult(
                         event,
                         report,
                         blobInfo.blobUrl,
-                        null
+                        queueMessage
                     )
                 )
             }
             else -> {
                 throw RuntimeException(
-                    "Message was not a FhirConvert and cannot be processed: $message"
+                    "Message was not a FhirTranslateQueueMessage and cannot be processed by FHIRTranslator: $message"
                 )
             }
+        }
+    }
+
+    /**
+     * Takes a [reportId] and returns the content of the first ancestor as submitted by the sender as a ByteArray
+     */
+    internal fun getOriginalReport(
+        reportId: ReportId,
+    ): ReportFile {
+        val rootReportId = findRootReportId(reportId)
+        return db.fetchReportFile(rootReportId)
+    }
+
+    /**
+     * Takes a [reportId] and returns the ReportId of the original message that was sent
+     */
+    fun findRootReportId(reportId: ReportId): ReportId {
+        val itemLineages = db.fetchItemLineagesForReport(reportId, 1)
+        return if (itemLineages != null && itemLineages[0].parentReportId != null) {
+            findRootReportId(itemLineages[0].parentReportId)
+        } else {
+            return reportId
         }
     }
 
