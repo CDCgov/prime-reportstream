@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706311880929892000.9d9c4fcc-f7b3-4090-868b-f76be7eaea3d",
+  "id" : "1706714175015830000.9a9a0393-2157-4181-90be-7c03141f4d59",
   "meta" : {
-    "lastUpdated" : "2024-01-26T17:31:20.942-06:00"
+    "lastUpdated" : "2024-01-31T10:16:15.023-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
@@ -22,8 +22,13 @@
             "valueString" : "^~\\&#"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
-            "valueString" : "20230501102531-0400"
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+            "extension" : [
+              {
+                "url" : "MSH.7",
+                "valueString" : "20230501102531-0400"
+              }
+            ]
           }
         ],
         "eventCoding" : {
@@ -44,10 +49,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706311881320494000.9149b442-3a7d-42f3-b594-bec33ef70b64",
+      "fullUrl" : "Provenance/1706714175408690000.f263195a-cdbc-4931-917a-ebe7fcbcbd7a",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311881320494000.9149b442-3a7d-42f3-b594-bec33ef70b64",
+        "id" : "1706714175408690000.f263195a-cdbc-4931-917a-ebe7fcbcbd7a",
         "target" : [
           {
             "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
@@ -64,11 +69,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706311881328032000.a83147c0-ac5b-42c1-b219-255830172010",
+      "fullUrl" : "Provenance/1706714175417354000.0d8c96d5-5591-43e9-a57f-df87205e8170",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311881328032000.a83147c0-ac5b-42c1-b219-255830172010",
-        "recorded" : "2024-01-26T17:31:21Z",
+        "id" : "1706714175417354000.0d8c96d5-5591-43e9-a57f-df87205e8170",
+        "recorded" : "2024-01-31T10:16:15Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -90,17 +95,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706311881327560000.c997f3bb-c51c-4d1f-a312-8e98870203e7"
+              "reference" : "Organization/1706714175416880000.11c4a0c4-b96b-4f80-961f-bf75cfa70629"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706311881327560000.c997f3bb-c51c-4d1f-a312-8e98870203e7",
+      "fullUrl" : "Organization/1706714175416880000.11c4a0c4-b96b-4f80-961f-bf75cfa70629",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311881327560000.c997f3bb-c51c-4d1f-a312-8e98870203e7",
+        "id" : "1706714175416880000.11c4a0c4-b96b-4f80-961f-bf75cfa70629",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -120,23 +125,23 @@
       }
     },
     {
-      "fullUrl" : "Patient/1706311881341849000.c7cbb6e1-ace6-4b48-b7b6-b3259eea4844",
+      "fullUrl" : "Patient/1706714175435876000.8719546d-e7ca-40b1-b2c4-d03a91eda6e1",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1706311881341849000.c7cbb6e1-ace6-4b48-b7b6-b3259eea4844"
+        "id" : "1706714175435876000.8719546d-e7ca-40b1-b2c4-d03a91eda6e1"
       }
     },
     {
-      "fullUrl" : "Provenance/1706311881342467000.a91a977b-6eb2-40a6-9ba8-dd91c3544b9e",
+      "fullUrl" : "Provenance/1706714175436733000.f198d544-7266-4a3b-845a-eb578d829fc0",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311881342467000.a91a977b-6eb2-40a6-9ba8-dd91c3544b9e",
+        "id" : "1706714175436733000.f198d544-7266-4a3b-845a-eb578d829fc0",
         "target" : [
           {
-            "reference" : "Patient/1706311881341849000.c7cbb6e1-ace6-4b48-b7b6-b3259eea4844"
+            "reference" : "Patient/1706714175435876000.8719546d-e7ca-40b1-b2c4-d03a91eda6e1"
           }
         ],
-        "recorded" : "2024-01-26T17:31:21Z",
+        "recorded" : "2024-01-31T10:16:15Z",
         "activity" : {
           "coding" : [
             {
@@ -148,13 +153,13 @@
       }
     },
     {
-      "fullUrl" : "Encounter/1706311881394475000.a7de2e58-e3fd-4b35-a99e-ba8a96f4d8ca",
+      "fullUrl" : "Encounter/1706714175494436000.172d882c-a1b7-4171-9f88-25cc0da45ceb",
       "resource" : {
         "resourceType" : "Encounter",
-        "id" : "1706311881394475000.a7de2e58-e3fd-4b35-a99e-ba8a96f4d8ca",
+        "id" : "1706714175494436000.172d882c-a1b7-4171-9f88-25cc0da45ceb",
         "extension" : [
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-encounter",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-patient-visit",
             "extension" : [
               {
                 "url" : "pv1-12-preadmit-test-indicator",
@@ -316,7 +321,7 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
                 "valueReference" : {
-                  "reference" : "Organization/1706311881345668000.c07495af-ca9b-4ed3-ace0-a53abe4139e2"
+                  "reference" : "Organization/1706714175439958000.a052802a-292e-4d10-ac39-a955292d56c4"
                 }
               },
               {
@@ -427,7 +432,7 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
                 "valueReference" : {
-                  "reference" : "Organization/1706311881348170000.bb64b9f0-dfb3-4fce-952b-bd10b45683a1"
+                  "reference" : "Organization/1706714175442912000.6ca08eb3-9a41-4d73-9592-22dbb29221b7"
                 }
               },
               {
@@ -537,7 +542,7 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
                 "valueReference" : {
-                  "reference" : "Organization/1706311881350140000.275d17bd-abb8-4408-9e43-a37ff3b54496"
+                  "reference" : "Organization/1706714175448390000.b7f3da6e-86e3-4d3e-83c1-ae32875ba795"
                 }
               },
               {
@@ -696,11 +701,11 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1706311881341849000.c7cbb6e1-ace6-4b48-b7b6-b3259eea4844"
+          "reference" : "Patient/1706714175435876000.8719546d-e7ca-40b1-b2c4-d03a91eda6e1"
         },
         "episodeOfCare" : [
           {
-            "reference" : "EpisodeOfCare/1706311881396094000.51ebd99f-a89e-4fee-bd3b-a76318cced22"
+            "reference" : "EpisodeOfCare/1706714175495689000.19c90ba0-c0e1-49ee-9397-d56781ed956d"
           }
         ],
         "participant" : [
@@ -717,7 +722,7 @@
               }
             ],
             "individual" : {
-              "reference" : "Practitioner/1706311881366181000.b2acf952-9ffe-4786-b7fe-138e73662753"
+              "reference" : "Practitioner/1706714175468200000.767ddb41-293e-4968-8e32-1d9d8d6591fb"
             }
           },
           {
@@ -733,7 +738,7 @@
               }
             ],
             "individual" : {
-              "reference" : "Practitioner/1706311881369443000.64c139fa-d88a-4b69-b4bc-21f913a3cbd9"
+              "reference" : "Practitioner/1706714175472053000.175e16c0-27e3-4923-9a8e-b62c05aaca1a"
             }
           },
           {
@@ -749,7 +754,7 @@
               }
             ],
             "individual" : {
-              "reference" : "Practitioner/1706311881372026000.ef43d8df-3bd1-48c1-9b9b-78fc0450d951"
+              "reference" : "Practitioner/1706714175475607000.c1c480cb-7196-45da-9bc0-1228d360062e"
             }
           },
           {
@@ -765,7 +770,7 @@
               }
             ],
             "individual" : {
-              "reference" : "Practitioner/1706311881374547000.416bd03c-f6ad-48a8-a041-9b2957065bc0"
+              "reference" : "Practitioner/1706714175478861000.90fbe035-f612-403f-8351-29f44d27fb50"
             }
           },
           {
@@ -781,7 +786,7 @@
               }
             ],
             "individual" : {
-              "reference" : "Practitioner/1706311881376609000.f37c7c58-0c5a-47e2-a986-17d3f35bcb30"
+              "reference" : "Practitioner/1706714175482752000.9530150d-193b-4fad-923d-7daf09889c78"
             }
           },
           {
@@ -797,7 +802,7 @@
               }
             ],
             "individual" : {
-              "reference" : "Practitioner/1706311881379589000.515314a2-c455-477f-93ee-8945262b3455"
+              "reference" : "Practitioner/1706714175485859000.87a0dc12-e1c7-4cb2-9e5a-231ee542a9c3"
             }
           },
           {
@@ -813,7 +818,7 @@
               }
             ],
             "individual" : {
-              "reference" : "Practitioner/1706311881385912000.71e9bb87-d740-480e-bfe9-06af1840900b"
+              "reference" : "Practitioner/1706714175488039000.15d42fa9-a0d7-4ca7-99b5-83f283ecdccc"
             }
           },
           {
@@ -829,7 +834,7 @@
               }
             ],
             "individual" : {
-              "reference" : "Practitioner/1706311881388246000.e5873c1d-87d0-48f5-a01a-ed49e005a1e9"
+              "reference" : "Practitioner/1706714175490271000.b2df5195-3768-4f6e-9694-1f0f0c478db3"
             }
           }
         ],
@@ -850,7 +855,7 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
                 "valueReference" : {
-                  "reference" : "Organization/1706311881357387000.7306f288-19a4-4111-8870-0184468af606"
+                  "reference" : "Organization/1706714175457887000.4e48f89d-798f-4874-964e-cbed8cdc4df9"
                 }
               },
               {
@@ -1022,7 +1027,7 @@
             }
           ],
           "destination" : {
-            "reference" : "Location/1706311881356060000.26f3de86-8c53-4872-85b7-a68ea97fd557"
+            "reference" : "Location/1706714175455935000.44ac9dcc-3bf1-4e03-988e-816dc10f6574"
           },
           "dischargeDisposition" : {
             "coding" : [
@@ -1047,7 +1052,7 @@
               }
             ],
             "location" : {
-              "reference" : "Location/1706311881389450000.adc6649d-6135-4f5e-a935-a92f797b8748"
+              "reference" : "Location/1706714175491417000.fedc0b03-61d6-4cac-a2e6-b780ed064bdb"
             },
             "status" : "planned"
           },
@@ -1059,7 +1064,7 @@
               }
             ],
             "location" : {
-              "reference" : "Location/1706311881390814000.fa090c55-3ce4-4a32-8d87-6c8450d46a71"
+              "reference" : "Location/1706714175492137000.a4e08f7e-fc05-47ea-9c1c-cbb3717a942d"
             },
             "status" : "completed"
           },
@@ -1075,7 +1080,7 @@
               }
             ],
             "location" : {
-              "reference" : "Location/1706311881391847000.0acc7d99-9769-48a5-bc5c-66e7bc584e4b"
+              "reference" : "Location/1706714175492864000.150aa892-8fc7-45e2-9152-fef7b77fcf7e"
             },
             "status" : "active"
           },
@@ -1087,7 +1092,7 @@
               }
             ],
             "location" : {
-              "reference" : "Location/1706311881392902000.8e01d13c-f99c-4f2c-bc0a-5c2bcc0b5039"
+              "reference" : "Location/1706714175493568000.806748e5-0b17-4a7b-b83b-c0dd0bff7f29"
             },
             "status" : "planned"
           },
@@ -1103,7 +1108,7 @@
               }
             ],
             "location" : {
-              "reference" : "Location/1706311881394279000.3971187e-f917-4972-a626-5a3a8952a162"
+              "reference" : "Location/1706714175494241000.50c9d6fe-5b4e-4b6f-b4ac-a4d700beddd9"
             },
             "status" : "completed"
           }
@@ -1111,10 +1116,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311881345668000.c07495af-ca9b-4ed3-ace0-a53abe4139e2",
+      "fullUrl" : "Organization/1706714175439958000.a052802a-292e-4d10-ac39-a955292d56c4",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311881345668000.c07495af-ca9b-4ed3-ace0-a53abe4139e2",
+        "id" : "1706714175439958000.a052802a-292e-4d10-ac39-a955292d56c4",
         "identifier" : [
           {
             "extension" : [
@@ -1146,10 +1151,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311881348170000.bb64b9f0-dfb3-4fce-952b-bd10b45683a1",
+      "fullUrl" : "Organization/1706714175442912000.6ca08eb3-9a41-4d73-9592-22dbb29221b7",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311881348170000.bb64b9f0-dfb3-4fce-952b-bd10b45683a1",
+        "id" : "1706714175442912000.6ca08eb3-9a41-4d73-9592-22dbb29221b7",
         "identifier" : [
           {
             "extension" : [
@@ -1181,10 +1186,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311881350140000.275d17bd-abb8-4408-9e43-a37ff3b54496",
+      "fullUrl" : "Organization/1706714175448390000.b7f3da6e-86e3-4d3e-83c1-ae32875ba795",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311881350140000.275d17bd-abb8-4408-9e43-a37ff3b54496",
+        "id" : "1706714175448390000.b7f3da6e-86e3-4d3e-83c1-ae32875ba795",
         "identifier" : [
           {
             "extension" : [
@@ -1216,10 +1221,10 @@
       }
     },
     {
-      "fullUrl" : "Location/1706311881356060000.26f3de86-8c53-4872-85b7-a68ea97fd557",
+      "fullUrl" : "Location/1706714175455935000.44ac9dcc-3bf1-4e03-988e-816dc10f6574",
       "resource" : {
         "resourceType" : "Location",
-        "id" : "1706311881356060000.26f3de86-8c53-4872-85b7-a68ea97fd557",
+        "id" : "1706714175455935000.44ac9dcc-3bf1-4e03-988e-816dc10f6574",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/dld2-effective-date",
@@ -1250,10 +1255,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311881357387000.7306f288-19a4-4111-8870-0184468af606",
+      "fullUrl" : "Organization/1706714175457887000.4e48f89d-798f-4874-964e-cbed8cdc4df9",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311881357387000.7306f288-19a4-4111-8870-0184468af606",
+        "id" : "1706714175457887000.4e48f89d-798f-4874-964e-cbed8cdc4df9",
         "identifier" : [
           {
             "extension" : [
@@ -1285,91 +1290,11 @@
       }
     },
     {
-      "fullUrl" : "Practitioner/1706311881366181000.b2acf952-9ffe-4786-b7fe-138e73662753",
+      "fullUrl" : "Practitioner/1706714175468200000.767ddb41-293e-4968-8e32-1d9d8d6591fb",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1706311881366181000.b2acf952-9ffe-4786-b7fe-138e73662753",
+        "id" : "1706714175468200000.767ddb41-293e-4968-8e32-1d9d8d6591fb",
         "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn3-given-name",
-            "valueString" : "LUDWIG"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn4-second-given-name",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn19-effective-date",
-            "valueString" : "20220501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn20-expiration-date",
-            "valueString" : "20230501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn21-professional-suffix",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn22-assigning-jurisdiction",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignJ"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn23-assigning-agency-or-department",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignA"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-            "valueString" : "pv1-7-attending-doctor"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn5-suffix",
-            "valueString" : "2ND"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn7-degree",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn8-source-table",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "SRC"
-                }
-              ]
-            }
-          },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
             "extension" : [
@@ -1388,39 +1313,124 @@
             ]
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn15-name-representation-code",
-            "valueString" : "A"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn16-name-context",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension" : [
+              {
+                "url" : "XCN.3",
+                "valueString" : "LUDWIG"
+              },
+              {
+                "url" : "XCN.4",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.20",
+                "valueString" : "20230501102531-0400"
+              },
+              {
+                "url" : "XCN.21",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.22",
+                "valueCodeableConcept" : {
+                  "coding" : [
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignJ"
                     }
-                  ],
-                  "code" : "NameContext"
+                  ]
                 }
-              ]
-            }
+              },
+              {
+                "url" : "XCN.23",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignA"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.5",
+                "valueString" : "2ND"
+              },
+              {
+                "url" : "XCN.7",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.8",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "SRC"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.10",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.15",
+                "valueString" : "A"
+              },
+              {
+                "url" : "XCN.16",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "NameContext"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.19",
+                "valueString" : "20220501102531-0400"
+              }
+            ]
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "pv1-7-attending-doctor"
           }
         ],
         "identifier" : [
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit",
+                "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
                 "valueString" : "A"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme",
+                "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
                 "valueCode" : "NPI"
               }
             ],
@@ -1492,91 +1502,11 @@
       }
     },
     {
-      "fullUrl" : "Practitioner/1706311881369443000.64c139fa-d88a-4b69-b4bc-21f913a3cbd9",
+      "fullUrl" : "Practitioner/1706714175472053000.175e16c0-27e3-4923-9a8e-b62c05aaca1a",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1706311881369443000.64c139fa-d88a-4b69-b4bc-21f913a3cbd9",
+        "id" : "1706714175472053000.175e16c0-27e3-4923-9a8e-b62c05aaca1a",
         "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn3-given-name",
-            "valueString" : "LUDWIG"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn4-second-given-name",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn19-effective-date",
-            "valueString" : "20220501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn20-expiration-date",
-            "valueString" : "20230501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn21-professional-suffix",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn22-assigning-jurisdiction",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignJ"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn23-assigning-agency-or-department",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignA"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-            "valueString" : "pv1-7-attending-doctor"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn5-suffix",
-            "valueString" : "2ND"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn7-degree",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn8-source-table",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "SRC"
-                }
-              ]
-            }
-          },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
             "extension" : [
@@ -1595,39 +1525,124 @@
             ]
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn15-name-representation-code",
-            "valueString" : "A"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn16-name-context",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension" : [
+              {
+                "url" : "XCN.3",
+                "valueString" : "LUDWIG"
+              },
+              {
+                "url" : "XCN.4",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.20",
+                "valueString" : "20230501102531-0400"
+              },
+              {
+                "url" : "XCN.21",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.22",
+                "valueCodeableConcept" : {
+                  "coding" : [
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignJ"
                     }
-                  ],
-                  "code" : "NameContext"
+                  ]
                 }
-              ]
-            }
+              },
+              {
+                "url" : "XCN.23",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignA"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.5",
+                "valueString" : "2ND"
+              },
+              {
+                "url" : "XCN.7",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.8",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "SRC"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.10",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.15",
+                "valueString" : "A"
+              },
+              {
+                "url" : "XCN.16",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "NameContext"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.19",
+                "valueString" : "20220501102531-0400"
+              }
+            ]
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "pv1-7-attending-doctor"
           }
         ],
         "identifier" : [
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit",
+                "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
                 "valueString" : "A"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme",
+                "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
                 "valueCode" : "NPI"
               }
             ],
@@ -1699,91 +1714,11 @@
       }
     },
     {
-      "fullUrl" : "Practitioner/1706311881372026000.ef43d8df-3bd1-48c1-9b9b-78fc0450d951",
+      "fullUrl" : "Practitioner/1706714175475607000.c1c480cb-7196-45da-9bc0-1228d360062e",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1706311881372026000.ef43d8df-3bd1-48c1-9b9b-78fc0450d951",
+        "id" : "1706714175475607000.c1c480cb-7196-45da-9bc0-1228d360062e",
         "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn3-given-name",
-            "valueString" : "LUDWIG"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn4-second-given-name",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn19-effective-date",
-            "valueString" : "20220501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn20-expiration-date",
-            "valueString" : "20230501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn21-professional-suffix",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn22-assigning-jurisdiction",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignJ"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn23-assigning-agency-or-department",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignA"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-            "valueString" : "pv1-8-referring-doctor"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn5-suffix",
-            "valueString" : "2ND"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn7-degree",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn8-source-table",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "SRC"
-                }
-              ]
-            }
-          },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
             "extension" : [
@@ -1802,39 +1737,124 @@
             ]
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn15-name-representation-code",
-            "valueString" : "A"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn16-name-context",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension" : [
+              {
+                "url" : "XCN.3",
+                "valueString" : "LUDWIG"
+              },
+              {
+                "url" : "XCN.4",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.20",
+                "valueString" : "20230501102531-0400"
+              },
+              {
+                "url" : "XCN.21",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.22",
+                "valueCodeableConcept" : {
+                  "coding" : [
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignJ"
                     }
-                  ],
-                  "code" : "NameContext"
+                  ]
                 }
-              ]
-            }
+              },
+              {
+                "url" : "XCN.23",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignA"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.5",
+                "valueString" : "2ND"
+              },
+              {
+                "url" : "XCN.7",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.8",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "SRC"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.10",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.15",
+                "valueString" : "A"
+              },
+              {
+                "url" : "XCN.16",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "NameContext"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.19",
+                "valueString" : "20220501102531-0400"
+              }
+            ]
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "pv1-8-referring-doctor"
           }
         ],
         "identifier" : [
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit",
+                "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
                 "valueString" : "A"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme",
+                "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
                 "valueCode" : "NPI"
               }
             ],
@@ -1906,91 +1926,11 @@
       }
     },
     {
-      "fullUrl" : "Practitioner/1706311881374547000.416bd03c-f6ad-48a8-a041-9b2957065bc0",
+      "fullUrl" : "Practitioner/1706714175478861000.90fbe035-f612-403f-8351-29f44d27fb50",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1706311881374547000.416bd03c-f6ad-48a8-a041-9b2957065bc0",
+        "id" : "1706714175478861000.90fbe035-f612-403f-8351-29f44d27fb50",
         "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn3-given-name",
-            "valueString" : "LUDWIG"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn4-second-given-name",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn19-effective-date",
-            "valueString" : "20220501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn20-expiration-date",
-            "valueString" : "20230501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn21-professional-suffix",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn22-assigning-jurisdiction",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignJ"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn23-assigning-agency-or-department",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignA"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-            "valueString" : "pv1-8-referring-doctor"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn5-suffix",
-            "valueString" : "2ND"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn7-degree",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn8-source-table",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "SRC"
-                }
-              ]
-            }
-          },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
             "extension" : [
@@ -2009,39 +1949,124 @@
             ]
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn15-name-representation-code",
-            "valueString" : "A"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn16-name-context",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension" : [
+              {
+                "url" : "XCN.3",
+                "valueString" : "LUDWIG"
+              },
+              {
+                "url" : "XCN.4",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.20",
+                "valueString" : "20230501102531-0400"
+              },
+              {
+                "url" : "XCN.21",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.22",
+                "valueCodeableConcept" : {
+                  "coding" : [
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignJ"
                     }
-                  ],
-                  "code" : "NameContext"
+                  ]
                 }
-              ]
-            }
+              },
+              {
+                "url" : "XCN.23",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignA"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.5",
+                "valueString" : "2ND"
+              },
+              {
+                "url" : "XCN.7",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.8",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "SRC"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.10",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.15",
+                "valueString" : "A"
+              },
+              {
+                "url" : "XCN.16",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "NameContext"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.19",
+                "valueString" : "20220501102531-0400"
+              }
+            ]
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "pv1-8-referring-doctor"
           }
         ],
         "identifier" : [
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit",
+                "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
                 "valueString" : "A"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme",
+                "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
                 "valueCode" : "NPI"
               }
             ],
@@ -2113,91 +2138,11 @@
       }
     },
     {
-      "fullUrl" : "Practitioner/1706311881376609000.f37c7c58-0c5a-47e2-a986-17d3f35bcb30",
+      "fullUrl" : "Practitioner/1706714175482752000.9530150d-193b-4fad-923d-7daf09889c78",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1706311881376609000.f37c7c58-0c5a-47e2-a986-17d3f35bcb30",
+        "id" : "1706714175482752000.9530150d-193b-4fad-923d-7daf09889c78",
         "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn3-given-name",
-            "valueString" : "LUDWIG"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn4-second-given-name",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn19-effective-date",
-            "valueString" : "20220501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn20-expiration-date",
-            "valueString" : "20230501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn21-professional-suffix",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn22-assigning-jurisdiction",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignJ"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn23-assigning-agency-or-department",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignA"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-            "valueString" : "pv1-9-referring-doctor"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn5-suffix",
-            "valueString" : "2ND"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn7-degree",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn8-source-table",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "SRC"
-                }
-              ]
-            }
-          },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
             "extension" : [
@@ -2216,39 +2161,124 @@
             ]
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn15-name-representation-code",
-            "valueString" : "A"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn16-name-context",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension" : [
+              {
+                "url" : "XCN.3",
+                "valueString" : "LUDWIG"
+              },
+              {
+                "url" : "XCN.4",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.20",
+                "valueString" : "20230501102531-0400"
+              },
+              {
+                "url" : "XCN.21",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.22",
+                "valueCodeableConcept" : {
+                  "coding" : [
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignJ"
                     }
-                  ],
-                  "code" : "NameContext"
+                  ]
                 }
-              ]
-            }
+              },
+              {
+                "url" : "XCN.23",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignA"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.5",
+                "valueString" : "2ND"
+              },
+              {
+                "url" : "XCN.7",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.8",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "SRC"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.10",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.15",
+                "valueString" : "A"
+              },
+              {
+                "url" : "XCN.16",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "NameContext"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.19",
+                "valueString" : "20220501102531-0400"
+              }
+            ]
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "pv1-9-referring-doctor"
           }
         ],
         "identifier" : [
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit",
+                "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
                 "valueString" : "A"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme",
+                "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
                 "valueCode" : "NPI"
               }
             ],
@@ -2320,91 +2350,11 @@
       }
     },
     {
-      "fullUrl" : "Practitioner/1706311881379589000.515314a2-c455-477f-93ee-8945262b3455",
+      "fullUrl" : "Practitioner/1706714175485859000.87a0dc12-e1c7-4cb2-9e5a-231ee542a9c3",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1706311881379589000.515314a2-c455-477f-93ee-8945262b3455",
+        "id" : "1706714175485859000.87a0dc12-e1c7-4cb2-9e5a-231ee542a9c3",
         "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn3-given-name",
-            "valueString" : "LUDWIG"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn4-second-given-name",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn19-effective-date",
-            "valueString" : "20220501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn20-expiration-date",
-            "valueString" : "20230501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn21-professional-suffix",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn22-assigning-jurisdiction",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignJ"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn23-assigning-agency-or-department",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignA"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-            "valueString" : "pv1-9-referring-doctor"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn5-suffix",
-            "valueString" : "2ND"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn7-degree",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn8-source-table",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "SRC"
-                }
-              ]
-            }
-          },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
             "extension" : [
@@ -2423,39 +2373,124 @@
             ]
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn15-name-representation-code",
-            "valueString" : "A"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn16-name-context",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension" : [
+              {
+                "url" : "XCN.3",
+                "valueString" : "LUDWIG"
+              },
+              {
+                "url" : "XCN.4",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.20",
+                "valueString" : "20230501102531-0400"
+              },
+              {
+                "url" : "XCN.21",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.22",
+                "valueCodeableConcept" : {
+                  "coding" : [
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignJ"
                     }
-                  ],
-                  "code" : "NameContext"
+                  ]
                 }
-              ]
-            }
+              },
+              {
+                "url" : "XCN.23",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignA"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.5",
+                "valueString" : "2ND"
+              },
+              {
+                "url" : "XCN.7",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.8",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "SRC"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.10",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.15",
+                "valueString" : "A"
+              },
+              {
+                "url" : "XCN.16",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "NameContext"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.19",
+                "valueString" : "20220501102531-0400"
+              }
+            ]
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "pv1-9-referring-doctor"
           }
         ],
         "identifier" : [
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit",
+                "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
                 "valueString" : "A"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme",
+                "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
                 "valueCode" : "NPI"
               }
             ],
@@ -2527,91 +2562,11 @@
       }
     },
     {
-      "fullUrl" : "Practitioner/1706311881385912000.71e9bb87-d740-480e-bfe9-06af1840900b",
+      "fullUrl" : "Practitioner/1706714175488039000.15d42fa9-a0d7-4ca7-99b5-83f283ecdccc",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1706311881385912000.71e9bb87-d740-480e-bfe9-06af1840900b",
+        "id" : "1706714175488039000.15d42fa9-a0d7-4ca7-99b5-83f283ecdccc",
         "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn3-given-name",
-            "valueString" : "LUDWIG"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn4-second-given-name",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn19-effective-date",
-            "valueString" : "20220501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn20-expiration-date",
-            "valueString" : "20230501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn21-professional-suffix",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn22-assigning-jurisdiction",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignJ"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn23-assigning-agency-or-department",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignA"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-            "valueString" : "pv1-17-admitting-doctor"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn5-suffix",
-            "valueString" : "2ND"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn7-degree",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn8-source-table",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "SRC"
-                }
-              ]
-            }
-          },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
             "extension" : [
@@ -2630,39 +2585,124 @@
             ]
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn15-name-representation-code",
-            "valueString" : "A"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn16-name-context",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension" : [
+              {
+                "url" : "XCN.3",
+                "valueString" : "LUDWIG"
+              },
+              {
+                "url" : "XCN.4",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.20",
+                "valueString" : "20230501102531-0400"
+              },
+              {
+                "url" : "XCN.21",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.22",
+                "valueCodeableConcept" : {
+                  "coding" : [
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignJ"
                     }
-                  ],
-                  "code" : "NameContext"
+                  ]
                 }
-              ]
-            }
+              },
+              {
+                "url" : "XCN.23",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignA"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.5",
+                "valueString" : "2ND"
+              },
+              {
+                "url" : "XCN.7",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.8",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "SRC"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.10",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.15",
+                "valueString" : "A"
+              },
+              {
+                "url" : "XCN.16",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "NameContext"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.19",
+                "valueString" : "20220501102531-0400"
+              }
+            ]
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "pv1-17-admitting-doctor"
           }
         ],
         "identifier" : [
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit",
+                "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
                 "valueString" : "A"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme",
+                "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
                 "valueCode" : "NPI"
               }
             ],
@@ -2734,91 +2774,11 @@
       }
     },
     {
-      "fullUrl" : "Practitioner/1706311881388246000.e5873c1d-87d0-48f5-a01a-ed49e005a1e9",
+      "fullUrl" : "Practitioner/1706714175490271000.b2df5195-3768-4f6e-9694-1f0f0c478db3",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1706311881388246000.e5873c1d-87d0-48f5-a01a-ed49e005a1e9",
+        "id" : "1706714175490271000.b2df5195-3768-4f6e-9694-1f0f0c478db3",
         "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn3-given-name",
-            "valueString" : "LUDWIG"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn4-second-given-name",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn19-effective-date",
-            "valueString" : "20220501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn20-expiration-date",
-            "valueString" : "20230501102531-0400"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn21-professional-suffix",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn22-assigning-jurisdiction",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignJ"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn23-assigning-agency-or-department",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "AssignA"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-            "valueString" : "pv1-17-admitting-doctor"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn5-suffix",
-            "valueString" : "2ND"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn7-degree",
-            "valueString" : "MD"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn8-source-table",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    }
-                  ],
-                  "code" : "SRC"
-                }
-              ]
-            }
-          },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
             "extension" : [
@@ -2837,39 +2797,124 @@
             ]
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn10-name-type-code",
-            "valueString" : "B"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn15-name-representation-code",
-            "valueString" : "A"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn16-name-context",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension" : [
+              {
+                "url" : "XCN.3",
+                "valueString" : "LUDWIG"
+              },
+              {
+                "url" : "XCN.4",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.20",
+                "valueString" : "20230501102531-0400"
+              },
+              {
+                "url" : "XCN.21",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.22",
+                "valueCodeableConcept" : {
+                  "coding" : [
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignJ"
                     }
-                  ],
-                  "code" : "NameContext"
+                  ]
                 }
-              ]
-            }
+              },
+              {
+                "url" : "XCN.23",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "AssignA"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.5",
+                "valueString" : "2ND"
+              },
+              {
+                "url" : "XCN.7",
+                "valueString" : "MD"
+              },
+              {
+                "url" : "XCN.8",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "SRC"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.10",
+                "valueString" : "B"
+              },
+              {
+                "url" : "XCN.15",
+                "valueString" : "A"
+              },
+              {
+                "url" : "XCN.16",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "NameContext"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "XCN.19",
+                "valueString" : "20220501102531-0400"
+              }
+            ]
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "pv1-17-admitting-doctor"
           }
         ],
         "identifier" : [
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit",
+                "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
                 "valueString" : "A"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme",
+                "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
                 "valueCode" : "NPI"
               }
             ],
@@ -2941,10 +2986,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311881388980000.0c023f74-b628-40ef-b538-8b2157f11a12",
+      "fullUrl" : "Organization/1706714175490802000.f8aa534f-7d14-4334-9e9d-dd1b5d7652f2",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311881388980000.0c023f74-b628-40ef-b538-8b2157f11a12",
+        "id" : "1706714175490802000.f8aa534f-7d14-4334-9e9d-dd1b5d7652f2",
         "identifier" : [
           {
             "extension" : [
@@ -2977,10 +3022,10 @@
       }
     },
     {
-      "fullUrl" : "Location/1706311881389450000.adc6649d-6135-4f5e-a935-a92f797b8748",
+      "fullUrl" : "Location/1706714175491417000.fedc0b03-61d6-4cac-a2e6-b780ed064bdb",
       "resource" : {
         "resourceType" : "Location",
-        "id" : "1706311881389450000.adc6649d-6135-4f5e-a935-a92f797b8748",
+        "id" : "1706714175491417000.fedc0b03-61d6-4cac-a2e6-b780ed064bdb",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type",
@@ -3040,7 +3085,7 @@
             ],
             "value" : "Entity ID",
             "assigner" : {
-              "reference" : "Organization/1706311881388980000.0c023f74-b628-40ef-b538-8b2157f11a12"
+              "reference" : "Organization/1706714175490802000.f8aa534f-7d14-4334-9e9d-dd1b5d7652f2"
             }
           }
         ],
@@ -3058,10 +3103,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311881390320000.df6c5a20-b180-4302-b694-5a1242a34f8c",
+      "fullUrl" : "Organization/1706714175491803000.02c20df0-053a-4165-ae6e-bee403e24be9",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311881390320000.df6c5a20-b180-4302-b694-5a1242a34f8c",
+        "id" : "1706714175491803000.02c20df0-053a-4165-ae6e-bee403e24be9",
         "identifier" : [
           {
             "extension" : [
@@ -3094,10 +3139,10 @@
       }
     },
     {
-      "fullUrl" : "Location/1706311881390814000.fa090c55-3ce4-4a32-8d87-6c8450d46a71",
+      "fullUrl" : "Location/1706714175492137000.a4e08f7e-fc05-47ea-9c1c-cbb3717a942d",
       "resource" : {
         "resourceType" : "Location",
-        "id" : "1706311881390814000.fa090c55-3ce4-4a32-8d87-6c8450d46a71",
+        "id" : "1706714175492137000.a4e08f7e-fc05-47ea-9c1c-cbb3717a942d",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type",
@@ -3157,7 +3202,7 @@
             ],
             "value" : "Entity ID",
             "assigner" : {
-              "reference" : "Organization/1706311881390320000.df6c5a20-b180-4302-b694-5a1242a34f8c"
+              "reference" : "Organization/1706714175491803000.02c20df0-053a-4165-ae6e-bee403e24be9"
             }
           }
         ],
@@ -3175,10 +3220,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311881391292000.46446aaf-39e4-4373-b654-a3b05a426d70",
+      "fullUrl" : "Organization/1706714175492504000.7973b2c4-f5db-4d97-871b-6d4fabd4d3e5",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311881391292000.46446aaf-39e4-4373-b654-a3b05a426d70",
+        "id" : "1706714175492504000.7973b2c4-f5db-4d97-871b-6d4fabd4d3e5",
         "identifier" : [
           {
             "extension" : [
@@ -3211,10 +3256,10 @@
       }
     },
     {
-      "fullUrl" : "Location/1706311881391847000.0acc7d99-9769-48a5-bc5c-66e7bc584e4b",
+      "fullUrl" : "Location/1706714175492864000.150aa892-8fc7-45e2-9152-fef7b77fcf7e",
       "resource" : {
         "resourceType" : "Location",
-        "id" : "1706311881391847000.0acc7d99-9769-48a5-bc5c-66e7bc584e4b",
+        "id" : "1706714175492864000.150aa892-8fc7-45e2-9152-fef7b77fcf7e",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type",
@@ -3274,7 +3319,7 @@
             ],
             "value" : "Entity ID",
             "assigner" : {
-              "reference" : "Organization/1706311881391292000.46446aaf-39e4-4373-b654-a3b05a426d70"
+              "reference" : "Organization/1706714175492504000.7973b2c4-f5db-4d97-871b-6d4fabd4d3e5"
             }
           }
         ],
@@ -3292,10 +3337,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311881392408000.ced3da09-de73-4efb-8682-9ff0eb8b0577",
+      "fullUrl" : "Organization/1706714175493209000.e06ed772-25e4-4458-9809-90cba5c13f03",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311881392408000.ced3da09-de73-4efb-8682-9ff0eb8b0577",
+        "id" : "1706714175493209000.e06ed772-25e4-4458-9809-90cba5c13f03",
         "identifier" : [
           {
             "extension" : [
@@ -3328,10 +3373,10 @@
       }
     },
     {
-      "fullUrl" : "Location/1706311881392902000.8e01d13c-f99c-4f2c-bc0a-5c2bcc0b5039",
+      "fullUrl" : "Location/1706714175493568000.806748e5-0b17-4a7b-b83b-c0dd0bff7f29",
       "resource" : {
         "resourceType" : "Location",
-        "id" : "1706311881392902000.8e01d13c-f99c-4f2c-bc0a-5c2bcc0b5039",
+        "id" : "1706714175493568000.806748e5-0b17-4a7b-b83b-c0dd0bff7f29",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type",
@@ -3391,7 +3436,7 @@
             ],
             "value" : "Entity ID",
             "assigner" : {
-              "reference" : "Organization/1706311881392408000.ced3da09-de73-4efb-8682-9ff0eb8b0577"
+              "reference" : "Organization/1706714175493209000.e06ed772-25e4-4458-9809-90cba5c13f03"
             }
           }
         ],
@@ -3409,10 +3454,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311881393650000.73944d1e-b1f8-4856-bd41-fb44fa0e68b4",
+      "fullUrl" : "Organization/1706714175493891000.05e69a1b-89f8-4991-b135-1ec707aa1856",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311881393650000.73944d1e-b1f8-4856-bd41-fb44fa0e68b4",
+        "id" : "1706714175493891000.05e69a1b-89f8-4991-b135-1ec707aa1856",
         "identifier" : [
           {
             "extension" : [
@@ -3445,10 +3490,10 @@
       }
     },
     {
-      "fullUrl" : "Location/1706311881394279000.3971187e-f917-4972-a626-5a3a8952a162",
+      "fullUrl" : "Location/1706714175494241000.50c9d6fe-5b4e-4b6f-b4ac-a4d700beddd9",
       "resource" : {
         "resourceType" : "Location",
-        "id" : "1706311881394279000.3971187e-f917-4972-a626-5a3a8952a162",
+        "id" : "1706714175494241000.50c9d6fe-5b4e-4b6f-b4ac-a4d700beddd9",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type",
@@ -3508,7 +3553,7 @@
             ],
             "value" : "Entity ID",
             "assigner" : {
-              "reference" : "Organization/1706311881393650000.73944d1e-b1f8-4856-bd41-fb44fa0e68b4"
+              "reference" : "Organization/1706714175493891000.05e69a1b-89f8-4991-b135-1ec707aa1856"
             }
           }
         ],
@@ -3526,10 +3571,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706311881395193000.82781242-d849-4b2b-9df2-9945d0dca122",
+      "fullUrl" : "Organization/1706714175494992000.ab7034ac-e07a-4ac2-9e65-17ec1bd4e970",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311881395193000.82781242-d849-4b2b-9df2-9945d0dca122",
+        "id" : "1706714175494992000.ab7034ac-e07a-4ac2-9e65-17ec1bd4e970",
         "identifier" : [
           {
             "extension" : [
@@ -3561,10 +3606,10 @@
       }
     },
     {
-      "fullUrl" : "EpisodeOfCare/1706311881396094000.51ebd99f-a89e-4fee-bd3b-a76318cced22",
+      "fullUrl" : "EpisodeOfCare/1706714175495689000.19c90ba0-c0e1-49ee-9397-d56781ed956d",
       "resource" : {
         "resourceType" : "EpisodeOfCare",
-        "id" : "1706311881396094000.51ebd99f-a89e-4fee-bd3b-a76318cced22",
+        "id" : "1706714175495689000.19c90ba0-c0e1-49ee-9397-d56781ed956d",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
@@ -3581,7 +3626,7 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
                 "valueReference" : {
-                  "reference" : "Organization/1706311881395193000.82781242-d849-4b2b-9df2-9945d0dca122"
+                  "reference" : "Organization/1706714175494992000.ab7034ac-e07a-4ac2-9e65-17ec1bd4e970"
                 }
               },
               {
