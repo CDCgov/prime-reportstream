@@ -35,6 +35,8 @@ class DeliveryFacade(
      * @param since is the OffsetDateTime minimum date to get results for.
      * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize Int of items to return per page.
+     * @param reportIdStr is the reportId to get results for.
+     * @param fileName is the fileName to get results for.
      *
      * @return a List of Actions
      */
