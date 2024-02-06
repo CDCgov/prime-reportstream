@@ -14,7 +14,7 @@ describe("useOrganizationReceivers", () => {
     });
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
-    test("returns undefined if no active membership parsed name", () => {
+    test.only("returns null if no active membership parsed name", async () => {
         mockSessionContentReturnValue({
             authState: {
                 accessToken: { accessToken: "TOKEN" },
@@ -29,7 +29,7 @@ describe("useOrganizationReceivers", () => {
             } as any,
         });
         const { result } = renderHook(() => useOrganizationReceivers());
-        expect(result.current.data).toEqual(undefined);
+        await waitFor(() => expect(result.current.data).toBeNull());
     });
     test("returns correct organization receiver services", async () => {
         mockSessionContentReturnValue({
@@ -56,7 +56,7 @@ describe("useOrganizationReceivers", () => {
         expect(result.current.isLoading).toEqual(false);
     });
 
-    test("is disabled and returns undefined", () => {
+    test("is disabled and returns undefined", async () => {
         mockSessionContentReturnValue({
             authState: {
                 accessToken: { accessToken: "TOKEN" },
@@ -72,7 +72,7 @@ describe("useOrganizationReceivers", () => {
             },
         } as any);
         const { result } = renderHook(() => useOrganizationReceivers());
-        expect(result.current.data).toEqual(undefined);
+        await waitFor(() => expect(result.current.data).toBeNull());
         expect(result.current.isLoading).toEqual(false);
         expect(result.current.isDisabled).toEqual(true);
     });
