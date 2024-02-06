@@ -1,0 +1,95 @@
+- name: "nv-phd"
+  description: "Nevada Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "NV"
+  countyName: null
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, NV, patient_state, NV)"
+      qualityFilter:
+        - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+        - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+        - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
+        - "isValidCLIA(testing_lab_clia,reporting_facility_clia)"
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "fullelr-test"
+      organizationName: "nv-phd"
+      topic: "full-elr"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/NV/NV-receiver-transform"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: null
+        receivingApplicationOID: null
+        receivingFacilityName: null
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB: null
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: true
+          truncateHl7Fields: []
+          customLengthHl7Fields: {}
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'NV') or (%patientState.exists() and %patientState = 'NV')" ]
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter: []
+      mappedConditionFilter: []
+      deidentify: true
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "01:15"
+        timeZone: "MOUNTAIN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: "Test receiver to end point"
+      transport: !<SFTP>
+        type: SFTP
+        host: sftptest.epitraxnv.org
+        port: 22
+        filePath: /SFTP_ELR/ReportStream_Test
+        credentialName: DEFAULT-SFTP
+      externalName: "Test Feed to end point"
+      enrichmentSchemaNames: []
+      timeZone: null
+      dateTimeFormat: "OFFSET"
