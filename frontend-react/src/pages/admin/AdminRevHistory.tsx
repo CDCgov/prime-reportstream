@@ -103,8 +103,8 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
     const msg = isError
         ? "Failed to load data"
         : isLoading
-        ? "Loading..."
-        : "Data not found"; // should not be used because `!data` test below but useful for unit test debugging
+          ? "Loading..."
+          : "Data not found"; // should not be used because `!data` test below but useful for unit test debugging
     return (
         <Grid col={"fill"} className={"rs-maxwidth-vw80"}>
             <Grid row gap="md" className={"rs-accord-list-row"}>
