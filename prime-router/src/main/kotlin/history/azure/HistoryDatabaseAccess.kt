@@ -55,6 +55,8 @@ abstract class HistoryDatabaseAccess(
      * @param pageSize is an Integer used for setting the number of results per page.
      * @param showFailed whether to include actions that failed to be sent.
      * @param klass the class that the found data will be converted to.
+     * @param reportId is the reportId to get results for.
+     * @param fileName is the fileName to get results for.
      * @return a list of results matching the SQL Query.
      */
     fun <T> fetchActions(

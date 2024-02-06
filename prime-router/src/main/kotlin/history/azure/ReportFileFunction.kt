@@ -220,6 +220,8 @@ abstract class ReportFileFunction(
      * @property until is the OffsetDateTime that dictates how recently returned results date.
      * @property pageSize is an Integer used for setting the number of results per page.
      * @property showFailed whether to include actions that failed to be sent.
+     * @property reportId is the reportId to get results for.
+     * @property fileName is the fileName to get results for.
      */
     data class HistoryApiParameters(
         val sortDir: HistoryDatabaseAccess.SortDir,
