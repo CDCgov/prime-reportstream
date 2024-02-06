@@ -36,7 +36,7 @@ identifier:
       generateList: true
       specs: SPM.31 *
       constants:
-        identifierIndexName: "other-specimen-id"
+        CXIdentifierField: SPM.31
     - condition: $spm32 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -167,10 +167,10 @@ note:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7v2Name
+          value: hl7v2Field
         valueString:
           type: STRING
-          valueOf: specimen-description
+          valueOf: SPM.14
 
 
 receivedTime:

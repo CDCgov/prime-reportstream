@@ -3,16 +3,16 @@ elements:
   # the specimen.parent field in FHIR does not repeat so an extension is needed to capture additional parent identifiers
   # as such, use the extension when it is populated
   - name: specimen-identifier
-    resource: '%resource.parent.resolve().identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-placer")'
+    resource: '%resource.parent.resolve().identifier.where(extension(%`rsext-hl7v2Field`).value = "SPM.3")'
     condition: '%resource.extension.where(url = "spm-3-specimen-parent-id-placer").exists().not()'
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-3'
     schema: ../../datatypes/identifier-placerAssignedIdentifier/EIP
 
   - name: specimen-identifier-backup
-    resource: '%resource.parent.resolve().identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-filler")'
+    resource: '%resource.parent.resolve().identifier.where(extension(%`rsext-hl7v2Field`).value = "SPM.3")'
     condition: >
-      %resource.parent.resolve().identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-placer").exists().not() and
+      %resource.parent.resolve().identifier.where(extension(%`rsext-hl7v2Field`).value = "SPM.2").exists().not() and
       %resource.extension.where(url = "spm-3-specimen-parent-id-placer").exists().not()
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-3'

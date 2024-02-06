@@ -7,7 +7,7 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-1' ]
 
   - name: patient-identifier-list
-    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "patient-identifier-list")'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "PID.3")'
     constants:
       cxField: '%{hl7PIDField}-3(%{cxIndex})'
     schema: ../../datatypes/identifier/CX
@@ -63,7 +63,7 @@ elements:
     resourceIndex: xadIndex
 
   - name: phone-number-home-mobile-email
-    resource: '%resource.telecom.where((use = "home" or use = "mobile") and extension(%`rsext-hl7v2Name`).exists().not())'
+    resource: '%resource.telecom.where((use = "home" or use = "mobile") and extension(%`rsext-hl7v2Field`).exists().not())'
     constants:
       hl7TelecomField: '%{hl7PIDField}-13'
     schema: ../../datatypes/contactPoint/XTN
@@ -127,8 +127,8 @@ elements:
     condition: >
       %context.extension(%`ext-patient-citizenship`).exists() and
       %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).exists() and
-      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "citizenship").exists()
-    resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "citizenship")'
+      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Field`).value = "PID.26").exists()
+    resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Field`).value = "PID.26")'
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7PIDField}-26(%{cweIndex})'
@@ -150,6 +150,7 @@ elements:
       cweField: '%{hl7PIDField}-27(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
+  #TODO missing part of the condition?
   - name: patient-nationality
     condition: >
       %context.extension(%`ext-patient-nationality`).exists() and
@@ -207,15 +208,15 @@ elements:
     condition: >
       %context.extension(%`ext-patient-citizenship`).exists() and
       %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).exists() and
-      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "tribal-citizenship").exists()
-    resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "tribal-citizenship")'
+      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Field`).value = "PID.39").exists()
+    resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Field`).value = "PID.39")'
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7PIDField}-39(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
   - name: patient-telecommunication-information
-    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "patient-telecommunication-information")'
+    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Field`).value = "PID.40")'
     constants:
       hl7TelecomField: '%{hl7PIDField}-40'
     schema: ../../datatypes/contactPoint/XTN

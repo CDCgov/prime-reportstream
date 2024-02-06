@@ -37,8 +37,8 @@ elements:
   - name: sending-application-target-msh3
     condition: true
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
-    value: [ '"sending-application"' ]
+    bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"MSH.3"' ]
 
   - name: sr-order-control-business-event
     bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/business-event").value[x]'
@@ -87,9 +87,9 @@ elements:
     bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.type.coding[0].code' ]
 
-  - name: sr-diagnostic-report-identifier-filler-hl7-use
-    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
-    value: [ '"orc-3-filler-order-number"' ]
+  - name: sr-diagnostic-report-identifier-filler-hl7-field
+    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"ORC.3"' ]
 
   # Order Observation Request placer identifier - this was being populated in CA receiver transforms
   #                                               should've been a sender transform in the first place since
@@ -98,9 +98,9 @@ elements:
     bundleProperty: '%diagnosticReport.identifier[1].value'
     value: [ '%diagnosticReport.identifier[0].value' ]
 
-  - name: sr-observation-request-identifier-placer-hl7-use
-    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
-    value: [ '"orc-2-placer-order-number"' ]
+  - name: sr-observation-request-identifier-placer-hl7-field
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"ORC.2"' ]
 
   - name: sr-observation-request-identifier-placer-namespace-id
     bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
@@ -201,8 +201,8 @@ elements:
     value: [ '%resource.coding.system.getCodingSystemMapping()' ]
 
   - name: sr-patient-identifier-list-extension
-    bundleProperty: '%patient.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
-    value: [ '"patient-identifier-list"' ]
+    bundleProperty: '%patient.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"PID.3"' ]
 
   - name: sr-patient-identifier-assigner
     bundleProperty: '%patient.identifier[0].assigner'
@@ -377,13 +377,13 @@ elements:
 
   - name: sr-observation-producer-id-hl7use
     resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use")[1].value[x]'
-    value: [ '"obx-15-producer-id"' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[1].value[x]'
+    value: [ '"OBX.15"' ]
 
   - name: sr-observation-performing-org-hl7use
     resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use")[0].value[x]'
-    value: [ '"obx-25-performing-organization"' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[0].value[x]'
+    value: [ '"OBX.25"' ]
 
   - name: sr-observation-producer-id-cwe-identifier
     resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
@@ -447,9 +447,9 @@ elements:
     bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].type.coding[0].code' ]
 
-  - name: sr-specimen-placer-assigned-identifier-hl7-use
-    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use").value[x]'
-    value: [ '"specimen-id-placer"' ]
+  - name: sr-specimen-placer-assigned-identifier-hl7-field
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"SPM.2"' ]
 
   - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-value
     bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier").value[x]'
@@ -519,13 +519,13 @@ elements:
     bundleProperty: '%serviceRequest.requester.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number").value[x]'
     value: [ '%serviceRequest.requester.resolve().practitioner.resolve().telecom[0]' ]
 
-  - name: sr-order-requester-callback-number-hl7-use
-    bundleProperty: '%serviceRequest.requester.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number").valueContactPoint.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name").value[x]'
-    value: [ '"orc-14-callback-phone-number"' ]
+  - name: sr-order-requester-callback-number-hl7-field
+    bundleProperty: '%serviceRequest.requester.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number").valueContactPoint.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"ORC.14"' ]
 
-  - name: sr-order-requester-hl7-use-orc-12
-    bundleProperty: '%serviceRequest.requester.resolve().practitioner.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name").value[x]'
-    value: [ '"orc-12-ordering-provider"' ]
+  - name: sr-order-requester-hl7-field-orc-12
+    bundleProperty: '%serviceRequest.requester.resolve().practitioner.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"ORC.12"' ]
 
   - name: sr-order-requester-given-name
     bundleProperty: '%serviceRequest.requester.resolve().practitioner.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner").extension("XCN.3").value[x]'
@@ -569,8 +569,8 @@ elements:
     value: [ '%resource.identifier[0].value' ]
 
   - name: sr-ordering-facility-name-type-code-coding-hl7-name
-    bundleProperty: '%serviceRequest.requester.resolve().organization.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type").valueCoding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").valueCodeableConcept.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name").value[x]'
-    value: [ '"organization-name-type-code"' ]
+    bundleProperty: '%serviceRequest.requester.resolve().organization.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type").valueCoding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").valueCodeableConcept.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"XON.2"' ]
 
   - name: sr-ordering-facility-name-type-code-coding-type
     bundleProperty: '%serviceRequest.requester.resolve().organization.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type").valueCoding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").valueCodeableConcept.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'

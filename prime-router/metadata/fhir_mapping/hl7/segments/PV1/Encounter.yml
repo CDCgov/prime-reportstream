@@ -89,10 +89,10 @@ location:
           expressionsMap:
             url:
               type: SYSTEM_URL
-              value: hl7-use
+              value: hl7v2Field
             valueString:
               type: STRING
-              value: 'assigned-patient-location'
+              value: PV1.3
     - expressionType: nested
       vars:
         pv16: STRING_ALL, PV1.6
@@ -111,10 +111,10 @@ location:
           expressionsMap:
             url:
               type: SYSTEM_URL
-              value: hl7-use
+              value: hl7v2Field
             valueString:
               type: STRING
-              value: 'prior-patient-location'
+              value: PV1.6
     - expressionType: nested
       vars:
         pv111: STRING_ALL, PV1.11
@@ -135,10 +135,10 @@ location:
               expressionsMap:
                 url:
                   type: SYSTEM_URL
-                  value: hl7-use
+                  value: hl7v2Field
                 valueString:
                   type: STRING
-                  value: 'temporary-location'
+                  value: PV1.11
             - expressionType: nested
               expressionsMap:
                 url:
@@ -167,10 +167,10 @@ location:
               expressionsMap:
                 url:
                   type: SYSTEM_URL
-                  value: hl7-use
+                  value: hl7v2Field
                 valueString:
                   type: STRING
-                  value: 'pending-location'
+                  value: PV1.42
     - expressionType: nested
       vars:
         pv143: STRING_ALL, PV1.43
@@ -191,10 +191,10 @@ location:
               expressionsMap:
                 url:
                   type: SYSTEM_URL
-                  value: hl7-use
+                  value: hl7v2Field
                 valueString:
                   type: STRING
-                  value: 'prior-temporary-location'
+                  value: PV1.43
             - expressionType: nested
               expressionsMap:
                 url:
@@ -223,10 +223,10 @@ location:
               expressionsMap:
                 url:
                   type: SYSTEM_URL
-                  value: hl7-use
+                  value: hl7v2Field
                 valueString:
                   type: STRING
-                  value: 'prior-pending-location'
+                  value: PV2.1
             - expressionType: nested
               expressionsMap:
                 url:
@@ -245,7 +245,7 @@ participant:
       condition: $pv17 NOT_NULL
       expressionType: nested
       constants:
-        XCNHL7Use: pv1-7-attending-doctor
+        XCNHL7Field: PV1.7
       specs: PV1.7 *
       generateList: true
       expressionsMap:
@@ -274,7 +274,7 @@ participant:
       condition: $pv18 NOT_NULL
       expressionType: nested
       constants:
-        XCNHL7Use: pv1-8-referring-doctor
+        XCNHL7Field: PV1.8
       specs: PV1.8 *
       generateList: true
       expressionsMap:
@@ -303,7 +303,7 @@ participant:
       condition: $pv19 NOT_NULL
       expressionType: nested
       constants:
-        XCNHL7Use: pv1-9-referring-doctor
+        XCNHL7Field: PV1.9
       specs: PV1.9 *
       generateList: true
       expressionsMap:
@@ -332,7 +332,7 @@ participant:
       condition: $pv117 NOT_NULL
       expressionType: nested
       constants:
-        XCNHL7Use: pv1-17-admitting-doctor
+        XCNHL7Field: PV1.17
       specs: PV1.17 *
       generateList: true
       expressionsMap:
@@ -361,7 +361,7 @@ participant:
       condition: $pv213 NOT_NULL
       expressionType: nested
       constants:
-        XCNHL7Use: pv2-13-referral-source-code
+        XCNHL7Field: PV2.13
       specs: PV2.13 *
       generateList: true
       expressionsMap:
@@ -467,7 +467,7 @@ identifier:
         code: "VN"
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         CXIdentifierText: "visit number"
-        identifierIndexName: "visit-number"
+        CXIdentifierField: PV1.19
     - vars:
         pv150: STRING_ALL, PV1.50
       condition: $pv150 NOT_NULL
@@ -476,7 +476,7 @@ identifier:
       generateList: true
       valueOf: datatypes/CX/Identifier
       constants:
-        identifierIndexName: "alternate-visit-id"
+        CXIdentifierField: PV1.50
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
 
 period:
@@ -537,7 +537,7 @@ reasonCode:
       valueOf: datatypes/CWE/CodeableConcept
       specs: PV2.3
       constants:
-        hl7v2Name: 'pv2-admit-reason'
+        hl7v2Field: PV2.3
 
 length:
   vars:

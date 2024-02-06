@@ -12,9 +12,10 @@ coding:
         extension:
           generateList: true
           expressionType: nested
+          # TODO?????
           expressionsMap:
             url:
               type: SYSTEM_URL
-              value: hl7-use
-            valueString:
+              value: codeable-concept-id
+            valueBoolean:
               valueOf: "id-code"

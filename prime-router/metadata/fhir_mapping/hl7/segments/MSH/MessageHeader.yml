@@ -82,7 +82,7 @@ destination:
     - expressionType: nested
       condition: $msh6 NOT_NULL && $msh5 NULL && $msh25 NULL
       constants:
-        hdOrganizationHL7Use: receiving-facility
+        hdOrganizationHL7Field: MSH.6
       expressionsMap:
         receiver:
           expressionType: reference
@@ -91,7 +91,7 @@ destination:
     - expressionType: nested
       condition: $msh6 NOT_NULL && $msh23 NOT_NULL
       constants:
-        xonOrganizationHL7Use: receiving-responsible-organization
+        XONHL7Field: MSH.23
       expressionsMap:
         receiver:
           expressionType: reference

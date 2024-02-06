@@ -309,6 +309,14 @@
 - id: "entity-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier"
 
+# EI -> Identifier
+- id: "ei-assigner-organization-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
+
+# ID -> CodeableConcept
+- id: "codeable-concept-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/codeable-concept-id"
+
 # ORC/OBR -> ServiceRequest/DiagnosticReport
 # ORC Extension
 - id: "orc-common-order"
@@ -318,7 +326,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request"
 - id: "status-modifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/status-modifier"
-# TODO: remove url?
 - id: callback-number
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number"
 # Business Event
@@ -370,25 +377,18 @@
 # Comment type
 - id: "note-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
-# Identifier type
-- id: "identifier-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type"
 
 ## Multipurpose
 # internal indicator of sender, usable for filtering
 - id: "sender-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id"
-# TODO: collapse these into one
-# HL7 v2 Name
-- id: "hl7v2Name"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name"
-# HL7 Use
-- id: "hl7-use"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
-# EI -> Identifier
-- id: "ei-assigner-organization-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
-# TODO: end
+- id: "hl7v2Segment"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment"
+- id: "hl7v2Field"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+- id: "hl7v2Component"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component"
+
 # Date time as hl7v2 string
 - id: "hl7v2-date-time"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time"
