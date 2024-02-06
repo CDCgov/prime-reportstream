@@ -35,6 +35,13 @@ jobs:
         working-directory: prime-router
 
     steps:
+      - name: Space Debug 1
+        run: |
+          df -k
+          docker image ls
+          docker ps --size
+          top -b -n1
+          
       - name: Add swapfile
         working-directory: /
         run: |
@@ -44,9 +51,23 @@ jobs:
           sudo mkswap /swapfile
           sudo swapon /swapfile
           sudo swapon --show
+
+      - name: Space Debug 2
+        run: |
+          df -k
+          docker image ls
+          docker ps --size
+          top -b -n1
           
       - name: "Check out changes"
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Space Debug 3
+        run: |
+          df -k
+          docker image ls
+          docker ps --size
+          top -b -n1
 
       - name: Build backend
         uses: ./.github/actions/build-backend
@@ -54,6 +75,13 @@ jobs:
           version: ${{ github.run_id }}
           upload-build: false
           run-integration-tests: true
+
+      - name: Space Debug 4
+        run: |
+          df -k
+          docker image ls
+          docker ps --size
+          top -b -n1
 
       - name: Generate New Schema Docs
         run: |
