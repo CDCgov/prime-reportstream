@@ -109,7 +109,7 @@ describe("DeliveriesTable", () => {
 
         test("if no activeService display NoServicesBanner", async () => {
             setup();
-            const heading = await screen.findByText(/No available data/i);
+            const heading = await screen.findByText(/No results found/i);
             expect(heading).toBeInTheDocument();
         });
     });
@@ -151,10 +151,12 @@ describe("DeliveriesTableWithNumbered", () => {
                 expect(pagination).toBeInTheDocument();
                 // Column headers render
                 expect(screen.getByText("Report ID")).toBeInTheDocument();
-                expect(screen.getByText("Available")).toBeInTheDocument();
-                expect(screen.getByText("Expires")).toBeInTheDocument();
+                expect(screen.getByText("Time received")).toBeInTheDocument();
+                expect(
+                    screen.getByText("File available until"),
+                ).toBeInTheDocument();
                 expect(screen.getByText("Items")).toBeInTheDocument();
-                expect(screen.getByText("File")).toBeInTheDocument();
+                expect(screen.getByText("Filename")).toBeInTheDocument();
             });
 
             test("renders 10 results per page + 1 header row", () => {
@@ -166,15 +168,15 @@ describe("DeliveriesTableWithNumbered", () => {
             });
 
             describe("TableFilter", () => {
-                test("Clicking on filter invokes the trackAppInsightEvent", async () => {
+                test("Clicking on Apply invokes the trackAppInsightEvent", async () => {
                     setup();
-                    await userEvent.click(screen.getByText("Filter"));
+                    await userEvent.click(screen.getByText("Apply"));
 
                     expect(mockAppInsights.trackEvent).toBeCalledWith({
                         name: "Daily Data | Table Filter",
                         properties: {
                             tableFilter: {
-                                endRange: "3000-01-01T23:59:59.999Z",
+                                endRange: "3000-01-01T00:00:00.000Z",
                                 startRange: "2000-01-01T00:00:00.000Z",
                             },
                         },
@@ -232,7 +234,7 @@ describe("DeliveriesTableWithNumbered", () => {
 
             test("renders the NoServicesBanner message", async () => {
                 setup();
-                const heading = await screen.findByText("No available data");
+                const heading = await screen.findByText("No results found");
                 expect(heading).toBeInTheDocument();
             });
         });

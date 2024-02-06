@@ -12,9 +12,7 @@ import {
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import {
-    FALLBACK_FROM,
     FALLBACK_FROM_STRING,
-    FALLBACK_TO,
     FALLBACK_TO_STRING,
     getEndOfDay,
     RangeSettingsActionType,
@@ -34,12 +32,12 @@ export enum TableFilterDateLabel {
 }
 
 interface TableFilterProps {
-    receivers: { value: string; label: string }[];
+    receivers?: { value: string; label: string }[];
     startDateLabel: string;
     endDateLabel: string;
     showDateHints?: boolean;
     filterManager: FilterManager;
-    handleSetActiveService: (s: string) => void;
+    handleSetActiveService?: (s: string) => void;
     cursorManager?: CursorManager;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
 }
@@ -139,7 +137,7 @@ function TableFilters({
                 rangeTo.setHours(endHours, endMinutes, 0, 0),
             ).toISOString();
             applyToFilterManager(rangeFromWithTime, rangeToWithTime);
-            handleSetActiveService(activeService);
+            handleSetActiveService && handleSetActiveService(activeService);
         },
         [
             activeService,
@@ -179,20 +177,21 @@ function TableFilters({
                                     receivers, such as one specific to COVID.
                                 </p>
                             </div>
-
-                            <ComboBox
-                                key={receivers.length}
-                                id="input-ComboBox"
-                                name="input-ComboBox"
-                                options={receivers}
-                                onChange={(selection) => {
-                                    if (selection) {
-                                        setActiveService(selection);
-                                    } else {
-                                        setActiveService("");
-                                    }
-                                }}
-                            />
+                            {receivers && (
+                                <ComboBox
+                                    key={receivers.length}
+                                    id="input-ComboBox"
+                                    name="input-ComboBox"
+                                    options={receivers}
+                                    onChange={(selection) => {
+                                        if (selection) {
+                                            setActiveService(selection);
+                                        } else {
+                                            setActiveService("");
+                                        }
+                                    }}
+                                />
+                            )}
                         </div>
                         <div className="grid-col filter-column__two">
                             <DateRangePicker
@@ -225,34 +224,44 @@ function TableFilters({
                                 }}
                             />
                             <div className="grid-row flex-no-wrap">
-                                <TimePicker
-                                    hint="hh:mm"
-                                    id="start-time"
-                                    label="Start time"
-                                    name="start-time"
-                                    step={1}
-                                    onChange={(input) => {
-                                        if (input) {
-                                            setStartTime(input);
-                                        } else {
-                                            setStartTime("0:0");
-                                        }
-                                    }}
-                                />
-                                <TimePicker
-                                    hint="hh:mm"
-                                    id="end-time"
-                                    label="End time"
-                                    name="end-time"
-                                    step={1}
-                                    onChange={(input) => {
-                                        if (input) {
-                                            setEndTime(input);
-                                        } else {
-                                            setEndTime("0:0");
-                                        }
-                                    }}
-                                />
+                                <div className="grid-row">
+                                    <TimePicker
+                                        hint="hh:mm"
+                                        id="start-time"
+                                        label="Start time"
+                                        name="start-time"
+                                        step={1}
+                                        onChange={(input) => {
+                                            if (input) {
+                                                setStartTime(input);
+                                            } else {
+                                                setStartTime("0:0");
+                                            }
+                                        }}
+                                    />
+                                    <p className="usa-hint margin-top-1">
+                                        Default: 12:00am
+                                    </p>
+                                </div>
+                                <div className="grid-row">
+                                    <TimePicker
+                                        hint="hh:mm"
+                                        id="end-time"
+                                        label="End time"
+                                        name="end-time"
+                                        step={1}
+                                        onChange={(input) => {
+                                            if (input) {
+                                                setEndTime(input);
+                                            } else {
+                                                setEndTime("0:0");
+                                            }
+                                        }}
+                                    />
+                                    <p className="usa-hint margin-top-1">
+                                        Default: 11:59pm
+                                    </p>
+                                </div>
                             </div>
                         </div>
                         <div className="grid-col-2 filter-column__three">

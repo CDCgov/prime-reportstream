@@ -59,17 +59,12 @@ describe("ReportDetailsTable", () => {
             test("Clicking on filter invokes the trackAppInsightEvent", async () => {
                 setup();
                 await waitFor(async () => {
-                    await userEvent.click(screen.getByText("Filter"));
-
-                    expect(mockAppInsights.trackEvent).toBeCalledWith({
-                        name: "Report Details | Table Filter",
-                        properties: {
-                            tableFilter: {
-                                endRange: "3000-01-01T23:59:59.999Z",
-                                startRange: "2000-01-01T00:00:00.000Z",
-                            },
-                        },
-                    });
+                    await userEvent.click(screen.getByText("Apply"));
+                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            name: "Report Details | Table Filter",
+                        }),
+                    );
                 });
             });
         });

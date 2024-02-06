@@ -6,7 +6,6 @@ import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationRece
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import Pagination from "../../Table/Pagination";
-import TableFilters from "../../Table/TableFilters";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 import useReceiverDeliveries, {
     DeliveriesAttr,
@@ -23,6 +22,8 @@ import {
     EventName,
     useAppInsightsContext,
 } from "../../../contexts/AppInsights";
+
+import DataDashboardTableFilters from "./DataDashboardTableFilters/DataDashboardTableFilters";
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -121,7 +122,7 @@ function DashboardFilterAndTable({
                     activeService={activeService}
                     handleSetActive={handleSetActive}
                 />
-                <TableFilters
+                <DataDashboardTableFilters
                     startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}

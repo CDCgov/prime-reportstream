@@ -1,19 +1,19 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
-import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
+import { renderApp } from "../../../../utils/CustomRenderUtils";
+import { mockCursorManager } from "../../../../hooks/filters/mocks/MockCursorManager";
+import { mockFilterManager } from "../../../../hooks/filters/mocks/MockFilterManager";
 
-import TableFilters, {
+import DataDashboardTableFilters, {
     TableFilterDateLabel,
     isValidDateString,
-} from "./TableFilters";
+} from "./DataDashboardTableFilters";
 
 describe("Rendering", () => {
     function setup() {
         renderApp(
-            <TableFilters
+            <DataDashboardTableFilters
                 startDateLabel={TableFilterDateLabel.START_DATE}
                 endDateLabel={TableFilterDateLabel.END_DATE}
                 filterManager={mockFilterManager}
@@ -52,7 +52,7 @@ describe("when validating values", () => {
 
     function setup() {
         renderApp(
-            <TableFilters
+            <DataDashboardTableFilters
                 startDateLabel={TableFilterDateLabel.START_DATE}
                 endDateLabel={TableFilterDateLabel.END_DATE}
                 filterManager={mockFilterManager}
