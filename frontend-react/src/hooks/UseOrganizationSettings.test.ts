@@ -31,10 +31,9 @@ describe("useOrganizationSettings", () => {
             });
         });
 
-        test("returns undefined", async () => {
+        test("returns null", async () => {
             const { result } = renderHook(() => useOrganizationSettings());
-            await waitFor(() => expect(result.current.isLoading).toBeFalsy());
-            expect(result.current.data).toEqual(undefined);
+            await waitFor(() => expect(result.current.data).toBeNull());
         });
     });
 
@@ -89,8 +88,9 @@ describe("useOrganizationSettings", () => {
 
         test("is disabled", async () => {
             const { result } = renderHook(() => useOrganizationSettings());
+            await waitFor(() => expect(result.current.data).toBeNull());
             expect(result.current.fetchStatus).toEqual("idle");
-            expect(result.current.status).toEqual("pending");
+            expect(result.current.status).toEqual("success");
             expect(result.current.isLoading).toEqual(false);
         });
     });
