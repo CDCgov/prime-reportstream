@@ -17,7 +17,6 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
-import java.net.URI
 
 /**
  * Convert a FHIR bundle to an HL7 message using the [schemaRef] to perform the conversion.
@@ -70,13 +69,10 @@ class FhirToHl7Converter(
         terser: Terser? = null,
         context: FhirToHl7Context? = null,
     ) : this(
-        schemaRef = when (URI(schema).scheme) {
-            null -> converterSchemaFromFile(
-                FilenameUtils.getName(schema),
-                FilenameUtils.getPathNoEndSeparator(schema)
-            )
-            else -> converterSchemaFromFile(schema)
-        },
+        schemaRef = converterSchemaFromFile(
+            FilenameUtils.getName(schema),
+            FilenameUtils.getPathNoEndSeparator(schema)
+        ),
         strict = strict,
         terser = terser,
         context = context

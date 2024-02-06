@@ -87,12 +87,7 @@ class FHIRConverter(
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
             actionHistory.trackExistingInputReport(queueMessage.reportId)
             val transformer = getTransformerFromSchema(
-                // TODO remove once all settings have been updated
-                if (schemaName.startsWith("classpath:/")) {
-                    schemaName
-                } else {
-                    "classpath:/$schemaName.yml"
-                }
+                schemaName
             )
             return fhirBundles.mapIndexed { bundleIndex, bundle ->
                 // conduct FHIR Transform
@@ -186,10 +181,10 @@ class FHIRConverter(
      * transformer in tests.
      */
     fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
-        return if (schemaName.isNotBlank() && !schemaName.startsWith("classpath")) {
-            FhirTransformer(schemaName)
-        } else if (schemaName.startsWith("classpath") && schemaName != "classpath:/.yml") {
-            FhirTransformer(schemaName, "")
+        // TODO: #10510
+        val convertedSchemaName = convertRelativeSchemaPathToUri(schemaName)
+        return if (convertedSchemaName.isNotBlank()) {
+            FhirTransformer(convertedSchemaName, "")
         } else {
             null
         }
