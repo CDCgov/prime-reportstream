@@ -2,7 +2,6 @@ package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 
-//
 //  Example
 //
 //  - name: hl7_0136
