@@ -1,6 +1,6 @@
 url:
   type: SYSTEM_URL
-  value: pv1-encounter
+  value: pv1-patient-visit
 
 extension:
   expressionType: nested

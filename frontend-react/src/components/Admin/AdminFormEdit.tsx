@@ -4,7 +4,7 @@ import {
     Label,
     Textarea,
     TextInput,
-    Dropdown,
+    Select,
 } from "@trussworks/react-uswds";
 import { useRef } from "react";
 
@@ -150,7 +150,7 @@ export const DropdownComponent = (params: DropdownProps): JSX.Element => {
                 {params.toolTip ? params.toolTip : null}
             </Grid>
             <Grid col={9}>
-                <Dropdown
+                <Select
                     id={key}
                     data-testid={key}
                     name={key}
@@ -164,7 +164,7 @@ export const DropdownComponent = (params: DropdownProps): JSX.Element => {
                             {v}
                         </option>
                     ))}
-                </Dropdown>
+                </Select>
             </Grid>
         </Grid>
     );

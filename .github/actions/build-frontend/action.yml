@@ -30,19 +30,42 @@ runs:
       working-directory: frontend-react
       shell: bash
 
+    - name: Run lint and unit tests
+      uses: ./.github/actions/retry
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        retry_wait_seconds: 10
+        command: |
+          set -e pipefail
+          cd frontend-react
+          yarn lint
+          yarn test:ci
+        shell: bash
+
+    - name: Install Playwright
+      working-directory: frontend-react
+      run: |
+        npx playwright install --with-deps
+      shell: bash
+
+    - name: Run E2E tests
+      working-directory: frontend-react
+      run: npx playwright test
+      shell: bash
+
     - name: Build release for production branch (conditional check)
       if: inputs.env-name == 'prod'
       uses: ./.github/actions/retry
       with:
-        timeout_minutes: 40
-        max_attempts: 2
-        retry_wait_seconds: 30
+        timeout_minutes: 10
+        max_attempts: 1
+        retry_wait_seconds: 0
         command: |
           set -e pipefail
           cd frontend-react
           echo "" >> .env.production
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
-          yarn test:ci
           yarn build:production
         shell: bash
 
@@ -50,9 +73,9 @@ runs:
       if: inputs.env-name != 'prod'
       uses: ./.github/actions/retry
       with:
-        timeout_minutes: 40
-        max_attempts: 2
-        retry_wait_seconds: 30
+        timeout_minutes: 10
+        max_attempts: 1
+        retry_wait_seconds: 0
         command: |
           set -e pipefail
           cd frontend-react
@@ -60,8 +83,6 @@ runs:
           if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
           echo "" >> .env.$ENV
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
-          yarn lint
-          yarn test:ci
           yarn build:$ENV
         shell: bash
 
@@ -71,7 +92,7 @@ runs:
       run: tar -czf static-website-react.tar.gz build
 
     - name: Upload frontend artifact
-      uses: actions/upload-artifact@694cdabd8bdb0f10b2cea11669e1bf5453eed0a6
+      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
       with:
         name: static-website-react-${{ inputs.version }}
         path: frontend-react/static-website-react.tar.gz
