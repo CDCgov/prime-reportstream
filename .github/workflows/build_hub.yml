@@ -36,6 +36,7 @@ jobs:
 
     steps:
       - name: Space Debug 1
+        working-directory: /
         run: |
           df -k
           docker image ls
@@ -53,6 +54,7 @@ jobs:
           sudo swapon --show
 
       - name: Space Debug 2
+        working-directory: /
         run: |
           df -k
           docker image ls
@@ -63,6 +65,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Space Debug 3
+        working-directory: /
         run: |
           df -k
           docker image ls
@@ -77,6 +80,7 @@ jobs:
           run-integration-tests: true
 
       - name: Space Debug 4
+        working-directory: /
         run: |
           df -k
           docker image ls
