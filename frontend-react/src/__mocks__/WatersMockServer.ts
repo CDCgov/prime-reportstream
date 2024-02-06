@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
 import { WatersUrls } from "../config/endpoints/waters";
@@ -16,19 +16,19 @@ export enum WatersTestHeaderValue {
 }
 
 const handlers = [
-    rest.post(`${RS_API_URL}/api${WatersUrls.VALIDATE}`, (req, res, ctx) => {
+    http.post(`${RS_API_URL}/api${WatersUrls.VALIDATE}`, ({ request }) => {
         if (
-            req.headers.get(WatersTestHeader.CLIENT) ===
+            request.headers.get(WatersTestHeader.CLIENT) ===
             WatersTestHeaderValue.FAIL
         )
-            return res(ctx.status(400));
+            return HttpResponse.json(null, { status: 400 });
         if (
-            req.headers.get(WatersTestHeader.CLIENT) ===
+            request.headers.get(WatersTestHeader.CLIENT) ===
             WatersTestHeaderValue.TEST_NAME
         ) {
-            return res(ctx.status(201), ctx.json({ endpoint: "validate" }));
+            return HttpResponse.json({ endpoint: "validate" }, { status: 201 });
         }
-        return res(ctx.status(200));
+        return HttpResponse.json(null, { status: 200 });
     }),
 ];
 

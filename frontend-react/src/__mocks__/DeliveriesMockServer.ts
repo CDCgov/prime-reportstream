@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
 import { RSDelivery, RSFacility } from "../config/endpoints/deliveries";
@@ -46,39 +46,33 @@ export const makeDeliveryFixtureArray = (count: number) => {
 };
 
 const handlers = [
-    rest.get(
+    http.get(
         `${config.API_ROOT}/waters/org/testOrg.testService/deliveries`,
-        (req, res, ctx) => {
+        ({ request }) => {
             if (
-                !req.headers.get("authorization")?.includes("TOKEN") ||
-                !req.headers.get("organization")
+                !request.headers.get("authorization")?.includes("TOKEN") ||
+                !request.headers.get("organization")
             ) {
-                return res(ctx.status(401));
+                return HttpResponse.json(null, { status: 401 });
             }
-            return res(
-                ctx.status(200),
-                ctx.json([
+            return HttpResponse.json(
+                [
                     makeDeliveryFixture(1),
                     makeDeliveryFixture(2),
                     makeDeliveryFixture(3),
-                ]),
+                ],
+                { status: 200 },
             );
         },
     ),
     /* Successfully returns a Report */
-    rest.get(
-        `${config.API_ROOT}/waters/report/123/delivery`,
-        (req, res, ctx) => {
-            return res(ctx.status(200), ctx.json(makeDeliveryFixture(123)));
-        },
-    ),
-    rest.get(
-        `${config.API_ROOT}/waters/report/123/facilities`,
-        (req, res, ctx) => {
-            const testRes = [makeFacilityFixture(1), makeFacilityFixture(2)];
-            return res(ctx.status(200), ctx.json(testRes));
-        },
-    ),
+    http.get(`${config.API_ROOT}/waters/report/123/delivery`, () => {
+        return HttpResponse.json(makeDeliveryFixture(123), { status: 200 });
+    }),
+    http.get(`${config.API_ROOT}/waters/report/123/facilities`, () => {
+        const testRes = [makeFacilityFixture(1), makeFacilityFixture(2)];
+        return HttpResponse.json(testRes, { status: 200 });
+    }),
 ];
 
 /* TEST SERVER TO USE IN `.test.ts` FILES */

@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
 import config from "../config";
@@ -124,38 +124,37 @@ export const publicKeysGenerator = (apiKeyCount: number) => {
 export const dummyPublicKey = publicKeysGenerator(2);
 
 const handlers = [
-    rest.get(base, (_req, res, ctx) => {
-        return res(
-            ctx.json([fakeOrg, fakeOrg, fakeOrg, fakeOrg]),
-            ctx.status(200),
-        );
+    http.get(base, () => {
+        return HttpResponse.json([fakeOrg, fakeOrg, fakeOrg, fakeOrg], {
+            status: 200,
+        });
     }),
-    rest.get(testSender, (req, res, ctx) => {
-        return res(ctx.json(dummySender), ctx.status(200));
+    http.get(testSender, () => {
+        return HttpResponse.json(dummySender, { status: 200 });
     }),
-    rest.get(`${base}/testOrg/senders`, (req, res, ctx) => {
-        return res(ctx.json(dummySenders), ctx.status(200));
+    http.get(`${base}/testOrg/senders`, () => {
+        return HttpResponse.json(dummySenders, { status: 200 });
     }),
-    rest.get(firstSender, (req, res, ctx) => {
-        return res(ctx.status(200));
+    http.get(firstSender, () => {
+        return HttpResponse.json(null, { status: 200 });
     }),
-    rest.get(`${base}/testOrg`, (req, res, ctx) => {
-        return res(ctx.json(fakeOrg), ctx.status(200));
+    http.get(`${base}/testOrg`, () => {
+        return HttpResponse.json(fakeOrg, { status: 200 });
     }),
-    rest.get(`${base}/testOrg/receivers`, (req, res, ctx) => {
-        return res(ctx.json(dummyReceivers), ctx.status(200));
+    http.get(`${base}/testOrg/receivers`, () => {
+        return HttpResponse.json(dummyReceivers, { status: 200 });
     }),
-    rest.get(`${base}/testOrgNoReceivers/receivers`, (req, res, ctx) => {
-        return res(ctx.json([]), ctx.status(200));
+    http.get(`${base}/testOrgNoReceivers/receivers`, () => {
+        return HttpResponse.json([], { status: 200 });
     }),
-    rest.get(`${base}/testOrg/public-keys`, (req, res, ctx) => {
-        return res(ctx.json(dummyPublicKey), ctx.status(200));
+    http.get(`${base}/testOrg/public-keys`, () => {
+        return HttpResponse.json(dummyPublicKey, { status: 200 });
     }),
-    rest.post(`${base}/testOrg/public-keys`, (req, res, ctx) => {
-        if (!req.headers.get("authorization")?.includes("TOKEN")) {
-            return res(ctx.status(401));
+    http.post(`${base}/testOrg/public-keys`, ({ request }) => {
+        if (!request.headers.get("authorization")?.includes("TOKEN")) {
+            return HttpResponse.json(null, { status: 401 });
         }
-        return res(ctx.json(dummyPublicKey), ctx.status(200));
+        return HttpResponse.json(dummyPublicKey, { status: 200 });
     }),
 ];
 

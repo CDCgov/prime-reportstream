@@ -13,7 +13,7 @@ export const contentString = "foo,bar\r\nbar,foo";
 export const fakeFile = new File([new Blob([contentString])], "file.csv", {
     type: "text/csv",
 });
-fakeFile.text = () => Promise.resolve(contentString);
+//fakeFile.text = () => Promise.resolve(contentString);
 
 export const mockSendValidFile: WatersResponse = {
     id: "",

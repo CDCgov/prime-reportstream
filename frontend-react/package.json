@@ -175,7 +175,7 @@
         "jest-watch-typeahead": "^2.2.2",
         "lint-staged": "^15.2.1",
         "mockdate": "^3.0.5",
-        "msw": "^2.1.5",
+        "msw": "^2.1.7",
         "msw-storybook-addon": "^1.10.0",
         "npm-run-all": "^4.1.5",
         "otpauth": "^9.2.2",
@@ -194,10 +194,10 @@
         "ts-node": "^10.9.2",
         "tslib": "^2.6.2",
         "typescript": "^5.3.3",
+        "undici": "^6.6.1",
         "vite": "^5.0.12",
         "vite-plugin-checker": "^0.6.4",
-        "vite-plugin-svgr": "^4.2.0",
-        "whatwg-fetch": "^3.6.20"
+        "vite-plugin-svgr": "^4.2.0"
     },
     "resolutions": {
         "@babel/traverse": ">=7.23.2",
@@ -209,7 +209,8 @@
         "semver": ">=7.5.3",
         "@types/react": "18.0.28",
         "github-slugger": "^1.5.0",
-        "tocbot": "^4.25.0"
+        "tocbot": "^4.25.0",
+        "undici": "^5.28.2"
     },
     "engines": {
         "node": "^18.18"
