@@ -39,18 +39,16 @@ jobs:
         working-directory: /
         run: |
           df -k
-          docker image ls
-          docker ps --size
-          top -b -n1
+          ls -l /mnt
           
       - name: Add swapfile
         working-directory: /
         run: |
           sudo swapoff -a
-          sudo fallocate -l 2G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          sudo fallocate -l 15G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
           sudo swapon --show
 
       - name: Space Debug 2
@@ -64,14 +62,6 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-      - name: Space Debug 3
-        working-directory: /
-        run: |
-          df -k
-          docker image ls
-          docker ps --size
-          top -b -n1
-
       - name: Build backend
         uses: ./.github/actions/build-backend
         with:
@@ -79,10 +69,11 @@ jobs:
           upload-build: false
           run-integration-tests: true
 
-      - name: Space Debug 4
+      - name: Space Debug 3
         working-directory: /
         run: |
           df -k
+          ls -l mnt
           docker image ls
           docker ps --size
           top -b -n1
