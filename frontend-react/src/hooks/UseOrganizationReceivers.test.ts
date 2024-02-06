@@ -14,7 +14,7 @@ describe("useOrganizationReceivers", () => {
     });
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
-    test.only("returns null if no active membership parsed name", async () => {
+    test("returns null if no active membership parsed name", async () => {
         mockSessionContentReturnValue({
             authState: {
                 accessToken: { accessToken: "TOKEN" },
