@@ -233,6 +233,7 @@ subject:
   valueOf: datatype/Reference
   expressionType: resource
   specs: $Patient
+  useGroup: true
 
 basedOn:
   valueOf: datatype/Reference
@@ -241,11 +242,18 @@ basedOn:
   useGroup: true
 
 specimen:
-  valueOf: datatype/Reference
+  expressionType: nested
   generateList: true
-  expressionType: resource
-  specs: $Specimen
-  useGroup: true
+  expressions:
+    - valueOf: datatype/Reference
+      generateList: true
+      expressionType: resource
+      specs: $Specimen
+      useGroup: true
+    - valueOf: datatype/Reference
+      expressionType: resource
+      specs: $SpecimenSource
+      useGroup: true
 
 result:
   valueOf: datatype/Reference
