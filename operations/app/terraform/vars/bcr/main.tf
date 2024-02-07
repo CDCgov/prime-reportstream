@@ -208,7 +208,7 @@ module "sftp" {
 }
 
 module "sftp_container" {
-  count = local.init.environment != "prod" ? 1 : 0
+  count = local.init.environment != "prod" && local.init.environment != "bcr01" ? 1 : 0
 
   source                = "../../modules/sftp_container"
   environment           = local.init.environment
@@ -219,8 +219,7 @@ module "sftp_container" {
   sa_primary_access_key = module.storage.sa_primary_access_key
   dns_zones             = module.network.dns_zones
   storage_account       = module.storage.storage_account
-  vnet1 = local.network.config.vnet.name
-  vnet2 = local.network.config.East-vnet.name
+  vnet = local.network.config.East-vnet.name
 }
 
 module "metabase" {
