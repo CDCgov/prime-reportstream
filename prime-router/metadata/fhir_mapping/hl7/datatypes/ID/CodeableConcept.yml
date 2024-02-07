@@ -12,10 +12,9 @@ coding:
         extension:
           generateList: true
           expressionType: nested
-          # TODO?????
           expressionsMap:
             url:
               type: SYSTEM_URL
               value: codeable-concept-id
             valueBoolean:
-              valueOf: "id-code"
+              valueOf: "true"

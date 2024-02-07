@@ -61,7 +61,7 @@ identifier:
         code: "PLAC"
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         display: "Placer Identifier"
-        hl7Use: "orc-2-placer-order-number"
+        hl7v2Field: ORC.2
     - condition: $orc2 NULL && $obr2 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -70,7 +70,7 @@ identifier:
         code: "PLAC"
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         display: "Placer Identifier"
-        hl7Use: "obr-2-placer-order-number"
+        hl7v2Field: OBR.2
     - condition: $orc3 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -79,7 +79,7 @@ identifier:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "FILL"
         display: "Filler Identifier"
-        hl7Use: "orc-3-filler-order-number"
+        hl7v2Field: ORC.3
     - condition: $orc3 NULL && $obr3 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -88,7 +88,7 @@ identifier:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "FILL"
         display: "Filler Identifier"
-        hl7Use: "obr-3-filler-order-number"
+        hl7v2Field: OBR.3
     - condition: $orc4 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -96,7 +96,7 @@ identifier:
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "PGN"
-        hl7Use: "orc-4-placer-group-number"
+        hl7v2Field: ORC.4
     - condition: $orc4 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -104,7 +104,7 @@ identifier:
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "FGN"
-        hl7Use: "orc-4-placer-group-number"
+        hl7v2Field: ORC.4
     - condition: $orc33 NOT_NULL
       valueOf: datatypes/CX/Identifier
       expressionType: resource

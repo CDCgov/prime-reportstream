@@ -4,15 +4,15 @@ elements:
     hl7Spec: [ '%{hl7SpecimenFieldPath}-1' ]
 
   - name: specimen-identifier
-    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "SPM.2")'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Component`).value = "SPM.2.1")'
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-2'
     schema: ../../datatypes/identifier-placerAssignedIdentifier/EIP
 
   - name: specimen-identifier-backup
-    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "SPM.2")'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Component`).value = "SPM.2.2")'
     condition: >
-      %resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "SPM.2").exists().not() and
+      %resource.identifier.where(extension(%`rsext-hl7v2Component`).value = "SPM.2.1").exists().not() and
       %resource.exists()
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-2'

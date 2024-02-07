@@ -448,8 +448,8 @@ elements:
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].type.coding[0].code' ]
 
   - name: sr-specimen-placer-assigned-identifier-hl7-field
-    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
-    value: [ '"SPM.2"' ]
+    bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component").value[x]'
+    value: [ '"SPM.2.1"' ]
 
   - name: sr-specimen-placer-assigned-identifier-filler-extension-identifier-value
     bundleProperty: '%specimen.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier").value[x]'

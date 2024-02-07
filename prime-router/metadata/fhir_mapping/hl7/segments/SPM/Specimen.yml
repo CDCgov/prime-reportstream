@@ -19,7 +19,7 @@ identifier:
       vars:
         spm21: SPM.2.1
       constants:
-        hl7Use: "specimen-id-placer"
+        hl7v2Component: SPM.2.1
         backupExtension: "filler-assigned-identifier"
     - condition: $spm22 NOT_NULL
       valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
@@ -28,7 +28,7 @@ identifier:
       vars:
         spm22: SPM.2.2
       constants:
-        hl7Use: "specimen-id-filler"
+        hl7v2Component: SPM.2.2
         backupExtension: "placer-assigned-identifier"
     - valueOf: datatypes/CX/Identifier
       condition: $spm31 NOT_NULL
@@ -42,7 +42,7 @@ identifier:
       expressionType: resource
       specs: SPM.32
       constants:
-        hl7Use: "shipment-id"
+        hl7v2Field: SPM.32
         code: "SHIP"
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
 

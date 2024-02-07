@@ -47,7 +47,7 @@ receiver:
       specs: $msh6
       valueOf: datatypes/HD/Organization
       constants:
-        hdOrganizationHL7Use: receiving-facility
+        hdOrganizationHL7Field: MSH.6
     - condition: $msh6 NULL && $msh23 NOT_NULL
       expressionType: reference
       specs: $msh23
