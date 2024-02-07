@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { PropsWithChildren, HTMLAttributes } from "react";
+import { HTMLAttributes, PropsWithChildren } from "react";
 
 import styles from "./HeroWrapper.module.scss";
 

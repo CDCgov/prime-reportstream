@@ -1,31 +1,30 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import FileHandler from "./FileHandler";
 import {
     mockSendFileWithErrors,
     mockSendFileWithWarnings,
     mockSendValidFile,
 } from "../../__mocks__/validation";
+import { RSSender } from "../../config/endpoints/settings";
+import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import {
+    UseWatersUploaderResult,
+    UseWatersUploaderSendFileMutation,
+} from "../../hooks/network/WatersHooks";
 import * as useFileHandlerExports from "../../hooks/UseFileHandler";
 import {
+    calculateRequestCompleteState,
     FileHandlerState,
     INITIAL_STATE,
-    calculateRequestCompleteState,
 } from "../../hooks/UseFileHandler";
 import * as useSenderSchemaOptionsExports from "../../senders/hooks/UseSenderSchemaOptions";
 import {
     STANDARD_SCHEMA_OPTIONS,
     UseSenderSchemaOptionsHookResult,
 } from "../../senders/hooks/UseSenderSchemaOptions";
-import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
-import {
-    UseWatersUploaderResult,
-    UseWatersUploaderSendFileMutation,
-} from "../../hooks/network/WatersHooks";
-import { RSSender } from "../../config/endpoints/settings";
-
-import FileHandler from "./FileHandler";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const _CSV_SCHEMA_SELECTED = {
     fileInputResetValue: 0,
@@ -142,7 +141,7 @@ describe("FileHandler", () => {
                 // TODO: any sensible defaults?
                 ...fileHandlerState,
             } as FileHandlerState,
-            dispatch: () => {},
+            dispatch: () => void 0,
         });
     }
 
@@ -180,7 +179,7 @@ describe("FileHandler", () => {
 
     async function fileContinue() {
         const form = screen.getByTestId("form");
-        await waitFor(async () => {
+        await waitFor(() => {
             // eslint-disable-next-line testing-library/no-wait-for-side-effects
             fireEvent.submit(form);
         });

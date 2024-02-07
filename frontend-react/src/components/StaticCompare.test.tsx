@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../utils/CustomRenderUtils";
-
 import { StaticCompare } from "./StaticCompare";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 describe("StaticCompare", () => {
     test("json diff", () => {

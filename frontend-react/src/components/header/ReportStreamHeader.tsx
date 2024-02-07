@@ -21,18 +21,17 @@ import {
 } from "react";
 import { useMatch } from "react-router-dom";
 
-import { USLink, USLinkButton, USSmartLink } from "../USLink";
-import SenderModeBanner from "../SenderModeBanner";
-import { useSessionContext, RSSessionContext } from "../../contexts/Session";
-import { Icon } from "../../shared";
+import styles from "./ReportStreamHeader.module.scss";
 import site from "../../content/site.json";
-import Spinner from "../Spinner";
+import { RSSessionContext, useSessionContext } from "../../contexts/Session";
 import {
     isOrganizationsMissingTransport,
     useOrganizationSettings__,
 } from "../../hooks/UseOrganizationSettings";
-
-import styles from "./ReportStreamHeader.module.scss";
+import { Icon } from "../../shared";
+import SenderModeBanner from "../SenderModeBanner";
+import Spinner from "../Spinner";
+import { USLink, USLinkButton, USSmartLink } from "../USLink";
 
 const primaryLinkClasses = (isActive: boolean) => {
     if (isActive) {

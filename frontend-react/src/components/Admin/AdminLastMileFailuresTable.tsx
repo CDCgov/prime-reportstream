@@ -1,13 +1,4 @@
 import {
-    PropsWithChildren,
-    Suspense,
-    useCallback,
-    useRef,
-    useState,
-} from "react";
-import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
-import DOMPurify from "dompurify";
-import {
     Button,
     ButtonGroup,
     Grid,
@@ -19,18 +10,27 @@ import {
     ModalRef,
     TextInput,
 } from "@trussworks/react-uswds";
+import DOMPurify from "dompurify";
+import {
+    PropsWithChildren,
+    Suspense,
+    useCallback,
+    useRef,
+    useState,
+} from "react";
+import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 
-import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
-import { formatDate } from "../../utils/misc";
-import { showToast } from "../../contexts/Toast";
-import AdmAction from "../../resources/AdmActionResource";
-import { ErrorPage } from "../../pages/error/ErrorPage";
-import Spinner from "../Spinner";
 import config from "../../config";
-import { USLink } from "../USLink";
-import Table from "../../shared/Table/Table";
 import { useAppInsightsContext } from "../../contexts/AppInsights";
 import { useSessionContext } from "../../contexts/Session";
+import { showToast } from "../../contexts/Toast";
+import { ErrorPage } from "../../pages/error/ErrorPage";
+import AdmAction from "../../resources/AdmActionResource";
+import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
+import Table from "../../shared/Table/Table";
+import { formatDate } from "../../utils/misc";
+import Spinner from "../Spinner";
+import { USLink } from "../USLink";
 
 const { RS_API_URL } = config;
 
@@ -436,7 +436,7 @@ ${data.receiver}`;
                         name="refresh"
                         type={"button"}
                         autoFocus
-                        onClick={(_evt) => refresh()}
+                        onClick={() => void refresh()}
                     >
                         Refresh
                     </Button>
@@ -483,7 +483,7 @@ ${data.receiver}`;
                     htmlContentResultText={htmlContentResultText}
                     loading={loading}
                     closeResendModal={closeResendModal}
-                    startResend={startResend}
+                    startResend={() => void startResend()}
                 />
             </Modal>
         </section>

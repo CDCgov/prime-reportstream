@@ -1,8 +1,8 @@
-import download from "downloadjs";
 import axios from "axios";
+import download from "downloadjs";
 
-import { RSReportInterface } from "../../../network/api/History/Reports";
 import config from "../../../config";
+import { RSReportInterface } from "../../../network/api/History/Reports";
 
 const { RS_API_URL } = config;
 export const reportDetailURL = (id: string, base?: string) =>
@@ -14,7 +14,7 @@ export const getReportAndDownload = (
     org: string,
 ): RSReportInterface | undefined => {
     let report = undefined;
-    axios
+    void axios
         .get<RSReportInterface>(reportDetailURL(reportId), {
             headers: {
                 Authorization: `Bearer ${oktaToken}`,

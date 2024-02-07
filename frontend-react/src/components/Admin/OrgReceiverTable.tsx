@@ -1,4 +1,3 @@
-import { useResource } from "rest-hooks";
 import {
     Button,
     ButtonGroup,
@@ -8,19 +7,19 @@ import {
     ModalRef,
     Table,
 } from "@trussworks/react-uswds";
-import { useCallback, useRef, useState } from "react";
 import DOMPurify from "dompurify";
+import { useCallback, useRef, useState } from "react";
+import { useResource } from "rest-hooks";
 
-import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import Spinner from "../Spinner";
+import { DisplayMeta } from "./DisplayMeta";
 import {
     CheckSettingParams,
     CheckSettingResult,
     useCheckSettingsCmd,
 } from "../../network/api/CheckSettingCmd";
+import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
+import Spinner from "../Spinner";
 import { USLink, USNavLink } from "../USLink";
-
-import { DisplayMeta } from "./DisplayMeta";
 
 interface OrgSettingsTableProps {
     orgname: string;
@@ -221,7 +220,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                         <Button
                             type="button"
                             disabled={isPending}
-                            onClick={() => clickDoCheckCmd()}
+                            onClick={() => void clickDoCheckCmd()}
                         >
                             Start check
                         </Button>

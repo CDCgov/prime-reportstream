@@ -1,30 +1,30 @@
-import { NetworkErrorBoundary, useResource } from "rest-hooks";
-import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import {
     Button,
     DateRangePicker,
-    Select,
     Grid,
     GridContainer,
     Label,
     Modal,
     ModalRef,
     ModalToggleButton,
+    Select,
     SiteAlert,
     TextInput,
     Tooltip,
 } from "@trussworks/react-uswds";
-import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import moment from "moment";
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
+import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
+import { ErrorPage } from "../../pages/error/ErrorPage";
 import {
-    AdmConnStatusResource,
     AdmConnStatusDataType,
+    AdmConnStatusResource,
 } from "../../resources/AdmConnStatusResource";
 import { formatDate } from "../../utils/misc";
-import { TableFilterDateLabel, StyleClass } from "../Table/TableFilters";
 import Spinner from "../Spinner";
-import { ErrorPage } from "../../pages/error/ErrorPage";
+import { StyleClass, TableFilterDateLabel } from "../Table/TableFilters";
 import { USLink } from "../USLink";
 
 const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
@@ -292,7 +292,7 @@ class TimeSlots implements IterateTimeSlots {
     private readonly end: Date;
     private readonly skipHours: number;
 
-    constructor(range: DatePair, skipHours: number = 2) {
+    constructor(range: DatePair, skipHours = 2) {
         this.current = range[0];
         this.end = range[1];
         this.skipHours = skipHours;
@@ -444,7 +444,7 @@ function renderAllReceiverRows(props: {
                 sliceElements.push(
                     <Grid
                         row
-                        key={`slice:${currentReceiver}|${timeSlotStart}`}
+                        key={`slice:${currentReceiver}|${timeSlotStart.toISOString()}`}
                         className={`slice ${sliceClassName} ${sliceFilterClassName}`}
                         data-offset={dataOffset}
                         data-offset-end={dataOffsetEnd}
@@ -457,10 +457,10 @@ function renderAllReceiverRows(props: {
                                       // get saved offset from "data-offset" attribute on this element
                                       const target = evt.currentTarget;
                                       const sliceStart = parseInt(
-                                          target?.dataset["offset"] || "-1",
+                                          target?.dataset.offset ?? "-1",
                                       );
                                       let sliceEnd = parseInt(
-                                          target?.dataset["offsetEnd"] || "-1",
+                                          target?.dataset.offsetEnd ?? "-1",
                                       );
                                       // sanity check it's within range (should never happen)
                                       if (
@@ -579,8 +579,8 @@ function FilterRenderedRows(props: {
     const renderedRows = props.renderedRows;
 
     const resultArray: JSX.Element[] = [];
-    for (let offset = 0; offset < renderedRows.length; offset++) {
-        const renderedRow = renderedRows[offset];
+    for (const element of renderedRows) {
+        const renderedRow = element;
         const rowStatus = renderedRow.props["data-rowstatus"] || "";
         const orgRecvName = renderedRow.props["data-orgrecvname"] || "";
         const allSlicesFilteredOut =

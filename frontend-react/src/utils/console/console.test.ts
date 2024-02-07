@@ -4,8 +4,8 @@ import {
     SeverityLevel,
 } from "@microsoft/applicationinsights-web";
 
-import { mockConsole } from "../../__mocks__/console";
 import { mockAppInsights } from "../../__mocks__/ApplicationInsights";
+import { mockConsole } from "../../__mocks__/console";
 
 import { ConsoleLevel, RSConsole } from "./index";
 
@@ -86,7 +86,11 @@ describe("RSConsole", () => {
                     },
                 });
 
-                expect(mockConsole.assert).toHaveBeenCalledWith(false, message, obj);
+                expect(mockConsole.assert).toHaveBeenCalledWith(
+                    false,
+                    message,
+                    obj,
+                );
             });
         });
 
@@ -100,7 +104,11 @@ describe("RSConsole", () => {
                 rsConsole.assert(true, message, obj);
 
                 expect(mockAppInsights.trackException).not.toHaveBeenCalled();
-                expect(mockConsole.assert).toHaveBeenCalledWith(true, message, obj);
+                expect(mockConsole.assert).toHaveBeenCalledWith(
+                    true,
+                    message,
+                    obj,
+                );
             });
         });
     });

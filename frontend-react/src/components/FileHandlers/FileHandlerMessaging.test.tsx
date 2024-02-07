@@ -1,18 +1,17 @@
 import { screen, within } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { Destination } from "../../resources/ActionDetailsResource";
-import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
-import { FileType } from "../../utils/TemporarySettingsAPITypes";
-
 import {
-    RequestLevel,
     FileQualityFilterDisplay,
-    RequestedChangesDisplay,
-    ValidationErrorMessageProps,
-    ValidationErrorMessage,
     getSafeFileName,
+    RequestedChangesDisplay,
+    RequestLevel,
+    ValidationErrorMessage,
+    ValidationErrorMessageProps,
 } from "./FileHandlerMessaging";
+import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
+import { Destination } from "../../resources/ActionDetailsResource";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
 describe("RequestedChangesDisplay", () => {
     test("renders expected content", async () => {

@@ -1,18 +1,17 @@
 import { act, RenderHookResult } from "@testing-library/react";
 
-import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
-import { Destination } from "../resources/ActionDetailsResource";
-import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
-import { FileType } from "../utils/TemporarySettingsAPITypes";
-import { renderHook } from "../utils/CustomRenderUtils";
-
 import useFileHandler, {
-    INITIAL_STATE,
     FileHandlerActionType,
+    INITIAL_STATE,
     RequestCompletePayload,
     UseFileHandlerHookResult,
 } from "./UseFileHandler";
 import { fakeError, fakeWarning } from "./UseFileHandler.fixtures";
+import { Destination } from "../resources/ActionDetailsResource";
+import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
+import { renderHook } from "../utils/CustomRenderUtils";
+import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
+import { FileType } from "../utils/TemporarySettingsAPITypes";
 
 const fakeDestination: Destination = {
     organization_id: "an org id",
@@ -88,7 +87,7 @@ describe("useFileHandler", () => {
         expect(state).toEqual(INITIAL_STATE);
     });
 
-    test("resets state to initial on reset", async () => {
+    test("resets state to initial on reset", () => {
         const { result } = renderHook(() => {
             return useFileHandler();
         });
@@ -113,7 +112,7 @@ describe("useFileHandler", () => {
         expect(result.current.state).toEqual(initialState);
     });
 
-    test("partially resets state to initial on Prepare For Request", async () => {
+    test("partially resets state to initial on Prepare For Request", () => {
         const { result } = renderHook(() => {
             return useFileHandler();
         });

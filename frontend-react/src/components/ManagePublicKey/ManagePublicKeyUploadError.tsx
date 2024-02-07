@@ -4,9 +4,9 @@ import site from "../../content/site.json";
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { USExtLink } from "../USLink";
 
-type ManagePublicKeyUploadCompleteProps = {
+interface ManagePublicKeyUploadCompleteProps {
     onTryAgain: () => void;
-};
+}
 
 export default function ManagePublicKeyUploadError({
     onTryAgain,

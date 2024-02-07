@@ -1,12 +1,12 @@
-import { PropsWithChildren, HTMLAttributes } from "react";
-
-import usamapsvg from "../../content/usa_w_territories.svg";
-import { USLink } from "../../components/USLink";
+import { HTMLAttributes, PropsWithChildren } from "react";
 
 import styles from "./LiveMap.module.scss";
+import { USLink } from "../../components/USLink";
+import usamapsvg from "../../content/usa_w_territories.svg";
 
-export interface LiveMapProps
-    extends PropsWithChildren<HTMLAttributes<HTMLElement> & ContentItem> {}
+export type LiveMapProps = PropsWithChildren<
+    HTMLAttributes<HTMLElement> & ContentItem
+>;
 
 const LiveMap = ({
     title,

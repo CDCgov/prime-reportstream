@@ -1,10 +1,9 @@
 import { waitFor } from "@testing-library/react";
 
+import { useValueSetsTable } from "./UseValueSets";
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables, ValueSet } from "../config/endpoints/lookupTables";
 import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
-
-import { useValueSetsTable } from "./UseValueSets";
 
 describe("useValueSetsTable", () => {
     const renderWithAppWrapper = (tableName: LookupTables) =>
@@ -22,7 +21,7 @@ describe("useValueSetsTable", () => {
         await waitFor(() =>
             expect(result.current.data?.length).toBeGreaterThan(0),
         );
-        const { name, system } = result.current.data![0];
+        const { name, system } = result.current.data[0];
         expect(name).toEqual("sender_automation_value_set");
         expect(system).toEqual("LOCAL");
     });

@@ -1,28 +1,27 @@
-import { ChangeEvent, FormEvent, useRef } from "react";
 import {
     Button,
+    FileInput,
+    FileInputRef,
     Form,
     FormGroup,
     Label,
-    FileInput,
-    FileInputRef,
 } from "@trussworks/react-uswds";
+import { ChangeEvent, FormEvent, useRef } from "react";
 
-import { parseCsvForError } from "../../utils/FileUtils";
-import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import { showToast } from "../../contexts/Toast";
-import { RSSender } from "../../config/endpoints/settings";
-import useSenderResource from "../../hooks/UseSenderResource";
-import Spinner from "../Spinner";
-import { useSessionContext } from "../../contexts/Session";
-import { WatersResponse } from "../../config/endpoints/waters";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import { FileType } from "../../utils/TemporarySettingsAPITypes";
-import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
-import { MembershipSettings } from "../../utils/OrganizationUtils";
-
-import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 import { FileHandlerStepProps } from "./FileHandler";
+import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
+import { RSSender } from "../../config/endpoints/settings";
+import { WatersResponse } from "../../config/endpoints/waters";
+import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
+import { showToast } from "../../contexts/Toast";
+import { useWatersUploader } from "../../hooks/network/WatersHooks";
+import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import useSenderResource from "../../hooks/UseSenderResource";
+import { parseCsvForError } from "../../utils/FileUtils";
+import { MembershipSettings } from "../../utils/OrganizationUtils";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
+import Spinner from "../Spinner";
 
 export const UPLOAD_PROMPT_DESCRIPTIONS = {
     [FileType.CSV]: {
@@ -217,7 +216,7 @@ export default function FileHandlerFileUploadStep({
                 return (
                     <Form
                         name="fileValidation"
-                        onSubmit={handleSubmit}
+                        onSubmit={(ev) => void handleSubmit(ev)}
                         className="rs-full-width-form"
                     >
                         <FormGroup className="margin-top-0">
@@ -238,7 +237,7 @@ export default function FileHandlerFileUploadStep({
                                 name="upload-csv-input"
                                 aria-describedby="upload-csv-input-label"
                                 data-testid="upload-csv-input"
-                                onChange={handleFileChange}
+                                onChange={(ev) => void handleFileChange(ev)}
                                 required
                                 ref={fileInputRef}
                                 accept={accept}

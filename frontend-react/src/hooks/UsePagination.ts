@@ -3,9 +3,9 @@ import { useCallback, useEffect, useReducer } from "react";
 import useDeepCompareEffect from "use-deep-compare-effect";
 
 import {
+    OVERFLOW_INDICATOR,
     PaginationProps,
     SlotItem,
-    OVERFLOW_INDICATOR,
 } from "../components/Table/Pagination";
 import { useAppInsightsContext } from "../contexts/AppInsights";
 
@@ -232,7 +232,7 @@ export function setSelectedPageReducer<T>(
     const slotNumbers = slots.filter((s) => Number.isInteger(s)) as number[];
     // The slots will always contain at least one number so we can safely cast
     // the last page as not undefined.
-    const lastSlotPage = slotNumbers.pop() as number;
+    const lastSlotPage = slotNumbers.pop()!;
 
     const fetchedPageNumbers = Object.keys(state.pageResultsMap).map((k) =>
         parseInt(k),
@@ -408,7 +408,7 @@ function usePagination<T>({
                 },
             });
         }
-        doEffect();
+        void doEffect();
     }, [fetchResults, requestConfig]);
 
     // Create a callback for changing the current page to pass down to the

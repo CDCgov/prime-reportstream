@@ -1,3 +1,5 @@
+import { Icon, Tooltip } from "@trussworks/react-uswds";
+import classnames from "classnames";
 import {
     PropsWithChildren,
     ReactNode,
@@ -6,8 +8,6 @@ import {
     useRef,
     useState,
 } from "react";
-import { Icon, Tooltip } from "@trussworks/react-uswds";
-import classnames from "classnames";
 
 import styles from "./CodeSnippet.module.scss";
 
@@ -31,7 +31,7 @@ const CodeSnippet = ({ children }: CodeSnippetProps) => {
                 label={isCopied ? "Copied" : "Copy to clipboard"}
                 onClick={() => {
                     if (containerRef.current?.textContent)
-                        navigator.clipboard.writeText(
+                        void navigator.clipboard.writeText(
                             containerRef.current.textContent,
                         );
 

@@ -1,8 +1,8 @@
 import { QualityFilter } from "../../config/endpoints/messageTracker";
 
-type QualityFiltersDisplayProps = {
+interface QualityFiltersDisplayProps {
     qualityFilters: QualityFilter[] | undefined;
-};
+}
 
 export const QualityFilters = ({
     qualityFilters,

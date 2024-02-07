@@ -7,6 +7,7 @@ import {
     ModalRef,
     ModalToggleButton,
 } from "@trussworks/react-uswds";
+import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 import {
     forwardRef,
     ReactElement,
@@ -15,7 +16,6 @@ import {
     useRef,
     useState,
 } from "react";
-import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 
 import { EditableCompare, EditableCompareRef } from "../EditableCompare";
 
@@ -92,10 +92,10 @@ export const ConfirmSaveSettingModal = forwardRef(
             () => ({
                 // route this down the diffEditor
                 getEditedText: (): string => {
-                    return diffEditorRef?.current?.getEditedText() || newjson;
+                    return diffEditorRef?.current?.getEditedText() ?? newjson;
                 },
                 getOriginalText: (): string => {
-                    return diffEditorRef?.current?.getOriginalText() || oldjson;
+                    return diffEditorRef?.current?.getOriginalText() ?? oldjson;
                 },
                 setWarning(warning) {
                     setErrorText(warning);
@@ -112,9 +112,9 @@ export const ConfirmSaveSettingModal = forwardRef(
                     setSaveDisabled(true);
                 },
                 // route these down to modal ref
-                modalId: modalRef?.current?.modalId || "",
-                modalIsOpen: modalRef?.current?.modalIsOpen || false,
-                toggleModal: modalRef?.current?.toggleModal || (() => false),
+                modalId: modalRef?.current?.modalId ?? "",
+                modalIsOpen: modalRef?.current?.modalIsOpen ?? false,
+                toggleModal: modalRef?.current?.toggleModal ?? (() => false),
             }),
             [diffEditorRef, newjson, modalRef, oldjson],
         );

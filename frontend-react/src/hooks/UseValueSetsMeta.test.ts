@@ -1,10 +1,9 @@
 import { waitFor } from "@testing-library/react";
 
+import { useValueSetsMeta } from "./UseValueSets";
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables } from "../config/endpoints/lookupTables";
 import { renderHook } from "../utils/CustomRenderUtils";
-
-import { useValueSetsMeta } from "./UseValueSets";
 
 describe("useValueSetsMeta", () => {
     const renderWithAppWrapper = (tableName?: LookupTables) =>

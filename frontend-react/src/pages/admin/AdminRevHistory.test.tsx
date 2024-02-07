@@ -1,13 +1,12 @@
 import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { _exportForTesting } from "./AdminRevHistory";
 import {
     SettingRevision,
     SettingRevisionParams,
 } from "../../network/api/Organizations/SettingRevisions";
-
-import { _exportForTesting } from "./AdminRevHistory";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const fakeRows: SettingRevision[] = [
     {
@@ -119,13 +118,13 @@ describe("AdminRevHistory", () => {
         // look for the unique "Description" text in each diff.
         {
             const leftDiffText =
-                screen.getByTestId("left-compare-text").textContent || "";
+                screen.getByTestId("left-compare-text").textContent ?? "";
             expect(/ORIGINAL/.test(leftDiffText)).toBe(true);
             expect(/FIRST_REVISION/.test(leftDiffText)).toBe(false);
         }
         {
             const rightDiffText =
-                screen.getByTestId("right-compare-text").textContent || "";
+                screen.getByTestId("right-compare-text").textContent ?? "";
             expect(/ORIGINAL/.test(rightDiffText)).toBe(false);
             expect(/FIRST_REVISION/.test(rightDiffText)).toBe(true);
         }

@@ -1,9 +1,9 @@
 import moment from "moment";
 
-export type DateTimeData = {
+export interface DateTimeData {
     dateString: string;
     timeString: string;
-};
+}
 
 /*
     This function serves as a cleaner (read: more contained) way of parsing out

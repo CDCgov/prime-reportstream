@@ -3,15 +3,15 @@ import classnames from "classnames";
 
 import styles from "./ReleaseNote.module.scss";
 
-type Section = {
+interface Section {
     title: string;
     tag: "feature" | "bug" | "announcement" | "improvement";
     body: JSX.Element;
-};
+}
 
 interface ReleaseNoteProps {
     header: string;
-    sections: Array<Section>;
+    sections: Section[];
 }
 
 function NoteTag({ tag }: { tag: Section["tag"] }) {

@@ -1,12 +1,11 @@
 import moment from "moment";
 
-import { ResponseType, TestResponse } from "../resources/TestResponse";
-
 import {
     formatDateWithoutSeconds,
     generateDateTitles,
     isDateExpired,
 } from "./DateTimeUtils";
+import { ResponseType, TestResponse } from "../resources/TestResponse";
 
 /*
     Ensuring formatting of SubmissionDate type

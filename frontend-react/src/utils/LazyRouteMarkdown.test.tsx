@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { RouterProvider, createMemoryRouter } from "react-router";
 import { lazy } from "react";
+import { createMemoryRouter, RouterProvider } from "react-router";
 
 import { lazyRouteMarkdown } from "./LazyRouteMarkdown";
 

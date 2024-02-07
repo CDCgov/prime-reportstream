@@ -1,36 +1,35 @@
 import { Dispatch, FC, SetStateAction } from "react";
 
+import { getReportAndDownload } from "./ReportsUtils";
+import ServicesDropdown from "./ServicesDropdown";
+import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
+import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
+import Spinner from "../../../components/Spinner";
+import { PaginationProps } from "../../../components/Table/Pagination";
 import Table, {
     ColumnConfig,
     TableConfig,
 } from "../../../components/Table/Table";
-import { FilterManager } from "../../../hooks/filters/UseFilterManager";
-import { useSessionContext } from "../../../contexts/Session";
-import {
-    useOrgDeliveries,
-    DeliveriesDataAttr,
-} from "../../../hooks/network/History/DeliveryHooks";
-import Spinner from "../../../components/Spinner";
 import TableFilters, {
     TableFilterDateLabel,
 } from "../../../components/Table/TableFilters";
-import { PaginationProps } from "../../../components/Table/Pagination";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
-import usePagination from "../../../hooks/UsePagination";
-import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
-import { FeatureName } from "../../../utils/FeatureName";
-import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
-import { isDateExpired } from "../../../utils/DateTimeUtils";
-import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import {
     EventName,
     useAppInsightsContext,
 } from "../../../contexts/AppInsights";
-
-import { getReportAndDownload } from "./ReportsUtils";
-import ServicesDropdown from "./ServicesDropdown";
+import { useSessionContext } from "../../../contexts/Session";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
+import {
+    DeliveriesDataAttr,
+    useOrgDeliveries,
+} from "../../../hooks/network/History/DeliveryHooks";
+import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
+import usePagination from "../../../hooks/UsePagination";
+import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
+import { isDateExpired } from "../../../utils/DateTimeUtils";
+import { FeatureName } from "../../../utils/FeatureName";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
@@ -48,7 +47,7 @@ const ServiceDisplay = ({
             {services && services?.length > 1 ? (
                 <ServicesDropdown
                     services={services}
-                    active={activeService?.name || ""}
+                    active={activeService?.name ?? ""}
                     chosenCallback={handleSetActive}
                 />
             ) : (
@@ -91,7 +90,7 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     const handleExpirationDate = (expiresDate: string) => {
         return !isDateExpired(expiresDate);
     };
-    const columns: Array<ColumnConfig> = [
+    const columns: ColumnConfig[] = [
         {
             dataAttr: DeliveriesDataAttr.REPORT_ID,
             columnHeader: "Report ID",
@@ -130,7 +129,7 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
 
     const resultsTableConfig: TableConfig = {
         columns: columns,
-        rows: serviceReportsList || [],
+        rows: serviceReportsList ?? [],
     };
 
     if (isLoading) return <Spinner />;

@@ -1,8 +1,7 @@
 import { PropsWithChildren } from "react";
 
-import { ErrorDisplayMessage } from "../../content/error/ErrorMessages";
-
 import { BasicErrorDisplay } from "./Generic";
+import { ErrorDisplayMessage } from "../../content/error/ErrorMessages";
 
 /** @deprecated Move div over to render in RSErrorBoundary when NetworkErrorBoundary is
  * removed */

@@ -10,7 +10,7 @@ type TableActionButtonProps = DatasetAction & {
 };
 export const TableActionButton = ({
     label,
-    method = () => {},
+    method = () => void 0,
     disabled,
 }: TableActionButtonProps) => (
     <Button type={"button"} onClick={() => method()} disabled={disabled}>

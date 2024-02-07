@@ -1,11 +1,10 @@
 import { screen } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
 import { useRef } from "react";
 import { act } from "react-dom/test-utils";
-import { userEvent } from "@testing-library/user-event";
-
-import { renderApp, renderHook } from "../utils/CustomRenderUtils";
 
 import { ModalConfirmDialog, ModalConfirmRef } from "./ModalConfirmDialog";
+import { renderApp, renderHook } from "../utils/CustomRenderUtils";
 
 describe("ConfirmDialog", () => {
     test("Basic Render", async () => {

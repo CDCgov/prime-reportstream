@@ -1,9 +1,8 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { USNavLink } from "../../components/USLink";
-
 import SideNavItem from "./SideNavItem";
+import { USNavLink } from "../../components/USLink";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("SideNavItem", () => {
     test("custom component", () => {

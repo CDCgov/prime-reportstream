@@ -1,18 +1,17 @@
 import { MDXProvider } from "@mdx-js/react";
-import { Helmet } from "react-helmet-async";
-import { ComponentProps, ReactNode, useMemo, useState } from "react";
 import * as reactUSWDS from "@trussworks/react-uswds";
-import type { TocEntry } from "remark-mdx-toc";
-import { useMatches } from "react-router";
 import classNames from "classnames";
+import { ComponentProps, ReactNode, useMemo, useState } from "react";
+import { Helmet } from "react-helmet-async";
+import { useMatches } from "react-router";
+import type { TocEntry } from "remark-mdx-toc";
 
-import { USSmartLink, USNavLink } from "../../components/USLink";
-import * as shared from "../../shared";
-
-import { TableOfContents } from "./TableOfContents";
 import MarkdownLayoutContext from "./Context";
-import { LayoutSidenav, LayoutMain, LayoutBackToTop } from "./LayoutComponents";
+import { LayoutBackToTop, LayoutMain, LayoutSidenav } from "./LayoutComponents";
 import styles from "./MarkdownLayout.module.scss";
+import { TableOfContents } from "./TableOfContents";
+import { USNavLink, USSmartLink } from "../../components/USLink";
+import * as shared from "../../shared";
 
 /**
  * React components are functions that are pascal-cased so filtering is done
@@ -20,7 +19,7 @@ import styles from "./MarkdownLayout.module.scss";
  */
 function filterComponents<T extends object>(
     obj: T,
-    include: Array<string & keyof T> = [],
+    include: (string & keyof T)[] = [],
 ) {
     return Object.fromEntries(
         Object.entries(obj).filter(
@@ -113,10 +112,10 @@ function MarkdownLayout({
     const subtitleArr = Array.isArray(subtitle)
         ? subtitle
         : subtitle
-        ? [subtitle]
-        : [];
+          ? [subtitle]
+          : [];
     const isHeader = Boolean(
-        title || breadcrumbs || callToAction || lastUpdated || toc,
+        title ?? breadcrumbs ?? callToAction ?? lastUpdated ?? toc,
     );
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
@@ -124,7 +123,7 @@ function MarkdownLayout({
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
-            {(metaTitle || metaDescription) && (
+            {(metaTitle ?? metaDescription) && (
                 <Helmet>
                     {metaTitle && <title>{metaTitle}</title>}
                     {metaDescription && (

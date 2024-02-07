@@ -13,23 +13,23 @@ export enum SES_TYPE {
 }
 
 export const Diff = (a_: string, b_: string) => {
-    type PEntryType = {
+    interface PEntryType {
         x: number;
         y: number;
         k: number;
-    };
+    }
 
-    type SesEntryType = {
+    interface SesEntryType {
         sestype: SES_TYPE;
         index: number;
         len: number;
-    };
+    }
 
     let a = a_,
         b = b_,
         alen = a.length,
         blen = b.length,
-        reverse: boolean = false,
+        reverse = false,
         editdistance: number | null = null,
         offset = alen + 1,
         sesstate = SES_TYPE.COMMON;

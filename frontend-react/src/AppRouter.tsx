@@ -1,10 +1,10 @@
-import { ComponentType, LazyExoticComponent, lazy } from "react";
-import { Outlet, RouteObject, redirect } from "react-router";
+import { ComponentType, lazy, LazyExoticComponent } from "react";
+import { Outlet, redirect, RouteObject } from "react-router";
 import { createBrowserRouter } from "react-router-dom";
 
+import { RequireGate } from "./shared/RequireGate/RequireGate";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
-import { RequireGate } from "./shared/RequireGate/RequireGate";
 import { PERMISSIONS } from "./utils/UsefulTypes";
 
 /* Content Pages */
@@ -384,7 +384,7 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "programmers-guide",
-                        loader: async () => {
+                        loader: () => {
                             return redirect("/developer-resources/api");
                         },
                     },

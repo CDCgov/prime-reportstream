@@ -1,13 +1,12 @@
 import { screen } from "@testing-library/react";
 import { AxiosError } from "axios";
 
+import RSErrorBoundary from "./RSErrorBoundary";
+import { mockConsole } from "../__mocks__/console";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { mockRsconsole } from "../utils/console/__mocks__/console";
 import { renderApp } from "../utils/CustomRenderUtils";
 import { RSNetworkError } from "../utils/RSNetworkError";
-import { mockConsole } from "../__mocks__/console";
-import { mockRsconsole } from "../utils/console/__mocks__/console";
-import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
-
-import RSErrorBoundary from "./RSErrorBoundary";
 
 const rsError = new RSNetworkError(new AxiosError("rsnetwork error test"));
 

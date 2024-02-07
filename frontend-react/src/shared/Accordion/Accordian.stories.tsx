@@ -1,5 +1,5 @@
-import { ReactElement } from "react";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
+import { ReactElement } from "react";
 
 import Accordion from "./Accordion";
 

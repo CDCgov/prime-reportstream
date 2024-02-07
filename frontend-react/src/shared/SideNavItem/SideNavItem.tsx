@@ -1,6 +1,6 @@
 import { SideNav } from "@trussworks/react-uswds";
+import { AnchorHTMLAttributes, FunctionComponent, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
-import { AnchorHTMLAttributes, ReactNode, FunctionComponent } from "react";
 
 import { USNavLink } from "../../components/USLink";
 
@@ -34,12 +34,11 @@ function SideNavItem({
 }: SideNavItemProps) {
     const { pathname } = useLocation();
     const isSubnavVisible =
-        isActive !== undefined
-            ? isActive
-            : href === undefined ||
-              href === "" ||
-              pathname === href ||
-              pathname.startsWith(href);
+        isActive ??
+        (href === undefined ||
+            href === "" ||
+            pathname === href ||
+            pathname.startsWith(href));
     const subnavClassname = !isSubnavVisible ? "display-none" : "";
 
     // SideNav doesn't allow custom classes so we have to wrap in a div 😡

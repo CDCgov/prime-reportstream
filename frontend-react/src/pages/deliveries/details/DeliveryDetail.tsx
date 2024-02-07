@@ -1,13 +1,12 @@
-import { useParams } from "react-router-dom";
 import { GridContainer } from "@trussworks/react-uswds";
+import { useParams } from "react-router-dom";
 
-import HipaaNotice from "../../../components/HipaaNotice";
-import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
-
-import Summary from "./Summary";
-import DeliveryInfo from "./DeliveryInfo";
 import DeliveryFacilitiesTable from "./DeliveryFacilitiesTable";
+import DeliveryInfo from "./DeliveryInfo";
+import Summary from "./Summary";
+import HipaaNotice from "../../../components/HipaaNotice";
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
 
 const DetailsContent = () => {
     const { reportId } = useParams();

@@ -1,4 +1,4 @@
-import { ResponseError, ErrorCode } from "../config/endpoints/waters";
+import { ErrorCode, ResponseError } from "../config/endpoints/waters";
 
 export const fakeError: ResponseError = {
     field: "error field",

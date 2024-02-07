@@ -1,4 +1,4 @@
-import { StoryObj, Meta } from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/react";
 
 import { USExtLink, USLink, USLinkButton } from "./USLink";
 

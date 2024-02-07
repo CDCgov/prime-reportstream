@@ -1,12 +1,12 @@
 import classNames from "classnames";
+import { PropsWithChildren, Suspense, useMemo } from "react";
 import { Outlet, useMatches } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { PropsWithChildren, Suspense, useMemo } from "react";
 
-import RSErrorBoundary from "../../components/RSErrorBoundary";
-import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
 import ReportStreamHeader from "../../components/header/ReportStreamHeader";
+import RSErrorBoundary from "../../components/RSErrorBoundary";
 import Spinner from "../../components/Spinner";
+import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
 
 const ArticleWrapper = (props: PropsWithChildren) => {
     return <article className="tablet:grid-col-12" {...props} />;
@@ -19,7 +19,7 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
     const { handle = {} } = matches.at(-1) ?? {};
     const { isContentPage, isFullWidth, isLoginPage } = handle;
     // article element is currently handled within markdownlayout for markdown pages
-    const InnerWrapper = isContentPage || isLoginPage ? "div" : ArticleWrapper;
+    const InnerWrapper = isContentPage ?? isLoginPage ? "div" : ArticleWrapper;
     const innerWrapperClassnames = classNames(
         isContentPage && !isFullWidth && "width-full grid-row grid-gap-6",
         isFullWidth && "width-full",

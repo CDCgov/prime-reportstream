@@ -1,8 +1,8 @@
-import { Helmet } from "react-helmet-async";
 import { GridContainer } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
 
-import HipaaNotice from "../../components/HipaaNotice";
 import { AdminReceiverDashboard } from "../../components/Admin/AdminReceiverDashboard";
+import HipaaNotice from "../../components/HipaaNotice";
 
 export function AdminReceiverDashPage() {
     return (

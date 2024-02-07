@@ -1,15 +1,14 @@
 import { screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
-import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import ReportDetailsTable from "./ReportDetailsTable";
 import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
-
-import ReportDetailsTable from "./ReportDetailsTable";
+import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 
 const TEST_ID = "123";
 

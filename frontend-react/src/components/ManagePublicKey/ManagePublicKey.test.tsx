@@ -1,19 +1,18 @@
-import { screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { ManagePublicKeyPage } from "./ManagePublicKey";
+import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
+import { RSSender } from "../../config/endpoints/settings";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import * as useCreateOrganizationPublicKeyExports from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import { UseCreateOrganizationPublicKeyResult } from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
-import { RSSender } from "../../config/endpoints/settings";
-import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
 import * as useOrganizationPublicKeysExports from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import { UseOrganizationPublicKeysResult } from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { MemberType } from "../../utils/OrganizationUtils";
-
-import { ManagePublicKeyPage } from "./ManagePublicKey";
 
 const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
 
@@ -135,7 +134,7 @@ describe("ManagePublicKey", () => {
                     await userEvent.selectOptions(selectSender, ["elr-1"]);
                     expect(submit).toBeEnabled();
                 });
-                await waitFor(async () => {
+                await waitFor(() => {
                     // eslint-disable-next-line testing-library/no-wait-for-side-effects
                     fireEvent.submit(screen.getByTestId("form"));
                     expect(
@@ -204,7 +203,7 @@ describe("ManagePublicKey", () => {
             expect(screen.getByText("Submit")).toBeDisabled();
         });
 
-        test("shows the configured screen and displays a message to the user", async () => {
+        test("shows the configured screen and displays a message to the user", () => {
             setup();
             expect(
                 screen.getByText(/Your public key is already configured./),
@@ -241,7 +240,7 @@ describe("ManagePublicKey", () => {
                 await chooseFile(fakeFile);
                 expect(screen.getByText("Submit")).toBeVisible();
             });
-            await waitFor(async () => {
+            await waitFor(() => {
                 // eslint-disable-next-line testing-library/no-wait-for-side-effects
                 fireEvent.submit(screen.getByTestId("form"));
                 expect(

@@ -1,17 +1,16 @@
-import { Helmet } from "react-helmet-async";
 import { GridContainer } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
 
+import DailyData from "./daily-data/DailyData";
 import HipaaNotice from "../../components/HipaaNotice";
-import Title from "../../components/Title";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
+import Title from "../../components/Title";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import { FeatureName } from "../../utils/FeatureName";
 
-import DailyData from "./daily-data/DailyData";
-
 function DeliveriesPage() {
     const { data: orgDetails } = useOrganizationSettings();
-    const { description } = orgDetails || {};
+    const { description } = orgDetails ?? {};
     return (
         <GridContainer>
             <Helmet>

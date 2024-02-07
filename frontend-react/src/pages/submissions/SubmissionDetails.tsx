@@ -1,28 +1,28 @@
+import { GridContainer } from "@trussworks/react-uswds";
 import { Suspense } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
-import { GridContainer } from "@trussworks/react-uswds";
 
+import Crumbs, { CrumbConfig } from "../../components/Crumbs";
+import { DetailItem } from "../../components/DetailItem/DetailItem";
 import Spinner from "../../components/Spinner";
 import Title from "../../components/Title";
+import { useSessionContext } from "../../contexts/Session";
 import ActionDetailsResource, {
     Destination,
 } from "../../resources/ActionDetailsResource";
 import { generateDateTitles } from "../../utils/DateTimeUtils";
-import { ErrorPage } from "../error/ErrorPage";
-import Crumbs, { CrumbConfig } from "../../components/Crumbs";
-import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../utils/FeatureName";
-import { useSessionContext } from "../../contexts/Session";
+import { ErrorPage } from "../error/ErrorPage";
 
 /* Custom types */
-type DestinationItemProps = {
+interface DestinationItemProps {
     destinationObj: Destination;
-};
+}
 
-type SubmissionDetailsProps = {
+interface SubmissionDetailsProps {
     actionId: string | undefined;
-};
+}
 
 /*
     A component displaying information about a single destination

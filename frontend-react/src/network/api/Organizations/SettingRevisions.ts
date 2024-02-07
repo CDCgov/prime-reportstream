@@ -20,10 +20,10 @@ export interface SettingRevision {
 }
 
 /** parameters used for the request. Also used by the react page to make passing data down easier **/
-export type SettingRevisionParams = {
+export interface SettingRevisionParams {
     org: string;
     settingType: "sender" | "receiver" | "organization";
-};
+}
 
 /** endpoint component used below - not exported **/
 const settingRevisionEndpoints: RSApiEndpoints = {

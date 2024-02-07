@@ -1,13 +1,13 @@
+import type { Tokens } from "@okta/okta-auth-js";
 import { useCallback } from "react";
+import { Helmet } from "react-helmet-async";
 import { Navigate, useLocation } from "react-router-dom";
 import type { Location } from "react-router-dom";
-import type { Tokens } from "@okta/okta-auth-js";
-import { Helmet } from "react-helmet-async";
 
-import { oktaSignInConfig } from "../oktaConfig";
 import { USLink } from "../components/USLink";
-import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
 import { useSessionContext } from "../contexts/Session";
+import { oktaSignInConfig } from "../oktaConfig";
+import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
 
 export function Login() {
     const { oktaAuth, authState } = useSessionContext();
@@ -16,7 +16,7 @@ export function Login() {
 
     const onSuccess = useCallback(
         (tokens: Tokens) => {
-            oktaAuth.handleLoginRedirect(
+            void oktaAuth.handleLoginRedirect(
                 tokens,
                 location.state?.originalUrl ?? "/",
             );
@@ -25,7 +25,7 @@ export function Login() {
         [location.state?.originalUrl, oktaAuth],
     );
 
-    const onError = useCallback((_: any) => {}, []);
+    const onError = useCallback((_: any) => void 0, []);
 
     if (authState.isAuthenticated) {
         return <Navigate replace to={"/"} />;

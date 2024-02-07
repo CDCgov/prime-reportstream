@@ -1,8 +1,7 @@
 import { screen, within } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import { WarningsErrors } from "./WarningsErrors";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("WarningsErrors component", () => {
     test("renders expected content", async () => {

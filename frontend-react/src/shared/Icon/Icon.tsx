@@ -1,8 +1,8 @@
 // AutoUpdateFileChromatic
-import { HTMLAttributes } from "react";
 import { Icon as OrigIcon } from "@trussworks/react-uswds";
 import { IconProps as OrigIconProps } from "@trussworks/react-uswds/lib/components/Icon/Icon";
 import classNames from "classnames";
+import { HTMLAttributes } from "react";
 
 import rsSprite from "./reportstream-sprite.svg?url";
 

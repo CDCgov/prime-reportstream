@@ -1,8 +1,7 @@
 import { act } from "@testing-library/react";
 
-import { renderHook } from "../../utils/CustomRenderUtils";
-
 import useSortOrder, { SortSettingsActionType } from "./UseSortOrder";
+import { renderHook } from "../../utils/CustomRenderUtils";
 
 describe("UseSortOrder", () => {
     test("renders with default values", () => {

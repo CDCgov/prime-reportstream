@@ -1,44 +1,44 @@
-import { Suspense, useRef, useState } from "react";
-import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
-import { useParams } from "react-router-dom";
+import { Suspense, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { useParams } from "react-router-dom";
+import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 
-import HipaaNotice from "../../components/HipaaNotice";
-import Spinner from "../../components/Spinner";
-import { ErrorPage } from "../error/ErrorPage";
-import OrgSettingsResource from "../../resources/OrgSettingsResource";
-import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
-import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
 import {
     DropdownComponent,
     TextAreaComponent,
     TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
-import { useToast } from "../../contexts/Toast";
-import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
 } from "../../components/Admin/CompareJsonModal";
 import { DisplayMeta } from "../../components/Admin/DisplayMeta";
+import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
+import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
+import HipaaNotice from "../../components/HipaaNotice";
+import Spinner from "../../components/Spinner";
+import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
+import { USLink } from "../../components/USLink";
+import config from "../../config";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
+import { useToast } from "../../contexts/Toast";
+import OrgSettingsResource from "../../resources/OrgSettingsResource";
+import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
     getVersionWarning,
     VersionWarningType,
 } from "../../utils/misc";
-import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
-import config from "../../config";
-import { USLink } from "../../components/USLink";
-import { useSessionContext } from "../../contexts/Session";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { ErrorPage } from "../error/ErrorPage";
 
 const { RS_API_URL } = config;
 
-type AdminOrgEditProps = {
+interface AdminOrgEditProps {
     orgname: string;
-};
+}
 
 export function AdminOrgEditPage() {
     const { toast: showAlertNotification } = useToast();
@@ -208,7 +208,7 @@ export function AdminOrgEditPage() {
                             <TextInputComponent
                                 fieldname={"countyName"}
                                 label={"County Name"}
-                                defaultvalue={orgSettings.countyName || null}
+                                defaultvalue={orgSettings.countyName ?? null}
                                 savefunc={(v) =>
                                     (orgSettings.countyName =
                                         v === "" ? null : v)
@@ -217,7 +217,7 @@ export function AdminOrgEditPage() {
                             <TextInputComponent
                                 fieldname={"stateCode"}
                                 label={"State Code"}
-                                defaultvalue={orgSettings.stateCode || null}
+                                defaultvalue={orgSettings.stateCode ?? null}
                                 savefunc={(v) =>
                                     (orgSettings.stateCode =
                                         v === "" ? null : v)
@@ -241,14 +241,14 @@ export function AdminOrgEditPage() {
                                     type="submit"
                                     data-testid="submit"
                                     disabled={loading}
-                                    onClick={() => ShowCompareConfirm()}
+                                    onClick={() => void ShowCompareConfirm()}
                                 >
                                     Preview save...
                                 </Button>
                             </Grid>
                             <ConfirmSaveSettingModal
-                                uniquid={orgname || ""}
-                                onConfirm={saveOrgData}
+                                uniquid={orgname ?? ""}
+                                onConfirm={() => void saveOrgData()}
                                 ref={confirmModalRef}
                                 oldjson={orgSettingsOldJson}
                                 newjson={orgSettingsNewJson}
@@ -256,8 +256,8 @@ export function AdminOrgEditPage() {
                         </GridContainer>
                         <br />
                     </section>
-                    <OrgSenderTable orgname={orgname || ""} />
-                    <OrgReceiverTable orgname={orgname || ""} />
+                    <OrgSenderTable orgname={orgname ?? ""} />
+                    <OrgReceiverTable orgname={orgname ?? ""} />
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />

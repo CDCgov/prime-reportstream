@@ -1,10 +1,10 @@
 import { WarningErrorDetail } from "../../config/endpoints/messageTracker";
 import Table, { TableConfig } from "../Table/Table";
 
-type WarningsErrorsDisplayProps = {
+interface WarningsErrorsDisplayProps {
     title: string;
     data: WarningErrorDetail[];
-};
+}
 
 export const WarningsErrors = ({ title, data }: WarningsErrorsDisplayProps) => {
     const tableConfig: TableConfig = {

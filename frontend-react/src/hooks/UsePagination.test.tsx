@@ -1,19 +1,18 @@
 import { act, waitFor } from "@testing-library/react";
 import { range } from "lodash";
 
-import * as AppInsightsContext from "../contexts/AppInsights";
-import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
-import { renderHook } from "../utils/CustomRenderUtils";
-
 import usePagination, {
     CursorExtractor,
     getSlots,
     PaginationState,
     ProcessResultsPayload,
-    UsePaginationProps,
-    setSelectedPageReducer,
     processResultsReducer,
+    setSelectedPageReducer,
+    UsePaginationProps,
 } from "./UsePagination";
+import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
+import * as AppInsightsContext from "../contexts/AppInsights";
+import { renderHook } from "../utils/CustomRenderUtils";
 
 const mockTrackEvent = jest.fn();
 

@@ -1,5 +1,5 @@
-import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
 import Table, { TableConfig } from "../../../components/Table/Table";
+import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
 
 interface FacilitiesTableProps {
     /* REQUIRED
@@ -25,7 +25,7 @@ function DeliveryFacilitiesTable(props: FacilitiesTableProps) {
 
     return (
         <section id="facilities" className="margin-bottom-5">
-            <h2>Facilities reporting ({reportFacilities?.length || 0})</h2>
+            <h2>Facilities reporting ({reportFacilities?.length ?? 0})</h2>
             <Table config={tableConfig} />
         </section>
     );

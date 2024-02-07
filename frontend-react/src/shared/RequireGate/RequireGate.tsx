@@ -1,10 +1,10 @@
+import { lazy, PropsWithChildren, ReactElement } from "react";
 import { Navigate, useLocation } from "react-router";
-import { PropsWithChildren, ReactElement, lazy } from "react";
 
-import { PERMISSIONS } from "../../utils/UsefulTypes";
+import { useFeatureFlags } from "../../contexts/FeatureFlag";
 import { useSessionContext } from "../../contexts/Session";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
-import { useFeatureFlags } from "../../contexts/FeatureFlag";
+import { PERMISSIONS } from "../../utils/UsefulTypes";
 
 const ErrorNoPage = lazy(
     () => import("../../pages/error/legacy-content/ErrorNoPage"),
@@ -33,14 +33,14 @@ export function RequireGateBase({
         ? Array.isArray(auth)
             ? auth
             : typeof auth === "boolean"
-            ? []
-            : [auth]
+              ? []
+              : [auth]
         : undefined;
     const flags = Array.isArray(featureFlags)
         ? featureFlags
         : featureFlags
-        ? [featureFlags]
-        : [];
+          ? [featureFlags]
+          : [];
     let isAdmin = false,
         isAuthAllowed = false,
         isFeatureAllowed = false;
@@ -60,8 +60,10 @@ export function RequireGateBase({
             return anonymousElement;
         }
         const match = (
-            authState.accessToken?.claims.organization as string[] | undefined
-        )?.find((g: string) =>
+            authState.accessToken?.claims.organization as
+                | PERMISSIONS[]
+                | undefined
+        )?.find((g) =>
             perms.find((t) => {
                 if (t === PERMISSIONS.PRIME_ADMIN) {
                     isAdmin = true;
@@ -82,8 +84,10 @@ export function RequireGateBase({
     return <>{children}</>;
 }
 
-export interface RequireGateProps
-    extends Omit<RequireGateBaseProps, "anonymousElement" | "failElement"> {}
+export type RequireGateProps = Omit<
+    RequireGateBaseProps,
+    "anonymousElement" | "failElement"
+>;
 
 export function RequireGate(props: RequireGateProps) {
     const location = useLocation();

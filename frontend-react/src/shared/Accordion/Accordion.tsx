@@ -1,7 +1,7 @@
 import { Accordion as OrigAccordion } from "@trussworks/react-uswds";
+import classNames from "classnames";
 import { ComponentProps, useCallback, useId } from "react";
 import { useLocation } from "react-router";
-import classNames from "classnames";
 
 import styles from "./Accordion.module.scss";
 

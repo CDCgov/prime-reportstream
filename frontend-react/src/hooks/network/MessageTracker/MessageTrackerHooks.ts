@@ -1,12 +1,12 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 import {
-    RSMessageDetail,
     MessageListResource,
     messageTrackerEndpoints,
+    RSMessageDetail,
 } from "../../../config/endpoints/messageTracker";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 
 const { search, getMessageDetails } = messageTrackerEndpoints;
 

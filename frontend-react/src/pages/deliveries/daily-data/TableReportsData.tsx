@@ -1,9 +1,8 @@
 import moment from "moment";
 
-import ReportResource from "../../../resources/ReportResource";
-import { USLink } from "../../../components/USLink";
-
 import ReportLink from "./ReportLink";
+import { USLink } from "../../../components/USLink";
+import ReportResource from "../../../resources/ReportResource";
 
 interface Props {
     /* REQUIRED

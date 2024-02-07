@@ -1,11 +1,10 @@
 import { waitFor } from "@testing-library/react";
 
+import useReceiverDeliveries from "./UseReceiverDeliveries";
 import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
-
-import useReceiverDeliveries from "./UseReceiverDeliveries";
 
 describe("useReceiverDeliveries", () => {
     beforeAll(() => dataDashboardServer.listen());

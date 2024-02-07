@@ -1,10 +1,10 @@
-import { Dispatch, useReducer } from "react";
 import { pick } from "lodash";
+import { Dispatch, useReducer } from "react";
 
 import { ResponseError, WatersResponse } from "../config/endpoints/waters";
 import { Destination } from "../resources/ActionDetailsResource";
-import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
+import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { ContentType, FileType } from "../utils/TemporarySettingsAPITypes";
 
 export enum ErrorType {
@@ -207,7 +207,7 @@ function reducer(
         case FileHandlerActionType.RESET:
             return {
                 ...getInitialState(),
-                ...(payload || {}),
+                ...(payload ?? {}),
             };
         case FileHandlerActionType.PREPARE_FOR_REQUEST: {
             const preSubmitState = getPreSubmitState();
@@ -253,10 +253,10 @@ function reducer(
     }
 }
 
-export type UseFileHandlerHookResult = {
+export interface UseFileHandlerHookResult {
     state: FileHandlerState;
     dispatch: Dispatch<FileHandlerAction>;
-};
+}
 
 // this layer of abstraction around the reducer may not be necessary, but following
 // the pattern laid down in UsePagination for now, in case we need to make this more

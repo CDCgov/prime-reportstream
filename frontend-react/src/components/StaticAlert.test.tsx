@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../utils/CustomRenderUtils";
-
 import { StaticAlert, StaticAlertType } from "./StaticAlert";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 describe("StaticAlert", () => {
     test("renders correct class for success", async () => {

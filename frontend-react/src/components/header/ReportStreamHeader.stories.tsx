@@ -1,10 +1,9 @@
 import { FC, ReactElement } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 
+import ReportStreamHeader from "./ReportStreamHeader";
 import { SessionContext } from "../../contexts/Session";
 import { MemberType } from "../../utils/OrganizationUtils";
-
-import ReportStreamHeader from "./ReportStreamHeader";
 
 export default {
     title: "Components/Navbar",

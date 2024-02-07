@@ -1,5 +1,5 @@
-import { useCallback, useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback, useMemo } from "react";
 
 import {
     dataDashboardEndpoints,
@@ -7,10 +7,10 @@ import {
 } from "../../../config/endpoints/dataDashboard";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 import { useSessionContext } from "../../../contexts/Session";
-import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../filters/UseFilterManager";
+import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
 
 const { receiverSubmitters } = dataDashboardEndpoints;
 

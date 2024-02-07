@@ -1,13 +1,12 @@
+import { Button, FileInputRef, Select } from "@trussworks/react-uswds";
 import { useRef } from "react";
-import { FileInputRef, Select, Button } from "@trussworks/react-uswds";
 
+import { FileHandlerStepProps } from "./FileHandler";
+import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 import useSenderSchemaOptions, {
     SchemaOption,
 } from "../../senders/hooks/UseSenderSchemaOptions";
 import Spinner from "../Spinner";
-
-import { FileHandlerStepProps } from "./FileHandler";
-import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 
 export interface FileHandlerSchemaSelectionStepProps
     extends FileHandlerStepProps {

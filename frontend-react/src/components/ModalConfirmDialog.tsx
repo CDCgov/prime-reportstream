@@ -41,12 +41,12 @@ interface ModalConfirmProps {
     isLarge?: boolean;
 }
 
-type ModalConfirmSettings = {
+interface ModalConfirmSettings {
     title: string;
     message: string;
     okButtonText: string;
     itemId: string;
-};
+}
 
 export interface ModalConfirmRef extends ModalRef {
     showModal: (props: ModalConfirmSettings) => void;
@@ -82,9 +82,9 @@ export const ModalConfirmDialog = forwardRef(function ModalConfirmDialog(
                 modalRef?.current?.toggleModal(undefined, false);
             },
             // route these down to modal ref
-            modalId: modalRef?.current?.modalId || "",
-            modalIsOpen: modalRef?.current?.modalIsOpen || false,
-            toggleModal: modalRef?.current?.toggleModal || (() => false),
+            modalId: modalRef?.current?.modalId ?? "",
+            modalIsOpen: modalRef?.current?.modalIsOpen ?? false,
+            toggleModal: modalRef?.current?.toggleModal ?? (() => false),
         }),
         [modalRef],
     );

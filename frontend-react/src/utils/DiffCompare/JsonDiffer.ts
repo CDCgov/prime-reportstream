@@ -24,11 +24,11 @@ import { jsonSourceMap, SourceMapResult } from "./JsonSourceMap";
  * @param leftData SourceMapResult
  * @return JsonDiffResult addedRightKeys
  */
-export type JsonDiffResult = {
+export interface JsonDiffResult {
     addedLeftKeys: string[];
     addedRightKeys: string[];
     changedKeys: string[];
-};
+}
 
 /**
  * Compare to key paths and determine if the path is a child of the parent.
@@ -118,10 +118,10 @@ const extractLeafNodes = (pathArray: string[]): string[] => {
     return pathArray;
 };
 
-type Marker = {
+interface Marker {
     start: number;
     end: number;
-};
+}
 
 /**
  * Given a list of keys into the json map, produce an array of start/end markers
@@ -185,10 +185,10 @@ const convertNodesToMarkers = (
  * @returns string with the <mark> tags inserted.
  */
 const insertMarks = (jsonStr: string, markers: Marker[]): string => {
-    type MarkerInsert = {
+    interface MarkerInsert {
         pos: number;
         mark: "<mark>" | "</mark>";
-    };
+    }
     // turn into a single MarkerInsert[]. This enables easy back-to-front inserting into string
     // we insert two entries per mark into the accumlator array
     const inserts = markers.reduce(

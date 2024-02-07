@@ -1,19 +1,19 @@
-import { Suspense, useCallback, useState } from "react";
-import { Grid, GridContainer, Accordion } from "@trussworks/react-uswds";
+import { Accordion, Grid, GridContainer } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
-import { useParams } from "react-router-dom";
+import { Suspense, useCallback, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { useParams } from "react-router-dom";
 
 import HipaaNotice from "../../components/HipaaNotice";
+import Spinner from "../../components/Spinner";
+import { StaticCompare } from "../../components/StaticCompare";
 import {
     SettingRevision,
     SettingRevisionParams,
     useSettingRevisionEndpointsQuery,
 } from "../../network/api/Organizations/SettingRevisions";
-import Spinner from "../../components/Spinner";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { formatDate, groupBy } from "../../utils/misc";
-import { StaticCompare } from "../../components/StaticCompare";
 
 type AccordionClickHandler = (
     key: string,
@@ -103,8 +103,8 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
     const msg = isError
         ? "Failed to load data"
         : isLoading
-        ? "Loading..."
-        : "Data not found"; // should not be used because `!data` test below but useful for unit test debugging
+          ? "Loading..."
+          : "Data not found"; // should not be used because `!data` test below but useful for unit test debugging
     return (
         <Grid col={"fill"} className={"rs-maxwidth-vw80"}>
             <Grid row gap="md" className={"rs-accord-list-row"}>
@@ -195,8 +195,8 @@ const AdminRevHistoryPage = () => {
                     <Grid row className={"rs-list-diffs-container"}>
                         <Suspense fallback={<Spinner />}>
                             <MainRevHistoryComponent
-                                org={org || ""}
-                                settingType={settingType || "organization"}
+                                org={org ?? ""}
+                                settingType={settingType ?? "organization"}
                                 leftSelectedListItem={leftSelectedListItem}
                                 rightSelectedListItem={rightSelectedListItem}
                                 onClickHandler={onClickHandler}

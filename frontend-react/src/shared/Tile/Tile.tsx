@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
-import DOMPurify from "dompurify";
 import classNames from "classnames";
+import DOMPurify from "dompurify";
+import { ReactNode } from "react";
 
 import styles from "./Tile.module.scss";
 

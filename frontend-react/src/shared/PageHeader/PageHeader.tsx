@@ -1,14 +1,14 @@
-import { HTMLAttributes, PropsWithChildren } from "react";
 import { Breadcrumb, BreadcrumbBar } from "@trussworks/react-uswds";
+import { HTMLAttributes, PropsWithChildren } from "react";
 
 import { USCrumbLink, USLinkButton } from "../../components/USLink";
 
 export type PageHeaderProps = PropsWithChildren<
     {
-        breadcrumbs?: Array<{ label: string; href: string }>;
+        breadcrumbs?: { label: string; href: string }[];
         title?: string;
         subtitleArr?: string[];
-        callToAction?: Array<{ label: string; href: string }>;
+        callToAction?: { label: string; href: string }[];
         lastUpdated?: string;
     } & HTMLAttributes<HTMLElement>
 >;
@@ -44,7 +44,7 @@ function PageHeader({
                     {s}
                 </p>
             ))}
-            {(callToAction || lastUpdated) && (
+            {(callToAction ?? lastUpdated) && (
                 <div className="grid-row margin-top-8 margin-bottom-2">
                     {callToAction?.map((c) => (
                         <USLinkButton key={c.label} href={c.href}>

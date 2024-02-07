@@ -1,7 +1,7 @@
 import {
     parseCsvForError,
-    REPORT_MAX_ITEMS,
     REPORT_MAX_ITEM_COLUMNS,
+    REPORT_MAX_ITEMS,
 } from "./FileUtils";
 
 describe("parseCsvForError", () => {

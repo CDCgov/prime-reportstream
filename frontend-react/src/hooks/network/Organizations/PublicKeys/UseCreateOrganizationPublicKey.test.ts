@@ -1,12 +1,11 @@
+import useCreateOrganizationPublicKey from "./UseCreateOrganizationPublicKey";
 import {
     dummyPublicKey,
     orgServer,
 } from "../../../../__mocks__/OrganizationMockServer";
-import { renderHook } from "../../../../utils/CustomRenderUtils";
 import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
+import { renderHook } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../../utils/OrganizationUtils";
-
-import useCreateOrganizationPublicKey from "./UseCreateOrganizationPublicKey";
 
 describe("useCreateOrganizationPublicKey", () => {
     beforeAll(() => orgServer.listen());

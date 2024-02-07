@@ -2,33 +2,32 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { Suspense } from "react";
 
-import { INITIAL_STATE } from "../../hooks/UseFileHandler";
-import {
-    CustomerStatus,
-    FileType,
-    Format,
-} from "../../utils/TemporarySettingsAPITypes";
-import { RSSender } from "../../config/endpoints/settings";
-import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
-import { renderApp } from "../../utils/CustomRenderUtils";
-import * as useSenderResourceExports from "../../hooks/UseSenderResource";
-import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import FileHandlerFileUploadStep, {
+    getClientHeader,
+} from "./FileHandlerFileUploadStep";
+import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
 import {
     fakeFile,
     mockSendFileWithErrors,
     mockSendValidFile,
 } from "../../__mocks__/validation";
-import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import { RSSender } from "../../config/endpoints/settings";
 import {
-    mockAppInsightsContextReturnValue,
     mockAppInsights,
+    mockAppInsightsContextReturnValue,
 } from "../../contexts/__mocks__/AppInsightsContext";
-import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
-
-import FileHandlerFileUploadStep, {
-    getClientHeader,
-} from "./FileHandlerFileUploadStep";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import { INITIAL_STATE } from "../../hooks/UseFileHandler";
+import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
+import * as useSenderResourceExports from "../../hooks/UseSenderResource";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
+import {
+    CustomerStatus,
+    FileType,
+    Format,
+} from "../../utils/TemporarySettingsAPITypes";
 
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
@@ -236,7 +235,7 @@ describe("FileHandlerFileUploadStep", () => {
                 await userEvent.upload(input, fakeFile);
                 await userEvent.click(screen.getByText("Submit"));
                 const form = screen.getByTestId("form");
-                await waitFor(async () => {
+                await waitFor(() => {
                     // eslint-disable-next-line testing-library/no-wait-for-side-effects
                     fireEvent.submit(form);
                 });
@@ -320,7 +319,7 @@ describe("FileHandlerFileUploadStep", () => {
                 await userEvent.upload(input, fakeFile);
                 await userEvent.click(screen.getByText("Submit"));
                 const form = screen.getByTestId("form");
-                await waitFor(async () => {
+                await waitFor(() => {
                     // eslint-disable-next-line testing-library/no-wait-for-side-effects
                     fireEvent.submit(form);
                 });

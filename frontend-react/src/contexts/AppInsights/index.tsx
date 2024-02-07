@@ -1,17 +1,17 @@
 import {
-    PropsWithChildren,
+    AppInsightsContext as AppInsightsContextOrig,
+    ReactPlugin,
+} from "@microsoft/applicationinsights-react-js";
+import { ApplicationInsights } from "@microsoft/applicationinsights-web";
+import {
     createContext,
+    PropsWithChildren,
     useCallback,
     useContext,
     useEffect,
     useMemo,
     useState,
 } from "react";
-import {
-    ReactPlugin,
-    AppInsightsContext as AppInsightsContextOrig,
-} from "@microsoft/applicationinsights-react-js";
-import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 
 import { MembershipSettings } from "../../utils/OrganizationUtils";
 

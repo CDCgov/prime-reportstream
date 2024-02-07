@@ -1,11 +1,10 @@
 import { waitFor } from "@testing-library/react";
 
-import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
+import useOrganizationSenders from "./UseOrganizationSenders";
 import { dummySenders, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import { MemberType } from "../utils/OrganizationUtils";
-
-import useOrganizationSenders from "./UseOrganizationSenders";
 
 describe("useOrganizationSenders", () => {
     beforeAll(() => {

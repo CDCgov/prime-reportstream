@@ -1,8 +1,7 @@
-import testMd from "../../content/markdown-test.md?url";
-import { renderApp, screen } from "../../utils/CustomRenderUtils";
-
 import { MarkdownDirectory } from "./MarkdownDirectory";
 import MarkdownPage from "./MarkdownPage";
+import testMd from "../../content/markdown-test.md?url";
+import { renderApp, screen } from "../../utils/CustomRenderUtils";
 
 describe("DirectoryAsPage", () => {
     const testDir = new MarkdownDirectory()

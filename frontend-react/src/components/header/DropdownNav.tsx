@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
+import { useEffect, useState } from "react";
 
+import { FeatureName } from "../../utils/FeatureName";
 import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { USLink } from "../USLink";
-import { FeatureName } from "../../utils/FeatureName";
 
 export interface NonStaticOption {
     title: string;

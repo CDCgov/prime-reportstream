@@ -1,13 +1,12 @@
 import { Grid } from "@trussworks/react-uswds";
 
-import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
+import styles from "./FacilityProviderSubmitterSummary.module.scss";
 import {
     SenderType,
     transformFacilityTypeClass,
     transformFacilityTypeLabel,
 } from "../../../utils/DataDashboardUtils";
-
-import styles from "./FacilityProviderSubmitterSummary.module.scss";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 
 interface SummaryProps {
     details: {
@@ -47,7 +46,7 @@ export function FacilityProviderSubmitterSummary({
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
-                            {formatDateWithoutSeconds(details!.reportDate)}
+                            {formatDateWithoutSeconds(details.reportDate)}
                         </span>
                     </Grid>
                     <Grid col={1}>
@@ -69,7 +68,7 @@ export function FacilityProviderSubmitterSummary({
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
-                            {details!.averageTestPerReport}
+                            {details.averageTestPerReport}
                         </span>
                     </Grid>
                     <Grid col={1}>
@@ -95,7 +94,7 @@ export function FacilityProviderSubmitterSummary({
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
-                            {details!.totalTests}
+                            {details.totalTests}
                         </span>
                     </Grid>
                     <Grid col={1}>
@@ -107,7 +106,7 @@ export function FacilityProviderSubmitterSummary({
                     <Grid col={5}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
-                            {details!.contactName}
+                            {details.contactName}
                         </span>
                     </Grid>
                 </Grid>
@@ -121,7 +120,7 @@ export function FacilityProviderSubmitterSummary({
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
-                            {details!.submitter}
+                            {details.submitter}
                         </span>
                     </Grid>
                     <Grid col={1}>
@@ -129,7 +128,7 @@ export function FacilityProviderSubmitterSummary({
                     </Grid>
                     <Grid col={5}>
                         <div className="margin-top-4 font-code-xs">
-                            {details!.phone}
+                            {details.phone}
                         </div>
                     </Grid>
                 </Grid>

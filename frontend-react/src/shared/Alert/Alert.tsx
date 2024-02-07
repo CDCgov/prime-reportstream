@@ -1,11 +1,10 @@
 // AutoUpdateFileChromatic
-import { AriaRole, ComponentProps, HTMLAttributes, ReactElement } from "react";
-import classnames from "classnames";
 import { Alert as OrigAlert } from "@trussworks/react-uswds";
-
-import Icon, { IconName, SubcomponentIconProp } from "../Icon/Icon";
+import classnames from "classnames";
+import { AriaRole, ComponentProps, HTMLAttributes, ReactElement } from "react";
 
 import styles from "./Alert.module.scss";
+import Icon, { IconName, SubcomponentIconProp } from "../Icon/Icon";
 
 type OrigAlertProps = ComponentProps<typeof OrigAlert>;
 

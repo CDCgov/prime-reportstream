@@ -1,10 +1,9 @@
 import { screen } from "@testing-library/react";
 import { PropsWithChildren, ReactNode, useMemo, useState } from "react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import MarkdownLayoutContext from "./Context";
 import { LayoutMain, LayoutSidenav } from "./LayoutComponents";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("LayoutComponents", () => {
     function TestComponent(props: PropsWithChildren<object>) {
@@ -37,7 +36,7 @@ describe("LayoutComponents", () => {
         );
     }
 
-    test("LayoutSidenav", async () => {
+    test("LayoutSidenav", () => {
         renderApp(
             <TestComponent>
                 <LayoutSidenav>Test Sidenav</LayoutSidenav>

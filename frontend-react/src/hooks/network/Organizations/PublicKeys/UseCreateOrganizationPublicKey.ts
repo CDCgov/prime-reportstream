@@ -1,11 +1,11 @@
-import { UseMutationResult, useMutation } from "@tanstack/react-query";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
 
 import {
     RSApiKeysResponse,
     servicesEndpoints,
 } from "../../../../config/endpoints/settings";
-import { useSessionContext } from "../../../../contexts/Session";
 import { useAuthorizedFetch } from "../../../../contexts/AuthorizedFetch";
+import { useSessionContext } from "../../../../contexts/Session";
 
 export interface OrganizationPublicKeyPostArgs {
     kid: string;

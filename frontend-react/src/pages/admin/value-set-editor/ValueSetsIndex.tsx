@@ -1,20 +1,20 @@
 import { Helmet } from "react-helmet-async";
 
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import Table, {
     ColumnConfig,
     LegendItem,
     TableConfig,
 } from "../../../components/Table/Table";
 import {
-    useValueSetsMeta,
-    useValueSetsTable,
-} from "../../../hooks/UseValueSets";
-import {
     LookupTable,
     LookupTables,
     ValueSet,
 } from "../../../config/endpoints/lookupTables";
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import {
+    useValueSetsMeta,
+    useValueSetsTable,
+} from "../../../hooks/UseValueSets";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (

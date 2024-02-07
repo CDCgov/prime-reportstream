@@ -1,9 +1,8 @@
-import { FormEvent, useCallback, useRef, useState } from "react";
 import { Button, DateRangePicker } from "@trussworks/react-uswds";
+import { FormEvent, useCallback, useRef, useState } from "react";
 
 import "./TableFilters.css";
 
-import { FilterManager } from "../../hooks/filters/UseFilterManager";
 import {
     CursorActionType,
     CursorManager,
@@ -16,6 +15,7 @@ import {
     getEndOfDay,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
+import { FilterManager } from "../../hooks/filters/UseFilterManager";
 
 export enum StyleClass {
     CONTAINER = "filter-container",
@@ -45,7 +45,7 @@ const DATE_RE = /^[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{2,4}$/;
 export function isValidDateString(dateStr?: string) {
     // need to check for value format (mm/dd/yyyy) and date validity (no 99/99/9999)
     return (
-        DATE_RE.test(dateStr || "") && !Number.isNaN(Date.parse(dateStr || ""))
+        DATE_RE.test(dateStr ?? "") && !Number.isNaN(Date.parse(dateStr ?? ""))
     );
 }
 

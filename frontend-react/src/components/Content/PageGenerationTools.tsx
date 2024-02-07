@@ -1,8 +1,7 @@
 /* Uniformly supplying resourcesCrumb */
 
-import { CrumbConfig, WithCrumbs } from "../Crumbs";
-
 import { ContentDirectory } from "./MarkdownDirectory";
+import { CrumbConfig, WithCrumbs } from "../Crumbs";
 
 export const contentContainer = (
     Content: () => JSX.Element,
@@ -40,10 +39,10 @@ export interface SlugParams {
     slug: string;
 }
 export class ContentDirectoryTools {
-    title: string = "";
-    subtitle: string = "";
-    slugs: Map<string, string> = new Map();
-    root: string = "";
+    title = "";
+    subtitle = "";
+    slugs = new Map<string, string>();
+    root = "";
     setTitle(name: string) {
         this.title = name;
         return this;
