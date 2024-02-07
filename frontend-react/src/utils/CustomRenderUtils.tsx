@@ -1,4 +1,4 @@
-import { ReactElement, ReactNode } from "react";
+import { ReactElement, ReactNode, Suspense } from "react";
 import {
     render,
     RenderOptions,
@@ -74,37 +74,43 @@ export const AppWrapper = ({
             },
         );
         return (
-            <CacheProvider>
-                <HelmetProvider>
-                    <AppInsightsContextProvider>
-                        <SessionProviderBase
-                            oktaAuth={{} as any}
-                            authState={{}}
-                            config={config}
-                        >
-                            <QueryClientProvider client={getTestQueryClient()}>
-                                <AuthorizedFetchProvider
-                                    initializedOverride={true}
+            <Suspense>
+                <CacheProvider>
+                    <HelmetProvider>
+                        <AppInsightsContextProvider>
+                            <SessionProviderBase
+                                oktaAuth={{} as any}
+                                authState={{}}
+                                config={config}
+                            >
+                                <QueryClientProvider
+                                    client={getTestQueryClient()}
                                 >
-                                    <FeatureFlagProvider>
-                                        {restHookFixtures ? (
-                                            <MockResolver
-                                                fixtures={restHookFixtures}
-                                            >
+                                    <AuthorizedFetchProvider
+                                        initializedOverride={true}
+                                    >
+                                        <FeatureFlagProvider>
+                                            {restHookFixtures ? (
+                                                <MockResolver
+                                                    fixtures={restHookFixtures}
+                                                >
+                                                    <RouterProvider
+                                                        router={router}
+                                                    />
+                                                </MockResolver>
+                                            ) : (
                                                 <RouterProvider
                                                     router={router}
                                                 />
-                                            </MockResolver>
-                                        ) : (
-                                            <RouterProvider router={router} />
-                                        )}
-                                    </FeatureFlagProvider>
-                                </AuthorizedFetchProvider>
-                            </QueryClientProvider>
-                        </SessionProviderBase>
-                    </AppInsightsContextProvider>
-                </HelmetProvider>
-            </CacheProvider>
+                                            )}
+                                        </FeatureFlagProvider>
+                                    </AuthorizedFetchProvider>
+                                </QueryClientProvider>
+                            </SessionProviderBase>
+                        </AppInsightsContextProvider>
+                    </HelmetProvider>
+                </CacheProvider>
+            </Suspense>
         );
     };
 };
