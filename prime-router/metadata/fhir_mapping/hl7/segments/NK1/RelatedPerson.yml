@@ -204,7 +204,7 @@ identifier:
       expressionType: resource
       specs: NK1.12
       constants:
-        CXIdentifierField: NK.12
+        CXIdentifierField: NK1.12
     - valueOf: datatypes/CX/Identifier
       condition: $nk1-33 NOT_NULL
       vars:

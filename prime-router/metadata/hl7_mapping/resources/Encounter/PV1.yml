@@ -146,7 +146,7 @@ elements:
       cxField: '%{hl7PV1Field}-50(%{cxIndex})'
 
   - name: pv1-service-episode-description
-    value: [ '%resource.episodeOfCare.resolve().where(extension(%`rsext-hl7v2Field`).value = "PV1.53").extension(%`rsext-episode-of-care-name`).value' ]
+    value: [ '%resource.episodeOfCare.resolve().where(extension(%`rsext-hl7v2Field`).value = "PV1.54").extension(%`rsext-episode-of-care-name`).value' ]
     hl7Spec: [ '%{hl7PV1Field}-53' ]
 
   - name: pv1-service-episode-identifier
