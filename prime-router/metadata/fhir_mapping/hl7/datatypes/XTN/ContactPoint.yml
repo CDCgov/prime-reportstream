@@ -234,12 +234,23 @@ extension:
           value: $numExt
     - expressionType: resource
       valueOf: datatypes/XTN/XTNExtension
-    - expressionType: nested
-      condition: $hl7v2Name NOT_NULL
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Field NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7v2Name
+          value: hl7v2Field
         valueString:
           type: STRING
-          valueOf: $hl7v2Name
+          valueOf: $hl7v2Field
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Component

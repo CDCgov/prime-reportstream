@@ -11,4 +11,4 @@ udiCarrier:
   generateList: true
   specs: PRT.10
   constants:
-    hl7Use: "device-udi-carrier"
+    hl7v2Field: "PRT.10"

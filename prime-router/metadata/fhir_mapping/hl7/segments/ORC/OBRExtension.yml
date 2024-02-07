@@ -108,7 +108,7 @@ extension:
           valueOf: datatypes/XTN/ContactPoint
           expressionType: resource
           constants:
-            hl7v2Name: obr-17-order-callback-phone-number
+            hl7v2Field: "OBR.17"
     - expressionType: nested
       vars:
         obr18: OBR.18
@@ -333,4 +333,4 @@ extension:
           expressionType: resource
           specs: OBR.53
           constants:
-            identifierIndexName: "obr-53-alternate-placer-order-number"
+            CXIdentifierField: OBR.53

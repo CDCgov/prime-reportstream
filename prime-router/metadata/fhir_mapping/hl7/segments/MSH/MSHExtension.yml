@@ -123,18 +123,3 @@ extension:
       expressionType: resource
       valueOf: datatypes/HD/ExtensionHD
       specs: MSH.25
-
-# TODO there is a bug in the library where if these are included in
-# expressions array above only one value is generated
-#extension_1:
-#  expressionType: nested
-#  generateList: true
-#  specs: MSH.21
-#  expressionsMap:
-#    url:
-#      type: SYSTEM_URL
-#      value: msh21-source-message-profile-id
-#    valueIdentifier:
-#      generateList: true
-#      valueOf: datatype/Identifier_SystemID
-#      expressionType: resource

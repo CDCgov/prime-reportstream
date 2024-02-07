@@ -25,13 +25,13 @@ source:
     msh24: STRING_ALL, MSH.24
   expressions:
     - constants:
-        messageHeaderSourceField: sending-application
+        messageHeaderSourceField: MSH.3
       condition: $msh3 NOT_NULL
       valueOf: segments/MSH/datatypes/HD/Source
       expressionType: resource
       specs: MSH.3
     - constants:
-        messageHeaderSourceField: sending-network-address
+        messageHeaderSourceField: MSH.24
       condition: $msh3 NULL && $msh24 NOT_NULL
       valueOf: segments/MSH/datatypes/HD/Source
       expressionType: resource
@@ -62,19 +62,19 @@ destination:
   generateList: true
   expressions:
     - constants:
-        messageHeaderDestinationField: receiving-application
+        messageHeaderDestinationField: MSH.5
       condition: $msh5 NOT_NULL
       expressionType: resource
       valueOf: segments/MSH/datatypes/HD/Destination
       specs: MSH.5
     - constants:
-        messageHeaderDestinationField: receiving-network-address
+        messageHeaderDestinationField: MSH.25
       condition: $msh25 NOT_NULL && $msh25 NOT_EQUALS $msh5
       valueOf: segments/MSH/datatypes/HD/Destination
       expressionType: resource
       specs: MSH.25
     - constants:
-        messageHeaderDestinationField: receiving-network-address
+        messageHeaderDestinationField: MSH.25
       condition: $msh25 NOT_NULL && $msh5 NULL
       valueOf: segments/MSH/datatypes/HD/Destination
       expressionType: resource
@@ -82,7 +82,7 @@ destination:
     - expressionType: nested
       condition: $msh6 NOT_NULL && $msh5 NULL && $msh25 NULL
       constants:
-        hdOrganizationHL7Use: receiving-facility
+        hdOrganizationHL7Field: MSH.6
       expressionsMap:
         receiver:
           expressionType: reference
@@ -91,7 +91,7 @@ destination:
     - expressionType: nested
       condition: $msh6 NOT_NULL && $msh23 NOT_NULL
       constants:
-        xonOrganizationHL7Use: receiving-responsible-organization
+        XONHL7Field: MSH.23
       expressionsMap:
         receiver:
           expressionType: reference
