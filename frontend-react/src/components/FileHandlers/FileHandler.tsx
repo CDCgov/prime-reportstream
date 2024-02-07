@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 import { Helmet } from "react-helmet-async";
 
@@ -13,6 +13,7 @@ import { USExtLink, USLink } from "../USLink";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
 import { WatersResponse } from "../../config/endpoints/waters";
 import Alert from "../../shared/Alert/Alert";
+import Spinner from "../Spinner";
 
 import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
 import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
@@ -180,16 +181,18 @@ export default function FileHandler() {
                                     );
                                 case FileHandlerFileUploadStep:
                                     return (
-                                        <FileHandlerFileUploadStep
-                                            {...commonStepProps}
-                                            onFileChange={handleFileChange}
-                                            onFileSubmitError={
-                                                handleResetToFileSelection
-                                            }
-                                            onFileSubmitSuccess={
-                                                handleFileSubmitSuccess
-                                            }
-                                        />
+                                        <Suspense fallback={<Spinner />}>
+                                            <FileHandlerFileUploadStep
+                                                {...commonStepProps}
+                                                onFileChange={handleFileChange}
+                                                onFileSubmitError={
+                                                    handleResetToFileSelection
+                                                }
+                                                onFileSubmitSuccess={
+                                                    handleFileSubmitSuccess
+                                                }
+                                            />
+                                        </Suspense>
                                     );
                                 case FileHandlerErrorsWarningsStep:
                                     return (

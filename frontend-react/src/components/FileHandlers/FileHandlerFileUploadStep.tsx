@@ -86,9 +86,8 @@ export default function FileHandlerFileUploadStep({
 }: FileHandlerFileUploadStepProps) {
     const { appInsights } = useAppInsightsContext();
     const { data: organization } = useOrganizationSettings();
-    const { data: senderDetail, isLoading: senderIsLoading } =
-        useSenderResource();
-    const { activeMembership } = useSessionContext();
+    const { data: senderDetail } = useSenderResource();
+    const { activeMembership, rsConsole } = useSessionContext();
     const fileInputRef = useRef<FileInputRef>(null);
     const { format } = selectedSchemaOption;
     const accept = selectedSchemaOption
@@ -139,7 +138,7 @@ export default function FileHandlerFileUploadStep({
                 client: getClientHeader(
                     selectedSchemaOption.value,
                     activeMembership,
-                    senderDetail,
+                    senderDetail!,
                 ),
                 schema: selectedSchemaOption.value,
                 format: selectedSchemaOption.format,
@@ -185,15 +184,14 @@ export default function FileHandlerFileUploadStep({
         }
     }
 
+    if (senderDetail == null)
+        rsConsole.error(new Error("Failed to fetch sender detail"));
+
     return (
         <div>
             <FileHandlerPiiWarning />
 
             {(() => {
-                if (senderIsLoading) {
-                    return <Spinner />;
-                }
-
                 if (isUploading) {
                     return (
                         <div className="padding-y-4 text-center">
