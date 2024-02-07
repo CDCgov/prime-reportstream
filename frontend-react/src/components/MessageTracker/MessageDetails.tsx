@@ -12,6 +12,7 @@ import { withCatchAndSuspense } from "../RSErrorBoundary";
 
 interface MessageDetailsProps {
     id: string | undefined;
+    [k: string]: string | undefined;
 }
 
 const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {

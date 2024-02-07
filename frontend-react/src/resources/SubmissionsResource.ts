@@ -12,6 +12,7 @@ interface SubmissionsResourceParams {
     until: string;
     pageSize: number;
     showFailed: boolean;
+    [k: string]: string | number | boolean;
 }
 
 const FALLBACKDATE = "2020-01-01T00:00:00.000Z";

@@ -22,6 +22,7 @@ interface DestinationItemProps {
 
 interface SubmissionDetailsProps {
     actionId: string | undefined;
+    [k: string]: string | undefined;
 }
 
 /*

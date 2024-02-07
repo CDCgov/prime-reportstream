@@ -25,6 +25,9 @@ export interface SettingRevisionParams {
     settingType: "sender" | "receiver" | "organization";
 }
 
+export type SettingRevisionParamsRecord = SettingRevisionParams &
+    Record<string, string>;
+
 /** endpoint component used below - not exported **/
 const settingRevisionEndpoints: RSApiEndpoints = {
     getList: new RSEndpoint({
@@ -36,7 +39,7 @@ const settingRevisionEndpoints: RSApiEndpoints = {
 
 /** actual fetching component **/
 export const useSettingRevisionEndpointsQuery = (
-    params: SettingRevisionParams,
+    params: SettingRevisionParamsRecord,
 ) => {
     const authorizedFetch = useAuthorizedFetch<SettingRevision[]>();
 

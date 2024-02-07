@@ -10,6 +10,7 @@ import { StaticCompare } from "../../components/StaticCompare";
 import {
     SettingRevision,
     SettingRevisionParams,
+    SettingRevisionParamsRecord,
     useSettingRevisionEndpointsQuery,
 } from "../../network/api/Organizations/SettingRevisions";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
@@ -97,7 +98,12 @@ interface MainComponentProps extends SettingRevisionParams {
  * Nest loading into a component that can spin so the bulk of the page loads while
  * the network request happens.
  */
-const MainRevHistoryComponent = (props: MainComponentProps) => {
+const MainRevHistoryComponent = ({
+    leftSelectedListItem,
+    rightSelectedListItem,
+    onClickHandler,
+    ...props
+}: MainComponentProps) => {
     const { data, isLoading, isError } =
         useSettingRevisionEndpointsQuery(props);
     const msg = isError
@@ -116,8 +122,8 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
                             bordered={false}
                             items={dataToAccordionItems({
                                 key: "left",
-                                selectedKey: props.leftSelectedListItem,
-                                onClickHandler: props.onClickHandler,
+                                selectedKey: leftSelectedListItem,
+                                onClickHandler: onClickHandler,
                                 data,
                             })}
                         />
@@ -129,8 +135,8 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
                             bordered={false}
                             items={dataToAccordionItems({
                                 key: "right",
-                                selectedKey: props.rightSelectedListItem,
-                                onClickHandler: props.onClickHandler,
+                                selectedKey: rightSelectedListItem,
+                                onClickHandler: onClickHandler,
                                 data,
                             })}
                         />
@@ -143,7 +149,7 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
 
 /** main page, not exported here because it should only be loaded via AdminRevHistoryWithAuth() **/
 const AdminRevHistoryPage = () => {
-    const { org, settingType } = useParams<SettingRevisionParams>(); // props past to page via the route/url path args
+    const { org, settingType } = useParams<SettingRevisionParamsRecord>(); // props past to page via the route/url path args
     const [leftJson, setLeftJson] = useState("");
     const [rightJson, setRightJson] = useState("");
     // used to highlight which item is selected.

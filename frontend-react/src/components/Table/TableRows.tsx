@@ -143,7 +143,7 @@ export const TableRows = ({
                     setRowToEdit(undefined);
                     return;
                 }
-                // TODO: implement a loading state here
+                // TODO:  implement a loading state here
                 return onSave(updatedRow).then(() => {
                     setRowToEdit(undefined);
                     setUpdatedRow(null);

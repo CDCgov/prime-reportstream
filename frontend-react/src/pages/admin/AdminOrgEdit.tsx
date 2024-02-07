@@ -38,6 +38,7 @@ const { RS_API_URL } = config;
 
 interface AdminOrgEditProps {
     orgname: string;
+    [k: string]: string | undefined;
 }
 
 export function AdminOrgEditPage() {

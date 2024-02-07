@@ -414,7 +414,7 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
     );
 };
 
-interface EditReceiverSettingsProps {
+interface EditReceiverSettingsParams extends Record<string, string> {
     orgname: string;
     receivername: string;
     action: "edit" | "clone";
@@ -422,7 +422,7 @@ interface EditReceiverSettingsProps {
 
 export function EditReceiverSettingsPage() {
     const { orgname, receivername, action } =
-        useParams<EditReceiverSettingsProps>();
+        useParams<EditReceiverSettingsParams>();
 
     return (
         <AdminFormWrapper
