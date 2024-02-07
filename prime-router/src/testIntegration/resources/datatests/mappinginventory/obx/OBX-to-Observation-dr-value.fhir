@@ -156,7 +156,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
             "extension" : [
               {
-                "url" : "obx-2-value-type",
+                "url" : "OBX.2",
                 "valueId" : "DR"
               }
             ]

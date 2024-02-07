@@ -156,7 +156,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
             "extension" : [
               {
-                "url" : "obx-11-observation-status",
+                "url" : "OBX.11",
                 "valueString" : "X"
               }
             ]

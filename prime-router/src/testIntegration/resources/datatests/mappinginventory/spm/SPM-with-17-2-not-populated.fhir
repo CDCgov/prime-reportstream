@@ -184,7 +184,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/spm-specimen",
             "extension" : [
               {
-                "url" : "spm-3-specimen-parent-id-placer",
+                "url" : "SPM.3.1",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -237,7 +237,7 @@
                 }
               },
               {
-                "url" : "spm-3-specimen-parent-id-placer",
+                "url" : "SPM.3.1",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -290,7 +290,7 @@
                 }
               },
               {
-                "url" : "spm-3-specimen-parent-id-filler",
+                "url" : "SPM.3.2",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -343,7 +343,7 @@
                 }
               },
               {
-                "url" : "spm-3-specimen-parent-id-filler",
+                "url" : "SPM.3.2",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -396,11 +396,11 @@
                 }
               },
               {
-                "url" : "spm-20-specimen-availability",
+                "url" : "SPM.20",
                 "valueString" : "Y"
               },
               {
-                "url" : "spm-22-specimen-quality",
+                "url" : "SPM.22",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -438,7 +438,7 @@
                 }
               },
               {
-                "url" : "spm-23-specimen-appropriateness",
+                "url" : "SPM.23",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -476,17 +476,17 @@
                 }
               },
               {
-                "url" : "spm-25-specimen-current-quantity",
+                "url" : "SPM.25",
                 "valueQuantity" : {
                   "value" : 1
                 }
               },
               {
-                "url" : "spm-26-number-of-specimen-containers",
+                "url" : "SPM.26",
                 "valueString" : "2"
               },
               {
-                "url" : "spm-28-container-condition",
+                "url" : "SPM.28",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -524,7 +524,7 @@
                 }
               },
               {
-                "url" : "spm-29-specimen-child-role",
+                "url" : "SPM.29",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -562,7 +562,7 @@
                 }
               },
               {
-                "url" : "spm-5-specimen-type-modifier",
+                "url" : "SPM.5",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -600,7 +600,7 @@
                 }
               },
               {
-                "url" : "spm-5-specimen-type-modifier",
+                "url" : "SPM.5",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -638,7 +638,7 @@
                 }
               },
               {
-                "url" : "spm-6-specimen-additives",
+                "url" : "SPM.6",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -676,7 +676,7 @@
                 }
               },
               {
-                "url" : "spm-6-specimen-additives",
+                "url" : "SPM.6",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -714,7 +714,7 @@
                 }
               },
               {
-                "url" : "spm-10-specimen-collection-site",
+                "url" : "SPM.10",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -752,7 +752,7 @@
                 }
               },
               {
-                "url" : "spm-11-specimen-role",
+                "url" : "SPM.11",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -790,7 +790,7 @@
                 }
               },
               {
-                "url" : "spm-11-specimen-role",
+                "url" : "SPM.11",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -828,11 +828,11 @@
                 }
               },
               {
-                "url" : "spm-13-grouped-specimen-count",
+                "url" : "SPM.13",
                 "valueString" : "2"
               },
               {
-                "url" : "spm-15-specimen-handling-code",
+                "url" : "SPM.15",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -870,7 +870,7 @@
                 }
               },
               {
-                "url" : "spm-15-specimen-handling-code",
+                "url" : "SPM.15",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -908,7 +908,7 @@
                 }
               },
               {
-                "url" : "spm-16-specimen-risk-code",
+                "url" : "SPM.16",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -946,7 +946,7 @@
                 }
               },
               {
-                "url" : "spm-16-specimen-risk-code",
+                "url" : "SPM.16",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -984,7 +984,7 @@
                 }
               },
               {
-                "url" : "spm-19-specimen-expiration-date",
+                "url" : "SPM.19",
                 "valueString" : "20210604112507+0000"
               }
             ]

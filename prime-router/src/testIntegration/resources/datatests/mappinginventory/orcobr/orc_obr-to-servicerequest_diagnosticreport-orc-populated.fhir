@@ -189,19 +189,19 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order",
             "extension" : [
               {
-                "url" : "orc-5-order-status",
+                "url" : "ORC.5",
                 "valueString" : "CM"
               },
               {
-                "url" : "orc-6-response-flag",
+                "url" : "ORC.6",
                 "valueString" : "R"
               },
               {
-                "url" : "orc-27-fillers-expected-availability-datetime",
+                "url" : "ORC.27",
                 "valueString" : "20230816123358-0500"
               },
               {
-                "url" : "orc-28-confidentiality-code",
+                "url" : "ORC.28",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -218,7 +218,7 @@
                 }
               },
               {
-                "url" : "orc-30-enterer-authorization-mode",
+                "url" : "ORC.30",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -235,7 +235,7 @@
                 }
               },
               {
-                "url" : "orc-31-parent-universal-service-identifier",
+                "url" : "ORC.31",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -252,7 +252,7 @@
                 }
               },
               {
-                "url" : "orc-8-parent-order",
+                "url" : "ORC.8",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -301,29 +301,29 @@
                 }
               },
               {
-                "url" : "orc-10-entered-by",
+                "url" : "ORC.10",
                 "valueReference" : {
                   "reference" : "Practitioner/1707328750701586000.85bde5d0-e44d-4c9c-814a-ea8480283d3d"
                 }
               },
               {
-                "url" : "orc-11-verified-by",
+                "url" : "ORC.11",
                 "valueReference" : {
                   "reference" : "Practitioner/1707328750705604000.452db9dc-c339-4197-9df2-f17edd7a4640"
                 }
               },
               {
-                "url" : "orc-13-enterers-location",
+                "url" : "ORC.13",
                 "valueReference" : {
                   "reference" : "Location/1707328750707745000.ff0dce1d-4b5c-4964-a71c-428e1b9d835f"
                 }
               },
               {
-                "url" : "orc-15-order-effective-date",
+                "url" : "ORC.15",
                 "valueString" : "20230816123358-0500"
               },
               {
-                "url" : "orc-17-entering-organization",
+                "url" : "ORC.17",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -340,7 +340,7 @@
                 }
               },
               {
-                "url" : "orc-18-entering-device",
+                "url" : "ORC.18",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -356,7 +356,7 @@
                 }
               },
               {
-                "url" : "orc-19-action-by",
+                "url" : "ORC.19",
                 "valueReference" : {
                   "reference" : "Practitioner/1707328750711439000.c29c43f2-acd3-4d71-bcb9-5d83321a4f6e"
                 }
@@ -367,7 +367,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension" : [
               {
-                "url" : "obr-22-results-rpt-status-change-datetime",
+                "url" : "OBR.22",
                 "valueString" : "2023"
               }
             ]

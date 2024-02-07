@@ -180,27 +180,27 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
             "extension" : [
               {
-                "url" : "obx-2-value-type",
+                "url" : "OBX.2",
                 "valueId" : "ST"
               },
               {
-                "url" : "obx-9-probability",
+                "url" : "OBX.9",
                 "valueString" : "1"
               },
               {
-                "url" : "obx-11-observation-status",
+                "url" : "OBX.11",
                 "valueString" : "F"
               },
               {
-                "url" : "obx-12-effective-date-of-reference-range",
+                "url" : "OBX.12",
                 "valueString" : "20230501102531-0400"
               },
               {
-                "url" : "obx-13-user-defined-access-checks",
+                "url" : "OBX.13",
                 "valueString" : "User Check"
               },
               {
-                "url" : "obx-17-observation-method",
+                "url" : "OBX.17",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -217,7 +217,7 @@
                 }
               },
               {
-                "url" : "obx-17-observation-method",
+                "url" : "OBX.17",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -234,19 +234,19 @@
                 }
               },
               {
-                "url" : "obx-18-equipment-instance-identifier",
+                "url" : "OBX.18",
                 "valueReference" : {
                   "reference" : "Device/1707328577247634000.4f7c349f-c119-4b61-9a92-e992604827be"
                 }
               },
               {
-                "url" : "obx-18-equipment-instance-identifier",
+                "url" : "OBX.18",
                 "valueReference" : {
                   "reference" : "Device/1707328577248197000.bbe77dde-5579-48bd-b6c3-b512237589b1"
                 }
               },
               {
-                "url" : "obx-20-observation-site",
+                "url" : "OBX.20",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -263,7 +263,7 @@
                 }
               },
               {
-                "url" : "obx-20-observation-site",
+                "url" : "OBX.20",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {

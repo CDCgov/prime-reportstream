@@ -341,7 +341,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pd1-patient",
             "extension" : [
               {
-                "url" : "pd1-1-living-dependency",
+                "url" : "PD1.1",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {
@@ -400,7 +400,7 @@
                 }
               },
               {
-                "url" : "pd1-1-living-dependency",
+                "url" : "PD1.1",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {
@@ -459,7 +459,7 @@
                 }
               },
               {
-                "url" : "pd1-2-living-arrangement",
+                "url" : "PD1.2",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {
@@ -518,7 +518,7 @@
                 }
               },
               {
-                "url" : "pd1-16-immunization-registry-status",
+                "url" : "PD1.16",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {
@@ -577,15 +577,15 @@
                 }
               },
               {
-                "url" : "pd1-17-immunization-registry-status-effective-date",
+                "url" : "PD1.17",
                 "valueString" : "20230501102531-0400"
               },
               {
-                "url" : "pd1-18-publicity-code-effective-date",
+                "url" : "PD1.18",
                 "valueString" : "20230501102531-0400"
               },
               {
-                "url" : "pd1-19-military-branch",
+                "url" : "PD1.19",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {
@@ -644,7 +644,7 @@
                 }
               },
               {
-                "url" : "pd1-20-military-rank",
+                "url" : "PD1.20",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {
@@ -703,7 +703,7 @@
                 }
               },
               {
-                "url" : "pd1-21-military-status",
+                "url" : "PD1.21",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {
@@ -762,11 +762,11 @@
                 }
               },
               {
-                "url" : "pd1-22-advance-directive-last-verified-date",
+                "url" : "PD1.22",
                 "valueString" : "20230501102531-0400"
               },
               {
-                "url" : "pd1-8-organ-donor-code",
+                "url" : "PD1.8",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {
@@ -825,11 +825,11 @@
                 }
               },
               {
-                "url" : "pd1-9-separate-bill",
+                "url" : "PD1.9",
                 "valueString" : "N"
               },
               {
-                "url" : "pd1-10-duplicate-patient",
+                "url" : "PD1.10",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -875,7 +875,7 @@
                 }
               },
               {
-                "url" : "pd1-10-duplicate-patient",
+                "url" : "PD1.10",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -921,7 +921,7 @@
                 }
               },
               {
-                "url" : "pd1-11-publicity-code",
+                "url" : "PD1.11",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {
@@ -980,27 +980,27 @@
                 }
               },
               {
-                "url" : "pd1-12-protection-indicator",
+                "url" : "PD1.12",
                 "valueString" : "N"
               },
               {
-                "url" : "pd1-13-protection-indicator-effective-date",
+                "url" : "PD1.13",
                 "valueString" : "20230501102531-0400"
               },
               {
-                "url" : "pd1-14-patient-congregation",
+                "url" : "PD1.14",
                 "valueReference" : {
                   "reference" : "Organization/1707328986096815000.82e8cd82-e0e5-4d0f-ae07-b538a88facce"
                 }
               },
               {
-                "url" : "pd1-14-patient-congregation",
+                "url" : "PD1.14",
                 "valueReference" : {
                   "reference" : "Organization/1707328986098713000.d01756f9-b5ef-43a4-99e3-0931d85bc1f4"
                 }
               },
               {
-                "url" : "pd1-15-advance-directive-code",
+                "url" : "PD1.15",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {
@@ -1059,7 +1059,7 @@
                 }
               },
               {
-                "url" : "pd1-15-advance-directive-code",
+                "url" : "PD1.15",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {

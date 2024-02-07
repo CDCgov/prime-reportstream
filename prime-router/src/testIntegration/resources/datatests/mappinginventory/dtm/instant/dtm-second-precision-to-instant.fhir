@@ -169,7 +169,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension" : [
               {
-                "url" : "obr-3-filler-order-number",
+                "url" : "OBR.3",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -194,7 +194,7 @@
                 }
               },
               {
-                "url" : "obr-22-results-rpt-status-change-datetime",
+                "url" : "OBR.22",
                 "valueString" : "20230815030405"
               }
             ]

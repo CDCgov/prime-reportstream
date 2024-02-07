@@ -246,14 +246,14 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
             "extension" : [
               {
-                "url" : "pid-8-administrative-sex"
+                "url" : "PID.8"
               },
               {
-                "url" : "pid-24-multiple-birth-indicator",
+                "url" : "PID.24",
                 "valueString" : "Y"
               },
               {
-                "url" : "pid-30-patient-death-indicator",
+                "url" : "PID.30",
                 "valueString" : "N"
               }
             ]
@@ -478,7 +478,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension" : [
               {
-                "url" : "obr-2-placer-order-number",
+                "url" : "OBR.2",
                 "valueIdentifier" : {
                   "extension" : [
                     {

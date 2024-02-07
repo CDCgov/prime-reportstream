@@ -137,7 +137,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension" : [
               {
-                "url" : "obr-10-collector-identifier",
+                "url" : "OBR.10",
                 "valueReference" : {
                   "reference" : "Practitioner/1707330021727770000.84bcc9b1-804f-4803-9e79-ef9135164c72"
                 }

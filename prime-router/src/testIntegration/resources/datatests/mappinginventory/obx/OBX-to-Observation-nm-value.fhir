@@ -156,11 +156,11 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
             "extension" : [
               {
-                "url" : "obx-2-value-type",
+                "url" : "OBX.2",
                 "valueId" : "NM"
               },
               {
-                "url" : "obx-6-units",
+                "url" : "OBX.6",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {

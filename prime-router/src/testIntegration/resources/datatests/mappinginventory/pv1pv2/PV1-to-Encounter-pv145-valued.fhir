@@ -162,7 +162,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-patient-visit",
             "extension" : [
               {
-                "url" : "pv1-12-preadmit-test-indicator",
+                "url" : "PV1.12",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -179,7 +179,7 @@
                 }
               },
               {
-                "url" : "pv1-18-patient-type",
+                "url" : "PV1.18",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -196,23 +196,23 @@
                 }
               },
               {
-                "url" : "pv1-46-current-patient-balance",
+                "url" : "PV1.46",
                 "valueDecimal" : 55
               },
               {
-                "url" : "pv1-47-total-charges",
+                "url" : "PV1.47",
                 "valueDecimal" : 1000
               },
               {
-                "url" : "pv1-48-total-adjustments",
+                "url" : "PV1.48",
                 "valueDecimal" : 0
               },
               {
-                "url" : "pv1-49-total-payments",
+                "url" : "PV1.49",
                 "valueDecimal" : 0
               },
               {
-                "url" : "pv1-51-visit-indicator",
+                "url" : "PV1.51",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -229,11 +229,11 @@
                 }
               },
               {
-                "url" : "pv1-30-transfer-to-bad-debt-date",
+                "url" : "PV1.30",
                 "valueString" : "T"
               },
               {
-                "url" : "pv1-31-bad-debt-agency-code",
+                "url" : "PV1.31",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -250,15 +250,15 @@
                 }
               },
               {
-                "url" : "pv1-32-bad-debt-transfer-amount",
+                "url" : "PV1.32",
                 "valueDecimal" : 3.4
               },
               {
-                "url" : "pv1-33-bad-debt-recovery-amount",
+                "url" : "PV1.33",
                 "valueDecimal" : 1.4
               },
               {
-                "url" : "pv1-34-delete-account-indicator",
+                "url" : "PV1.34",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -275,11 +275,11 @@
                 }
               },
               {
-                "url" : "pv1-35-delete-account-date",
+                "url" : "PV1.35",
                 "valueString" : "20240501102531-0400"
               },
               {
-                "url" : "pv1-39-servicing-facility",
+                "url" : "PV1.39",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -296,7 +296,7 @@
                 }
               },
               {
-                "url" : "pv1-41-account-status",
+                "url" : "PV1.41",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {

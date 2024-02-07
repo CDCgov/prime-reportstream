@@ -156,7 +156,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
             "extension" : [
               {
-                "url" : "pid-24-multiple-birth-indicator",
+                "url" : "PID.24",
                 "valueString" : "N"
               }
             ]

@@ -169,7 +169,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension" : [
               {
-                "url" : "obr-2-placer-order-number",
+                "url" : "OBR.2",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -194,7 +194,7 @@
                 }
               },
               {
-                "url" : "obr-3-filler-order-number",
+                "url" : "OBR.3",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -219,7 +219,7 @@
                 }
               },
               {
-                "url" : "obr-53-alternate-placer-order-number",
+                "url" : "OBR.53",
                 "valueIdentifier" : {
                   "extension" : [
                     {

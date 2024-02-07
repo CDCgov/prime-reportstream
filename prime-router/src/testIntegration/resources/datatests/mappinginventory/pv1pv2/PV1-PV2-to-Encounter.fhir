@@ -305,7 +305,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-patient-visit",
             "extension" : [
               {
-                "url" : "pv1-12-preadmit-test-indicator",
+                "url" : "PV1.12",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -322,7 +322,7 @@
                 }
               },
               {
-                "url" : "pv1-18-patient-type",
+                "url" : "PV1.18",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -339,23 +339,23 @@
                 }
               },
               {
-                "url" : "pv1-46-current-patient-balance",
+                "url" : "PV1.46",
                 "valueDecimal" : 55
               },
               {
-                "url" : "pv1-47-total-charges",
+                "url" : "PV1.47",
                 "valueDecimal" : 1000
               },
               {
-                "url" : "pv1-48-total-adjustments",
+                "url" : "PV1.48",
                 "valueDecimal" : 0
               },
               {
-                "url" : "pv1-49-total-payments",
+                "url" : "PV1.49",
                 "valueDecimal" : 0
               },
               {
-                "url" : "pv1-51-visit-indicator",
+                "url" : "PV1.51",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -372,11 +372,11 @@
                 }
               },
               {
-                "url" : "pv1-30-transfer-to-bad-debt-date",
+                "url" : "PV1.30",
                 "valueString" : "T"
               },
               {
-                "url" : "pv1-31-bad-debt-agency-code",
+                "url" : "PV1.31",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -393,15 +393,15 @@
                 }
               },
               {
-                "url" : "pv1-32-bad-debt-transfer-amount",
+                "url" : "PV1.32",
                 "valueDecimal" : 3.4
               },
               {
-                "url" : "pv1-33-bad-debt-recovery-amount",
+                "url" : "PV1.33",
                 "valueDecimal" : 1.4
               },
               {
-                "url" : "pv1-34-delete-account-indicator",
+                "url" : "PV1.34",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -418,11 +418,11 @@
                 }
               },
               {
-                "url" : "pv1-35-delete-account-date",
+                "url" : "PV1.35",
                 "valueString" : "20240501102531-0400"
               },
               {
-                "url" : "pv1-39-servicing-facility",
+                "url" : "PV1.39",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -439,7 +439,7 @@
                 }
               },
               {
-                "url" : "pv1-41-account-status",
+                "url" : "PV1.41",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -461,27 +461,27 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-patient-visit-additional-information",
             "extension" : [
               {
-                "url" : "pv2-15-employment-illness-related-indicator",
+                "url" : "PV2.15",
                 "valueString" : "EMP_ILL"
               },
               {
-                "url" : "pv2-23-clinic-organization-name",
+                "url" : "PV2.23",
                 "valueReference" : {
                   "reference" : "Organization/1707332785991580000.feb212ad-4515-4fa2-a263-e7093fd76462"
                 }
               },
               {
-                "url" : "pv2-23-clinic-organization-name",
+                "url" : "PV2.23",
                 "valueReference" : {
                   "reference" : "Organization/1707332785994285000.1b0c8105-578c-4d6c-9481-a0283eea748c"
                 }
               },
               {
-                "url" : "pv2-26-previous-treatment-date",
+                "url" : "PV2.26",
                 "valueString" : "20230501102531-0400"
               },
               {
-                "url" : "pv2-29-first-similar-date",
+                "url" : "PV2.29",
                 "valueString" : "20220501102531-0400"
               }
             ]

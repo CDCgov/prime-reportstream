@@ -482,11 +482,11 @@ elements:
     value: [ '%diagnosticReport.identifier[0]' ]
 
   - name: sr-service-request-obr-placer-order-extension
-    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("obr-2-placer-order-number").value[x]'
+    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.2").value[x]'
     value: [ '%diagnosticReport.identifier[1]' ]
 
   - name: sr-service-request-obr-filler-order-extension
-    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("obr-3-filler-order-number").value[x]'
+    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.3").value[x]'
     value: [ '%diagnosticReport.identifier[0]' ]
 
   ## Code
@@ -536,7 +536,7 @@ elements:
     value: [ '%serviceRequest.requester.resolve().practitioner.resolve().name.given[1]' ]
 
   - name: sr-service-request-obr-ordering-provider-extension
-    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("obr-16-ordering-provider").value[x]'
+    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.16").value[x]'
     value: [ '%serviceRequest.requester.resolve().practitioner' ]
 
   - name: sr-service-request-obr-callback-number-extension
@@ -549,7 +549,7 @@ elements:
 
   # order-effective-date
   - name: sr-service-request-orc-order-effective-date
-    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order").extension("orc-15-order-effective-date").value[x]'
+    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order").extension("ORC.15").value[x]'
     value: [ '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date").value' ]
 
   # Organization
@@ -598,18 +598,18 @@ elements:
   - name: sr-observation-value-type-cwe
     condition: '%resource.value is CodeableConcept'
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("obx-2-value-type").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.2").value[x]'
     value: [ '"CWE"' ]
 
   - name: sr-observation-value-type-date-time
     condition: '%resource.value is dateTime'
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("obx-2-value-type").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.2").value[x]'
     value: [ '"DT"' ]
 
   - name: sr-observation-status
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("obx-11-observation-status").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.11").value[x]'
     value: [ '%resource.status' ]
     valueSet:
       values:
