@@ -57,10 +57,10 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                 logger.info("Authenticated request by ${claims.userName}: $httpMethod:$path")
                 return claims
             } catch (e: JwtVerificationException) {
-                logger.warn("JWT token failed to authenticate for call: $httpMethod: $path", e)
+                logger.warn("JWT token failed to authenticate for call: $httpMethod: $path reason: ${e.message}")
                 return null
             } catch (e: Exception) {
-                logger.warn("Failure while authenticating, for call: $httpMethod: $path", e)
+                logger.warn("Failure while authenticating, for call: $httpMethod: $path reason: ${e.message}")
                 return null
             }
         }
