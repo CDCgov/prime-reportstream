@@ -33,14 +33,14 @@ export function RequireGateBase({
         ? Array.isArray(auth)
             ? auth
             : typeof auth === "boolean"
-            ? []
-            : [auth]
+              ? []
+              : [auth]
         : undefined;
     const flags = Array.isArray(featureFlags)
         ? featureFlags
         : featureFlags
-        ? [featureFlags]
-        : [];
+          ? [featureFlags]
+          : [];
     let isAdmin = false,
         isAuthAllowed = false,
         isFeatureAllowed = false;
