@@ -22,7 +22,7 @@ describe("useValueSetsTable", () => {
         await waitFor(() =>
             expect(result.current.data?.length).toBeGreaterThan(0),
         );
-        const { name, system } = result.current.data!![0];
+        const { name, system } = result.current.data![0];
         expect(name).toEqual("sender_automation_value_set");
         expect(system).toEqual("LOCAL");
     });

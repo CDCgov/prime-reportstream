@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { GridContainer } from "@trussworks/react-uswds";
 

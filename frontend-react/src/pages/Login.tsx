@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import type { Location } from "react-router-dom";
 import type { Tokens } from "@okta/okta-auth-js";

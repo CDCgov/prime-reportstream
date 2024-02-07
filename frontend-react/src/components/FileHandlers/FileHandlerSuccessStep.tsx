@@ -1,5 +1,3 @@
-import React from "react";
-
 import { USExtLink, USLink } from "../USLink";
 import site from "../../content/site.json";
 import { StaticAlert, StaticAlertType } from "../StaticAlert";

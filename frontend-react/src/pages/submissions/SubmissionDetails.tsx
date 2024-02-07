@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
 import { GridContainer } from "@trussworks/react-uswds";

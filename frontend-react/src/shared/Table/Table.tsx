@@ -1,5 +1,5 @@
 import classnames from "classnames";
-import React, { ReactNode, useState } from "react";
+import { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
 import { SortSettings } from "../../hooks/filters/UseSortOrder";
@@ -255,7 +255,7 @@ const SortableTable = ({
     );
 };
 
-export const Table = ({
+const Table = ({
     apiSortable,
     borderless,
     compact,
@@ -356,3 +356,5 @@ export const Table = ({
         </div>
     );
 };
+
+export default Table;

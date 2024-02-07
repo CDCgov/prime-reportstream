@@ -18,7 +18,7 @@ const Crumbs = ({ crumbList, previousPage }: CrumbsProps) => {
     if (crumbList || previousPage) {
         return (
             <div>
-                {Boolean(previousPage) ? (
+                {previousPage ? (
                     <div className="font-sans-lg line-height-sans-4 margin-top-8">
                         <IconButton
                             size="big"

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useRef } from "react";
+import { ChangeEvent, FormEvent, useRef } from "react";
 import {
     Button,
     Form,
@@ -103,7 +103,7 @@ export default function FileHandlerFileUploadStep({
             onFileSubmitError();
             return;
         }
-        const selectedFile = event.target.files.item(0)!!;
+        const selectedFile = event.target.files.item(0)!;
 
         const selectedFileContent = await selectedFile.text();
 
@@ -124,7 +124,7 @@ export default function FileHandlerFileUploadStep({
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        if (fileContent.length === 0) {
+        if (fileContent.length === 0 || file?.name == null) {
             showToast("No file contents to validate", "error");
             return;
         }
@@ -134,7 +134,7 @@ export default function FileHandlerFileUploadStep({
             const response = await sendFile({
                 contentType,
                 fileContent,
-                fileName: file?.name!!,
+                fileName: file.name,
                 client: getClientHeader(
                     selectedSchemaOption.value,
                     activeMembership,

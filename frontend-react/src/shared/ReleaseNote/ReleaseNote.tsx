@@ -27,7 +27,7 @@ function NoteTag({ tag }: { tag: Section["tag"] }) {
     }
 }
 
-export function ReleaseNote({ header, sections }: ReleaseNoteProps) {
+function ReleaseNote({ header, sections }: ReleaseNoteProps) {
     return (
         <div className={classnames(styles.ReleaseNote, "margin-top-0")}>
             <p className="header">{header}</p>
@@ -50,3 +50,5 @@ export function ReleaseNote({ header, sections }: ReleaseNoteProps) {
         </div>
     );
 }
+
+export default ReleaseNote;

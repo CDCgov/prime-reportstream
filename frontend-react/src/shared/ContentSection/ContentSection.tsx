@@ -1,11 +1,11 @@
 import { PropsWithChildren, HTMLAttributes } from "react";
 
-import { Tile } from "../Tile/Tile";
+import Tile from "../Tile/Tile";
 
 export interface ContentSectionProps
     extends PropsWithChildren<HTMLAttributes<HTMLElement> & ContentItem> {}
 
-export const ContentSection = ({
+const ContentSection = ({
     title,
     summary,
     items,
@@ -13,7 +13,7 @@ export const ContentSection = ({
     ...props
 }: ContentSectionProps) => {
     const totalItems = items?.length || 0;
-    let gridColValue = 12 / totalItems;
+    const gridColValue = 12 / totalItems;
     const tileClassname = `tablet:grid-col-${gridColValue} margin-bottom-0`;
     return (
         <section className="usa-section" {...props}>
@@ -51,3 +51,5 @@ export const ContentSection = ({
         </section>
     );
 };
+
+export default ContentSection;

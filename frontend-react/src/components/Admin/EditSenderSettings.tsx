@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
 import { useNavigate, useParams } from "react-router-dom";
@@ -159,7 +159,7 @@ const EditSenderSettingsForm: FC<EditSenderSettingsFormProps> = ({
             setLoading(false);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             rsConsole.trace(e, errorDetail);
             showAlertNotification(
                 new Error(
@@ -223,7 +223,7 @@ const EditSenderSettingsForm: FC<EditSenderSettingsFormProps> = ({
             navigate(-1);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             rsConsole.trace(e, errorDetail);
             showAlertNotification(
                 new Error(

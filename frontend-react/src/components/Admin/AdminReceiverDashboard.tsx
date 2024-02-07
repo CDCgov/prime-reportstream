@@ -1,5 +1,5 @@
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
-import React, { Suspense, useCallback, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import {
     Button,
     DateRangePicker,
@@ -359,16 +359,16 @@ function renderAllReceiverRows(props: {
         let currentEntry = props.data[offset];
         let currentDate = new Date(currentEntry.connectionCheckCompletedAt);
         let currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
-        let rowReceiver = currentReceiver; // used to know when we've run out of row data
+        const rowReceiver = currentReceiver; // used to know when we've run out of row data
 
         // loop over all days
         const daySlots = new TimeSlots([props.startDate, props.endDate], 24);
-        for (let [daySlotStart, daySlotEnd] of daySlots) {
+        for (const [daySlotStart, daySlotEnd] of daySlots) {
             const timeSlots = new TimeSlots(
                 [daySlotStart, daySlotEnd],
                 SKIP_HOURS,
             );
-            for (let [timeSlotStart, timeSlotEnd] of timeSlots) {
+            for (const [timeSlotStart, timeSlotEnd] of timeSlots) {
                 const successForSlice = new SuccessRateTracker();
 
                 let errorFilterMatchedSlice =

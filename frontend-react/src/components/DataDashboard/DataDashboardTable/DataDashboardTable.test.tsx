@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import {
@@ -170,7 +170,7 @@ describe("DataDashboardTableWithPagination", () => {
                     setup();
                     await userEvent.click(screen.getByText("Filter"));
 
-                    expect(mockAppInsights.trackEvent).toBeCalledWith({
+                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
                         name: "Data Dashboard | Table Filter",
                         properties: {
                             tableFilter: {

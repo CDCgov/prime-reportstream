@@ -1,4 +1,4 @@
-import React, {
+import {
     useState,
     Dispatch,
     SetStateAction,
@@ -248,7 +248,7 @@ const ValueSetsDetailContent = () => {
             <section className="grid-container">
                 <ValueSetsDetailHeader
                     name={readableName}
-                    meta={valueSetMeta!!}
+                    meta={valueSetMeta!}
                 />
                 {/* ONLY handles success messaging now */}
                 {alert && (

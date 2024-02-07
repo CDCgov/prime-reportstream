@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { NetworkErrorBoundary } from "rest-hooks";
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
@@ -139,7 +139,7 @@ describe("AdminReceiverDashboard tests", () => {
 
         const resultStart: string[] = [];
         const resultEnd: string[] = [];
-        for (let timeslot of timeslots) {
+        for (const timeslot of timeslots) {
             resultStart.push(timeslot[0].toISOString());
             resultEnd.push(timeslot[1].toISOString());
         }

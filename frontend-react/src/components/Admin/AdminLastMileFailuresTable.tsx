@@ -1,4 +1,4 @@
-import React, {
+import {
     PropsWithChildren,
     Suspense,
     useCallback,
@@ -28,7 +28,7 @@ import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
 import config from "../../config";
 import { USLink } from "../USLink";
-import { Table } from "../../shared/Table/Table";
+import Table from "../../shared/Table/Table";
 import { useAppInsightsContext } from "../../contexts/AppInsights";
 import { useSessionContext } from "../../contexts/Session";
 

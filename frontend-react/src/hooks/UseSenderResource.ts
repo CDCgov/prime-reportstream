@@ -17,8 +17,8 @@ export default function useSenderResource(initialData?: RSSender) {
         if (!!activeMembership?.parsedName && !!activeMembership.service) {
             return authorizedFetch(senderDetail, {
                 segments: {
-                    orgName: activeMembership?.parsedName!!,
-                    sender: activeMembership?.service!!,
+                    orgName: activeMembership.parsedName,
+                    sender: activeMembership.service,
                 },
             });
         }

@@ -8,7 +8,7 @@ import {
     ModalRef,
     Table,
 } from "@trussworks/react-uswds";
-import React, { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
@@ -181,8 +181,8 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                     id={`${modalId}-heading`}
                     data-testid={`${modalId}-heading`}
                 >
-                    This check will use the '{clickedReceiver}' settings to
-                    connect to the receiver's server. <br />
+                    This check will use the &apos;{clickedReceiver}&apos;
+                    settings to connect to the receiver&apos;s server. <br />
                     No files will be sent. This feature ONLY supports SFTP and
                     REST receivers currently.
                 </ModalHeading>

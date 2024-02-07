@@ -24,7 +24,7 @@ export interface SideNavItemProps
  * or html element string as the "to" prop (defaults to USNavLink). The SideNav sibling
  * can be forced visible via the "isActive" prop (otherwise defaults to checking path).
  */
-export function SideNavItem({
+function SideNavItem({
     href,
     children,
     items,

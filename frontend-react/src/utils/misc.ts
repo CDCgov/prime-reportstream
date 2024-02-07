@@ -57,7 +57,7 @@ export function isValidServiceName(text: string): boolean {
  * otherwise, just return the general exception detail
  */
 export async function getErrorDetailFromResponse(e: any) {
-    let errorResponse = await e?.response?.json();
+    const errorResponse = await e?.response?.json();
     return errorResponse && errorResponse.error
         ? errorResponse.error
         : e.toString();

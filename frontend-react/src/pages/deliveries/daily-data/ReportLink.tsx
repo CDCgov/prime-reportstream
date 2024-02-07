@@ -1,6 +1,6 @@
 import download from "downloadjs";
 import { Button, Icon } from "@trussworks/react-uswds";
-import React, { PropsWithChildren } from "react";
+import { PropsWithChildren } from "react";
 
 import config from "../../../config";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
@@ -52,7 +52,7 @@ function ReportLink({
                 .then((report) => {
                     // The filename to use for the download should not contain blob folders if present
                     let filename = decodeURIComponent(report.fileName);
-                    let filenameStartIndex = filename.lastIndexOf("/");
+                    const filenameStartIndex = filename.lastIndexOf("/");
                     if (
                         filenameStartIndex >= 0 &&
                         filename.length > filenameStartIndex + 1

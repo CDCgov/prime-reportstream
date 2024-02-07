@@ -11,7 +11,7 @@ import DeliveryFacilitiesTable from "./DeliveryFacilitiesTable";
 
 const DetailsContent = () => {
     const { reportId } = useParams();
-    const { data: reportDetail } = useReportsDetail(reportId!!);
+    const { data: reportDetail } = useReportsDetail(reportId!);
 
     return (
         <GridContainer>
@@ -19,7 +19,7 @@ const DetailsContent = () => {
                 <Summary report={reportDetail} />
                 <DeliveryInfo report={reportDetail} />
                 {withCatchAndSuspense(
-                    <DeliveryFacilitiesTable reportId={reportId!!} />,
+                    <DeliveryFacilitiesTable reportId={reportId!} />,
                 )}
                 <HipaaNotice />
             </article>

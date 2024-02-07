@@ -32,7 +32,7 @@ export const getReportAndDownload = (
 
 export const downloadReport = (report: RSReportInterface) => {
     let filename = decodeURIComponent(report.fileName);
-    let filenameStartIndex = filename.lastIndexOf("/");
+    const filenameStartIndex = filename.lastIndexOf("/");
     if (filenameStartIndex >= 0 && filename.length > filenameStartIndex + 1)
         filename = filename.substring(filenameStartIndex + 1);
     return download(report.content, filename, report.mimeType);

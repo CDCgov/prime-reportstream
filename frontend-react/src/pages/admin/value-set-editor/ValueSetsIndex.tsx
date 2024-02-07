@@ -1,4 +1,3 @@
-import React from "react";
 import { Helmet } from "react-helmet-async";
 
 import Table, {
@@ -68,7 +67,7 @@ const ValueSetsTable = () => {
 
     const tableConfig: TableConfig = {
         columns: valueSetColumnConfig,
-        rows: toValueSetWithMeta(valueSetMeta!!, valueSetArray),
+        rows: toValueSetWithMeta(valueSetMeta!, valueSetArray),
     };
 
     return <Table title="ReportStream Value Sets" config={tableConfig} />;

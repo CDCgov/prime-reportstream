@@ -1,5 +1,5 @@
 /* Makes row objects string-indexed */
-import React, { ReactNode, useMemo, useCallback, useState } from "react";
+import { ReactNode, useMemo, useCallback, useState } from "react";
 
 import Pagination, { PaginationProps } from "../../components/Table/Pagination";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
@@ -10,9 +10,9 @@ import { TableHeaders } from "./TableHeaders";
 import { DatasetAction, TableInfo } from "./TableInfo";
 
 export interface ActionableColumn {
-    action: Function;
+    action: (...args: any[]) => unknown;
     param?: string;
-    actionButtonHandler?: Function;
+    actionButtonHandler?: (...args: any[]) => unknown;
     actionButtonParam?: string;
 }
 
@@ -40,7 +40,7 @@ export interface ColumnConfig {
     feature?: ColumnFeature;
     sortable?: boolean;
     valueMap?: Map<string | number, any>;
-    transform?: Function;
+    transform?: (...args: any[]) => unknown;
     editable?: boolean;
     localSort?: boolean;
 }
@@ -164,7 +164,7 @@ const Table = ({
                         filterManager={filterManager}
                         enableEditableRows={enableEditableRows}
                     />
-                    {!!memoizedRows ? (
+                    {memoizedRows ? (
                         <TableRows
                             className={tableRowsClassName}
                             rows={memoizedRows}

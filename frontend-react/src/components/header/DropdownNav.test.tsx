@@ -1,5 +1,4 @@
 import { fireEvent, screen } from "@testing-library/react";
-import React from "react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";

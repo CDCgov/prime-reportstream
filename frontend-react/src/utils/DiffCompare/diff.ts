@@ -32,11 +32,11 @@ export const Diff = (a_: string, b_: string) => {
         reverse: boolean = false,
         editdistance: number | null = null,
         offset = alen + 1,
-        path: number[] = [],
-        pathposi: PEntryType[] = [],
-        ses: SesEntryType[] = [],
         sesstate = SES_TYPE.COMMON;
     let lcs = "";
+    const path: number[] = [],
+        pathposi: PEntryType[] = [],
+        ses: SesEntryType[] = [];
 
     const init = () => {
         if (alen >= blen) {
@@ -139,7 +139,7 @@ export const Diff = (a_: string, b_: string) => {
             return ses;
         },
         compose: function () {
-            let delta = blen - alen;
+            const delta = blen - alen;
             const fp: number[] = []; // js supports sparse arrays so by adding ` || -1` so undefined defaults to -1
 
             if (blen === 0 || alen === 0) {

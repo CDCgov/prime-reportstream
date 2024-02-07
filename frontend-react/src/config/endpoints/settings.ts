@@ -30,7 +30,7 @@ export interface RSOrganizationSettings {
 
 interface SenderKeys {
     scope: string;
-    keys: {}[];
+    keys: object[];
 }
 
 export interface RSSender extends RSService {

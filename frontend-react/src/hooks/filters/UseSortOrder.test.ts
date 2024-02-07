@@ -66,7 +66,7 @@ describe("UseSortOrder", () => {
         });
     });
 
-    test("dispatch swaps order (non-locally)", () => {
+    test("dispatch swaps order locally", () => {
         const { result } = renderHook(() => useSortOrder());
         act(() =>
             result.current.update({

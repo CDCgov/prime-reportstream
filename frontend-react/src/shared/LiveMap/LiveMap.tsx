@@ -8,7 +8,7 @@ import styles from "./LiveMap.module.scss";
 export interface LiveMapProps
     extends PropsWithChildren<HTMLAttributes<HTMLElement> & ContentItem> {}
 
-export const LiveMap = ({
+const LiveMap = ({
     title,
     summary,
     subTitle,
@@ -56,3 +56,5 @@ export const LiveMap = ({
         </section>
     );
 };
+
+export default LiveMap;

@@ -1,5 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
@@ -61,7 +61,7 @@ describe("ReportDetailsTable", () => {
                 await waitFor(async () => {
                     await userEvent.click(screen.getByText("Filter"));
 
-                    expect(mockAppInsights.trackEvent).toBeCalledWith({
+                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
                         name: "Report Details | Table Filter",
                         properties: {
                             tableFilter: {

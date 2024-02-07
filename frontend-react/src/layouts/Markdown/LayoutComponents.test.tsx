@@ -7,7 +7,7 @@ import MarkdownLayoutContext from "./Context";
 import { LayoutMain, LayoutSidenav } from "./LayoutComponents";
 
 describe("LayoutComponents", () => {
-    function TestComponent(props: PropsWithChildren<{}>) {
+    function TestComponent(props: PropsWithChildren<object>) {
         const [sidenavContent, setSidenavContent] =
             useState<ReactNode>(undefined);
         const [mainContent, setMainContent] = useState<ReactNode>(undefined);

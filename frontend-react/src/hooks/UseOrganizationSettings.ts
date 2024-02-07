@@ -44,7 +44,7 @@ export const useOrganizationSettings = () => {
         if (Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS) {
             return authorizedFetch(settings, {
                 segments: {
-                    orgName: parsedName!!,
+                    orgName: parsedName!,
                 },
             });
         }

@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import {
@@ -8,7 +8,11 @@ import {
     mockSendValidFile,
 } from "../../__mocks__/validation";
 import * as useFileHandlerExports from "../../hooks/UseFileHandler";
-import { FileHandlerState, INITIAL_STATE } from "../../hooks/UseFileHandler";
+import {
+    FileHandlerState,
+    INITIAL_STATE,
+    calculateRequestCompleteState,
+} from "../../hooks/UseFileHandler";
 import * as useSenderSchemaOptionsExports from "../../senders/hooks/UseSenderSchemaOptions";
 import {
     STANDARD_SCHEMA_OPTIONS,
@@ -23,7 +27,7 @@ import { RSSender } from "../../config/endpoints/settings";
 
 import FileHandler from "./FileHandler";
 
-export const CSV_SCHEMA_SELECTED = {
+const _CSV_SCHEMA_SELECTED = {
     fileInputResetValue: 0,
     fileContent: "",
     fileName: "",
@@ -39,10 +43,11 @@ export const CSV_SCHEMA_SELECTED = {
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
 } satisfies FileHandlerState;
 
-export const VALID_CSV_FILE_SELECTED = {
+const VALID_CSV_FILE_SELECTED = {
     fileInputResetValue: 0,
     fileContent: "FAKE",
     fileName: "fake.csv",
+    file: new File([new Blob(["FAKE"])], "fake.csv"),
     errors: [],
     destinations: "",
     reportItems: [],
@@ -55,10 +60,11 @@ export const VALID_CSV_FILE_SELECTED = {
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
 } satisfies FileHandlerState;
 
-export const INVALID_CSV_FILE_SELECTED = {
+const INVALID_CSV_FILE_SELECTED = {
     fileInputResetValue: 0,
     fileContent: "INVALID",
     fileName: "invalid.csv",
+    file: new File([new Blob(["INVALID"])], "invalid.csv"),
     errors: [{} as any],
     destinations: "",
     reportItems: [],
@@ -71,10 +77,11 @@ export const INVALID_CSV_FILE_SELECTED = {
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
 } satisfies FileHandlerState;
 
-export const WARNING_CSV_FILE_SELECTED = {
+const WARNING_CSV_FILE_SELECTED = {
     fileInputResetValue: 0,
     fileContent: "WARNING",
     fileName: "warning.csv",
+    file: new File([new Blob(["WARNING"])], "warning.csv"),
     errors: [],
     destinations: "",
     reportItems: [],
@@ -114,12 +121,12 @@ jest.mock("../../hooks/UseSenderResource", () => ({
     }),
 }));
 
-export async function chooseSchema(schemaName: string) {
+async function _chooseSchema(schemaName: string) {
     expect(screen.getByText(/Select data model/)).toBeVisible();
     await userEvent.selectOptions(screen.getByRole("combobox"), [schemaName]);
 }
 
-export async function chooseFile(file: File) {
+async function _chooseFile(file: File) {
     expect(screen.getByText("Drag file here or")).toBeVisible();
     await userEvent.upload(screen.getByTestId("file-input-input"), file);
     await screen.findByTestId("file-input-preview-image");
@@ -172,12 +179,12 @@ describe("FileHandler", () => {
     }
 
     async function fileContinue() {
+        const form = screen.getByTestId("form");
         await waitFor(async () => {
-            const form = screen.getByTestId("form");
             // eslint-disable-next-line testing-library/no-wait-for-side-effects
             fireEvent.submit(form);
-            await waitFor(() => expect(form).not.toBeInTheDocument());
         });
+        await waitFor(() => expect(form).not.toBeInTheDocument());
     }
 
     describe("by default", () => {
@@ -210,7 +217,12 @@ describe("FileHandler", () => {
 
     describe("when a valid CSV file is being submitted with no warnings or errors", () => {
         function setup() {
-            mockUseFileHandler(VALID_CSV_FILE_SELECTED);
+            mockUseFileHandler({
+                ...VALID_CSV_FILE_SELECTED,
+                ...calculateRequestCompleteState(VALID_CSV_FILE_SELECTED, {
+                    response: mockSendValidFile,
+                }),
+            });
             mockUseSenderSchemaOptions({
                 isLoading: false,
                 data: STANDARD_SCHEMA_OPTIONS,
@@ -218,7 +230,7 @@ describe("FileHandler", () => {
             mockUseWatersUploader({
                 isWorking: false,
                 uploaderError: null,
-                sendFile: () => Promise.resolve(mockSendValidFile),
+                sendFile: async () => await Promise.resolve(mockSendValidFile),
             });
 
             renderApp(<FileHandler />);
@@ -231,11 +243,11 @@ describe("FileHandler", () => {
             // Step 2: file upload
             await fileContinue();
             // Step 3: success
-            await waitFor(() => {
-                return screen.getByText(
+            expect(
+                await screen.findByText(
                     "Your file is correctly formatted for ReportStream.",
-                );
-            });
+                ),
+            ).toBeInTheDocument();
         });
     });
 

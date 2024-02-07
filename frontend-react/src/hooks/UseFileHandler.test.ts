@@ -2,7 +2,6 @@ import { act, RenderHookResult } from "@testing-library/react";
 
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { Destination } from "../resources/ActionDetailsResource";
-import { ErrorCode, ResponseError } from "../config/endpoints/waters";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
 import { FileType } from "../utils/TemporarySettingsAPITypes";
 import { renderHook } from "../utils/CustomRenderUtils";
@@ -13,8 +12,9 @@ import useFileHandler, {
     RequestCompletePayload,
     UseFileHandlerHookResult,
 } from "./UseFileHandler";
+import { fakeError, fakeWarning } from "./UseFileHandler.fixtures";
 
-export const fakeDestination: Destination = {
+const fakeDestination: Destination = {
     organization_id: "an org id",
     organization: "an org",
     service: "some service",
@@ -24,26 +24,6 @@ export const fakeDestination: Destination = {
     sentReports: [],
     filteredReportItems: [],
     itemCountBeforeQualityFiltering: 0,
-};
-
-export const fakeError: ResponseError = {
-    field: "error field",
-    indices: [1],
-    message: "error message",
-    trackingIds: ["track me"],
-    scope: "some scope",
-    errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
-    details: "this happened",
-};
-
-export const fakeWarning: ResponseError = {
-    field: "warning field",
-    indices: [1],
-    message: "warning message",
-    trackingIds: ["track me"],
-    scope: "some warning scope",
-    errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
-    details: "this happened - a warning",
 };
 
 const fileSelectedTypedPayload = {

@@ -1,4 +1,4 @@
-import React, {
+import {
     createContext,
     useCallback,
     useContext,
@@ -74,7 +74,9 @@ export const featureFlagReducer = (
     }
 };
 
-export const FeatureFlagProvider = ({ children }: PropsWithChildren<{}>) => {
+export const FeatureFlagProvider = ({
+    children,
+}: PropsWithChildren<object>) => {
     // reducer manages per user feature flags only
     const [{ featureFlags }, dispatch] = useReducer(featureFlagReducer, {
         featureFlags: getSavedFeatureFlags(),

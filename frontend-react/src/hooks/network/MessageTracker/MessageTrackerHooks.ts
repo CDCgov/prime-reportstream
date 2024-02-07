@@ -33,7 +33,7 @@ export const useMessageSearch = () => {
 export const useMessageDetails = (id: string) => {
     const authorizedFetch = useAuthorizedFetch<RSMessageDetail>();
     const memoizedDataFetch = useCallback(() => {
-        if (!!id) {
+        if (id) {
             return authorizedFetch(getMessageDetails, {
                 segments: {
                     id: id,

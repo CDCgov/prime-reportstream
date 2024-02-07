@@ -19,7 +19,7 @@ describe("useValueSetsMeta", () => {
         await waitFor(() =>
             expect(result.current.data?.createdAt).toBeDefined(),
         );
-        const { createdAt, createdBy } = result.current.data!!;
+        const { createdAt, createdBy } = result.current.data!;
         expect(createdAt).toEqual("now");
         expect(createdBy).toEqual("test@example.com");
     });
@@ -30,7 +30,7 @@ describe("useValueSetsMeta", () => {
         await waitFor(() =>
             expect(result.current.data?.createdAt).toBeDefined(),
         );
-        const { createdAt, createdBy } = result.current.data!!;
+        const { createdAt, createdBy } = result.current.data!;
         expect(createdAt).toEqual("later");
         expect(createdBy).toEqual("again@example.com");
     });

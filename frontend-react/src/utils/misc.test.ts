@@ -87,7 +87,7 @@ test("formatDate test", () => {
         ":23", // check the minutes are at least correct
     );
 
-    expect(() => formatDate("bad date")).toThrowError("Invalid time value");
+    expect(() => formatDate("bad date")).toThrow("Invalid time value");
 });
 
 describe("toHumanReadable", () => {
@@ -116,7 +116,7 @@ describe("capitalizeFirst", () => {
     });
 });
 
-describe("groupBy ", () => {
+describe("groupBy", () => {
     test("groupBy basic", () => {
         expect(
             groupBy(

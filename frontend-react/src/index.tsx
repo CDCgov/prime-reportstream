@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router";
-import React, { lazy } from "react";
+import { lazy } from "react";
 
 import { createRouter } from "./AppRouter";
 import config from "./config";

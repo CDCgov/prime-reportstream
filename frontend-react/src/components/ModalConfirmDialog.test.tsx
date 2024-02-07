@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { act } from "react-dom/test-utils";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
 import { renderApp, renderHook } from "../utils/CustomRenderUtils";
 
@@ -35,7 +35,6 @@ describe("ConfirmDialog", () => {
         // should NOT be visible before we call showModal()
         expect(screen.queryByText(/TestTitle/)).not.toBeInTheDocument();
         act(() => {
-            // @ts-ignore
             modalRef?.current?.showModal({
                 title: "TestTitle",
                 message: "TestMessage",

@@ -1,4 +1,4 @@
-import React, {
+import {
     ComponentProps,
     createContext,
     PropsWithChildren,
@@ -9,7 +9,8 @@ import React, {
     useRef,
     useState,
 } from "react";
-import OktaAuth, {
+import {
+    OktaAuth,
     CustomUserClaims,
     UserClaims,
     AuthState,

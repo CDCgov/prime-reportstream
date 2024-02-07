@@ -10,7 +10,7 @@ export interface StringIndexed<T = any> {
  * Use generics to define what the type of `new Object()` should be.
  *
  * example: Newable<MyClass> returns an instance of MyClass */
-export type Newable<T = {}> = new (...args: any[]) => T;
+export type Newable<T = object> = new (...args: any[]) => T;
 /* Useful for when a function catches errors and could possibly
  * return something other than the desired object type
  *

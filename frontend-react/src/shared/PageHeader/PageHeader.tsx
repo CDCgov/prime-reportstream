@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, PropsWithChildren } from "react";
+import { HTMLAttributes, PropsWithChildren } from "react";
 import { Breadcrumb, BreadcrumbBar } from "@trussworks/react-uswds";
 
 import { USCrumbLink, USLinkButton } from "../../components/USLink";
@@ -13,7 +13,7 @@ export type PageHeaderProps = PropsWithChildren<
     } & HTMLAttributes<HTMLElement>
 >;
 
-export function PageHeader({
+function PageHeader({
     title,
     breadcrumbs,
     subtitleArr,

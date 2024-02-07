@@ -20,7 +20,7 @@ export const useOrganizationReceivers = () => {
         if (parsedName && !isAdmin) {
             return authorizedFetch(receivers, {
                 segments: {
-                    orgName: parsedName!!,
+                    orgName: parsedName!,
                 },
             });
         }

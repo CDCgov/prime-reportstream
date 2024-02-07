@@ -1,5 +1,5 @@
 import { useController } from "rest-hooks";
-import React, { FC, useCallback } from "react";
+import { FC, useCallback } from "react";
 
 import Spinner from "../../components/Spinner";
 import usePagination from "../../hooks/UsePagination";

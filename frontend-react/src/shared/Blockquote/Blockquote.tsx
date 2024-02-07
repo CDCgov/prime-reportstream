@@ -6,12 +6,7 @@ export interface BlockquoteProps
     source: string;
 }
 
-export function Blockquote({
-    author,
-    source,
-    children,
-    ...props
-}: BlockquoteProps) {
+function Blockquote({ author, source, children, ...props }: BlockquoteProps) {
     return (
         <blockquote {...props}>
             {children}

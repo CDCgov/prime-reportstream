@@ -27,7 +27,11 @@ describe("SideNavItem", () => {
             renderApp(
                 <SideNavItem
                     href="/foo"
-                    items={[<USNavLink href="/foo/bar">Sub test</USNavLink>]}
+                    items={[
+                        <USNavLink key="foobar" href="/foo/bar">
+                            Sub test
+                        </USNavLink>,
+                    ]}
                 >
                     Test
                 </SideNavItem>,
@@ -46,7 +50,11 @@ describe("SideNavItem", () => {
             renderApp(
                 <SideNavItem
                     href="/foo"
-                    items={[<USNavLink href="/foo/bar">Sub test</USNavLink>]}
+                    items={[
+                        <USNavLink key="foobar" href="/foo/bar">
+                            Sub test
+                        </USNavLink>,
+                    ]}
                 >
                     Test
                 </SideNavItem>,
@@ -62,7 +70,11 @@ describe("SideNavItem", () => {
             renderApp(
                 <SideNavItem
                     href="/foo"
-                    items={[<USNavLink href="/foo/bar">Sub test</USNavLink>]}
+                    items={[
+                        <USNavLink key="foobar" href="/foo/bar">
+                            Sub test
+                        </USNavLink>,
+                    ]}
                 >
                     Test
                 </SideNavItem>,
@@ -78,7 +90,11 @@ describe("SideNavItem", () => {
             renderApp(
                 <SideNavItem
                     href="/foo"
-                    items={[<USNavLink href="/foo/bar">Sub test</USNavLink>]}
+                    items={[
+                        <USNavLink key="foobar" href="/foo/bar">
+                            Sub test
+                        </USNavLink>,
+                    ]}
                     isActive={true}
                 >
                     Test
@@ -95,7 +111,11 @@ describe("SideNavItem", () => {
             renderApp(
                 <SideNavItem
                     href="/foo"
-                    items={[<USNavLink href="/foo/bar">Sub test</USNavLink>]}
+                    items={[
+                        <USNavLink key="foobar" href="/foo/bar">
+                            Sub test
+                        </USNavLink>,
+                    ]}
                     isActive={false}
                 >
                     Test

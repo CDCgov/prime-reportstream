@@ -1,6 +1,6 @@
 import { MDXProvider } from "@mdx-js/react";
 import { Helmet } from "react-helmet-async";
-import React, { ComponentProps, ReactNode, useMemo, useState } from "react";
+import { ComponentProps, ReactNode, useMemo, useState } from "react";
 import * as reactUSWDS from "@trussworks/react-uswds";
 import type { TocEntry } from "remark-mdx-toc";
 import { useMatches } from "react-router";
@@ -18,7 +18,7 @@ import styles from "./MarkdownLayout.module.scss";
  * React components are functions that are pascal-cased so filtering is done
  * so.
  */
-function filterComponents<T extends {}>(
+function filterComponents<T extends object>(
     obj: T,
     include: Array<string & keyof T> = [],
 ) {
@@ -82,7 +82,7 @@ const MDXComponents = {
  * |                        |
  * +------------------------+
  */
-export function MarkdownLayout({
+function MarkdownLayout({
     children,
     article,
     mdx,
@@ -113,8 +113,8 @@ export function MarkdownLayout({
     const subtitleArr = Array.isArray(subtitle)
         ? subtitle
         : subtitle
-          ? [subtitle]
-          : [];
+        ? [subtitle]
+        : [];
     const isHeader = Boolean(
         title || breadcrumbs || callToAction || lastUpdated || toc,
     );

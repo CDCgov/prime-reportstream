@@ -20,7 +20,7 @@ function DeliveryFacilitiesTable(props: FacilitiesTableProps) {
             { dataAttr: "total", columnHeader: "Total tests" },
             { dataAttr: "positive", columnHeader: "Total positive" },
         ],
-        rows: reportFacilities!!,
+        rows: reportFacilities!,
     };
 
     return (

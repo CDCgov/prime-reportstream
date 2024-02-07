@@ -1,4 +1,4 @@
-import React, {
+import {
     PropsWithChildren,
     createContext,
     useCallback,
@@ -56,7 +56,7 @@ export interface AppInsightsContextProviderProps extends PropsWithChildren {
  * that contains a reference to that instance, and creating our custom AppInsights
  * context.
  */
-export function AppInsightsContextProvider({
+function AppInsightsContextProvider({
     children,
     value: appInsights,
 }: AppInsightsContextProviderProps) {

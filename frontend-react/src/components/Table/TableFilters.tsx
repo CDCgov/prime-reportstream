@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useRef, useState } from "react";
+import { FormEvent, useCallback, useRef, useState } from "react";
 import { Button, DateRangePicker } from "@trussworks/react-uswds";
 
 import "./TableFilters.css";
@@ -162,7 +162,7 @@ function TableFilters({
                         name: "start-date-picker",
                         onChange: (val?: string) => {
                             if (isValidDateString(val)) {
-                                setRangeFrom(new Date(val!!).toISOString());
+                                setRangeFrom(new Date(val!).toISOString());
                             } else {
                                 setRangeFrom("");
                             }
@@ -177,7 +177,7 @@ function TableFilters({
                         onChange: (val?: string) => {
                             if (isValidDateString(val)) {
                                 setRangeTo(
-                                    getEndOfDay(new Date(val!!)).toISOString(),
+                                    getEndOfDay(new Date(val!)).toISOString(),
                                 );
                             } else {
                                 setRangeTo("");

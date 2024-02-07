@@ -8,7 +8,7 @@ import { useSessionContext } from "../contexts/Session";
 import Spinner from "./Spinner";
 
 /** Wrap components with this error boundary to catch errors thrown */
-export function RSErrorBoundary(props: PropsWithChildren) {
+function RSErrorBoundary(props: PropsWithChildren) {
     const { rsConsole, config } = useSessionContext();
     return (
         <ErrorBoundary

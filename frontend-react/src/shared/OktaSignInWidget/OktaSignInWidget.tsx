@@ -1,10 +1,5 @@
-import React, {
-    HTMLAttributes,
-    PropsWithChildren,
-    useEffect,
-    useRef,
-} from "react";
-import OktaSignIn, { WidgetOptions } from "@okta/okta-signin-widget";
+import { HTMLAttributes, PropsWithChildren, useEffect, useRef } from "react";
+import { WidgetOptions, OktaSignIn } from "@okta/okta-signin-widget";
 import type { Tokens } from "@okta/okta-auth-js";
 
 import "@okta/okta-signin-widget/css/okta-sign-in.min.css";

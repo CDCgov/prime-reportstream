@@ -1,5 +1,3 @@
-import React from "react";
-
 type DetailItemProps = {
     item: string;
     content: any;

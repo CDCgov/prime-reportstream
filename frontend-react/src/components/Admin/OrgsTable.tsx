@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useResource } from "rest-hooks";
 import { Button, ButtonGroup, Label, TextInput } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +7,7 @@ import { Helmet } from "react-helmet-async";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { useSessionContext } from "../../contexts/Session";
 import { USNavLink } from "../USLink";
-import { Table } from "../../shared/Table/Table";
+import Table from "../../shared/Table/Table";
 import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
 
 export function OrgsTable() {
@@ -23,7 +23,7 @@ export function OrgsTable() {
     const handleSelectOrgClick = (orgName: string) => {
         const { service, memberType } = activeMembership || {};
 
-        let payload: Partial<MembershipSettings> = {
+        const payload: Partial<MembershipSettings> = {
             parsedName: orgName,
         };
         if (

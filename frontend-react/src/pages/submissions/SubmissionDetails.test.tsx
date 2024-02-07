@@ -87,7 +87,7 @@ describe("SubmissionDetails", () => {
             recordsTransmitted,
         ];
 
-        for (let i of testElements) {
+        for (const i of testElements) {
             expect(i).toBeInTheDocument();
         }
     });

@@ -1,4 +1,4 @@
-import React, {
+import {
     PropsWithChildren,
     ReactNode,
     useCallback,
@@ -15,7 +15,7 @@ interface CodeSnippetProps extends PropsWithChildren {
     children?: ReactNode;
 }
 
-export const CodeSnippet = ({ children }: CodeSnippetProps) => {
+const CodeSnippet = ({ children }: CodeSnippetProps) => {
     const [isCopied, setIsCopied] = useState(false);
     const containerRef = useRef<HTMLElement>(null);
 
@@ -62,3 +62,5 @@ export const CodeSnippet = ({ children }: CodeSnippetProps) => {
         </pre>
     );
 };
+
+export default CodeSnippet;

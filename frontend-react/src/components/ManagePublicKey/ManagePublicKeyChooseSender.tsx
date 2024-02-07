@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import { Form, Select, Button, FormGroup } from "@trussworks/react-uswds";
 
 import { RSSender } from "../../config/endpoints/settings";

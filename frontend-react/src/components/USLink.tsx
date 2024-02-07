@@ -1,4 +1,4 @@
-import React, {
+import {
     AnchorHTMLAttributes,
     ReactNode,
     useMemo,
@@ -21,9 +21,10 @@ interface CustomLinkProps {
     activeClassName?: string;
     state?: any;
 }
-type USLinkProps = AnchorHTMLAttributes<{}> &
+type USLinkProps = AnchorHTMLAttributes<object> &
     Omit<CustomLinkProps, "activeClassName">;
-type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
+type USNavLinkProps = Pick<AnchorHTMLAttributes<object>, "href"> &
+    CustomLinkProps;
 
 /**
  * Stateless function to get route href from href that could be

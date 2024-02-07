@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import React, { isValidElement } from "react";
+import { isValidElement } from "react";
 
 import { appRoutes } from "../../AppRouter";
 
@@ -25,7 +25,7 @@ const isAuthenticatedPath = (pathname: string) => {
     return !!matchedRoute.element.props?.auth;
 };
 
-export const DAPScript = ({ pathname }: DAPScriptProps) => {
+const DAPScript = ({ pathname }: DAPScriptProps) => {
     if (pathname && isAuthenticatedPath(pathname)) {
         return null;
     }

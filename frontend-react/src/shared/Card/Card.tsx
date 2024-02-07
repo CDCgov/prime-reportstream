@@ -8,7 +8,7 @@ export interface CardProps extends ComponentProps<typeof OrigCard> {
     isAlternate?: boolean;
 }
 
-export function Card({ isAlternate, className, ...props }: CardProps) {
+function Card({ isAlternate, className, ...props }: CardProps) {
     const classnames = classNames(
         isAlternate && styles["usa-card--alternate"],
         className,

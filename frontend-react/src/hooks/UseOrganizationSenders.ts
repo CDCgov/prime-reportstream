@@ -16,10 +16,10 @@ export default function useOrganizationSenders() {
 
     const authorizedFetch = useAuthorizedFetch<RSSender[]>();
     const memoizedDataFetch = useCallback(() => {
-        if (!!activeMembership?.parsedName) {
+        if (activeMembership?.parsedName) {
             return authorizedFetch(senders, {
                 segments: {
-                    orgName: activeMembership?.parsedName!!,
+                    orgName: activeMembership.parsedName,
                 },
             });
         }

@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
@@ -170,7 +170,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     setup();
                     await userEvent.click(screen.getByText("Filter"));
 
-                    expect(mockAppInsights.trackEvent).toBeCalledWith({
+                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
                         name: "Daily Data | Table Filter",
                         properties: {
                             tableFilter: {

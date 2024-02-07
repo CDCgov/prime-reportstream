@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from "react";
+import { Suspense, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
 import { useNavigate } from "react-router-dom";
@@ -39,7 +39,7 @@ export function AdminOrgNewPage() {
             navigate(`/admin/orgsettings/org/${orgName}`);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             rsConsole.trace(e, errorDetail);
             showToast(
                 `Creating item '${orgName}' failed. ${errorDetail}`,

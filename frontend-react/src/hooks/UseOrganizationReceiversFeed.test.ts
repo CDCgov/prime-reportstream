@@ -57,7 +57,7 @@ describe("useOrganizationReceiversFeed", () => {
             organizationName: "testOrg",
         });
         expect(result.current.data).toBeDefined();
-        act(() => result.current.setActiveService(result.current.data!![1]));
+        act(() => result.current.setActiveService(result.current.data![1]));
         expect(result.current.activeService).toEqual({
             name: "elr-0",
             organizationName: "testOrg",

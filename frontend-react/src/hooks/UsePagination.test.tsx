@@ -657,13 +657,13 @@ describe("usePagination", () => {
         );
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
-        expect(mockTrackEvent).not.toBeCalled();
+        expect(mockTrackEvent).not.toHaveBeenCalled();
 
         act(() => {
             result.current.paginationProps?.setSelectedPage(2);
         });
 
-        expect(mockTrackEvent).toBeCalledWith({
+        expect(mockTrackEvent).toHaveBeenCalledWith({
             name: "Test Analytics Event",
             properties: {
                 tablePagination: {

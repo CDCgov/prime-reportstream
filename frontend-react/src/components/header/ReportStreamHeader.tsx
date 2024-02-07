@@ -9,7 +9,7 @@ import {
     Title,
 } from "@trussworks/react-uswds";
 import classnames from "classnames";
-import React, {
+import {
     MutableRefObject,
     PropsWithChildren,
     ReactElement,
@@ -341,7 +341,7 @@ function ReportStreamNavbar({
 
 const suspenseFallback = <Spinner size={"fullpage"} />;
 
-export const ReportStreamHeader = ({
+const ReportStreamHeader = ({
     blueVariant,
     children,
     isNavHidden,

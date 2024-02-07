@@ -122,7 +122,7 @@ const useReportsDetail = (id: string) => {
 const useReportsFacilities = (id: string) => {
     const authorizedFetch = useAuthorizedFetch<RSFacility[]>();
     const memoizedDataFetch = useCallback(() => {
-        if (!!id) {
+        if (id) {
             return authorizedFetch(getDeliveryFacilities, {
                 segments: {
                     id: id,

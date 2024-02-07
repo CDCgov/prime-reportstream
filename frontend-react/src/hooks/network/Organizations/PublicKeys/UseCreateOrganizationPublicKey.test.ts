@@ -82,7 +82,7 @@ describe("useCreateOrganizationPublicKey", () => {
                         kid: "testOrg.elr-0",
                         sender: "elr-0",
                     }),
-            ).rejects.toThrowError("Request failed with status code 401");
+            ).rejects.toThrow("Request failed with status code 401");
         });
     });
 });

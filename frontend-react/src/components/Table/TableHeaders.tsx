@@ -1,5 +1,4 @@
 /* Renders the header row of the table from columns.values() */
-import React from "react";
 import { Icon } from "@trussworks/react-uswds";
 
 import { FilterManager } from "../../hooks/filters/UseFilterManager";

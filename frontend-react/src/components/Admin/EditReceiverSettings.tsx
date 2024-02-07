@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
 import { useNavigate, useParams } from "react-router-dom";
@@ -142,7 +142,7 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
             setLoading(false);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             showToast(
                 `Reloading receiver '${receivername}' failed with: ${errorDetail}`,
                 "error",
@@ -196,7 +196,7 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
             navigate(-1);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             showToast(
                 `Updating receiver '${receivername}' failed with: ${errorDetail}`,
                 "error",

@@ -60,7 +60,7 @@ export default function useReceiverSubmitters(serviceName?: string) {
 
     const authorizedFetch = useAuthorizedFetch<RSReceiverSubmitterResponse>();
     const memoizedDataFetch = useCallback(() => {
-        if (!!orgAndService) {
+        if (orgAndService) {
             return authorizedFetch(receiverSubmitters, {
                 segments: { orgAndService },
                 data: {

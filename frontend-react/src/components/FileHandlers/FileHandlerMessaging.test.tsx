@@ -1,5 +1,4 @@
 import { screen, within } from "@testing-library/react";
-import React from "react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
@@ -320,7 +319,7 @@ describe("ValidationErrorMessage", () => {
     });
 
     describe("when the error is INVALID_HL7_MSG_VALIDATION", () => {
-        test("renders an error about an invalid field ", () => {
+        test("renders an error about an invalid field", () => {
             renderComponent({
                 errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
             });

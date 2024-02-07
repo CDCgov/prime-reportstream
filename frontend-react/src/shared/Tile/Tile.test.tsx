@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-import { Tile } from "./Tile";
+import Tile from "./Tile";
 
 describe("Feature rendering", () => {
     const baseFeature = {

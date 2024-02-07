@@ -26,6 +26,7 @@ function DeliveryInfo(props: Props) {
                         Available to download
                     </h4>
                     <p className="text-bold margin-top-0">
+                        {/* eslint-disable-next-line import/no-named-as-default-member */}
                         {moment
                             .utc(report!.batchReadyAt)
                             .local()
@@ -43,6 +44,7 @@ function DeliveryInfo(props: Props) {
                         Download expires
                     </h4>
                     <p className="text-bold margin-top-0">
+                        {/* eslint-disable-next-line import/no-named-as-default-member */}
                         {moment
                             .utc(report!.expires)
                             .local()

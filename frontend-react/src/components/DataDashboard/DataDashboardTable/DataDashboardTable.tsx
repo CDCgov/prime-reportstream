@@ -12,7 +12,7 @@ import useReceiverDeliveries, {
     DeliveriesAttr,
 } from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
-import { Table } from "../../../shared/Table/Table";
+import Table from "../../../shared/Table/Table";
 import { getSlots } from "../../../hooks/UsePagination";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
@@ -192,7 +192,7 @@ export default function DataDashboardTable() {
         <>
             {activeService && (
                 <DashboardFilterAndTable
-                    receiverServices={services!!}
+                    receiverServices={services!}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />

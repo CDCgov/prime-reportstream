@@ -60,7 +60,7 @@ export const AppWrapper = ({
     // in tests is made easier for better coverage as we'd be able to test through
     // any custom route wrappers.
     // FUTURE_TODO: Remove MockResolver and restHookFixtures when removing react-hooks.
-    return ({ children }: AppWrapperProps) => {
+    return function InnerAppWrapper({ children }: AppWrapperProps) {
         /**
          * Dynamically makes the supplied children the return element for all
          * routes.

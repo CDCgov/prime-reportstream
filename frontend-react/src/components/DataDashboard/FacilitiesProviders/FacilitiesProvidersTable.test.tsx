@@ -57,7 +57,7 @@ jest.mock("rest-hooks", () => ({
     },
 }));
 
-describe("FacilitiesProvidersTable", () => {
+describe("useOrganizationReceiversFeed", () => {
     beforeAll(() => orgServer.listen());
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());

@@ -47,10 +47,10 @@ interface EditableCompareProps {
 
 export const EditableCompare = forwardRef(
     // allows for functions on components (useImperativeHandle)
-    (
+    function EditableCompare(
         { jsonDiffMode, modified, onChange, original }: EditableCompareProps,
         ref: Ref<EditableCompareRef>,
-    ): ReactElement => {
+    ): ReactElement {
         // useRefs are used to access html elements directly (instead of document.getElementById)
         const staticDiffRef = useRef<HTMLDivElement>(null);
         const editDiffRef = useRef<HTMLTextAreaElement>(null);

@@ -31,7 +31,7 @@ describe("useReceiverDeliveries", () => {
 
         test("returns undefined", async () => {
             const { result } = renderHook(() => useReceiverDeliveries());
-            await waitFor(() => expect(result.current.data).toBeNull);
+            await waitFor(() => expect(result.current.data).toBeNull());
         });
     });
 

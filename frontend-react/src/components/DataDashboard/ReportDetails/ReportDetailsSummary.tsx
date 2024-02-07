@@ -1,4 +1,3 @@
-import React from "react";
 import { Grid } from "@trussworks/react-uswds";
 
 import { RSDelivery } from "../../../config/endpoints/deliveries";

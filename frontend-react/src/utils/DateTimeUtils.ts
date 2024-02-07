@@ -74,7 +74,9 @@ export const timeZoneAbbreviated = () => {
 };
 
 export function isDateExpired(dateTimeString: string | number) {
+    // eslint-disable-next-line import/no-named-as-default-member
     const now = moment.utc().local();
+    // eslint-disable-next-line import/no-named-as-default-member
     const dateToCompare = moment.utc(dateTimeString).local();
     return dateToCompare < now;
 }

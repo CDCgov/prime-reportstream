@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 
 import { renderApp } from "../../utils/CustomRenderUtils";

@@ -7,7 +7,7 @@ import {
     ModalRef,
     ModalToggleButton,
 } from "@trussworks/react-uswds";
-import React, {
+import {
     forwardRef,
     ReactElement,
     Ref,
@@ -65,10 +65,10 @@ export interface CompareSettingsModalProps {
 }
 
 export const ConfirmSaveSettingModal = forwardRef(
-    (
+    function ConfirmSaveSettingModal(
         { uniquid, onConfirm, oldjson, newjson }: CompareSettingsModalProps,
         ref: Ref<ConfirmSaveSettingModalRef>,
-    ) => {
+    ) {
         const modalRef = useRef<ModalRef>(null);
         const diffEditorRef = useRef<EditableCompareRef>(null);
         const [errorText, setErrorText] = useState("");

@@ -14,7 +14,7 @@ describe("StaticAlert", () => {
         expect(wrapper).toHaveClass("usa-alert--success");
     });
 
-    test("renders correct class for success", async () => {
+    test("renders correct class for error", async () => {
         renderApp(<StaticAlert type={StaticAlertType.Error} heading={"any"} />);
 
         const wrapper = await screen.findByRole("alert");

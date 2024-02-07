@@ -1,5 +1,5 @@
 import { screen, fireEvent, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import * as useCreateOrganizationPublicKeyExports from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";

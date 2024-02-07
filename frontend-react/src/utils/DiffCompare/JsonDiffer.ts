@@ -226,15 +226,15 @@ const jsonDiffer = (
     const rightKeys = Object.keys(rightData.pointers);
 
     // this is looking for diffs between the two lists.
-    let addedLeftKeys = leftKeys.filter(
+    const addedLeftKeys = leftKeys.filter(
         (key) => key.length && !rightKeys.includes(key),
     );
-    let addedRightKeys = rightKeys.filter(
+    const addedRightKeys = rightKeys.filter(
         (key) => key.length && !leftKeys.includes(key),
     );
 
     // now we want intersection (aka NOT changed and see if the values have changed).
-    let intersectionKeys = leftKeys.filter((key) => rightKeys.includes(key));
+    const intersectionKeys = leftKeys.filter((key) => rightKeys.includes(key));
 
     // for readability improvements only, pull out start/end values
     const getStartEnd = (key: string, data: SourceMapResult) => {

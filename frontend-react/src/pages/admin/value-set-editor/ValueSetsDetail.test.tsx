@@ -1,5 +1,5 @@
 import { screen, act, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { AxiosError, AxiosResponse } from "axios";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";

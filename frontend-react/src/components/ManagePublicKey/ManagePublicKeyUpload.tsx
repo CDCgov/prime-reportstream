@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useRef } from "react";
+import { ChangeEvent, FormEvent, useRef } from "react";
 import {
     Button,
     FileInput,

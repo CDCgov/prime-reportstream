@@ -30,10 +30,10 @@ export const crumbsFromHere = (
  * @todo make private method of ContentDirectoryTools
  * @param element {JSX.Element} The element to be rendered
  * @param crumbs {CrumbConfig[]} A list of crumbs to render */
-export const renderWithCrumbs =
-    (element: JSX.Element, crumbs: CrumbConfig[]) => () => (
-        <WithCrumbs page={element} crumbList={crumbs} />
-    );
+export const renderWithCrumbs = (element: JSX.Element, crumbs: CrumbConfig[]) =>
+    function WithCrumbsWrapper() {
+        return <WithCrumbs page={element} crumbList={crumbs} />;
+    };
 
 export interface SlugParams {
     key: string;

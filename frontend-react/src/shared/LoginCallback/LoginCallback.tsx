@@ -1,11 +1,5 @@
 import type { OnAuthResumeFunction } from "@okta/okta-react/bundles/types/OktaContext";
-import React, {
-    ComponentType,
-    FC,
-    ReactElement,
-    useEffect,
-    useState,
-} from "react";
+import { ComponentType, FC, ReactElement, useEffect, useState } from "react";
 
 import { useSessionContext } from "../../contexts/Session";
 

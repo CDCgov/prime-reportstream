@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, SetStateAction } from "react";
+import { Dispatch, FC, SetStateAction } from "react";
 
 import Table, {
     ColumnConfig,
@@ -223,7 +223,7 @@ const DeliveriesFilterAndTable = ({
     );
 };
 
-export const DailyData = () => {
+const DailyData = () => {
     const {
         isLoading,
         data: services,
@@ -252,7 +252,7 @@ export const DailyData = () => {
         <>
             {activeService && (
                 <DeliveriesFilterAndTable
-                    services={services!!}
+                    services={services!}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />

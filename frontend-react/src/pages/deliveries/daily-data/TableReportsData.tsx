@@ -30,12 +30,14 @@ function TableReportsData(props: Props) {
                         </USLink>
                     </th>
                     <th scope="row">
+                        {/* eslint-disable-next-line import/no-named-as-default-member */}
                         {moment
                             .utc(report.sent)
                             .local()
                             .format("YYYY-MM-DD HH:mm")}
                     </th>
                     <th scope="row">
+                        {/* eslint-disable-next-line import/no-named-as-default-member */}
                         {moment
                             .utc(report.expires)
                             .local()

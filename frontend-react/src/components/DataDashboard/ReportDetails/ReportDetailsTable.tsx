@@ -1,5 +1,3 @@
-import React from "react";
-
 import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
 import Table, { TableConfig } from "../../../components/Table/Table";
 import TableFilters from "../../Table/TableFilters";
@@ -41,7 +39,7 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
             { dataAttr: "total", columnHeader: "Total tests" },
             { dataAttr: "positive", columnHeader: "Total positive" },
         ],
-        rows: reportFacilities!!,
+        rows: reportFacilities!,
     };
 
     return (

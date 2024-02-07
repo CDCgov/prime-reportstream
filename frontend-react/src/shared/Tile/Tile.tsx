@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import DOMPurify from "dompurify";
 import classNames from "classnames";
 
@@ -14,7 +14,7 @@ export interface TileProps {
     summary?: string;
 }
 
-export const Tile = ({
+const Tile = ({
     children,
     className,
     img,
@@ -54,3 +54,5 @@ export const Tile = ({
         </div>
     );
 };
+
+export default Tile;

@@ -1,5 +1,4 @@
 import { GridContainer } from "@trussworks/react-uswds";
-import React from "react";
 import { useParams } from "react-router-dom";
 
 import { FeatureName } from "../../../utils/FeatureName";
@@ -20,7 +19,7 @@ export function ReportDetailsPage() {
         ],
     };
     const { reportId } = useParams();
-    const { data: reportDetail } = useReportsDetail(reportId!!);
+    const { data: reportDetail } = useReportsDetail(reportId!);
 
     return (
         <div className={styles.ReportDetails}>
@@ -31,7 +30,7 @@ export function ReportDetailsPage() {
                 <article>
                     <ReportDetailsSummary report={reportDetail} />
                     {withCatchAndSuspense(
-                        <ReportDetailsTable reportId={reportId!!} />,
+                        <ReportDetailsTable reportId={reportId!} />,
                     )}
                     <HipaaNotice />
                 </article>

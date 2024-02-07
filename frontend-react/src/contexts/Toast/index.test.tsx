@@ -1,7 +1,7 @@
 import { render, renderHook, screen } from "@testing-library/react";
 import { useContext } from "react";
 
-import ToastProvider, { ToastContext, ToastCtx, useToast } from "./";
+import { ToastContext, ToastCtx, useToast, ToastProvider } from "./";
 
 describe("Toast", () => {
     describe("Provider", () => {

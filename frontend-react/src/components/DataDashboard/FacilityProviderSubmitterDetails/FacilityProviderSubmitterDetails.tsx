@@ -1,5 +1,5 @@
 import { GridContainer } from "@trussworks/react-uswds";
-import React, { PropsWithChildren } from "react";
+import { PropsWithChildren } from "react";
 
 import Crumbs, { CrumbsProps } from "../../Crumbs";
 import { FeatureName } from "../../../utils/FeatureName";

@@ -1,4 +1,4 @@
-import React, { FC, FormEvent, useState } from "react";
+import { FC, FormEvent, useState } from "react";
 import {
     Form,
     FormGroup,
@@ -10,7 +10,7 @@ import {
 import Spinner from "../Spinner";
 import { MessageListResource } from "../../config/endpoints/messageTracker";
 import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
-import { Table } from "../../shared/Table/Table";
+import Table from "../../shared/Table/Table";
 import { USLink } from "../USLink";
 
 interface MessageListTableContentProps {

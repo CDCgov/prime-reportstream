@@ -1,4 +1,4 @@
-import React, { ComponentType, LazyExoticComponent, lazy } from "react";
+import { ComponentType, LazyExoticComponent, lazy } from "react";
 import { Outlet, RouteObject, redirect } from "react-router";
 import { createBrowserRouter } from "react-router-dom";
 

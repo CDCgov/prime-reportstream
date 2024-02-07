@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { Button } from "@trussworks/react-uswds";
 
 import { USLink } from "../USLink";
@@ -45,7 +45,7 @@ export const ColumnData = ({
 
     // Easy-to-read way to transform value
     const transform = (
-        transformFunc: Function,
+        transformFunc: (...args: any[]) => unknown,
         transformVal: string | number,
     ) => {
         return transformFunc(transformVal);

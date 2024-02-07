@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
 import { useNavigate, useParams } from "react-router-dom";
@@ -68,7 +68,7 @@ export function NewSettingPage() {
             showToast(`Item '${orgSettingName}' has been created`, "success");
             navigate(-1);
         } catch (e: any) {
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             showToast(
                 `Updating setting '${orgSettingName}' failed with: ${errorDetail}`,
                 "error",

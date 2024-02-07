@@ -163,7 +163,7 @@ function calculateFileSelectedState(
 }
 
 // update state when API request is complete
-function calculateRequestCompleteState(
+export function calculateRequestCompleteState(
     state: FileHandlerState,
     payload: RequestCompletePayload,
 ): Partial<FileHandlerState> {
@@ -192,7 +192,7 @@ function calculateRequestCompleteState(
         warnings,
         errorType: errors?.length && status ? ErrorType.SERVER : ErrorType.FILE,
         // pulled from old Upload implementation. Not sure why id is being renamed here, when reportId also exists on the response
-        reportId: id || "",
+        reportId: id ?? "",
         successTimestamp: errors?.length ? "" : timestamp,
         overallStatus: overallStatus,
     };
@@ -209,22 +209,25 @@ function reducer(
                 ...getInitialState(),
                 ...(payload || {}),
             };
-        case FileHandlerActionType.PREPARE_FOR_REQUEST:
+        case FileHandlerActionType.PREPARE_FOR_REQUEST: {
             const preSubmitState = getPreSubmitState();
             return { ...state, ...preSubmitState };
-        case FileHandlerActionType.FILE_SELECTED:
+        }
+        case FileHandlerActionType.FILE_SELECTED: {
             const fileSelectedState = calculateFileSelectedState(
                 state,
                 payload as FileSelectedPayload,
             );
             return { ...state, ...fileSelectedState };
-        case FileHandlerActionType.REQUEST_COMPLETE:
+        }
+        case FileHandlerActionType.REQUEST_COMPLETE: {
             const requestCompleteState = calculateRequestCompleteState(
                 state,
                 payload as RequestCompletePayload,
             );
             return { ...state, ...requestCompleteState };
-        case FileHandlerActionType.SCHEMA_SELECTED:
+        }
+        case FileHandlerActionType.SCHEMA_SELECTED: {
             const selectedSchemaOption = payload as SchemaOption;
 
             // reset anything related to the file if the selected schema format
@@ -244,6 +247,7 @@ function reducer(
                 ...state,
                 selectedSchemaOption,
             };
+        }
         default:
             return state;
     }

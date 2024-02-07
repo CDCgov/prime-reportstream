@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { Grid, GridContainer, Accordion } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
 import { useParams } from "react-router-dom";
@@ -47,7 +47,7 @@ const dataToAccordionItems = (props: {
     const grouped = groupBy(props.data, (each) => each.name);
 
     // turn each group into a html list and add to the content of the accordion
-    for (let [key, settings] of Object.entries(grouped)) {
+    for (const [key, settings] of Object.entries(grouped)) {
         const items = settings.map((eachSetting) => {
             const itemKey = `key-${eachSetting.id}`;
             const selectedCss =
@@ -103,8 +103,8 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
     const msg = isError
         ? "Failed to load data"
         : isLoading
-          ? "Loading..."
-          : "Data not found"; // should not be used because `!data` test below but useful for unit test debugging
+        ? "Loading..."
+        : "Data not found"; // should not be used because `!data` test below but useful for unit test debugging
     return (
         <Grid col={"fill"} className={"rs-maxwidth-vw80"}>
             <Grid row gap="md" className={"rs-accord-list-row"}>
@@ -182,7 +182,8 @@ const AdminRevHistoryPage = () => {
 
             <section className="grid-container margin-top-0">
                 <h4>
-                    Settings Revision History for "{org}" {settingType}
+                    Settings Revision History for &quot;{org}&quot;{" "}
+                    {settingType}
                 </h4>
                 <section className="margin-bottom-5">
                     Select different versions from each list to compare.

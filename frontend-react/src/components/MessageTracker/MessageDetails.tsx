@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Accordion, GridContainer } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
@@ -54,7 +53,7 @@ const dataToAccordionItems = (props: {
 export function MessageDetails() {
     const navigate = useNavigate();
     const { id } = useParams<MessageDetailsProps>();
-    const { messageDetails } = useMessageDetails(id!!);
+    const { messageDetails } = useMessageDetails(id!);
     const submittedDate = messageDetails?.submittedDate
         ? new Date(messageDetails.submittedDate)
         : undefined;
@@ -175,7 +174,7 @@ export function MessageDetails() {
                     </div>
                 </div>
                 <hr className="margin-top-2 margin-bottom-4" />
-                {messageDetails?.receiverData! ? (
+                {messageDetails?.receiverData ? (
                     <MessageReceivers
                         receiverDetails={messageDetails.receiverData}
                     />

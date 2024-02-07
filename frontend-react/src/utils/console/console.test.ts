@@ -47,7 +47,7 @@ describe("RSConsole", () => {
             });
             rsConsole.info(message, obj);
 
-            expect(mockAppInsights.trackTrace).toBeCalledWith<
+            expect(mockAppInsights.trackTrace).toHaveBeenCalledWith<
                 [ITraceTelemetry]
             >({
                 message,
@@ -58,7 +58,7 @@ describe("RSConsole", () => {
                 },
             });
 
-            expect(mockConsole.info).toBeCalledWith(message, obj);
+            expect(mockConsole.info).toHaveBeenCalledWith(message, obj);
         });
     });
 
@@ -74,7 +74,7 @@ describe("RSConsole", () => {
 
                 rsConsole.assert(false, message, obj);
 
-                expect(mockAppInsights.trackException).toBeCalledWith<
+                expect(mockAppInsights.trackException).toHaveBeenCalledWith<
                     [IExceptionTelemetry]
                 >({
                     id: msg,
@@ -86,7 +86,7 @@ describe("RSConsole", () => {
                     },
                 });
 
-                expect(mockConsole.assert).toBeCalledWith(false, message, obj);
+                expect(mockConsole.assert).toHaveBeenCalledWith(false, message, obj);
             });
         });
 
@@ -99,8 +99,8 @@ describe("RSConsole", () => {
                 });
                 rsConsole.assert(true, message, obj);
 
-                expect(mockAppInsights.trackException).not.toBeCalled();
-                expect(mockConsole.assert).toBeCalledWith(true, message, obj);
+                expect(mockAppInsights.trackException).not.toHaveBeenCalled();
+                expect(mockConsole.assert).toHaveBeenCalledWith(true, message, obj);
             });
         });
     });
@@ -115,7 +115,7 @@ describe("RSConsole", () => {
             // eslint-disable-next-line testing-library/no-debugging-utils
             rsConsole.debug(message, obj);
 
-            expect(mockAppInsights.trackTrace).toBeCalledWith<
+            expect(mockAppInsights.trackTrace).toHaveBeenCalledWith<
                 [ITraceTelemetry]
             >({
                 message,
@@ -138,7 +138,7 @@ describe("RSConsole", () => {
             const err = new Error(message);
             rsConsole.error(err, obj);
 
-            expect(mockAppInsights.trackException).toBeCalledWith<
+            expect(mockAppInsights.trackException).toHaveBeenCalledWith<
                 [IExceptionTelemetry]
             >({
                 exception: err,
@@ -161,7 +161,7 @@ describe("RSConsole", () => {
             });
             rsConsole.trace(message, obj);
 
-            expect(mockAppInsights.trackTrace).toBeCalledWith<
+            expect(mockAppInsights.trackTrace).toHaveBeenCalledWith<
                 [ITraceTelemetry]
             >({
                 message,
@@ -183,7 +183,7 @@ describe("RSConsole", () => {
             });
             rsConsole.warn(message, obj);
 
-            expect(mockAppInsights.trackTrace).toBeCalledWith<
+            expect(mockAppInsights.trackTrace).toHaveBeenCalledWith<
                 [ITraceTelemetry]
             >({
                 message,
@@ -204,7 +204,7 @@ describe("RSConsole", () => {
                 reportableConsoleLevels,
             });
             rsConsole.dev("test");
-            expect(mockConsole.log).not.toBeCalledWith("test");
+            expect(mockConsole.log).not.toHaveBeenCalledWith("test");
         });
         test("does call console if dev env", () => {
             const rsConsole = new RSConsole({
@@ -214,7 +214,7 @@ describe("RSConsole", () => {
                 env: "development",
             });
             rsConsole.dev("test");
-            expect(mockConsole.log).toBeCalledWith("test");
+            expect(mockConsole.log).toHaveBeenCalledWith("test");
         });
     });
 });

@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router";
-import React, { PropsWithChildren, ReactElement, lazy } from "react";
+import { PropsWithChildren, ReactElement, lazy } from "react";
 
 import { PERMISSIONS } from "../../utils/UsefulTypes";
 import { useSessionContext } from "../../contexts/Session";
@@ -33,14 +33,14 @@ export function RequireGateBase({
         ? Array.isArray(auth)
             ? auth
             : typeof auth === "boolean"
-              ? []
-              : [auth]
+            ? []
+            : [auth]
         : undefined;
     const flags = Array.isArray(featureFlags)
         ? featureFlags
         : featureFlags
-          ? [featureFlags]
-          : [];
+        ? [featureFlags]
+        : [];
     let isAdmin = false,
         isAuthAllowed = false,
         isFeatureAllowed = false;

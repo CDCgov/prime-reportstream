@@ -32,12 +32,11 @@ const DEFAULT_RSDELIVERY = {
 beforeEach(() => {
     // Mock our SessionProvider's data
     mockSessionContentReturnValue({
-        //@ts-ignore
         oktaAuth: {
             getUser: mockGetUser.mockResolvedValue({
                 email: "test@test.org",
             }),
-        },
+        } as any,
         authState: {
             isAuthenticated: true,
             accessToken: {

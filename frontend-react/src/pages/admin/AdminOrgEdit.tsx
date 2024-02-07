@@ -1,4 +1,4 @@
-import React, { Suspense, useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useParams } from "react-router-dom";
@@ -102,7 +102,7 @@ export function AdminOrgEditPage() {
             setLoading(false);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             showAlertNotification(
                 new Error(
                     `Reloading org '${orgname}' failed with: ${errorDetail}`,
@@ -148,7 +148,7 @@ export function AdminOrgEditPage() {
             showAlertNotification(`Saved '${orgname}' setting.`, "success");
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             showAlertNotification(
                 new Error(
                     `Updating org '${orgname}' failed with: ${errorDetail}`,

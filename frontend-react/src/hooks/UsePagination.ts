@@ -280,8 +280,10 @@ function reducer<T>(
                 payload as ProcessResultsPayload<T>,
             );
         case PaginationActionType.RESET:
-            const initialState = getInitialState(payload as ResetPayload<T>);
-            return setSelectedPageReducer(initialState, 1);
+            return setSelectedPageReducer(
+                getInitialState(payload as ResetPayload<T>),
+                1,
+            );
         case PaginationActionType.SET_SELECTED_PAGE:
             return setSelectedPageReducer(
                 state,

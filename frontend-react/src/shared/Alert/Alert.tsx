@@ -1,10 +1,5 @@
 // AutoUpdateFileChromatic
-import React, {
-    AriaRole,
-    ComponentProps,
-    HTMLAttributes,
-    ReactElement,
-} from "react";
+import { AriaRole, ComponentProps, HTMLAttributes, ReactElement } from "react";
 import classnames from "classnames";
 import { Alert as OrigAlert } from "@trussworks/react-uswds";
 
@@ -58,7 +53,7 @@ export function getIconName(type: AlertProps["type"]): IconName {
  * safe. Heading level accepts "div" (opt-out of using header element).
  * @see https://designsystem.digital.gov/components/alert/#alert-aria-roles
  */
-export const Alert = ({
+const Alert = ({
     role,
     children,
     headingLevel = "div",

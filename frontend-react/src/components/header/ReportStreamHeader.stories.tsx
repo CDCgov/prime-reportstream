@@ -1,4 +1,4 @@
-import React, { FC, ReactElement } from "react";
+import { FC, ReactElement } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import { SessionContext } from "../../contexts/Session";

@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 import TableFilters from "../../Table/TableFilters";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
@@ -7,7 +7,7 @@ import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationRece
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import { FeatureName } from "../../../utils/FeatureName";
-import { Table } from "../../../shared/Table/Table";
+import Table from "../../../shared/Table/Table";
 import useReceiverSubmitters, {
     DeliveriesAttr,
 } from "../../../hooks/network/DataDashboard/UseReceiverSubmitters";
@@ -199,7 +199,7 @@ export default function FacilitiesProvidersTable() {
         <>
             {activeService && (
                 <FacilitiesProvidersFilterAndTable
-                    receiverServices={services!!}
+                    receiverServices={services!}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />
