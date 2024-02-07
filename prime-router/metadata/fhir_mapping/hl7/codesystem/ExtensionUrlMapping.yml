@@ -389,6 +389,10 @@
 - id: "hl7v2Component"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component"
 
+# Deprecated
+- id: "hl7-use"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
+
 # Date time as hl7v2 string
 - id: "hl7v2-date-time"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time"
