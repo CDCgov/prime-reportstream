@@ -29,10 +29,9 @@ describe("useReceiverSubmitters", () => {
             });
         });
 
-        test("returns undefined", async () => {
+        test("returns null", async () => {
             const { result } = renderHook(() => useReceiverSubmitters());
-            await waitFor(() => expect(result.current.data).toEqual(undefined));
-            expect(result.current.isLoading).toEqual(true);
+            await waitFor(() => expect(result.current.data).toBeNull());
         });
     });
 

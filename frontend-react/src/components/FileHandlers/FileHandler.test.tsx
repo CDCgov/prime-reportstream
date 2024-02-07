@@ -19,6 +19,7 @@ import {
     UseWatersUploaderResult,
     UseWatersUploaderSendFileMutation,
 } from "../../hooks/network/WatersHooks";
+import { RSSender } from "../../config/endpoints/settings";
 
 import FileHandler from "./FileHandler";
 
@@ -101,6 +102,16 @@ jest.mock("../../hooks/UseOrganizationSettings", () => ({
             isLoading: false,
         };
     },
+}));
+
+jest.mock("../../hooks/UseSenderResource", () => ({
+    __esModule: true,
+    default: () => ({
+        data: {
+            name: "default",
+            organizationName: "aegis",
+        } satisfies Partial<RSSender>,
+    }),
 }));
 
 export async function chooseSchema(schemaName: string) {
