@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
 import {
@@ -70,7 +70,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
     // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
-    return useQuery({
+    return useSuspenseQuery({
         queryKey: [getTableData.queryKey, dataTableName],
         queryFn: memoizedDataFetch,
     });
@@ -92,7 +92,7 @@ export const useValueSetsMeta = (
     const { rsConsole } = useSessionContext();
 
     // get all lookup tables in order to get metadata
-    const { data: tableData, ...query } = useQuery({
+    const { data: tableData, ...query } = useSuspenseQuery({
         queryKey: [getTableList.queryKey],
         queryFn: () => authorizedFetch(getTableList),
     });

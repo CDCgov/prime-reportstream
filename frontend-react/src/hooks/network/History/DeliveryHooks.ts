@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 import {
     Organizations,
@@ -107,12 +107,11 @@ const useReportsDetail = (id: string) => {
             }),
         [authorizedFetch, id],
     );
-    return useQuery({
+    return useSuspenseQuery({
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
         queryKey: [getDeliveryDetails.queryKey, id],
         queryFn: memoizedDataFetch,
-        enabled: !!id,
     });
 };
 
@@ -122,21 +121,21 @@ const useReportsDetail = (id: string) => {
  * */
 const useReportsFacilities = (id: string) => {
     const authorizedFetch = useAuthorizedFetch<RSFacility[]>();
-    const memoizedDataFetch = useCallback(
-        () =>
-            authorizedFetch(getDeliveryFacilities, {
+    const memoizedDataFetch = useCallback(() => {
+        if (!!id) {
+            return authorizedFetch(getDeliveryFacilities, {
                 segments: {
                     id: id,
                 },
-            }),
-        [authorizedFetch, id],
-    );
-    return useQuery({
+            });
+        }
+        return null;
+    }, [authorizedFetch, id]);
+    return useSuspenseQuery({
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
         queryKey: [getDeliveryFacilities.queryKey, id],
         queryFn: memoizedDataFetch,
-        enabled: !!id,
     });
 };
 
