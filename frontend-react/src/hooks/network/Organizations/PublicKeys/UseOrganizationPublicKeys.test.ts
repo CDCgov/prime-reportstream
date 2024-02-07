@@ -32,9 +32,9 @@ describe("useOrganizationPublicKeys", () => {
             });
         });
 
-        test("returns undefined", () => {
+        test("returns undefined", async () => {
             const { result } = renderHook(() => useOrganizationPublicKeys());
-            expect(result.current.data).toEqual(undefined);
+            await waitFor(() => expect(result.current.data).toBeNull());
         });
     });
 

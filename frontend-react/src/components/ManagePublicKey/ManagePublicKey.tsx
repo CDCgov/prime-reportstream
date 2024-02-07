@@ -35,8 +35,7 @@ export function ManagePublicKeyPage() {
     const [fileSubmitted, setFileSubmitted] = useState(false);
 
     const { activeMembership } = useSessionContext();
-    const { data: senders, isLoading: isSendersLoading } =
-        useOrganizationSenders();
+    const { data: senders } = useOrganizationSenders();
     const { data: orgPublicKeys } = useOrganizationPublicKeys();
     const {
         mutateAsync,
@@ -206,7 +205,7 @@ export function ManagePublicKeyPage() {
                         file={file}
                     />
                 )}
-                {(isUploading || isSendersLoading) && <Spinner />}
+                {isUploading && <Spinner />}
                 {isSuccess && <ManagePublicKeyUploadSuccess />}
                 {hasUploadError && (
                     <ManagePublicKeyUploadError

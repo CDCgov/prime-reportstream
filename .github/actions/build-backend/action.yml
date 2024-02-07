@@ -39,7 +39,7 @@ runs:
       run: ./gradlew ktlintCheck
       shell: bash
 
-    - uses: gradle/wrapper-validation-action@27152f6fa06a6b8062ef7195c795692e51fc2c81
+    - uses: gradle/wrapper-validation-action@85cde3f5a1033b2adc2442631c24b530f1183a1a
 
     - name: Spin up build containers
       working-directory: prime-router
@@ -64,7 +64,7 @@ runs:
       run: tar -czvf prime-router-build.tar.gz build
 
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action@e780361cd1fc1b1a170624547b3ffda64787d365
+      uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98
       # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
       if: >
         always() &&
@@ -117,7 +117,7 @@ runs:
       shell: bash
 
     - name: Publish Integration Test Results
-      uses: EnricoMi/publish-unit-test-result-action@e780361cd1fc1b1a170624547b3ffda64787d365
+      uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98
       # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
       if: >
         always() &&
@@ -163,7 +163,7 @@ runs:
 
     - name: Upload Artifact
       if: inputs.upload-build == 'true'
-      uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8
+      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz

@@ -3,7 +3,7 @@ import React, { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import {
     Button,
     DateRangePicker,
-    Dropdown,
+    Select,
     Grid,
     GridContainer,
     Label,
@@ -966,7 +966,7 @@ export function AdminReceiverDashboard() {
                         className="fixed-tooltip"
                         label="Show only rows in one of these states."
                     >
-                        <Dropdown
+                        <Select
                             id="successrate-dropdown"
                             name="successrate-dropdown"
                             onChange={(evt) =>
@@ -985,7 +985,7 @@ export function AdminReceiverDashboard() {
                             <option value={SuccessRate.MIXED_SUCCESS}>
                                 Mixed success
                             </option>
-                        </Dropdown>
+                        </Select>
                     </Tooltip>
                 </div>
             </form>

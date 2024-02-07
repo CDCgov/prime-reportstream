@@ -1,13 +1,13 @@
 elements:
 
   - name: pv2-prior-pending-location
-    resource: '%resource.location.where(extension(%`rsext-hl7-use`).value = "prior-pending-location").location.resolve()'
+    resource: '%resource.location.where(extension(%`rsext-hl7v2Field`).value = "PV2.1").location.resolve()'
     schema: ../Location/PL/PL
     constants:
       hl7PLField: '%{hl7PV2Field}-1'
 
   - name: pv2-admit-reason
-    resource: '%resource.reasonCode.where(extension(%`rsext-hl7v2Name`).value = "pv2-admit-reason")'
+    resource: '%resource.reasonCode.where(extension(%`rsext-hl7v2Field`).value = "PV2.3")'
     schema: ../../datatypes/codeableConcept/CWE
     constants:
       cweField: '%{hl7PV2Field}-3'
@@ -40,7 +40,7 @@ elements:
     hl7Spec: [ '%{hl7PV2Field}-12' ]
 
   - name: pv2-referral-source-code
-    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Name`).value = "pv2-13-referral-source-code").individual.resolve()'
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Field`).value = "PV2.13").individual.resolve()'
     schema: ../Practitioner/XCN
     resourceIndex: xcnIndex
     constants:

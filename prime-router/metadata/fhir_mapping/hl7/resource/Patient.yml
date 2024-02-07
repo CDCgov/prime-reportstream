@@ -492,7 +492,7 @@ extension:
       vars:
         tribalCitizenship: STRING_ALL, PID.39
       constants:
-        hl7v2Name: "tribal-citizenship"
+        hl7v2Field: "PID.39"
       expressionsMap:
         url:
           type: SYSTEM_URL

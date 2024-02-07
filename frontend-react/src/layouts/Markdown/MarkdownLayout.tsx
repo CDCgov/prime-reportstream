@@ -113,8 +113,8 @@ export function MarkdownLayout({
     const subtitleArr = Array.isArray(subtitle)
         ? subtitle
         : subtitle
-        ? [subtitle]
-        : [];
+          ? [subtitle]
+          : [];
     const isHeader = Boolean(
         title || breadcrumbs || callToAction || lastUpdated || toc,
     );

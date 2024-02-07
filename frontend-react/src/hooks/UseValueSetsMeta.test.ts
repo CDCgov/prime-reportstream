@@ -37,6 +37,6 @@ describe("useValueSetsMeta", () => {
 
     test("returns empty metadata when the passed table name doesn't exist in returned list of tables", async () => {
         const { result } = renderWithAppWrapper("invalid" as LookupTables);
-        expect(result.current.data).toBeUndefined();
+        await waitFor(() => expect(result.current.data).toBeUndefined());
     });
 });
