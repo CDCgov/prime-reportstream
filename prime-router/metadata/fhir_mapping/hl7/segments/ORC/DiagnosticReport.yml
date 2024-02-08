@@ -239,6 +239,7 @@ basedOn:
   valueOf: datatype/Reference
   expressionType: resource
   specs: $ServiceRequest
+  generateList: true
   useGroup: true
 
 specimen:
