@@ -30,9 +30,9 @@ describe("useOrganizationSenders", () => {
             });
         });
 
-        test("returns undefined", () => {
+        test("returns null", async () => {
             const { result } = renderHook(() => useOrganizationSenders());
-            expect(result.current.data).toEqual(undefined);
+            await waitFor(() => expect(result.current.data).toBeNull());
         });
     });
 

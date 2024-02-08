@@ -47,13 +47,13 @@ receiver:
       specs: $msh6
       valueOf: datatypes/HD/Organization
       constants:
-        hdOrganizationHL7Use: receiving-facility
+        hdOrganizationHL7Field: MSH.6
     - condition: $msh6 NULL && $msh23 NOT_NULL
       expressionType: reference
       specs: $msh23
       valueOf: datatypes/XON/Organization
       constants:
-        xonOrganizationHL7Use: receiving-responsible-organization
+        XONHL7Field: MSH.23
 
 
 extension:
@@ -82,6 +82,6 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7-use
+          value: hl7v2Field
         valueString:
           valueOf: $messageHeaderDestinationField

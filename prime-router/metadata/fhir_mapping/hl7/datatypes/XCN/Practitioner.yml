@@ -194,12 +194,23 @@ extension:
       specs: XCN.9
     - expressionType: resource
       valueOf: datatypes/XCN/XCNExtension
-    - expressionType: nested
-      condition: $XCNHL7Use NOT_NULL
+    - generateList: true
+      expressionType: nested
+      condition: $XCNHL7Field NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7v2Name
+          value: hl7v2Field
         valueString:
           type: STRING
-          valueOf: $XCNHL7Use
+          valueOf: $XCNHL7Field
+    - generateList: true
+      expressionType: nested
+      condition: $XCNHL7Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $XCNHL7Component
