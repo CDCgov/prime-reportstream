@@ -146,3 +146,27 @@
         authHeaders:
           Content-Type: "application/x-www-form-urlencoded"
           Host: "cdcti-stg-api.azurewebsites.net"
+    # RS => Hospital: translates ORU_R01 from FHIR to HL7 and uploads the message to the SFTP folder
+    - name: "simulated-hospital"
+      externalName: "Simulated Hospital ETOR Receiver - Receiving ORU_R01 HL7 results"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
+      qualityFilter:
+        - true
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440 # Every minute
+        initialTime: "00:00"
+      translation: !<HL7>
+        type: "HL7"
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        useBatching: false
+      transport:
+        type: "SFTP"
+        host: "172.17.6.20" # use "sftp" if running locally
+        port: 22
+        filePath: "./upload"
+        credentialName: null # use "DEFAULT-SFTP" if running locally
