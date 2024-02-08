@@ -51,6 +51,7 @@ jobs:
           df -h
           free -m
           docker system df -v
+          sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr
           sudo du / -hx -d 4 --threshold=100M | sort -hr
           sudo du -sch /*/          
 
