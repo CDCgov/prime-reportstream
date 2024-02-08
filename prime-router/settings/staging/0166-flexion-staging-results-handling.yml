@@ -92,6 +92,7 @@
       customerStatus: "active"
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'" # OML_O21
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://etoruri').code = 'ETOR'"
       qualityFilter:
         - true
       timing:
@@ -154,6 +155,7 @@
       customerStatus: "active"
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://etoruri').code = 'ETOR'"
       qualityFilter:
         - true
       timing:
