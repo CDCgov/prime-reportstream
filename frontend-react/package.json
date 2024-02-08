@@ -61,7 +61,7 @@
         "build-base": "vite build",
         "test": "jest",
         "test:debug": "cross-env DEBUG_PRINT_LIMIT=100000 jest --watch --runInBand",
-        "test:ci": "jest --ci --runInBand --coverage --verbose",
+        "test:ci": "cross-env VITE_BACKEND_URL=http://localhost jest --ci --runInBand --coverage --verbose",
         "test:e2e": "playwright test",
         "test:e2e-ui": "playwright test --ui",
         "lint": "eslint \"**/*.{js,ts,jsx,tsx}\" && prettier \"*\" --check --ignore-unknown && tsc",
