@@ -63,7 +63,6 @@ describe("ManagePublicKey", () => {
         result: Partial<UseOrganizationSendersResult> = {},
     ) {
         jest.spyOn(useOrganizationSendersExports, "default").mockReturnValue({
-            isLoading: false,
             data: DEFAULT_SENDERS,
             ...result,
         } as UseOrganizationSendersResult);
@@ -74,7 +73,6 @@ describe("ManagePublicKey", () => {
     ) {
         jest.spyOn(useOrganizationPublicKeysExports, "default").mockReturnValue(
             {
-                isLoading: false,
                 data: { orgName: "elr-0", keys: [] },
                 ...result,
             } as UseOrganizationPublicKeysResult,
@@ -99,20 +97,6 @@ describe("ManagePublicKey", () => {
 
     afterEach(() => {
         jest.resetAllMocks();
-    });
-
-    describe("when the page is loading", () => {
-        function setup() {
-            mockUseOrganizationSenders({ isLoading: true });
-            mockUseOrganizationPublicKeys();
-
-            renderApp(<ManagePublicKeyPage />);
-        }
-
-        test("renders a spinner", () => {
-            setup();
-            expect(screen.getByLabelText("loading-indicator")).toBeVisible();
-        });
     });
 
     describe("when the Organization has more than one Sender", () => {

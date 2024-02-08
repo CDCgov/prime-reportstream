@@ -23,7 +23,8 @@ elements:
     hl7Spec: [ '%{obrFieldPath}-22' ]
 
   - name: diagnostic-serv-sect-id
-    value: [ '%resource.category.coding.where(extension(%`rsext-hl7-use`).value = "id-code").code' ]
+    # TODO ????
+    value: [ '%resource.category.coding.where(extension(%`rsext-codeable-concept-id`).exists()).code' ]
     hl7Spec: [ '%{obrFieldPath}-24' ]
 
   - name: result-status

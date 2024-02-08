@@ -38,7 +38,7 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-14' ]
 
   - name: obx-producer-id
-    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7-use`).value.join(",").contains("obx-15-producer-id"))'
+    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7v2Field`).value.join(",").contains("OBX.15"))'
     schema: classpath:/metadata/hl7_mapping/resources/Organization/CWE.yml
     constants:
       organizationCWEFieldPath: '%{hl7OBXField}-15'
@@ -76,13 +76,13 @@ elements:
       cweField: '%{hl7OBXField}-20(%{observationMethodIndex})'
 
   - name: obx-observation-instance-identifier
-    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "obx-21-observation-instance-identifier")'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "OBX.21")'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier-extension/EI.yml
     constants:
       eiFieldPath: '%{hl7OBXField}-21'
 
   - name: obx-performing-organization-name-from-org
-    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7-use`).value.join(",").contains("obx-25-performing-organization"))'
+    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7v2Field`).value.join(",").contains("OBX.25"))'
     schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
     constants:
       hl7XONField: '%{hl7OBXField}-23'
@@ -94,7 +94,7 @@ elements:
       hl7XONField: '%{hl7OBXField}-23'
 
   - name: obx-performing-organization-address-from-org
-    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7-use`).value.join(",").contains("obx-25-performing-organization")).address'
+    resource: '%resource.performer.resolve().ofType(Organization).where(extension(%`rsext-hl7v2Field`).value.join(",").contains("OBX.25")).address'
     schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
     constants:
       xadField: '%{hl7OBXField}-24'

@@ -7,7 +7,7 @@ elements:
     condition: >
       %context.extension(%`rsext-organization-name-type`).exists() and
       %context.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).exists() and
-      %context.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).value.where(extension(%`rsext-hl7v2Name`).value = "organization-name-type-code").exists()
+      %context.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).value.where(extension(%`rsext-hl7v2Field`).value = "XON.2").exists()
     resource: '%resource.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).value'
     constants:
       cweField: '%{hl7XONField}-2'

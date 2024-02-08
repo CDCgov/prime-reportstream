@@ -69,7 +69,7 @@ extension:
           valueOf: datatypes/CX/Identifier
           expressionType: resource
           constants:
-            identifierIndexName: duplicate-patient
+            CXIdentifierField: PD1.10
     - expressionType: nested
       condition: $pd111 NOT_NULL
       specs: PD1.11

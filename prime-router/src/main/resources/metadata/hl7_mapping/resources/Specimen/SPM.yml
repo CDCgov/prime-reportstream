@@ -4,15 +4,15 @@ elements:
     hl7Spec: [ '%{hl7SpecimenFieldPath}-1' ]
 
   - name: specimen-identifier
-    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-placer")'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Component`).value = "SPM.2.1")'
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-2'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP.yml
 
   - name: specimen-identifier-backup
-    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-filler")'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Component`).value = "SPM.2.2")'
     condition: >
-      %resource.identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-placer").exists().not() and
+      %resource.identifier.where(extension(%`rsext-hl7v2Component`).value = "SPM.2.1").exists().not() and
       %resource.exists()
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-2'
@@ -53,7 +53,7 @@ elements:
     schema: classpath:/metadata/hl7_mapping/datatypes/Quantity/CQ.yml
 
   - name: specimen-description
-    resource: '%resource.note.where(extension(%`rsext-hl7v2Name`).value = "specimen-description")'
+    resource: '%resource.note.where(extension(%`rsext-hl7v2Field`).value = "SPM.14")'
     resourceIndex: stIndex
     constants:
       stField: '%{hl7SpecimenFieldPath}-14(%{stIndex})'
@@ -116,14 +116,14 @@ elements:
       cxField: '%{hl7SpecimenFieldPath}-30(%{cxIndex})'
 
   - name: other-specimen-identifier
-    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "other-specimen-id")'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "SPM.31")'
     resourceIndex: cxIndex
     constants:
       cxField: '%{hl7SpecimenFieldPath}-31(%{cxIndex})'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
 
   - name: shipment-id
-    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "shipment-id")'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "SPM.32")'
     constants:
       eiFieldPath: '%{hl7SpecimenFieldPath}-32'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier-extension/EI.yml

@@ -166,7 +166,6 @@ class FhirTranslatorTests {
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
-
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())

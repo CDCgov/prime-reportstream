@@ -7,41 +7,41 @@ elements:
     hl7Spec: [ '%{hl7NK1FieldPath}-1' ]
 
   - name: name
-    resource: '%resource.name.where(extension(%`rsext-hl7v2Name`).value = "name")'
+    resource: '%resource.name.where(extension(%`rsext-hl7v2Field`).value = "NK1.2")'
     resourceIndex: xpnIndex
     constants:
       xpnField: '%{hl7NK1FieldPath}-2(%{xpnIndex})'
     schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml
 
   - name: relationship
-    resource: '%resource.relationship.where(extension(%`rsext-hl7v2Name`).value = "relationship")'
+    resource: '%resource.relationship.where(extension(%`rsext-hl7v2Field`).value = "NK1.3")'
     constants:
       cweField: '%{hl7NK1FieldPath}-3'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
 
   - name: address
-    resource: '%resource.address.where(extension(%`rsext-hl7v2Name`).value = "address")'
+    resource: '%resource.address.where(extension(%`rsext-hl7v2Field`).value = "NK1.4")'
     resourceIndex: xadIndex
     constants:
       xadField: '%{hl7NK1FieldPath}-4(%{xadIndex})'
     schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
 
   - name: phone-number
-    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "phone-number")'
+    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Field`).value = "NK1.5")'
     schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
     constants:
       hl7TelecomField: '%{hl7NK1FieldPath}-5'
     resourceIndex: telecomIndex
 
   - name: business-phone-number
-    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "business-phone-number")'
+    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Field`).value = "NK1.6")'
     schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
     constants:
       hl7TelecomField: '%{hl7NK1FieldPath}-6'
     resourceIndex: telecomIndex
 
   - name: contact-role
-    resource: '%resource.relationship.where(extension(%`rsext-hl7v2Name`).value = "contact-role")'
+    resource: '%resource.relationship.where(extension(%`rsext-hl7v2Field`).value = "NK1.7")'
     constants:
       cweField: '%{hl7NK1FieldPath}-7'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
@@ -59,7 +59,7 @@ elements:
     schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
 
   - name: next-of-kin-employee-number
-    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "next-of-kin-employee-number")'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "NK1.12")'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
     constants:
       cxField: '%{hl7NK1FieldPath}-12'
@@ -77,48 +77,48 @@ elements:
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
 
   - name: contact-person-name
-    resource: '%resource.name.where(extension(%`rsext-hl7v2Name`).value = "contact-person-name")'
+    resource: '%resource.name.where(extension(%`rsext-hl7v2Field`).value = "NK1.30")'
     resourceIndex: xpnIndex
     constants:
       xpnField: '%{hl7NK1FieldPath}-30(%{xpnIndex})'
     schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml
 
   - name: contact-person-phone-number
-    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "contact-person-telephone-number")'
+    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Field`).value = "NK1.31")'
     schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
     constants:
       hl7TelecomField: '%{hl7NK1FieldPath}-31'
     resourceIndex: telecomIndex
 
   - name: contact-person-address
-    resource: '%resource.address.where(extension(%`rsext-hl7v2Name`).value = "contact-person-address")'
+    resource: '%resource.address.where(extension(%`rsext-hl7v2Field`).value = "NK1.32")'
     resourceIndex: xadIndex
     constants:
       xadField: '%{hl7NK1FieldPath}-32(%{xadIndex})'
     schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
 
   - name: next-of-kin-identifier
-    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "next-of-kin-identifier")'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "NK1.33")'
     resourceIndex: cxIndex
     constants:
       cxField: '%{hl7NK1FieldPath}-33(%{cxIndex})'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
 
   - name: contact-person-ssn
-    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).exists().not())'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).exists().not())'
     condition: '%resource.system = "http://hl7.org/fhir/sid/us-ssn"'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7NK1FieldPath}-37' ]
 
   - name: next-of-kin-telecomm-info
-    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "next-of-kin-telecomm-info")'
+    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Field`).value = "NK1.40")'
     schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
     constants:
       hl7TelecomField: '%{hl7NK1FieldPath}-40'
     resourceIndex: telecomIndex
 
   - name: contact-person-telecomm-info
-    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "contact-person-telecomm-info")'
+    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Field`).value = "NK1.41")'
     schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
     constants:
       hl7TelecomField: '%{hl7NK1FieldPath}-41'

@@ -3,7 +3,7 @@ constants:
 elements:
 
   - name: ca-patient-identifier
-    resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "patient-identifier-list")'
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "PID.3")'
     resourceIndex: cxIndex
     schema: classpath:/metadata/hl7_mapping/receivers/STLTs/CA/ca-cx.yml
 

@@ -71,7 +71,7 @@ elements:
     resourceIndex: xadIndex
 
   - name: next-of-kin-telecomm-info
-    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "next-of-kin-telecomm-info")'
+    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "NK1.40")'
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '%{hl7NK1Field}-40'
