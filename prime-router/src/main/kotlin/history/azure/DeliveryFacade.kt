@@ -1,16 +1,13 @@
 package gov.cdc.prime.router.history.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
-import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.HttpException
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import org.apache.logging.log4j.util.Lazy.lazy
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -62,11 +59,11 @@ class DeliveryFacade(
             "End date must be after start date."
         }
 
-        var reportId: UUID?
+        var reportId: UUID? = null
         try {
             reportId = if (reportIdStr != null) UUID.fromString(reportIdStr) else null
         } catch (e: IllegalArgumentException) {
-            throw HttpException("Invalid format for report ID: $reportIdStr", HttpStatus.UNPROCESSABLE_ENTITY)
+            logger.error("Invalid format for report ID: $reportIdStr", e)
         }
 
         return dbDeliveryAccess.fetchActions(

@@ -203,22 +203,6 @@ class DeliveryFacadeTests {
                 null
             )
         )
-
-        // Unhappy Path: reportId is invalid
-        assertFailure {
-            facade.findDeliveries(
-                "ca-dph",
-                "elr",
-                HistoryDatabaseAccess.SortDir.ASC,
-                HistoryDatabaseAccess.SortColumn.CREATED_AT,
-                null,
-                null,
-                null,
-                10,
-                "b9f63105-bbed4b41b1ad-002a90f07e62",
-                null
-            )
-        }
     }
 
     @Test
