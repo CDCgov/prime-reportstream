@@ -13,7 +13,10 @@ fi
 cd frontend-react
 
 ./scripts/approuter-check.sh
-./scripts/yarn-check.sh
-./scripts/yarn-dedupe.sh
+
+# automatically stage dedupe changes (also ensures up-to-date lockfile)
+yarn dedupe
+git add .
+
 yarn lint-staged
 yarn test -o --silent

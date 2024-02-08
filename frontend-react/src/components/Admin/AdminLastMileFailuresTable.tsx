@@ -400,7 +400,6 @@ ${data.receiver}`;
                         type="text"
                         autoComplete="off"
                         aria-autocomplete="none"
-                        autoFocus
                         inputSize={"medium"}
                         onChange={(evt) => setFilter(evt.target.value)}
                     />
@@ -435,7 +434,6 @@ ${data.receiver}`;
                         id="refresh"
                         name="refresh"
                         type={"button"}
-                        autoFocus
                         onClick={() => void refresh()}
                     >
                         Refresh

@@ -899,9 +899,9 @@ export function AdminReceiverDashboard() {
                     <DateRangePickingAtomic
                         defaultStartDate={startOfDayIso(initialStartDate())}
                         defaultEndDate={initialEndDate().toISOString()}
-                        onChange={(props) => {
-                            setStartDate(props.startDate);
-                            setEndDate(props.endDate);
+                        onChange={(params) => {
+                            setStartDate(params.startDate);
+                            setEndDate(params.endDate);
                         }}
                     />
                 </div>
@@ -922,7 +922,6 @@ export function AdminReceiverDashboard() {
                             type="text"
                             autoComplete="off"
                             aria-autocomplete="none"
-                            autoFocus
                             onChange={(evt) =>
                                 setFilterReceivers(evt.target.value)
                             }
@@ -947,7 +946,6 @@ export function AdminReceiverDashboard() {
                             type="text"
                             autoComplete="off"
                             aria-autocomplete="none"
-                            autoFocus
                             onChange={(evt) =>
                                 setFilterErrorResults(evt.target.value)
                             }

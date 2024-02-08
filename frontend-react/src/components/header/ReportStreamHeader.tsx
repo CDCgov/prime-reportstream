@@ -371,7 +371,7 @@ const ReportStreamHeader = ({
                                 ReportStream
                                 {config.IS_PREVIEW && (
                                     <span className={styles.ClientEnv}>
-                                        {config.CLIENT_ENV}
+                                        {config.MODE}
                                     </span>
                                 )}
                             </USLink>

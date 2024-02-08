@@ -19,6 +19,6 @@
         "noImplicitAny": true,
         "inlineSourceMap": true,
     },
-    "include": ["./src", "./e2e", "lint-staged.config.js"],
+    "include": ["./src", "./e2e"],
     "references": [{ "path": "./tsconfig.node.json" }],
 }

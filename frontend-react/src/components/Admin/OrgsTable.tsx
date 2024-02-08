@@ -162,7 +162,6 @@ export function OrgsTable() {
                             type="text"
                             autoComplete="off"
                             aria-autocomplete="none"
-                            autoFocus
                             onChange={(evt) => setFilter(evt.target.value)}
                         />
                     </div>

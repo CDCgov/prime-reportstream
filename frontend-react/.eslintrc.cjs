@@ -13,7 +13,16 @@ module.exports = {
         "plugin:import/typescript",
         "prettier",
     ],
-    ignorePatterns: ["build", ".eslintrc.cjs"],
+    ignorePatterns: [
+        "build",
+        ".eslintrc.cjs",
+        "vite.config.ts",
+        "lint-staged.config.js",
+        "scripts",
+        "playwright.config.ts",
+        "jest.config.ts",
+        "coverage",
+    ],
     parser: "@typescript-eslint/parser",
     parserOptions: {
         ecmaFeatures: {
@@ -40,10 +49,11 @@ module.exports = {
         },
     },
     overrides: [
+        /* Jest */
         {
             files: [
-                "**/__tests__/**/*.[jt]s?(x)",
-                "**/?(*.)+(spec|test).[jt]s?(x)",
+                "./src/**/__tests__/**/*.[jt]s?(x)",
+                "./src/**/?(*.)+(spec|test).[jt]s?(x)",
             ],
             extends: [
                 "plugin:testing-library/react",
@@ -69,14 +79,24 @@ module.exports = {
                 "testing-library/no-await-sync-queries": "warn",
             },
         },
+        /* Storybook */
         {
-            files: ["**/?(*.)+(stories).[jt]s?(x)"],
+            files: ["./src/**/?(*.)+(stories).[jt]s?(x)"],
             extends: ["plugin:storybook/recommended"],
+        },
+        /* Playwright */
+        {
+            files: ["./e2e/**/?(*.)+(spec|test).[jt]s"],
+            extends: ["plugin:playwright/recommended"],
         },
     ],
     rules: {
         /* Temporarily changed to warnings or disabled pending future work */
         "jsx-a11y/no-autofocus": ["warn"],
+        "react-refresh/only-export-components": [
+            "off",
+            { allowConstantExport: true },
+        ],
 
         // Requires extensive updates to types in code, however SHOULD BE ENABLED EVENTUALLY
         "react/prop-types": ["warn"],
@@ -98,10 +118,6 @@ module.exports = {
 
         /* Custom project rules */
         "no-console": ["error", { allow: ["warn", "error", "info", "trace"] }],
-        "react-refresh/only-export-components": [
-            "warn",
-            { allowConstantExport: true },
-        ],
         "@typescript-eslint/no-explicit-any": ["off"],
         "@typescript-eslint/no-unused-vars": [
             "error",

@@ -116,7 +116,6 @@ export function MessageTracker() {
                                 className={
                                     "usa-input rs-max-width-100-important mobile:width-card-lg mobile-lg:width-mobile tablet:width-tablet"
                                 }
-                                autoFocus
                                 inputSize={"medium"}
                                 aria-disabled={isPending}
                                 value={searchFilter}
