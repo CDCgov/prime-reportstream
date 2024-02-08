@@ -109,7 +109,7 @@ describe("DeliveriesTable", () => {
 
         test("if no activeService display NoServicesBanner", async () => {
             setup();
-            const heading = await screen.findByText(/No results found/i);
+            const heading = await screen.findByText(/No available data/i);
             expect(heading).toBeInTheDocument();
         });
     });
@@ -123,7 +123,8 @@ describe("DeliveriesTableWithNumbered", () => {
                     fetchHeaders: () => ({}),
                 });
                 mockUseOrganizationReceivers.mockReturnValue({
-                    activeService: mockActiveReceiver,
+                    allReceivers: [mockActiveReceiver],
+                    activeReceivers: [mockActiveReceiver],
                     isLoading: false,
                     data: mockReceivers,
                     setActiveService: () => {},
@@ -234,7 +235,7 @@ describe("DeliveriesTableWithNumbered", () => {
 
             test("renders the NoServicesBanner message", async () => {
                 setup();
-                const heading = await screen.findByText("No results found");
+                const heading = await screen.findByText("No available data");
                 expect(heading).toBeInTheDocument();
             });
         });

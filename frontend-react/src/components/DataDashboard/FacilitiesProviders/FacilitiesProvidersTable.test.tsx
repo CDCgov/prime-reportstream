@@ -66,10 +66,9 @@ describe("FacilitiesProvidersTable", () => {
         function setup() {
             // Mock our receiverServices feed data
             mockUseOrganizationReceivers.mockReturnValue({
-                activeService: undefined,
+                allReceivers: [],
+                activeReceivers: [],
                 isLoading: false,
-                data: [],
-                setActiveService: () => {},
                 isDisabled: false,
             } as any);
 
@@ -118,11 +117,9 @@ describe("FacilitiesProvidersTable", () => {
     describe("with receiver services and data", () => {
         function setup() {
             mockUseOrganizationReceivers.mockReturnValue({
-                activeService: mockActiveReceiver,
+                allReceivers: [mockActiveReceiver],
+                activeReceivers: [mockActiveReceiver],
                 isLoading: false,
-                data: mockReceivers,
-                setActiveService: () => {},
-                isDisabled: false,
             } as any);
 
             // Mock our SessionProvider's data

@@ -161,14 +161,6 @@ const DeliveriesFilterAndTable = ({
         extractCursor,
         analyticsEventName,
     });
-    const results = async () => await fetchResults(startCursor, 100);
-    results()
-        .then((data) => {
-            console.log("Results:", data);
-        })
-        .catch((error) => {
-            console.error("Error fetching results:", error);
-        });
 
     if (paginationProps) {
         paginationProps.label = "Deliveries pagination";

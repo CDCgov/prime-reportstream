@@ -29,7 +29,7 @@ describe("useOrganizationReceivers", () => {
             } as any,
         });
         const { result } = renderHook(() => useOrganizationReceivers());
-        expect(result.current.data).toEqual(undefined);
+        expect(result.current.allReceivers).toEqual([]);
     });
     test("returns correct organization receiver services", async () => {
         mockSessionContentReturnValue({
@@ -51,7 +51,7 @@ describe("useOrganizationReceivers", () => {
         });
         const { result } = renderHook(() => useOrganizationReceivers());
         await waitFor(() =>
-            expect(result.current.data).toEqual(dummyReceivers),
+            expect(result.current.allReceivers).toEqual(dummyReceivers),
         );
         expect(result.current.isLoading).toEqual(false);
     });
@@ -72,7 +72,7 @@ describe("useOrganizationReceivers", () => {
             },
         } as any);
         const { result } = renderHook(() => useOrganizationReceivers());
-        expect(result.current.data).toEqual(undefined);
+        expect(result.current.allReceivers).toEqual([]);
         expect(result.current.isLoading).toEqual(false);
         expect(result.current.isDisabled).toEqual(true);
     });
