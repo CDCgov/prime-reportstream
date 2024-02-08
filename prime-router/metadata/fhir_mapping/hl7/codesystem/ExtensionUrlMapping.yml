@@ -187,14 +187,6 @@
 # Unknown Universal ID Type
 - id: "universal-id-unknown-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-unknown-type"
-# TODO: collapse with other ID stuff
-# Identifier Namespace ID
-- id: "identifier-namespace-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id"
-# TODO: collapse with other ID stuff
-# Universal Namespace ID
-- id: "identifier-universal-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id"
 - id: "location-physical-type-poc"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/location-physical-type-poc"
 

@@ -46,8 +46,8 @@ elements:
 
   - name: sr-sending-application-facility-identifier-extension
     resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
-    bundleProperty: '%resource.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id").value[x]'
-    value: [ '%resource.name' ]
+    bundleProperty: '%resource.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"HD.1"' ]
   #
   - name: sr-sending-application-facility-identifier-value
     resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
@@ -56,8 +56,8 @@ elements:
 
   - name: sr-sending-application-universal-id-identifier-extension
     resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
-    bundleProperty: '%resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id").value[x]'
-    value: [ '%resource.identifier[0].value' ]
+    bundleProperty: '%resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"HD.2,HD.3"' ]
 
 
   - name: sr-message-event-code-code
