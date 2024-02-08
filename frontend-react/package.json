@@ -59,7 +59,6 @@
         "build:trialfrontend03": "yarn run build-base --mode trialfrontend03",
         "build:staging": "yarn run build-base --mode staging",
         "build:production": "yarn run build-base",
-        "build:production-sourcemaps": "cross-env SOURCEMAPS=true yarn build-base",
         "build:csp": "yarn run build-base --mode csp",
         "build-base": "vite build",
         "test": "jest",
