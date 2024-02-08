@@ -46,8 +46,9 @@ jobs:
           sudo swapon --show
 
       - name: Pre-build debug info
-        working-directory: /
         run: |
+          pwd
+          whoami
           df -h
           free -m
           docker system df -v
