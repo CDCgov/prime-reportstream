@@ -39,7 +39,7 @@ runs:
       run: ./gradlew ktlintCheck
       shell: bash
 
-    - uses: gradle/wrapper-validation-action@27152f6fa06a6b8062ef7195c795692e51fc2c81
+    - uses: gradle/wrapper-validation-action@85cde3f5a1033b2adc2442631c24b530f1183a1a
 
     - name: Spin up build containers
       working-directory: prime-router
@@ -64,7 +64,7 @@ runs:
       run: tar -czvf prime-router-build.tar.gz build
 
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action@4e121453199042300b654ee3b4b52720bc645dc6
+      uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98
       # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
       if: >
         always() &&
@@ -117,7 +117,7 @@ runs:
       shell: bash
 
     - name: Publish Integration Test Results
-      uses: EnricoMi/publish-unit-test-result-action@4e121453199042300b654ee3b4b52720bc645dc6
+      uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98
       # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
       if: >
         always() &&

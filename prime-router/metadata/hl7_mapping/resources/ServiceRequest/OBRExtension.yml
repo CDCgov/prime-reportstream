@@ -1,14 +1,14 @@
 elements:
 
   - name: placer-order-number-from-extension
-    condition: '%context.identifier.where(extension(%`rsext-hl7-use`).value = "obr-2-placer-order-number").exists().not()'
+    condition: '%context.identifier.where(extension(%`rsext-hl7v2Field`).value = "OBR.2").exists().not()'
     resource: '%resource.extension.where(url = "obr-2-placer-order-number").value'
     schema: ../../datatypes/identifier-extension/EI
     constants:
       eiFieldPath: '%{obrFieldPath}-2'
 
   - name: filler-order-number-from-extension
-    condition: '%context.identifier.where(extension(%`rsext-hl7-use`).value = "obr-3-filler-order-number").exists().not()'
+    condition: '%context.identifier.where(extension(%`rsext-hl7v2Field`).value = "OBR.3").exists().not()'
     resource: '%resource.extension.where(url = "obr-3-filler-order-number").value'
     schema: ../../datatypes/identifier-extension/EI
     constants:
@@ -42,7 +42,7 @@ elements:
       hl7XCNField: '%{obrFieldPath}-16'
 
   - name: call-back-phone-number-obr-from-extension
-    condition: '%context.requester.where(extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Name`).value[%telecomIndex] = "obr-17-order-callback-phone-number").exists().not()'
+    condition: '%context.requester.where(extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Field`).value[%telecomIndex] = "OBR.17").exists().not()'
     resource: '%resource.extension.where(url = "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number").value'
     schema: ../../datatypes/contactPoint/XTN
     resourceIndex: telecomIndex
