@@ -92,6 +92,16 @@ class HL7DiffHelperTests {
         "SPM|1|230011927&SPHL-000034&2.16.840.1.114222.4.1.3661&ISO^3003786103&STARLIMS.CDC.Stag&" +
         "2.16.840.1.114222.4.3.3.2.1.2&ISO||119365002^Specimen from wound^SCT^WND^Wound^L^0912017^Adobe_Code" +
         "^Wound||||56459004^Foot^SCT^FOT^Foot^L^09012017^Adobe_Code^Foot||||||Isolate,|||20230322|20230421124150+0000\n"
+    private val msgMSH8OBR49Blank = """MSH|^~\&#|ProPhase^2.16.840.1.114222.4.1.238646^ISO|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20230816123358-0500| |ORU^R01^ORU_R01|20230816123358|P|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO|
+SFT|Orchard|9.0|Orchard Enterprise|9.0.211217.220208||20220411
+PID|1||0008115-23-02^^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO^PI^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO||Test^Male||19701031|M||2131-1^Other Race^HL70005|1234 Adams place^^New York^NY^10457||^^^noemail@prophasedx.com^^^|||||||||U^Unknown^HL70189^^^^2.5.1||||||||N||||||
+ORC|RE||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|^^^|||||20230815164300-0500|1234567890^Chriscoe^Matthew||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD|^^^ProPhase Labs NY Clinical&CL||20230815164300-0500||||||ProPhase Diagnostics|711 Stewart Ave Ste 200^^Garden City^NY^11530|^^PH^^1^866^7522837|711 Stewart Ave Ste 200^^Garden City^NY^11530
+OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-3^Hemoglobin A1C ^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164519-0500|||F|||||||||&Chriscoe&Matthew|||||||||||||^^^^^^^^|||||||||||||"""
+    private val msgMSH8OBR49Empty = """MSH|^~\&#|ProPhase^2.16.840.1.114222.4.1.238646^ISO|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20230816123358-0500||ORU^R01^ORU_R01|20230816123358|P|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO|
+SFT|Orchard|9.0|Orchard Enterprise|9.0.211217.220208||20220411
+PID|1||0008115-23-02^^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO^PI^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO||Test^Male||19701031|M||2131-1^Other Race^HL70005|1234 Adams place^^New York^NY^10457||^^^noemail@prophasedx.com^^^|||||||||U^Unknown^HL70189^^^^2.5.1||||||||N||||||
+ORC|RE||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|^^^|||||20230815164300-0500|1234567890^Chriscoe^Matthew||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD|^^^ProPhase Labs NY Clinical&CL||20230815164300-0500||||||ProPhase Diagnostics|711 Stewart Ave Ste 200^^Garden City^NY^11530|^^PH^^1^866^7522837|711 Stewart Ave Ste 200^^Garden City^NY^11530
+OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-3^Hemoglobin A1C ^LN|||20230815164300-0500|||1234567890^Chriscoe^Matthew||||||1528068368^Israel^Rosa^^^^^^&2.16.840.1.113883.19.4.6&ISO^^^^NPI^^^^^^^^MD||||||20230815164519-0500|||F|||||||||&Chriscoe&Matthew||||||||||||||||||||||||||"""
 
     @Test
     fun `diff hl7`() {
@@ -261,5 +271,35 @@ class HL7DiffHelperTests {
         )
 
         assertThat(differentVaries).isNotNull()
+    }
+
+    @Test
+    fun `expect no diff messages have blank vs empty MSH 8 (ST), OBR 49 (CWE) respectively`() {
+        val actionLogger = ActionLogger()
+        val hl7Reader = HL7Reader(actionLogger)
+        val inputMessage = hl7Reader.getMessages(msgMSH8OBR49Blank)
+        val outputMessage = hl7Reader.getMessages(msgMSH8OBR49Empty)
+        val differences = hL7DiffHelper.diffHl7(inputMessage[0], outputMessage[0])
+        assertThat(differences.size).isEqualTo(0)
+        val differences2 = hL7DiffHelper.diffHl7(outputMessage[0], inputMessage[0])
+        assertThat(differences2.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `diff output, input missing segments`() {
+        val actionLogger = ActionLogger()
+        val hl7Reader = HL7Reader(actionLogger)
+        val msg = originalMessage.split("\n").toMutableList()
+        msg.removeAt(1)
+        val inputMessage = hl7Reader.getMessages(msg.joinToString("\n"))
+        val outputMessage = hl7Reader.getMessages(originalMessage)
+        val differences = hL7DiffHelper.diffHl7(inputMessage[0], outputMessage[0])
+        // input missing seg SFT
+        assertThat(differences.size).isEqualTo(1)
+        assertThat(differences[0].toString().contains("Input missing segment SFT"))
+        val differences2 = hL7DiffHelper.diffHl7(outputMessage[0], inputMessage[0])
+        // output missing seg SFT
+        assertThat(differences2.size).isEqualTo(1)
+        assertThat(differences[0].toString().contains("Output missing segment SFT"))
     }
 }
