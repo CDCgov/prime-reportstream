@@ -1,23 +1,21 @@
 constants:
-  specimen: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "SPM")'
   hl7SpecimenFieldPath: /PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
 
 elements:
 
   - name: specimen
-    resource: '%specimen'
+    resource: '%resource'
     resourceIndex: specimenIndex
-    condition: '%specimen.exists()'
     schema: ../../../../resources/Specimen/SPM
-    constants:
-      performerOrganization: '%diagnostic.basedOn.resolve().performer.resolve()'
+  #    constants:
+  #      performerOrganization: '%resource.basedOn.resolve().performer.resolve()'
 
   - name: specimen-extension
-    resource: '%specimen.extension(%`rsext-spm-specimen`)'
+    resource: '%resource.extension(%`rsext-spm-specimen`)'
     schema: ../../../../resources/Specimen/SPMExtension
 
   - name: specimen-observation
-    resource: 'Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = %specimen.id)'
+    resource: 'Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = %resource.id)'
     schema: ../../../../resources/Observation/OBX
     resourceIndex: specimenObservationIndex
     constants:

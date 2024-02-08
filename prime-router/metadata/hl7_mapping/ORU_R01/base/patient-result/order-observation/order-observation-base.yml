@@ -15,4 +15,5 @@ elements:
     schema: observation
 
   - name: specimen
+    resource: '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "SPM")'
     schema: specimen
