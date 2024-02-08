@@ -32,7 +32,7 @@ jobs:
     if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     defaults:
       run:
-        working-directory: prime-router
+        working-directory: /mnt
 
     steps:
       - name: Add swapfile
