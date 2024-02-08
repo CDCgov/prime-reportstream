@@ -53,8 +53,7 @@ jobs:
           free -m
           docker system df -v
           sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr
-          sudo du / -hx -d 4 --threshold=100M | sort -hr
-          sudo du -sch /*/          
+          sudo du / -hx -d 4 --threshold=100M | sort -hr                    
 
       - name: "Check out changes"
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11

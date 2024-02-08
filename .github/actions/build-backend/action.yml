@@ -23,6 +23,7 @@ runs:
       working-directory: prime-router
       shell: bash
       run: |
+        pwd
         echo >> $GITHUB_ENV DB_USER='prime'
         echo >> $GITHUB_ENV DB_PASSWORD='changeIT!'
 
