@@ -1,9 +1,8 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { useState } from "react";
 
 import TableFilters from "../../Table/TableFilters";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import { FeatureName } from "../../../utils/FeatureName";
@@ -17,7 +16,6 @@ import Pagination from "../../Table/Pagination";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { getSlots } from "../../../hooks/UsePagination";
 import {
-    CustomerStatusType,
     transformFacilityTypeClass,
     transformFacilityTypeLabel,
 } from "../../../utils/DataDashboardUtils";
@@ -26,28 +24,30 @@ import {
     useAppInsightsContext,
 } from "../../../contexts/AppInsights";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
+import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
 
 function FacilitiesProvidersFilterAndTable({
     receiverServices,
-    activeService,
-    setActiveService,
+    activeReceiver,
+    setActiveReceiver,
 }: {
     receiverServices: RSReceiver[];
-    activeService: RSReceiver;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+    activeReceiver: RSReceiver;
+    setActiveReceiver: (receiver: RSReceiver) => void;
 }) {
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
 
     const handleSetActive = (name: string) => {
-        setActiveService(receiverServices.find((item) => item.name === name));
+        const result = receiverServices.find((item) => item.name === name);
+        if (result) setActiveReceiver(result);
     };
 
     const {
         data: results,
         filterManager,
         isLoading,
-    } = useReceiverSubmitters(activeService.name);
+    } = useReceiverSubmitters(activeReceiver.name);
 
     if (isLoading || !results) return <Spinner />;
 
@@ -120,7 +120,7 @@ function FacilitiesProvidersFilterAndTable({
                 <div className="display-flex flex-row">
                     <ReceiverServices
                         receiverServices={receiverServices}
-                        activeService={activeService}
+                        activeService={activeReceiver}
                         handleSetActive={handleSetActive}
                     />
                     <TableFilters
@@ -172,23 +172,14 @@ function FacilitiesProvidersFilterAndTable({
 }
 
 export default function FacilitiesProvidersTable() {
-    const {
-        isLoading,
-        data: services,
-        activeService,
-        setActiveService,
-        isDisabled,
-    } = useOrganizationReceiversFeed();
-
+    const { isLoading, isDisabled, activeReceivers } =
+        useOrganizationReceivers();
+    const [activeReceiver, setActiveReceiver] = useState(activeReceivers?.[0]);
     if (isLoading) return <Spinner />;
 
     if (isDisabled) return <AdminFetchAlert />;
 
-    if (
-        !isLoading &&
-        (!activeService ||
-            activeService?.customerStatus === CustomerStatusType.INACTIVE)
-    )
+    if (!isLoading && !activeReceiver)
         return (
             <div className="usa-section margin-bottom-10">
                 <NoServicesBanner />
@@ -197,11 +188,11 @@ export default function FacilitiesProvidersTable() {
 
     return (
         <>
-            {activeService && (
+            {activeReceiver && (
                 <FacilitiesProvidersFilterAndTable
-                    receiverServices={services!!}
-                    activeService={activeService}
-                    setActiveService={setActiveService}
+                    receiverServices={activeReceivers!!}
+                    activeReceiver={activeReceiver}
+                    setActiveReceiver={setActiveReceiver}
                 />
             )}
         </>

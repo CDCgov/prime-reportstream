@@ -1,8 +1,7 @@
-import { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 
 import { FeatureName } from "../../../utils/FeatureName";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import Pagination from "../../Table/Pagination";
@@ -17,35 +16,36 @@ import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { USLink } from "../../USLink";
-import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import {
     EventName,
     useAppInsightsContext,
 } from "../../../contexts/AppInsights";
+import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
 
 import DataDashboardTableFilters from "./DataDashboardTableFilters/DataDashboardTableFilters";
 
 function DashboardFilterAndTable({
     receiverServices,
-    activeService,
-    setActiveService,
+    activeReceiver,
+    setActiveReceiver,
 }: {
     receiverServices: RSReceiver[];
-    activeService: RSReceiver;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+    activeReceiver: RSReceiver;
+    setActiveReceiver: (receiver: RSReceiver) => void;
 }) {
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_FILTER}`;
 
     const handleSetActive = (name: string) => {
-        setActiveService(receiverServices.find((item) => item.name === name));
+        const result = receiverServices.find((item) => item.name === name);
+        if (result) setActiveReceiver(result);
     };
 
     const {
         data: results,
         filterManager,
         isLoading,
-    } = useReceiverDeliveries(activeService.name);
+    } = useReceiverDeliveries(activeReceiver.name);
 
     if (isLoading || !results) return <Spinner />;
 
@@ -119,7 +119,7 @@ function DashboardFilterAndTable({
             <div className="display-flex flex-row">
                 <ReceiverServices
                     receiverServices={receiverServices}
-                    activeService={activeService}
+                    activeService={activeReceiver}
                     handleSetActive={handleSetActive}
                 />
                 <DataDashboardTableFilters
@@ -164,25 +164,16 @@ function DashboardFilterAndTable({
 }
 
 export default function DataDashboardTable() {
-    const {
-        isLoading,
-        isDisabled,
-        data: services,
-        activeService,
-        setActiveService,
-    } = useOrganizationReceiversFeed();
-
+    const { isLoading, isDisabled, activeReceivers } =
+        useOrganizationReceivers();
+    const [activeReceiver, setActiveReceiver] = useState(activeReceivers?.[0]);
     if (isLoading) return <Spinner />;
 
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
 
-    if (
-        !isLoading &&
-        (!activeService ||
-            activeService?.customerStatus === CustomerStatusType.INACTIVE)
-    )
+    if (!isLoading && !activeReceiver)
         return (
             <div className="usa-section margin-bottom-10">
                 <NoServicesBanner />
@@ -191,11 +182,11 @@ export default function DataDashboardTable() {
 
     return (
         <>
-            {activeService && (
+            {activeReceiver && (
                 <DashboardFilterAndTable
-                    receiverServices={services!!}
-                    activeService={activeService}
-                    setActiveService={setActiveService}
+                    receiverServices={activeReceivers!!}
+                    activeReceiver={activeReceiver}
+                    setActiveReceiver={setActiveReceiver}
                 />
             )}
         </>

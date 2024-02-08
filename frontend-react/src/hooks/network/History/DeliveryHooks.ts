@@ -50,7 +50,8 @@ const useOrgDeliveries = (service?: string) => {
         activeMembership?.parsedName,
     ); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
-        () => `${adminSafeOrgName}.${service}`,
+        () =>
+            service ? `${adminSafeOrgName}.${service}` : `${adminSafeOrgName}`,
         [adminSafeOrgName, service],
     );
 

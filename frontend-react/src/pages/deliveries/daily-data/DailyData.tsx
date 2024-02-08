@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, SetStateAction } from "react";
+import React, { FC, useState } from "react";
 
 import Table, {
     ColumnConfig,
@@ -19,15 +19,14 @@ import { RSDelivery } from "../../../config/endpoints/deliveries";
 import usePagination from "../../../hooks/UsePagination";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
-import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import {
     EventName,
     useAppInsightsContext,
 } from "../../../contexts/AppInsights";
+import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
 
 import { getReportAndDownload } from "./ReportsUtils";
 
@@ -121,22 +120,24 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
 
 const DeliveriesFilterAndTable = ({
     services,
-    activeService,
-    setActiveService,
+    activeReceiver,
+    setActiveReceiver,
 }: {
     services: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+    activeReceiver: RSReceiver | undefined;
+    setActiveReceiver: (receiver: RSReceiver) => void;
 }) => {
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const handleSetActiveService = (name: string) => {
-        setActiveService(services.find((item) => item.name === name));
+        const result = services.find((item) => item.name === name);
+        if (result) setActiveReceiver(result);
     };
 
     const { fetchResults, filterManager } = useOrgDeliveries(
-        activeService?.name,
+        activeReceiver?.name,
     );
+
     const pageSize = filterManager.pageSettings.size;
     const sortOrder = filterManager.sortSettings.order;
     const rangeTo = filterManager.rangeSettings.to;
@@ -160,6 +161,14 @@ const DeliveriesFilterAndTable = ({
         extractCursor,
         analyticsEventName,
     });
+    const results = async () => await fetchResults(startCursor, 100);
+    results()
+        .then((data) => {
+            console.log("Results:", data);
+        })
+        .catch((error) => {
+            console.error("Error fetching results:", error);
+        });
 
     if (paginationProps) {
         paginationProps.label = "Deliveries pagination";
@@ -218,13 +227,9 @@ const DeliveriesFilterAndTable = ({
 };
 
 export const DailyData = () => {
-    const {
-        isLoading,
-        data: services,
-        activeService,
-        setActiveService,
-        isDisabled,
-    } = useOrganizationReceiversFeed();
+    const { isLoading, isDisabled, activeReceivers } =
+        useOrganizationReceivers();
+    const [activeReceiver, setActiveReceiver] = useState(activeReceivers?.[0]);
 
     if (isLoading) return <Spinner />;
 
@@ -232,10 +237,7 @@ export const DailyData = () => {
         return <AdminFetchAlert />;
     }
 
-    if (
-        !isLoading &&
-        activeService?.customerStatus === CustomerStatusType.INACTIVE
-    )
+    if (!isLoading && !activeReceiver)
         return (
             <div className="usa-section margin-bottom-5">
                 <NoServicesBanner />
@@ -243,9 +245,9 @@ export const DailyData = () => {
         );
     return (
         <DeliveriesFilterAndTable
-            services={services!!}
-            activeService={activeService}
-            setActiveService={setActiveService}
+            services={activeReceivers!!}
+            activeReceiver={activeReceiver}
+            setActiveReceiver={setActiveReceiver}
         />
     );
 };

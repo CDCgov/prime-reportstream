@@ -10,7 +10,7 @@ import {
     receiversGenerator,
 } from "../../../__mocks__/OrganizationMockServer";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
-import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
@@ -69,7 +69,7 @@ describe("DeliveriesTable", () => {
                 fetchHeaders: () => ({}),
             });
             // Mock our receiver services feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
+            mockUseOrganizationReceivers.mockReturnValue({
                 activeService: undefined,
                 isLoading: false,
                 data: [],
@@ -122,7 +122,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 mockAppInsightsContextReturnValue({
                     fetchHeaders: () => ({}),
                 });
-                mockUseOrganizationReceiversFeed.mockReturnValue({
+                mockUseOrganizationReceivers.mockReturnValue({
                     activeService: mockActiveReceiver,
                     isLoading: false,
                     data: mockReceivers,
@@ -191,7 +191,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     fetchHeaders: () => ({}),
                 });
                 // Mock our receiver services feed data
-                mockUseOrganizationReceiversFeed.mockReturnValue({
+                mockUseOrganizationReceivers.mockReturnValue({
                     activeService: undefined,
                     isLoading: false,
                     data: [],
@@ -246,7 +246,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 fetchHeaders: () => ({}),
             });
             // Mock our receiver services feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
+            mockUseOrganizationReceivers.mockReturnValue({
                 activeService: undefined,
                 isLoading: false,
                 data: [],

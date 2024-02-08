@@ -7,7 +7,7 @@ import {
     orgServer,
     receiversGenerator,
 } from "../../../__mocks__/OrganizationMockServer";
-import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
 import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
@@ -62,10 +62,10 @@ describe("FacilitiesProvidersTable", () => {
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
 
-    describe("useOrganizationReceiversFeed without data", () => {
+    describe("useOrganizationReceivers without data", () => {
         function setup() {
             // Mock our receiverServices feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
+            mockUseOrganizationReceivers.mockReturnValue({
                 activeService: undefined,
                 isLoading: false,
                 data: [],
@@ -117,7 +117,7 @@ describe("FacilitiesProvidersTable", () => {
 describe("FacilitiesProvidersTable", () => {
     describe("with receiver services and data", () => {
         function setup() {
-            mockUseOrganizationReceiversFeed.mockReturnValue({
+            mockUseOrganizationReceivers.mockReturnValue({
                 activeService: mockActiveReceiver,
                 isLoading: false,
                 data: mockReceivers,

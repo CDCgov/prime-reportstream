@@ -8,7 +8,7 @@ import {
     receiverServicesGenerator,
 } from "../../../__mocks__/DataDashboardMockServer";
 import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverDeliveries";
-import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import {
@@ -53,11 +53,11 @@ describe("DataDashboardTable", () => {
     afterEach(() => dataDashboardServer.resetHandlers());
     afterAll(() => dataDashboardServer.close());
 
-    describe("useOrganizationReceiversFeed without data", () => {
+    describe("useOrganizationReceivers without data", () => {
         function setup() {
             mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
+            mockUseOrganizationReceivers.mockReturnValue({
                 activeService: undefined,
                 isLoading: false,
                 data: [],
@@ -110,7 +110,7 @@ describe("DataDashboardTableWithPagination", () => {
         describe("with multiple receiver services and data", () => {
             function setup() {
                 mockAppInsightsContextReturnValue();
-                mockUseOrganizationReceiversFeed.mockReturnValue({
+                mockUseOrganizationReceivers.mockReturnValue({
                     activeService: mockActiveReceiver,
                     isLoading: false,
                     data: mockReceiverServices,
@@ -186,7 +186,7 @@ describe("DataDashboardTableWithPagination", () => {
         describe("with one active receiver service", () => {
             function setup() {
                 mockAppInsightsContextReturnValue();
-                mockUseOrganizationReceiversFeed.mockReturnValue({
+                mockUseOrganizationReceivers.mockReturnValue({
                     activeService: mockActiveReceiver,
                     data: receiverServicesGenerator(1),
                     setActiveService: () => {},
@@ -227,7 +227,7 @@ describe("DataDashboardTableWithPagination", () => {
             function setup() {
                 mockAppInsightsContextReturnValue();
                 // Mock our receiver services feed data
-                mockUseOrganizationReceiversFeed.mockReturnValue({
+                mockUseOrganizationReceivers.mockReturnValue({
                     activeService: undefined,
                     isLoading: false,
                     data: [],
@@ -279,7 +279,7 @@ describe("DataDashboardTableWithPagination", () => {
         function setup() {
             mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
+            mockUseOrganizationReceivers.mockReturnValue({
                 activeService: undefined,
                 isLoading: false,
                 isDisabled: true,
