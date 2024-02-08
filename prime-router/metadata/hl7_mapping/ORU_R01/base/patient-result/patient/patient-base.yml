@@ -1,8 +1,6 @@
 elements:
 
   - name: patient
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    required: true
     schema: patient
 
   - name: patient-observation

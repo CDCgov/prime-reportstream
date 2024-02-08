@@ -1,5 +1,5 @@
 constants:
-  hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/ORC
+  hl7Order: /PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/ORC
 
 elements:
   - name: order-control

@@ -4,7 +4,7 @@ elements:
     schema: patient/patient-base
 
   - name: order-observation-base
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = %resource.id)'
     condition: '%resource.count() > 0'
     required: true
     schema: order-observation/order-observation-base

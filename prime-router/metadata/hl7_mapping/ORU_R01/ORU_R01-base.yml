@@ -18,4 +18,6 @@ elements:
     schema: ../resources/MessageHeader/SFT
 
   - name: patient-result
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    resourceIndex: patientIndex
     schema: ./base/patient-result/patient-result

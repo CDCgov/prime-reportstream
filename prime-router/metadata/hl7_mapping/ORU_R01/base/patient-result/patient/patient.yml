@@ -1,5 +1,5 @@
 constants:
-  hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+  hl7SegmentGroup: '/PATIENT_RESULT(%{patientIndex})/PATIENT'
 
 elements:
 
@@ -25,7 +25,7 @@ elements:
       hl7NotePath: '%{hl7SegmentGroup}'
 
   - name: related-person-nk1
-    resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Name`).value = "NK1")'
+    resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Name`).value = "NK1" and patient.resolve().id = %resource.id)'
     condition: '%resource.patient.exists()'
     schema: ../../../../resources/RelatedPerson/NK1
     resourceIndex: relatedPersonIndex

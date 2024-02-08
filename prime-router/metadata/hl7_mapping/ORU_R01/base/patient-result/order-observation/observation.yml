@@ -6,12 +6,12 @@ elements:
     schema: ../../../../resources/Observation/OBX
     resourceIndex: resultIndex
     constants:
-      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
-      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
+      hl7OBXField: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
+      hl7ObservationPath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
 
   - name: order-note
-    resource: '%service.note'
+    resource: '%resource.basedOn.resolve().note'
     schema: ../../../../datatypes/annotation/NTE
     resourceIndex: noteIndex
     constants:
-      hl7NotePath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})'
+      hl7NotePath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})'

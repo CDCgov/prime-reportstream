@@ -1,5 +1,5 @@
 constants:
-  obrFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
+  obrFieldPath: /PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/OBR
 
 elements:
 

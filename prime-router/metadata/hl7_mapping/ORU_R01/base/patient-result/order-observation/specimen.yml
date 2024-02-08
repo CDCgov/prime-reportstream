@@ -1,6 +1,6 @@
 constants:
-  specimen: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].specimen.resolve()'
-  hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
+  specimen: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "SPM")'
+  hl7SpecimenFieldPath: /PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
 
 elements:
 
@@ -21,6 +21,6 @@ elements:
     schema: ../../../../resources/Observation/OBX
     resourceIndex: specimenObservationIndex
     constants:
-      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPECIMEN_OBSERVATION'
-      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPECIMEN_OBSERVATION(%{specimenObservationIndex})/OBX'
+      hl7ObservationPath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPECIMEN_OBSERVATION'
+      hl7OBXField: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPECIMEN_OBSERVATION(%{specimenObservationIndex})/OBX'
       resultIndex: '%specimenObservationIndex'

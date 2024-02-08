@@ -1,13 +1,9 @@
-constants:
-  diagnostic: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex]'
-  service: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].basedOn.resolve()'
-  
 elements:
   - name: order-observation
     schema: order-observation
 
   - name: timing-quantity
-    resource: '%service'
+    resource: '%resource.basedOn.resolve()'
     condition: >
       %resource.occurrence.repeat.bounds.start.exists() or
       %resource.occurrence.repeat.bounds.end.exists() or
