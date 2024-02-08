@@ -65,7 +65,7 @@
         "test:e2e": "playwright test",
         "test:e2e-ui": "playwright test --ui",
         "lint": "eslint \"**/*.{js,ts,jsx,tsx}\" && prettier \"*\" --check --ignore-unknown && tsc",
-        "lint:fix": "eslint --fix \"src/**/*.{js,ts,jsx,tsx}\" && prettier \"*\" --check --write --ignore-unknown && tsc",
+        "lint:fix": "eslint \"**/*.{js,ts,jsx,tsx}\" --fix && prettier \"*\" --check --write --ignore-unknown && tsc",
         "eslint-interactive": "yarn dlx -p eslint -p eslint-interactive eslint-interactive",
         "storybook": "storybook dev -p 6006",
         "build-storybook": "storybook build",
