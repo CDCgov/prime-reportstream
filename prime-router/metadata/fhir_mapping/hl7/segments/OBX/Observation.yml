@@ -361,7 +361,7 @@ performer:
       condition: $obx15 NOT_NULL
       valueOf: datatypes/CWE/Organization
       constants:
-        cweOrganizationHL7Use: obx-15-producer-id
+        cweOrganizationHL7Field: OBX.15
       specs: OBX.15
     - expressionType: reference
       generateList: true
@@ -394,7 +394,7 @@ performer:
       valueOf: datatypes/XON/Organization
       specs: OBX.23
       constants:
-        xonOrganizationHL7Use: obx-25-performing-organization
+        XONHL7Field: OBX.25
 
 bodySite:
   vars:
@@ -413,7 +413,7 @@ identifier:
   specs: OBX.21
   constants:
     code: "FILL"
-    hl7Use: "obx-21-observation-instance-identifier"
+    hl7v2Field: OBX.21
 
 extension:
   generateList: true

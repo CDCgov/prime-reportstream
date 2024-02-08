@@ -12,7 +12,7 @@ elements:
     hl7Spec: [ '%{hl7OBXFieldPath}-1' ]
 
   - name: placer-order-number
-    resource: '%resource.udiCarrier.where(extension(%`rsext-hl7-use`).value = "device-udi-carrier")'
+    resource: '%resource.udiCarrier.where(extension(%`rsext-hl7v2Field`).value = "PRT.10")'
     constants:
       eiFieldPath: '%{hl7PRTFieldPath}(%{entityIdIndex})-10'
     schema: ../../datatypes/device-udiCarrier/EI
