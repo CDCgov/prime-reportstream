@@ -51,6 +51,7 @@ import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -162,6 +163,7 @@ class FhirRouterTests {
     val blobMock = mockkClass(BlobAccess::class)
     private val actionHistory = ActionHistory(TaskAction.route)
     private val azureEventService = InMemoryAzureEventService()
+    private val reportServiceMock = mockk<ReportService>()
 
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
@@ -371,8 +373,16 @@ class FhirRouterTests {
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
-        return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).azureEventService(azureEventService).build(TaskAction.route)
+        every { reportServiceMock.getSenderName(any()) } returns "sendingOrg.sendingOrgClient"
+
+        return FHIREngine.Builder()
+            .metadata(metadata)
+            .settingsProvider(settings)
+            .databaseAccess(accessSpy)
+            .blobAccess(blobMock)
+            .azureEventService(azureEventService)
+            .reportService(reportServiceMock)
+            .build(TaskAction.route)
     }
 
     /**
@@ -1418,9 +1428,10 @@ class FhirRouterTests {
 
             val reportId = (messages.first() as ReportPipelineMessage).reportId
             assertThat(azureEventService.getEvents().first()).isEqualTo(
-                    ReportRouteEvent(
+                ReportRouteEvent(
                     reportId,
                     message.topic,
+                    "sendingOrg.sendingOrgClient",
                     orgWithMappedConditionFilter.receivers.first().fullName,
                     setOf("6142004", "Some Condition Code")
                 )
@@ -1540,6 +1551,7 @@ class FhirRouterTests {
             val expectedEvent = ReportRouteEvent(
                 UUID.randomUUID(),
                 message.topic,
+                "sendingOrg.sendingOrgClient",
                 null,
                 setOf("840539006")
             )

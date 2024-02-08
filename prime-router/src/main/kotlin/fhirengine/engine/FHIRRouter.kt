@@ -41,6 +41,7 @@ import gov.cdc.prime.router.fhirengine.utils.getAllMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
+import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
@@ -60,7 +61,8 @@ class FHIRRouter(
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
-) : FHIREngine(metadata, settings, db, blob, azureEventService) {
+    reportService: ReportService = ReportService(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
 
     /**
      * The name of the lookup table to load the shorthand replacement key/value pairs from
@@ -213,14 +215,7 @@ class FHIRRouter(
                 actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
                 // send event to Azure AppInsights
-                azureEventService.trackEvent(
-                    ReportRouteEvent(
-                        report.id,
-                        message.topic,
-                        receiver.fullName,
-                        receiverBundle.getAllMappedConditions()
-                    )
-                )
+                emitAzureEvent(report, message, receiver, receiverBundle)
 
                 listOf(
                     FHIREngineRunResult(
@@ -277,14 +272,7 @@ class FHIRRouter(
             actionHistory.trackCreatedReport(nextEvent, report)
 
             // send event to Azure AppInsights
-            azureEventService.trackEvent(
-                ReportRouteEvent(
-                    report.id,
-                    message.topic,
-                    null, // no receiver
-                    bundle.getAllMappedConditions()
-                )
-            )
+            emitAzureEvent(report, message, null, bundle)
 
             return emptyList()
         }
@@ -718,5 +706,25 @@ class FHIRRouter(
             orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.mappedConditionFilter
                 ?: emptyList()
             ).plus(receiver.mappedConditionFilter)
+    }
+
+    private fun emitAzureEvent(
+        report: Report,
+        message: ReportPipelineMessage,
+        receiver: Receiver?,
+        bundle: Bundle,
+    ) {
+        val sender = reportService.getSenderName(message.reportId)
+        val conditions = bundle.getAllMappedConditions()
+
+        azureEventService.trackEvent(
+            ReportRouteEvent(
+                report.id,
+                message.topic,
+                sender,
+                receiver?.fullName,
+                conditions
+            )
+        )
     }
 }

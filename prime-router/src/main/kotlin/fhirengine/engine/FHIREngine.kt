@@ -14,6 +14,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.jooq.Field
@@ -38,6 +39,7 @@ abstract class FHIREngine(
     val db: DatabaseAccess = this.databaseAccessSingleton,
     val blob: BlobAccess = BlobAccess(),
     val azureEventService: AzureEventService = AzureEventServiceImpl(),
+    val reportService: ReportService = ReportService(),
 ) : BaseEngine() {
 
     /**
@@ -57,6 +59,7 @@ abstract class FHIREngine(
         var hl7Serializer: Hl7Serializer? = null,
         var csvSerializer: CsvSerializer? = null,
         var azureEventService: AzureEventService? = null,
+        var reportService: ReportService? = null,
     ) {
         /**
          * Set the metadata instance.
@@ -91,6 +94,14 @@ abstract class FHIREngine(
         }
 
         /**
+         * Set the report service instance.
+         * @return the modified workflow engine
+         */
+        fun reportService(reportService: ReportService) = apply {
+            this.reportService = reportService
+        }
+
+        /**
          * Build the fhir engine instance.
          * @return the fhir engine instance
          */
@@ -115,13 +126,15 @@ abstract class FHIREngine(
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
-                    azureEventService ?: AzureEventServiceImpl()
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService()
                 )
                 TaskAction.translate -> FHIRTranslator(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl()
                 )
                 else -> throw NotImplementedError("Invalid action type for FHIR engine")
             }
