@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706817320739759000.0c50574a-6999-45b7-be1b-1ef344a1b95c",
+  "id" : "1707329730204873000.c84a8f61-24b3-4a11-9f06-fe6eba8d753f",
   "meta" : {
-    "lastUpdated" : "2024-02-01T14:55:20.746-05:00"
+    "lastUpdated" : "2024-02-07T13:15:30.211-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -41,7 +41,7 @@
           "display" : "ORU^R01^ORU_R01"
         },
         "sender" : {
-          "reference" : "Organization/1706817320804572000.582c404d-904c-433b-aa44-d3153381c8e3"
+          "reference" : "Organization/1707329730254868000.89ebe939-39d2-4db8-a8c8-df994141e34b"
         },
         "source" : {
           "_endpoint" : {
@@ -56,10 +56,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706817320804572000.582c404d-904c-433b-aa44-d3153381c8e3",
+      "fullUrl" : "Organization/1707329730254868000.89ebe939-39d2-4db8-a8c8-df994141e34b",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706817320804572000.582c404d-904c-433b-aa44-d3153381c8e3",
+        "id" : "1707329730254868000.89ebe939-39d2-4db8-a8c8-df994141e34b",
         "address" : [
           {
             "country" : "USA"
@@ -68,16 +68,16 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706817321193836000.e711f7c1-d47b-40bd-9bce-cf06000957c8",
+      "fullUrl" : "Provenance/1707329730595849000.6ee67dbc-de25-4836-8d85-936656ecad18",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706817321193836000.e711f7c1-d47b-40bd-9bce-cf06000957c8",
+        "id" : "1707329730595849000.6ee67dbc-de25-4836-8d85-936656ecad18",
         "target" : [
           {
             "reference" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b"
           },
           {
-            "reference" : "DiagnosticReport/1706817321454568000.54afc2d2-b1d1-48e5-9773-06896ad59115"
+            "reference" : "DiagnosticReport/1707329730816839000.2395bca1-283e-426b-8b4c-e4bcd16bef1c"
           }
         ],
         "recorded" : "2023-05-01T10:25:31-04:00",
@@ -91,11 +91,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706817321205209000.5ae5a87a-f63a-4e41-a49e-87e792de9589",
+      "fullUrl" : "Provenance/1707329730603620000.3e4124e8-f60f-467e-bd9e-80580205e8d6",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706817321205209000.5ae5a87a-f63a-4e41-a49e-87e792de9589",
-        "recorded" : "2024-02-01T14:55:21Z",
+        "id" : "1707329730603620000.3e4124e8-f60f-467e-bd9e-80580205e8d6",
+        "recorded" : "2024-02-07T13:15:30Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -117,17 +117,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706817321204690000.e842d742-3095-4d46-b0fa-0cca88c0c42c"
+              "reference" : "Organization/1707329730603186000.bf63bd71-6d10-4392-b9cc-439fae8d30e9"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706817321204690000.e842d742-3095-4d46-b0fa-0cca88c0c42c",
+      "fullUrl" : "Organization/1707329730603186000.bf63bd71-6d10-4392-b9cc-439fae8d30e9",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706817321204690000.e842d742-3095-4d46-b0fa-0cca88c0c42c",
+        "id" : "1707329730603186000.bf63bd71-6d10-4392-b9cc-439fae8d30e9",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -147,23 +147,23 @@
       }
     },
     {
-      "fullUrl" : "Patient/1706817321226100000.cfdef39d-366c-40de-8af1-aefa6c26f90e",
+      "fullUrl" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1706817321226100000.cfdef39d-366c-40de-8af1-aefa6c26f90e"
+        "id" : "1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
       }
     },
     {
-      "fullUrl" : "Provenance/1706817321226984000.6cdde9ec-1f80-4349-9308-77f1c521d66f",
+      "fullUrl" : "Provenance/1707329730618999000.3a1393ec-6c79-4892-9723-9b88a8ed293e",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706817321226984000.6cdde9ec-1f80-4349-9308-77f1c521d66f",
+        "id" : "1707329730618999000.3a1393ec-6c79-4892-9723-9b88a8ed293e",
         "target" : [
           {
-            "reference" : "Patient/1706817321226100000.cfdef39d-366c-40de-8af1-aefa6c26f90e"
+            "reference" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
           }
         ],
-        "recorded" : "2024-02-01T14:55:21Z",
+        "recorded" : "2024-02-07T13:15:30Z",
         "activity" : {
           "coding" : [
             {
@@ -175,10 +175,10 @@
       }
     },
     {
-      "fullUrl" : "Specimen/1706817321255280000.b0816435-e3df-4f97-b712-6be77dd53814",
+      "fullUrl" : "Specimen/1707329730638887000.bb67a7f6-12ff-4b7c-b99b-ca34c8b97864",
       "resource" : {
         "resourceType" : "Specimen",
-        "id" : "1706817321255280000.b0816435-e3df-4f97-b712-6be77dd53814",
+        "id" : "1707329730638887000.bb67a7f6-12ff-4b7c-b99b-ca34c8b97864",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/spm-specimen",
@@ -187,6 +187,18 @@
                 "url" : "spm-3-specimen-parent-id-placer",
                 "valueIdentifier" : {
                   "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                      "valueString" : "Any lab USA"
+                    },
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                      "valueString" : "36D1332559"
+                    },
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                      "valueString" : "CLIA"
+                    },
                     {
                       "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
                       "extension" : [
@@ -209,20 +221,8 @@
                       ]
                     },
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                      "valueString" : "specimen-parent-id-placer"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                      "valueString" : "Any lab USA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                      "valueString" : "36D1332559"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                      "valueString" : "CLIA"
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                      "valueString" : "SPM.3"
                     }
                   ],
                   "type" : {
@@ -241,6 +241,18 @@
                 "valueIdentifier" : {
                   "extension" : [
                     {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                      "valueString" : "Any lab USA"
+                    },
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                      "valueString" : "36D1332559"
+                    },
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                      "valueString" : "CLIA"
+                    },
+                    {
                       "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
                       "extension" : [
                         {
@@ -262,20 +274,8 @@
                       ]
                     },
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                      "valueString" : "specimen-parent-id-placer"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                      "valueString" : "Any lab USA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                      "valueString" : "36D1332559"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                      "valueString" : "CLIA"
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                      "valueString" : "SPM.3"
                     }
                   ],
                   "type" : {
@@ -294,8 +294,16 @@
                 "valueIdentifier" : {
                   "extension" : [
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                      "valueString" : "specimen-parent-id-filler"
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                      "valueString" : "Any lab USA"
+                    },
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                      "valueString" : "36D1332559"
+                    },
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                      "valueString" : "CLIA"
                     },
                     {
                       "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
@@ -319,16 +327,8 @@
                       ]
                     },
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                      "valueString" : "Any lab USA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                      "valueString" : "36D1332559"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                      "valueString" : "CLIA"
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                      "valueString" : "SPM.3"
                     }
                   ],
                   "type" : {
@@ -347,8 +347,16 @@
                 "valueIdentifier" : {
                   "extension" : [
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                      "valueString" : "specimen-parent-id-filler"
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                      "valueString" : "Any lab USA"
+                    },
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                      "valueString" : "36D1332559"
+                    },
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                      "valueString" : "CLIA"
                     },
                     {
                       "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
@@ -372,16 +380,8 @@
                       ]
                     },
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                      "valueString" : "Any lab USA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                      "valueString" : "36D1332559"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                      "valueString" : "CLIA"
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                      "valueString" : "SPM.3"
                     }
                   ],
                   "type" : {
@@ -1070,6 +1070,18 @@
           {
             "extension" : [
               {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "valueString" : "Any lab USA-p"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString" : "36D1332559-p"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString" : "CLIA-p"
+              },
+              {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
                 "extension" : [
                   {
@@ -1091,20 +1103,8 @@
                 ]
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "specimen-id-placer"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Any lab USA-p"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString" : "36D1332559-p"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                "valueString" : "CLIA-p"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component",
+                "valueString" : "SPM.2.1"
               }
             ],
             "type" : {
@@ -1120,8 +1120,16 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "specimen-id-filler"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "valueString" : "Any lab USA-s"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString" : "36D1332559-s"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString" : "CLIA-s"
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
@@ -1145,16 +1153,8 @@
                 ]
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Any lab USA-s"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString" : "36D1332559-s"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                "valueString" : "CLIA-s"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component",
+                "valueString" : "SPM.2.2"
               }
             ],
             "type" : {
@@ -1170,8 +1170,8 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "other-specimen-id"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString" : "SPM.31"
               }
             ],
             "value" : "IDNumber"
@@ -1179,8 +1179,8 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "shipment-id"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString" : "SPM.32"
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
@@ -1261,7 +1261,7 @@
         },
         "parent" : [
           {
-            "reference" : "Specimen/1706817321235806000.15af7583-1081-40b3-b43c-8f294b435eb3"
+            "reference" : "Specimen/1707329730625371000.b095de35-e2e5-4ce1-bba3-40574929c680"
           }
         ],
         "collection" : {
@@ -1571,8 +1571,8 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-                "valueString" : "specimen-description"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString" : "SPM.14"
               }
             ],
             "text" : "TEST"
@@ -1580,8 +1580,8 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-                "valueString" : "specimen-description"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString" : "SPM.14"
               }
             ],
             "text" : "TEST Two"
@@ -1590,13 +1590,25 @@
       }
     },
     {
-      "fullUrl" : "Specimen/1706817321235806000.15af7583-1081-40b3-b43c-8f294b435eb3",
+      "fullUrl" : "Specimen/1707329730625371000.b095de35-e2e5-4ce1-bba3-40574929c680",
       "resource" : {
         "resourceType" : "Specimen",
-        "id" : "1706817321235806000.15af7583-1081-40b3-b43c-8f294b435eb3",
+        "id" : "1707329730625371000.b095de35-e2e5-4ce1-bba3-40574929c680",
         "identifier" : [
           {
             "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "valueString" : "Any lab USA"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString" : "36D1332559"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString" : "CLIA"
+              },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
                 "extension" : [
@@ -1617,22 +1629,6 @@
                     "valueString" : "CLIA"
                   }
                 ]
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "specimen-id-placer"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Any lab USA"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString" : "36D1332559"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                "valueString" : "CLIA"
               }
             ],
             "type" : {
@@ -1648,8 +1644,16 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "specimen-id-filler"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "valueString" : "Any lab USA"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString" : "36D1332559"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString" : "CLIA"
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
@@ -1671,18 +1675,6 @@
                     "valueString" : "CLIA"
                   }
                 ]
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Any lab USA"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString" : "36D1332559"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                "valueString" : "CLIA"
               }
             ],
             "type" : {
@@ -1699,10 +1691,10 @@
       }
     },
     {
-      "fullUrl" : "ServiceRequest/1706817321452276000.47be8332-9c2e-40d7-b00f-2b2071cbd485",
+      "fullUrl" : "ServiceRequest/1707329730815001000.e9adfcca-a79a-40b4-9459-605056372f6e",
       "resource" : {
         "resourceType" : "ServiceRequest",
-        "id" : "1706817321452276000.47be8332-9c2e-40d7-b00f-2b2071cbd485",
+        "id" : "1707329730815001000.e9adfcca-a79a-40b4-9459-605056372f6e",
         "status" : "unknown",
         "code" : {
           "coding" : [
@@ -1718,18 +1710,18 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1706817321226100000.cfdef39d-366c-40de-8af1-aefa6c26f90e"
+          "reference" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
         }
       }
     },
     {
-      "fullUrl" : "DiagnosticReport/1706817321454568000.54afc2d2-b1d1-48e5-9773-06896ad59115",
+      "fullUrl" : "DiagnosticReport/1707329730816839000.2395bca1-283e-426b-8b4c-e4bcd16bef1c",
       "resource" : {
         "resourceType" : "DiagnosticReport",
-        "id" : "1706817321454568000.54afc2d2-b1d1-48e5-9773-06896ad59115",
+        "id" : "1707329730816839000.2395bca1-283e-426b-8b4c-e4bcd16bef1c",
         "basedOn" : [
           {
-            "reference" : "ServiceRequest/1706817321452276000.47be8332-9c2e-40d7-b00f-2b2071cbd485"
+            "reference" : "ServiceRequest/1707329730815001000.e9adfcca-a79a-40b4-9459-605056372f6e"
           }
         ],
         "status" : "final",
@@ -1747,11 +1739,11 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1706817321226100000.cfdef39d-366c-40de-8af1-aefa6c26f90e"
+          "reference" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
         },
         "specimen" : [
           {
-            "reference" : "Specimen/1706817321255280000.b0816435-e3df-4f97-b712-6be77dd53814"
+            "reference" : "Specimen/1707329730638887000.bb67a7f6-12ff-4b7c-b99b-ca34c8b97864"
           }
         ]
       }
