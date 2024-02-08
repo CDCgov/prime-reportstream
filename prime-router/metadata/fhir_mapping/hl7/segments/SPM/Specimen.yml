@@ -180,37 +180,6 @@ note:
           type: STRING
           valueOf: specimen-description
 
-note_specimen-source:
-  condition: $obr153 NOT_NULL
-  expressionType: nested
-  generateList: true
-  vars:
-    obr153: OBR.15.3
-  expressionsMap:
-    text:
-      type: STRING
-      valueOf: OBR.15.3
-      expressionType: HL7Spec
-    extension:
-      generateList: true
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: hl7v2Name
-        valueString:
-          type: STRING
-          valueOf: specimen-source
-
-note_collectors-comment:
-  condition: $obr39 NOT_NULL
-  generateList: true
-  vars:
-    obr39: STRING_ALL, OBR.39
-  specs: OBR.39 *
-  valueOf: datatypes/CWE/Annotation
-  expressionType: resource
-
 receivedTime:
   condition: $dateTimeIn NOT_NULL
   type: STRING

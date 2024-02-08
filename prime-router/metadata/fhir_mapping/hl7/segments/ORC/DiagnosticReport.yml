@@ -233,7 +233,6 @@ subject:
   valueOf: datatype/Reference
   expressionType: resource
   specs: $Patient
-  useGroup: true
 
 basedOn:
   valueOf: datatype/Reference
