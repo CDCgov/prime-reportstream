@@ -16,7 +16,7 @@ cd frontend-react
 
 # automatically stage dedupe changes (also ensures up-to-date lockfile)
 yarn dedupe
-git add .
+git add yarn.lock
 
 yarn lint-staged
 yarn test -o --silent
