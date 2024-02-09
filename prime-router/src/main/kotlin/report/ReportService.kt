@@ -20,7 +20,7 @@ class ReportService(
      */
     fun getRootReport(childReportId: ReportId): ReportFile {
         return reportGraph.getRootReport(childReportId)
-            ?: throw IllegalStateException("No Root Report found for reportId=$childReportId")
+            ?: error("No Root Report found for reportId=$childReportId")
     }
 
     /**
@@ -36,7 +36,7 @@ class ReportService(
         return if (rootReport.sendingOrg != null && rootReport.sendingOrgClient != null) {
             "${rootReport.sendingOrg}.${rootReport.sendingOrgClient}"
         } else {
-            throw IllegalStateException("Root report must contain a sending org and sending org client")
+            error("Root report must contain a sending org and sending org client")
         }
     }
 }
