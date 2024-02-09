@@ -3,7 +3,17 @@ import dotenvflow from "dotenv-flow";
 
 import type { TestOptions } from "./e2e/helpers/rs-test.ts";
 
-dotenvflow.config({ purge_dotenv: true, silent: true });
+dotenvflow.config({
+    purge_dotenv: true,
+    silent: true,
+    default_node_env: "test",
+});
+
+const isAdminTesting = Boolean(
+    process.env.TEST_ADMIN_USERNAME ??
+        process.env.TEST_ADMIN_PASSWORD ??
+        process.env.TEST_ADMIN_TOTP_CODE,
+);
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -37,23 +47,23 @@ export default defineConfig<TestOptions>({
 
     /* Configure projects for major browsers */
     projects: [
-        //{ name: "setup", testMatch: /.*\.setup\.ts/ },
+        isAdminTesting ? { name: "setup", testMatch: /.*\.setup\.ts/ } : {},
         {
             name: "chromium",
             use: { browserName: "chromium" },
-            //dependencies: ["setup"],
+            dependencies: [isAdminTesting ? "setup" : ""] as any,
         },
 
         {
             name: "firefox",
             use: { browserName: "firefox" },
-            // dependencies: ["setup"],
+            dependencies: [isAdminTesting ? "setup" : ""] as any,
         },
 
         {
             name: "webkit",
             use: { browserName: "webkit" },
-            // dependencies: ["setup"],
+            dependencies: [isAdminTesting ? "setup" : ""] as any,
         },
 
         /* Test against mobile viewports. */
