@@ -1,9 +1,8 @@
 import { screen } from "@testing-library/react";
 
+import { OrgSenderTable } from "./OrgSenderTable";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { renderApp } from "../../utils/CustomRenderUtils";
-
-import { OrgSenderTable } from "./OrgSenderTable";
 
 const mockData = [
     {

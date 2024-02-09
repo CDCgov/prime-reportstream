@@ -1,14 +1,13 @@
 import { PropsWithChildren, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { isRSNetworkError } from "../utils/RSNetworkError";
-import { ErrorPage } from "../pages/error/ErrorPage";
-import { useSessionContext } from "../contexts/Session";
-
 import Spinner from "./Spinner";
+import { useSessionContext } from "../contexts/Session";
+import { ErrorPage } from "../pages/error/ErrorPage";
+import { isRSNetworkError } from "../utils/RSNetworkError";
 
 /** Wrap components with this error boundary to catch errors thrown */
-export function RSErrorBoundary(props: PropsWithChildren) {
+function RSErrorBoundary(props: PropsWithChildren) {
     const { rsConsole, config } = useSessionContext();
     return (
         <ErrorBoundary

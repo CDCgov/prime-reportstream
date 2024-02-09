@@ -1,9 +1,8 @@
 import { act } from "@testing-library/react";
 
+import { useValueSetActivation } from "./UseValueSets";
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
-
-import { useValueSetActivation } from "./UseValueSets";
 
 describe("useValueSetActivation", () => {
     beforeAll(() => lookupTableServer.listen());

@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import MainLayout from "./MainLayout";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 function ErroringComponent() {
     throw new Error("Test");

@@ -1,5 +1,5 @@
 import type { MDXModule } from "mdx/types";
-import React, { lazy } from "react";
+import { lazy } from "react";
 
 const MarkdownLayout = lazy(() => import("../layouts/Markdown/MarkdownLayout"));
 

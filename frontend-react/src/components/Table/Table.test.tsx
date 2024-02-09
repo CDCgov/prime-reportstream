@@ -1,18 +1,18 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
-import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
-
-import { TestTable } from "./TestTable";
+import { ColumnData } from "./ColumnData";
 import Table, { ColumnConfig, TableConfig } from "./Table";
 import { TableRowData, TableRows } from "./TableRows";
-import { ColumnData } from "./ColumnData";
+import { TestTable } from "./TestTable";
+import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
+import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
+import { renderApp } from "../../utils/CustomRenderUtils";
+
 /* Table generation tools */
 
-const getSetOfRows = (count: number, linkable: boolean = true) => {
+const getSetOfRows = (count: number, linkable = true) => {
     const testRows: TableRowData[] = [];
     for (let i = 0; i < count; i++) {
         // this is bad, but I couldn't figure out how to do it another way
@@ -88,10 +88,7 @@ const makeConfigs = (sampleRow: TableRowData): ColumnConfig[] => {
     });
 };
 
-const getTestConfig = (
-    rowCount: number,
-    linkable: boolean = true,
-): TableConfig => {
+const getTestConfig = (rowCount: number, linkable = true): TableConfig => {
     const testRows: TableRowData[] = getSetOfRows(rowCount, linkable);
     const colConfigs: ColumnConfig[] = makeConfigs(testRows[0]);
     return {
@@ -468,9 +465,8 @@ describe("TableRows", () => {
 
         // update value
         // this assumes that an input is being rendered by `ColumnData`
-        const firstInput = screen.getByLabelText(
-            "editableColumn-0",
-        ) as HTMLInputElement;
+        const firstInput =
+            screen.getByLabelText<HTMLInputElement>("editableColumn-0");
         const initialValue = firstInput.value;
         await userEvent.click(firstInput);
         await userEvent.keyboard("fakeItem");
@@ -497,7 +493,7 @@ describe("ColumnData", () => {
     test("calls passed setUpdatedRow when editable field changes", async () => {
         const fakeRows = getSetOfRows(1);
         const fakeColumns = makeConfigs(fakeRows[0]);
-        const fakeUpdate = jest.fn(() => Promise.resolve());
+        const fakeUpdate = jest.fn((..._args: any[]) => Promise.resolve());
         renderApp(
             <tr>
                 <ColumnData
@@ -506,15 +502,14 @@ describe("ColumnData", () => {
                     rowData={fakeRows}
                     columnConfig={fakeColumns[7]} // this is the editable column
                     editing={true}
-                    setUpdatedRow={fakeUpdate}
+                    setUpdatedRow={(v, f) => void fakeUpdate(v, f)}
                 />
             </tr>,
         );
 
         // update value
-        const firstInput = screen.getByLabelText(
-            "editableColumn-0",
-        ) as HTMLInputElement;
+        const firstInput =
+            screen.getByLabelText<HTMLInputElement>("editableColumn-0");
         const initialValue = firstInput.value;
         await userEvent.click(firstInput);
         await userEvent.keyboard("fakeItem");
