@@ -6,7 +6,8 @@ elements:
     resource: '%resource.parent.resolve().identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-placer")'
     condition: '%resource.extension.where(url = "spm-3-specimen-parent-id-placer").exists().not()'
     constants:
-      eipFieldPath: '%{hl7SpecimenFieldPath}-3'
+      eipFieldPath: '%{hl7SpecimenFieldPath}-3(%{eipIndex})'
+    resourceIndex: eipIndex
     schema: ../../datatypes/identifier-placerAssignedIdentifier/EIP
 
   - name: specimen-identifier-backup
@@ -15,7 +16,8 @@ elements:
       %resource.parent.resolve().identifier.where(extension(%`rsext-hl7-use`).value = "specimen-id-placer").exists().not() and
       %resource.extension.where(url = "spm-3-specimen-parent-id-placer").exists().not()
     constants:
-      eipFieldPath: '%{hl7SpecimenFieldPath}-3'
+      eipFieldPath: '%{hl7SpecimenFieldPath}-3(%{eipIndex})'
+    resourceIndex: eipIndex
     schema: ../../datatypes/identifier-fillerAssignedIdentifier/EIP
 
   - name: specimen-parent-identifier
@@ -119,3 +121,10 @@ elements:
     schema: ../../datatypes/codeableConcept/CWE
     constants:
       cweField: '%{hl7SpecimenFieldPath}-29'
+
+  - name: accession-id
+    resource: '%resource.extension.where(url = "spm-30-accession-id").value'
+    schema: ../../datatypes/Identifier/CX
+    resourceIndex: cxIndex
+    constants:
+      cxField: '%{hl7SpecimenFieldPath}-30(%{cxIndex})'

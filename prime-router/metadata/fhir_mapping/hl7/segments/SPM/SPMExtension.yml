@@ -19,7 +19,6 @@ extension:
         valueIdentifier:
           valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
           expressionType: resource
-          specs: SPM.3
           constants:
             hl7Use: "specimen-parent-id-placer"
             backupExtension: "filler-assigned-identifier"
@@ -36,7 +35,6 @@ extension:
         valueIdentifier:
           valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
           expressionType: resource
-          specs: SPM.3
           constants:
             hl7Use: "specimen-parent-id-filler"
             backupExtension: "placer-assigned-identifier"
@@ -235,3 +233,16 @@ extension:
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm30: SPM.30
+      condition: $spm30 NOT_NULL
+      specs: SPM.30
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-30-accession-id
+        valueIdentifier:
+          expressionType: resource
+          valueOf: datatypes/CX/Identifier

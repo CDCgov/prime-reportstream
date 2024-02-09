@@ -10,18 +10,17 @@ identifier:
     eip2: EIP.2
   generateList: true
   expressionType: nested
+  specs: EIP
   expressions:
     - condition: $eip1 NOT_NULL
       valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
       expressionType: resource
-      specs: EIP
       constants:
         hl7Use: "specimen-id-placer"
         backupExtension: "filler-assigned-identifier"
     - condition: $eip2 NOT_NULL
       valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
       expressionType: resource
-      specs: EIP
       constants:
         hl7Use: "specimen-id-filler"
         backupExtension: "placer-assigned-identifier"

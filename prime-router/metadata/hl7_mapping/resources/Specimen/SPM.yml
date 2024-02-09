@@ -108,13 +108,6 @@ elements:
       cweField: '%{hl7SpecimenFieldPath}-27(%{cweIndex})'
     schema: ../../datatypes/codeableConcept/CWE
 
-  - name: pv1-preadmit-number
-    resource: '%resource.accessionIdentifier'
-    schema: ../../datatypes/identifier/CX
-    resourceIndex: cxIndex
-    constants:
-      cxField: '%{hl7SpecimenFieldPath}-30(%{cxIndex})'
-
   - name: other-specimen-identifier
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "other-specimen-id")'
     resourceIndex: cxIndex
