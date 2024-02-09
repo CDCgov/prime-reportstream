@@ -71,7 +71,9 @@
         "eslint-interactive": "yarn dlx -p eslint -p eslint-interactive eslint-interactive",
         "storybook": "storybook dev -p 6006",
         "build-storybook": "storybook build",
-        "browserslist:generate": "yarn dlx -p browserslist -p update-browserslist-db update-browserslist-db && ts-node-esm --project tsconfig.node.json scripts/generateBrowserslistRegex.ts"
+        "browserslist:update": "yarn dlx -p browserslist -p update-browserslist-db update-browserslist-db",
+        "browserslist:generate": "yarn run browserslist:update && ts-node-esm ./scripts/generateBrowserslistRegex.ts",
+        "browserslist:dryRun": "yarn run browserslist:generate dryRun"
     },
     "browserslist": {
         "production": [

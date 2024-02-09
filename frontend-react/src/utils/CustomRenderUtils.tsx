@@ -21,8 +21,8 @@ import { CacheProvider } from "rest-hooks";
 import { appRoutes } from "../AppRouter";
 import config from "../config";
 import AppInsightsContextProvider from "../contexts/AppInsights";
-import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetch";
-import { FeatureFlagProvider } from "../contexts/FeatureFlag";
+import AuthorizedFetchProvider from "../contexts/AuthorizedFetch";
+import FeatureFlagProvider from "../contexts/FeatureFlag";
 import { SessionProviderBase } from "../contexts/Session";
 import { getTestQueryClient } from "../network/QueryClients";
 

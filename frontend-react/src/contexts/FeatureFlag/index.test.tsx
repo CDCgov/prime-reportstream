@@ -4,9 +4,8 @@ import {
 } from "../../utils/__mocks__/SessionStorageTools";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-import {
+import FeatureFlagProvider, {
     FeatureFlagActionType,
-    FeatureFlagProvider,
     featureFlagReducer,
     useFeatureFlags,
 } from "./";
