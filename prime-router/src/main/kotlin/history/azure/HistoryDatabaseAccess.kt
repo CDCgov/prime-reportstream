@@ -55,6 +55,8 @@ abstract class HistoryDatabaseAccess(
      * @param pageSize is an Integer used for setting the number of results per page.
      * @param showFailed whether to include actions that failed to be sent.
      * @param klass the class that the found data will be converted to.
+     * @param reportId is the reportId to get results for.
+     * @param fileName is the fileName to get results for.
      * @return a list of results matching the SQL Query.
      */
     fun <T> fetchActions(
@@ -68,9 +70,11 @@ abstract class HistoryDatabaseAccess(
         pageSize: Int,
         showFailed: Boolean,
         klass: Class<T>,
+        reportId: UUID? = null,
+        fileName: String? = null,
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
-        val whereClause = createWhereCondition(organization, orgService, since, until, showFailed)
+        val whereClause = createWhereCondition(organization, orgService, reportId, fileName, since, until, showFailed)
 
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
@@ -136,11 +140,21 @@ abstract class HistoryDatabaseAccess(
     private fun createWhereCondition(
         organization: String,
         orgService: String?,
+        reportId: UUID?,
+        fileName: String?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         showFailed: Boolean,
     ): Condition {
         var filter = this.organizationFilter(organization, orgService)
+
+        if (reportId != null) {
+            filter = filter.and(REPORT_FILE.REPORT_ID.eq(reportId))
+        }
+
+        if (fileName != null) {
+            filter = filter.and(REPORT_FILE.BODY_URL.likeIgnoreCase("%$fileName"))
+        }
 
         if (since != null) {
             filter = filter.and(ACTION.CREATED_AT.ge(since))
