@@ -90,12 +90,12 @@ runs:
     - name: Run E2E tests
       working-directory: frontend-react
       run: |
-        export TEST_E2E_ADMIN_USERNAME=${{ inputs.test-e2e-admin-user }}
-        export TEST_E2E_ADMIN_PASSWORD=${{ inputs.test-e2e-admin-password }}
-        export TEST_E2E_SENDER_USERNAME=${{ inputs.test-e2e-sender-user }}
-        export TEST_E2E_SENDER_PASSWORD=${{ inputs.test-e2e-sender-password }}
-        export TEST_E2E_RECEIVER_USERNAME=${{ inputs.test-e2e-receiver-user }}
-        export TEST_E2E_RECEIVER_PASSWORD=${{ inputs.test-e2e-receiver-password }}
+        export TEST_ADMIN_USERNAME=${{ inputs.test-e2e-admin-user }}
+        export TEST_ADMIN_PASSWORD=${{ inputs.test-e2e-admin-password }}
+        export TEST_SENDER_USERNAME=${{ inputs.test-e2e-sender-user }}
+        export TEST_SENDER_PASSWORD=${{ inputs.test-e2e-sender-password }}
+        export TEST_RECEIVER_USERNAME=${{ inputs.test-e2e-receiver-user }}
+        export TEST_RECEIVER_PASSWORD=${{ inputs.test-e2e-receiver-password }}
         echo "::group::E2E tests"
         npx playwright test
         echo "::endgroup::"
