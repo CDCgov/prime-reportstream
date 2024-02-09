@@ -1,20 +1,17 @@
-import React from "react";
-
-import { Table } from "../../../shared/Table/Table";
-import TableFilters from "../../Table/TableFilters";
-import useFilterManager, {
-    FilterManagerDefaults,
-} from "../../../hooks/filters/UseFilterManager";
-import { FeatureName } from "../../../utils/FeatureName";
-import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import { USLink } from "../../USLink";
+import styles from "./FacilityProviderSubmitterTable.module.scss";
 import { SenderTypeDetailResource } from "../../../config/endpoints/dataDashboard";
 import {
     EventName,
     useAppInsightsContext,
 } from "../../../contexts/AppInsights";
-
-import styles from "./FacilityProviderSubmitterTable.module.scss";
+import useFilterManager, {
+    FilterManagerDefaults,
+} from "../../../hooks/filters/UseFilterManager";
+import Table from "../../../shared/Table/Table";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
+import { FeatureName } from "../../../utils/FeatureName";
+import TableFilters from "../../Table/TableFilters";
+import { USLink } from "../../USLink";
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {

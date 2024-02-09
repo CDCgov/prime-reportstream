@@ -1,12 +1,12 @@
-import { Suspense } from "react";
-import { NetworkErrorBoundary } from "rest-hooks";
-import { Helmet } from "react-helmet-async";
 import { GridContainer } from "@trussworks/react-uswds";
+import { Suspense } from "react";
+import { Helmet } from "react-helmet-async";
+import { NetworkErrorBoundary } from "rest-hooks";
 
+import { OrgsTable } from "../../components/Admin/OrgsTable";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
-import { OrgsTable } from "../../components/Admin/OrgsTable";
 
 const fallbackPage = () => <ErrorPage type="page" />;
 const fallbackMessage = () => <ErrorPage type="message" />;

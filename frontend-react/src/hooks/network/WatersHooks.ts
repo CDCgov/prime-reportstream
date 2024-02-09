@@ -1,7 +1,7 @@
 import { UseMutateAsyncFunction, useMutation } from "@tanstack/react-query";
 
-import { useAuthorizedFetch } from "../../contexts/AuthorizedFetch";
 import { watersEndpoints, WatersResponse } from "../../config/endpoints/waters";
+import { useAuthorizedFetch } from "../../contexts/AuthorizedFetch";
 import { RSNetworkError } from "../../utils/RSNetworkError";
 import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
 
@@ -22,11 +22,11 @@ export type UseWatersUploaderSendFileMutation = UseMutateAsyncFunction<
     WatersPostArgs
 >;
 
-export type UseWatersUploaderResult = {
+export interface UseWatersUploaderResult {
     sendFile: UseWatersUploaderSendFileMutation;
     isWorking: boolean;
     uploaderError: RSNetworkError<WatersResponse> | null;
-};
+}
 
 export const FORMAT_TO_CONTENT_TYPE = {
     [FileType.CSV]: ContentType.CSV,

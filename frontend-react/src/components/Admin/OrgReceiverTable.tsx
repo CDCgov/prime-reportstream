@@ -1,4 +1,3 @@
-import { useResource } from "rest-hooks";
 import {
     Button,
     ButtonGroup,
@@ -8,19 +7,19 @@ import {
     ModalRef,
     Table,
 } from "@trussworks/react-uswds";
-import React, { useCallback, useRef, useState } from "react";
 import DOMPurify from "dompurify";
+import { useCallback, useRef, useState } from "react";
+import { useResource } from "rest-hooks";
 
-import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import Spinner from "../Spinner";
+import { DisplayMeta } from "./DisplayMeta";
 import {
     CheckSettingParams,
     CheckSettingResult,
     useCheckSettingsCmd,
 } from "../../network/api/CheckSettingCmd";
+import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
+import Spinner from "../Spinner";
 import { USLink, USNavLink } from "../USLink";
-
-import { DisplayMeta } from "./DisplayMeta";
 
 interface OrgSettingsTableProps {
     orgname: string;
@@ -181,8 +180,8 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                     id={`${modalId}-heading`}
                     data-testid={`${modalId}-heading`}
                 >
-                    This check will use the '{clickedReceiver}' settings to
-                    connect to the receiver's server. <br />
+                    This check will use the &apos;{clickedReceiver}&apos;
+                    settings to connect to the receiver&apos;s server. <br />
                     No files will be sent. This feature ONLY supports SFTP and
                     REST receivers currently.
                 </ModalHeading>
@@ -221,7 +220,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                         <Button
                             type="button"
                             disabled={isPending}
-                            onClick={() => clickDoCheckCmd()}
+                            onClick={() => void clickDoCheckCmd()}
                         >
                             Start check
                         </Button>

@@ -1,8 +1,8 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import { WatersUrls } from "../config/endpoints/waters";
 import config from "../config";
+import { WatersUrls } from "../config/endpoints/waters";
 
 const { RS_API_URL } = config;
 

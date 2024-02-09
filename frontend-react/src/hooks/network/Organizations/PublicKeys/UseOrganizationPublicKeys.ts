@@ -1,5 +1,5 @@
-import { useCallback } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 
 import {
     RSApiKeysResponse,
@@ -19,10 +19,10 @@ export default function useOrganizationPublicKeys() {
 
     const { activeMembership } = useSessionContext();
     const memoizedDataFetch = useCallback(() => {
-        if (!!activeMembership?.parsedName) {
+        if (activeMembership?.parsedName) {
             return authorizedFetch(publicKeys, {
                 segments: {
-                    orgName: activeMembership?.parsedName!!,
+                    orgName: activeMembership.parsedName,
                 },
             });
         }
