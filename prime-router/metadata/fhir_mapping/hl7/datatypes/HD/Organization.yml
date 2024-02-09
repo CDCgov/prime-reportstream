@@ -70,11 +70,20 @@ extension:
   expressionType: nested
   expressions:
     - expressionType: nested
-      condition: $hdOrganizationHL7Use NOT_NULL
+      condition: $hdOrganizationHL7Field NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7-use
+          value: hl7v2Field
         valueString:
           type: STRING
-          valueOf: $hdOrganizationHL7Use
+          valueOf: $hdOrganizationHL7Field
+    - expressionType: nested
+      condition: $hdOrganizationHL7Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hdOrganizationHL7Component

@@ -88,13 +88,23 @@ extension:
   generateList: true
   expressionType: nested
   expressions:
-    # hl7v2Name
     - generateList: true
       expressionType: nested
+      condition: $hl7v2Field NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7v2Name
+          value: hl7v2Field
         valueString:
           type: STRING
-          valueOf: $hl7v2Name
+          valueOf: $hl7v2Field
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Component

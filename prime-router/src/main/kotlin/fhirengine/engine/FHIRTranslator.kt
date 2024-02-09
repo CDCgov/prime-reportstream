@@ -156,14 +156,20 @@ class FHIRTranslator(
         if (receiver.enrichmentSchemaNames.isNotEmpty()) {
             receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
                 logger.info("Applying enrichment schema $enrichmentSchemaName")
-                val transformer = FhirTransformer(enrichmentSchemaName)
+                val transformer = FhirTransformer(
+                    convertRelativeSchemaPathToUri(enrichmentSchemaName),
+                    ""
+                )
                 transformer.transform(bundle)
             }
         }
         when (receiver.format) {
             Report.Format.FHIR -> {
                 if (receiver.schemaName.isNotEmpty()) {
-                    val transformer = FhirTransformer(receiver.schemaName)
+                    val transformer = FhirTransformer(
+                        convertRelativeSchemaPathToUri(receiver.schemaName),
+                        ""
+                    )
                     transformer.transform(bundle)
                 }
                 return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
@@ -191,8 +197,10 @@ class FHIRTranslator(
                 receiver
             )
         }
+        // TODO: #10510
         val converter = FhirToHl7Converter(
-            receiver.schemaName,
+            convertRelativeSchemaPathToUri(receiver.schemaName),
+            "",
             context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
         )
         val hl7Message = converter.convert(bundle)
