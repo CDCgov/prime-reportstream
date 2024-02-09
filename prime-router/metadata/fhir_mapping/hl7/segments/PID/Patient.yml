@@ -161,7 +161,7 @@ identifier:
       vars:
         pid2: STRING_ALL, PID.2
       constants:
-        identifierIndexName: patient-id
+        CXIdentifierField: PID.2
     - condition: $pid3 NOT_NULL
       expressionType: resource
       specs: PID.3 *
@@ -170,7 +170,7 @@ identifier:
       vars:
         pid3: STRING_ALL, PID.3
       constants:
-        identifierIndexName: patient-identifier-list
+        CXIdentifierField: PID.3
     - condition: $pid4 NOT_NULL
       expressionType: resource
       specs: PID.4
@@ -178,7 +178,7 @@ identifier:
       vars:
         pid4: STRING_ALL, PID.4
       constants:
-        identifierIndexName: alternate-patient-id
+        CXIdentifierField: PID.4
 
 name:
   expressionType: nested
@@ -285,7 +285,7 @@ telecom:
       vars:
         pid40: STRING_ALL, PID.40
       constants:
-        hl7v2Name: patient-telecommunication-information
+        hl7v2Field: PID.40
 
 communication:
   expressionType: nested
@@ -519,7 +519,7 @@ extension:
       vars:
         pid26: STRING_ALL, PID.26
       constants:
-        hl7v2Name: "citizenship"
+        hl7v2Field: PID.26
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -541,7 +541,7 @@ extension:
       vars:
         pid39: STRING_ALL, PID.39
       constants:
-        hl7v2Name: "tribal-citizenship"
+        hl7v2Field: PID.39
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -576,7 +576,7 @@ extension:
       vars:
         pid28: STRING_ALL, PID.28
       constants:
-        hl7v2Name: "nationality"
+        hl7v2Field: PID.28
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -612,7 +612,7 @@ extension:
       expressionType: nested
       generateList: true
       constants:
-        hl7v2Name: "patient-animal"
+        hl7v2Field: PID.35
       expressionsMap:
         url:
           type: SYSTEM_URL

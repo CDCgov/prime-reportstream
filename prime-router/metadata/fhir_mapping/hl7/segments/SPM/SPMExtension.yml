@@ -20,7 +20,7 @@ extension:
           valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
           expressionType: resource
           constants:
-            hl7Use: "specimen-parent-id-placer"
+            hl7v2Field: SPM.3
             backupExtension: "filler-assigned-identifier"
     - expressionType: nested
       vars:
@@ -36,7 +36,7 @@ extension:
           valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
           expressionType: resource
           constants:
-            hl7Use: "specimen-parent-id-filler"
+            hl7v2Field: SPM.3
             backupExtension: "placer-assigned-identifier"
     - expressionType: nested
       vars:

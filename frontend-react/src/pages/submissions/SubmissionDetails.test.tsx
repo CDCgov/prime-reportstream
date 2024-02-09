@@ -1,19 +1,18 @@
 import { MatcherFunction, screen } from "@testing-library/react";
 
+import SubmissionDetailsPage, { DestinationItem } from "./SubmissionDetails";
+import { DetailItem } from "../../components/DetailItem/DetailItem";
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../utils/FeatureName";
-
-import SubmissionDetailsPage, { DestinationItem } from "./SubmissionDetails";
 
 /*
     Using the included regex can end up pulling various elements where the
     value has the parsed timestamp. Use a function
 */
 const dateRegex = /\d{1,2} [a-z,A-Z]{3} \d{4}/;
-const timeRegex: RegExp = /\d{1,2}:\d{2}/;
+const timeRegex = /\d{1,2}:\d{2}/;
 
 /*
     We can only mock one behavior for useResource currently. This is a major
@@ -87,7 +86,7 @@ describe("SubmissionDetails", () => {
             recordsTransmitted,
         ];
 
-        for (let i of testElements) {
+        for (const i of testElements) {
             expect(i).toBeInTheDocument();
         }
     });

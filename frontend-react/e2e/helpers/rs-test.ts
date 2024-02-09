@@ -6,11 +6,11 @@ export interface TestLogin {
     totpCode: string;
 }
 
-export type TestOptions = {
+export interface TestOptions {
     adminLogin: TestLogin;
     senderLogin: TestLogin;
     receiverLogin: TestLogin;
-};
+}
 
 export const test = base.extend<TestOptions>({
     // Define an option and provide a default value.

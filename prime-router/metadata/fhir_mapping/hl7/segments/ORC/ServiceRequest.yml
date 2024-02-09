@@ -61,7 +61,7 @@ identifier:
         code: "PLAC"
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         display: "Placer Identifier"
-        hl7Use: "orc-2-placer-order-number"
+        hl7v2Field: ORC.2
     - condition: $orc2 NULL && $obr2 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -70,7 +70,7 @@ identifier:
         code: "PLAC"
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         display: "Placer Identifier"
-        hl7Use: "obr-2-placer-order-number"
+        hl7v2Field: OBR.2
     - condition: $orc3 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -79,7 +79,7 @@ identifier:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "FILL"
         display: "Filler Identifier"
-        hl7Use: "orc-3-filler-order-number"
+        hl7v2Field: ORC.3
     - condition: $orc3 NULL && $obr3 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -88,7 +88,7 @@ identifier:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "FILL"
         display: "Filler Identifier"
-        hl7Use: "obr-3-filler-order-number"
+        hl7v2Field: OBR.3
     - condition: $orc4 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -96,7 +96,7 @@ identifier:
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "PGN"
-        hl7Use: "orc-4-placer-group-number"
+        hl7v2Field: ORC.4
     - condition: $orc4 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -104,7 +104,7 @@ identifier:
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "FGN"
-        hl7Use: "orc-4-placer-group-number"
+        hl7v2Field: ORC.4
     - condition: $orc33 NOT_NULL
       valueOf: datatypes/CX/Identifier
       expressionType: resource
@@ -113,7 +113,7 @@ identifier:
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "PLAC"
-        identifierIndexName: "orc-33-alternate-placer-order-number"
+        CXIdentifierField: ORC.33
     - condition: $orc33 NULL && $obr53 NOT_NULL
       valueOf: datatypes/CX/Identifier
       expressionType: resource
@@ -122,7 +122,7 @@ identifier:
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "PLAC"
-        identifierIndexName: "obr-53-alternate-placer-order-number"
+        CXIdentifierField: OBR.53
 
 code:
   valueOf: datatypes/CWE/CodeableConcept
@@ -205,7 +205,7 @@ requester:
           vars:
             XADAddress: ORC.24
           constants:
-            XCNHL7Use: orc-12-ordering-provider
+            XCNHL7Field: ORC.12
         - expressionType: reference
           condition: $orc12 NULL && $obr16 NOT_NULL
           valueOf: datatypes/XCN/Practitioner
@@ -213,7 +213,7 @@ requester:
           vars:
             XADAddress: ORC.24
           constants:
-            XCNHL7Use: obr-16-ordering-provider
+            XCNHL7Field: OBR.16
 
 _requester:
   vars:
@@ -236,7 +236,7 @@ _requester:
               valueOf: datatypes/XTN/ContactPoint
               expressionType: resource
               constants:
-                hl7v2Name: orc-14-callback-phone-number
+                hl7v2Field: ORC.14
     - condition: $orc14 NULL && $obr17 NOT_NULL
       expressionType: nested
       expressionsMap:
@@ -252,7 +252,7 @@ _requester:
               valueOf: datatypes/XTN/ContactPoint
               expressionType: resource
               constants:
-                hl7v2Name: obr-17-order-callback-phone-number
+                hl7v2Field: OBR.17
 
 locationCode:
   vars:
@@ -283,7 +283,7 @@ orderDetail:
       specs: OBR.46
       generateList: true
       constants:
-        hl7v2Name: placer-supplemental-service-information
+        hl7v2Field: OBR.46
     - expressionType: resource
       vars:
         obr47: STRING_ALL, OBR.47
@@ -292,7 +292,7 @@ orderDetail:
       specs: OBR.47
       generateList: true
       constants:
-        hl7v2Name: filler-supplemental-service-information
+        hl7v2Field: OBR.47
 
 extension:
   expressionType: nested

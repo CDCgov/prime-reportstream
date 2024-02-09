@@ -1,8 +1,7 @@
 /* Uniformly supplying resourcesCrumb */
 
-import { CrumbConfig, WithCrumbs } from "../Crumbs";
-
 import { ContentDirectory } from "./MarkdownDirectory";
+import { CrumbConfig, WithCrumbs } from "../Crumbs";
 
 export const contentContainer = (
     Content: () => JSX.Element,
@@ -30,20 +29,20 @@ export const crumbsFromHere = (
  * @todo make private method of ContentDirectoryTools
  * @param element {JSX.Element} The element to be rendered
  * @param crumbs {CrumbConfig[]} A list of crumbs to render */
-export const renderWithCrumbs =
-    (element: JSX.Element, crumbs: CrumbConfig[]) => () => (
-        <WithCrumbs page={element} crumbList={crumbs} />
-    );
+export const renderWithCrumbs = (element: JSX.Element, crumbs: CrumbConfig[]) =>
+    function WithCrumbsWrapper() {
+        return <WithCrumbs page={element} crumbList={crumbs} />;
+    };
 
 export interface SlugParams {
     key: string;
     slug: string;
 }
 export class ContentDirectoryTools {
-    title: string = "";
-    subtitle: string = "";
-    slugs: Map<string, string> = new Map();
-    root: string = "";
+    title = "";
+    subtitle = "";
+    slugs = new Map<string, string>();
+    root = "";
     setTitle(name: string) {
         this.title = name;
         return this;

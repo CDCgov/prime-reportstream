@@ -53,7 +53,7 @@ const cursorReducer = (state: Cursors, action: CursorAction): Cursors => {
         case CursorActionType.RESET:
             /* Resets all values */
             return {
-                current: payload || "",
+                current: payload ?? "",
                 next: "",
                 history: [],
             } as Cursors;
@@ -61,7 +61,7 @@ const cursorReducer = (state: Cursors, action: CursorAction): Cursors => {
             /* Adds next cursor value */
             return {
                 ...state,
-                next: payload || "",
+                next: payload ?? "",
             };
         default:
             return state;
@@ -73,7 +73,7 @@ const useCursorManager = (firstCursor?: string) => {
     const [cursors, cursorDispatch] = useReducer<
         CursorReducer<Cursors, CursorAction>
     >(cursorReducer, {
-        current: firstCursor || "",
+        current: firstCursor ?? "",
         next: "",
         history: [],
     });
