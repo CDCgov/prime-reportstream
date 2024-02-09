@@ -13,6 +13,3 @@ elements:
 
   - name: order-observation-base
     required: false
-
-  - name: patient
-    required: false
