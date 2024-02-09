@@ -59,11 +59,11 @@ class DeliveryFacade(
             "End date must be after start date."
         }
 
-        var reportId: UUID? = null
+        var reportId: UUID?
         try {
             reportId = if (reportIdStr != null) UUID.fromString(reportIdStr) else null
         } catch (e: IllegalArgumentException) {
-            logger.error("Invalid format for report ID: $reportIdStr", e)
+            throw IllegalArgumentException("Invalid format for report ID: $reportIdStr")
         }
 
         return dbDeliveryAccess.fetchActions(

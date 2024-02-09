@@ -1218,7 +1218,7 @@ class DeliveryFunctionTests : Logging {
         }
 
         @Test
-        fun `test returns an empty list when sending an invalid reportId`() {
+        fun `test returns an error when sending an invalid reportId`() {
             val httpRequestMessage = MockHttpRequestMessage(
                 """
                 {
@@ -1235,7 +1235,7 @@ class DeliveryFunctionTests : Logging {
                 }
                 """.trimIndent()
             )
-            httpRequestMessage.parameters["reportId"] = "b9f63105-bbed-4b41-b1ad-"
+            httpRequestMessage.parameters["reportId"] = "b9f63105-"
 
             val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
             val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
@@ -1244,8 +1244,8 @@ class DeliveryFunctionTests : Logging {
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
             val response = DeliveryFunction().getDeliveries(httpRequestMessage, receiver1.fullName)
-            assertThat(response.status).isEqualTo(HttpStatus.OK)
-            assertThat(response.body).isEqualTo("[ ]")
+            assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body).isEqualTo("{\"error\": \"Invalid format for report ID: b9f63105-\"}")
         }
     }
 
