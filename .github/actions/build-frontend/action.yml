@@ -26,8 +26,10 @@ runs:
       with:
         node-version-file: "frontend-react/.nvmrc"
 
-    - name: Yarn version check
+    - name: Build version checks
       run: |
+        node --version
+        npm --version
         yarn --version
       working-directory: frontend-react
       shell: bash
