@@ -1,8 +1,7 @@
 elements:
 
   - name: participation-information
-    resource: 'Bundle.entry.resource.ofType(Device)'
-    condition: 'Bundle.entry.resource.ofType(Device).udiCarrier.exists()'
+    resource: 'Bundle.entry.resource.ofType(Device).where(udiCarrier.exists())'
     constants:
       hl7SegmentGroup: '/PATIENT_RESULT(%{patientIndex})/PATIENT/PATIENT_OBSERVATION'
     schema: ../../../../resources/Device/PRT
