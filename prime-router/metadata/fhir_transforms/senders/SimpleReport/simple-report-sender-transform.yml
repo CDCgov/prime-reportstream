@@ -209,7 +209,7 @@ elements:
     value: [ '%patient.managingOrganization' ]
 
   - name: sr-patient-identifier-type-code
-    bundleProperty: '%patient.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type-code").value[x]'
+    bundleProperty: '%patient.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier").extension("CX.5").value[x]'
     value: [ '"PI"' ]
 
   - name: sr-patient-identifier-ext-assigning-facility

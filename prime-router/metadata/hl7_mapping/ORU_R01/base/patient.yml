@@ -14,5 +14,5 @@ elements:
     schema: ../../resources/Patient/PD1
 
   - name: additional-demographics-extensions
-    resource: '%resource.extension(%`rsext-pd1-patient`)'
+    resource: '%resource.extension(%`rsext-pd1-patient-additional-demographic`)'
     schema: ../../resources/Patient/PD1Extension

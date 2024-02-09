@@ -25,11 +25,6 @@ elements:
     constants:
       hl7HDField: '%{cxField}-4'
 
-  - name: identifier-type-coding
-    value: [ '%resource.extension(%`rsext-identifier-type-code`).value' ]
-    condition: '%resource.exists()'
-    hl7Spec: [ '%{cxField}-5' ]
-
   - name: assigning-facility
     resource: '%resource.extension(%`rsext-assigning-facility`).value.resolve()'
     condition: '%resource.exists()'
@@ -49,14 +44,7 @@ elements:
       dtmFieldPath: '%{cxField}-8'
     schema: ../dateTime/DTMorDT
 
-  - name: assigning-jurisdiction
-    resource: '%resource.extension(%`rsext-assigning-jurisdiction`).value'
-    schema: ../codeableConcept/CWE
-    constants:
-      cweField: '%{cxField}-9'
+  - name: xon-extension-value
+    resource: '%resource.extension(%`rsext-cx-identifier`)'
+    schema: ./CXExtension
 
-  - name: assigning-agency-or-department
-    resource: '%resource.extension(%`rsext-assigning-agency-or-department`).value'
-    schema: ../codeableConcept/CWE
-    constants:
-      cweField: '%{cxField}-10'
