@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable import/order */
 import "jest-canvas-mock";
 import "@testing-library/jest-dom";
