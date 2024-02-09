@@ -47,6 +47,7 @@ jobs:
 
       - name: Pre-build debug info
         run: |
+          ls -halt
           pwd
           whoami
           df -h
