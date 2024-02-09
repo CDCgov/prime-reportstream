@@ -25,7 +25,13 @@ runs:
       uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
       with:
         node-version-file: "frontend-react/.nvmrc"
-        
+
+    - name: Yarn version check
+      run: |
+        yarn --version
+      working-directory: frontend-react
+      shell: bash
+      
     - run: yarn install
       working-directory: frontend-react
       shell: bash
