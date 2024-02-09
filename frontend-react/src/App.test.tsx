@@ -1,12 +1,11 @@
 import { fireEvent, render } from "@testing-library/react";
-import React from "react";
 import { useLocation } from "react-router-dom";
 
-import type { AppConfig } from "./config";
-import { useSessionContext } from "./contexts/Session";
-import { useAppInsightsContext } from "./contexts/AppInsights";
-import { isUseragentPreferred } from "./utils/BrowserUtils";
 import App from "./App";
+import type { AppConfig } from "./config";
+import { useAppInsightsContext } from "./contexts/AppInsights";
+import { useSessionContext } from "./contexts/Session";
+import { isUseragentPreferred } from "./utils/BrowserUtils";
 
 function Layout() {
     return <section>Layout</section>;
@@ -89,7 +88,7 @@ jest.mock("./config");
 jest.mock("./contexts/Toast", () => {
     return {
         __esModule: true,
-        ToastProvider: MockComponent,
+        default: MockComponent,
     };
 });
 jest.mock("./utils/BrowserUtils", () => {
@@ -103,20 +102,17 @@ const config = {
     AI_CONSOLE_SEVERITY_LEVELS: {} as any,
     AI_REPORTABLE_CONSOLE_LEVELS: [],
     API_ROOT: "" as any,
-    APP_ENV: "",
-    APP_TITLE: "",
-    CLIENT_ENV: "",
     DEFAULT_FEATURE_FLAGS: "" as any,
     IS_PREVIEW: false,
     OKTA_CLIENT_ID: "",
     OKTA_URL: "",
     RS_API_URL: "",
-    RS_DOMAIN: "" as any,
     IDLE_TIMERS: {
         timeout: 1000 * 60 * 15,
         debounce: 500,
         onIdle: jest.fn(),
     },
+    MODE: "test",
 } as const satisfies AppConfig;
 
 const mockUseSessionContext = jest.mocked(useSessionContext);

@@ -1,9 +1,8 @@
 import { screen } from "@testing-library/react";
 
+import { ObjectTooltip } from "./ObjectTooltip";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { SampleTimingObj } from "../../utils/TemporarySettingsAPITypes";
-
-import { ObjectTooltip } from "./ObjectTooltip";
 
 const TestObjectToolTip = () => {
     return <ObjectTooltip obj={new SampleTimingObj()} />;

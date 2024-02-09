@@ -1,13 +1,12 @@
-import React, { useRef } from "react";
-import { FileInputRef, Dropdown, Button } from "@trussworks/react-uswds";
+import { Button, FileInputRef, Select } from "@trussworks/react-uswds";
+import { useRef } from "react";
 
+import { FileHandlerStepProps } from "./FileHandler";
+import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 import useSenderSchemaOptions, {
     SchemaOption,
 } from "../../senders/hooks/UseSenderSchemaOptions";
 import Spinner from "../Spinner";
-
-import { FileHandlerStepProps } from "./FileHandler";
-import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 
 export interface FileHandlerSchemaSelectionStepProps
     extends FileHandlerStepProps {
@@ -41,7 +40,7 @@ export default function FileHandlerSchemaSelectionStep({
             <p className="margin-top-4 margin-bottom-2">Select data model</p>
 
             <div className="margin-bottom-4">
-                <Dropdown
+                <Select
                     id="upload-schema-select"
                     name="upload-schema-select"
                     value={selectedSchemaOption.value}
@@ -66,7 +65,7 @@ export default function FileHandlerSchemaSelectionStep({
                             {title}
                         </option>
                     ))}
-                </Dropdown>
+                </Select>
             </div>
 
             <Button

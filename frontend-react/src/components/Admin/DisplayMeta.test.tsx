@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import { DisplayMeta } from "./DisplayMeta";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("DisplayMeta rendering object", () => {
     function setup() {

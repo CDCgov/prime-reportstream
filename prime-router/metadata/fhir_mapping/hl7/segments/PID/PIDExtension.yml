@@ -32,7 +32,7 @@ extension:
           valueOf: datatypes/CX/Identifier
           expressionType: resource
           constants:
-            identifierIndexName: patient-account-number
+            CXIdentifierField: PID.18
     - expressionType: nested
       condition: $pid24 NOT_NULL
       vars:

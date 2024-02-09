@@ -1,12 +1,11 @@
 import { fireEvent, screen, within } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import Pagination, {
+    OVERFLOW_INDICATOR,
     PaginationProps,
     SlotItem,
-    OVERFLOW_INDICATOR,
 } from "./Pagination";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("Pagination", () => {
     test.each([

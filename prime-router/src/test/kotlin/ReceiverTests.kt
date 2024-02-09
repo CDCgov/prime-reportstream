@@ -31,7 +31,28 @@ internal class ReceiverTests {
                 UnitTestUtils.simpleMetadata
             )
         ).isEqualTo(
-            "Condition filter not allowed for receivers with topic 'covid-19'"
+            "Condition filter(s) not allowed for receivers with topic 'covid-19'"
+        )
+    }
+
+    @Test
+    fun `test mapped condition filter on non full-elr pipeline`() {
+        val receiver = Receiver(
+            name = "elr",
+            organizationName = "IGNORE",
+            topic = Topic.COVID_19,
+            customerStatus = CustomerStatus.INACTIVE,
+            mappedConditionFilter = listOf(CodeStringConditionFilter("1234")),
+            translation = translatorConfig,
+            externalName = "Ignore ELR"
+        )
+
+        assertThat(
+            receiver.consistencyErrorMessage(
+                UnitTestUtils.simpleMetadata
+            )
+        ).isEqualTo(
+            "Condition filter(s) not allowed for receivers with topic 'covid-19'"
         )
     }
 
@@ -43,6 +64,21 @@ internal class ReceiverTests {
             topic = Topic.FULL_ELR,
             customerStatus = CustomerStatus.INACTIVE,
             conditionFilter = listOf("%testPerformedCodes.intersect('123-0'|'600-7').exists()"),
+            translation = translatorConfig,
+            externalName = "Ignore ELR"
+        )
+
+        assertThat(receiver.consistencyErrorMessage(UnitTestUtils.simpleMetadata)).isNull()
+    }
+
+    @Test
+    fun `test mapped condition filter on full-elr pipeline`() {
+        val receiver = Receiver(
+            name = "elr",
+            organizationName = "IGNORE",
+            topic = Topic.FULL_ELR,
+            customerStatus = CustomerStatus.INACTIVE,
+            mappedConditionFilter = listOf(CodeStringConditionFilter("123-0,600-7")),
             translation = translatorConfig,
             externalName = "Ignore ELR"
         )

@@ -85,7 +85,7 @@ export default defineConfig<TestOptions>({
 
     /* Run the local dev server and start the tests */
     webServer: {
-        command: "yarn run preview",
+        command: "yarn run preview:build",
         url: "http://localhost:4173",
         timeout: 1000 * 180,
         stdout: "pipe",

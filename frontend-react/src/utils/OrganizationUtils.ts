@@ -4,9 +4,8 @@ import type {
     UserClaims,
 } from "@okta/okta-auth-js";
 
-import type { RSService } from "../config/endpoints/settings";
-
 import { PERMISSIONS } from "./UsefulTypes";
+import type { RSService } from "../config/endpoints/settings";
 
 export enum RSOrgType {
     SENDER = "sender",

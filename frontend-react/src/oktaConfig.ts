@@ -1,10 +1,10 @@
 import {
-    OktaAuthOptions,
-    OktaAuth,
-    AuthState,
     AccessToken,
-    RefreshToken,
+    AuthState,
     IDToken,
+    OktaAuth,
+    OktaAuthOptions,
+    RefreshToken,
 } from "@okta/okta-auth-js";
 import { WidgetOptions } from "@okta/okta-signin-widget";
 import type { Feature } from "@okta/okta-signin-widget";
@@ -56,7 +56,7 @@ const oktaAuthConfig: OktaAuthOptions = {
             };
         }
 
-        return finalAuthState;
+        return Promise.resolve(finalAuthState);
     },
 };
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);

@@ -3,12 +3,13 @@ import { MarkdownDirectory } from "./MarkdownDirectory";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
 //TODO: Update so it can take all content directories, OR rename to markdown specific
-const MarkdownPage = ({ directory }: { directory: MarkdownDirectory }) => {
+const MarkdownPage = ({
+    directory,
+    ...props
+}: React.PropsWithChildren<{ directory: MarkdownDirectory }>) => {
     return (
-        <div>
+        <div {...props}>
             {directory.files.map((file, idx) => (
-                /* Because file != typeof string but this is what our spike showed us works. */
-                // @ts-ignore
                 <MarkdownRenderer key={idx} markdownUrl={file} />
             ))}
         </div>

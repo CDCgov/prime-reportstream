@@ -1,7 +1,6 @@
-import React from "react";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import { CodeSnippet } from "./CodeSnippet";
+import CodeSnippet from "./CodeSnippet";
 
 export default {
     title: "components/CodeSnippet",

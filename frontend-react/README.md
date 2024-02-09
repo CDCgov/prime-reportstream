@@ -27,7 +27,7 @@ and use `yarn` to serve it on `localhost:3000`
 ```bash
 cd ../frontend-react
 yarn
-yarn start:localdev
+yarn run dev
 ```
 
 ### Refreshing & stopping
@@ -47,14 +47,14 @@ for any error status codes.
 ```bash
 yarn # Will install all dependencies in package.json
 
-yarn start:localdev # Runs the React app use for localdev
-yarn build:staging # Builds the React app for staging
-yarn build:production # Builds the React app for production
+yarn run dev # Runs the React app use for localdev
+yarn run build:staging # Builds the React app for staging
+yarn run build:production # Builds the React app for production
 
 yarn run storybook # Runs a local instance of Storybook showcase of all of the components within our .stories files
 
-yarn lint # Runs the front-end linter
-yarn lint:write # Runs the front-end linter and fixes style errors
+yarn run lint # Runs the front-end linter
+yarn run lint:fix # Runs the front-end linter and fixes style errors
 ```
 
 ## Static build info
@@ -80,10 +80,8 @@ CSP
 
 To use it:
 
-1. Build using yarn command `build:dev:csp`
-2. Local server-side env must be running locally on port 7071
-3. Run using yarn command `run:build-dir`
-4. Open browser debugger and watch console for errors/warnings as you use the site.
+1. Build and run using yarn command `preview:build:csp`
+2. Open browser debugger and watch console for errors/warnings as you use the site.
 
 Example error would look like this:
 
@@ -96,10 +94,6 @@ index.js:2 Refused to apply inline style because it violates the
  Note that hashes do not apply to event handlers,
  style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present.
 ```
-
-(FYI. The error is on `index.js:2` because minification removes line feeds.)
-
-NOTE: This only works `run:build-dir` because webpack's dynamic runtime updating does injection that violates CSP
 
 ## Chromatic and CI Autobuilds
 

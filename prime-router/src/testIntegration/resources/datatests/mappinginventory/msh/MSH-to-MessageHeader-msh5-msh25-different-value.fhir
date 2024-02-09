@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706311119914191000.5f259448-3a08-48c6-a08e-1cbf2a6d3aac",
+  "id" : "1707327724776020000.8424bcd8-e666-4b96-94f7-76bf07fdec09",
   "meta" : {
-    "lastUpdated" : "2024-01-26T17:18:39.927-06:00"
+    "lastUpdated" : "2024-02-07T12:42:04.783-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "3003786103_4988249_33033"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
@@ -22,8 +22,13 @@
             "valueString" : "^~\\&#"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
-            "valueString" : "20230501102531-0400"
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+            "extension" : [
+              {
+                "url" : "MSH.7",
+                "valueString" : "20230501102531-0400"
+              }
+            ]
           }
         ],
         "eventCoding" : {
@@ -43,8 +48,8 @@
                 "valueString" : "ISO"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "receiving-application"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString" : "MSH.5"
               }
             ],
             "name" : "Receiving App",
@@ -61,8 +66,8 @@
                 "valueString" : "ISO"
               },
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                "valueString" : "receiving-network-address"
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString" : "MSH.25"
               }
             ],
             "name" : "Receiving Network",
@@ -82,10 +87,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706311120279677000.261335cc-c691-4896-82bd-675ee102f9d1",
+      "fullUrl" : "Provenance/1707327725142830000.e2c9e17f-06a0-431e-94a9-6a22fa5e5582",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311120279677000.261335cc-c691-4896-82bd-675ee102f9d1",
+        "id" : "1707327725142830000.e2c9e17f-06a0-431e-94a9-6a22fa5e5582",
         "target" : [
           {
             "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
@@ -102,11 +107,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706311120286998000.781ebd42-2fdd-45d9-a75f-5bfcac05df80",
+      "fullUrl" : "Provenance/1707327725151883000.b3d98d58-2b89-4389-ad1d-ccd33cea7446",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706311120286998000.781ebd42-2fdd-45d9-a75f-5bfcac05df80",
-        "recorded" : "2024-01-26T17:18:40Z",
+        "id" : "1707327725151883000.b3d98d58-2b89-4389-ad1d-ccd33cea7446",
+        "recorded" : "2024-02-07T12:42:05Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -128,17 +133,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706311120286409000.f10afd6a-fd80-46d0-9a0d-2d6263dda575"
+              "reference" : "Organization/1707327725151117000.80ace761-3bee-47ff-86d3-907bc414178d"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706311120286409000.f10afd6a-fd80-46d0-9a0d-2d6263dda575",
+      "fullUrl" : "Organization/1707327725151117000.80ace761-3bee-47ff-86d3-907bc414178d",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706311120286409000.f10afd6a-fd80-46d0-9a0d-2d6263dda575",
+        "id" : "1707327725151117000.80ace761-3bee-47ff-86d3-907bc414178d",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"

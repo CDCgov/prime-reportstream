@@ -1,6 +1,5 @@
+import { expect, test } from "@playwright/test";
 import process from "node:process";
-
-import { test, expect } from "@playwright/test";
 
 const timeout = parseInt(process.env.VITE_IDLE_TIMEOUT ?? "20000");
 // Add/Sub 500 ms to account for variance
