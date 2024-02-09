@@ -1,10 +1,10 @@
-import { Dispatch, useReducer } from "react";
 import { pick } from "lodash";
+import { Dispatch, useReducer } from "react";
 
 import { ResponseError, WatersResponse } from "../config/endpoints/waters";
 import { Destination } from "../resources/ActionDetailsResource";
-import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
+import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { ContentType, FileType } from "../utils/TemporarySettingsAPITypes";
 
 export enum ErrorType {
@@ -163,7 +163,7 @@ function calculateFileSelectedState(
 }
 
 // update state when API request is complete
-function calculateRequestCompleteState(
+export function calculateRequestCompleteState(
     state: FileHandlerState,
     payload: RequestCompletePayload,
 ): Partial<FileHandlerState> {
@@ -192,7 +192,7 @@ function calculateRequestCompleteState(
         warnings,
         errorType: errors?.length && status ? ErrorType.SERVER : ErrorType.FILE,
         // pulled from old Upload implementation. Not sure why id is being renamed here, when reportId also exists on the response
-        reportId: id || "",
+        reportId: id ?? "",
         successTimestamp: errors?.length ? "" : timestamp,
         overallStatus: overallStatus,
     };
@@ -207,24 +207,27 @@ function reducer(
         case FileHandlerActionType.RESET:
             return {
                 ...getInitialState(),
-                ...(payload || {}),
+                ...(payload ?? {}),
             };
-        case FileHandlerActionType.PREPARE_FOR_REQUEST:
+        case FileHandlerActionType.PREPARE_FOR_REQUEST: {
             const preSubmitState = getPreSubmitState();
             return { ...state, ...preSubmitState };
-        case FileHandlerActionType.FILE_SELECTED:
+        }
+        case FileHandlerActionType.FILE_SELECTED: {
             const fileSelectedState = calculateFileSelectedState(
                 state,
                 payload as FileSelectedPayload,
             );
             return { ...state, ...fileSelectedState };
-        case FileHandlerActionType.REQUEST_COMPLETE:
+        }
+        case FileHandlerActionType.REQUEST_COMPLETE: {
             const requestCompleteState = calculateRequestCompleteState(
                 state,
                 payload as RequestCompletePayload,
             );
             return { ...state, ...requestCompleteState };
-        case FileHandlerActionType.SCHEMA_SELECTED:
+        }
+        case FileHandlerActionType.SCHEMA_SELECTED: {
             const selectedSchemaOption = payload as SchemaOption;
 
             // reset anything related to the file if the selected schema format
@@ -244,15 +247,16 @@ function reducer(
                 ...state,
                 selectedSchemaOption,
             };
+        }
         default:
             return state;
     }
 }
 
-export type UseFileHandlerHookResult = {
+export interface UseFileHandlerHookResult {
     state: FileHandlerState;
     dispatch: Dispatch<FileHandlerAction>;
-};
+}
 
 // this layer of abstraction around the reducer may not be necessary, but following
 // the pattern laid down in UsePagination for now, in case we need to make this more

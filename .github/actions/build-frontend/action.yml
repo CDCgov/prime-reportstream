@@ -24,8 +24,16 @@ runs:
     - name: Use Node.js with yarn
       uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
       with:
-        node-version-file: "frontend-react/package.json"
+        node-version-file: "frontend-react/.nvmrc"
 
+    - name: Build version checks
+      run: |
+        echo -n "node:";node --version
+        echo -n "npm:";npm --version
+        echo -n "yarn:";yarn --version
+      working-directory: frontend-react
+      shell: bash
+      
     - run: yarn install
       working-directory: frontend-react
       shell: bash
@@ -39,19 +47,28 @@ runs:
         command: |
           set -e pipefail
           cd frontend-react
+          echo "::group::Lint"
           yarn lint
+          echo "::endgroup::"
+          echo "::group::Unit tests"
           yarn test:ci
+          echo "::endgroup::"
         shell: bash
 
     - name: Install Playwright
       working-directory: frontend-react
       run: |
+        echo "::group::Install playwright"
         npx playwright install --with-deps
+        echo "::endgroup::"
       shell: bash
 
     - name: Run E2E tests
       working-directory: frontend-react
-      run: npx playwright test
+      run: |
+        echo "::group::E2E tests"
+        npx playwright test
+        echo "::endgroup::"
       shell: bash
 
     - name: Build release for production branch (conditional check)
@@ -66,7 +83,9 @@ runs:
           cd frontend-react
           echo "" >> .env.production
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
+          echo "::group::Build"
           yarn build:production
+          echo "::endgroup::"
         shell: bash
 
     - name: Build release for non-production branch (conditional check)
@@ -83,7 +102,9 @@ runs:
           if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
           echo "" >> .env.$ENV
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
+          echo "::group::Build"
           yarn build:$ENV
+          echo "::endgroup::"
         shell: bash
 
     - name: Tar frontend files

@@ -34,7 +34,7 @@ export const sortSettingsReducer = (
         case SortSettingsActionType.CHANGE_COL:
             return {
                 ...state,
-                column: payload?.column || state.column,
+                column: payload?.column ?? state.column,
             };
         case SortSettingsActionType.SWAP_ORDER:
             return {
@@ -44,7 +44,7 @@ export const sortSettingsReducer = (
         case SortSettingsActionType.APPLY_LOCAL_SORT:
             return {
                 ...state,
-                locally: payload?.locally || false,
+                locally: payload?.locally ?? false,
             };
         case SortSettingsActionType.SWAP_LOCAL_ORDER:
             return {
@@ -53,10 +53,10 @@ export const sortSettingsReducer = (
             };
         case SortSettingsActionType.RESET: // Also able to manually update settings
             return {
-                column: payload?.column || "",
-                order: payload?.order || "DESC",
-                locally: payload?.locally || false,
-                localOrder: payload?.localOrder || "DESC",
+                column: payload?.column ?? "",
+                order: payload?.order ?? "DESC",
+                locally: payload?.locally ?? false,
+                localOrder: payload?.localOrder ?? "DESC",
             };
         default:
             return state;
@@ -65,10 +65,10 @@ export const sortSettingsReducer = (
 
 const useSortOrder = (options?: Partial<SortSettings>): SortFilter => {
     const [settings, dispatchSettings] = useReducer(sortSettingsReducer, {
-        column: options?.column || "",
-        order: options?.order || "DESC",
-        locally: options?.locally || false,
-        localOrder: options?.localOrder || "DESC",
+        column: options?.column ?? "",
+        order: options?.order ?? "DESC",
+        locally: options?.locally ?? false,
+        localOrder: options?.localOrder ?? "DESC",
     });
 
     return {

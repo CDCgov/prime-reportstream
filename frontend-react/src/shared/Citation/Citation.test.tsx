@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import { Citation } from "./Citation";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("Citation rendering", () => {
     const fakeCitation = {

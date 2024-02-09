@@ -1,5 +1,5 @@
-import React, { ReactNode } from "react";
 import classNames from "classnames";
+import { ReactNode } from "react";
 
 export enum StaticAlertType {
     Success = "success",
