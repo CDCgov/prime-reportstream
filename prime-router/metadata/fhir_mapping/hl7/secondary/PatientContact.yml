@@ -118,7 +118,7 @@ telecom_3-next-of-kin-telecomm-info:
   vars:
     valueIn: NK1.40
   constants:
-    hl7v2Name: "next-of-kin-telecomm-info"
+    hl7v2Field: "next-of-kin-telecomm-info"
 
 organization:
   condition: $XADAddress NOT_NULL || $XONOrganization NOT_NULL

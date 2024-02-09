@@ -208,22 +208,22 @@ class ConfigSchemaReaderTests {
     fun `test read from file with extends`() {
         assertFailure {
             ConfigSchemaReader.fromFile(
-                "ORU_R01_circular",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06",
+                "classpath:/fhirengine/translation/hl7/schema/schema-read-test-06/ORU_R01_circular.yml",
+                "",
                 schemaClass = ConverterSchema::class.java,
             )
         }.messageContains("Schema circular dependency")
 
         val schema = ConfigSchemaReader.fromFile(
-            "ORU_R01_extends",
-            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06",
+            "classpath:/fhirengine/translation/hl7/schema/schema-read-test-06/ORU_R01_extends.yml",
+            "",
             schemaClass = ConverterSchema::class.java,
         )
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.constants["baseConstant"]).isEqualTo("baseValue")
         assertThat(schema.constants["lowLevelConstant"]).isEqualTo("lowLevelValue")
         assertThat(schema.constants["overriddenConstant"]).isEqualTo("overriddenValue")
-        assertThat(schema.name).isEqualTo("ORU_R01_extends")
+        assertThat(schema.name).isEqualTo("/fhirengine/translation/hl7/schema/schema-read-test-06/ORU_R01_extends.yml")
     }
 
     @Test
