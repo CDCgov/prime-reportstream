@@ -162,7 +162,9 @@ class ProcessFhirCommands : CliktCommand(
             else -> {
                 val bundle = applySenderTransforms(fhirMessage)
                 FhirToHl7Converter(
-                    receiverSchema!!.name.split(".")[0], receiverSchema!!.parent,
+                    receiverSchema!!.name,
+                    // TODO: #10510
+                    "",
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
                         config = HL7TranslationConfig(
@@ -245,7 +247,8 @@ class ProcessFhirCommands : CliktCommand(
                 if (!senderSchema!!.canRead()) {
                     throw CliktError("Unable to read schema file ${senderSchema!!.absolutePath}.")
                 } else {
-                    FhirTransformer(senderSchema!!.name.split(".")[0], senderSchema!!.parent).transform(bundle)
+                    // TODO: #10510
+                    FhirTransformer(senderSchema!!.toURI().toString(), "").transform(bundle)
                 }
             }
             else -> bundle
@@ -265,9 +268,10 @@ class ProcessFhirCommands : CliktCommand(
                 if (!receiverSchema!!.canRead()) {
                     throw CliktError("Unable to read schema file ${receiverSchema!!.absolutePath}.")
                 } else {
+                    // TODO: #10510
                     FhirTransformer(
-                        receiverSchema!!.name.split(".")[0],
-                        receiverSchema!!.parent
+                        receiverSchema!!.toURI().toString(),
+                        ""
                     ).transform(enrichedBundle)
                 }
             }
@@ -282,7 +286,8 @@ class ProcessFhirCommands : CliktCommand(
         if (!enrichmentSchemaNames.isNullOrEmpty()) {
             enrichmentSchemaNames!!.split(",").forEach { currentEnrichmentSchemaName ->
                 val fileNamePieces = currentEnrichmentSchemaName.split(".")
-                FhirTransformer(fileNamePieces.first()).transform(bundle)
+                // TODO: #10510
+                FhirTransformer(fileNamePieces.first(), "").transform(bundle)
             }
         }
         return bundle
