@@ -1,5 +1,5 @@
-import { useCallback } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 
 import { RSSender, servicesEndpoints } from "../config/endpoints/settings";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
@@ -16,10 +16,10 @@ export default function useOrganizationSenders() {
 
     const authorizedFetch = useAuthorizedFetch<RSSender[]>();
     const memoizedDataFetch = useCallback(() => {
-        if (!!activeMembership?.parsedName) {
+        if (activeMembership?.parsedName) {
             return authorizedFetch(senders, {
                 segments: {
-                    orgName: activeMembership?.parsedName!!,
+                    orgName: activeMembership.parsedName,
                 },
             });
         }

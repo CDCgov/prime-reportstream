@@ -96,7 +96,7 @@ export class RSConsole {
         }: ConsoleTelemetryProperties,
         severityLevel: SeverityLevel,
     ) {
-        let msg = `Assertion failed: ${message}`;
+        const msg = `Assertion failed: ${message}`;
         if (!value)
             this._error(
                 { ...otherProperties, args: [new Error(msg), ...otherArgs] },
@@ -110,7 +110,7 @@ export class RSConsole {
         if (!this.isReportable(consoleLevel)) return;
 
         // original args along with any other extra properties desired
-        let properties = { location: window.location.href, args };
+        const properties = { location: window.location.href, args };
 
         switch (consoleLevel) {
             case "error": {

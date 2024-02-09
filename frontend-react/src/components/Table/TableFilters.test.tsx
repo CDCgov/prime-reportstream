@@ -1,14 +1,13 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
-import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
+import { userEvent } from "@testing-library/user-event";
 
 import TableFilters, {
-    TableFilterDateLabel,
     isValidDateString,
+    TableFilterDateLabel,
 } from "./TableFilters";
+import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
+import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("Rendering", () => {
     function setup() {

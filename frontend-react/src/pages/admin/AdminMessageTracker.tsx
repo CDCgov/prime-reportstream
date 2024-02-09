@@ -1,6 +1,5 @@
-import React from "react";
-import { Helmet } from "react-helmet-async";
 import { GridContainer } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import { MessageTracker } from "../../components/MessageTracker/MessageTracker";

@@ -3,9 +3,9 @@ import { setupServer } from "msw/node";
 
 import config from "../config";
 import {
-    RSMessageDetail,
     MessageListResource,
     messageTrackerEndpoints,
+    RSMessageDetail,
 } from "../config/endpoints/messageTracker";
 
 const { RS_API_URL } = config;
@@ -14,15 +14,15 @@ export const makeMessageDetailsFixture = (
     overrides?: Partial<RSMessageDetail>,
 ): RSMessageDetail => ({
     id: id || 1,
-    messageId: overrides?.messageId || "",
-    sender: overrides?.sender || "",
-    submittedDate: overrides?.submittedDate || "",
-    reportId: overrides?.reportId || "e46339c7-408a-49aa-af4f-29712c8c20df",
-    fileName: overrides?.fileName || "",
-    fileUrl: overrides?.fileUrl || "",
-    warnings: overrides?.warnings || [],
-    errors: overrides?.errors || [],
-    receiverData: overrides?.receiverData || [],
+    messageId: overrides?.messageId ?? "",
+    sender: overrides?.sender ?? "",
+    submittedDate: overrides?.submittedDate ?? "",
+    reportId: overrides?.reportId ?? "e46339c7-408a-49aa-af4f-29712c8c20df",
+    fileName: overrides?.fileName ?? "",
+    fileUrl: overrides?.fileUrl ?? "",
+    warnings: overrides?.warnings ?? [],
+    errors: overrides?.errors ?? [],
+    receiverData: overrides?.receiverData ?? [],
 });
 
 export const MOCK_MESSAGE_SENDER_DATA = [

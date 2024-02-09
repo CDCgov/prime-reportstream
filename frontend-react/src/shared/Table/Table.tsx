@@ -1,11 +1,10 @@
-import classnames from "classnames";
-import React, { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
-
-import { SortSettings } from "../../hooks/filters/UseSortOrder";
-import { NoServicesBanner } from "../../components/alerts/NoServicesAlert";
+import classnames from "classnames";
+import { ReactNode, useState } from "react";
 
 import styles from "./Table.module.scss";
+import { NoServicesBanner } from "../../components/alerts/NoServicesAlert";
+import { SortSettings } from "../../hooks/filters/UseSortOrder";
 
 enum FilterOptions {
     NONE = "NONE",
@@ -16,7 +15,7 @@ enum FilterOptions {
 interface SortableTableHeaderProps {
     columnHeaderData: RowData;
     activeColumn: string;
-    sortOrder: string;
+    sortOrder: FilterOptions;
     onSortOrderChange: (sortOrder: FilterOptions) => void;
     onActiveColumnChange: (column: string) => void;
     sticky?: boolean;
@@ -158,9 +157,9 @@ function sortTableData(
     return sortOrder !== FilterOptions.NONE && activeColumn
         ? rowData.sort((a, b): number => {
               const contentColA =
-                  a.find((item) => item.columnKey === activeColumn) || "";
+                  a.find((item) => item.columnKey === activeColumn) ?? "";
               const contentColB =
-                  b.find((item) => item.columnKey === activeColumn) || "";
+                  b.find((item) => item.columnKey === activeColumn) ?? "";
               if (sortOrder === FilterOptions.ASC) {
                   return contentColA < contentColB ? 1 : -1;
               } else {
@@ -255,7 +254,7 @@ const SortableTable = ({
     );
 };
 
-export const Table = ({
+const Table = ({
     apiSortable,
     borderless,
     compact,
@@ -296,7 +295,7 @@ export const Table = ({
         >
             {rowData.length ? (
                 <table className={classes}>
-                    {sortable || apiSortable ? (
+                    {sortable ?? apiSortable ? (
                         <SortableTable
                             sticky={sticky}
                             rowData={rowData}
@@ -356,3 +355,5 @@ export const Table = ({
         </div>
     );
 };
+
+export default Table;

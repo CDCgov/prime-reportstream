@@ -1,0 +1,115 @@
+constants:
+  hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/ORC
+
+elements:
+  - name: order-control
+    hl7Spec: [ '%{hl7Order}-1' ]
+    resource: '%resource.extension(%`rsext-business-event`)'
+    condition: '%resource.value.ofType(code).exists()'
+    value: [ '%resource.value.ofType(code)' ]
+
+  - name: placer-order-number
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "ORC.2")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-extension/EI.yml
+    constants:
+      eiFieldPath: '%{hl7Order}-2'
+
+  - name: filler-order-number
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "ORC.3")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-extension/EI.yml
+    constants:
+      eiFieldPath: '%{hl7Order}-3'
+
+  - name: placer-group-number
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "ORC.4")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-extension/EI.yml
+    constants:
+      eiFieldPath: '%{hl7Order}-4'
+
+  - name: datetime-of-order-event
+    hl7Spec: [ '%{hl7Order}-9' ]
+    resource: '%resource.extension(%`rsext-business-event`)'
+    condition: '%resource.value.ofType(string).exists()'
+    value: [ '%resource.value.ofType(string)' ]
+
+  - name: ordering-provider-from-practitioner
+    condition: '%context.requester.resolve().is(Practitioner) and %context.requester.resolve().extension(%`rsext-hl7v2Field`).value = "ORC.12"'
+    resource: '%resource.requester.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
+    constants:
+      hl7XCNField: '%{hl7Order}-12'
+
+  - name: ordering-provider-from-practitioner-role
+    condition: '%context.requester.resolve().is(PractitionerRole) and %context.requester.resolve().practitioner.resolve().extension(%`rsext-hl7v2Field`).value = "ORC.12"'
+    resource: '%resource.requester.resolve().practitioner.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
+    constants:
+      hl7XCNField: '%{hl7Order}-12'
+
+  - name: call-back-phone-number-ocr
+    condition: '%context.requester.extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Field`).value[%telecomIndex] = "ORC.14"'
+    resource: '%resource.requester.extension(%`rsext-callback-number`).value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
+    resourceIndex: telecomIndex
+    constants:
+      hl7TelecomField: '%{hl7Order}-14'
+
+  - name: ordering-facility-name
+    condition: '%context.requester.resolve().is(PractitionerRole)'
+    resource: '%resource.requester.resolve().organization.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    constants:
+      hl7XONField: '%{hl7Order}-21'
+
+  - name: ordering-facility-address
+    condition: '%context.requester.resolve().is(PractitionerRole)'
+    resource: '%resource.requester.resolve().organization.resolve().address'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
+    constants:
+      xadField: '%{hl7Order}-22'
+
+  - name: ordering-facility-phone-number
+    condition: '%context.requester.resolve().is(PractitionerRole)'
+    resource: '%resource.requester.resolve().organization.resolve().telecom'
+    schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
+    resourceIndex: telecomIndex
+    constants:
+      hl7TelecomField: '%{hl7Order}-23'
+
+  - name: ordering-provider-address-from-practitioner
+    condition: '%context.requester.resolve().is(Practitioner)'
+    resource: '%resource.requester.resolve().address'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
+    constants:
+      xadField: '%{hl7Order}-24'
+
+  - name: ordering-provider-address-from-practitioner-role
+    condition: '%context.requester.resolve().is(PractitionerRole)'
+    resource: '%resource.requester.resolve().practitioner.resolve().address'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
+    constants:
+      xadField: '%{hl7Order}-24'
+
+  - name: order-status-modifier
+    resource: '%resource.extension(%`rsext-status-modifier`).value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7Order}-25(%{cweIndex})'
+
+  - name: order-type
+    resource: '%resource.locationCode'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7Order}-29(%{cweIndex})'
+
+  - name: alternate-placer-order-number
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "ORC.33")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    constants:
+      cxField: '%{hl7Order}-33'
+
+  - name: orc-extension
+    resource: '%resource.extension(%`rsext-orc-common-order`)'
+    schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/ORCExtension.yml
