@@ -9,11 +9,7 @@ dotenvflow.config({
     default_node_env: "test",
 });
 
-const isAdminTesting = Boolean(
-    process.env.TEST_ADMIN_USERNAME ??
-        process.env.TEST_ADMIN_PASSWORD ??
-        process.env.TEST_ADMIN_TOTP_CODE,
-);
+const isAdminTesting = Boolean(process.env.TEST_ADMIN);
 
 /**
  * See https://playwright.dev/docs/test-configuration.
