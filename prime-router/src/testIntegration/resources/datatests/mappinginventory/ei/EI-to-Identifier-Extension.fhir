@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1707497341225396000.cfae8c8c-6810-4c74-920c-7138986e83a2",
+  "id" : "1707518411268964000.f8c7e420-f895-46c5-b4a7-16b96092e60f",
   "meta" : {
-    "lastUpdated" : "2024-02-09T10:49:01.246-06:00"
+    "lastUpdated" : "2024-02-09T16:40:11.290-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -44,16 +44,16 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1707497341669836000.0bfdbba8-8f8e-4fc6-9f0a-9689d76f8e1d",
+      "fullUrl" : "Provenance/1707518411650424000.ca42cfd1-9fde-456b-be66-03d13aa04104",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1707497341669836000.0bfdbba8-8f8e-4fc6-9f0a-9689d76f8e1d",
+        "id" : "1707518411650424000.ca42cfd1-9fde-456b-be66-03d13aa04104",
         "target" : [
           {
             "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
           },
           {
-            "reference" : "DiagnosticReport/1707497341884568000.4736badf-a2f2-4e91-8d7b-e5d6790dde7f"
+            "reference" : "DiagnosticReport/1707518411840434000.5c14bbd1-a554-409c-876d-e713f095da80"
           }
         ],
         "recorded" : "2023-05-01T10:25:31-04:00",
@@ -67,11 +67,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1707497341679211000.24d85a2a-696f-476f-a542-eb16daa45620",
+      "fullUrl" : "Provenance/1707518411658749000.435798dc-80e5-4188-ab99-2ae9a7e0601d",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1707497341679211000.24d85a2a-696f-476f-a542-eb16daa45620",
-        "recorded" : "2024-02-09T10:49:01Z",
+        "id" : "1707518411658749000.435798dc-80e5-4188-ab99-2ae9a7e0601d",
+        "recorded" : "2024-02-09T16:40:11Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -93,17 +93,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1707497341678779000.e1529a1c-2843-435b-bd3d-a372a995c21a"
+              "reference" : "Organization/1707518411658231000.6b50ab09-af2b-4740-99f9-1c5faebfbac6"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1707497341678779000.e1529a1c-2843-435b-bd3d-a372a995c21a",
+      "fullUrl" : "Organization/1707518411658231000.6b50ab09-af2b-4740-99f9-1c5faebfbac6",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1707497341678779000.e1529a1c-2843-435b-bd3d-a372a995c21a",
+        "id" : "1707518411658231000.6b50ab09-af2b-4740-99f9-1c5faebfbac6",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -123,10 +123,10 @@
       }
     },
     {
-      "fullUrl" : "ServiceRequest/1707497341708958000.1ff200cc-8fef-48e7-90b2-54df0fbbed06",
+      "fullUrl" : "ServiceRequest/1707518411676785000.4c5f9e35-2aa1-4c71-915e-95d1b616329a",
       "resource" : {
         "resourceType" : "ServiceRequest",
-        "id" : "1707497341708958000.1ff200cc-8fef-48e7-90b2-54df0fbbed06",
+        "id" : "1707518411676785000.4c5f9e35-2aa1-4c71-915e-95d1b616329a",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
@@ -138,7 +138,7 @@
               {
                 "url" : "obr-16-ordering-provider",
                 "valueReference" : {
-                  "reference" : "Practitioner/1707497341706894000.b906181a-7248-4fe1-a7f1-a2e68dc3a393"
+                  "reference" : "Practitioner/1707518411675612000.b0ade44d-e3c6-4be9-93f3-7c9a75004c1c"
                 }
               }
             ]
@@ -285,15 +285,69 @@
               }
             }
           ],
-          "reference" : "Practitioner/1707497341692336000.7014c7ab-df72-4141-9faa-30560cfd29a9"
+          "reference" : "Practitioner/1707518411667513000.bd28e908-7ef6-4e2b-9aec-a55a3ccceef4"
         }
       }
     },
     {
-      "fullUrl" : "Practitioner/1707497341692336000.7014c7ab-df72-4141-9faa-30560cfd29a9",
+      "fullUrl" : "Practitioner/1707518411667513000.bd28e908-7ef6-4e2b-9aec-a55a3ccceef4",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1707497341692336000.7014c7ab-df72-4141-9faa-30560cfd29a9",
+        "id" : "1707518411667513000.bd28e908-7ef6-4e2b-9aec-a55a3ccceef4",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+            "valueString" : "obr-16-ordering-provider"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "valueString" : "RS.CDC.Stag"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString" : "2.16.840.1.114222.4.3.3.2.1.2"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueCode" : "ISO"
+              }
+            ]
+          }
+        ],
+        "identifier" : [
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
+                      "valueString" : "id-code"
+                    }
+                  ],
+                  "code" : "XX"
+                }
+              ]
+            },
+            "system" : "RS.CDC.Stag",
+            "value" : "SPHL-000025"
+          }
+        ],
+        "name" : [
+          {
+            "family" : "RSDOH Wadsworth Center, Virology Lab"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Practitioner/1707518411675612000.b0ade44d-e3c6-4be9-93f3-7c9a75004c1c",
+      "resource" : {
+        "resourceType" : "Practitioner",
+        "id" : "1707518411675612000.b0ade44d-e3c6-4be9-93f3-7c9a75004c1c",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
@@ -340,60 +394,10 @@
       }
     },
     {
-      "fullUrl" : "Practitioner/1707497341706894000.b906181a-7248-4fe1-a7f1-a2e68dc3a393",
-      "resource" : {
-        "resourceType" : "Practitioner",
-        "id" : "1707497341706894000.b906181a-7248-4fe1-a7f1-a2e68dc3a393",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "RS.CDC.Stag"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString" : "2.16.840.1.114222.4.3.3.2.1.2"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                "valueCode" : "ISO"
-              }
-            ]
-          }
-        ],
-        "identifier" : [
-          {
-            "type" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use",
-                      "valueString" : "id-code"
-                    }
-                  ],
-                  "code" : "XX"
-                }
-              ]
-            },
-            "system" : "RS.CDC.Stag",
-            "value" : "SPHL-000025"
-          }
-        ],
-        "name" : [
-          {
-            "family" : "RSDOH Wadsworth Center, Virology Lab"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "DiagnosticReport/1707497341884568000.4736badf-a2f2-4e91-8d7b-e5d6790dde7f",
+      "fullUrl" : "DiagnosticReport/1707518411840434000.5c14bbd1-a554-409c-876d-e713f095da80",
       "resource" : {
         "resourceType" : "DiagnosticReport",
-        "id" : "1707497341884568000.4736badf-a2f2-4e91-8d7b-e5d6790dde7f",
+        "id" : "1707518411840434000.5c14bbd1-a554-409c-876d-e713f095da80",
         "identifier" : [
           {
             "extension" : [
@@ -462,7 +466,7 @@
         ],
         "basedOn" : [
           {
-            "reference" : "ServiceRequest/1707497341708958000.1ff200cc-8fef-48e7-90b2-54df0fbbed06"
+            "reference" : "ServiceRequest/1707518411676785000.4c5f9e35-2aa1-4c71-915e-95d1b616329a"
           }
         ],
         "status" : "final",
