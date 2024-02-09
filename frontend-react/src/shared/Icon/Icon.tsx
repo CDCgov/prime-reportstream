@@ -1,8 +1,8 @@
 // AutoUpdateFileChromatic
-import React, { HTMLAttributes } from "react";
 import { Icon as OrigIcon } from "@trussworks/react-uswds";
 import { IconProps as OrigIconProps } from "@trussworks/react-uswds/lib/components/Icon/Icon";
 import classNames from "classnames";
+import { HTMLAttributes } from "react";
 
 import rsSprite from "./reportstream-sprite.svg?url";
 
@@ -44,7 +44,7 @@ export type SubcomponentIconProp = IconProps["name"] | JSX.Element;
  * Allows for using icons by their string name instead of importing
  * the Icon class.
  */
-export function Icon({ name, ...props }: IconProps) {
+function Icon({ name, ...props }: IconProps) {
     if (name.startsWith("rs-")) {
         return <RSIcon name={name as RSIconName} {...props} />;
     }

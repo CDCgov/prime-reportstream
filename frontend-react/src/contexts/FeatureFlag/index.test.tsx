@@ -1,14 +1,14 @@
-import { renderApp } from "../../utils/CustomRenderUtils";
 import {
     mockGetSavedFeatureFlags,
     mockStoreFeatureFlags,
 } from "../../utils/__mocks__/SessionStorageTools";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import {
-    featureFlagReducer,
-    useFeatureFlags,
     FeatureFlagActionType,
     FeatureFlagProvider,
+    featureFlagReducer,
+    useFeatureFlags,
 } from "./";
 
 jest.mock("../../config", () => {
@@ -86,7 +86,7 @@ describe("FeatureFlagProvider", () => {
         mockGetSavedFeatureFlags.mockReturnValue(mockSavedFlags);
         renderApp(<FeatureFlagProviderTestRenderer />);
     }
-    test("provides initial state with saved flags and env level flags", async () => {
+    test("provides initial state with saved flags and env level flags", () => {
         setup();
         expect(providerValueMonitor).toHaveBeenCalledTimes(1);
 

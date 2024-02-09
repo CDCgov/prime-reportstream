@@ -1,8 +1,7 @@
-import { mockUseReportDetail } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { RSDelivery } from "../../../config/endpoints/deliveries";
-import { renderApp } from "../../../utils/CustomRenderUtils";
-
 import { DeliveryDetailPage } from "./DeliveryDetail";
+import { RSDelivery } from "../../../config/endpoints/deliveries";
+import { mockUseReportDetail } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 
 const TEST_ID = "test-id-123";
 jest.mock("react-router-dom", () => ({

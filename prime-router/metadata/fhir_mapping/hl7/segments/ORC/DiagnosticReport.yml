@@ -23,7 +23,7 @@ identifier:
       constants:
         code: "PLAC"
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
-        hl7Use: "obr-placer-order-number"
+        hl7v2Field: ORC.2
     - condition: $orc2 NULL && $obr2 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource
@@ -31,7 +31,7 @@ identifier:
       constants:
         code: "PLAC"
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
-        hl7Use: "orc-placer-order-number"
+        hl7v2Field: OBR.2
     - condition: $orc3 NOT_NULL
       valueOf: datatypes/EI/Identifier
       expressionType: resource

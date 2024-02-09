@@ -1,19 +1,18 @@
-import OrgSettingsBaseResource from "../resources/OrgSettingsBaseResource";
-
 import {
+    capitalizeFirst,
+    checkJson,
     formatDate,
     getErrorDetailFromResponse,
     getVersionWarning,
-    splitOn,
-    VersionWarningType,
-    toHumanReadable,
-    capitalizeFirst,
     groupBy,
-    checkJson,
     isValidServiceName,
     parseFileLocation,
+    splitOn,
+    toHumanReadable,
+    VersionWarningType,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
+import OrgSettingsBaseResource from "../resources/OrgSettingsBaseResource";
 
 test("splitOn test", () => {
     const r1 = splitOn("foo", 1);
@@ -70,7 +69,7 @@ const objResource: OrgSettingsBaseResource = {
     createdAt: "1/1/2000 00:00",
 };
 
-test("getVersionWarning test", async () => {
+test("getVersionWarning test", () => {
     const fullWarning = getVersionWarning(VersionWarningType.FULL, objResource);
     expect(fullWarning).toContain(objResource.createdBy);
 
@@ -87,7 +86,7 @@ test("formatDate test", () => {
         ":23", // check the minutes are at least correct
     );
 
-    expect(() => formatDate("bad date")).toThrowError("Invalid time value");
+    expect(() => formatDate("bad date")).toThrow("Invalid time value");
 });
 
 describe("toHumanReadable", () => {
@@ -116,7 +115,7 @@ describe("capitalizeFirst", () => {
     });
 });
 
-describe("groupBy ", () => {
+describe("groupBy", () => {
     test("groupBy basic", () => {
         expect(
             groupBy(

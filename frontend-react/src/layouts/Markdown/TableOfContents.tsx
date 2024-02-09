@@ -1,5 +1,5 @@
-import type { TocEntry } from "remark-mdx-toc";
 import Slugger from "github-slugger";
+import type { TocEntry } from "remark-mdx-toc";
 
 import { USSmartLink } from "../../components/USLink";
 

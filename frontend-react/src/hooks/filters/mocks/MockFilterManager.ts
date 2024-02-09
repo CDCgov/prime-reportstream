@@ -1,12 +1,12 @@
 import { Dispatch } from "react";
 
-import { FilterManager } from "../UseFilterManager";
 import { RangeSettingsAction } from "../UseDateRange";
-import { SortSettingsAction } from "../UseSortOrder";
+import { FilterManager } from "../UseFilterManager";
 import { PageSettingsAction } from "../UsePages";
+import { SortSettingsAction } from "../UseSortOrder";
 
 const fakeDispatch = <T>(): Dispatch<T> => {
-    return (_v: T) => {};
+    return (_v: T) => void 0;
 };
 
 export const mockFilterManager: FilterManager = {
@@ -27,5 +27,5 @@ export const mockFilterManager: FilterManager = {
     updateRange: fakeDispatch<RangeSettingsAction>(),
     updateSort: fakeDispatch<SortSettingsAction>(),
     updatePage: fakeDispatch<PageSettingsAction>(),
-    resetAll: () => {},
+    resetAll: () => void 0,
 };

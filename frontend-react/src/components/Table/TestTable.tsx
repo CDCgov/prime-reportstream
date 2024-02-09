@@ -1,13 +1,12 @@
 import { useEffect, useMemo } from "react";
 
+import Table, { ColumnConfig, TableConfig } from "./Table";
+import TableFilters, { TableFilterDateLabel } from "./TableFilters";
+import { DatasetAction } from "./TableInfo";
 import useCursorManager, {
     CursorActionType,
 } from "../../hooks/filters/UseCursorManager";
 import useFilterManager from "../../hooks/filters/UseFilterManager";
-
-import Table, { ColumnConfig, TableConfig } from "./Table";
-import TableFilters, { TableFilterDateLabel } from "./TableFilters";
-import { DatasetAction } from "./TableInfo";
 
 const testDataRowOne = {
     one: "value one",
@@ -75,7 +74,7 @@ export const TestTable = ({
     };
 
     /* Configuration objects to pass to <Table> */
-    const fakeColumns: Array<ColumnConfig> = [
+    const fakeColumns: ColumnConfig[] = [
         {
             dataAttr: "two",
             columnHeader: "Column Two",

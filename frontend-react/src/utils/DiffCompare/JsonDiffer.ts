@@ -24,11 +24,11 @@ import { jsonSourceMap, SourceMapResult } from "./JsonSourceMap";
  * @param leftData SourceMapResult
  * @return JsonDiffResult addedRightKeys
  */
-export type JsonDiffResult = {
+export interface JsonDiffResult {
     addedLeftKeys: string[];
     addedRightKeys: string[];
     changedKeys: string[];
-};
+}
 
 /**
  * Compare to key paths and determine if the path is a child of the parent.
@@ -118,10 +118,10 @@ const extractLeafNodes = (pathArray: string[]): string[] => {
     return pathArray;
 };
 
-type Marker = {
+interface Marker {
     start: number;
     end: number;
-};
+}
 
 /**
  * Given a list of keys into the json map, produce an array of start/end markers
@@ -185,10 +185,10 @@ const convertNodesToMarkers = (
  * @returns string with the <mark> tags inserted.
  */
 const insertMarks = (jsonStr: string, markers: Marker[]): string => {
-    type MarkerInsert = {
+    interface MarkerInsert {
         pos: number;
         mark: "<mark>" | "</mark>";
-    };
+    }
     // turn into a single MarkerInsert[]. This enables easy back-to-front inserting into string
     // we insert two entries per mark into the accumlator array
     const inserts = markers.reduce(
@@ -226,15 +226,15 @@ const jsonDiffer = (
     const rightKeys = Object.keys(rightData.pointers);
 
     // this is looking for diffs between the two lists.
-    let addedLeftKeys = leftKeys.filter(
+    const addedLeftKeys = leftKeys.filter(
         (key) => key.length && !rightKeys.includes(key),
     );
-    let addedRightKeys = rightKeys.filter(
+    const addedRightKeys = rightKeys.filter(
         (key) => key.length && !leftKeys.includes(key),
     );
 
     // now we want intersection (aka NOT changed and see if the values have changed).
-    let intersectionKeys = leftKeys.filter((key) => rightKeys.includes(key));
+    const intersectionKeys = leftKeys.filter((key) => rightKeys.includes(key));
 
     // for readability improvements only, pull out start/end values
     const getStartEnd = (key: string, data: SourceMapResult) => {

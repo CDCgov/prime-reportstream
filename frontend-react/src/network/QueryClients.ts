@@ -10,7 +10,6 @@ import { Middleware, QueryHook } from "react-query-kit";
 export const config = {
     defaultOptions: {
         queries: {
-            suspense: true,
             throwOnError: true,
             retry: false,
             staleTime: Infinity,

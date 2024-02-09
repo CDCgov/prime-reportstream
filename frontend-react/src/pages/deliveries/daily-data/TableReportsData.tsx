@@ -1,9 +1,8 @@
 import moment from "moment";
 
-import ReportResource from "../../../resources/ReportResource";
-import { USLink } from "../../../components/USLink";
-
 import ReportLink from "./ReportLink";
+import { USLink } from "../../../components/USLink";
+import ReportResource from "../../../resources/ReportResource";
 
 interface Props {
     /* REQUIRED
@@ -30,12 +29,14 @@ function TableReportsData(props: Props) {
                         </USLink>
                     </th>
                     <th scope="row">
+                        {/* eslint-disable-next-line import/no-named-as-default-member */}
                         {moment
                             .utc(report.sent)
                             .local()
                             .format("YYYY-MM-DD HH:mm")}
                     </th>
                     <th scope="row">
+                        {/* eslint-disable-next-line import/no-named-as-default-member */}
                         {moment
                             .utc(report.expires)
                             .local()

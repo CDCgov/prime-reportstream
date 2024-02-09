@@ -1,13 +1,13 @@
-import React, {
+import { uniq } from "lodash";
+import {
     createContext,
-    useCallback,
-    useContext,
-    useReducer,
-    useMemo,
     Dispatch,
     PropsWithChildren,
+    useCallback,
+    useContext,
+    useMemo,
+    useReducer,
 } from "react";
-import { uniq } from "lodash";
 
 import config from "../../config";
 import {
@@ -33,9 +33,9 @@ interface FeatureFlagContextValues {
     featureFlags: string[];
 }
 
-type FeatureFlagState = {
+interface FeatureFlagState {
     featureFlags: string[];
-};
+}
 
 const { DEFAULT_FEATURE_FLAGS } = config;
 
@@ -44,7 +44,7 @@ const FeatureFlagContext = createContext<FeatureFlagContextValues>({
         const arr = Array.isArray(flags) ? flags : [flags];
         return !!DEFAULT_FEATURE_FLAGS.find((el) => arr.includes(el));
     },
-    dispatch: () => {},
+    dispatch: () => void 0,
     featureFlags: DEFAULT_FEATURE_FLAGS,
 });
 
@@ -74,7 +74,9 @@ export const featureFlagReducer = (
     }
 };
 
-export const FeatureFlagProvider = ({ children }: PropsWithChildren<{}>) => {
+export const FeatureFlagProvider = ({
+    children,
+}: PropsWithChildren<object>) => {
     // reducer manages per user feature flags only
     const [{ featureFlags }, dispatch] = useReducer(featureFlagReducer, {
         featureFlags: getSavedFeatureFlags(),

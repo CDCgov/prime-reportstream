@@ -30,7 +30,7 @@ export interface RSOrganizationSettings {
 
 interface SenderKeys {
     scope: string;
-    keys: {}[];
+    keys: object[];
 }
 
 export interface RSSender extends RSService {
@@ -50,7 +50,7 @@ export interface RSSender extends RSService {
     version?: number;
 }
 
-export interface RSReceiver extends RSService {}
+export type RSReceiver = RSService;
 
 export interface ApiKey {
     kty: string;
