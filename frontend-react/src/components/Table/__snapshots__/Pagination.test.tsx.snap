@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Pagination Renders the expected markup when the current page is between two other pages 1`] = `
+exports[`Pagination > Renders the expected markup when the current page is between two other pages 1`] = `
 <DocumentFragment>
   <nav
     aria-label="Pagination"
@@ -149,7 +149,7 @@ exports[`Pagination Renders the expected markup when the current page is between
 </DocumentFragment>
 `;
 
-exports[`Pagination Renders the expected markup when the current page is the last page 1`] = `
+exports[`Pagination > Renders the expected markup when the current page is the last page 1`] = `
 <DocumentFragment>
   <nav
     aria-label="Pagination"

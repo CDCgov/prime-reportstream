@@ -15,7 +15,7 @@
         "isolatedModules": true,
         "noEmit": true,
         "jsx": "react-jsx",
-        "types": ["jest", "mdx", "vite/client"],
+        "types": ["vitest/globals", "mdx", "vite/client"],
         "noImplicitAny": true,
         "inlineSourceMap": true,
     },

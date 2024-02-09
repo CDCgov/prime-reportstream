@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+
 import { resolve } from "path";
 
 import { defineConfig, loadEnv } from "vite";
@@ -46,7 +48,7 @@ function loadRedirectedEnv(mode: string) {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(async ({ mode, isPreview }) => {
+export default defineConfig(async ({ mode }) => {
     const env = loadRedirectedEnv(mode);
     const isCsp = mode === "csp";
     const port = getPort(mode);
@@ -123,6 +125,23 @@ export default defineConfig(async ({ mode, isPreview }) => {
                 },
             },
             devSourcemap: true,
+        },
+        test: {
+            globals: true,
+            environment: "jsdom",
+            setupFiles: "./src/setupTests.ts",
+            include: [
+                "./src/**/__tests__/**/*.[jt]s?(x)",
+                "./src/**/?(*.)+(spec|test).[jt]s?(x)",
+            ],
+            css: false,
+            coverage: {
+                include: ["src/**/*.{js,jsx,ts,tsx}", "!src/**/*.d.ts"],
+                provider: "istanbul",
+                all: false,
+                reporter: ["clover", "json", "lcov", "text"],
+            },
+            clearMocks: true, // TODO: re-evalulate this setting
         },
     };
 });
