@@ -32,6 +32,22 @@ elements:
     condition: '%resource.value.ofType(string).exists()'
     value: [ '%resource.value.ofType(string)' ]
 
+  - name: ordering-provider-from-practitioner
+    condition: '%context.requester.resolve().is(Practitioner) and %context.requester.resolve().extension(%`rsext-hl7v2Name`).value = "orc-12-ordering-provider"'
+    resource: '%resource.requester.resolve().union(%resource.extension(%`rsext-orc-common-order`).extension.where(url = "orc-12-ordering-provider").tail().value.resolve())'
+    schema: ../Practitioner/XCN
+    constants:
+      hl7XCNField: '%{hl7Order}-12(%{xcnIndex})'
+    resourceIndex: xcnIndex
+
+  - name: ordering-provider-from-practitioner-role
+    condition: '%context.requester.resolve().is(PractitionerRole) and %context.requester.resolve().practitioner.resolve().extension(%`rsext-hl7v2Name`).value = "orc-12-ordering-provider"'
+    resource: '%resource.requester.resolve().practitioner.resolve().union(%resource.extension(%`rsext-orc-common-order`).extension.where(url = "orc-12-ordering-provider").tail().value.resolve())'
+    schema: ../Practitioner/XCN
+    constants:
+      hl7XCNField: '%{hl7Order}-12(%{xcnIndex})'
+    resourceIndex: xcnIndex
+
   - name: call-back-phone-number-ocr
     condition: '%context.requester.extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Name`).value[%telecomIndex] = "orc-14-callback-phone-number"'
     resource: '%resource.requester.extension(%`rsext-callback-number`).value'
@@ -40,6 +56,22 @@ elements:
     constants:
       hl7TelecomField: '%{hl7Order}-14'
 
+  - name: ordering-facility-name
+    condition: '%context.requester.resolve().is(PractitionerRole)'
+    resource: '%resource.requester.resolve().organization.resolve().union(%resource.extension(%`rsext-orc-common-order`).extension.where(url = "orc-21-ordering-facility-name").tail().value.resolve())'
+    schema: ../Organization/XON
+    constants:
+      hl7XONField: '%{hl7Order}-21(%{xonIndex})'
+    resourceIndex: xonIndex
+
+  - name: ordering-facility-address
+    condition: '%context.requester.resolve().is(PractitionerRole)'
+    resource: '%resource.requester.resolve().organization.resolve().address.union(%resource.extension(%`rsext-orc-common-order`).extension.where(url = "orc-22-ordering-facility-address").tail().value)'
+    schema: ../../datatypes/Address/XAD
+    constants:
+      xadField: '%{hl7Order}-22(%{xadIndex})'
+    resourceIndex: xadIndex
+
   - name: ordering-facility-phone-number
     condition: '%context.requester.resolve().is(PractitionerRole)'
     resource: '%resource.requester.resolve().organization.resolve().telecom'
@@ -47,6 +79,22 @@ elements:
     resourceIndex: telecomIndex
     constants:
       hl7TelecomField: '%{hl7Order}-23'
+
+  - name: ordering-provider-address-from-practitioner
+    condition: '%context.requester.resolve().is(Practitioner)'
+    resource: '%resource.requester.resolve().address.union(%resource.extension(%`rsext-orc-common-order`).extension.where(url = "orc-24-ordering-provider-address").tail().value)'
+    schema: ../../datatypes/Address/XAD
+    constants:
+      xadField: '%{hl7Order}-24(%{xadIndex})'
+    resourceIndex: xadIndex
+
+  - name: ordering-provider-address-from-practitioner-role
+    condition: '%context.requester.resolve().is(PractitionerRole)'
+    resource: '%resource.requester.resolve().practitioner.resolve().address.union(%resource.extension(%`rsext-orc-common-order`).extension.where(url = "orc-24-ordering-provider-address").tail().value)'
+    schema: ../../datatypes/Address/XAD
+    constants:
+      xadField: '%{hl7Order}-24(%{xadIndex})'
+    resourceIndex: xadIndex
 
   - name: order-status-modifier
     resource: '%resource.extension(%`rsext-status-modifier`).value'

@@ -27,13 +27,6 @@ elements:
       hl7XCNField: '%{hl7Order}-11(%{xcnIndex})'
     resourceIndex: xcnIndex
 
-  - name: ordering-provider
-    resource: '%resource.extension.where(url = "orc-12-ordering-provider").value.resolve()'
-    schema: ../Practitioner/XCN
-    constants:
-      hl7XCNField: '%{hl7Order}-12(%{xcnIndex})'
-    resourceIndex: xcnIndex
-
   - name: enterers-location
     resource: '%resource.extension.where(url = "orc-13-enterers-location").value.resolve()'
     schema: ../Location/PL/PL
@@ -64,27 +57,6 @@ elements:
     constants:
       hl7XCNField: '%{hl7Order}-19(%{xcnIndex})'
     resourceIndex: xcnIndex
-
-  - name: ordering-facility-name
-    resource: '%resource.extension.where (url = "orc-21-ordering-facility-name").value.resolve()'
-    schema: ../Organization/XON
-    constants:
-      hl7XONField: '%{hl7Order}-21(%{xonIndex})'
-    resourceIndex: xonIndex
-
-  - name: ordering-facility-address
-    resource: '%resource.extension.where (url = "orc-22-ordering-facility-address").value'
-    schema: ../../datatypes/Address/XAD
-    constants:
-      xadField: '%{hl7Order}-22(%{xadIndex})'
-    resourceIndex: xadIndex
-
-  - name: ordering-provider-address
-    resource: '%resource.extension.where (url = "orc-24-ordering-provider-address").value'
-    schema: ../../datatypes/Address/XAD
-    constants:
-      xadField: '%{hl7Order}-24(%{xadIndex})'
-    resourceIndex: xadIndex
 
   - name: order-status
     hl7Spec: [ '%{hl7Order}-27' ]

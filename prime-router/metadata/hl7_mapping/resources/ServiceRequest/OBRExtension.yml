@@ -36,13 +36,6 @@ elements:
     value: [ '%resource.extension.where(url = "obr-13-clinical-information").value' ]
     hl7Spec: [ '%{obrFieldPath}-13' ]
 
-  - name: ordering-provider-from-extension
-    resource: '%resource.extension.where(url = "obr-16-ordering-provider").value.resolve()'
-    schema: ../Practitioner/XCN
-    constants:
-      hl7XCNField: '%{obrFieldPath}-16(%{xcnIndex})'
-    resourceIndex: xcnIndex
-
   - name: call-back-phone-number-obr-from-extension
     condition: '%context.requester.where(extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Name`).value[%telecomIndex] = "obr-17-order-callback-phone-number").exists().not()'
     resource: '%resource.extension.where(url = "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number").value'

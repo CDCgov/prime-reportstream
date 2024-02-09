@@ -30,6 +30,30 @@ elements:
     value: [ '%resource.occurrence.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{obrFieldPath}-6' ]
 
+  - name: ordering-provider-from-practitioner
+    condition: '%context.requester.resolve().is(Practitioner) and %context.requester.resolve().extension(%`rsext-hl7v2Name`).value = "obr-16-ordering-provider"'
+    resource: '%resource.requester.resolve().union(%resource.extension(%`rsext-obr-observation-request`).extension.where(url = "obr-16-ordering-provider").tail().value.resolve())'
+    schema: ../Practitioner/XCN
+    constants:
+      hl7XCNField: '%{obrFieldPath}-16(%{xcnIndex})'
+    resourceIndex: xcnIndex
+
+  - name: ordering-provider-from-practitionerrole
+    condition: '%context.requester.resolve().is(PractitionerRole) and %context.requester.resolve().practitioner.resolve().extension(%`rsext-hl7v2Name`).value = "obr-16-ordering-provider"'
+    resource: '%resource.requester.resolve().practitioner.resolve().union(%resource.extension(%`rsext-obr-observation-request`).extension.where(url = "obr-16-ordering-provider").tail().value.resolve())'
+    schema: ../Practitioner/XCN
+    constants:
+      hl7XCNField: '%{obrFieldPath}-16(%{xcnIndex})'
+    resourceIndex: xcnIndex
+
+  - name: ordering-provider-from-extension
+    condition: '(%context.requester.resolve().is(Practitioner) and %context.requester.resolve().extension(%`rsext-hl7v2Name`).value != "obr-16-ordering-provider") or (%context.requester.resolve().is(PractitionerRole) and %context.requester.resolve().practitioner.resolve().extension(%`rsext-hl7v2Name`).value != "obr-16-ordering-provider")'
+    resource: '%resource.extension(%`rsext-obr-observation-request`).extension.where(url = "obr-16-ordering-provider").value.resolve()'
+    schema: ../Practitioner/XCN
+    constants:
+      hl7XCNField: '%{obrFieldPath}-16(%{xcnIndex})'
+    resourceIndex: xcnIndex
+
   - name: call-back-phone-number-obr
     condition: '%context.requester.extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Name`).value[%telecomIndex] = "obr-17-order-callback-phone-number"'
     resource: '%resource.requester.extension(%`rsext-callback-number`).value'

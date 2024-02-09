@@ -212,6 +212,8 @@ requester:
           specs: OBR.16
           vars:
             XADAddress: ORC.24
+          constants:
+            XCNHL7Use: obr-16-ordering-provider
 
 _requester:
   vars:
