@@ -46,3 +46,9 @@ jobs:
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.pre_job.outputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          test-admin-user: ${{ secrets.TEST_ADMIN_USERNAME }}
+          test-admin-password: ${{ secrets.TEST_ADMIN_PASSWORD }}
+          test-sender-user: ${{ secrets.TEST_SENDER_USERNAME }}
+          test-sender-password: ${{ secrets.TEST_SENDER_PASSWORD }}
+          test-receiver-user: ${{ secrets.TEST_RECEIVER_USERNAME }}
+          test-receiver-password: ${{ secrets.TEST_RECEIVER_PASSWORD }}
