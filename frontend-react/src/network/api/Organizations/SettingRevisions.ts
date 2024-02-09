@@ -1,11 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 import {
     HTTPMethods,
     RSApiEndpoints,
     RSEndpoint,
 } from "../../../config/endpoints";
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 
 /** shape of data returned **/
 export interface SettingRevision {
@@ -41,7 +41,7 @@ export const useSettingRevisionEndpointsQuery = (
     const authorizedFetch = useAuthorizedFetch<SettingRevision[]>();
 
     // get all lookup tables in order to get metadata
-    return useQuery({
+    return useSuspenseQuery({
         queryKey: ["history", params.org, params.settingType],
         queryFn: async () =>
             authorizedFetch(settingRevisionEndpoints.getList, {

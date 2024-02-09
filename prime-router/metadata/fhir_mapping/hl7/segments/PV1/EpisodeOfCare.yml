@@ -24,9 +24,9 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7-use
+          value: hl7v2Field
         valueString:
-          value: 'service-episode'
+          value: PV1.54
     - expressionType: nested
       expressionsMap:
         url:

@@ -81,7 +81,10 @@ interface ReportIdentifyingInformation {
     val topic: Topic
 }
 
-abstract class ReportPipelineMessage : ReportIdentifyingInformation, WithDownloadableReport, QueueMessage()
+abstract class ReportPipelineMessage :
+    ReportIdentifyingInformation,
+    WithDownloadableReport,
+    QueueMessage()
 
 @JsonTypeName("convert")
 data class FhirConvertQueueMessage(

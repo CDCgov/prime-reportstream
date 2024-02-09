@@ -1,11 +1,11 @@
 import { useCallback, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 import {
     Organizations,
     useAdminSafeOrganizationName,
 } from "../../UseAdminSafeOrganizationName";
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 import {
     deliveriesEndpoints,
     RSDelivery,
@@ -14,7 +14,7 @@ import {
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../filters/UseFilterManager";
-import { useSessionContext } from "../../../contexts/SessionContext";
+import { useSessionContext } from "../../../contexts/Session";
 
 const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
     deliveriesEndpoints;
@@ -107,12 +107,11 @@ const useReportsDetail = (id: string) => {
             }),
         [authorizedFetch, id],
     );
-    return useQuery({
+    return useSuspenseQuery({
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
         queryKey: [getDeliveryDetails.queryKey, id],
         queryFn: memoizedDataFetch,
-        enabled: !!id,
     });
 };
 
@@ -122,21 +121,21 @@ const useReportsDetail = (id: string) => {
  * */
 const useReportsFacilities = (id: string) => {
     const authorizedFetch = useAuthorizedFetch<RSFacility[]>();
-    const memoizedDataFetch = useCallback(
-        () =>
-            authorizedFetch(getDeliveryFacilities, {
+    const memoizedDataFetch = useCallback(() => {
+        if (!!id) {
+            return authorizedFetch(getDeliveryFacilities, {
                 segments: {
                     id: id,
                 },
-            }),
-        [authorizedFetch, id],
-    );
-    return useQuery({
+            });
+        }
+        return null;
+    }, [authorizedFetch, id]);
+    return useSuspenseQuery({
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
         queryKey: [getDeliveryFacilities.queryKey, id],
         queryFn: memoizedDataFetch,
-        enabled: !!id,
     });
 };
 

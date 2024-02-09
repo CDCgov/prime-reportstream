@@ -2,7 +2,7 @@
 import React from "react";
 import { withRouter } from "storybook-addon-react-router-v6";
 
-import SessionProvider from "../../contexts/SessionContext";
+import SessionProvider from "../../contexts/Session";
 import { OKTA_AUTH } from "../../oktaConfig";
 import config from "../../config";
 

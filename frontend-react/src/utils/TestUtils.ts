@@ -17,34 +17,3 @@ export const mockEvent = (mock?: Partial<any>) => {
         response: mock?.response || null,
     };
 };
-
-export function conditionallySuppressConsole(...matchers: string[]) {
-    const origConsole = jest.requireActual("console");
-    const jestError = jest
-        .spyOn(origConsole, "error")
-        .mockImplementation((message: any) => {
-            if (
-                !matchers.find((matcher) =>
-                    message.toString().includes(matcher),
-                )
-            ) {
-                origConsole.error(message);
-            }
-        });
-    const jestWarn = jest
-        .spyOn(origConsole, "warn")
-        .mockImplementation((message: any) => {
-            if (
-                !matchers.find((matcher) =>
-                    message.toString().includes(matcher),
-                )
-            ) {
-                origConsole.warn(message);
-            }
-        });
-
-    return () => {
-        jestError.mockRestore();
-        jestWarn.mockRestore();
-    };
-}

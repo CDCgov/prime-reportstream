@@ -1,7 +1,7 @@
 import { act, waitFor } from "@testing-library/react";
-import range from "lodash.range";
+import { range } from "lodash";
 
-import * as AppInsightsContext from "../contexts/AppInsightsContext";
+import * as AppInsightsContext from "../contexts/AppInsights";
 import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
 import { renderHook } from "../utils/CustomRenderUtils";
 
@@ -476,7 +476,9 @@ describe("usePagination", () => {
         await waitFor(() =>
             expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61),
         );
-        expect(result.current.paginationProps?.currentPageNum).toBe(1);
+        await waitFor(() =>
+            expect(result.current.paginationProps?.currentPageNum).toBe(1),
+        );
         expect(result.current.paginationProps?.slots).toStrictEqual([
             1, 2, 3, 4,
         ]);

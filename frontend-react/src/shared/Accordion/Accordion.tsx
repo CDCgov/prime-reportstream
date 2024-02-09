@@ -1,5 +1,5 @@
 import { Accordion as OrigAccordion } from "@trussworks/react-uswds";
-import { useId } from "react";
+import { ComponentProps, useId } from "react";
 import { useLocation } from "react-router";
 import classNames from "classnames";
 
@@ -26,8 +26,7 @@ function appendHashToURL(hash: string) {
     }
 }
 
-export interface AccordionProps
-    extends React.ComponentProps<typeof OrigAccordion> {
+export interface AccordionProps extends ComponentProps<typeof OrigAccordion> {
     isAlternate?: boolean;
 }
 

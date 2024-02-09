@@ -1,5 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.CodeStringConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
@@ -26,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
@@ -94,7 +98,8 @@ class GetFilterTests {
         qualityFilter = listOf("testQual"),
         routingFilter = listOf("testRouting"),
         processingModeFilter = listOf("testProcMode"),
-        conditionFilter = listOf("testCondition")
+        conditionFilter = listOf("testCondition"),
+        mappedConditionFilter = listOf(CodeStringConditionFilter("1234"))
     )
 
     private val orgFilters = listOf(
@@ -245,13 +250,13 @@ class GetFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         var filters = engine.getQualityFilters(fullElrReceiverNoFilters, emptyList())
-        assert(filters === engine.qualityFilterDefaults[Topic.FULL_ELR])
+        assertTrue(filters.isEmpty())
 
         filters = engine.getQualityFilters(etorTiReceiverNoFilters, emptyList())
-        assert(filters === engine.qualityFilterDefaults[Topic.ETOR_TI])
+        assertTrue(filters.isEmpty())
 
         filters = engine.getQualityFilters(elrElimsReceiverNoFilters, emptyList())
-        assert(filters === engine.qualityFilterDefaults[Topic.ELR_ELIMS])
+        assertTrue(filters.isEmpty())
     }
 
     @Test
@@ -356,10 +361,10 @@ class GetFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         var filters = engine.getProcessingModeFilter(fullElrReceiverNoFilters, emptyList())
-        assert(filters === engine.processingModeDefaults[Topic.FULL_ELR])
+        assertTrue(filters.isEmpty())
 
         filters = engine.getProcessingModeFilter(etorTiReceiverNoFilters, emptyList())
-        assert(filters === engine.processingModeDefaults[Topic.ETOR_TI])
+        assertTrue(filters.isEmpty())
     }
 
     @Test
@@ -411,5 +416,21 @@ class GetFilterTests {
         val filters = engine.getConditionFilter(receiverWithFilters, orgFilters)
         assert(filters.size == 1)
         assert(filters.any { it == receiverWithFilters.conditionFilter[0] })
+    }
+
+    @Test
+    fun `test getMappedConditionFilter`() {
+        val settings = FileSettings().loadOrganizations(orgNoFilters)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+
+        val filters = engine.getMappedConditionFilter(receiverWithFilters, orgFilters)
+        assert(filters.size == 1)
+        assert(filters.any { it == receiverWithFilters.mappedConditionFilter[0] })
+    }
+
+    @Test
+    fun `test CodeStringConditionFilter parse`() {
+        val filter = CodeStringConditionFilter("c1,c2, c3,c4 , c 5 ")
+        assertThat(filter.codes()).isEqualTo(listOf("c1", "c2", "c3", "c4", "c 5"))
     }
 }

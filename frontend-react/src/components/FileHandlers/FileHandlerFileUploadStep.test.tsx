@@ -1,5 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Suspense } from "react";
 
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import {
@@ -29,11 +30,6 @@ import FileHandlerFileUploadStep, {
     getClientHeader,
 } from "./FileHandlerFileUploadStep";
 
-jest.mock("../AlertNotifications", () => ({
-    ...jest.requireActual("../AlertNotifications"),
-    showError: jest.fn(),
-}));
-
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
         ...INITIAL_STATE,
@@ -56,24 +52,6 @@ describe("FileHandlerFileUploadStep", () => {
         } as UseSenderResourceHookResult);
     }
 
-    describe("when the Sender details are still loading", () => {
-        function setup() {
-            mockUseSenderResource({
-                isInitialLoading: true,
-                isLoading: true,
-            });
-            mockSessionContentReturnValue();
-            mockAppInsightsContextReturnValue();
-
-            renderApp(<FileHandlerFileUploadStep {...DEFAULT_PROPS} />);
-        }
-
-        test("renders the spinner", () => {
-            setup();
-            expect(screen.getByTestId("rs-spinner")).toBeVisible();
-        });
-    });
-
     describe("when the Sender details have been loaded", () => {
         beforeEach(() => {
             mockUseSenderResource({
@@ -87,20 +65,24 @@ describe("FileHandlerFileUploadStep", () => {
         describe("when a CSV schema is chosen", () => {
             function setup() {
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        selectedSchemaOption={{
-                            format: FileType.CSV,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            selectedSchemaOption={{
+                                format: FileType.CSV,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                        />
+                    </Suspense>,
                 );
             }
 
-            test("renders the CSV-specific text", () => {
+            test("renders the CSV-specific text", async () => {
                 setup();
-                expect(screen.getByText("Upload CSV file")).toBeVisible();
+                await waitFor(() =>
+                    expect(screen.getByText("Upload CSV file")).toBeVisible(),
+                );
                 expect(
                     screen.getByText(
                         "Make sure your file has a .csv extension",
@@ -112,22 +94,26 @@ describe("FileHandlerFileUploadStep", () => {
         describe("when an HL7 schema is chosen", () => {
             function setup() {
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        selectedSchemaOption={{
-                            format: FileType.HL7,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            selectedSchemaOption={{
+                                format: FileType.HL7,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                        />
+                    </Suspense>,
                 );
             }
 
-            test("renders the HL7-specific text", () => {
+            test("renders the HL7-specific text", async () => {
                 setup();
-                expect(
-                    screen.getByText("Upload HL7 v2.5.1 file"),
-                ).toBeVisible();
+                await waitFor(() =>
+                    expect(
+                        screen.getByText("Upload HL7 v2.5.1 file"),
+                    ).toBeVisible(),
+                );
                 expect(
                     screen.getByText(
                         "Make sure your file has a .hl7 extension",
@@ -140,15 +126,17 @@ describe("FileHandlerFileUploadStep", () => {
             const onFileChangeSpy = jest.fn();
             async function setup() {
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        selectedSchemaOption={{
-                            format: FileType.CSV,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                        onFileChange={onFileChangeSpy}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            selectedSchemaOption={{
+                                format: FileType.CSV,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                            onFileChange={onFileChangeSpy}
+                        />
+                    </Suspense>,
                 );
 
                 await waitFor(async () => {
@@ -181,24 +169,28 @@ describe("FileHandlerFileUploadStep", () => {
                 } as any);
 
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        selectedSchemaOption={{
-                            format: FileType.CSV,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            selectedSchemaOption={{
+                                format: FileType.CSV,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                        />
+                    </Suspense>,
                 );
             }
 
-            test("renders the loading message", () => {
+            test("renders the loading message", async () => {
                 setup();
-                expect(
-                    screen.getByText(
-                        "Checking your file for any errors that will prevent your data from being reported successfully...",
-                    ),
-                ).toBeVisible();
+                await waitFor(() =>
+                    expect(
+                        screen.getByText(
+                            "Checking your file for any errors that will prevent your data from being reported successfully...",
+                        ),
+                    ).toBeVisible(),
+                );
             });
         });
 
@@ -216,18 +208,20 @@ describe("FileHandlerFileUploadStep", () => {
                 } as any);
 
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        isValid
-                        selectedSchemaOption={{
-                            format: FileType.CSV,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                        fileContent="whatever"
-                        onFileSubmitSuccess={onFileSubmitSuccessSpy}
-                        onNextStepClick={onNextStepClickSpy}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            isValid
+                            selectedSchemaOption={{
+                                format: FileType.CSV,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                            fileContent="whatever"
+                            onFileSubmitSuccess={onFileSubmitSuccessSpy}
+                            onNextStepClick={onNextStepClickSpy}
+                        />
+                    </Suspense>,
                 );
 
                 await waitFor(async () => {
@@ -291,17 +285,19 @@ describe("FileHandlerFileUploadStep", () => {
                         }),
                 } as any);
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        isValid
-                        selectedSchemaOption={{
-                            format: FileType.CSV,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                        fileContent="whatever"
-                        onFileSubmitError={onFileSubmitErrorSpy}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            isValid
+                            selectedSchemaOption={{
+                                format: FileType.CSV,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                            fileContent="whatever"
+                            onFileSubmitError={onFileSubmitErrorSpy}
+                        />
+                    </Suspense>,
                 );
 
                 await waitFor(async () => {

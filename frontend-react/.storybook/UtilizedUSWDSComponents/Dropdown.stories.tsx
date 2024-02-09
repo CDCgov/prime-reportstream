@@ -1,12 +1,12 @@
 import { Dropdown, Label } from "@trussworks/react-uswds";
-import React from "react";
+import React, { ReactElement } from "react";
 
 export default {
     title: "Components/Dropdown",
     component: "Dropdown",
 };
 
-export const defaultDropdown = (): React.ReactElement => (
+export const defaultDropdown = (): ReactElement => (
     <Dropdown id="input-dropdown" name="input-dropdown">
         <option>- Select - </option>
         <option value="value1">Option A</option>
@@ -15,7 +15,7 @@ export const defaultDropdown = (): React.ReactElement => (
     </Dropdown>
 );
 
-export const withDefaultValue = (): React.ReactElement => (
+export const withDefaultValue = (): ReactElement => (
     <Dropdown id="input-dropdown" name="input-dropdown" defaultValue="value2">
         <option>- Select - </option>
         <option value="value1">Option A</option>
@@ -24,7 +24,7 @@ export const withDefaultValue = (): React.ReactElement => (
     </Dropdown>
 );
 
-export const withLabel = (): React.ReactElement => (
+export const withLabel = (): ReactElement => (
     <>
         <Label htmlFor="options">Dropdown label</Label>
         <Dropdown id="input-dropdown" name="input-dropdown">
@@ -36,7 +36,7 @@ export const withLabel = (): React.ReactElement => (
     </>
 );
 
-export const disabled = (): React.ReactElement => (
+export const disabled = (): ReactElement => (
     <Dropdown id="input-dropdown" name="input-dropdown" disabled>
         <option>- Select - </option>
         <option value="value1">Option A</option>

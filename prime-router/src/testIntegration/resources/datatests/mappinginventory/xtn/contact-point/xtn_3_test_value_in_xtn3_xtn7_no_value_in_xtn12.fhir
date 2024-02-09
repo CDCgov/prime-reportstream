@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1704841396782495000.1f58a0e5-b834-411e-ad3f-e8590d54b730",
+  "id" : "1707330411776385000.a6987951-83f8-494f-bee5-a394edcf8a40",
   "meta" : {
-    "lastUpdated" : "2024-01-09T15:03:16.797-08:00"
+    "lastUpdated" : "2024-02-07T13:26:51.782-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "12345"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T07:25:31.000-07:00",
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
@@ -22,12 +22,17 @@
             "valueString" : "^~\\&#"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
-            "valueString" : "20230501102531-0400"
-          },
-          {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
             "valueString" : "UNICODE UTF-8"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+            "extension" : [
+              {
+                "url" : "MSH.7",
+                "valueString" : "20230501102531-0400"
+              }
+            ]
           }
         ],
         "eventCoding" : {
@@ -36,7 +41,7 @@
           "display" : "ORU^R01^ORU_R01"
         },
         "sender" : {
-          "reference" : "Organization/1704841396860910000.4f798167-9c22-40f2-9529-1c337ee50aa8"
+          "reference" : "Organization/1707330411825093000.d1f52575-578b-4094-be2d-9e25b542b13e"
         },
         "source" : {
           "_endpoint" : {
@@ -51,10 +56,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1704841396860910000.4f798167-9c22-40f2-9529-1c337ee50aa8",
+      "fullUrl" : "Organization/1707330411825093000.d1f52575-578b-4094-be2d-9e25b542b13e",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1704841396860910000.4f798167-9c22-40f2-9529-1c337ee50aa8",
+        "id" : "1707330411825093000.d1f52575-578b-4094-be2d-9e25b542b13e",
         "address" : [
           {
             "country" : "USA"
@@ -63,31 +68,38 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1704841397150649000.a6cdd831-e8da-4b93-a7ee-6310445ad2f7",
+      "fullUrl" : "Provenance/1707330412158237000.772b92f1-4581-4dd0-afc5-3557f925ac5b",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1704841397150649000.a6cdd831-e8da-4b93-a7ee-6310445ad2f7",
+        "id" : "1707330412158237000.772b92f1-4581-4dd0-afc5-3557f925ac5b",
+        "target" : [
+          {
+            "reference" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b"
+          }
+        ],
         "recorded" : "2023-05-01T10:25:31-04:00",
-        "_recorded" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20230501102531-0400"
-            }
-          ]
-        },
         "activity" : {
           "coding" : [
             {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-              "code" : "R01",
-              "display" : "ORU_R01"
+              "display" : "ORU^R01^ORU_R01"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1707330412166101000.4ca9fedc-cf35-4343-8df0-653d077de222",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1707330412166101000.4ca9fedc-cf35-4343-8df0-653d077de222",
+        "recorded" : "2024-02-07T13:26:52Z",
+        "policy" : [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
+        "activity" : {
+          "coding" : [
+            {
+              "code" : "v2-FHIR transformation"
             }
           ]
         },
@@ -96,72 +108,74 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-                  "code" : "author"
+                  "code" : "assembler"
                 }
               ]
-            }
-          }
-        ],
-        "entity" : [
-          {
-            "role" : "source",
-            "what" : {
-              "reference" : "Device/1704841397153344000.74b643b6-ca21-43aa-a3e3-e5a7149386f7"
+            },
+            "who" : {
+              "reference" : "Organization/1707330412165469000.1484d285-daad-4e7a-bf0b-962fb71f8e31"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1704841397153344000.74b643b6-ca21-43aa-a3e3-e5a7149386f7",
+      "fullUrl" : "Organization/1707330412165469000.1484d285-daad-4e7a-bf0b-962fb71f8e31",
       "resource" : {
-        "resourceType" : "Device",
-        "id" : "1704841397153344000.74b643b6-ca21-43aa-a3e3-e5a7149386f7"
+        "resourceType" : "Organization",
+        "id" : "1707330412165469000.1484d285-daad-4e7a-bf0b-962fb71f8e31",
+        "identifier" : [
+          {
+            "value" : "CDC PRIME - Atlanta"
+          },
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.237821"
+          }
+        ]
       }
     },
     {
-      "fullUrl" : "RelatedPerson/1704841397175966000.50d8805a-3ff0-4c08-9746-1a94be7cbc2a",
+      "fullUrl" : "Patient/1707330412183788000.bfeeae82-b5a3-434a-aed5-e2bfd5885bd4",
       "resource" : {
-        "resourceType" : "RelatedPerson",
-        "id" : "1704841397175966000.50d8805a-3ff0-4c08-9746-1a94be7cbc2a",
-        "extension" : [
+        "resourceType" : "Patient",
+        "id" : "1707330412183788000.bfeeae82-b5a3-434a-aed5-e2bfd5885bd4",
+        "contact" : [
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-            "valueString" : "NK1"
-          }
-        ],
-        "patient" : {
-          "reference" : "Patient/1704841397170055000.2b75a9b4-fe5a-455b-a040-e748bd7a1e66"
-        },
-        "telecom" : [
-          {
-            "extension" : [
+            "name" : {},
+            "telecom" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-                "valueString" : "next-of-kin-telecomm-info"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
-                "valueString" : "test"
-              },
-              {
-                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
-                "valueString" : "test"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number",
-                "valueString" : "12813308004"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
-                "valueString" : "test"
+                "extension" : [
+                  {
+                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                    "valueString" : "test"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                    "extension" : [
+                      {
+                        "url" : "XTN.1",
+                        "valueString" : "12813308004"
+                      },
+                      {
+                        "url" : "XTN.3",
+                        "valueString" : "test"
+                      },
+                      {
+                        "url" : "XTN.7",
+                        "valueString" : "test"
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
@@ -169,36 +183,67 @@
       }
     },
     {
-      "fullUrl" : "Patient/1704841397170055000.2b75a9b4-fe5a-455b-a040-e748bd7a1e66",
+      "fullUrl" : "Provenance/1707330412184680000.fdde76c5-7ccf-4782-87e1-d3667c4b6c3f",
       "resource" : {
-        "resourceType" : "Patient",
-        "id" : "1704841397170055000.2b75a9b4-fe5a-455b-a040-e748bd7a1e66",
-        "contact" : [
+        "resourceType" : "Provenance",
+        "id" : "1707330412184680000.fdde76c5-7ccf-4782-87e1-d3667c4b6c3f",
+        "target" : [
           {
-            "telecom" : [
+            "reference" : "Patient/1707330412183788000.bfeeae82-b5a3-434a-aed5-e2bfd5885bd4"
+          }
+        ],
+        "recorded" : "2024-02-07T13:26:52Z",
+        "activity" : {
+          "coding" : [
+            {
+              "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+              "code" : "UPDATE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl" : "RelatedPerson/1707330412187066000.869521d3-c237-40c6-8d8f-06b8ed95575b",
+      "resource" : {
+        "resourceType" : "RelatedPerson",
+        "id" : "1707330412187066000.869521d3-c237-40c6-8d8f-06b8ed95575b",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+            "valueString" : "NK1"
+          }
+        ],
+        "patient" : {
+          "reference" : "Patient/1707330412183788000.bfeeae82-b5a3-434a-aed5-e2bfd5885bd4"
+        },
+        "telecom" : [
+          {
+            "extension" : [
               {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                "valueString" : "test"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
                 "extension" : [
                   {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-                    "valueString" : "next-of-kin-telecomm-info"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
-                    "valueString" : "test"
-                  },
-                  {
-                    "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
-                    "valueString" : "test"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number",
+                    "url" : "XTN.1",
                     "valueString" : "12813308004"
                   },
                   {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                    "url" : "XTN.3",
+                    "valueString" : "test"
+                  },
+                  {
+                    "url" : "XTN.7",
                     "valueString" : "test"
                   }
                 ]
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString" : "NK1.40"
               }
             ]
           }

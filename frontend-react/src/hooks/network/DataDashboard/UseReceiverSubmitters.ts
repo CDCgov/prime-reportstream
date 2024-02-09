@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 import {
     dataDashboardEndpoints,
     RSReceiverSubmitterResponse,
 } from "../../../config/endpoints/dataDashboard";
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
-import { useSessionContext } from "../../../contexts/SessionContext";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
+import { useSessionContext } from "../../../contexts/Session";
 import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
 import useFilterManager, {
     FilterManagerDefaults,
@@ -44,7 +44,8 @@ export default function useReceiverSubmitters(serviceName?: string) {
         activeMembership?.parsedName,
     ); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
-        () => `${adminSafeOrgName}.${serviceName}`,
+        () =>
+            adminSafeOrgName ? `${adminSafeOrgName}.${serviceName}` : undefined,
         [adminSafeOrgName, serviceName],
     );
 
@@ -58,9 +59,9 @@ export default function useReceiverSubmitters(serviceName?: string) {
     const rangeFrom = filterManager.rangeSettings.from;
 
     const authorizedFetch = useAuthorizedFetch<RSReceiverSubmitterResponse>();
-    const memoizedDataFetch = useCallback(
-        () =>
-            authorizedFetch(receiverSubmitters, {
+    const memoizedDataFetch = useCallback(() => {
+        if (!!orgAndService) {
+            return authorizedFetch(receiverSubmitters, {
                 segments: { orgAndService },
                 data: {
                     sort: { direction: sortDirection, property: sortColumn },
@@ -76,20 +77,21 @@ export default function useReceiverSubmitters(serviceName?: string) {
                         },
                     ],
                 },
-            }),
-        [
-            authorizedFetch,
-            currentCursor,
-            numResults,
-            orgAndService,
-            rangeFrom,
-            rangeTo,
-            sortColumn,
-            sortDirection,
-        ],
-    );
+            });
+        }
+        return null;
+    }, [
+        authorizedFetch,
+        currentCursor,
+        numResults,
+        orgAndService,
+        rangeFrom,
+        rangeTo,
+        sortColumn,
+        sortDirection,
+    ]);
     return {
-        ...useQuery({
+        ...useSuspenseQuery({
             queryKey: [
                 receiverSubmitters.queryKey,
                 activeMembership,
@@ -97,7 +99,6 @@ export default function useReceiverSubmitters(serviceName?: string) {
                 filterManager,
             ],
             queryFn: memoizedDataFetch,
-            enabled: !!orgAndService,
         }),
         filterManager,
     };

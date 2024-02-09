@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { ReactElement, ReactNode, Suspense } from "react";
 import {
     render,
     RenderOptions,
@@ -18,16 +18,16 @@ import { HelmetProvider } from "react-helmet-async";
 import { Fixture, MockResolver } from "@rest-hooks/test";
 import { CacheProvider } from "rest-hooks";
 
-import { SessionProviderBase } from "../contexts/SessionContext";
-import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
+import { SessionProviderBase } from "../contexts/Session";
+import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetch";
 import { getTestQueryClient } from "../network/QueryClients";
-import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
+import { FeatureFlagProvider } from "../contexts/FeatureFlag";
 import { appRoutes } from "../AppRouter";
-import AppInsightsContextProvider from "../contexts/AppInsightsContext";
+import AppInsightsContextProvider from "../contexts/AppInsights";
 import config from "../config";
 
 interface AppWrapperProps {
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
 interface AppWrapperOptions {
@@ -41,7 +41,7 @@ function TestLayout() {
 
 function createTestRoutes(
     routes: RouteObject[],
-    element: React.ReactNode,
+    element: ReactNode,
 ): RouteObject[] {
     return routes.map((r) => ({
         ...r,
@@ -74,37 +74,43 @@ export const AppWrapper = ({
             },
         );
         return (
-            <CacheProvider>
-                <HelmetProvider>
-                    <AppInsightsContextProvider>
-                        <SessionProviderBase
-                            oktaAuth={{} as any}
-                            authState={{}}
-                            config={config}
-                        >
-                            <QueryClientProvider client={getTestQueryClient()}>
-                                <AuthorizedFetchProvider
-                                    initializedOverride={true}
+            <Suspense>
+                <CacheProvider>
+                    <HelmetProvider>
+                        <AppInsightsContextProvider>
+                            <SessionProviderBase
+                                oktaAuth={{} as any}
+                                authState={{}}
+                                config={config}
+                            >
+                                <QueryClientProvider
+                                    client={getTestQueryClient()}
                                 >
-                                    <FeatureFlagProvider>
-                                        {restHookFixtures ? (
-                                            <MockResolver
-                                                fixtures={restHookFixtures}
-                                            >
+                                    <AuthorizedFetchProvider
+                                        initializedOverride={true}
+                                    >
+                                        <FeatureFlagProvider>
+                                            {restHookFixtures ? (
+                                                <MockResolver
+                                                    fixtures={restHookFixtures}
+                                                >
+                                                    <RouterProvider
+                                                        router={router}
+                                                    />
+                                                </MockResolver>
+                                            ) : (
                                                 <RouterProvider
                                                     router={router}
                                                 />
-                                            </MockResolver>
-                                        ) : (
-                                            <RouterProvider router={router} />
-                                        )}
-                                    </FeatureFlagProvider>
-                                </AuthorizedFetchProvider>
-                            </QueryClientProvider>
-                        </SessionProviderBase>
-                    </AppInsightsContextProvider>
-                </HelmetProvider>
-            </CacheProvider>
+                                            )}
+                                        </FeatureFlagProvider>
+                                    </AuthorizedFetchProvider>
+                                </QueryClientProvider>
+                            </SessionProviderBase>
+                        </AppInsightsContextProvider>
+                    </HelmetProvider>
+                </CacheProvider>
+            </Suspense>
         );
     };
 };
@@ -135,17 +141,6 @@ export function renderHook<
     render: (initialProps: Props) => Result,
     options?: RenderHookOptions<Props, Q, Container, BaseElement>,
 ) {
-    /*const wrapper = ({ children }: any) => (
-        <AppInsightsContextProvider>
-            <SessionProviderBase
-                oktaAuth={{} as any}
-                authState={{}}
-                config={config}
-            >
-                {children}
-            </SessionProviderBase>
-        </AppInsightsContextProvider>
-    );*/
     return renderHookOrig<Result, Props, Q, Container, BaseElement>(render, {
         wrapper: AppWrapper(),
         ...options,

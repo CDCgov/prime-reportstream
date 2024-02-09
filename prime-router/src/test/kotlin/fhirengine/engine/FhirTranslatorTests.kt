@@ -44,7 +44,7 @@ import kotlin.test.assertFailsWith
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
-private const val ORU_R01_SCHEMA = "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+private const val ORU_R01_SCHEMA = "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
 private const val BLOB_SUB_FOLDER = "test-sender"
 private const val BLOB_URL = "http://blob.url"
 private const val BODY_URL = "http://anyblob.com"
@@ -166,7 +166,6 @@ class FhirTranslatorTests {
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
-
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())
@@ -368,8 +367,8 @@ class FhirTranslatorTests {
             schemaName,
             translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName),
             enrichmentSchemaNames = listOf(
-                "/src/test/resources/enrichments/testing",
-                "/src/test/resources/enrichments/testing2"
+                "classpath:/enrichments/testing.yml",
+                "classpath:/enrichments/testing2.yml"
             )
         )
 
@@ -472,7 +471,7 @@ class FhirTranslatorTests {
         )
         val fhirReceiver = Receiver(
             "full-elr-fhir", ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE,
-            "metadata/fhir_transforms/receivers/fhir-transform-sample", format = Report.Format.FHIR,
+            "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml", format = Report.Format.FHIR,
         )
         val csvReceiver = Receiver(
             "full-elr-fhir", ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE, "", format = Report.Format.CSV,
