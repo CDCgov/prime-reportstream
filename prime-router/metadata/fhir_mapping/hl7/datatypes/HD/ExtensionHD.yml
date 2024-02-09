@@ -1,6 +1,13 @@
 url:
-  type: SYSTEM_URL
-  valueOf: $extensionUrl
+  expressionType: nested
+  expressions:
+    - type: SYSTEM_URL
+      condition: $isStringUrl NULL
+      valueOf: $extensionUrl
+    - type: STRING
+      condition: $isStringUrl NOT_NULL
+      valueOf: $extensionUrl
+
 
 extension:
   generateList: true
