@@ -118,6 +118,7 @@ identifier:
       valueOf: datatypes/CX/Identifier
       expressionType: resource
       specs: OBR.53
+      generateList: true
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "PLAC"
@@ -211,8 +212,6 @@ requester:
           specs: OBR.16
           vars:
             XADAddress: ORC.24
-          constants:
-            XCNHL7Use: obr-16-ordering-provider
 
 _requester:
   vars:
@@ -280,6 +279,7 @@ orderDetail:
       condition: $obr46 NOT_NULL
       valueOf: datatypes/CWE/CodeableConcept
       specs: OBR.46
+      generateList: true
       constants:
         hl7v2Name: placer-supplemental-service-information
     - expressionType: resource
@@ -288,6 +288,7 @@ orderDetail:
       condition: $obr47 NOT_NULL
       valueOf: datatypes/CWE/CodeableConcept
       specs: OBR.47
+      generateList: true
       constants:
         hl7v2Name: filler-supplemental-service-information
 

@@ -30,20 +30,6 @@ elements:
     value: [ '%resource.occurrence.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{obrFieldPath}-6' ]
 
-  - name: ordering-provider-from-practitioner
-    condition: '%context.requester.resolve().is(Practitioner) and %context.requester.resolve().extension(%`rsext-hl7v2Name`).value = "obr-16-ordering-provider"'
-    resource: '%resource.requester.resolve()'
-    schema: ../Practitioner/XCN
-    constants:
-      hl7XCNField: '%{obrFieldPath}-16'
-
-  - name: ordering-provider-from-practitionerrole
-    condition: '%context.requester.resolve().is(PractitionerRole) and %context.requester.resolve().practitioner.resolve().extension(%`rsext-hl7v2Name`).value = "obr-16-ordering-provider"'
-    resource: '%resource.requester.resolve().practitioner.resolve()'
-    schema: ../Practitioner/XCN
-    constants:
-      hl7XCNField: '%{obrFieldPath}-16'
-
   - name: call-back-phone-number-obr
     condition: '%context.requester.extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Name`).value[%telecomIndex] = "obr-17-order-callback-phone-number"'
     resource: '%resource.requester.extension(%`rsext-callback-number`).value'
@@ -77,7 +63,8 @@ elements:
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "obr-53-alternate-placer-order-number")'
     schema: ../../datatypes/identifier/CX
     constants:
-      cxField: '%{obrFieldPath}-53'
+      cxField: '%{obrFieldPath}-53(%{cxIndex})'
+    resourceIndex: cxIndex
 
   - name: obr-extension
     resource: '%resource.extension(%`rsext-obr-observation-request`)'
