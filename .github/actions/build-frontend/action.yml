@@ -17,27 +17,27 @@ inputs:
     description: Github provided token
     required: false
     default: ""
-  test-e2e-admin-user:
+  test-admin-user:
     description: Admin username for the e2e tests.
     required: false
     default: ""
-  test-e2e-admin-password:
+  test-admin-password:
     description: Admin password for the e2e tests.
     required: false
     default: ""
-  test-e2e-sender-user:
+  test-sender-user:
     description: Sender username for the e2e tests.
     required: false
     default: ""
-  test-e2e-sender-password:
+  test-sender-password:
     description: Sender password for the e2e tests.
     required: false
     default: ""
-  test-e2e-receiver-user:
+  test-receiver-user:
     description: Receiver username for the e2e tests.
     required: false
     default: ""
-  test-e2e-receiver-password:
+  test-receiver-password:
     description: Receiver password for the e2e tests.
     required: false
     default: ""
@@ -90,12 +90,12 @@ runs:
     - name: Run E2E tests
       working-directory: frontend-react
       run: |
-        export TEST_ADMIN_USERNAME=${{ inputs.test-e2e-admin-user }}
-        export TEST_ADMIN_PASSWORD=${{ inputs.test-e2e-admin-password }}
-        export TEST_SENDER_USERNAME=${{ inputs.test-e2e-sender-user }}
-        export TEST_SENDER_PASSWORD=${{ inputs.test-e2e-sender-password }}
-        export TEST_RECEIVER_USERNAME=${{ inputs.test-e2e-receiver-user }}
-        export TEST_RECEIVER_PASSWORD=${{ inputs.test-e2e-receiver-password }}
+        export TEST_ADMIN_USERNAME=${{ inputs.test-admin-user }}
+        export TEST_ADMIN_PASSWORD=${{ inputs.test-admin-password }}
+        export TEST_SENDER_USERNAME=${{ inputs.test-sender-user }}
+        export TEST_SENDER_PASSWORD=${{ inputs.test-sender-password }}
+        export TEST_RECEIVER_USERNAME=${{ inputs.test-receiver-user }}
+        export TEST_RECEIVER_PASSWORD=${{ inputs.test-receiver-password }}
         echo "::group::E2E tests"
         npx playwright test
         echo "::endgroup::"
