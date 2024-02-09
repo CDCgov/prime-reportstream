@@ -10,8 +10,8 @@ elements:
     constants:
       hl7HDField: '%{hl7CXFieldPath}-4'
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
-      namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"'
-      universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"'
+      namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id"'
+      universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id"'
       universalIdTypeExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"'
     schema: hd-hierarchic-designator
 

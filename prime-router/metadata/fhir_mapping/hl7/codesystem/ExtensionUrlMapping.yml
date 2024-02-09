@@ -105,18 +105,6 @@
 - id: "xon-organization"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization"
 
-# Assigning Authority Extension
-# TODO: collapse this into a signle assiging authority extension
-- id: "assigning-authority"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority"
-# Organization assigning authority namespace ID
-- id: "assigning-authority-namespace-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"
-# Organization assigning authority universal ID
-- id: "assigning-authority-universal-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"
-# TODO: end
-
 # CX -> Identifier
 # Assigning facility
 - id: "assigning-facility"
@@ -171,6 +159,18 @@
 # Universal ID
 - id: "universal-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id"
+# Assigning Authority Extension
+# TODO: collapse this into a signle assiging authority extension
+- id: "assigning-authority"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority"
+# Organization assigning authority namespace ID
+- id: "assigning-authority-namespace-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"
+# Organization assigning authority universal ID
+- id: "assigning-authority-universal-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"
+# TODO: end
+
 # Namespace ID
 - id: "namespace-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id"

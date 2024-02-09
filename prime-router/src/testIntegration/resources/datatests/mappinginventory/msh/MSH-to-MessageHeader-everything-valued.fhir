@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1707427643141640000.26cbd984-cd89-4189-a3c7-c4ec8c2687ef",
+  "id" : "1707483844119011000.f0b836eb-01cd-4005-b601-b0c311b05b95",
   "meta" : {
-    "lastUpdated" : "2024-02-08T16:27:23.149-05:00"
+    "lastUpdated" : "2024-02-09T08:04:04.126-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -77,7 +77,7 @@
             "extension" : [ {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
               "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
                 "valueString" : "2.16.840.1.113883.9.82"
               }, {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -92,7 +92,7 @@
             "extension" : [ {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
               "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
                 "valueString" : "2.16.840.1.113883.9.22"
               }, {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -134,7 +134,7 @@
         "name" : "Receiving Application",
         "endpoint" : "urn:oid:2.1.5",
         "receiver" : {
-          "reference" : "Organization/1707427643227140000.d5ef33ca-4d7e-4463-8b07-f04ff6a4fbbd"
+          "reference" : "Organization/1707483844199727000.c1a52386-7321-4ed0-a678-36c290bb1b93"
         }
       }, {
         "extension" : [ {
@@ -150,15 +150,15 @@
         "name" : "Receiving Network",
         "endpoint" : "urn:oid:2.1.1",
         "receiver" : {
-          "reference" : "Organization/1707427643228876000.bd61617c-456c-487d-9141-088dbc82d248"
+          "reference" : "Organization/1707483844201185000.c642c3bf-0fcc-4836-8714-647fdd2b16e5"
         }
       }, {
         "receiver" : {
-          "reference" : "Organization/1707427643232540000.ebb1bda7-a77f-473a-acbd-9b6e5f54dfb6"
+          "reference" : "Organization/1707483844205138000.9927aa81-d976-44f5-b506-82316a78d09a"
         }
       } ],
       "sender" : {
-        "reference" : "Organization/1707427643197367000.5d0779af-6449-4ad9-981e-0bf7df55800c"
+        "reference" : "Organization/1707483844175060000.28da8f68-7b10-4361-a602-4b19aaca27c4"
       },
       "source" : {
         "extension" : [ {
@@ -177,14 +177,14 @@
         "endpoint" : "urn:oid:2.1.3.1"
       },
       "responsible" : {
-        "reference" : "Organization/1707427643226158000.83992a61-c533-4924-83d8-0806dd9f7512"
+        "reference" : "Organization/1707483844198873000.1dc0c613-b7a5-429f-a931-b8b1f39a21f0"
       }
     }
   }, {
-    "fullUrl" : "Organization/1707427643197367000.5d0779af-6449-4ad9-981e-0bf7df55800c",
+    "fullUrl" : "Organization/1707483844175060000.28da8f68-7b10-4361-a602-4b19aaca27c4",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1707427643197367000.5d0779af-6449-4ad9-981e-0bf7df55800c",
+      "id" : "1707483844175060000.28da8f68-7b10-4361-a602-4b19aaca27c4",
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
@@ -210,10 +210,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/1707427643222256000.8d42f97e-cd50-4c94-8254-493c45f551c1",
+    "fullUrl" : "Location/1707483844196177000.3eb99efa-1494-4829-9d93-ab8aa74778af",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1707427643222256000.8d42f97e-cd50-4c94-8254-493c45f551c1",
+      "id" : "1707483844196177000.3eb99efa-1494-4829-9d93-ab8aa74778af",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
         "valueCode" : "ISO"
@@ -234,10 +234,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1707427643226158000.83992a61-c533-4924-83d8-0806dd9f7512",
+    "fullUrl" : "Organization/1707483844198873000.1dc0c613-b7a5-429f-a931-b8b1f39a21f0",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1707427643226158000.83992a61-c533-4924-83d8-0806dd9f7512",
+      "id" : "1707483844198873000.1dc0c613-b7a5-429f-a931-b8b1f39a21f0",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
         "valueCoding" : {
@@ -310,7 +310,7 @@
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
           "valueReference" : {
-            "reference" : "Location/1707427643222256000.8d42f97e-cd50-4c94-8254-493c45f551c1"
+            "reference" : "Location/1707483844196177000.3eb99efa-1494-4829-9d93-ab8aa74778af"
           }
         } ],
         "type" : {
@@ -328,10 +328,10 @@
       "name" : "Sending Org"
     }
   }, {
-    "fullUrl" : "Organization/1707427643227140000.d5ef33ca-4d7e-4463-8b07-f04ff6a4fbbd",
+    "fullUrl" : "Organization/1707483844199727000.c1a52386-7321-4ed0-a678-36c290bb1b93",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1707427643227140000.d5ef33ca-4d7e-4463-8b07-f04ff6a4fbbd",
+      "id" : "1707483844199727000.c1a52386-7321-4ed0-a678-36c290bb1b93",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
         "valueString" : "MSH.6"
@@ -358,10 +358,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1707427643228876000.bd61617c-456c-487d-9141-088dbc82d248",
+    "fullUrl" : "Organization/1707483844201185000.c642c3bf-0fcc-4836-8714-647fdd2b16e5",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1707427643228876000.bd61617c-456c-487d-9141-088dbc82d248",
+      "id" : "1707483844201185000.c642c3bf-0fcc-4836-8714-647fdd2b16e5",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
         "valueString" : "MSH.6"
@@ -388,10 +388,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/1707427643230744000.42e39b58-f5aa-4754-a5e7-c0a7c607f65c",
+    "fullUrl" : "Location/1707483844203097000.8e7de644-e8b2-4131-a420-559f2f3808b4",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1707427643230744000.42e39b58-f5aa-4754-a5e7-c0a7c607f65c",
+      "id" : "1707483844203097000.8e7de644-e8b2-4131-a420-559f2f3808b4",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
         "valueCode" : "ISO"
@@ -412,10 +412,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1707427643232540000.ebb1bda7-a77f-473a-acbd-9b6e5f54dfb6",
+    "fullUrl" : "Organization/1707483844205138000.9927aa81-d976-44f5-b506-82316a78d09a",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1707427643232540000.ebb1bda7-a77f-473a-acbd-9b6e5f54dfb6",
+      "id" : "1707483844205138000.9927aa81-d976-44f5-b506-82316a78d09a",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
         "valueCoding" : {
@@ -491,7 +491,7 @@
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
           "valueReference" : {
-            "reference" : "Location/1707427643230744000.42e39b58-f5aa-4754-a5e7-c0a7c607f65c"
+            "reference" : "Location/1707483844203097000.8e7de644-e8b2-4131-a420-559f2f3808b4"
           }
         } ],
         "type" : {
@@ -509,10 +509,10 @@
       "name" : "Receiving Org"
     }
   }, {
-    "fullUrl" : "Provenance/1707427643580337000.e31743e2-be41-49af-a793-0c1bb15f48fa",
+    "fullUrl" : "Provenance/1707483844559551000.edbd240f-9257-4c9a-897c-28a3c457b720",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1707427643580337000.e31743e2-be41-49af-a793-0c1bb15f48fa",
+      "id" : "1707483844559551000.edbd240f-9257-4c9a-897c-28a3c457b720",
       "target" : [ {
         "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
       } ],
@@ -530,15 +530,15 @@
           } ]
         },
         "who" : {
-          "reference" : "Organization/1707427643580068000.e06bcb79-1030-42b5-b3b8-5e1344c76965"
+          "reference" : "Organization/1707483844559354000.329031b1-27a6-46db-a80e-9749146c7f55"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Location/1707427643578804000.25e50f22-ec0b-4e20-8890-2e84aba1f168",
+    "fullUrl" : "Location/1707483844558335000.54a5ded7-bc23-46c2-8651-015e550b073c",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1707427643578804000.25e50f22-ec0b-4e20-8890-2e84aba1f168",
+      "id" : "1707483844558335000.54a5ded7-bc23-46c2-8651-015e550b073c",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
         "valueCode" : "ISO"
@@ -559,10 +559,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1707427643580068000.e06bcb79-1030-42b5-b3b8-5e1344c76965",
+    "fullUrl" : "Organization/1707483844559354000.329031b1-27a6-46db-a80e-9749146c7f55",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1707427643580068000.e06bcb79-1030-42b5-b3b8-5e1344c76965",
+      "id" : "1707483844559354000.329031b1-27a6-46db-a80e-9749146c7f55",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
         "valueCoding" : {
@@ -635,7 +635,7 @@
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
           "valueReference" : {
-            "reference" : "Location/1707427643578804000.25e50f22-ec0b-4e20-8890-2e84aba1f168"
+            "reference" : "Location/1707483844558335000.54a5ded7-bc23-46c2-8651-015e550b073c"
           }
         } ],
         "type" : {
@@ -653,11 +653,11 @@
       "name" : "Sending Org"
     }
   }, {
-    "fullUrl" : "Provenance/1707427643595855000.5d022317-a8d8-484b-8168-4a1041146c49",
+    "fullUrl" : "Provenance/1707483844570229000.c08aea7c-40c6-44a9-966d-0f4bf5a6e68d",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1707427643595855000.5d022317-a8d8-484b-8168-4a1041146c49",
-      "recorded" : "2024-02-08T16:27:23Z",
+      "id" : "1707483844570229000.c08aea7c-40c6-44a9-966d-0f4bf5a6e68d",
+      "recorded" : "2024-02-09T08:04:04Z",
       "policy" : [ "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle" ],
       "activity" : {
         "coding" : [ {
@@ -672,15 +672,15 @@
           } ]
         },
         "who" : {
-          "reference" : "Organization/1707427643595611000.8b6ccf4e-3722-43e0-9814-0d9a22458ac0"
+          "reference" : "Organization/1707483844569858000.0a9097b7-ca6c-49ee-b453-582dfe1ac2bf"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1707427643595611000.8b6ccf4e-3722-43e0-9814-0d9a22458ac0",
+    "fullUrl" : "Organization/1707483844569858000.0a9097b7-ca6c-49ee-b453-582dfe1ac2bf",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1707427643595611000.8b6ccf4e-3722-43e0-9814-0d9a22458ac0",
+      "id" : "1707483844569858000.0a9097b7-ca6c-49ee-b453-582dfe1ac2bf",
       "identifier" : [ {
         "value" : "CDC PRIME - Atlanta"
       }, {

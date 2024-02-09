@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1707427524362971000.55a0572a-24fc-410b-bd62-db7a40273410",
+  "id" : "1707429745488743000.09ab6670-9005-43a9-91a1-aac29971b955",
   "meta" : {
-    "lastUpdated" : "2024-02-08T16:25:24.370-05:00"
+    "lastUpdated" : "2024-02-08T17:02:25.495-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -40,14 +40,14 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1707427524769166000.137def22-9a82-45aa-a2a1-a3ced0b28c43",
+    "fullUrl" : "Provenance/1707429745947847000.8e9b256e-672e-46f1-84f3-478bb27e3f32",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1707427524769166000.137def22-9a82-45aa-a2a1-a3ced0b28c43",
+      "id" : "1707429745947847000.8e9b256e-672e-46f1-84f3-478bb27e3f32",
       "target" : [ {
         "reference" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435"
       }, {
-        "reference" : "DiagnosticReport/1707427524974680000.e654aac1-0c08-4d4f-be12-14130502fc8d"
+        "reference" : "DiagnosticReport/1707429746167230000.e42d455b-9277-4cbb-bc88-65e7ee3ab1b1"
       } ],
       "recorded" : "2023-08-16T12:33:58-05:00",
       "activity" : {
@@ -57,11 +57,11 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1707427524777471000.e7b66530-c454-47fb-a3fa-595aa7164781",
+    "fullUrl" : "Provenance/1707429745957011000.d7f8711a-51fc-46e7-9549-bc3ae7b38866",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1707427524777471000.e7b66530-c454-47fb-a3fa-595aa7164781",
-      "recorded" : "2024-02-08T16:25:24Z",
+      "id" : "1707429745957011000.d7f8711a-51fc-46e7-9549-bc3ae7b38866",
+      "recorded" : "2024-02-08T17:02:25Z",
       "policy" : [ "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle" ],
       "activity" : {
         "coding" : [ {
@@ -76,15 +76,15 @@
           } ]
         },
         "who" : {
-          "reference" : "Organization/1707427524776969000.5f6276c6-3880-42f8-99d5-6d4478a6a74d"
+          "reference" : "Organization/1707429745956511000.bdf72d77-68a9-468f-a40b-7cc8879b6d3d"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1707427524776969000.5f6276c6-3880-42f8-99d5-6d4478a6a74d",
+    "fullUrl" : "Organization/1707429745956511000.bdf72d77-68a9-468f-a40b-7cc8879b6d3d",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1707427524776969000.5f6276c6-3880-42f8-99d5-6d4478a6a74d",
+      "id" : "1707429745956511000.bdf72d77-68a9-468f-a40b-7cc8879b6d3d",
       "identifier" : [ {
         "value" : "CDC PRIME - Atlanta"
       }, {
@@ -98,20 +98,20 @@
       } ]
     }
   }, {
-    "fullUrl" : "Patient/1707427524794069000.4806bad2-40fa-498b-908b-89b932ef113d",
+    "fullUrl" : "Patient/1707429745974218000.fe55071f-7796-438d-aa1c-1951dfeab5a6",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1707427524794069000.4806bad2-40fa-498b-908b-89b932ef113d"
+      "id" : "1707429745974218000.fe55071f-7796-438d-aa1c-1951dfeab5a6"
     }
   }, {
-    "fullUrl" : "Provenance/1707427524794956000.63072018-ab47-40ba-ac88-6ade3a4c3121",
+    "fullUrl" : "Provenance/1707429745975230000.a8cd0d42-c101-489e-9a2d-bd5ffe87cbfe",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1707427524794956000.63072018-ab47-40ba-ac88-6ade3a4c3121",
+      "id" : "1707429745975230000.a8cd0d42-c101-489e-9a2d-bd5ffe87cbfe",
       "target" : [ {
-        "reference" : "Patient/1707427524794069000.4806bad2-40fa-498b-908b-89b932ef113d"
+        "reference" : "Patient/1707429745974218000.fe55071f-7796-438d-aa1c-1951dfeab5a6"
       } ],
-      "recorded" : "2024-02-08T16:25:24Z",
+      "recorded" : "2024-02-08T17:02:25Z",
       "activity" : {
         "coding" : [ {
           "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
@@ -120,27 +120,27 @@
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/1707427524816186000.e9bc1867-0b5c-4ea7-a043-3b0a564d82e9",
+    "fullUrl" : "ServiceRequest/1707429746004509000.cd7a02b1-9a8d-4711-80e1-9a4888ce4867",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "1707427524816186000.e9bc1867-0b5c-4ea7-a043-3b0a564d82e9",
+      "id" : "1707429746004509000.cd7a02b1-9a8d-4711-80e1-9a4888ce4867",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
         "valueCode" : "RE"
       } ],
       "status" : "unknown",
       "subject" : {
-        "reference" : "Patient/1707427524794069000.4806bad2-40fa-498b-908b-89b932ef113d"
+        "reference" : "Patient/1707429745974218000.fe55071f-7796-438d-aa1c-1951dfeab5a6"
       },
       "requester" : {
-        "reference" : "PractitionerRole/1707427524796945000.5148fe23-26d0-476a-8913-0f6271546a78"
+        "reference" : "PractitionerRole/1707429745979588000.cbd515d1-3c75-47fe-a81e-37115134a523"
       }
     }
   }, {
-    "fullUrl" : "Practitioner/1707427524809975000.280b40b4-8941-456c-8361-f0db51b190ef",
+    "fullUrl" : "Practitioner/1707429745995462000.ef3beb67-237c-4001-9d68-2242c12bb7f0",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1707427524809975000.280b40b4-8941-456c-8361-f0db51b190ef",
+      "id" : "1707429745995462000.ef3beb67-237c-4001-9d68-2242c12bb7f0",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
         "extension" : [ {
@@ -282,10 +282,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/1707427524811047000.d8fea024-f175-462a-b8e9-de04479fc08d",
+    "fullUrl" : "Location/1707429745998349000.5e022613-d5d2-4c01-9298-a3e49f729704",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1707427524811047000.d8fea024-f175-462a-b8e9-de04479fc08d",
+      "id" : "1707429745998349000.5e022613-d5d2-4c01-9298-a3e49f729704",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
         "valueCode" : "ISO"
@@ -306,10 +306,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1707427524812841000.c1302952-e65a-4b63-9313-d0f1cabd8d2d",
+    "fullUrl" : "Organization/1707429746000798000.5f04fb5b-caa4-4404-9b81-f4c3e036ea09",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1707427524812841000.c1302952-e65a-4b63-9313-d0f1cabd8d2d",
+      "id" : "1707429746000798000.5f04fb5b-caa4-4404-9b81-f4c3e036ea09",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
         "valueCoding" : {
@@ -382,7 +382,7 @@
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
           "valueReference" : {
-            "reference" : "Location/1707427524811047000.d8fea024-f175-462a-b8e9-de04479fc08d"
+            "reference" : "Location/1707429745998349000.5e022613-d5d2-4c01-9298-a3e49f729704"
           }
         } ],
         "type" : {
@@ -408,28 +408,28 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1707427524796945000.5148fe23-26d0-476a-8913-0f6271546a78",
+    "fullUrl" : "PractitionerRole/1707429745979588000.cbd515d1-3c75-47fe-a81e-37115134a523",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1707427524796945000.5148fe23-26d0-476a-8913-0f6271546a78",
+      "id" : "1707429745979588000.cbd515d1-3c75-47fe-a81e-37115134a523",
       "practitioner" : {
-        "reference" : "Practitioner/1707427524809975000.280b40b4-8941-456c-8361-f0db51b190ef"
+        "reference" : "Practitioner/1707429745995462000.ef3beb67-237c-4001-9d68-2242c12bb7f0"
       },
       "organization" : {
-        "reference" : "Organization/1707427524812841000.c1302952-e65a-4b63-9313-d0f1cabd8d2d"
+        "reference" : "Organization/1707429746000798000.5f04fb5b-caa4-4404-9b81-f4c3e036ea09"
       }
     }
   }, {
-    "fullUrl" : "DiagnosticReport/1707427524974680000.e654aac1-0c08-4d4f-be12-14130502fc8d",
+    "fullUrl" : "DiagnosticReport/1707429746167230000.e42d455b-9277-4cbb-bc88-65e7ee3ab1b1",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "1707427524974680000.e654aac1-0c08-4d4f-be12-14130502fc8d",
+      "id" : "1707429746167230000.e42d455b-9277-4cbb-bc88-65e7ee3ab1b1",
       "basedOn" : [ {
-        "reference" : "ServiceRequest/1707427524816186000.e9bc1867-0b5c-4ea7-a043-3b0a564d82e9"
+        "reference" : "ServiceRequest/1707429746004509000.cd7a02b1-9a8d-4711-80e1-9a4888ce4867"
       } ],
       "status" : "unknown",
       "subject" : {
-        "reference" : "Patient/1707427524794069000.4806bad2-40fa-498b-908b-89b932ef113d"
+        "reference" : "Patient/1707429745974218000.fe55071f-7796-438d-aa1c-1951dfeab5a6"
       }
     }
   } ]
