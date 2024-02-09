@@ -115,14 +115,14 @@ data object SampleFilters {
         "%patient.birthDate.exists()",
         "%specimen.type.exists()",
         "(%patient.address.line.exists() or " +
-                "%patient.address.postalCode.exists() or " +
-                "%patient.telecom.exists())",
+            "%patient.address.postalCode.exists() or " +
+            "%patient.telecom.exists())",
         "(" +
-                "(%specimen.collection.collectedPeriod.exists() or " +
-                "%specimen.collection.collected.exists()" +
-                ") or " +
-                "%serviceRequest.occurrence.exists() or " +
-                "%observation.effective.exists())",
+            "(%specimen.collection.collectedPeriod.exists() or " +
+            "%specimen.collection.collected.exists()" +
+            ") or " +
+            "%serviceRequest.occurrence.exists() or " +
+            "%observation.effective.exists())",
     )
 
     /**

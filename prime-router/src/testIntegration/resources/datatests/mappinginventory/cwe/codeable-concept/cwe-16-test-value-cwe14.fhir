@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1706310348439152000.83d44b49-7bfc-4eb0-9186-e2a96a955a56",
+  "id" : "1707325070223202000.8fd0748c-d907-43e6-8b2e-6ed4238f98af",
   "meta" : {
-    "lastUpdated" : "2024-01-26T17:05:48.452-06:00"
+    "lastUpdated" : "2024-02-07T11:57:50.230-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "12345"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
@@ -22,12 +22,17 @@
             "valueString" : "^~\\&#"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message",
-            "valueString" : "20230501102531-0400"
-          },
-          {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
             "valueString" : "UNICODE UTF-8"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+            "extension" : [
+              {
+                "url" : "MSH.7",
+                "valueString" : "20230501102531-0400"
+              }
+            ]
           }
         ],
         "eventCoding" : {
@@ -36,7 +41,7 @@
           "display" : "ORU^R01^ORU_R01"
         },
         "sender" : {
-          "reference" : "Organization/1706310348532595000.7991af02-fed9-40e0-9108-e637f3c5d3d5"
+          "reference" : "Organization/1707325070278125000.b2463b7f-f258-4f42-a710-a4038a437b76"
         },
         "source" : {
           "_endpoint" : {
@@ -51,10 +56,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1706310348532595000.7991af02-fed9-40e0-9108-e637f3c5d3d5",
+      "fullUrl" : "Organization/1707325070278125000.b2463b7f-f258-4f42-a710-a4038a437b76",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706310348532595000.7991af02-fed9-40e0-9108-e637f3c5d3d5",
+        "id" : "1707325070278125000.b2463b7f-f258-4f42-a710-a4038a437b76",
         "address" : [
           {
             "country" : "USA"
@@ -63,10 +68,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706310348864723000.5e28a5a4-c09f-4255-977d-73669411483d",
+      "fullUrl" : "Provenance/1707325070622608000.018c5b0d-dc57-434a-8db6-9b67bf658f7a",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706310348864723000.5e28a5a4-c09f-4255-977d-73669411483d",
+        "id" : "1707325070622608000.018c5b0d-dc57-434a-8db6-9b67bf658f7a",
         "target" : [
           {
             "reference" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b"
@@ -83,11 +88,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706310348873381000.464531b8-670a-4aff-a156-18dc7c114b77",
+      "fullUrl" : "Provenance/1707325070630923000.9cb300d7-93ff-45c8-a6c6-c984c3b5c00d",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706310348873381000.464531b8-670a-4aff-a156-18dc7c114b77",
-        "recorded" : "2024-01-26T17:05:48Z",
+        "id" : "1707325070630923000.9cb300d7-93ff-45c8-a6c6-c984c3b5c00d",
+        "recorded" : "2024-02-07T11:57:50Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -109,17 +114,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1706310348872974000.884baecd-de17-4313-a622-988b3b6061ce"
+              "reference" : "Organization/1707325070630095000.9ef760db-ca89-4422-ae4a-fae15340f475"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1706310348872974000.884baecd-de17-4313-a622-988b3b6061ce",
+      "fullUrl" : "Organization/1707325070630095000.9ef760db-ca89-4422-ae4a-fae15340f475",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1706310348872974000.884baecd-de17-4313-a622-988b3b6061ce",
+        "id" : "1707325070630095000.9ef760db-ca89-4422-ae4a-fae15340f475",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -139,10 +144,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1706310348888344000.b7190e0a-3555-4fb7-828f-4ec59a54ef79",
+      "fullUrl" : "Patient/1707325070645610000.0505b1c8-f90e-48ab-976f-28a090a07d9b",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1706310348888344000.b7190e0a-3555-4fb7-828f-4ec59a54ef79",
+        "id" : "1707325070645610000.0505b1c8-f90e-48ab-976f-28a090a07d9b",
         "extension" : [
           {
             "url" : "http://hl7.org/fhir/StructureDefinition/patient-citizenship",
@@ -156,8 +161,8 @@
                       "valueOid" : "urn:oid:TEST1234"
                     },
                     {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
-                      "valueString" : "tribal-citizenship"
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                      "valueString" : "PID.39"
                     }
                   ]
                 }
@@ -168,16 +173,16 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1706310348889035000.831b6c40-64cc-40e8-8d8c-25674a3c3051",
+      "fullUrl" : "Provenance/1707325070646328000.281f668d-6c48-476f-8909-36e4767a0800",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1706310348889035000.831b6c40-64cc-40e8-8d8c-25674a3c3051",
+        "id" : "1707325070646328000.281f668d-6c48-476f-8909-36e4767a0800",
         "target" : [
           {
-            "reference" : "Patient/1706310348888344000.b7190e0a-3555-4fb7-828f-4ec59a54ef79"
+            "reference" : "Patient/1707325070645610000.0505b1c8-f90e-48ab-976f-28a090a07d9b"
           }
         ],
-        "recorded" : "2024-01-26T17:05:48Z",
+        "recorded" : "2024-02-07T11:57:50Z",
         "activity" : {
           "coding" : [
             {

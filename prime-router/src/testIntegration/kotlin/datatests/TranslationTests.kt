@@ -30,7 +30,6 @@ import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
-import org.apache.commons.io.FilenameUtils
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
@@ -474,8 +473,9 @@ class TranslationTests {
             }
 
             val hl7 = FhirToHl7Converter(
-                FilenameUtils.getName(schema),
-                FilenameUtils.getPath(schema),
+                schema,
+                // TODO: #10510
+                "",
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = translationConfig,
@@ -493,7 +493,8 @@ class TranslationTests {
             var fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
             if (!schema.isNullOrEmpty()) {
                 schema.split(",").forEach { currentEnrichmentSchema ->
-                    fhirBundle = FhirTransformer(currentEnrichmentSchema).transform(fhirBundle)
+                    // TODO: #10510
+                    fhirBundle = FhirTransformer(currentEnrichmentSchema, "").transform(fhirBundle)
                 }
             }
             val fhirJson = FhirTranscoder.encode(fhirBundle)

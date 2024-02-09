@@ -13,7 +13,7 @@ describe("useSenderResource", () => {
     });
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
-    test("returns undefined if no sender available on membership", () => {
+    test("returns null if no sender available on membership", async () => {
         mockSessionContentReturnValue({
             authState: {
                 accessToken: { accessToken: "TOKEN" },
@@ -31,7 +31,7 @@ describe("useSenderResource", () => {
             } as any,
         });
         const { result } = renderHook(() => useSenderResource());
-        expect(result.current.data).toEqual(undefined);
+        await waitFor(() => expect(result.current.data).toBeNull());
     });
     test("returns correct sender match", async () => {
         mockSessionContentReturnValue({

@@ -75,32 +75,8 @@
 # message character set
 - id: "character-set"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set"
-
-# TODO: collapse into one extension
-- id: "msh-7-datetime-of-message"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message"
-- id: "msh-13-sequence-number"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-13-sequence-number"
-- id: "msh-14-continuation-pointer"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-14-continuation-pointer"
-# message accept acknowledgement type
-- id: "msh-15-accept-acknowledgement-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-15-accept-acknowledgement-type"
-# source application acknowledgement type
-- id: "msh-16-application-acknowledgement-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-16-application-acknowledgement-type"
-- id: "msh-19-principal-language-of-message"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-19-principal-language-of-message"
-- id: "msh-20-alternate-character-set-handling-scheme"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-20-alternate-character-set-handling-scheme"
-# source message profile ID
-- id: "msh21-source-message-profile-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh21-source-message-profile-id"
-- id: "msh-24-hd-extension"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-24-hd-extension"
-- id: "msh-25-hd-extension"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-25-hd-extension"
-# TODO end
+- id: "msh-message-header"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header"
 
 # SFT
 # software binary identifier
@@ -207,14 +183,6 @@
 # Filler assigned identifier
 - id: "filler-assigned-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier"
-# Check Digit
-# TODO: replace with HL7 version
-- id: "check-digit"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit"
-# Check Digit Scheme
-# TODO: replace with HL7 version
-- id: "check-digit-scheme"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme"
 # TODO: likely can get collapsed with always capturing the universal-id in an extension
 # Unknown Universal ID Type
 - id: "universal-id-unknown-type"
@@ -229,8 +197,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id"
 - id: "location-physical-type-poc"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/location-physical-type-poc"
-
-
 
 # CE/CWE -> Coding
 # Coding system
@@ -289,8 +255,6 @@
 - id: "bodySiteModifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/bodySiteModifier"
 
-
-
 # XTN -> ContactPoint
 - id: xtn-contact-point
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point"
@@ -315,13 +279,11 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner"
 
 # NK1 -> RelatedPerson
-# TODO: collapse
-- id: "nk1-13-organization-name"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-13-organization-name"
+- id: "nk1-related-person"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person"
+# TODO: evaluate if this should get collapsed into the nk1-related-person extension
 - id: "nk1-15-administrative-sex"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-15-administrative-sex"
-- id: "nk1-16-birth-date"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-16-birth-date"
 
 # XPN -> HumanName
 - id: "xpn-human-name"
@@ -347,6 +309,14 @@
 - id: "entity-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier"
 
+# EI -> Identifier
+- id: "ei-assigner-organization-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
+
+# ID -> CodeableConcept
+- id: "codeable-concept-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/codeable-concept-id"
+
 # ORC/OBR -> ServiceRequest/DiagnosticReport
 # ORC Extension
 - id: "orc-common-order"
@@ -356,7 +326,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request"
 - id: "status-modifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/status-modifier"
-# TODO: remove url?
 - id: callback-number
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number"
 # Business Event
@@ -373,14 +342,6 @@
 
 
 # PV1/PV2 -> Encounter
-# PV1 Extension
-# TODO rename
-- id: "pv1-encounter"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-encounter"
-# PV2 Extension
-# TODO rename
-- id: "pv2-encounter"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-encounter"
 - id: "admission-level-of-care"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/admission-level-of-care"
 - id: "publicity-code"
@@ -393,14 +354,21 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/planned-start-date"
 - id: "visit-user-code"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/visit-user-code"
-- id: "pv1-2-patient-class"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-2-patient-class"
 - id: "temporary-location"
   url: "https://hl7.org/fhir/StructureDefinition/temporary-location"
-- id: "pv2-visit-description"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-visit-description"
 - id: "episode-of-care-name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/episode-of-care-name"
+# PV1 Extension
+- id: "pv1-patient-visit"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-patient-visit"
+# PV2 Extension
+- id: "pv2-patient-visit-additional-information"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-patient-visit-additional-information"
+# TODO: how to handle these; they're not in the extension and used to extend primitives in the mapping
+- id: "pv1-2-patient-class"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-2-patient-class"
+- id: "pv2-visit-description"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-visit-description"
 
 # NTE -> Annotation
 # Source of comment
@@ -409,25 +377,23 @@
 # Comment type
 - id: "note-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
-# Identifier type
-- id: "identifier-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type"
 
 ## Multipurpose
 # internal indicator of sender, usable for filtering
 - id: "sender-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id"
-# TODO: collapse these into one
-# HL7 v2 Name
-- id: "hl7v2Name"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name"
-# HL7 Use
+- id: "hl7v2Segment"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment"
+- id: "hl7v2Field"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+- id: "hl7v2Component"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component"
+
+# TODO: #13288
+# Deprecated
 - id: "hl7-use"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
-# EI -> Identifier
-- id: "ei-assigner-organization-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
-# TODO: end
+
 # Date time as hl7v2 string
 - id: "hl7v2-date-time"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time"
