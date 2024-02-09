@@ -355,7 +355,7 @@
             "reference" : "PractitionerRole/1707318548796187000.cb21e2e8-34e9-49ce-a8af-40ee7d91d6d2"
           }
         ],
-        "valueString" : "Some value. Some second value.",
+        "valueString" : "Some value",
         "interpretation" : [
           {
             "coding" : [

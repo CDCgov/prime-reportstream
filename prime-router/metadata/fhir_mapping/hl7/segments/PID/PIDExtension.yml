@@ -59,6 +59,7 @@ extension:
           expressionType: HL7Spec
     - expressionType: nested
       specs: PID.32 *
+      generateList: true
       condition: $pid32 NOT_NULL
       vars:
         pid32: STRING_ALL, PID.32

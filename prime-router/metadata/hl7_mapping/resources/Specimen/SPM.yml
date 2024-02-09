@@ -53,10 +53,10 @@ elements:
     schema: ../../datatypes/Quantity/CQ
 
   - name: specimen-description
-    resource: '%resource.note.where(extension(%`rsext-hl7v2Name`).value = "specimen-description")'
+    resource: '%resource.note.where(extension(%`rsext-hl7v2Name`).value = "specimen-description").text'
     resourceIndex: stIndex
     constants:
-      stField: '%{hl7SpecimenFieldPath}-14(%{stIndex})'
+      stField: '%{hl7SpecimenFieldPath}-14(%{stIndex})-1'
     schema: ../../datatypes/annotation/ST
 
   - name: specimen-collection-time

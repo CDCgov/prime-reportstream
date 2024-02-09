@@ -54,7 +54,20 @@ extension_1-noteSource:
       expressionType: HL7Spec
       type: STRING
 
-extension_2-noteType:
+extension_2-noteComment:
+  generateList: true
+  expressionType: nested
+  specs: NTE.3
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: note-comment
+    valueId:
+      valueOf: FT
+      expressionType: HL7Spec
+      type: STRING
+
+extension_3-noteType:
   generateList: true
   expressionType: nested
   expressionsMap:
