@@ -43,7 +43,6 @@ const config: Config.InitialOptions = {
             "<rootDir>/node_modules/@rest-hooks/$1/dist/$1.js",
             "<rootDir>/node_modules/@rest-hooks/$1/dist/index.cjs.js",
         ],
-        //"^msw/lib/node$": "<rootDir>/node_modules/msw/lib/node/index.js",
         "^rest-hooks$": "<rootDir>/node_modules/rest-hooks/dist/index.js",
         "\\.(css|less|scss)$": "identity-obj-proxy",
         "@mdx-js/react": "<rootDir>/src/__mocks__/mdxjsReactMock.tsx",
