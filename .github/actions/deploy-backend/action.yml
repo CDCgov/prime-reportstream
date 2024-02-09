@@ -115,9 +115,15 @@ runs:
         az storage blob upload-batch --account-name ${{ env.IMAGE_SWAGGER_UI_REPO }} -s ./build/swagger-ui -d '$web'
 
     - name: ACR login
-      working-directory: prime-router
-      run: az acr login --name ${{ env.ACR_NAME }}
-      shell: bash
+      uses: ./.github/actions/retry
+      with:
+        timeout_minutes: 2
+        max_attempts: 3
+        retry_wait_seconds: 20
+        command: |
+          cd prime-router
+          az acr login --name ${{ env.ACR_NAME }}
+        shell: bash
 
     - uses: Azure/get-keyvault-secrets@c2b531e47fab4ca7cd8df09d44a65256651bf46e
       if: env.USE_DCT == 'true'
