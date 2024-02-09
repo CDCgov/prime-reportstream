@@ -127,7 +127,7 @@ const DeliveriesFilterAndTable = ({
     fetchResults: ResultsFetcher<any>;
     filterManager: FilterManager;
     services: RSReceiver[];
-    setService: Dispatch<SetStateAction<string | undefined>>;
+    setService?: Dispatch<SetStateAction<string | undefined>>;
 }) => {
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;

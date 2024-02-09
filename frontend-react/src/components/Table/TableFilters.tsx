@@ -44,7 +44,7 @@ interface TableFilterProps {
     filterManager: FilterManager;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
     receivers?: { value: string; label: string }[];
-    setService: Dispatch<SetStateAction<string | undefined>>;
+    setService?: Dispatch<SetStateAction<string | undefined>>;
     showDateHints?: boolean;
     startDateLabel: string;
 }
@@ -145,7 +145,7 @@ function TableFilters({
             const rangeToWithTime = new Date(
                 rangeTo.setHours(endHours, endMinutes, 0, 0),
             ).toISOString();
-            setService(currentServiceSelect);
+            setService?.(currentServiceSelect);
             applyToFilterManager(rangeFromWithTime, rangeToWithTime);
         },
         [

@@ -58,10 +58,10 @@ describe("DataDashboardTable", () => {
             mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
             mockUseOrganizationReceivers.mockReturnValue({
-                activeService: undefined,
+                allReceivers: [],
+                activeReceivers: [],
                 isLoading: false,
-                data: [],
-                setActiveService: () => {},
+                isDisabled: false,
             } as any);
 
             // Mock our SessionProvider's data
@@ -200,6 +200,8 @@ describe("DataDashboardTableWithPagination", () => {
                 mockUseOrganizationReceivers.mockReturnValue({
                     allReceivers: [mockActiveReceiver],
                     activeReceivers: [mockActiveReceiver],
+                    isLoading: false,
+                    isDisabled: false,
                 } as any);
 
                 const mockUseReceiverDeliveriesCallback = {
@@ -241,7 +243,7 @@ describe("DataDashboardTableWithPagination", () => {
                     allReceivers: [],
                     activeReceivers: [],
                     isLoading: false,
-                    setActiveService: () => {},
+                    isDisabled: false,
                 } as any);
 
                 // Mock our SessionProvider's data
@@ -290,11 +292,10 @@ describe("DataDashboardTableWithPagination", () => {
             mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
             mockUseOrganizationReceivers.mockReturnValue({
-                isLoading: false,
-                isDisabled: true,
                 allReceivers: [],
                 activeReceivers: [],
-                setActiveService: () => {},
+                isLoading: false,
+                isDisabled: true,
             } as any);
 
             // Mock our SessionProvider's data

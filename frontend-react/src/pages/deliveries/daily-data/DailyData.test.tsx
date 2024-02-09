@@ -70,13 +70,11 @@ describe("DeliveriesTable", () => {
             });
             // Mock our receiver services feed data
             mockUseOrganizationReceivers.mockReturnValue({
-                activeService: undefined,
+                allReceivers: [],
+                activeReceivers: [],
                 isLoading: false,
-                data: [],
-                setActiveService: () => {},
                 isDisabled: false,
             } as any);
-
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
                 authState: {
@@ -100,6 +98,7 @@ describe("DeliveriesTable", () => {
             const mockUseOrgDeliveriesCallback = {
                 fetchResults: () => Promise.resolve([]),
                 filterManager: mockFilterManager,
+                setService: () => Promise.resolve([]),
             };
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
@@ -126,8 +125,6 @@ describe("DeliveriesTableWithNumbered", () => {
                     allReceivers: [mockActiveReceiver],
                     activeReceivers: [mockActiveReceiver],
                     isLoading: false,
-                    data: mockReceivers,
-                    setActiveService: () => {},
                     isDisabled: false,
                 } as any);
 
@@ -135,6 +132,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     fetchResults: () =>
                         Promise.resolve(makeDeliveryFixtureArray(101)),
                     filterManager: mockFilterManager,
+                    setService: () => Promise.resolve([]),
                 };
                 mockUseOrgDeliveries.mockReturnValue(
                     mockUseOrgDeliveriesCallback,
@@ -193,10 +191,9 @@ describe("DeliveriesTableWithNumbered", () => {
                 });
                 // Mock our receiver services feed data
                 mockUseOrganizationReceivers.mockReturnValue({
-                    activeService: undefined,
+                    allReceivers: [],
+                    activeReceivers: [],
                     isLoading: false,
-                    data: [],
-                    setActiveService: () => {},
                     isDisabled: false,
                 } as any);
 
@@ -224,6 +221,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     fetchResults: () =>
                         Promise.resolve(makeDeliveryFixtureArray(0)),
                     filterManager: mockFilterManager,
+                    setService: () => Promise.resolve([]),
                 };
                 mockUseOrgDeliveries.mockReturnValue(
                     mockUseOrgDeliveriesCallback,
@@ -248,10 +246,9 @@ describe("DeliveriesTableWithNumbered", () => {
             });
             // Mock our receiver services feed data
             mockUseOrganizationReceivers.mockReturnValue({
-                activeService: undefined,
+                allReceivers: [],
+                activeReceivers: [],
                 isLoading: false,
-                data: [],
-                setActiveService: () => {},
                 isDisabled: true,
             } as any);
 
@@ -279,6 +276,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 fetchResults: () =>
                     Promise.resolve(makeDeliveryFixtureArray(0)),
                 filterManager: mockFilterManager,
+                setService: () => Promise.resolve([]),
             };
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
