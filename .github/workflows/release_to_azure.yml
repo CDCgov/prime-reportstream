@@ -70,6 +70,12 @@ jobs:
           appinsights-staging-key: ${{ secrets.APPINSIGHTS_STAGING_KEY }}
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.pre_job.outputs.version }}
+          test-e2e-admin-user: ${{ secrets.TEST_E2E_ADMIN_USERNAME }}
+          test-e2e-admin-password: ${{ secrets.TEST_E2E_ADMIN_PASSWORD }}
+          test-e2e-sender-user: ${{ secrets.TEST_E2E_SENDER_USERNAME }}
+          test-e2e-sender-password: ${{ secrets.TEST_E2E_SENDER_PASSWORD }}
+          test-e2e-receiver-user: ${{ secrets.TEST_E2E_RECEIVER_USERNAME }}
+          test-e2e-receiver-password: ${{ secrets.TEST_E2E_RECEIVER_PASSWORD }}
 
   deploy_infrastructure:
     name: "Deploy Infrastructure: ${{ needs.pre_job.outputs.env_name }}"
