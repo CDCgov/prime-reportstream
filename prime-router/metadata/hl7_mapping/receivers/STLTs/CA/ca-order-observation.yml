@@ -17,5 +17,5 @@ elements:
     schema: ca-observation-request
 
   - name: ca-specimen
-    resource: '%specimen'
+    resource: '%specimen.where(extension(%`rsext-hl7v2Segment`).value = "SPM") | %specimen.where(extension(%`rsext-hl7v2Segment`).exists().not())'
     schema: ca-specimen

@@ -129,3 +129,15 @@ condition:
   valueOf: datatypes/CWE/CodeableConcept
   expressionType: resource
   specs: OBR.15.6
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: hl7v2Segment
+        valueString:
+          valueOf: 'OBR'
