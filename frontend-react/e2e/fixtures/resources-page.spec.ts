@@ -1,8 +1,8 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-test.describe("Developer Resources page", () => {
+// eslint-disable-next-line playwright/no-skipped-test
+test.describe.skip("Developer Resources page", () => {
     test.beforeEach(async ({ page }) => {
-        test.skip();
         await page.goto("/developer-resources");
     });
 
@@ -56,12 +56,10 @@ test.describe("Developer Resources page", () => {
         ];
 
         for (const cardLink of cardLinks) {
-            test(`should have ${cardLink["name"]} link`, async ({ page }) => {
-                await page
-                    .getByRole("link", { name: cardLink["name"] })
-                    .click();
+            test(`should have ${cardLink.name} link`, async ({ page }) => {
+                await page.getByRole("link", { name: cardLink.name }).click();
 
-                await expect(page).toHaveURL(cardLink["url"]);
+                await expect(page).toHaveURL(cardLink.url);
             });
         }
 

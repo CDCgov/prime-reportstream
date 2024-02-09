@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 
+import { HTTPMethods, RSEndpoint } from "../../config/endpoints";
 import { useAuthorizedFetch } from "../../contexts/AuthorizedFetch";
 import { RSNetworkError } from "../../utils/RSNetworkError";
-import { HTTPMethods, RSEndpoint } from "../../config/endpoints";
 
 /**
  * See prime-router/docs/api/check.yml for documentation
@@ -13,10 +13,10 @@ export interface CheckSettingResult {
 }
 
 /** parameters used for the request. Also used by the react page to make passing data down easier **/
-export type CheckSettingParams = {
+export interface CheckSettingParams {
     orgName: string;
     receiverName: string;
-};
+}
 
 export const useCheckSettingsCmd = () => {
     const authorizedFetch = useAuthorizedFetch<CheckSettingResult>();

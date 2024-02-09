@@ -2,9 +2,9 @@ import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
 import {
-    lookupTablesEndpoints,
-    LookupTable,
     ApiValueSet,
+    LookupTable,
+    lookupTablesEndpoints,
 } from "../config/endpoints/lookupTables";
 
 const tableListUrl = lookupTablesEndpoints.getTableList.toDynamicUrl();

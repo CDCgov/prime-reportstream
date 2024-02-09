@@ -1,19 +1,17 @@
 import { Helmet } from "react-helmet-async";
-import React from "react";
-
-import { FeatureName } from "../../utils/FeatureName";
-import { USNavLink } from "../../components/USLink";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import DataDashboardTable from "../../components/DataDashboard/DataDashboardTable/DataDashboardTable";
-import HipaaNotice from "../../components/HipaaNotice";
-import { HeroWrapper } from "../../shared";
 
 import styles from "./DataDashboard.module.scss";
+import DataDashboardTable from "../../components/DataDashboard/DataDashboardTable/DataDashboardTable";
+import HipaaNotice from "../../components/HipaaNotice";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
+import { USNavLink } from "../../components/USLink";
+import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import { HeroWrapper } from "../../shared";
+import { FeatureName } from "../../utils/FeatureName";
 
 function DataDashboardPage() {
     const { data: orgDetails } = useOrganizationSettings();
-    const { description } = orgDetails || {};
+    const { description } = orgDetails ?? {};
     return (
         <>
             <Helmet>

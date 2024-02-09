@@ -1,18 +1,18 @@
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
-import { RSDelivery, RSFacility } from "../config/endpoints/deliveries";
 import config from "../config";
+import { RSDelivery, RSFacility } from "../config/endpoints/deliveries";
 
 export const makeFacilityFixture = (
     identifier: number,
     overrides?: Partial<RSFacility>,
 ): RSFacility => ({
-    facility: overrides?.facility || "Facility Fixture",
-    location: overrides?.location || "DeliveriesMockServer.ts",
+    facility: overrides?.facility ?? "Facility Fixture",
+    location: overrides?.location ?? "DeliveriesMockServer.ts",
     CLIA: identifier.toString(),
-    positive: overrides?.positive || 0,
-    total: overrides?.total || 0,
+    positive: overrides?.positive ?? 0,
+    total: overrides?.total ?? 0,
 });
 
 export const makeFacilityFixtureArray = (count: number) => {
@@ -27,15 +27,15 @@ export const makeDeliveryFixture = (
     id: number,
     overrides?: Partial<RSDelivery>,
 ): RSDelivery => ({
-    deliveryId: overrides?.deliveryId || 0,
-    batchReadyAt: overrides?.batchReadyAt || "",
-    expires: overrides?.expires || "",
-    receiver: overrides?.receiver || "",
+    deliveryId: overrides?.deliveryId ?? 0,
+    batchReadyAt: overrides?.batchReadyAt ?? "",
+    expires: overrides?.expires ?? "",
+    receiver: overrides?.receiver ?? "",
     reportId: id.toString() || "",
-    topic: overrides?.topic || "",
-    reportItemCount: overrides?.reportItemCount || 0,
-    fileName: overrides?.fileName || "",
-    fileType: overrides?.fileType || "CSV",
+    topic: overrides?.topic ?? "",
+    reportItemCount: overrides?.reportItemCount ?? 0,
+    fileName: overrides?.fileName ?? "",
+    fileType: overrides?.fileType ?? "CSV",
 });
 export const makeDeliveryFixtureArray = (count: number) => {
     const fixtures: RSDelivery[] = [];

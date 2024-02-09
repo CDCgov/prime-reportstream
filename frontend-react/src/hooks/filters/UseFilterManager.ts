@@ -5,17 +5,17 @@ import useDateRange, {
     RangeSettings,
     RangeSettingsActionType,
 } from "./UseDateRange";
+import usePages, {
+    PageSettings,
+    PageSettingsAction,
+    PageSettingsActionType,
+} from "./UsePages";
 import useSortOrder, {
     SortOrder,
     SortSettings,
     SortSettingsAction,
     SortSettingsActionType,
 } from "./UseSortOrder";
-import usePages, {
-    PageSettings,
-    PageSettingsAction,
-    PageSettingsActionType,
-} from "./UsePages";
 
 export interface FilterManager {
     rangeSettings: RangeSettings;

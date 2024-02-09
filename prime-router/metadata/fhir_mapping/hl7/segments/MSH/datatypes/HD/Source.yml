@@ -131,7 +131,7 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7-use
+          value: hl7v2Field
         valueString:
           valueOf: $messageHeaderSourceField
           type: STRING

@@ -138,7 +138,27 @@ extension:
           expressionType: resource
           specs: XON.2
           constants:
-            hl7v2Name: organization-name-type-code
+            hl7v2Field: XON.2
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Field NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Field
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Component
     - condition: $xon9 NOT_NULL
       expressionType: nested
       vars:
@@ -153,12 +173,23 @@ extension:
           valueOf: XON.9
     - expressionType: resource
       valueOf: datatypes/XON/XONExtension
-    - expressionType: nested
-      condition: $xonOrganizationHL7Use NOT_NULL
+    - generateList: true
+      expressionType: nested
+      condition: $XONHL7Field NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7-use
+          value: hl7v2Field
         valueString:
           type: STRING
-          valueOf: $xonOrganizationHL7Use
+          valueOf: $XONHL7Field
+    - generateList: true
+      expressionType: nested
+      condition: $XONHL7Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $XONHL7Component

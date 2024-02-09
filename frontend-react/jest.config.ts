@@ -11,6 +11,7 @@ import _ from "./config/env.cjs";
 const config: Config.InitialOptions = {
     roots: ["<rootDir>/src"],
     collectCoverageFrom: ["src/**/*.{js,jsx,ts,tsx}", "!src/**/*.d.ts"],
+    globalSetup: "<rootDir>/src/globalSetup.ts",
     setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
     testMatch: [
         "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",

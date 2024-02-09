@@ -1,16 +1,15 @@
 import { act, waitFor } from "@testing-library/react";
 
-import { renderHook } from "../utils/CustomRenderUtils";
-import {
-    dummyActiveReceiver,
-    dummyReceivers,
-} from "../__mocks__/OrganizationMockServer";
-
+import { useOrganizationReceivers } from "./UseOrganizationReceivers";
 import {
     sortAndFilterInactiveServices,
     useOrganizationReceiversFeed,
 } from "./UseOrganizationReceiversFeed";
-import { useOrganizationReceivers } from "./UseOrganizationReceivers";
+import {
+    dummyActiveReceiver,
+    dummyReceivers,
+} from "../__mocks__/OrganizationMockServer";
+import { renderHook } from "../utils/CustomRenderUtils";
 
 jest.mock<typeof import("./UseOrganizationReceivers")>(
     "./UseOrganizationReceivers",
@@ -57,7 +56,7 @@ describe("useOrganizationReceiversFeed", () => {
             organizationName: "testOrg",
         });
         expect(result.current.data).toBeDefined();
-        act(() => result.current.setActiveService(result.current.data!![1]));
+        act(() => result.current.setActiveService(result.current.data![1]));
         expect(result.current.activeService).toEqual({
             name: "elr-0",
             organizationName: "testOrg",

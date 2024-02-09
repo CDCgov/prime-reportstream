@@ -96,7 +96,6 @@ export const dummyActiveReceiver = {
 };
 
 export const publicKeysGenerator = (apiKeyCount: number) => {
-    let publicKey: RSApiKeysResponse;
     const apiKey: ApiKey[] = [];
     const apiKeySet: ApiKeySet[] = [];
 
@@ -114,7 +113,7 @@ export const publicKeysGenerator = (apiKeyCount: number) => {
         keys: apiKey,
     });
 
-    publicKey = {
+    const publicKey: RSApiKeysResponse = {
         orgName: "testOrg",
         keys: apiKeySet,
     };
