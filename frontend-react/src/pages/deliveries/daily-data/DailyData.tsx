@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { Dispatch, FC, SetStateAction } from "react";
 
 import Table, {
     ColumnConfig,
@@ -16,7 +16,7 @@ import TableFilters, {
 } from "../../../components/Table/TableFilters";
 import { PaginationProps } from "../../../components/Table/Pagination";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
-import usePagination from "../../../hooks/UsePagination";
+import usePagination, { ResultsFetcher } from "../../../hooks/UsePagination";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { FeatureName } from "../../../utils/FeatureName";
@@ -119,25 +119,18 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
 };
 
 const DeliveriesFilterAndTable = ({
+    fetchResults,
+    filterManager,
     services,
-    activeReceiver,
-    setActiveReceiver,
+    setService,
 }: {
+    fetchResults: ResultsFetcher<any>;
+    filterManager: FilterManager;
     services: RSReceiver[];
-    activeReceiver: RSReceiver | undefined;
-    setActiveReceiver: (receiver: RSReceiver) => void;
+    setService: Dispatch<SetStateAction<string | undefined>>;
 }) => {
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
-    const handleSetActiveService = (name: string) => {
-        const result = services.find((item) => item.name === name);
-        if (result) setActiveReceiver(result);
-    };
-
-    const { fetchResults, filterManager } = useOrgDeliveries(
-        activeReceiver?.name,
-    );
-
     const pageSize = filterManager.pageSettings.size;
     const sortOrder = filterManager.sortSettings.order;
     const rangeTo = filterManager.rangeSettings.to;
@@ -188,7 +181,7 @@ const DeliveriesFilterAndTable = ({
                     endDateLabel={TableFilterDateLabel.END_DATE}
                     showDateHints={true}
                     filterManager={filterManager}
-                    handleSetActiveService={handleSetActiveService}
+                    setService={setService}
                     onFilterClick={({
                         from,
                         to,
@@ -221,7 +214,7 @@ const DeliveriesFilterAndTable = ({
 export const DailyData = () => {
     const { isLoading, isDisabled, activeReceivers } =
         useOrganizationReceivers();
-    const [activeReceiver, setActiveReceiver] = useState(activeReceivers?.[0]);
+    const { fetchResults, filterManager, setService } = useOrgDeliveries();
 
     if (isLoading) return <Spinner />;
 
@@ -229,7 +222,7 @@ export const DailyData = () => {
         return <AdminFetchAlert />;
     }
 
-    if (!isLoading && !activeReceiver)
+    if (activeReceivers.length === 0)
         return (
             <div className="usa-section margin-bottom-5">
                 <NoServicesBanner />
@@ -237,9 +230,10 @@ export const DailyData = () => {
         );
     return (
         <DeliveriesFilterAndTable
+            fetchResults={fetchResults}
+            filterManager={filterManager}
+            setService={setService}
             services={activeReceivers!!}
-            activeReceiver={activeReceiver}
-            setActiveReceiver={setActiveReceiver}
         />
     );
 };

@@ -1,4 +1,11 @@
-import React, { FormEvent, useCallback, useRef, useState } from "react";
+import React, {
+    Dispatch,
+    FormEvent,
+    SetStateAction,
+    useCallback,
+    useRef,
+    useState,
+} from "react";
 import {
     Button,
     ComboBox,
@@ -32,14 +39,14 @@ export enum TableFilterDateLabel {
 }
 
 interface TableFilterProps {
-    receivers?: { value: string; label: string }[];
-    startDateLabel: string;
-    endDateLabel: string;
-    showDateHints?: boolean;
-    filterManager: FilterManager;
-    handleSetActiveService?: (s: string) => void;
     cursorManager?: CursorManager;
+    endDateLabel: string;
+    filterManager: FilterManager;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
+    receivers?: { value: string; label: string }[];
+    setService: Dispatch<SetStateAction<string | undefined>>;
+    showDateHints?: boolean;
+    startDateLabel: string;
 }
 
 // using a regex to check for format because of different browsers' implementations of Date
@@ -62,14 +69,14 @@ export function isValidDateString(dateStr?: string) {
  * and will use the context to get these values.
  */
 function TableFilters({
-    receivers,
-    startDateLabel,
-    endDateLabel,
-    showDateHints,
-    filterManager,
-    handleSetActiveService,
     cursorManager,
+    endDateLabel,
+    filterManager,
     onFilterClick,
+    receivers,
+    setService,
+    showDateHints,
+    startDateLabel,
 }: TableFilterProps) {
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
@@ -83,7 +90,9 @@ function TableFilters({
     const formRef = useRef<HTMLFormElement>(null);
     const [startTime, setStartTime] = useState(DEFAULT_TIME);
     const [endTime, setEndTime] = useState(DEFAULT_TIME);
-    const [activeService, setActiveService] = useState("");
+    const [currentServiceSelect, setCurrentServiceSelect] = useState<
+        string | undefined
+    >(undefined);
     const [reset, setReset] = useState(0);
 
     const updateRange = useCallback(
@@ -136,16 +145,16 @@ function TableFilters({
             const rangeToWithTime = new Date(
                 rangeTo.setHours(endHours, endMinutes, 0, 0),
             ).toISOString();
+            setService(currentServiceSelect);
             applyToFilterManager(rangeFromWithTime, rangeToWithTime);
-            handleSetActiveService && handleSetActiveService(activeService);
         },
         [
-            activeService,
             applyToFilterManager,
+            currentServiceSelect,
             endTime,
-            handleSetActiveService,
             rangeFrom,
             rangeTo,
+            setService,
             startTime,
         ],
     );
@@ -184,11 +193,7 @@ function TableFilters({
                                     name="input-ComboBox"
                                     options={receivers}
                                     onChange={(selection) => {
-                                        if (selection) {
-                                            setActiveService(selection);
-                                        } else {
-                                            setActiveService("");
-                                        }
+                                        setCurrentServiceSelect(selection);
                                     }}
                                 />
                             )}

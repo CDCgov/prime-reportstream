@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import {
@@ -42,7 +42,8 @@ const filterManagerDefaults: FilterManagerDefaults = {
  *
  * @param service {string} the chosen receiver service (e.x. `elr-secondary`)
  * */
-const useOrgDeliveries = (service?: string) => {
+const useOrgDeliveries = (initialService?: string) => {
+    const [service, setService] = useState(initialService);
     const { activeMembership } = useSessionContext();
     const authorizedFetch = useAuthorizedFetch();
 
@@ -91,7 +92,7 @@ const useOrgDeliveries = (service?: string) => {
         ],
     );
 
-    return { fetchResults, filterManager };
+    return { fetchResults, filterManager, setService };
 };
 
 /** Hook consumes the ReportsApi "detail" endpoint and delivers the response
