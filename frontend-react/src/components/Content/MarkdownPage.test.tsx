@@ -1,8 +1,7 @@
-import testMd from "../../content/markdown-test.md?url";
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import { MarkdownDirectory } from "./MarkdownDirectory";
 import MarkdownPage from "./MarkdownPage";
+import testMd from "../../content/markdown-test.md?url";
+import { renderApp, screen } from "../../utils/CustomRenderUtils";
 
 describe("DirectoryAsPage", () => {
     const testDir = new MarkdownDirectory()
@@ -10,6 +9,9 @@ describe("DirectoryAsPage", () => {
         .setSlug("test-dir")
         .addFile(testMd);
     test("Renders without error", () => {
-        renderApp(<MarkdownPage directory={testDir} />);
+        renderApp(
+            <MarkdownPage directory={testDir} data-testid="markdownpage" />,
+        );
+        expect(screen.getByTestId("markdownpage")).toBeInTheDocument();
     });
 });

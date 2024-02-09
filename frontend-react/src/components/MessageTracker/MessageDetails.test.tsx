@@ -1,10 +1,9 @@
 import { screen } from "@testing-library/react";
 
-import { mockUseMessageDetails } from "../../hooks/network/MessageTracker/__mocks__/MessageTrackerHooks";
-import { RSMessageDetail } from "../../config/endpoints/messageTracker";
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import { MessageDetailsPage } from "./MessageDetails";
+import { RSMessageDetail } from "../../config/endpoints/messageTracker";
+import { mockUseMessageDetails } from "../../hooks/network/MessageTracker/__mocks__/MessageTrackerHooks";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const TEST_ID = 1;
 const MOCK_MESSAGE_WARNINGS = [

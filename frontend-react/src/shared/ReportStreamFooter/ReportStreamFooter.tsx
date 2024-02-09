@@ -1,20 +1,19 @@
 import {
     Identifier,
-    IdentifierMasthead,
-    IdentifierLogos,
-    IdentifierLogo,
-    IdentifierIdentity,
-    IdentifierLinks,
-    Link,
     IdentifierGov,
-    IdentifierLinkItem,
+    IdentifierIdentity,
     IdentifierLink,
+    IdentifierLinkItem,
+    IdentifierLinks,
+    IdentifierLogo,
+    IdentifierLogos,
+    IdentifierMasthead,
+    Link,
 } from "@trussworks/react-uswds";
 
-import site from "../../content/site.json";
-import { USExtLink, USLinkButton } from "../../components/USLink";
-
 import styles from "./ReportStreamFooter.module.scss";
+import { USExtLink, USLinkButton } from "../../components/USLink";
+import site from "../../content/site.json";
 
 export const ReportStreamFooter = () => {
     return (

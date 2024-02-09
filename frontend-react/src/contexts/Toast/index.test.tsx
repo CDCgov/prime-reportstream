@@ -1,7 +1,7 @@
 import { render, renderHook, screen } from "@testing-library/react";
 import { useContext } from "react";
 
-import ToastProvider, { ToastContext, ToastCtx, useToast } from "./";
+import { ToastContext, ToastCtx, ToastProvider, useToast } from "./";
 
 describe("Toast", () => {
     describe("Provider", () => {
@@ -54,6 +54,6 @@ describe("Toast", () => {
 
     // TODO
     describe.skip("toast function", () => {
-        test("renders toast", () => {});
+        test("renders toast", () => void 0);
     });
 });

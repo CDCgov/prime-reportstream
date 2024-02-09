@@ -1,12 +1,12 @@
+import { lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router";
-import React, { lazy } from "react";
 
 import { createRouter } from "./AppRouter";
 import config from "./config";
-import { aiConfig, createTelemetryService } from "./TelemetryService";
 import AppInsightsContextProvider from "./contexts/AppInsights";
 import { OKTA_AUTH } from "./oktaConfig";
+import { aiConfig, createTelemetryService } from "./TelemetryService";
 
 import "./global.scss";
 

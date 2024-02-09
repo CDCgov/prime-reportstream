@@ -1,18 +1,17 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../utils/CustomRenderUtils";
-
 import {
     getHrefRoute,
+    isExternalUrl,
+    SafeLink,
     USCrumbLink,
     USExtLink,
     USLink,
-    USNavLink,
     USLinkButton,
-    SafeLink,
+    USNavLink,
     USSmartLink,
-    isExternalUrl,
 } from "./USLink";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 const enumProps = {
     size: ["big"],
@@ -66,7 +65,7 @@ describe("getHrefRoute", () => {
 describe("SafeLink", () => {
     // Native react element type will be DOM element name string.
     // Custom components will have a type.displayName of their variable
-    // name (ex: const CustomComponent = () => {} will have displayName
+    // name (ex: const CustomComponent = () => void 0 will have displayName
     // CustomComponent).
     test.each(routeUrls)("'%s' renders as Link", (url) => {
         const component = SafeLink({ children: <>Test</>, href: url });
