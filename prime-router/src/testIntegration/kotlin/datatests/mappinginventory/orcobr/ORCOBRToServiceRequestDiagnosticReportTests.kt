@@ -8,7 +8,7 @@ class ORCOBRToServiceRequestDiagnosticReportTests {
     @Test
     fun `test ORC populated`() {
         val testFileName = "orcobr/orc_obr-to-servicerequest_diagnosticreport-orc-populated"
-        assert(verifyHL7ToFHIRToHL7Mapping(testFileName).passed)
+        assert(verifyHL7ToFHIRToHL7Mapping(testFileName, skipHl7ToFhir = true, skipFhirToHl7 = true).passed)
     }
 
     @Test

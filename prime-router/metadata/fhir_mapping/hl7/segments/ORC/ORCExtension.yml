@@ -48,6 +48,8 @@ extension:
       vars:
         orc10: STRING_ALL, ORC.10
       condition: $orc10 NOT_NULL
+      specs: ORC.10
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -55,11 +57,12 @@ extension:
         valueReference:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: ORC.10
     - expressionType: nested
       vars:
         orc11: STRING_ALL, ORC.11
       condition: $orc11 NOT_NULL
+      specs: ORC.11
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -67,7 +70,19 @@ extension:
         valueReference:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: ORC.11
+    - expressionType: nested
+      vars:
+        orc12: STRING_ALL, ORC.12
+      condition: $orc12 NOT_NULL
+      specs: ORC.12
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: orc-12-ordering-provider
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XCN/Practitioner
     - expressionType: nested
       vars:
         orc13: STRING_ALL, ORC.13
@@ -120,6 +135,8 @@ extension:
       vars:
         orc19: STRING_ALL, ORC.19
       condition: $orc19 NOT_NULL
+      specs: ORC.19
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -127,7 +144,45 @@ extension:
         valueReference:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: ORC.19
+    - expressionType: nested
+      vars:
+        orc21: STRING_ALL, ORC.21
+      condition: $orc21 NOT_NULL
+      specs: ORC.21
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: orc-21-ordering-facility-name
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XON/Organization
+    - expressionType: nested
+      vars:
+        orc22: STRING_ALL, ORC.22
+      condition: $orc22 NOT_NULL
+      specs: ORC.22
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: orc-22-ordering-facility-address
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XAD/Address
+    - expressionType: nested
+      vars:
+        orc24: STRING_ALL, ORC.24
+      condition: $orc24 NOT_NULL
+      specs: ORC.24
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: orc-24-ordering-provider-address
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XAD/Address
     - expressionType: nested
       vars:
         orc27: ORC.27
