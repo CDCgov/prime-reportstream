@@ -32,7 +32,7 @@ jobs:
     if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     defaults:
       run:
-        working-directory: /mnt
+        working-directory: prime-router
 
     steps:
       - name: Add swapfile
@@ -44,17 +44,6 @@ jobs:
           sudo mkswap /mnt/swapfile
           sudo swapon /mnt/swapfile
           sudo swapon --show
-
-      - name: Pre-build debug info
-        run: |
-          ls -halt
-          pwd
-          whoami
-          df -h
-          free -m
-          docker system df -v
-          sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr
-          sudo du / -hx -d 4 --threshold=100M | sort -hr                    
 
       - name: "Check out changes"
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
