@@ -1,0 +1,33 @@
+- name: state-dph
+  description: State Department of Health
+  jurisdiction: STATE
+  stateCode: CA
+  countyName: Santa Clara
+
+- name: another-state-dph
+  description: Another State Department of Health
+  jurisdiction: STATE
+
+- name: fed-dph
+  description: Fed Department of Health
+  jurisdiction: FEDERAL
+  stateCode: OH
+
+- name: another-fed-dph
+  description: Another Fed Department of Health
+  jurisdiction: FEDERAL
+  countyName: Santa Clara
+
+- name: county-dph
+  description: County Department of Health
+  jurisdiction: COUNTY
+  countyName: Santa Clara
+
+- name: another-county-dph
+  description: Another County Department of Health
+  jurisdiction: COUNTY
+
+- name: yet-another-county-dph
+  description: Yet Another County Department of Health
+  jurisdiction: COUNTY
+  stateCode: CA

@@ -4,8 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.networknt.schema.JsonSchema
+import com.networknt.schema.JsonSchemaFactory
+import com.networknt.schema.SpecVersion
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
@@ -26,6 +30,7 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.JwkSet
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
+import java.io.File
 import java.time.OffsetDateTime
 
 /**
@@ -277,7 +282,19 @@ class SettingsFacade(
         }
         input.consistencyErrorMessage(metadata)?.let { return Triple(false, it, null) }
         val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
+        // validate with setting schema: organizations.schema.json
+        // TODO: validate per json: org, receiver, sender respectively
+        val errorMessages = settingSchema.validate(convertToArray(normalizedJson.toString()))
+        println(errorMessages.size)
+//        return if (errorMessages.size>0)
+//            Triple(false, errorMessages.toString(), normalizedJson)
+//        else
         return Triple(true, null, normalizedJson)
+    }
+
+    fun convertToArray(json: String): JsonNode {
+        val orgKey = "oneOrgArray"
+        return mapper.readTree("{\"${orgKey}\" : [$json]}").get(orgKey)
     }
 
     fun <T : SettingAPI> deleteSetting(
@@ -315,6 +332,11 @@ class SettingsFacade(
                 Sender::class.qualifiedName -> SettingType.SENDER
                 else -> error("Internal Error: Unknown classname: $className")
             }
+        }
+
+        val settingSchema: JsonSchema by lazy {
+            JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
+                .getSchema(String(File("settings/organizations.schema.json").readBytes()))
         }
 
         private fun errorJson(message: String): String {

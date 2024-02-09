@@ -435,13 +435,6 @@ tasks.register("testEnd2EndUP") {
     finalizedBy("primeCLI")
 }
 
-tasks.register("testS2S") {
-    group = rootProject.description ?: ""
-    description = "Run the s2s auth tests.  Requires running a Docker instance"
-    project.extra["cliArgs"] = listOf("test", "--run", "server2serverauth")
-    finalizedBy("primeCLI")
-}
-
 tasks.register("generateDocs") {
     group = rootProject.description ?: ""
     description = "Generate the schema documentation in markup format"
@@ -497,6 +490,7 @@ tasks.register<Copy>("gatherAzureResources") {
     include("metadata/**/*.valuesets")
     include("metadata/**/*.csv")
     include("settings/**/*.yml")
+    include("settings/**/*.json")
     include("assets/**/*__inline.html")
 }
 
@@ -857,6 +851,7 @@ dependencies {
             branch = "master"
         }
     }
+    implementation("com.networknt:json-schema-validator:1.3.2")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.10.0")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.10.0")

@@ -1,0 +1,30 @@
+- name: ca-sbc-phd
+  description: San Benito County Public Health Services
+  jurisdiction: COUNTY
+  countyName: San Benito
+  stateCode: CA
+  receivers:
+    - name: elr
+      organizationName: ca-sbc-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "true" ]
+      conditionFilter:
+        - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
+      mappedConditionFilter: # this filter will only pass observations stamped with condition codes AOE or 840539006
+        - type: codeString
+          value: 840539006,AOE
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP

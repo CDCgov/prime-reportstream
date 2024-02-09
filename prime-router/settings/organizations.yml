@@ -23,7 +23,7 @@
         defaults: { }
         nameFormat: "STANDARD"
         receivingOrganization: null
-        type: "CUSTOM"
+        type: CUSTOM
       jurisdictionalFilter:
         - "hasAtLeastOneOf(waters_submitter, sender_id)"
         - "orEquals(patient_state, GH, ordering_facility_state, GH)"
@@ -55,7 +55,7 @@
         defaults: { }
         nameFormat: "STANDARD"
         receivingOrganization: null
-        type: "CUSTOM"
+        type: CUSTOM
       jurisdictionalFilter:
         - "hasAtLeastOneOf(waters_submitter, sender_id)"
         - "orEquals(patient_state, GH, ordering_facility_state, GH)"
@@ -229,7 +229,7 @@
         schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
-        type: "HL7"
+        type: HL7
         receivingApplicationName: "CO-ELR"
         receivingFacilityName: "CO"
       transport:
@@ -258,7 +258,7 @@
         schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
-        type: "HL7"
+        type: HL7
         receivingApplicationName: "CO-ETOR"
         receivingFacilityName: "CO"
       transport:
@@ -282,7 +282,7 @@
       translation: !<HL7>
         schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useBatchHeaders: true
-        type: "HL7"
+        type: HL7
       transport:
         type: SFTP
         host: sftp
@@ -312,7 +312,7 @@
       translation: !<FHIR>
         # Uncomment next line to verify fhir receiver transforms
         # schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
-        type: "FHIR"
+        type: FHIR
       transport:
         type: SFTP
         host: sftp
@@ -534,7 +534,7 @@
       jurisdictionalFilter: [ "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, Y)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
       translation:
-        type: "CUSTOM"
+        type: CUSTOM
         schemaName: "hhsprotect/hhsprotect-covid-19"
         format: "CSV"
       deidentify: true
@@ -545,7 +545,7 @@
       jurisdictionalFilter: [ "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
       translation:
-        type: "CUSTOM"
+        type: CUSTOM
         schemaName: "hhsprotect/hhsprotect-covid-19"
         format: "CSV"
       deidentify: true
@@ -556,7 +556,7 @@
       jurisdictionalFilter: [ "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, UNK)","matches(test_authorized_for_unproctored, UNK)" ]
       translation:
-        type: "CUSTOM"
+        type: CUSTOM
         schemaName: "hhsprotect/hhsprotect-covid-19"
         format: "CSV"
       deidentify: true
@@ -992,7 +992,7 @@
         schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
         useTestProcessingMode: false
         useBatchHeaders: true
-        type: "HL7"
+        type: HL7
         receivingApplicationName: ""
         receivingFacilityName: ""
         convertPositiveDateTimeOffsetToNegative: false
@@ -1020,7 +1020,7 @@
         schemaName: "metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base"
         useTestProcessingMode: false
         useBatchHeaders: true
-        type: "HL7"
+        type: HL7
         receivingApplicationName: ""
         receivingFacilityName: ""
       transport:
@@ -1045,7 +1045,7 @@
         schemaName: "metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base-deidentified"
         useTestProcessingMode: false
         useBatchHeaders: true
-        type: "HL7"
+        type: HL7
         receivingApplicationName: ""
         receivingFacilityName: ""
       transport:
@@ -1071,7 +1071,7 @@
         schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useTestProcessingMode: false
         useBatchHeaders: false
-        type: "HL7"
+        type: HL7
         receivingApplicationName: ""
         receivingFacilityName: ""
       transport:
@@ -1098,7 +1098,7 @@
         initialTime: 00:00
       translation: !<FHIR>
         useBatching: false
-        type: "FHIR"
+        type: FHIR
       transport:
         type: SFTP
         host: sftp
