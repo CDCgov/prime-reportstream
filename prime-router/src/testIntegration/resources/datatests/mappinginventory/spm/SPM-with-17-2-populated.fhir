@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1707329730204873000.c84a8f61-24b3-4a11-9f06-fe6eba8d753f",
+  "id" : "1707523089093266000.c5c852df-4432-4a36-8e00-e622e9e83bab",
   "meta" : {
-    "lastUpdated" : "2024-02-07T13:15:30.211-05:00"
+    "lastUpdated" : "2024-02-09T17:58:09.244-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "12345"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T10:25:31.000-04:00",
+  "timestamp" : "2023-05-01T09:25:31.000-05:00",
   "entry" : [
     {
       "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
@@ -41,7 +41,7 @@
           "display" : "ORU^R01^ORU_R01"
         },
         "sender" : {
-          "reference" : "Organization/1707329730254868000.89ebe939-39d2-4db8-a8c8-df994141e34b"
+          "reference" : "Organization/1707523089349484000.f5c5db42-0345-4270-8277-13cf3867685a"
         },
         "source" : {
           "_endpoint" : {
@@ -56,10 +56,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1707329730254868000.89ebe939-39d2-4db8-a8c8-df994141e34b",
+      "fullUrl" : "Organization/1707523089349484000.f5c5db42-0345-4270-8277-13cf3867685a",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1707329730254868000.89ebe939-39d2-4db8-a8c8-df994141e34b",
+        "id" : "1707523089349484000.f5c5db42-0345-4270-8277-13cf3867685a",
         "address" : [
           {
             "country" : "USA"
@@ -68,16 +68,16 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1707329730595849000.6ee67dbc-de25-4836-8d85-936656ecad18",
+      "fullUrl" : "Provenance/1707523090582865000.136b5702-9789-40fd-9706-cdd997968364",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1707329730595849000.6ee67dbc-de25-4836-8d85-936656ecad18",
+        "id" : "1707523090582865000.136b5702-9789-40fd-9706-cdd997968364",
         "target" : [
           {
             "reference" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b"
           },
           {
-            "reference" : "DiagnosticReport/1707329730816839000.2395bca1-283e-426b-8b4c-e4bcd16bef1c"
+            "reference" : "DiagnosticReport/1707523091305276000.344e6255-28ca-4026-b503-e3d8aa6abce0"
           }
         ],
         "recorded" : "2023-05-01T10:25:31-04:00",
@@ -91,11 +91,11 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1707329730603620000.3e4124e8-f60f-467e-bd9e-80580205e8d6",
+      "fullUrl" : "Provenance/1707523090614138000.aab76307-ed4d-4394-90d9-a38c1df6b29a",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1707329730603620000.3e4124e8-f60f-467e-bd9e-80580205e8d6",
-        "recorded" : "2024-02-07T13:15:30Z",
+        "id" : "1707523090614138000.aab76307-ed4d-4394-90d9-a38c1df6b29a",
+        "recorded" : "2024-02-09T17:58:10Z",
         "policy" : [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -117,17 +117,17 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1707329730603186000.bf63bd71-6d10-4392-b9cc-439fae8d30e9"
+              "reference" : "Organization/1707523090613734000.d23509df-1f93-4e40-8282-ff1a3293dae6"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1707329730603186000.bf63bd71-6d10-4392-b9cc-439fae8d30e9",
+      "fullUrl" : "Organization/1707523090613734000.d23509df-1f93-4e40-8282-ff1a3293dae6",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1707329730603186000.bf63bd71-6d10-4392-b9cc-439fae8d30e9",
+        "id" : "1707523090613734000.d23509df-1f93-4e40-8282-ff1a3293dae6",
         "identifier" : [
           {
             "value" : "CDC PRIME - Atlanta"
@@ -147,23 +147,23 @@
       }
     },
     {
-      "fullUrl" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615",
+      "fullUrl" : "Patient/1707523090653328000.d8b02d36-91fc-4698-82c7-df6064d76aab",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
+        "id" : "1707523090653328000.d8b02d36-91fc-4698-82c7-df6064d76aab"
       }
     },
     {
-      "fullUrl" : "Provenance/1707329730618999000.3a1393ec-6c79-4892-9723-9b88a8ed293e",
+      "fullUrl" : "Provenance/1707523090653956000.4dc5873e-112f-446e-8e67-ae5b60c17375",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1707329730618999000.3a1393ec-6c79-4892-9723-9b88a8ed293e",
+        "id" : "1707523090653956000.4dc5873e-112f-446e-8e67-ae5b60c17375",
         "target" : [
           {
-            "reference" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
+            "reference" : "Patient/1707523090653328000.d8b02d36-91fc-4698-82c7-df6064d76aab"
           }
         ],
-        "recorded" : "2024-02-07T13:15:30Z",
+        "recorded" : "2024-02-09T17:58:10Z",
         "activity" : {
           "coding" : [
             {
@@ -175,10 +175,10 @@
       }
     },
     {
-      "fullUrl" : "Specimen/1707329730638887000.bb67a7f6-12ff-4b7c-b99b-ca34c8b97864",
+      "fullUrl" : "Specimen/1707523090700084000.5f06920b-dc5a-456f-b762-106e56ad5fb4",
       "resource" : {
         "resourceType" : "Specimen",
-        "id" : "1707329730638887000.bb67a7f6-12ff-4b7c-b99b-ca34c8b97864",
+        "id" : "1707523090700084000.5f06920b-dc5a-456f-b762-106e56ad5fb4",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/spm-specimen",
@@ -189,7 +189,7 @@
                   "extension" : [
                     {
                       "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                      "valueString" : "Any lab USA"
+                      "valueString" : "Any lab USA2"
                     },
                     {
                       "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
@@ -208,7 +208,7 @@
                         },
                         {
                           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                          "valueString" : "Any lab USA"
+                          "valueString" : "Any lab USA3"
                         },
                         {
                           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
@@ -295,7 +295,7 @@
                   "extension" : [
                     {
                       "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                      "valueString" : "Any lab USA"
+                      "valueString" : "Any lab USA3"
                     },
                     {
                       "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
@@ -314,7 +314,7 @@
                         },
                         {
                           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                          "valueString" : "Any lab USA"
+                          "valueString" : "Any lab USA2"
                         },
                         {
                           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
@@ -562,6 +562,18 @@
                 }
               },
               {
+                "url" : "spm-30-accession-id",
+                "valueIdentifier" : {
+                  "value" : "IDNumber"
+                }
+              },
+              {
+                "url" : "spm-30-accession-id",
+                "valueIdentifier" : {
+                  "value" : "IDNumber2"
+                }
+              },
+              {
                 "url" : "spm-5-specimen-type-modifier",
                 "valueCodeableConcept" : {
                   "coding" : [
@@ -579,7 +591,7 @@
                       "system" : "http://snomed.info/sct",
                       "version" : "2.67",
                       "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
+                      "display" : "SNOMEDTEXT2"
                     },
                     {
                       "extension" : [
@@ -594,7 +606,7 @@
                       ],
                       "system" : "http://loinc.org",
                       "code" : "12345-6",
-                      "display" : "LOINCTEXT"
+                      "display" : "LOINCTEXT2"
                     }
                   ]
                 }
@@ -617,7 +629,7 @@
                       "system" : "http://snomed.info/sct",
                       "version" : "2.67",
                       "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
+                      "display" : "SNOMEDTEXT3"
                     },
                     {
                       "extension" : [
@@ -632,7 +644,7 @@
                       ],
                       "system" : "http://loinc.org",
                       "code" : "12345-6",
-                      "display" : "LOINCTEXT"
+                      "display" : "LOINCTEXT3"
                     }
                   ]
                 }
@@ -655,7 +667,7 @@
                       "system" : "http://snomed.info/sct",
                       "version" : "2.67",
                       "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
+                      "display" : "SNOMEDTEXT4"
                     },
                     {
                       "extension" : [
@@ -670,7 +682,7 @@
                       ],
                       "system" : "http://loinc.org",
                       "code" : "12345-6",
-                      "display" : "LOINCTEXT"
+                      "display" : "LOINCTEXT4"
                     }
                   ]
                 }
@@ -693,7 +705,7 @@
                       "system" : "http://snomed.info/sct",
                       "version" : "2.67",
                       "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
+                      "display" : "SNOMEDTEXT5"
                     },
                     {
                       "extension" : [
@@ -708,7 +720,7 @@
                       ],
                       "system" : "http://loinc.org",
                       "code" : "12345-6",
-                      "display" : "LOINCTEXT"
+                      "display" : "LOINCTEXT5"
                     }
                   ]
                 }
@@ -769,7 +781,7 @@
                       "system" : "http://snomed.info/sct",
                       "version" : "2.67",
                       "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
+                      "display" : "SNOMEDTEXT8"
                     },
                     {
                       "extension" : [
@@ -784,7 +796,7 @@
                       ],
                       "system" : "http://loinc.org",
                       "code" : "12345-6",
-                      "display" : "LOINCTEXT"
+                      "display" : "LOINCTEXT8"
                     }
                   ]
                 }
@@ -807,7 +819,7 @@
                       "system" : "http://snomed.info/sct",
                       "version" : "2.67",
                       "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
+                      "display" : "SNOMEDTEXT9"
                     },
                     {
                       "extension" : [
@@ -822,7 +834,7 @@
                       ],
                       "system" : "http://loinc.org",
                       "code" : "12345-6",
-                      "display" : "LOINCTEXT"
+                      "display" : "LOINCTEXT9"
                     }
                   ]
                 }
@@ -849,7 +861,7 @@
                       "system" : "http://snomed.info/sct",
                       "version" : "2.67",
                       "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
+                      "display" : "SNOMEDTEXT10"
                     },
                     {
                       "extension" : [
@@ -864,7 +876,7 @@
                       ],
                       "system" : "http://loinc.org",
                       "code" : "12345-6",
-                      "display" : "LOINCTEXT"
+                      "display" : "LOINCTEXT10"
                     }
                   ]
                 }
@@ -887,7 +899,7 @@
                       "system" : "http://snomed.info/sct",
                       "version" : "2.67",
                       "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
+                      "display" : "SNOMEDTEXT11"
                     },
                     {
                       "extension" : [
@@ -902,7 +914,7 @@
                       ],
                       "system" : "http://loinc.org",
                       "code" : "12345-6",
-                      "display" : "LOINCTEXT"
+                      "display" : "LOINCTEXT11"
                     }
                   ]
                 }
@@ -925,7 +937,7 @@
                       "system" : "http://snomed.info/sct",
                       "version" : "2.67",
                       "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
+                      "display" : "SNOMEDTEXT12"
                     },
                     {
                       "extension" : [
@@ -940,7 +952,7 @@
                       ],
                       "system" : "http://loinc.org",
                       "code" : "12345-6",
-                      "display" : "LOINCTEXT"
+                      "display" : "LOINCTEXT12"
                     }
                   ]
                 }
@@ -963,7 +975,7 @@
                       "system" : "http://snomed.info/sct",
                       "version" : "2.67",
                       "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
+                      "display" : "SNOMEDTEXT13"
                     },
                     {
                       "extension" : [
@@ -978,7 +990,7 @@
                       ],
                       "system" : "http://loinc.org",
                       "code" : "12345-6",
-                      "display" : "LOINCTEXT"
+                      "display" : "LOINCTEXT13"
                     }
                   ]
                 }
@@ -1007,7 +1019,7 @@
                   "system" : "http://snomed.info/sct",
                   "version" : "2.67",
                   "code" : "440500007",
-                  "display" : "SNOMEDTEXT"
+                  "display" : "SNOMEDTEXT14"
                 },
                 {
                   "extension" : [
@@ -1022,7 +1034,7 @@
                   ],
                   "system" : "http://loinc.org",
                   "code" : "12345-6",
-                  "display" : "LOINCTEXT"
+                  "display" : "LOINCTEXT14"
                 }
               ]
             }
@@ -1045,7 +1057,7 @@
                   "system" : "http://snomed.info/sct",
                   "version" : "2.67",
                   "code" : "440500007",
-                  "display" : "SNOMEDTEXT"
+                  "display" : "SNOMEDTEXT15"
                 },
                 {
                   "extension" : [
@@ -1060,7 +1072,7 @@
                   ],
                   "system" : "http://loinc.org",
                   "code" : "12345-6",
-                  "display" : "LOINCTEXT"
+                  "display" : "LOINCTEXT15"
                 }
               ]
             }
@@ -1174,7 +1186,16 @@
                 "valueString" : "SPM.31"
               }
             ],
-            "value" : "IDNumber"
+            "value" : "IDNumber3"
+          },
+          {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString" : "SPM.31"
+              }
+            ],
+            "value" : "IDNumber4"
           },
           {
             "extension" : [
@@ -1261,7 +1282,7 @@
         },
         "parent" : [
           {
-            "reference" : "Specimen/1707329730625371000.b095de35-e2e5-4ce1-bba3-40574929c680"
+            "reference" : "Specimen/1707523090670489000.573e4a17-f164-49d1-8557-fdffc96f89a4"
           }
         ],
         "collection" : {
@@ -1284,7 +1305,7 @@
                     "system" : "http://snomed.info/sct",
                     "version" : "2.67",
                     "code" : "440500007",
-                    "display" : "SNOMEDTEXT"
+                    "display" : "SNOMEDTEXT6"
                   },
                   {
                     "extension" : [
@@ -1299,7 +1320,7 @@
                     ],
                     "system" : "http://loinc.org",
                     "code" : "12345-6",
-                    "display" : "LOINCTEXT"
+                    "display" : "LOINCTEXT6"
                   }
                 ]
               }
@@ -1322,7 +1343,7 @@
                     "system" : "http://snomed.info/sct",
                     "version" : "2.67",
                     "code" : "440500007",
-                    "display" : "SNOMEDTEXT"
+                    "display" : "SNOMEDTEXT7"
                   },
                   {
                     "extension" : [
@@ -1337,7 +1358,7 @@
                     ],
                     "system" : "http://loinc.org",
                     "code" : "12345-6",
-                    "display" : "LOINCTEXT"
+                    "display" : "LOINCTEXT7"
                   }
                 ]
               }
@@ -1474,7 +1495,7 @@
                   "system" : "http://snomed.info/sct",
                   "version" : "2.67",
                   "code" : "440500007",
-                  "display" : "SNOMEDTEXT"
+                  "display" : "SNOMEDTEXT4"
                 },
                 {
                   "extension" : [
@@ -1489,7 +1510,7 @@
                   ],
                   "system" : "http://loinc.org",
                   "code" : "12345-6",
-                  "display" : "LOINCTEXT"
+                  "display" : "LOINCTEXT4"
                 }
               ]
             }
@@ -1512,7 +1533,7 @@
                 "system" : "http://snomed.info/sct",
                 "version" : "2.67",
                 "code" : "440500007",
-                "display" : "SNOMEDTEXT"
+                "display" : "SNOMEDTEXT16"
               },
               {
                 "extension" : [
@@ -1527,7 +1548,7 @@
                 ],
                 "system" : "http://loinc.org",
                 "code" : "12345-6",
-                "display" : "LOINCTEXT"
+                "display" : "LOINCTEXT16"
               }
             ]
           },
@@ -1547,7 +1568,7 @@
                 "system" : "http://snomed.info/sct",
                 "version" : "2.67",
                 "code" : "440500007",
-                "display" : "SNOMEDTEXT"
+                "display" : "SNOMEDTEXT17"
               },
               {
                 "extension" : [
@@ -1562,7 +1583,7 @@
                 ],
                 "system" : "http://loinc.org",
                 "code" : "12345-6",
-                "display" : "LOINCTEXT"
+                "display" : "LOINCTEXT17"
               }
             ]
           }
@@ -1590,16 +1611,16 @@
       }
     },
     {
-      "fullUrl" : "Specimen/1707329730625371000.b095de35-e2e5-4ce1-bba3-40574929c680",
+      "fullUrl" : "Specimen/1707523090670489000.573e4a17-f164-49d1-8557-fdffc96f89a4",
       "resource" : {
         "resourceType" : "Specimen",
-        "id" : "1707329730625371000.b095de35-e2e5-4ce1-bba3-40574929c680",
+        "id" : "1707523090670489000.573e4a17-f164-49d1-8557-fdffc96f89a4",
         "identifier" : [
           {
             "extension" : [
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Any lab USA"
+                "valueString" : "Any lab USA2"
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
@@ -1618,7 +1639,7 @@
                   },
                   {
                     "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                    "valueString" : "Any lab USA"
+                    "valueString" : "Any lab USA3"
                   },
                   {
                     "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
@@ -1645,7 +1666,7 @@
             "extension" : [
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Any lab USA"
+                "valueString" : "Any lab USA3"
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
@@ -1664,7 +1685,7 @@
                   },
                   {
                     "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                    "valueString" : "Any lab USA"
+                    "valueString" : "Any lab USA2"
                   },
                   {
                     "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
@@ -1691,10 +1712,10 @@
       }
     },
     {
-      "fullUrl" : "ServiceRequest/1707329730815001000.e9adfcca-a79a-40b4-9459-605056372f6e",
+      "fullUrl" : "ServiceRequest/1707523091299589000.c9b8451c-5496-43fb-9807-bf41aada16d9",
       "resource" : {
         "resourceType" : "ServiceRequest",
-        "id" : "1707329730815001000.e9adfcca-a79a-40b4-9459-605056372f6e",
+        "id" : "1707523091299589000.c9b8451c-5496-43fb-9807-bf41aada16d9",
         "status" : "unknown",
         "code" : {
           "coding" : [
@@ -1710,18 +1731,18 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
+          "reference" : "Patient/1707523090653328000.d8b02d36-91fc-4698-82c7-df6064d76aab"
         }
       }
     },
     {
-      "fullUrl" : "DiagnosticReport/1707329730816839000.2395bca1-283e-426b-8b4c-e4bcd16bef1c",
+      "fullUrl" : "DiagnosticReport/1707523091305276000.344e6255-28ca-4026-b503-e3d8aa6abce0",
       "resource" : {
         "resourceType" : "DiagnosticReport",
-        "id" : "1707329730816839000.2395bca1-283e-426b-8b4c-e4bcd16bef1c",
+        "id" : "1707523091305276000.344e6255-28ca-4026-b503-e3d8aa6abce0",
         "basedOn" : [
           {
-            "reference" : "ServiceRequest/1707329730815001000.e9adfcca-a79a-40b4-9459-605056372f6e"
+            "reference" : "ServiceRequest/1707523091299589000.c9b8451c-5496-43fb-9807-bf41aada16d9"
           }
         ],
         "status" : "final",
@@ -1739,11 +1760,11 @@
           ]
         },
         "subject" : {
-          "reference" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
+          "reference" : "Patient/1707523090653328000.d8b02d36-91fc-4698-82c7-df6064d76aab"
         },
         "specimen" : [
           {
-            "reference" : "Specimen/1707329730638887000.bb67a7f6-12ff-4b7c-b99b-ca34c8b97864"
+            "reference" : "Specimen/1707523090700084000.5f06920b-dc5a-456f-b762-106e56ad5fb4"
           }
         ]
       }

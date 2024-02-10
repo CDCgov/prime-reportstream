@@ -8,7 +8,7 @@ elements:
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-3(%{eipIndex})'
     resourceIndex: eipIndex
-    schema: ../../datatypes/identifier-placerAssignedIdentifier/EIP
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP.yml
 
   - name: specimen-identifier-backup
     resource: '%resource.parent.resolve().identifier.where(extension(%`rsext-hl7v2Field`).value = "SPM.3")'
@@ -18,7 +18,7 @@ elements:
     constants:
       eipFieldPath: '%{hl7SpecimenFieldPath}-3(%{eipIndex})'
     resourceIndex: eipIndex
-    schema: ../../datatypes/identifier-fillerAssignedIdentifier/EIP
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-fillerAssignedIdentifier/EIP.yml
 
   - name: specimen-parent-identifier
     resource: '%resource.extension.where(url = "spm-3-specimen-parent-id-placer").value'

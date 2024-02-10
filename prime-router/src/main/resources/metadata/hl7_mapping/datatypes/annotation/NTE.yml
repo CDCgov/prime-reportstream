@@ -13,7 +13,7 @@ elements:
     resourceIndex: stIndex
     constants:
       stField: '%{hl7NotePath}/NTE(%{noteIndex})-3(%{stIndex})'
-    schema: ../../datatypes/annotation/ST
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/ST.yml
 
   # This doesn't handle the extension since it should only happen with FHIR senders, and those should only have one
   # comment per note
