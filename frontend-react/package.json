@@ -143,7 +143,7 @@
         "@types/react-dom": "^18.2.18",
         "@types/react-router-dom": "^5.3.3",
         "@types/react-scroll-sync": "^0.9.0",
-        "@types/sanitize-html": "^2.9.5",
+        "@types/sanitize-html": "^2.11.0",
         "@typescript-eslint/eslint-plugin": "^6.21.0",
         "@typescript-eslint/parser": "^6.21.0",
         "@vitejs/plugin-react": "^4.2.1",
