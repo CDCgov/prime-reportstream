@@ -6,12 +6,12 @@ elements:
 
   - name: assigning-jurisdiction
     resource: '%resource.extension("CX.9").value'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{cxField}-9'
 
   - name: assigning-agency-or-department
     resource: '%resource.extension("CX.10").value'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{cxField}-10'
