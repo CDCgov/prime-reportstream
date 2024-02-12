@@ -3,23 +3,23 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ComponentType, Suspense, useCallback, useEffect, useRef } from "react";
 import { HelmetProvider } from "react-helmet-async";
-import { useIdleTimer } from "react-idle-timer";
+import { IIdleTimerProps, useIdleTimer } from "react-idle-timer";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
 
 import ScrollRestoration from "./components/ScrollRestoration";
 import { AppConfig } from "./config";
 import { EventName, useAppInsightsContext } from "./contexts/AppInsights";
-import { AuthorizedFetchProvider } from "./contexts/AuthorizedFetch";
-import { FeatureFlagProvider } from "./contexts/FeatureFlag";
+import AuthorizedFetchProvider from "./contexts/AuthorizedFetch";
+import FeatureFlagProvider from "./contexts/FeatureFlag";
 import SessionProvider, { useSessionContext } from "./contexts/Session";
-import { ToastProvider } from "./contexts/Toast";
+import ToastProvider from "./contexts/Toast";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { appQueryClient } from "./network/QueryClients";
 import { ErrorPage } from "./pages/error/ErrorPage";
 import DAPScript from "./shared/DAPScript/DAPScript";
+import { isUseragentPreferred } from "./utils/BrowserUtils";
 import { permissionCheck } from "./utils/PermissionsUtils";
-import { preferredBrowsersRegex } from "./utils/SupportedBrowsers";
 import { PERMISSIONS } from "./utils/UsefulTypes";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -85,9 +85,9 @@ export type AppBaseProps = Omit<AppProps, "oktaAuth" | "config">;
 const AppBase = ({ Layout }: AppBaseProps) => {
     const location = useLocation();
     const { appInsights, setTelemetryCustomProperty } = useAppInsightsContext();
-    const { oktaAuth, authState } = useSessionContext();
+    const { oktaAuth, authState, logout, activeMembership, config } =
+        useSessionContext();
     const { email } = authState.idToken?.claims ?? {};
-    const { logout, activeMembership } = useSessionContext();
     const sessionStartTime = useRef<number>(new Date().getTime());
     const sessionTimeAggregate = useRef<number>(0);
     const calculateAggregateTime = () => {
@@ -146,27 +146,31 @@ const AppBase = ({ Layout }: AppBaseProps) => {
 
     // Mark that user agent is outdated on telemetry for filtering
     useEffect(() => {
-        if (!preferredBrowsersRegex.test(window.navigator.userAgent))
+        if (!isUseragentPreferred(window.navigator.userAgent))
             setTelemetryCustomProperty("isUserAgentOutdated", true);
         else setTelemetryCustomProperty("isUserAgentOutdated", undefined);
     }, [setTelemetryCustomProperty]);
 
-    const handleIdle = useCallback(async (): Promise<void> => {
-        if (await oktaAuth.isAuthenticated()) {
-            appInsights?.trackEvent({
-                name: EventName.SESSION_DURATION,
-                properties: {
-                    sessionLength: sessionTimeAggregate.current / 1000,
-                },
-            });
-            logout();
-        }
-    }, [appInsights, logout, oktaAuth]);
+    const handleIdle = useCallback<
+        Exclude<IIdleTimerProps["onIdle"], undefined>
+    >(
+        async (_event, _timer) => {
+            if (await oktaAuth.isAuthenticated()) {
+                appInsights?.trackEvent({
+                    name: EventName.SESSION_DURATION,
+                    properties: {
+                        sessionLength: sessionTimeAggregate.current / 1000,
+                    },
+                });
+                logout();
+            }
+        },
+        [appInsights, logout, oktaAuth],
+    );
 
     useIdleTimer({
-        timeout: 1000 * 60 * 15,
         onIdle: () => void handleIdle(),
-        debounce: 500,
+        ...config.IDLE_TIMERS,
     });
 
     useScrollToTop();
