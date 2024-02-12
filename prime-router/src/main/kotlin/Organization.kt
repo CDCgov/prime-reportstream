@@ -55,29 +55,31 @@ open class Organization(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(): String? {
-        return when (jurisdiction) {
-            Jurisdiction.FEDERAL -> {
-                if (stateCode != null || countyName != null) {
-                    "stateCode or countyName not allowed for FEDERAL organizations"
-                } else {
-                    null
-                }
-            }
-            Jurisdiction.STATE -> {
-                if (stateCode == null || countyName != null) {
-                    "stateCode required for STATE organizations"
-                } else {
-                    null
-                }
-            }
-            Jurisdiction.COUNTY -> {
-                if (stateCode == null || countyName == null) {
-                    "stateCode and countyName required for COUNTY organizations"
-                } else {
-                    null
-                }
-            }
-        }
+//  now these consistency rules are checked by the settings schemas
+//        return when (jurisdiction) {
+//            Jurisdiction.FEDERAL -> {
+//                if (stateCode != null || countyName != null) {
+//                    "stateCode or countyName not allowed for FEDERAL organizations"
+//                } else {
+//                    null
+//                }
+//            }
+//            Jurisdiction.STATE -> {
+//                if (stateCode == null || countyName != null) {
+//                    "stateCode required for STATE organizations"
+//                } else {
+//                    null
+//                }
+//            }
+//            Jurisdiction.COUNTY -> {
+//                if (stateCode == null || countyName == null) {
+//                    "stateCode and countyName required for COUNTY organizations"
+//                } else {
+//                    null
+//                }
+//            }
+//        }
+        return null
     }
 
     fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Organization {

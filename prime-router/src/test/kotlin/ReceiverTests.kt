@@ -30,9 +30,7 @@ internal class ReceiverTests {
             receiver.consistencyErrorMessage(
                 UnitTestUtils.simpleMetadata
             )
-        ).isEqualTo(
-            "Condition filter(s) not allowed for receivers with topic 'covid-19'"
-        )
+        ).isNull()
     }
 
     @Test
@@ -51,9 +49,7 @@ internal class ReceiverTests {
             receiver.consistencyErrorMessage(
                 UnitTestUtils.simpleMetadata
             )
-        ).isEqualTo(
-            "Condition filter(s) not allowed for receivers with topic 'covid-19'"
-        )
+        ).isNull()
     }
 
     @Test

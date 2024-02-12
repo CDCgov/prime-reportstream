@@ -280,7 +280,6 @@ class SettingsFacade(
         if (input.organizationName != organizationName) {
             return Triple(false, "Payload and path organization name do not match", null)
         }
-//        input.consistencyErrorMessage(metadata)?.let { return Triple(false, it, null) }
         val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
         val value = mapper.readTree(normalizedJson.toString())
         val errorMessages = when (input) {
@@ -293,13 +292,17 @@ class SettingsFacade(
             }
 
             is Receiver -> {
+                // these trimming will not be needed after we addressed
+                // that the client send receiver with conditionFilter and mappedConditionFilter
+                // default to emptyList[] which has different semantics vs conditionFilter
+                // and mappedConditionFilter not present, will open a ticket for that.
                 (value as ObjectNode).remove("conditionFilter")
                 value.remove("mappedConditionFilter")
                 receiverSchema.validate(value)
             }
 
             else -> {
-                throw Exception("Unexpected input...")
+                throw IllegalStateException("Unexpected input with class = $clazz")
             }
         }
         return if (errorMessages.size > 0) {
