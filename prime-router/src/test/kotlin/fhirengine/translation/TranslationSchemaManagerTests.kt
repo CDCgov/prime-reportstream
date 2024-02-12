@@ -2,14 +2,19 @@ package gov.cdc.prime.router.fhirengine.translation
 
 import assertk.assertThat
 import assertk.assertions.contains
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isTrue
 import com.azure.core.util.BinaryData
 import com.azure.storage.blob.models.BlobItem
 import com.azure.storage.blob.models.BlobStorageException
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
@@ -324,6 +329,66 @@ class TranslationSchemaManagerTests {
         assertThat(
             validationResults[0].path
         ).contains("hl7_mapping/dev/foo/")
+    }
+
+    @Test
+    fun `test conversion error`() {
+        val blobEndpoint = "http://${azuriteContainer1.host}:${
+            azuriteContainer1.getMappedPort(
+                10000
+            )
+        }/devstoreaccount1"
+        val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
+            "container1",
+            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                """AccountKey=keydevstoreaccount1;BlobEndpoint=$blobEndpoint;QueueEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10001
+                    )
+                }/devstoreaccount1;"""
+        )
+
+        val inputFilePath = "hl7_mapping/dev/foo/input.fhir"
+        val outputFilePath = "hl7_mapping/dev/foo/output.hl7"
+        val transformFilePath = "hl7_mapping/dev/foo/sender-transform.yml"
+        BlobAccess.uploadBlob(
+            inputFilePath,
+            File(
+                Paths.get("").toAbsolutePath().toString() +
+                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/input.fhir"
+            ).inputStream().readAllBytes(),
+            sourceBlobContainerMetadata
+        )
+
+        BlobAccess.uploadBlob(
+            outputFilePath,
+            File(
+                Paths.get("").toAbsolutePath().toString() +
+                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/output.hl7"
+            ).inputStream().readAllBytes(),
+            sourceBlobContainerMetadata
+        )
+
+        BlobAccess.uploadBlob(
+            transformFilePath,
+            File(
+                Paths.get("").toAbsolutePath().toString() +
+                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/sender-transform.yml"
+            ).inputStream().readAllBytes(),
+            sourceBlobContainerMetadata
+        )
+
+        mockkConstructor(FhirToHl7Converter::class)
+        every { anyConstructed<FhirToHl7Converter>().validate(any(), any()) } throws RuntimeException("Convert fail")
+
+        val validationResults = TranslationSchemaManager().validateManagedSchemas(
+            TranslationSchemaManager.SchemaType.HL7,
+            sourceBlobContainerMetadata,
+        )
+
+        assertThat(validationResults).hasSize(1)
+        assertThat(validationResults[0].passes).isFalse()
+        assertThat(validationResults[0].didError).isTrue()
     }
 
     @Nested
