@@ -36,7 +36,7 @@
         reportingFacilityIdType: null
         suppressQstForAoe: false
         suppressHl7Fields: null
-        suppressAoe: true
+        suppressAoe: false
         defaultAoeToUnknown: false
         replaceUnicodeWithAscii: false
         useBlankInsteadOfUnknown: null
@@ -71,7 +71,7 @@
       reverseTheQualityFilter: false
       conditionFilter: []
       mappedConditionFilter: []
-      deidentify: true
+      deidentify: false
       deidentifiedValue: ""
       timing:
         operation: "MERGE"
@@ -85,9 +85,9 @@
       description: "Test receiver to end point"
       transport: !<SFTP>
         type: SFTP
-        host: sftptest.epitraxnv.org
+        host: sftp
         port: 22
-        filePath: /SFTP_ELR/ReportStream_Test
+        filePath: ./upload
         credentialName: DEFAULT-SFTP
       externalName: "Test Feed to end point"
       enrichmentSchemaNames: []

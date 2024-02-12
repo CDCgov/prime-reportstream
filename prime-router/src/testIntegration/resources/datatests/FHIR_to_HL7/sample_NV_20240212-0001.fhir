@@ -1,0 +1,877 @@
+{
+    "resourceType": "Bundle",
+    "identifier": {
+        "value": "c080238b-d82a-4828-96a4-c1e75d8e53ae"
+    },
+    "type": "message",
+    "timestamp": "2024-02-06T00:14:54.377Z",
+    "entry": [
+        {
+            "fullUrl": "MessageHeader/a9f7aec3-a7c8-4c92-976d-8b572e1161ab",
+            "resource": {
+                "resourceType": "MessageHeader",
+                "id": "a9f7aec3-a7c8-4c92-976d-8b572e1161ab",
+                "meta": {
+                    "tag": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+                            "code": "P",
+                            "display": "Production"
+                        }
+                    ]
+                },
+                "eventCoding": {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
+                    "code": "R01",
+                    "display": "ORU/ACK - Unsolicited transmission of an observation message"
+                },
+                "destination": [
+                    {
+                        "name": "PRIME ReportStream",
+                        "endpoint": "https://prime.cdc.gov/api/reports?option=SkipInvalidItems"
+                    }
+                ],
+                "sender": {
+                    "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                },
+                "source": {
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id",
+                            "valueString": "f6bd550"
+                        },
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date",
+                            "valueInstant": "2024-02-05T15:40:37Z"
+                        },
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
+                            "valueReference": {
+                                "reference": "Organization/07640c5d-87cd-488b-9343-a226c5166539"
+                            }
+                        }
+                    ],
+                    "software": "PRIME SimpleReport",
+                    "version": "f6bd550",
+                    "endpoint": "https://simplereport.gov"
+                },
+                "focus": [
+                    {
+                        "reference": "Provenance/5012bf50-b860-4751-ab73-1df0b07c3165"
+                    },
+                    {
+                        "reference": "DiagnosticReport/c080238b-d82a-4828-96a4-c1e75d8e53ae"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "Provenance/5012bf50-b860-4751-ab73-1df0b07c3165",
+            "resource": {
+                "resourceType": "Provenance",
+                "id": "5012bf50-b860-4751-ab73-1df0b07c3165",
+                "recorded": "2024-02-06T00:14:54.377Z",
+                "activity": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
+                            "code": "R01",
+                            "display": "ORU/ACK - Unsolicited transmission of an observation message"
+                        }
+                    ]
+                },
+                "agent": [
+                    {
+                        "who": {
+                            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "DiagnosticReport/c080238b-d82a-4828-96a4-c1e75d8e53ae",
+            "resource": {
+                "resourceType": "DiagnosticReport",
+                "id": "c080238b-d82a-4828-96a4-c1e75d8e53ae",
+                "identifier": [
+                    {
+                        "value": "c080238b-d82a-4828-96a4-c1e75d8e53ae"
+                    }
+                ],
+                "basedOn": [
+                    {
+                        "reference": "ServiceRequest/372b13af-30d1-4c59-a2b1-92bb18c50e00"
+                    }
+                ],
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "95941-1"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                },
+                "effectiveDateTime": "2024-02-05T23:59:54+00:00",
+                "issued": "2024-02-06T00:14:54+00:00",
+                "specimen": [
+                    {
+                        "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+                    }
+                ],
+                "result": [
+                    {
+                        "reference": "Observation/7d81994a-8153-4b48-bc09-4c023da15103"
+                    },
+                    {
+                        "reference": "Observation/b7ea699a-bde1-4bb7-b4db-ed9029107af0"
+                    },
+                    {
+                        "reference": "Observation/52a00622-36be-4a24-8250-621a187d847f"
+                    },
+                    {
+                        "reference": "Observation/79f00520-4344-4ec0-9931-77655f6a0848"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "Patient/3551359f-bd1c-411e-b930-789ac694e75f",
+            "resource": {
+                "resourceType": "Patient",
+                "id": "3551359f-bd1c-411e-b930-789ac694e75f",
+                "extension": [
+                    {
+                        "url": "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
+                        "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v3-Race",
+                                    "code": "2076-8"
+                                }
+                            ],
+                            "text": "pacific"
+                        }
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
+                        "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0189",
+                                    "code": "N",
+                                    "display": "Not Hispanic or Latino"
+                                }
+                            ],
+                            "text": "Not Hispanic or Latino"
+                        }
+                    },
+                    {
+                        "url": "https://hl7.org/fhir/R4/extension-patient-genderidentity.html",
+                        "valueCoding": {
+                            "system": "https://hl7.org/fhir/R4/valueset-gender-identity.html",
+                            "code": "male",
+                            "display": "male"
+                        }
+                    }
+                ],
+                "identifier": [
+                    {
+                        "value": "3551359f-bd1c-411e-b930-789ac694e75f"
+                    }
+                ],
+                "name": [
+                    {
+                        "family": "Diggory",
+                        "given": [
+                            "Cedrick",
+                            "Charles"
+                        ]
+                    }
+                ],
+                "telecom": [
+                    {
+                        "system": "phone",
+                        "value": "(340) 555 5555",
+                        "use": "mobile"
+                    }
+                ],
+                "gender": "male",
+                "birthDate": "2000-12-18",
+                "address": [
+                    {
+                        "line": [
+                            "123 Main St"
+                        ],
+                        "city": "Reno",
+                        "district": "Washoe",
+                        "state": "NV",
+                        "postalCode": "89433",
+                        "country": "USA"
+                    }
+                ],
+                "managingOrganization": {
+                    "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                }
+            }
+        },
+        {
+            "fullUrl": "Organization/719ec8ad-cf59-405a-9832-c4065945c130",
+            "resource": {
+                "resourceType": "Organization",
+                "id": "719ec8ad-cf59-405a-9832-c4065945c130",
+                "identifier": [
+                    {
+                        "use": "official",
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0301",
+                                    "code": "CLIA"
+                                }
+                            ]
+                        },
+                        "value": "12D4567890"
+                    }
+                ],
+                "name": "Testing Lab",
+                "telecom": [
+                    {
+                        "system": "phone",
+                        "value": "(530) 867 5309",
+                        "use": "work"
+                    }
+                ],
+                "address": [
+                    {
+                        "line": [
+                            "123 Beach Way"
+                        ],
+                        "city": "Providence",
+                        "state": "RI",
+                        "postalCode": "02860",
+                        "country": "USA"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "Practitioner/ee29ccf5-631d-4b35-a6d4-30a61c0eb8d9",
+            "resource": {
+                "resourceType": "Practitioner",
+                "id": "ee29ccf5-631d-4b35-a6d4-30a61c0eb8d9",
+                "identifier": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/us-npi",
+                        "value": "1245319599"
+                    }
+                ],
+                "name": [
+                    {
+                        "family": "McTester",
+                        "given": [
+                            "Phil"
+                        ]
+                    }
+                ],
+                "telecom": [
+                    {
+                        "system": "phone",
+                        "value": "(530) 867 5309",
+                        "use": "work"
+                    }
+                ],
+                "address": [
+                    {
+                        "country": "USA"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2",
+            "resource": {
+                "resourceType": "Specimen",
+                "id": "dc7af370-fc07-4b00-abc7-9b5dd87cf4d2",
+                "identifier": [
+                    {
+                        "value": "c32714c6-f4f7-4138-8681-94e7936beb13"
+                    }
+                ],
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "258500001"
+                        }
+                    ],
+                    "text": "Nasopharyngeal swab"
+                },
+                "subject": {
+                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                },
+                "receivedTime": "2024-02-05T23:59:54+00:00",
+                "collection": {
+                    "collectedDateTime": "2024-02-05T23:59:54+00:00",
+                    "bodySite": {
+                        "coding": [
+                            {
+                                "system": "http://snomed.info/sct",
+                                "code": "87100004"
+                            }
+                        ],
+                        "text": "Topography unknown (body structure)"
+                    }
+                }
+            }
+        },
+        {
+            "fullUrl": "ServiceRequest/372b13af-30d1-4c59-a2b1-92bb18c50e00",
+            "resource": {
+                "resourceType": "ServiceRequest",
+                "id": "372b13af-30d1-4c59-a2b1-92bb18c50e00",
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
+                        "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0119",
+                                    "code": "RE"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date",
+                        "valueDateTime": "2024-02-06T00:14:54+00:00"
+                    }
+                ],
+                "status": "completed",
+                "intent": "order",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "95941-1"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                },
+                "requester": {
+                    "reference": "PractitionerRole/50dc9343-0791-4b50-b2dd-8f3e3cf9b5cf"
+                },
+                "performer": [
+                    {
+                        "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                    }
+                ],
+                "supportingInfo": [
+                    {
+                        "reference": "Observation/c0c836a5-2874-3f33-b3ba-6a6c7c4da359"
+                    },
+                    {
+                        "reference": "Observation/ceb1e4e3-cff8-339d-bd51-05038912baa2"
+                    },
+                    {
+                        "reference": "Observation/6dab627e-231d-3b16-a88c-31a709f31b9d"
+                    },
+                    {
+                        "reference": "Observation/ee17f89f-fb7e-31a7-aa6f-dcc0372dc0a1"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "Device/b83b1f5f-b62c-43aa-98f6-0ce34ab41927",
+            "resource": {
+                "resourceType": "Device",
+                "id": "b83b1f5f-b62c-43aa-98f6-0ce34ab41927",
+                "identifier": [
+                    {
+                        "value": "00884999048034"
+                    },
+                    {
+                        "type": {
+                            "coding": [
+                                {
+                                    "code": "DII"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "manufacturer": "Abbott",
+                "deviceName": [
+                    {
+                        "name": "Alinity m",
+                        "type": "model-name"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "PractitionerRole/50dc9343-0791-4b50-b2dd-8f3e3cf9b5cf",
+            "resource": {
+                "resourceType": "PractitionerRole",
+                "id": "50dc9343-0791-4b50-b2dd-8f3e3cf9b5cf",
+                "practitioner": {
+                    "reference": "Practitioner/ee29ccf5-631d-4b35-a6d4-30a61c0eb8d9"
+                },
+                "organization": {
+                    "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                }
+            }
+        },
+        {
+            "fullUrl": "Organization/07640c5d-87cd-488b-9343-a226c5166539",
+            "resource": {
+                "resourceType": "Organization",
+                "id": "07640c5d-87cd-488b-9343-a226c5166539",
+                "name": "SimpleReport"
+            }
+        },
+        {
+            "fullUrl": "Observation/7d81994a-8153-4b48-bc09-4c023da15103",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "7d81994a-8153-4b48-bc09-4c023da15103",
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "85477-8"
+                        }
+                    ],
+                    "text": "Flu A"
+                },
+                "subject": {
+                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                },
+                "issued": "2024-02-06T00:14:54.303Z",
+                "performer": [
+                    {
+                        "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                    }
+                ],
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "260373001",
+                            "display": "Detected"
+                        }
+                    ]
+                },
+                "interpretation": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                "code": "A",
+                                "display": "Abnormal"
+                            }
+                        ]
+                    }
+                ],
+                "method": {
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
+                            "valueCoding": {
+                                "code": "Alinity m Resp-4-Plex_Abbott Molecular Inc."
+                            }
+                        }
+                    ],
+                    "coding": [
+                        {
+                            "display": "Alinity m"
+                        }
+                    ]
+                },
+                "specimen": {
+                    "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+                },
+                "device": {
+                    "reference": "Device/b83b1f5f-b62c-43aa-98f6-0ce34ab41927"
+                }
+            }
+        },
+        {
+            "fullUrl": "Observation/b7ea699a-bde1-4bb7-b4db-ed9029107af0",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "b7ea699a-bde1-4bb7-b4db-ed9029107af0",
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "85478-6"
+                        }
+                    ],
+                    "text": "Flu B"
+                },
+                "subject": {
+                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                },
+                "issued": "2024-02-06T00:14:54.303Z",
+                "performer": [
+                    {
+                        "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                    }
+                ],
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "260373001",
+                            "display": "Detected"
+                        }
+                    ]
+                },
+                "interpretation": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                "code": "A",
+                                "display": "Abnormal"
+                            }
+                        ]
+                    }
+                ],
+                "method": {
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
+                            "valueCoding": {
+                                "code": "Alinity m Resp-4-Plex_Abbott Molecular Inc."
+                            }
+                        }
+                    ],
+                    "coding": [
+                        {
+                            "display": "Alinity m"
+                        }
+                    ]
+                },
+                "specimen": {
+                    "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+                },
+                "device": {
+                    "reference": "Device/b83b1f5f-b62c-43aa-98f6-0ce34ab41927"
+                }
+            }
+        },
+        {
+            "fullUrl": "Observation/52a00622-36be-4a24-8250-621a187d847f",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "52a00622-36be-4a24-8250-621a187d847f",
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "94500-6"
+                        }
+                    ],
+                    "text": "COVID-19"
+                },
+                "subject": {
+                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                },
+                "issued": "2024-02-06T00:14:54.303Z",
+                "performer": [
+                    {
+                        "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                    }
+                ],
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "260373001",
+                            "display": "Detected"
+                        }
+                    ]
+                },
+                "interpretation": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                "code": "A",
+                                "display": "Abnormal"
+                            }
+                        ]
+                    }
+                ],
+                "method": {
+                    "coding": [
+                        {
+                            "display": "Alinity m"
+                        }
+                    ]
+                },
+                "specimen": {
+                    "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+                },
+                "device": {
+                    "reference": "Device/b83b1f5f-b62c-43aa-98f6-0ce34ab41927"
+                }
+            }
+        },
+        {
+            "fullUrl": "Observation/79f00520-4344-4ec0-9931-77655f6a0848",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "79f00520-4344-4ec0-9931-77655f6a0848",
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "85479-4"
+                        }
+                    ],
+                    "text": "RSV"
+                },
+                "subject": {
+                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                },
+                "issued": "2024-02-06T00:14:54.303Z",
+                "performer": [
+                    {
+                        "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                    }
+                ],
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "260373001",
+                            "display": "Detected"
+                        }
+                    ]
+                },
+                "interpretation": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                "code": "A",
+                                "display": "Abnormal"
+                            }
+                        ]
+                    }
+                ],
+                "method": {
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
+                            "valueCoding": {
+                                "code": "Alinity m Resp-4-Plex_Abbott Molecular Inc."
+                            }
+                        }
+                    ],
+                    "coding": [
+                        {
+                            "display": "Alinity m"
+                        }
+                    ]
+                },
+                "specimen": {
+                    "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+                },
+                "device": {
+                    "reference": "Device/b83b1f5f-b62c-43aa-98f6-0ce34ab41927"
+                }
+            }
+        },
+        {
+            "fullUrl": "Observation/c0c836a5-2874-3f33-b3ba-6a6c7c4da359",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "c0c836a5-2874-3f33-b3ba-6a6c7c4da359",
+                "identifier": [
+                    {
+                        "use": "official",
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "81959-9",
+                                    "display": "Public health laboratory ask at order entry panel"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "95419-8",
+                            "display": "Has symptoms related to condition of interest"
+                        }
+                    ],
+                    "text": "Has symptoms related to condition of interest"
+                },
+                "subject": {
+                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                },
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/ValueSet/v2-0136",
+                            "code": "N",
+                            "display": "No"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "fullUrl": "Observation/ceb1e4e3-cff8-339d-bd51-05038912baa2",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "ceb1e4e3-cff8-339d-bd51-05038912baa2",
+                "identifier": [
+                    {
+                        "use": "official",
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "81959-9",
+                                    "display": "Public health laboratory ask at order entry panel"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "82810-3",
+                            "display": "Pregnancy status"
+                        }
+                    ],
+                    "text": "Pregnancy status"
+                },
+                "subject": {
+                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                },
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "60001007",
+                            "display": "Not pregnant"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "fullUrl": "Observation/6dab627e-231d-3b16-a88c-31a709f31b9d",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "6dab627e-231d-3b16-a88c-31a709f31b9d",
+                "identifier": [
+                    {
+                        "use": "official",
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "81959-9",
+                                    "display": "Public health laboratory ask at order entry panel"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "95418-0",
+                            "display": "Employed in a healthcare setting"
+                        }
+                    ],
+                    "text": "Employed in a healthcare setting"
+                },
+                "subject": {
+                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                },
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/ValueSet/v2-0136",
+                            "code": "N",
+                            "display": "No"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "fullUrl": "Observation/ee17f89f-fb7e-31a7-aa6f-dcc0372dc0a1",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "ee17f89f-fb7e-31a7-aa6f-dcc0372dc0a1",
+                "identifier": [
+                    {
+                        "use": "official",
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "81959-9",
+                                    "display": "Public health laboratory ask at order entry panel"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "95421-4",
+                            "display": "Resides in a congregate care setting"
+                        }
+                    ],
+                    "text": "Resides in a congregate care setting"
+                },
+                "subject": {
+                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                },
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/ValueSet/v2-0136",
+                            "code": "N",
+                            "display": "No"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
