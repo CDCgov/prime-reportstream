@@ -61,12 +61,9 @@ export interface SourceMapResult {
  * @param spaces Number of spaces to use in the normalized JSON string returned.
  * @return A normalized json string and a list of "pointers" that are offsets into it.
  */
-export const jsonSourceMap = (
-    jsonD: unknown,
-    spaces: number = 2,
-): SourceMapResult => {
+export const jsonSourceMap = (jsonD: unknown, spaces = 2): SourceMapResult => {
     let json = "";
-    let pointers: JsonMapPointers = {};
+    const pointers: JsonMapPointers = {};
     const cur: JsonMapLocation = { line: 0, column: 0, pos: 0 };
 
     // left and right should be json objects, but there's really no way to typescript enforce it.
@@ -145,7 +142,7 @@ export const jsonSourceMap = (
             return;
         }
         out("[");
-        let itemLvl = lvl + 1;
+        const itemLvl = lvl + 1;
         for (let i = 0; i < data.length; i++) {
             if (i) {
                 out(",");

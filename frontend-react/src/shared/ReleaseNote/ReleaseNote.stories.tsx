@@ -1,7 +1,7 @@
 // AutoUpdateFileChromatic
 import { ReactElement } from "react";
 
-import { ReleaseNote } from "./ReleaseNote";
+import ReleaseNote from "./ReleaseNote";
 
 export default {
     title: "Components/ReleaseNote",
@@ -20,8 +20,8 @@ export const Default = (): ReactElement => (
                         We launched a pilot program receiving and sending flu
                         data through ReportStream. This is part of continued
                         efforts to expand our capabilities beyond COVID-19. Let
-                        us know if you're interested in receiving flu data from
-                        ReportStream.
+                        us know if you&apos;re interested in receiving flu data
+                        from ReportStream.
                     </p>
                 ),
             },

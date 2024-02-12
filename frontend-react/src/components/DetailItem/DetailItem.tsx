@@ -1,9 +1,7 @@
-import React from "react";
-
-type DetailItemProps = {
+interface DetailItemProps {
     item: string;
     content: any;
-};
+}
 
 /*
     A component displaying a soft gray title and content in

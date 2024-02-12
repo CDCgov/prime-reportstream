@@ -1,6 +1,5 @@
-import { screen, renderApp } from "../utils/CustomRenderUtils";
-
 import Crumbs, { CrumbConfig, CrumbsProps, WithCrumbs } from "./Crumbs";
+import { renderApp, screen } from "../utils/CustomRenderUtils";
 
 describe("Crumbs", () => {
     test("no crumbs to render", () => {

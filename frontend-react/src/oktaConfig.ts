@@ -1,17 +1,17 @@
 import {
-    OktaAuthOptions,
-    OktaAuth,
-    AuthState,
     AccessToken,
-    RefreshToken,
+    AuthState,
     IDToken,
+    OktaAuth,
+    OktaAuthOptions,
+    RefreshToken,
 } from "@okta/okta-auth-js";
 import { WidgetOptions } from "@okta/okta-signin-widget";
 import type { Feature } from "@okta/okta-signin-widget";
 
 import config from "./config";
 
-const { OKTA_URL, OKTA_CLIENT_ID, APP_ENV } = config;
+const { OKTA_URL, OKTA_CLIENT_ID } = config;
 const OKTA_ISSUER = `${OKTA_URL}/oauth2/default`;
 
 const sharedConfig = {
@@ -25,7 +25,7 @@ const oktaAuthConfig: OktaAuthOptions = {
     postLogoutRedirectUri: window.location.origin,
     responseMode: "fragment",
     tokenManager: {
-        storage: APP_ENV === "test" ? "memory" : "localStorage",
+        storage: "localStorage",
     },
     scopes: ["openid", "email"],
     services: {
@@ -56,7 +56,7 @@ const oktaAuthConfig: OktaAuthOptions = {
             };
         }
 
-        return finalAuthState;
+        return Promise.resolve(finalAuthState);
     },
 };
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);

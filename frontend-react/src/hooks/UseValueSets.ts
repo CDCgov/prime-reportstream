@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useMemo } from "react";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo } from "react";
 
-import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
 import {
-    lookupTablesEndpoints,
     LookupTable,
+    LookupTables,
+    lookupTablesEndpoints,
     ValueSet,
     ValueSetRow,
-    LookupTables,
 } from "../config/endpoints/lookupTables";
-import { RSNetworkError } from "../utils/RSNetworkError";
+import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
 import { useSessionContext } from "../contexts/Session";
+import { RSNetworkError } from "../utils/RSNetworkError";
 
 const { getTableData, getTableList, updateTable, activateTable } =
     lookupTablesEndpoints;
@@ -36,8 +36,7 @@ const findTableMetaByName = (
         return undefined;
     }
     return filteredBody.sort(
-        (a: LookupTable, b: LookupTable) =>
-            b["tableVersion"] - a["tableVersion"],
+        (a: LookupTable, b: LookupTable) => b.tableVersion - a.tableVersion,
     )[0];
 };
 

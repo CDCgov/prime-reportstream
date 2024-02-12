@@ -1,18 +1,15 @@
-import React from "react";
-
-import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
+import styles from "./ReportDetailsTable.module.scss";
 import Table, { TableConfig } from "../../../components/Table/Table";
-import TableFilters from "../../Table/TableFilters";
-import useFilterManager, {
-    FilterManagerDefaults,
-} from "../../../hooks/filters/UseFilterManager";
-import { FeatureName } from "../../../utils/FeatureName";
 import {
     EventName,
     useAppInsightsContext,
 } from "../../../contexts/AppInsights";
-
-import styles from "./ReportDetailsTable.module.scss";
+import useFilterManager, {
+    FilterManagerDefaults,
+} from "../../../hooks/filters/UseFilterManager";
+import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
+import { FeatureName } from "../../../utils/FeatureName";
+import TableFilters from "../../Table/TableFilters";
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
@@ -41,7 +38,7 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
             { dataAttr: "total", columnHeader: "Total tests" },
             { dataAttr: "positive", columnHeader: "Total positive" },
         ],
-        rows: reportFacilities!!,
+        rows: reportFacilities!,
     };
 
     return (
