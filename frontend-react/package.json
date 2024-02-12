@@ -140,7 +140,7 @@
         "@types/mdx": "^2.0.11",
         "@types/node": "^18.18.7",
         "@types/react": "18.2.55",
-        "@types/react-dom": "^18.2.18",
+        "@types/react-dom": "^18.2.19",
         "@types/react-router-dom": "^5.3.3",
         "@types/react-scroll-sync": "^0.9.0",
         "@types/sanitize-html": "^2.9.5",
