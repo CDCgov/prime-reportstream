@@ -1,33 +1,33 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
+import { Suspense } from "react";
 
-import { INITIAL_STATE } from "../../hooks/UseFileHandler";
-import {
-    CustomerStatus,
-    FileType,
-    Format,
-} from "../../utils/TemporarySettingsAPITypes";
-import { RSSender } from "../../config/endpoints/settings";
-import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
-import { renderApp } from "../../utils/CustomRenderUtils";
-import * as useSenderResourceExports from "../../hooks/UseSenderResource";
-import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import FileHandlerFileUploadStep, {
+    getClientHeader,
+} from "./FileHandlerFileUploadStep";
+import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
 import {
     fakeFile,
     mockSendFileWithErrors,
     mockSendValidFile,
 } from "../../__mocks__/validation";
-import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import { RSSender } from "../../config/endpoints/settings";
 import {
-    mockAppInsightsContextReturnValue,
     mockAppInsights,
+    mockAppInsightsContextReturnValue,
 } from "../../contexts/__mocks__/AppInsightsContext";
-import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
-
-import FileHandlerFileUploadStep, {
-    getClientHeader,
-} from "./FileHandlerFileUploadStep";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import { INITIAL_STATE } from "../../hooks/UseFileHandler";
+import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
+import * as useSenderResourceExports from "../../hooks/UseSenderResource";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
+import {
+    CustomerStatus,
+    FileType,
+    Format,
+} from "../../utils/TemporarySettingsAPITypes";
 
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
@@ -51,24 +51,6 @@ describe("FileHandlerFileUploadStep", () => {
         } as UseSenderResourceHookResult);
     }
 
-    describe("when the Sender details are still loading", () => {
-        function setup() {
-            mockUseSenderResource({
-                isInitialLoading: true,
-                isLoading: true,
-            });
-            mockSessionContentReturnValue();
-            mockAppInsightsContextReturnValue();
-
-            renderApp(<FileHandlerFileUploadStep {...DEFAULT_PROPS} />);
-        }
-
-        test("renders the spinner", () => {
-            setup();
-            expect(screen.getByTestId("rs-spinner")).toBeVisible();
-        });
-    });
-
     describe("when the Sender details have been loaded", () => {
         beforeEach(() => {
             mockUseSenderResource({
@@ -82,20 +64,24 @@ describe("FileHandlerFileUploadStep", () => {
         describe("when a CSV schema is chosen", () => {
             function setup() {
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        selectedSchemaOption={{
-                            format: FileType.CSV,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            selectedSchemaOption={{
+                                format: FileType.CSV,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                        />
+                    </Suspense>,
                 );
             }
 
-            test("renders the CSV-specific text", () => {
+            test("renders the CSV-specific text", async () => {
                 setup();
-                expect(screen.getByText("Upload CSV file")).toBeVisible();
+                await waitFor(() =>
+                    expect(screen.getByText("Upload CSV file")).toBeVisible(),
+                );
                 expect(
                     screen.getByText(
                         "Make sure your file has a .csv extension",
@@ -107,22 +93,26 @@ describe("FileHandlerFileUploadStep", () => {
         describe("when an HL7 schema is chosen", () => {
             function setup() {
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        selectedSchemaOption={{
-                            format: FileType.HL7,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            selectedSchemaOption={{
+                                format: FileType.HL7,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                        />
+                    </Suspense>,
                 );
             }
 
-            test("renders the HL7-specific text", () => {
+            test("renders the HL7-specific text", async () => {
                 setup();
-                expect(
-                    screen.getByText("Upload HL7 v2.5.1 file"),
-                ).toBeVisible();
+                await waitFor(() =>
+                    expect(
+                        screen.getByText("Upload HL7 v2.5.1 file"),
+                    ).toBeVisible(),
+                );
                 expect(
                     screen.getByText(
                         "Make sure your file has a .hl7 extension",
@@ -135,15 +125,17 @@ describe("FileHandlerFileUploadStep", () => {
             const onFileChangeSpy = jest.fn();
             async function setup() {
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        selectedSchemaOption={{
-                            format: FileType.CSV,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                        onFileChange={onFileChangeSpy}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            selectedSchemaOption={{
+                                format: FileType.CSV,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                            onFileChange={onFileChangeSpy}
+                        />
+                    </Suspense>,
                 );
 
                 await waitFor(async () => {
@@ -176,24 +168,28 @@ describe("FileHandlerFileUploadStep", () => {
                 } as any);
 
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        selectedSchemaOption={{
-                            format: FileType.CSV,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            selectedSchemaOption={{
+                                format: FileType.CSV,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                        />
+                    </Suspense>,
                 );
             }
 
-            test("renders the loading message", () => {
+            test("renders the loading message", async () => {
                 setup();
-                expect(
-                    screen.getByText(
-                        "Checking your file for any errors that will prevent your data from being reported successfully...",
-                    ),
-                ).toBeVisible();
+                await waitFor(() =>
+                    expect(
+                        screen.getByText(
+                            "Checking your file for any errors that will prevent your data from being reported successfully...",
+                        ),
+                    ).toBeVisible(),
+                );
             });
         });
 
@@ -207,34 +203,45 @@ describe("FileHandlerFileUploadStep", () => {
                 ).mockReturnValue({
                     isPending: false,
                     error: null,
-                    mutateAsync: () => Promise.resolve(mockSendValidFile),
+                    mutateAsync: async () =>
+                        await Promise.resolve(mockSendValidFile),
                 } as any);
 
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        isValid
-                        selectedSchemaOption={{
-                            format: FileType.CSV,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                        fileContent="whatever"
-                        onFileSubmitSuccess={onFileSubmitSuccessSpy}
-                        onNextStepClick={onNextStepClickSpy}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            isValid
+                            selectedSchemaOption={{
+                                format: FileType.CSV,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                            fileContent="whatever"
+                            fileName="whatever.csv"
+                            file={
+                                new File(
+                                    [new Blob(["whatever"])],
+                                    "whatever.csv",
+                                )
+                            }
+                            onFileSubmitSuccess={onFileSubmitSuccessSpy}
+                            onNextStepClick={onNextStepClickSpy}
+                        />
+                    </Suspense>,
                 );
 
-                await waitFor(async () => {
-                    await userEvent.upload(
-                        screen.getByTestId("file-input-input"),
-                        fakeFile,
-                    );
-                    await userEvent.click(screen.getByText("Submit"));
+                const input = await screen.findByTestId("file-input-input");
+                await userEvent.upload(input, fakeFile);
+                await userEvent.click(screen.getByText("Submit"));
+                const form = screen.getByTestId("form");
+                await waitFor(() => {
                     // eslint-disable-next-line testing-library/no-wait-for-side-effects
-                    fireEvent.submit(screen.getByTestId("form"));
-                    await new Promise((res) => setTimeout(res, 100));
+                    fireEvent.submit(form);
                 });
+                await waitFor(() =>
+                    expect(onFileSubmitSuccessSpy).toHaveBeenCalled(),
+                );
             }
 
             afterEach(() => {
@@ -280,35 +287,45 @@ describe("FileHandlerFileUploadStep", () => {
                 ).mockReturnValue({
                     isPending: false,
                     error: null,
-                    mutateAsync: () =>
-                        Promise.reject({
+                    mutateAsync: async () =>
+                        await Promise.reject({
                             data: mockSendFileWithErrors,
                         }),
                 } as any);
                 renderApp(
-                    <FileHandlerFileUploadStep
-                        {...DEFAULT_PROPS}
-                        isValid
-                        selectedSchemaOption={{
-                            format: FileType.CSV,
-                            title: "whatever",
-                            value: "whatever",
-                        }}
-                        fileContent="whatever"
-                        onFileSubmitError={onFileSubmitErrorSpy}
-                    />,
+                    <Suspense>
+                        <FileHandlerFileUploadStep
+                            {...DEFAULT_PROPS}
+                            isValid
+                            selectedSchemaOption={{
+                                format: FileType.CSV,
+                                title: "whatever",
+                                value: "whatever",
+                            }}
+                            fileContent="whatever"
+                            fileName="whatever.csv"
+                            file={
+                                new File(
+                                    [new Blob(["whatever"])],
+                                    "whatever.csv",
+                                )
+                            }
+                            onFileSubmitError={onFileSubmitErrorSpy}
+                        />
+                    </Suspense>,
                 );
 
-                await waitFor(async () => {
-                    await userEvent.upload(
-                        screen.getByTestId("file-input-input"),
-                        fakeFile,
-                    );
-                    await userEvent.click(screen.getByText("Submit"));
+                const input = await screen.findByTestId("file-input-input");
+                await userEvent.upload(input, fakeFile);
+                await userEvent.click(screen.getByText("Submit"));
+                const form = screen.getByTestId("form");
+                await waitFor(() => {
                     // eslint-disable-next-line testing-library/no-wait-for-side-effects
-                    fireEvent.submit(screen.getByTestId("form"));
-                    await new Promise((res) => setTimeout(res, 100));
+                    fireEvent.submit(form);
                 });
+                await waitFor(() =>
+                    expect(onFileSubmitErrorSpy).toHaveBeenCalled(),
+                );
             }
 
             afterEach(() => {
@@ -383,13 +400,15 @@ describe("getClientHeader", () => {
     });
 
     describe("when sender is falsy", () => {
-        expect(
-            getClientHeader(
-                DEFAULT_SCHEMA_NAME,
-                DEFAULT_ACTIVE_MEMBERSHIP,
-                undefined,
-            ),
-        ).toEqual("");
+        test("returns an empty string", () => {
+            expect(
+                getClientHeader(
+                    DEFAULT_SCHEMA_NAME,
+                    DEFAULT_ACTIVE_MEMBERSHIP,
+                    undefined,
+                ),
+            ).toEqual("");
+        });
     });
 
     describe("when activeMembership.parsedName is falsy", () => {

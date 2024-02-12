@@ -1,14 +1,14 @@
 import {
     AccessTokenWithRSClaims,
     getOktaGroups,
-    parseOrgName,
-    MemberType,
     membershipsFromToken,
+    MemberType,
+    parseOrgName,
 } from "./OrganizationUtils";
 import { mockAccessToken } from "./TestUtils";
 
-let mockGetSessionMembershipState = jest.fn();
-let mockGetOrganizationOverride = jest.fn();
+const mockGetSessionMembershipState = jest.fn();
+const mockGetOrganizationOverride = jest.fn();
 
 const mockStoreSessionMembershipState = jest.fn();
 const mockStoreOrganizationOverride = jest.fn();

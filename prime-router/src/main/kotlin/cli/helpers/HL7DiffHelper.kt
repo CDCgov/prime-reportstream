@@ -12,7 +12,6 @@ import ca.uhn.hl7v2.model.Varies
 import org.apache.commons.lang3.StringUtils
 
 class HL7DiffHelper {
-
     fun filterNames(message: Message, names: Array<String>, map: MutableMap<String, Segment>) {
         names.filter { name -> message.getAll(name).isNotEmpty() }.forEach { messageName ->
             val children = message.getAll(messageName)
@@ -38,7 +37,6 @@ class HL7DiffHelper {
         filterNames(output, outputNames, outputMap)
 
         val mapNumOfSegment = mutableMapOf<String, Int>()
-
         inputMap.forEach { (segmentIndex, segment) ->
             val outputSegment = outputMap[segmentIndex]
             if (outputSegment == null) {
@@ -71,6 +69,10 @@ class HL7DiffHelper {
                                 segment.name
                             )
                         )
+                        arrayOf()
+                    }
+
+                    if (effectivelyBlank(outputFields, inputFields)) {
                         continue
                     }
                     if (outputFields.size > inputFields.size) {
@@ -83,7 +85,7 @@ class HL7DiffHelper {
                                     Hl7Diff(
                                         segmentIndex,
                                         "Output had more repeating types for ${output.name}, " +
-                                            "input has ${inputFields.size} and output has ${outputFields.size}",
+                                                "input has ${inputFields.size} and output has ${outputFields.size}",
                                         "",
                                         i,
                                         if (inputFields.size == 1) null else (index + 1),
@@ -115,7 +117,7 @@ class HL7DiffHelper {
                                 Hl7Diff(
                                     segmentIndex,
                                     "Input had more repeating types for ${input.name}, " +
-                                        "input has ${inputFields.size} and output has ${outputFields.size}",
+                                            "input has ${inputFields.size} and output has ${outputFields.size}",
                                     "",
                                     i,
                                     index + 1,
@@ -245,7 +247,7 @@ class HL7DiffHelper {
                 }
             }
 
-            input.javaClass != output.javaClass -> {
+            !typeCompatible(input, output) -> {
                 return listOf(
                     Hl7Diff(
                         segmentIndex,
@@ -258,7 +260,6 @@ class HL7DiffHelper {
                     )
                 )
             }
-
             else -> {
                 return listOf()
             }
@@ -335,5 +336,30 @@ class HL7DiffHelper {
                 "$fieldNumberText$secondaryFieldNumberText$tertiaryFieldNumberText" +
                 " Differences: $input$outputText"
         }
+    }
+
+    /**
+     * helper
+     * Check that <outputHL7v2Segment> and <inputHL7v2Segment> are effectively both blank value
+     */
+    private fun effectivelyBlank(
+        outputHL7v2Segment: Array<ca.uhn.hl7v2.model.Type>,
+        inputHL7v2Segment: Array<ca.uhn.hl7v2.model.Type>,
+    ): Boolean {
+        return ((outputHL7v2Segment.size == 1 && outputHL7v2Segment[0].isEmpty) || outputHL7v2Segment.isEmpty()) &&
+                ((inputHL7v2Segment.size == 1 && inputHL7v2Segment[0].isEmpty) || inputHL7v2Segment.isEmpty())
+    }
+
+    /**
+     * helper - heuristically check input and output are compatible types
+     */
+    private fun typeCompatible(t1: Any, t2: Any): Boolean {
+        // check to avoid false positive:
+        // either input vs output class identical or
+        // both are ca.uhn.hl7v2.model.AbstractPrimitive
+        // and since value check done by above value compare logic,
+        // input vs output are type compatible
+        return (t1.javaClass == t2.javaClass) ||
+                (t1 is ca.uhn.hl7v2.model.AbstractPrimitive && t2 is ca.uhn.hl7v2.model.AbstractPrimitive)
     }
 }

@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
-
-import type { RSReceiver } from "../config/endpoints/settings";
-import { CustomerStatusType } from "../utils/DataDashboardUtils";
+import { useEffect, useState } from "react";
 
 import { useOrganizationReceivers } from "./UseOrganizationReceivers";
+import type { RSReceiver } from "../config/endpoints/settings";
+import { CustomerStatusType } from "../utils/DataDashboardUtils";
 
 export type ReceiverFeeds = ReturnType<typeof useOrganizationReceiversFeed>;
 

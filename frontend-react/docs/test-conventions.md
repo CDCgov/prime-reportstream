@@ -2,15 +2,15 @@
 
 ## Guiding Principles
 
-Automated tests are an integral part of ongoing maintenance, and they help to fill in the cracks that manual testing inevitably leaves behind.  Of course, that's not to say that manual testing has no purpose; manual testing and automated testing are both essential at increasing the surface area of overall test coverage.
+Automated tests are an integral part of ongoing maintenance, and they help to fill in the cracks that manual testing inevitably leaves behind. Of course, that's not to say that manual testing has no purpose; manual testing and automated testing are both essential at increasing the surface area of overall test coverage.
 
 To that end, we should subject our test code to the same rigor and scrutiny that we would our source code; tests should be clean, deterministic, and readily understandable for the benefit of anyone working in the codebase, regardless of how long they've been working in it.
 
-See RTL's [Guiding Principles doc](https://testing-library.com/docs/guiding-principles/) for the source of inspiration and generally good guidelines. 
+See RTL's [Guiding Principles doc](https://testing-library.com/docs/guiding-principles/) for the source of inspiration and generally good guidelines.
 
 ### Tests should read like a manual for source code
 
-Tests are often one of the first places to look when dealing with familiar code because they offer insight into how specific pieces function in isolation.  Because of this, we should strive to make our tests read like a manual for the related source code: "given this input, I should expect this output" or more practically, "given these conditions, I should expect this behavior."  Most concepts in programming should be able to be boiled down into inputs and outputs, and tests are no different in that regard.
+Tests are often one of the first places to look when dealing with familiar code because they offer insight into how specific pieces function in isolation. Because of this, we should strive to make our tests read like a manual for the related source code: "given this input, I should expect this output" or more practically, "given these conditions, I should expect this behavior." Most concepts in programming should be able to be boiled down into inputs and outputs, and tests are no different in that regard.
 
 ```tsx
 function sum(...numbers: number[]) {
@@ -45,13 +45,12 @@ describe("sum", () => {
             expect(sum(1, 10, 100, 1000)).toEqual(1111);
         });
     });
-})
+});
 ```
 
 > Why?
 >
 > Having clearer and more sensible descriptions calls attention to what the purpose of the test actually is, which makes it easier to follow along with the underlying logic or to group similarly intentioned tests together.
-
 
 ### Tests should check behavior, not implementation
 
@@ -61,9 +60,11 @@ Especially in the world of front-end code, it's especially important to test our
 function List({ items }: { items: string[] }) {
     return (
         <ul className="bg-light-gray">
-            { items.slice(0, 10).map((item) => (
-                <li className="bg-white" key={item}>{item}</li>
-            )) }
+            {items.slice(0, 10).map((item) => (
+                <li className="bg-white" key={item}>
+                    {item}
+                </li>
+            ))}
         </ul>
     );
 }
@@ -81,11 +82,11 @@ describe("when there are ten or more items", () => {
 });
 ```
 
-Testing in the browser means that we're mostly going to be testing markup implicitly, but we should rarely (or never) be testing against markup explicitly.  See [Testing Library's doc](https://testing-library.com/docs/queries/about/#priority) for more information.
+Testing in the browser means that we're mostly going to be testing markup implicitly, but we should rarely (or never) be testing against markup explicitly. See [Testing Library's doc](https://testing-library.com/docs/queries/about/#priority) for more information.
 
 > Why?
 >
-> Testing behavior keeps tests agnostic to the implementation, which makes them more resistant to changes and refactors.  Ultimately, changing implementation shouldn't automatically imply needing to update tests unless the behavior is also changing.
+> Testing behavior keeps tests agnostic to the implementation, which makes them more resistant to changes and refactors. Ultimately, changing implementation shouldn't automatically imply needing to update tests unless the behavior is also changing.
 
 Somewhat of an exception to the aforementioned rule is pure functions, whose behavior is essentially its implementation:
 
@@ -95,12 +96,12 @@ function capitalize(str?: string) {
     if (!str) {
         return "";
     }
-    
+
     return str.charAt(0).toUpperCase() + str.substring(1).toLowerCase();
 }
 
 // tests
-describe('capitalizeString', () => {
+describe("capitalizeString", () => {
     describe("when the provided string is falsy", () => {
         test("returns an empty string", () => {
             expect(capitalizeString()).toEqual("");
@@ -112,15 +113,15 @@ describe('capitalizeString', () => {
         test("returns the string with the first character capitalized (if applicable)", () => {
             expect(capitalizeString("a")).toEqual("A");
             expect(capitalizeString("A")).toEqual("A");
-			
+
             expect(capitalizeString("abc")).toEqual("Abc");
             expect(capitalizeString("Abc")).toEqual("Abc");
             expect(capitalizeString("ABc")).toEqual("Abc");
             expect(capitalizeString("ABC")).toEqual("Abc");
-    
+
             expect(capitalizeString("1")).toEqual("1");
             expect(capitalizeString("1abc")).toEqual("1abc");
-    
+
             // and so on...
         });
     });
@@ -136,19 +137,15 @@ expect(sum(1, 2, 3)).toEqual(1 + 2 + 3);
 const arrayA = [1, 2, 3];
 const arrayB = [4, 5, 6];
 const arrayC = [7, 8, 9];
-expect(
-    concatenate(arrayA, arrayB, arrayC)
-).toEqual([
-    arrayA,
-    arrayB,
-    arrayC
-].flat());
-       
+expect(concatenate(arrayA, arrayB, arrayC)).toEqual(
+    [arrayA, arrayB, arrayC].flat(),
+);
+
 // good
-expect((sum(1, 2, 3))).toEqual(6);
-expect(
-    concatenate(arrayA, arrayB, arrayC)
-).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+expect(sum(1, 2, 3)).toEqual(6);
+expect(concatenate(arrayA, arrayB, arrayC)).toEqual([
+    1, 2, 3, 4, 5, 6, 7, 8, 9,
+]);
 ```
 
 > Why?
@@ -159,32 +156,32 @@ expect(
 
 > Why?
 >
-> It's still a good idea to keep an eye on the test coverage percentage as loose guidance (70% - 80%) as a metric for confidence in our code, but 100% coverage is a fallacy.  Especially on the client side where much of our code will be fed through a renderer verbatim, it's less important to attain "complete" coverage, and it may encourage an anti-pattern of introducing tautological tests.
+> It's still a good idea to keep an eye on the test coverage percentage as loose guidance (70% - 80%) as a metric for confidence in our code, but 100% coverage is a fallacy. Especially on the client side where much of our code will be fed through a renderer verbatim, it's less important to attain "complete" coverage, and it may encourage an anti-pattern of introducing tautological tests.
 
 Consider the following example:
 
 ```tsx
-// given an array of words, return a string that formats them into a human-readable list  
-// ex) ["apple", "banana", "cantaloupe", "durian"] ==> "apple, banana, cantaloupe, and durian"  
+// given an array of words, return a string that formats them into a human-readable list
+// ex) ["apple", "banana", "cantaloupe", "durian"] ==> "apple, banana, cantaloupe, and durian"
 function toSentence(words: string[]) {
     if (words.length < 1) {
         return "N/A";
     }
-    
+
     return new Intl.ListFormat().format(words);
 }
 
-function ToSentenceComponent({ words }) {  
+function ToSentenceComponent({ words }) {
     return <p>{toSentence(words)}</p>;
-}  
-```  
+}
+```
 
 If the underlying `toSentence` function already has sufficient test cases (for edge cases, for variadic-ness, for falsy values, et cetera), then testing the same cases for ToSentenceComponent is redundant; it ultimately tests that React is rendering correctly rather than our own logic.
 
 ### Tests should be independent of each other and (generally) deterministic
 
-- "Independent" means tests A and B should be able to be run 1) separately, 2) together, and 3) in different orders without affecting each other
-- "Generally deterministic" means that a single test should have the same predictable behavior given the same type and range of values.  Randomized values are permitted (i.e., Faker.js), provided they're within the same expected types and ranges.
+-   "Independent" means tests A and B should be able to be run 1) separately, 2) together, and 3) in different orders without affecting each other
+-   "Generally deterministic" means that a single test should have the same predictable behavior given the same type and range of values. Randomized values are permitted (i.e., Faker.js), provided they're within the same expected types and ranges.
 
 ```tsx
 // bad - creation of user is handled in first test case,
@@ -198,7 +195,7 @@ describe("user account creation", () => {
         const response = await api.create(userCredentials);
         expect(response.code).toEqual(200);
     });
-    
+
     test("allows lookup of a user", async () => {
         const response = await api.get(userCredentials);
         expect(response.body).toEqual(...);
@@ -215,7 +212,7 @@ describe("user account", () => {
         beforeEach(() => {
             api = new Api();
         });
-        
+
         it("allows creation of a user", async () => {
             const response = await api.create(userCredentials);
             expect(response.code).toEqual(200);
@@ -232,7 +229,7 @@ describe("user account", () => {
             const response = await api.create(userCredentials);
             expect(response.code).toEqual(200);
         });
-        
+
         test("allows lookup of a user", async () => {
             const response = await api.get(userCredentials);
             expect(response.body).toEqual(...);
@@ -243,7 +240,7 @@ describe("user account", () => {
 
 > Why?
 >
-> Predictability is paramount in maintaining healthy test suites and letting us trust that our source code is functioning properly.  Tests that are neither independent nor deterministic create intermittent failures, which ultimately degrades our confidence in them and adds more time in debugging test flickers.
+> Predictability is paramount in maintaining healthy test suites and letting us trust that our source code is functioning properly. Tests that are neither independent nor deterministic create intermittent failures, which ultimately degrades our confidence in them and adds more time in debugging test flickers.
 
 ### Tests should check both optimistic cases and pessimistic cases
 
@@ -262,7 +259,7 @@ describe("containsNumber", () => {
         expect(containsNumber("123abc")).toEqual(true);
         ...
     });
-    
+
     // good - accounts for false return values
     test("returns true if the value contains a number", () => {
         expect(containsNumber("123")).toEqual(true);
@@ -285,17 +282,17 @@ describe("containsNumber", () => {
         expect(containsNumber("abc")).toEqual(false);
         expect(containsNumber("abcxyz")).toEqual(false);
         ...
-    });   
+    });
 });
 ```
 
 > Why?
 >
->Type-checking can of course help mitigate pessimistic cases since disallowed types will throw errors at compilation time, but any application with real users should account for unexpected values and logical blind spots.  This is especially important for optional function arguments and object properties due to the possibility of falsy values.
+> Type-checking can of course help mitigate pessimistic cases since disallowed types will throw errors at compilation time, but any application with real users should account for unexpected values and logical blind spots. This is especially important for optional function arguments and object properties due to the possibility of falsy values.
 
 ### Tests should validate _custom logic_, not third-party logic
 
-If a component will always render in the same way given its props, there's no point in testing that because that's fundamentally testing React's renderer.  However, if there's custom forking logic in how a component renders, that's _our_ logic so it should be tested.
+If a component will always render in the same way given its props, there's no point in testing that because that's fundamentally testing React's renderer. However, if there's custom forking logic in how a component renders, that's _our_ logic so it should be tested.
 
 ```tsx
 // bad - this component will always render in the same way
@@ -303,7 +300,7 @@ If a component will always render in the same way given its props, there's no po
 function StaticComponent({ message }: { message: string }) {
     return (
         <div>
-            <p>{ message }</p>
+            <p>{message}</p>
         </div>
     );
 }
@@ -323,7 +320,7 @@ function DynamicComponent({ message }: { message?: string }) {
     if (message) {
         return <p>{message}</p>;
     }
-    
+
     return <p>This is a fallback message.</p>;
 }
 
@@ -334,7 +331,9 @@ describe("DynamicComponent", () => {
         });
 
         test("renders the fallback message", () => {
-            expect(screen.getByText("This is a fallback message.")).toBeVisible();
+            expect(
+                screen.getByText("This is a fallback message."),
+            ).toBeVisible();
         });
     });
 
@@ -346,34 +345,26 @@ describe("DynamicComponent", () => {
         test("renders the provided message", () => {
             expect(screen.getByText("Hello!")).toBeVisible();
         });
-        
+
         test("does not render the fallback message", () => {
-            expect(screen.queryByText("This is a fallback message.")).toBeNull();
-        });    
+            expect(
+                screen.queryByText("This is a fallback message."),
+            ).toBeNull();
+        });
     });
 });
 ```
 
 ```tsx
 function useCustomHook() {
-    const { data, isLoading } = useQuery(...);
-    
     const otherStuff = ...;
-    
-    return {
-        data,
-        isLoading,
-        otherStuff
-    };
+
+    return useSuspenseQuery(...);
 }
 
 function CustomComponent() {
-    const { isLoading } = useCustomHook();
-    
-    if (isLoading) {
-        return <p>Loading...</p>
-    }
-    
+    const { data } = useCustomHook();
+
     return <p>Hello, {data.name}!</p>;
 }
 
@@ -383,23 +374,13 @@ describe("useCustomHook", () => {
     expect(result.current.isLoading).toEqual(true);
 });
 
-// good - assume `isLoading` functionality works and just test our custom logic that uses it
+// good - suspense queries always return data so just test normally
 describe("CustomComponent", () => {
-    describe("while loading", () => {
-        test("renders a loading message", () => {
-            // ...set up and rendering
-
-            expect(screen.getByText("Loading...")).toBeVisible();
-        })
-    });
-    
-    describe("when loaded", () => {
         test("renders a welcome message", () => {
             // ...set up and rendering
 
             expect(screen.getByText("Hello, ReportStream!")).toBeVisible();
         })
-    });
 });
 ```
 
@@ -418,14 +399,14 @@ describe("CustomComponent", () => {
 describe("LoginForm", () => {
     test("shows the welcome message", async () => {
         jest.spyOn(someModule, "getWelcomeMessage").mockReturnValue("Welcome!");
-    
+
         render(<LoginFor />);
-    
+
         await userEvent.type(emailInputNode, "abc@123.com");
         await userEvent.type(passwordInputNode, "password");
 
         expect(screen.getByText("Welcome!")).toBeVisible();
-        
+
         jest.restoreAllMocks();
     });
 });
@@ -440,15 +421,15 @@ describe("LoginForm", () => {
         jest.spyOn(someModule, "getDeniedMessage").mockReturnValue("Denied!");
 
         render(<LoginForm />);
-    
+
         await userEvent.type(emailInputNode, "abc@123.com");
-        await userEvent.type(passwordInputNode, "password");   
+        await userEvent.type(passwordInputNode, "password");
     });
-    
+
     afterEach(() => {
         jest.restoreAllMocks();
     });
-    
+
     test("shows the welcome message", () => {
         expect(screen.getByText("Welcome!")).toBeVisible();
     });
@@ -457,9 +438,9 @@ describe("LoginForm", () => {
 
 > Why?
 >
-> `before` and `after` are specifically meant for setup and teardown, respectively, and they should be used as such to keep each piece of any given test focused -- most notably, it encourages running more granular expectations under the same conditions.  This also allows us to add more granular expectations when new features (or regressions) need to be handled.
-> 
-> Note that `before` and `after` hooks are scoped to the parent `describe` block, so some care is needed for execution orders.  See [the Jest docs](https://jestjs.io/docs/setup-teardown) for more information.
+> `before` and `after` are specifically meant for setup and teardown, respectively, and they should be used as such to keep each piece of any given test focused -- most notably, it encourages running more granular expectations under the same conditions. This also allows us to add more granular expectations when new features (or regressions) need to be handled.
+>
+> Note that `before` and `after` hooks are scoped to the parent `describe` block, so some care is needed for execution orders. See [the Jest docs](https://jestjs.io/docs/setup-teardown) for more information.
 
 #### Use `describe`s to separate conditions
 
@@ -469,7 +450,7 @@ describe("LoginForm", () => {
     test("clears the form when the user clicks 'Continue'", () => {
         ...
     });
-    
+
     test("clears the form when the user clicks 'Cancel'", () => {
         ...
     });
@@ -498,14 +479,10 @@ describe("LoginForm", () => {
 ### Use `async` only as needed
 
 ```tsx
-import { useQuery } from "react-query";
+import { useSuspenseQuery } from "react-query";
 
 function UserPanel() {
     const { data } = useUserResource(...);
-
-    if (!data) {
-        return <p>Loading...</p>;
-    }
 
     return (
         <div>
@@ -519,7 +496,7 @@ import * as reactQueryExports from "react-query";
 
 describe("UserPanel", () => {
     beforeEach(() => {
-        jest.spyOn(reactQueryExports, "useQuery").mockReturnValue({
+        jest.spyOn(reactQueryExports, "useSuspenseQuery").mockReturnValue({
             data: {
                 firstName: "Big Dummy"
             },
@@ -546,12 +523,11 @@ describe("UserPanel", () => {
 
 > Why?
 >
-> Using asynchronous finders can build up test runtimes because they're adding overhead through Promise resolutions.  In many cases, we can just run synchronous expectations especially when we have synchronous mocks.
+> Using asynchronous finders can build up test runtimes because they're adding overhead through Promise resolutions. In many cases, we can just run synchronous expectations especially when we have synchronous mocks.
 
 ### Add regression tests for bugfixes
 
 > Why?
-> 
+>
 > Whenever a bugfix is added, it's highly recommended to add a regression test to prevent the same bug from recurring in the future.  
 > However, the bugfix and its tests don't have to be part of the same changeset; if something is causing massive critical failures on the site and tests would take a while to write, feel free to split them out into a fast-follow pull request!
-

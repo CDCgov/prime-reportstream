@@ -1,13 +1,11 @@
-import React from "react";
-import { Helmet } from "react-helmet-async";
 import { GridContainer } from "@trussworks/react-uswds";
-
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import HipaaNotice from "../../components/HipaaNotice";
-import Title from "../../components/Title";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
+import { Helmet } from "react-helmet-async";
 
 import SubmissionTable from "./SubmissionTable";
+import HipaaNotice from "../../components/HipaaNotice";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
+import Title from "../../components/Title";
+import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 
 function SubmissionHistoryContent() {
     const { data: orgDetails } = useOrganizationSettings();

@@ -1,19 +1,20 @@
-import React, { Suspense, useCallback, useState } from "react";
-import { Grid, GridContainer, Accordion } from "@trussworks/react-uswds";
+import { Accordion, Grid, GridContainer } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
-import { useParams } from "react-router-dom";
+import { Suspense, useCallback, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { useParams } from "react-router-dom";
 
 import HipaaNotice from "../../components/HipaaNotice";
+import Spinner from "../../components/Spinner";
+import { StaticCompare } from "../../components/StaticCompare";
 import {
     SettingRevision,
     SettingRevisionParams,
+    SettingRevisionParamsRecord,
     useSettingRevisionEndpointsQuery,
 } from "../../network/api/Organizations/SettingRevisions";
-import Spinner from "../../components/Spinner";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { formatDate, groupBy } from "../../utils/misc";
-import { StaticCompare } from "../../components/StaticCompare";
 
 type AccordionClickHandler = (
     key: string,
@@ -47,7 +48,7 @@ const dataToAccordionItems = (props: {
     const grouped = groupBy(props.data, (each) => each.name);
 
     // turn each group into a html list and add to the content of the accordion
-    for (let [key, settings] of Object.entries(grouped)) {
+    for (const [key, settings] of Object.entries(grouped)) {
         const items = settings.map((eachSetting) => {
             const itemKey = `key-${eachSetting.id}`;
             const selectedCss =
@@ -97,14 +98,19 @@ interface MainComponentProps extends SettingRevisionParams {
  * Nest loading into a component that can spin so the bulk of the page loads while
  * the network request happens.
  */
-const MainRevHistoryComponent = (props: MainComponentProps) => {
+const MainRevHistoryComponent = ({
+    leftSelectedListItem,
+    rightSelectedListItem,
+    onClickHandler,
+    ...props
+}: MainComponentProps) => {
     const { data, isLoading, isError } =
         useSettingRevisionEndpointsQuery(props);
     const msg = isError
         ? "Failed to load data"
         : isLoading
-        ? "Loading..."
-        : "Data not found"; // should not be used because `!data` test below but useful for unit test debugging
+          ? "Loading..."
+          : "Data not found"; // should not be used because `!data` test below but useful for unit test debugging
     return (
         <Grid col={"fill"} className={"rs-maxwidth-vw80"}>
             <Grid row gap="md" className={"rs-accord-list-row"}>
@@ -116,8 +122,8 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
                             bordered={false}
                             items={dataToAccordionItems({
                                 key: "left",
-                                selectedKey: props.leftSelectedListItem,
-                                onClickHandler: props.onClickHandler,
+                                selectedKey: leftSelectedListItem,
+                                onClickHandler: onClickHandler,
                                 data,
                             })}
                         />
@@ -129,8 +135,8 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
                             bordered={false}
                             items={dataToAccordionItems({
                                 key: "right",
-                                selectedKey: props.rightSelectedListItem,
-                                onClickHandler: props.onClickHandler,
+                                selectedKey: rightSelectedListItem,
+                                onClickHandler: onClickHandler,
                                 data,
                             })}
                         />
@@ -143,7 +149,7 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
 
 /** main page, not exported here because it should only be loaded via AdminRevHistoryWithAuth() **/
 const AdminRevHistoryPage = () => {
-    const { org, settingType } = useParams<SettingRevisionParams>(); // props past to page via the route/url path args
+    const { org, settingType } = useParams<SettingRevisionParamsRecord>(); // props past to page via the route/url path args
     const [leftJson, setLeftJson] = useState("");
     const [rightJson, setRightJson] = useState("");
     // used to highlight which item is selected.
@@ -182,7 +188,8 @@ const AdminRevHistoryPage = () => {
 
             <section className="grid-container margin-top-0">
                 <h4>
-                    Settings Revision History for "{org}" {settingType}
+                    Settings Revision History for &quot;{org}&quot;{" "}
+                    {settingType}
                 </h4>
                 <section className="margin-bottom-5">
                     Select different versions from each list to compare.
@@ -194,8 +201,8 @@ const AdminRevHistoryPage = () => {
                     <Grid row className={"rs-list-diffs-container"}>
                         <Suspense fallback={<Spinner />}>
                             <MainRevHistoryComponent
-                                org={org || ""}
-                                settingType={settingType || "organization"}
+                                org={org ?? ""}
+                                settingType={settingType ?? "organization"}
                                 leftSelectedListItem={leftSelectedListItem}
                                 rightSelectedListItem={rightSelectedListItem}
                                 onClickHandler={onClickHandler}

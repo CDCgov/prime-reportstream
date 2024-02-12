@@ -15,6 +15,6 @@ coding:
           expressionsMap:
             url:
               type: SYSTEM_URL
-              value: hl7-use
-            valueString:
-              valueOf: "id-code"
+              value: codeable-concept-id
+            valueBoolean:
+              valueOf: "true"
