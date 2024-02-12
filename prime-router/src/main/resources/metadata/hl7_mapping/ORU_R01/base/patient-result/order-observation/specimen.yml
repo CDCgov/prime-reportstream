@@ -6,17 +6,17 @@ elements:
   - name: specimen
     resource: '%resource'
     resourceIndex: specimenIndex
-    schema: ../../../../resources/Specimen/SPM
+    schema: classpath:/metadata/hl7_mapping/resources/Specimen/SPM.yml
   #    constants:
   #      performerOrganization: '%resource.basedOn.resolve().performer.resolve()'
 
   - name: specimen-extension
     resource: '%resource.extension(%`rsext-spm-specimen`)'
-    schema: ../../../../resources/Specimen/SPMExtension
+    schema: classpath:/metadata/hl7_mapping/resources/Specimen/SPMExtension.yml
 
   - name: specimen-observation
     resource: 'Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = %resource.id)'
-    schema: ../../../../resources/Observation/OBX
+    schema: classpath:/metadata/hl7_mapping/resources/Observation/OBX.yml
     resourceIndex: specimenObservationIndex
     constants:
       hl7ObservationPath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPECIMEN_OBSERVATION'

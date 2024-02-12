@@ -413,5 +413,3 @@
 # Order effective date
 - id: "order-effective-date"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date"
-- id: "hl7v2Segment"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment"

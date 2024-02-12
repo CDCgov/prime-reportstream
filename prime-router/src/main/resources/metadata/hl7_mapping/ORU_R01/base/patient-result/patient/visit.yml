@@ -3,9 +3,9 @@ elements:
   - name: encounter-pv1
     constants:
       hl7PV1Field: '/PATIENT_RESULT(%{patientIndex})/PATIENT/VISIT/PV1'
-    schema: ../../../../resources/Encounter/PV1
+    schema: classpath:/metadata/hl7_mapping/resources/Encounter/PV1.yml
 
   - name: encounter-pv2
     constants:
       hl7PV2Field: '/PATIENT_RESULT(%{patientIndex})/PATIENT/VISIT/PV2'
-    schema: ../../../../resources/Encounter/PV2
+    schema: classpath:/metadata/hl7_mapping/resources/Encounter/PV2.yml

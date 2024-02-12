@@ -4,28 +4,28 @@ constants:
 elements:
 
   - name: patient-identification
-    schema: ../../../../resources/Patient/PID
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PID.yml
 
   - name: patient-identification-extensions
     resource: '%resource.extension(%`rsext-pid-patient`)'
-    schema: ../../../../resources/Patient/PIDExtension
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PIDExtension.yml
 
   - name: additional-demographics
-    schema: ../../../../resources/Patient/PD1
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PD1.yml
 
   - name: additional-demographics-extensions
     resource: '%resource.extension(%`rsext-pd1-patient`)'
-    schema: ../../../../resources/Patient/PD1Extension
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PD1Extension.yml
 
   - name: patient-note
     resource: '%resource.extension(%`rsext-patient-notes`).value'
-    schema: ../../../../datatypes/annotation/NTE
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7SegmentGroup}'
 
   - name: related-person-nk1
-    resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Name`).value = "NK1" and patient.resolve().id = %resource.id)'
+    resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Segment`).value = "NK1" and patient.resolve().id = %resource.id)'
     condition: '%resource.patient.exists()'
-    schema: ../../../../resources/RelatedPerson/NK1
+    schema: classpath:/metadata/hl7_mapping/resources/RelatedPerson/NK1.yml
     resourceIndex: relatedPersonIndex

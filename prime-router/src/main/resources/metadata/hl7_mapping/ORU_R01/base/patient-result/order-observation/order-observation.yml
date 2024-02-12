@@ -2,16 +2,16 @@ elements:
 
   - name: common-order-service-request
     resource: '%resource.basedOn.resolve()'
-    schema: ../../../../resources/ServiceRequest/ORC
+    schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/ORC.yml
 
   - name: common-order-diagnostic-report
     resource: '%resource'
-    schema: ../../../../resources/DiagnosticReport/ORC
+    schema: classpath:/metadata/hl7_mapping/resources/DiagnosticReport/ORC.yml
 
   - name: observation-request-service-request
     resource: '%resource.basedOn.resolve()'
-    schema: ../../../../resources/ServiceRequest/OBR
+    schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/OBR.yml
 
   - name: observation-request-diagnostic-report
     resource: '%resource'
-    schema: ../../../../resources/DiagnosticReport/OBR
+    schema: classpath:/metadata/hl7_mapping/resources/DiagnosticReport/OBR.yml
