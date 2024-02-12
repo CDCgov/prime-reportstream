@@ -1,7 +1,7 @@
-import { ReactElement, useCallback, useEffect, useState } from "react";
-import DOMPurify from "dompurify";
-import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import { Checkbox } from "@trussworks/react-uswds";
+import DOMPurify from "dompurify";
+import { ReactElement, useCallback, useEffect, useState } from "react";
+import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
 import { jsonDifferMarkup } from "../utils/DiffCompare/JsonDiffer";
 import { textDifferMarkup } from "../utils/DiffCompare/TextDiffer";

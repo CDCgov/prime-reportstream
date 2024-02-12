@@ -20,6 +20,8 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -44,7 +46,8 @@ class FHIRTranslator(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-) : FHIREngine(metadata, settings, db, blob) {
+    azureEventService: AzureEventService = AzureEventServiceImpl(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService) {
 
     /**
      * Accepts a FHIR [message], parses it, and generates translated output files for each item in the destinations

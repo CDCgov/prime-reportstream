@@ -1,11 +1,10 @@
 import { screen } from "@testing-library/react";
 
+import { FacilitiesProvidersPage } from "./FacilitiesProviders";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 
-import { FacilitiesProvidersPage } from "./FacilitiesProviders";
-
 describe("FacilitiesProviders", () => {
-    test("Breadcrumb displays with link", async () => {
+    test("Breadcrumb displays with link", () => {
         renderApp(<FacilitiesProvidersPage />);
 
         const allLinks = screen.getAllByRole("link");

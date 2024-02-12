@@ -1,5 +1,5 @@
-import classnames from "classnames";
 import { Button, Icon } from "@trussworks/react-uswds";
+import classnames from "classnames";
 import { FC } from "react";
 
 export const OVERFLOW_INDICATOR = "…";

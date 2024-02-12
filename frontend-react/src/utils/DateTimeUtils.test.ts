@@ -1,12 +1,11 @@
 import moment from "moment";
 
-import { ResponseType, TestResponse } from "../resources/TestResponse";
-
 import {
     formatDateWithoutSeconds,
     generateDateTitles,
     isDateExpired,
 } from "./DateTimeUtils";
+import { ResponseType, TestResponse } from "../resources/TestResponse";
 
 /*
     Ensuring formatting of SubmissionDate type
@@ -22,15 +21,9 @@ describe("submission details date display", () => {
             actionDetailsTestResource.timestamp,
         );
 
-        if (submissionDate) {
-            // This will fail if you change the dummy object's dates!
-            expect(submissionDate.dateString).toBe("7 Apr 1970");
-            expect(submissionDate.timeString).toMatch(/\d{1,2}:\d{2}/);
-        } else {
-            throw new Error(
-                "You were the chosen one! You were meant to destroy the nulls, not join them!",
-            );
-        }
+        // This will fail if you change the dummy object's dates!
+        expect(submissionDate?.dateString).toBe("7 Apr 1970");
+        expect(submissionDate?.timeString).toMatch(/\d{1,2}:\d{2}/);
     });
 });
 

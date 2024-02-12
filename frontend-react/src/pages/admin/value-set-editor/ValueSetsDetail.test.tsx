@@ -1,19 +1,18 @@
-import { screen, act, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { act, screen, waitFor } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
 import { AxiosError, AxiosResponse } from "axios";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
-import { RSNetworkError } from "../../../utils/RSNetworkError";
+import { ValueSetsDetailPage, ValueSetsDetailTable } from "./ValueSetsDetail";
 import {
     useValueSetActivation,
-    useValueSetUpdate,
     useValueSetsMeta,
-    useValueSetsTable,
     UseValueSetsMetaResult,
+    useValueSetsTable,
     UseValueSetsTableResult,
+    useValueSetUpdate,
 } from "../../../hooks/UseValueSets";
-
-import { ValueSetsDetailPage, ValueSetsDetailTable } from "./ValueSetsDetail";
+import { renderApp } from "../../../utils/CustomRenderUtils";
+import { RSNetworkError } from "../../../utils/RSNetworkError";
 
 const fakeRows = [
     {

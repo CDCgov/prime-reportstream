@@ -15,8 +15,6 @@ export class ExternalLinks {
         await expect(newTab).toHaveURL(
             "https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957",
         );
-        await expect(
-            newTab.getByText("Connect with ReportStream"),
-        ).toBeTruthy();
+        expect(newTab.getByText("Connect with ReportStream")).toBeTruthy();
     }
 }
