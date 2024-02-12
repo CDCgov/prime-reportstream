@@ -93,6 +93,8 @@
         - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
       qualityFilter:
         - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+      conditionFilter:
+        - "resource.livdTableLookup('Component').contains('coronavirus').not()"
   senders:
     - name: default
       organizationName: ignore
