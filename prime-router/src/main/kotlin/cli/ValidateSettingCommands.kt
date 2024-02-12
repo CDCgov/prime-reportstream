@@ -11,7 +11,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import com.networknt.schema.JsonSchemaFactory
-import com.networknt.schema.SchemaValidatorsConfig
 import com.networknt.schema.SpecVersion
 import com.networknt.schema.SpecVersion.VersionFlag
 import com.networknt.schema.ValidationMessage
@@ -39,6 +38,7 @@ class ValidateSettingCommands(
     )
 
     val jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
+
     init {
         yamlMapper.registerModule(JavaTimeModule())
         yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -76,17 +76,16 @@ class ValidateSettingCommands(
 
     fun validate(): Set<ValidationMessage> {
         val settingStr = getSetting(inputFile)
-        val schemaStr = getSchema(schemaFile)
-        val config: SchemaValidatorsConfig = SchemaValidatorsConfig()
-        println(config.isCustomMessageSupported)
-        val schema = jsonSchemaFactory.getSchema(schemaStr)
-        return schema.validate(yamlMapper.readTree(settingStr))
+        val schema = jsonSchemaFactory.getSchema(schemaFile.toURI())
+        val settings = yamlMapper.readTree(settingStr)
+        return schema.validate(settings)
     }
     override fun run() {
         val invalidMessages = validate()
         echo("validation completed: validation messages count: ${invalidMessages.size}")
         invalidMessages.forEach {
-            println(it.toString())
+            println("error: $it")
+            println("schema path: ${it.evaluationPath}")
         }
     }
 }

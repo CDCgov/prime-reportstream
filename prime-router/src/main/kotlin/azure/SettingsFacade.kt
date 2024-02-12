@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.networknt.schema.JsonSchema
 import com.networknt.schema.JsonSchemaFactory
@@ -280,23 +280,39 @@ class SettingsFacade(
         if (input.organizationName != organizationName) {
             return Triple(false, "Payload and path organization name do not match", null)
         }
-        input.consistencyErrorMessage(metadata)?.let { return Triple(false, it, null) }
+//        input.consistencyErrorMessage(metadata)?.let { return Triple(false, it, null) }
         val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
-        // validate with setting schema: organizations.schema.json
-        // TODO: validate per json: org, receiver, sender respectively
-        val errorMessages = settingSchema.validate(convertToArray(normalizedJson.toString()))
-        println(errorMessages.size)
-//        return if (errorMessages.size>0)
-//            Triple(false, errorMessages.toString(), normalizedJson)
-//        else
-        return Triple(true, null, normalizedJson)
-    }
+        val value = mapper.readTree(normalizedJson.toString())
+        val errorMessages = when (input) {
+            is OrganizationAPI -> {
+                organizationSchema.validate(value)
+            }
 
-    fun convertToArray(json: String): JsonNode {
-        val orgKey = "oneOrgArray"
-        return mapper.readTree("{\"${orgKey}\" : [$json]}").get(orgKey)
-    }
+            is Sender -> {
+                senderSchema.validate(value)
+            }
 
+            is Receiver -> {
+                (value as ObjectNode).remove("conditionFilter")
+                value.remove("mappedConditionFilter")
+                receiverSchema.validate(value)
+            }
+
+            else -> {
+                throw Exception("Unexpected input...")
+            }
+        }
+        return if (errorMessages.size > 0) {
+            Triple(false, errorMessages.toString(), normalizedJson)
+        } else {
+            val error = input.consistencyErrorMessage(metadata)
+            if (!error.isNullOrEmpty()) {
+                Triple(false, error, normalizedJson)
+            } else {
+                Triple(true, null, normalizedJson)
+            }
+        }
+    }
     fun <T : SettingAPI> deleteSetting(
         name: String,
         claims: AuthenticatedClaims,
@@ -333,12 +349,27 @@ class SettingsFacade(
                 else -> error("Internal Error: Unknown classname: $className")
             }
         }
-
-        val settingSchema: JsonSchema by lazy {
+        val organizationSchema: JsonSchema by lazy {
             JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
-                .getSchema(String(File("settings/organizations.schema.json").readBytes()))
+                .getSchema(
+                    JacksonMapperUtilities.allowUnknownsMapper
+                        .readTree(File("settings/schemas/organization.json"))
+                )
         }
-
+        val senderSchema: JsonSchema by lazy {
+            JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
+                .getSchema(
+                    JacksonMapperUtilities.allowUnknownsMapper
+                        .readTree(File("settings/schemas/sender.json"))
+                )
+        }
+        val receiverSchema: JsonSchema by lazy {
+            JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
+                .getSchema(
+                    JacksonMapperUtilities.allowUnknownsMapper
+                        .readTree(File("settings/schemas/receiver.json"))
+                )
+        }
         private fun errorJson(message: String): String {
             return """{"error": "$message"}"""
         }

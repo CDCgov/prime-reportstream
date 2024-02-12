@@ -1,0 +1,7 @@
+---
+name:
+organizationName: waters
+topic: covid-19
+customerStatus: active
+schemaName: waters/waters-covid-19
+format: CSV

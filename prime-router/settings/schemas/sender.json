@@ -1,0 +1,76 @@
+{
+  "$ref": "#/definitions/Sender",
+  "definitions": {
+    "Sender": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "organizationName": {
+          "type": "string"
+        },
+        "topic": {
+          "$ref": "#/definitions/Topic"
+        },
+        "customerStatus": {
+          "$ref": "#/definitions/CustomerStatus"
+        },
+        "schemaName": {
+          "type": "string"
+        },
+        "processingType": {
+          "type": ["string", "null"]
+        },
+        "senderType": {
+          "type": ["string", "null"]
+        },
+        "format": {
+          "$ref": "#/definitions/SenderFormat"
+        },
+        "allowDuplicates": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "customerStatus",
+        "format",
+        "name",
+        "organizationName",
+        "topic"
+      ],
+      "title": "Sender"
+    },
+    "SenderFormat": {
+      "type": "string",
+      "enum": [
+        "CSV",
+        "HL7",
+        "FHIR"
+      ],
+      "title": "SenderFormat"
+    },
+    "Topic": {
+      "type": "string",
+      "enum": [
+        "covid-19",
+        "full-elr",
+        "etor-ti",
+        "elr-elims",
+        "monkeypox",
+        "testing"
+      ],
+      "title": "Topic"
+    },
+    "CustomerStatus": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "testing"
+      ],
+      "title": "CustomerStatus"
+    }
+  }
+}

@@ -16,7 +16,10 @@
                     "type": "string"
                 },
                 "jurisdiction": {
-                    "$ref": "#/definitions/Jurisdiction"
+                    "$ref": "#/definitions/Jurisdiction",
+                    "message": {
+                        "required": "Jurisdiction is required for an organization"
+                    }
                 },
                 "senders": {
                     "type": "array",
@@ -57,8 +60,16 @@
             },
             "then": {
                 "allOf": [
-                    {"not": { "required": [ "stateCode"] }},
-                    {"not": { "required": [ "countyName"] }}
+                    {"not": { "required": [ "stateCode"]},
+                        "message": {
+                            "not" : "{0}: For FEDERAL jurisdiction, 'stateCode' must NOT present"
+                        }
+                    },
+                    {"not": { "required": [ "countyName"]},
+                        "message": {
+                            "not" : "{0}: For FEDERAL jurisdiction, 'countyName' must NOT present"
+                        }
+                    }
                 ]
             },
             "else": {
@@ -69,8 +80,16 @@
                 },
                 "then": {
                     "allOf": [
-                        { "required": [ "stateCode"] },
-                        {"not": { "required": [ "countyName"] }}
+                        { "required": [ "stateCode"],
+                            "message": {
+                                "required" : "{0}: For STATE jurisdiction, 'stateCode' must present"
+                            }
+                        },
+                        {"not": { "required": [ "countyName"]},
+                            "message": {
+                                "not" : "{0}: For STATE jurisdiction, 'countyName' must NOT present"
+                            }
+                        }
                     ]
                 },
                 "else": {
@@ -86,7 +105,9 @@
                                     "stateCode",
                                     "countyName"
                                 ],
-                                "errorMessage": "For COUNTY jurisdiction, both 'stateCode' and 'countyName' is required"
+                                "message": {
+                                    "required" : "{0}: For COUNTY jurisdiction, both 'stateCode' and 'countyName' is required"
+                                }
                             }
                         ]
                     }
@@ -272,13 +293,17 @@
             },
             "then": {
                 "allOf": [
-                    {"not": { "required": [ "conditionFilter"] }},
-                    {"not": { "required": [ "mappedConditionFilter"] }}
+                    {"not": { "required": [ "conditionFilter"]},
+                        "message": {
+                            "not": "conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'"
+                        }
+                    },
+                    {"not": { "required": [ "mappedConditionFilter"]},
+                        "message": {
+                            "not": "mappedConditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'"
+                        }
+                    }
                 ]
-            },
-            "message": {
-                "required": "Not allowed for some topic",
-                "mappedConditionFilter": "Not allowed for non-UP topic"
             },
             "title": "Receiver"
         },
