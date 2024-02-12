@@ -83,7 +83,7 @@ class FhirPathUtilsTests {
             FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)
         } catch (e: Exception) {
             assertThat(e).isInstanceOf<SchemaException>()
-            assertThat(e.cause!!.message).equals("Error in ?? at 1, 1: The name blah is not a valid function name")
+            assertThat(e.cause!!.message).isEqualTo("Error in ?? at 1, 1: The name blah is not a valid function name")
         }
     }
 
