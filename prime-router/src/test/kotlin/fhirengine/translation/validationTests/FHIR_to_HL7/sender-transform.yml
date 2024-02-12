@@ -1,4 +1,5 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 
 elements:
   - name: receiving-application-namespace-id

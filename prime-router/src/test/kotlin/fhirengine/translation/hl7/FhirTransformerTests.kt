@@ -874,7 +874,8 @@ class FhirTransformerTests {
             "test_extension_schema",
             "src/test/resources/fhir_sender_transforms",
             schemaClass = FhirTransformSchema::class.java,
-        ) as FhirTransformSchema
+            blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        )
 
         val transformer = FhirTransformer(childSchema)
         val transformedBundle = transformer.transform(bundle)

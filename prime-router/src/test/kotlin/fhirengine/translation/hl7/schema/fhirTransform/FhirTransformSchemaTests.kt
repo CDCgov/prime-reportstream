@@ -8,7 +8,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import kotlin.test.Test
 
 class FhirTransformSchemaTests {
@@ -215,13 +214,6 @@ class FhirTransformSchemaTests {
                 assertThat(parentElementC.bundleProperty).isEqualTo(originalElement.bundleProperty)
             }
         }
-    }
-
-    @Test
-    fun `test invalid merge of element`() {
-        val elementA = FhirTransformSchemaElement("name")
-        val elementB = ConverterSchemaElement("name")
-        assertFailure { elementA.merge(elementB) }
     }
 
     @Test

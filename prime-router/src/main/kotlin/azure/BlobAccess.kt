@@ -77,6 +77,12 @@ class BlobAccess() : Logging {
         val connectionString: String,
     ) {
         companion object {
+
+            /**
+             * Regex used to extract the URL for blob storage
+             */
+            private val blobEndpointRegex = Regex(";BlobEndpoint=(?<blobEndpoint>[^;]+);")
+
             /**
              * Builds a [BlobContainerMetadata] object. [envVar] will be resolved to the blobstore connection string.
              */
@@ -91,6 +97,18 @@ class BlobAccess() : Logging {
             fun build(blobTransport: BlobStoreTransportType): BlobContainerMetadata {
                 return BlobContainerMetadata(blobTransport.containerName, getBlobConnection(blobTransport.storageName))
             }
+        }
+
+        /**
+         * Helper function to extract the storage URL from the connection endpoint and configured container name
+         *
+         * @return the URL for the storage and container that this object represents
+         */
+        fun getBlobEndpoint(): String {
+            val match = blobEndpointRegex.find(connectionString)
+            val blobStorageUrl = match?.groups?.get("blobEndpoint")?.value
+                ?: throw RuntimeException("Connection string is misconfigured and does not contain a blob endpoint URL")
+            return "$blobStorageUrl/$containerName"
         }
     }
 

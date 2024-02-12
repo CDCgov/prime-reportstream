@@ -21,8 +21,8 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.metadata.LivdLookup
@@ -51,7 +51,7 @@ class FhirToHl7ConverterTests {
     @Test
     fun `test can evaluate`() {
         val mockTerser = mockk<Terser>()
-        val mockSchema = mockk<ConverterSchema>() // Just a dummy schema to pass around
+        val mockSchema = mockk<HL7ConverterSchema>() // Just a dummy schema to pass around
         val bundle = Bundle()
         bundle.id = "abc123"
         val customContext = CustomContext(bundle, bundle)
@@ -73,7 +73,7 @@ class FhirToHl7ConverterTests {
 
     @Test
     fun `test get focus resource`() {
-        val mockSchema = mockk<ConverterSchema>() // Just a dummy schema to pass around
+        val mockSchema = mockk<HL7ConverterSchema>() // Just a dummy schema to pass around
         val bundle = Bundle()
         bundle.id = "abc123"
         val resource = MessageHeader()
@@ -129,7 +129,7 @@ class FhirToHl7ConverterTests {
 
     @Test
     fun `test get value as string`() {
-        val mockSchema = mockk<ConverterSchema>() // Just a dummy schema to pass around
+        val mockSchema = mockk<HL7ConverterSchema>() // Just a dummy schema to pass around
         val bundle = Bundle()
         bundle.id = "abc123"
         val customContext = CustomContext(bundle, bundle)
@@ -147,7 +147,7 @@ class FhirToHl7ConverterTests {
 
     @Test
     fun `test get value as string from set`() {
-        val mockSchema = mockk<ConverterSchema>() // Just a dummy schema to pass around
+        val mockSchema = mockk<HL7ConverterSchema>() // Just a dummy schema to pass around
         val bundle = Bundle()
         bundle.id = "stagnatious"
         val customContext = CustomContext(bundle, bundle)
@@ -181,7 +181,7 @@ class FhirToHl7ConverterTests {
 
     @Test
     fun `test get value as string with error`() {
-        val mockSchema = mockk<ConverterSchema>() // Just a dummy schema to pass around
+        val mockSchema = mockk<HL7ConverterSchema>() // Just a dummy schema to pass around
         val bundle = Bundle()
         bundle.id = "abc123"
         val resource = MessageHeader()
@@ -201,7 +201,7 @@ class FhirToHl7ConverterTests {
     fun `test set HL7 value`() {
         val fieldValue = "somevalue"
         val mockTerser = mockk<Terser>()
-        val mockSchema = mockk<ConverterSchema>() // Just a dummy schema to pass around
+        val mockSchema = mockk<HL7ConverterSchema>() // Just a dummy schema to pass around
         var element = ConverterSchemaElement("name", required = true, hl7Spec = listOf("MSH-10"))
         var converter = FhirToHl7Converter(mockSchema, terser = mockTerser)
         val customContext = CustomContext(Bundle(), Bundle())
@@ -249,7 +249,7 @@ class FhirToHl7ConverterTests {
     @Test
     fun `test process element with single focus resource`() {
         val mockTerser = mockk<Terser>()
-        val mockSchema = mockk<ConverterSchema>() // Just a dummy schema to pass around
+        val mockSchema = mockk<HL7ConverterSchema>() // Just a dummy schema to pass around
         val bundle = Bundle()
         bundle.id = "abc123"
         val customContext = CustomContext(bundle, bundle)
@@ -311,7 +311,7 @@ class FhirToHl7ConverterTests {
             value = listOf(pathWithValue),
             hl7Spec = listOf("MSH-11")
         )
-        val schema = ConverterSchema(elements = mutableListOf(element))
+        val schema = HL7ConverterSchema(elements = mutableListOf(element))
         val elementWithSchema = ConverterSchemaElement("name", schemaRef = schema)
         converter.processElement(elementWithSchema, bundle, bundle, customContext)
         verify(exactly = 1) { mockTerser.set(element.hl7Spec[0], any()) }
@@ -329,7 +329,7 @@ class FhirToHl7ConverterTests {
     @Test
     fun `test resource index`() {
         val mockTerser = mockk<Terser>()
-        val mockSchema = mockk<ConverterSchema>() // Just a dummy schema to pass around
+        val mockSchema = mockk<HL7ConverterSchema>() // Just a dummy schema to pass around
         val bundle = Bundle()
         bundle.id = "abc123"
         val servRequest1 = ServiceRequest()
@@ -346,7 +346,7 @@ class FhirToHl7ConverterTests {
             value = listOf("1"),
             hl7Spec = listOf("/PATIENT_RESULT/ORDER_OBSERVATION(%{myindexvar})/OBX-1")
         )
-        val childSchema = ConverterSchema(elements = mutableListOf(childElement))
+        val childSchema = HL7ConverterSchema(elements = mutableListOf(childElement))
         val element = ConverterSchemaElement(
             "name",
             resource = "Bundle.entry",
@@ -381,7 +381,7 @@ class FhirToHl7ConverterTests {
             value = listOf("%resource"),
             hl7Spec = listOf("MSH-3-1")
         )
-        val schema = ConverterSchema(
+        val schema = HL7ConverterSchema(
             hl7Class = "ca.uhn.hl7v2.model.v27.message.ORU_R01",
             elements = listOf(element).toMutableList()
         )
@@ -407,7 +407,7 @@ class FhirToHl7ConverterTests {
             value = listOf(pathWithValue),
             hl7Spec = listOf("MSH-11")
         )
-        var schema = ConverterSchema(
+        var schema = HL7ConverterSchema(
             hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
             elements = mutableListOf(element)
         )
@@ -422,7 +422,7 @@ class FhirToHl7ConverterTests {
             hl7Spec = listOf("MSH-11")
         )
         schema =
-            ConverterSchema(elements = mutableListOf(element))
+            HL7ConverterSchema(elements = mutableListOf(element))
         assertFailure { FhirToHl7Converter(schema).convert(bundle) }
 
         // Use a file based schema which will fail as we do not have enough data in the bundle
@@ -453,7 +453,7 @@ class FhirToHl7ConverterTests {
             value = listOf(pathWithValue),
             hl7Spec = listOf("MSH-11")
         )
-        var schema = ConverterSchema(
+        var schema = HL7ConverterSchema(
             hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
             elements = mutableListOf(element)
         )
@@ -487,7 +487,7 @@ class FhirToHl7ConverterTests {
             value = listOf(pathWithValue),
             hl7Spec = listOf("MSH-7")
         )
-        var schema = ConverterSchema(
+        var schema = HL7ConverterSchema(
             hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
             elements = mutableListOf(element)
         )
@@ -508,10 +508,10 @@ class FhirToHl7ConverterTests {
         val elemB = ConverterSchemaElement("elementB", value = listOf("'654321'"), hl7Spec = listOf("MSH-11"))
         val elemC = ConverterSchemaElement("elementC", value = listOf("'fedcba'"), hl7Spec = listOf("MSH-12"))
 
-        val childSchema = ConverterSchema(elements = mutableListOf(elemB, elemC))
+        val childSchema = HL7ConverterSchema(elements = mutableListOf(elemB, elemC))
         val elemA = ConverterSchemaElement("elementA", schema = "schema", schemaRef = childSchema)
 
-        val rootSchema = ConverterSchema(
+        val rootSchema = HL7ConverterSchema(
             hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
             elements = mutableListOf(elemA)
         )
@@ -531,16 +531,16 @@ class FhirToHl7ConverterTests {
         val elemB1 = ConverterSchemaElement("elementB", value = listOf("'654321'"), hl7Spec = listOf("MSH-11"))
         val elemB2 = ConverterSchemaElement("elementB", value = listOf("'fedcba'"), hl7Spec = listOf("MSH-12"))
 
-        val childSchema = ConverterSchema(elements = mutableListOf(elemB1, elemB2))
+        val childSchema = HL7ConverterSchema(elements = mutableListOf(elemB1, elemB2))
         val elemA = ConverterSchemaElement("elementA", schema = "schema", schemaRef = childSchema)
 
-        val rootSchema = ConverterSchema(
+        val rootSchema = HL7ConverterSchema(
             hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
             elements = mutableListOf(elemA)
         )
 
         val elemBOverride = ConverterSchemaElement("elementB", value = listOf("'overrideVal'"))
-        val overrideSchema = ConverterSchema(elements = mutableListOf(elemBOverride))
+        val overrideSchema = HL7ConverterSchema(elements = mutableListOf(elemBOverride))
         rootSchema.override(overrideSchema)
 
         val message = FhirToHl7Converter(rootSchema).convert(bundle)
@@ -551,7 +551,7 @@ class FhirToHl7ConverterTests {
     @Test
     fun `test truncation logic for ORU_R01`() {
         val mockBundle = mockk<Bundle>()
-        val mockSchema = mockk<ConverterSchema>()
+        val mockSchema = mockk<HL7ConverterSchema>()
         val terser = Terser(ORU_R01())
 
         // dummy config with just truncation config set up
@@ -601,7 +601,7 @@ class FhirToHl7ConverterTests {
     @Test
     fun `test truncation logic for OML_O21`() {
         val mockBundle = mockk<Bundle>()
-        val mockSchema = mockk<ConverterSchema>()
+        val mockSchema = mockk<HL7ConverterSchema>()
         val terser = Terser(OML_O21())
 
         // dummy config with just truncation config set up
@@ -650,37 +650,43 @@ class FhirToHl7ConverterTests {
 
     @Nested
     inner class TestOverrides {
+        private val mockBlobContainerMetadata = mockk<BlobAccess.BlobContainerMetadata>()
 
         val baseSchema = ConfigSchemaReader.fromFile(
             """
                     classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01.yml
             """.trimIndent(),
-            schemaClass = ConverterSchema::class.java
-        ) as ConverterSchema
+            schemaClass = HL7ConverterSchema::class.java,
+            blobConnectionInfo = mockBlobContainerMetadata
+        )
 
         val extendedSchema = ConfigSchemaReader.fromFile(
             """
                     classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended.yml
             """.trimIndent(),
-            schemaClass = ConverterSchema::class.java
-        ) as ConverterSchema
+            schemaClass = HL7ConverterSchema::class.java,
+            blobConnectionInfo = mockBlobContainerMetadata
+        )
 
         val extendedSchemaOverridesSoftware = ConfigSchemaReader.fromFile(
             """
                     classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_overrides_software.yml
             """.trimIndent(),
-            schemaClass = ConverterSchema::class.java
-        ) as ConverterSchema
+            schemaClass = HL7ConverterSchema::class.java,
+            blobConnectionInfo = mockBlobContainerMetadata
+        )
 
         val extendedSchemaOverridesXon = ConfigSchemaReader.fromFile(
             "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_overrides_xon.yml",
-            schemaClass = ConverterSchema::class.java
-        ) as ConverterSchema
+            schemaClass = HL7ConverterSchema::class.java,
+            blobConnectionInfo = mockBlobContainerMetadata
+        )
 
         val extendedExtendedSchema = ConfigSchemaReader.fromFile(
             "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_extended.yml",
-            schemaClass = ConverterSchema::class.java
-        ) as ConverterSchema
+            schemaClass = HL7ConverterSchema::class.java,
+            blobConnectionInfo = mockBlobContainerMetadata
+        )
 
         @Test
         fun `test overrides an existing element`() {

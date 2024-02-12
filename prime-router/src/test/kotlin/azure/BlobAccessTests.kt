@@ -38,6 +38,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
 import java.io.ByteArrayInputStream
@@ -56,7 +57,7 @@ class BlobAccessTests {
     }
 
     @Nested
-    class BlobAccessIntegrationTests {
+    inner class BlobAccessIntegrationTests {
         val azuriteContainer1 =
             GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
                 .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
@@ -173,28 +174,28 @@ class BlobAccessTests {
                 "container1",
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
                     """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
+                        azuriteContainer1.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount1;"""
             )
 
             val destinationBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
                 "container1",
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount2;""" +
                     """AccountKey=keydevstoreaccount2;BlobEndpoint=http://${azuriteContainer2.host}:${
-                    azuriteContainer2.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount2;QueueEndpoint=http://${azuriteContainer2.host}:${
-                    azuriteContainer2.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount2;"""
+                        azuriteContainer2.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount2;QueueEndpoint=http://${azuriteContainer2.host}:${
+                        azuriteContainer2.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount2;"""
             )
 
             BlobAccess.uploadBlob(
@@ -227,14 +228,14 @@ class BlobAccessTests {
                 "container1",
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
                     """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
+                        azuriteContainer1.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount1;"""
             )
             val url = BlobAccess.uploadBlob(
                 "test.txt",
@@ -254,14 +255,14 @@ class BlobAccessTests {
                 "container1",
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
                     """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
+                        azuriteContainer1.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount1;"""
             )
             val contentToUpload = listOf("foo/item1.txt", "bar/item2.txt", "foo/baz/item3.txt")
             contentToUpload.forEach { content ->
@@ -305,14 +306,14 @@ class BlobAccessTests {
                 "container1",
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
                     """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
+                        azuriteContainer1.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount1;"""
             )
 
             val now = OffsetDateTime.now()
@@ -379,14 +380,14 @@ class BlobAccessTests {
                 "container1",
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
                     """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
+                        azuriteContainer1.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount1;"""
             )
 
             val now = OffsetDateTime.now()
@@ -434,6 +435,28 @@ class BlobAccessTests {
             assertThat(results).hasSize(1)
             assertThat(results[0].currentBlobItem.name).isEqualTo(blobName2)
         }
+    }
+
+    @Test
+    fun `test get blob endpoint URL from BlobContainerMetadata`() {
+        val endpoint =
+            """
+                DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://localhost:54321/devstoreaccount1;QueueEndpoint=http://localhost:12345/devstoreaccount1;
+                """.trimIndent()
+
+        val metadata = BlobAccess.BlobContainerMetadata("test", endpoint)
+        assertThat(metadata.getBlobEndpoint()).isEqualTo("http://localhost:54321/devstoreaccount1/test")
+    }
+
+    @Test
+    fun `test blob endpoint URL missing from connection string for BlobContainerMetadata`() {
+        val endpoint =
+            """
+            DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;QueueEndpoint=http://localhost:12345/devstoreaccount1;
+            """.trimIndent()
+
+        val metadata = BlobAccess.BlobContainerMetadata("test", endpoint)
+        assertThrows<RuntimeException> { metadata.getBlobEndpoint() }
     }
 
     @Test

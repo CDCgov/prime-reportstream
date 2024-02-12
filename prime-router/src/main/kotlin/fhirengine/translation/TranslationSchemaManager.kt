@@ -1,132 +1,150 @@
 package gov.cdc.prime.router.fhirengine.translation
 
+import ca.uhn.hl7v2.DefaultHapiContext
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import org.apache.logging.log4j.kotlin.Logging
-import javax.ws.rs.InternalServerErrorException
 
+/**
+ * Instance of this manager can be used to validate and update translation schemas in various environments
+ */
 class TranslationSchemaManager : Logging {
-    enum class SchemaType(val directory: String) {
-        FHIR("fhir_transforms"),
-        HL7("hl7_mapping"),
-    }
 
     /**
-     * Downloads the content of each blob in the [directory] with [blobContainerInfo] takes the input file, runs
-     * the transform on it, and compares it to the output validating that they are the same.
+     * This enum contains the kinds of schemas that currently can be managed
      */
-    fun validateManagedSchemas(
-        schemaType: SchemaType,
-        blobContainerInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
-        blobEndpoint: String,
-    ): MutableList<ValidationResults> {
-        val sourceContainer = BlobAccess.getBlobContainer(blobContainerInfo)
-        val blobs =
-            BlobAccess.listBlobs(schemaType.directory, blobContainerInfo, false)
-        val inputs = blobs.filter { it.currentBlobItem.name.contains("/input.") }
-        val validationResults = mutableListOf<ValidationResults>()
+    enum class SchemaType(val directory: String, val outputExtension: String) {
+        FHIR("fhir_transforms", "fhir"),
+        HL7("hl7_mapping", "hl7"),
+    }
 
-        inputs.forEach { currentInput ->
-            val inputDirectoryPath = Regex("(.*/).*").find(currentInput.currentBlobItem.name)!!.groups[1]!!.value
-            val input = sourceContainer.getBlobClient(inputDirectoryPath + "input.fhir").downloadContent()
-            val inputBundle = FhirTranscoder.decode(input.toString())
+    companion object {
+
+        private val context = DefaultHapiContext()
+        private val hl7Parser = context.getGenericParser()
+
+        data class ValidationResults(
+            val path: String,
+            val passes: Boolean,
+            val didError: Boolean = false,
+        )
+
+        data class ValidationContainer(val input: String, val output: String, val schemaUri: String)
+
+        class TranslationValidationException(override val message: String, override val cause: Throwable? = null) :
+            RuntimeException(cause)
+
+        /**
+         * Internal helper function that fetches the raw input and output file and the URI for schema to be validated
+         *
+         * @property blobs the list of blobs to search through to find the transform
+         * @property blobContainerInfo the information on the blob container to download from
+         * @property inputDirectoryPath the path to the directory currently being processed
+         * @property schemaType the kind of transform being validated
+         * @return [ValidationContainer]
+         * @throws [TranslationValidationException] if an error occurred gathering the input/output or finding the schema
+         */
+        internal fun getRawInputOutputAndSchemaUri(
+            blobs: List<BlobAccess.Companion.BlobItemAndPreviousVersions>,
+            blobContainerInfo: BlobAccess.BlobContainerMetadata,
+            inputDirectoryPath: String,
+            schemaType: SchemaType,
+        ): ValidationContainer {
+            val inputBlobUrl = "${blobContainerInfo.getBlobEndpoint()}/${inputDirectoryPath}input.fhir"
+            val input = try {
+                BlobAccess.downloadBlobAsBinaryData(
+                    inputBlobUrl,
+                    blobContainerInfo
+                ).toString()
+            } catch (e: Exception) {
+                throw TranslationValidationException("Unable to download the input file: $inputBlobUrl", e)
+            }
+            val outputBlobUrl =
+                "${blobContainerInfo.getBlobEndpoint()}/${inputDirectoryPath}output.${schemaType.outputExtension}"
+            val output = try {
+                BlobAccess.downloadBlobAsBinaryData(
+                    outputBlobUrl,
+                    blobContainerInfo
+                ).toString()
+            } catch (e: Exception) {
+                throw TranslationValidationException("Unable to download the output file: $outputBlobUrl", e)
+            }
 
             val transformBlob = blobs.filter {
                 val find = Regex("$inputDirectoryPath[^/]+.yml").find(it.currentBlobItem.name)
                 find != null && find.groups.isNotEmpty()
             }
-            val transformBlobName = transformBlob[0].currentBlobItem.name
-
-            when (schemaType) {
-                SchemaType.FHIR -> {
-                    val configSchema = ConfigSchemaReader.fromFile(
-                        blobEndpoint + "/" + blobContainerInfo.containerName + "/" + transformBlobName,
-                        null,
-                        FhirTransformSchema::class.java,
-                        blobContainerInfo
-                    )
-                    val transformedInputBundle = if (configSchema is FhirTransformSchema) {
-                        FhirTransformer(configSchema).transform(inputBundle)
-                    } else {
-                        throw InternalServerErrorException("Transform schema $transformBlob not a FhirTransform")
-                    }
-                    val output = sourceContainer.getBlobClient(inputDirectoryPath + "output.fhir").downloadContent()
-                    // Unfortunately need to do this to get it to be the same format.
-                    val expectedOutput = FhirTranscoder.decode(output.toString())
-                    // .equals is required here == does not compare it properly, despite what IntelliJ says
-                    if (transformedInputBundle.equals(expectedOutput)) {
-                        logger.error("Validation failed for transform $transformBlobName")
-                        validationResults.add(
-                            ValidationResults(
-                            currentInput.currentBlobItem.name,
-                            inputDirectoryPath + "output.fhir",
-                            transformBlobName,
-                            false
-                        )
-                        )
-                    } else {
-                        validationResults.add(
-                            ValidationResults(
-                            currentInput.currentBlobItem.name,
-                            inputDirectoryPath + "output.fhir",
-                            transformBlobName,
-                            true
-                        )
-                        )
-                    }
-                }
-                SchemaType.HL7 -> {
-                    val converterSchema = ConfigSchemaReader.fromFile(
-                        blobEndpoint + "/" + blobContainerInfo.containerName + "/" + transformBlobName,
-                        null,
-                        ConverterSchema::class.java,
-                        blobContainerInfo
-                    )
-                    val hl7Transform = FhirToHl7Converter(
-                        converterSchema as ConverterSchema,
-                        false,
-                        null,
-                        ConstantSubstitutor(),
-                        null
-                    ).convert(inputBundle)
-                    val output = sourceContainer.getBlobClient(inputDirectoryPath + "output.hl7").downloadContent()
-                    if (!hl7Transform.toString().trim().equals(output.toString().trim())) {
-                        logger.error("Validation failed for transform $transformBlobName")
-                        validationResults.add(
-                            ValidationResults(
-                            currentInput.currentBlobItem.name,
-                            inputDirectoryPath + "output.hl7",
-                            transformBlobName,
-                            false
-                        )
-                        )
-                    } else {
-                        validationResults.add(
-                            ValidationResults(
-                            currentInput.currentBlobItem.name,
-                            inputDirectoryPath + "output.hl7",
-                            transformBlobName,
-                            true
-                        )
-                        )
-                    }
-                }
+            if (transformBlob.size != 1) {
+                throw TranslationValidationException(
+                    """
+                    ${transformBlob.size} schemas were found in $inputDirectoryPath, please check the configuration as only one should exist
+                    """.trimIndent()
+                )
             }
+            val transformBlobName = transformBlob[0].currentBlobItem.name
+            val schemaUri =
+                "${blobContainerInfo.getBlobEndpoint()}/$transformBlobName"
+            return ValidationContainer(input, output, schemaUri)
         }
-
-        return validationResults
     }
 
-    data class ValidationResults(
-        val inputFilePath: String,
-        val outputFilePath: String,
-        val transformFilePath: String,
-        val passes: Boolean,
-    )
+    /**
+     * This function processes a specific kind of transform and validates that each translation schema when applied to
+     * the sample output exactly matches the sample output.
+     *
+     * @property schemaType the type of transform getting validated
+     * @property blobContainerInfo the connection info for where the schemas getting validated are stored
+     * @return [List[ValidationResults]] a list of the results from validating all valid schemas
+     */
+    fun validateManagedSchemas(
+        schemaType: SchemaType,
+        blobContainerInfo: BlobAccess.BlobContainerMetadata,
+    ): List<ValidationResults> {
+        val blobs =
+            BlobAccess.listBlobs(schemaType.directory, blobContainerInfo, false)
+        val inputs = blobs.filter { it.currentBlobItem.name.contains("/input.") }
+
+        return inputs.map { currentInput ->
+            val inputDirectoryPath = Regex("(.*/).*").find(currentInput.currentBlobItem.name)!!.groups[1]!!.value
+
+            val rawValidationInput = try {
+                getRawInputOutputAndSchemaUri(blobs, blobContainerInfo, inputDirectoryPath, schemaType)
+            } catch (e: RuntimeException) {
+                logger.error("Failed to get input or output to validate the schema", e)
+                return@map ValidationResults(inputDirectoryPath, passes = false, didError = true)
+            }
+
+            val inputBundle = FhirTranscoder.decode(rawValidationInput.input)
+
+            val isSchemaValid = try {
+                when (schemaType) {
+                    SchemaType.FHIR -> {
+                        FhirTransformer(
+                            rawValidationInput.schemaUri,
+                            blobContainerInfo
+                        ).validate(inputBundle, FhirTranscoder.decode(rawValidationInput.output))
+                    }
+                    SchemaType.HL7 -> {
+                        FhirToHl7Converter(
+                            rawValidationInput.schemaUri,
+                            blobContainerInfo
+                        ).validate(inputBundle, hl7Parser.parse(rawValidationInput.output))
+                    }
+                }
+            } catch (e: Exception) {
+                logger.error(
+                    "An exception was encountered while trying to validate the schema: ${rawValidationInput.schemaUri}",
+                    e
+                )
+                return@map ValidationResults(inputDirectoryPath, passes = false, didError = true)
+            }
+
+            ValidationResults(
+                rawValidationInput.schemaUri,
+                isSchemaValid
+            )
+        }
+    }
 }

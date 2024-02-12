@@ -13,6 +13,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhir
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
@@ -48,6 +49,7 @@ class LookupTableValueSetTests {
             fhirTransformSchemaFromFile(
                 "lookup_value_set",
                 "src/test/resources/fhir_sender_transforms",
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             ).isValid()
         ).isTrue()
 
@@ -55,6 +57,7 @@ class LookupTableValueSetTests {
             fhirTransformSchemaFromFile(
                 "invalid_lookup_value_set",
                 "src/test/resources/fhir_sender_transforms",
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }
         unmockkAll()
