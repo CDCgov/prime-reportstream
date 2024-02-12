@@ -74,6 +74,20 @@ class FhirPathUtilsTests {
     }
 
     @Test
+    fun `test evaluate condition error thrown`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+
+        val path = "Bundle.entry[0].resource.blah('blah')"
+        try {
+            FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)
+        } catch (e: Exception) {
+            assertThat(e).isInstanceOf<SchemaException>()
+            assertThat(e.cause!!.message).equals("Error in ?? at 1, 1: The name blah is not a valid function name")
+        }
+    }
+
+    @Test
     fun `test evaluate`() {
         val bundle = Bundle()
         bundle.id = "abc123"
