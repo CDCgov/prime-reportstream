@@ -235,28 +235,3 @@ extension:
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
-
-receivedTime:
-  condition: $dateTimeIn NOT_NULL
-  type: STRING
-  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-  expressionType: JEXL
-  vars:
-    dateTimeIn: OBR.14.1
-_receivedTime:
-  condition: $dateTimeIn NOT_NULL
-  expressionType: nested
-  vars:
-    dateTimeIn: OBR.14.1
-  expressionsMap:
-    extension:
-      generateList: true
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: hl7v2-date-time
-        valueString:
-          type: STRING
-          valueOf: $dateTimeIn
-          expressionType: HL7Spec
