@@ -1,7 +1,7 @@
 @use "../../global-modules.scss" as *;
 
-$column-gutter: 40px;
-$column-gutter-tablet: 24px;
+$column-gutter: 2rem;
+$column-gutter-tablet: 2rem;
 
 .TableFilters {
   :global {
@@ -14,6 +14,7 @@ $column-gutter-tablet: 24px;
     .button-container {
         display: flex;
         align-items: flex-end;
+        justify-content: space-between;
         height: 100%;
     }
     
@@ -21,25 +22,40 @@ $column-gutter-tablet: 24px;
         background: none;
         border: none;
     }
+
+    .date-time-container {
+      width: fit-content;
+      margin: 0 auto;
+    }
     
     .date-picker-container {
         display: flex;
-        margin-right: 32px;
+
+        & .usa-form-group {
+          margin-top: 0;
+        }
     }
 
     .usa-time-picker {
       margin-right: 48px;
     }
 
+    .usa-label {
+      font-weight: bold;
+    }
 
     .usa-time-picker,
     .usa-date-picker__external-input {
       width: 268px;
     }
-    
+
     .filter-column {
       &__one {
         padding-right: $column-gutter;
+
+        & .usa-label {
+          margin-top: 0;
+        }
 
         @media (max-width: $desktop) {
           padding-right: $column-gutter-tablet;

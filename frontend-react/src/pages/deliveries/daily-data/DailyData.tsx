@@ -170,8 +170,8 @@ const DeliveriesFilterAndTable = ({
     });
     return (
         <>
-            <section className="bg-blue-5 padding-2">
-                <p className="text-bold">
+            <section className="bg-blue-5 padding-4">
+                <p className="text-bold margin-top-0">
                     View data from a specific receiver or date and time range
                 </p>
 
