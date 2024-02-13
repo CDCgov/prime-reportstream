@@ -1,16 +1,16 @@
 {
     "resourceType": "Bundle",
     "identifier": {
-        "value": "c080238b-d82a-4828-96a4-c1e75d8e53ae"
+        "value": "39186714"
     },
     "type": "message",
-    "timestamp": "2024-02-06T00:14:54.377Z",
+    "timestamp": "2024-02-13T00:58:09.981Z",
     "entry": [
         {
-            "fullUrl": "MessageHeader/a9f7aec3-a7c8-4c92-976d-8b572e1161ab",
+            "fullUrl": "MessageHeader/73ccd0ec-fff2-40d5-be01-9fdff7d63d98",
             "resource": {
                 "resourceType": "MessageHeader",
-                "id": "a9f7aec3-a7c8-4c92-976d-8b572e1161ab",
+                "id": "73ccd0ec-fff2-40d5-be01-9fdff7d63d98",
                 "meta": {
                     "tag": [
                         {
@@ -32,17 +32,17 @@
                     }
                 ],
                 "sender": {
-                    "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                    "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
                 },
                 "source": {
                     "extension": [
                         {
                             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id",
-                            "valueString": "f6bd550"
+                            "valueString": "9fa8396"
                         },
                         {
                             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date",
-                            "valueInstant": "2024-02-05T15:40:37Z"
+                            "valueInstant": "2024-02-12T17:56:24Z"
                         },
                         {
                             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
@@ -52,25 +52,25 @@
                         }
                     ],
                     "software": "PRIME SimpleReport",
-                    "version": "f6bd550",
+                    "version": "9fa8396",
                     "endpoint": "https://simplereport.gov"
                 },
                 "focus": [
                     {
-                        "reference": "Provenance/5012bf50-b860-4751-ab73-1df0b07c3165"
+                        "reference": "Provenance/a91a1203-e432-46d5-87d8-2f036c9d7052"
                     },
                     {
-                        "reference": "DiagnosticReport/c080238b-d82a-4828-96a4-c1e75d8e53ae"
+                        "reference": "DiagnosticReport/39186714"
                     }
                 ]
             }
         },
         {
-            "fullUrl": "Provenance/5012bf50-b860-4751-ab73-1df0b07c3165",
+            "fullUrl": "Provenance/a91a1203-e432-46d5-87d8-2f036c9d7052",
             "resource": {
                 "resourceType": "Provenance",
-                "id": "5012bf50-b860-4751-ab73-1df0b07c3165",
-                "recorded": "2024-02-06T00:14:54.377Z",
+                "id": "a91a1203-e432-46d5-87d8-2f036c9d7052",
+                "recorded": "2024-02-13T00:58:09.981Z",
                 "activity": {
                     "coding": [
                         {
@@ -83,25 +83,25 @@
                 "agent": [
                     {
                         "who": {
-                            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                            "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
                         }
                     }
                 ]
             }
         },
         {
-            "fullUrl": "DiagnosticReport/c080238b-d82a-4828-96a4-c1e75d8e53ae",
+            "fullUrl": "DiagnosticReport/39186714",
             "resource": {
                 "resourceType": "DiagnosticReport",
-                "id": "c080238b-d82a-4828-96a4-c1e75d8e53ae",
+                "id": "39186714",
                 "identifier": [
                     {
-                        "value": "c080238b-d82a-4828-96a4-c1e75d8e53ae"
+                        "value": "39186714"
                     }
                 ],
                 "basedOn": [
                     {
-                        "reference": "ServiceRequest/372b13af-30d1-4c59-a2b1-92bb18c50e00"
+                        "reference": "ServiceRequest/4d7585cd-e636-4211-8d7f-aa0e9adfa447"
                     }
                 ],
                 "status": "final",
@@ -109,41 +109,32 @@
                     "coding": [
                         {
                             "system": "http://loinc.org",
-                            "code": "95941-1"
+                            "code": "85478-6"
                         }
                     ]
                 },
                 "subject": {
-                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                    "reference": "Patient/2187"
                 },
-                "effectiveDateTime": "2024-02-05T23:59:54+00:00",
-                "issued": "2024-02-06T00:14:54+00:00",
+                "effectiveDateTime": "2024-01-24T12:00:00-05:00",
+                "issued": "2024-01-24T12:00:00-05:00",
                 "specimen": [
                     {
-                        "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+                        "reference": "Specimen/85e3958b-7d54-44a9-a0ac-21b3993a0b1b"
                     }
                 ],
                 "result": [
                     {
-                        "reference": "Observation/7d81994a-8153-4b48-bc09-4c023da15103"
-                    },
-                    {
-                        "reference": "Observation/b7ea699a-bde1-4bb7-b4db-ed9029107af0"
-                    },
-                    {
-                        "reference": "Observation/52a00622-36be-4a24-8250-621a187d847f"
-                    },
-                    {
-                        "reference": "Observation/79f00520-4344-4ec0-9931-77655f6a0848"
+                        "reference": "Observation/c5968f70-5d5d-4bff-a62b-8e2a3cb6c624"
                     }
                 ]
             }
         },
         {
-            "fullUrl": "Patient/3551359f-bd1c-411e-b930-789ac694e75f",
+            "fullUrl": "Patient/2187",
             "resource": {
                 "resourceType": "Patient",
-                "id": "3551359f-bd1c-411e-b930-789ac694e75f",
+                "id": "2187",
                 "extension": [
                     {
                         "url": "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
@@ -151,10 +142,10 @@
                             "coding": [
                                 {
                                     "system": "http://terminology.hl7.org/CodeSystem/v3-Race",
-                                    "code": "2076-8"
+                                    "code": "UNK"
                                 }
                             ],
-                            "text": "pacific"
+                            "text": "UNK"
                         }
                     },
                     {
@@ -163,49 +154,40 @@
                             "coding": [
                                 {
                                     "system": "http://terminology.hl7.org/CodeSystem/v2-0189",
-                                    "code": "N",
-                                    "display": "Not Hispanic or Latino"
+                                    "code": "U",
+                                    "display": "unknown"
                                 }
                             ],
-                            "text": "Not Hispanic or Latino"
-                        }
-                    },
-                    {
-                        "url": "https://hl7.org/fhir/R4/extension-patient-genderidentity.html",
-                        "valueCoding": {
-                            "system": "https://hl7.org/fhir/R4/valueset-gender-identity.html",
-                            "code": "male",
-                            "display": "male"
+                            "text": "unknown"
                         }
                     }
                 ],
                 "identifier": [
                     {
-                        "value": "3551359f-bd1c-411e-b930-789ac694e75f"
+                        "value": "2187"
                     }
                 ],
                 "name": [
                     {
-                        "family": "Diggory",
+                        "family": "Test",
                         "given": [
-                            "Cedrick",
-                            "Charles"
+                            "Matthew"
                         ]
                     }
                 ],
                 "telecom": [
                     {
                         "system": "phone",
-                        "value": "(340) 555 5555",
+                        "value": "(541) 261 0980",
                         "use": "mobile"
                     }
                 ],
                 "gender": "male",
-                "birthDate": "2000-12-18",
+                "birthDate": "1988-04-23",
                 "address": [
                     {
                         "line": [
-                            "123 Main St"
+                            "345 Simple St"
                         ],
                         "city": "Reno",
                         "district": "Washoe",
@@ -215,15 +197,15 @@
                     }
                 ],
                 "managingOrganization": {
-                    "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                    "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
                 }
             }
         },
         {
-            "fullUrl": "Organization/719ec8ad-cf59-405a-9832-c4065945c130",
+            "fullUrl": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061",
             "resource": {
                 "resourceType": "Organization",
-                "id": "719ec8ad-cf59-405a-9832-c4065945c130",
+                "id": "e7d0a49b-a7eb-46f3-a939-c9a392029061",
                 "identifier": [
                     {
                         "use": "official",
@@ -235,88 +217,127 @@
                                 }
                             ]
                         },
-                        "value": "12D4567890"
+                        "value": "05D2201580"
                     }
                 ],
-                "name": "Testing Lab",
+                "name": "Simple HealthKit",
                 "telecom": [
                     {
                         "system": "phone",
-                        "value": "(530) 867 5309",
+                        "value": "(541) 261 0980",
                         "use": "work"
                     }
                 ],
                 "address": [
                     {
                         "line": [
-                            "123 Beach Way"
+                            "124 Test ST."
                         ],
-                        "city": "Providence",
-                        "state": "RI",
-                        "postalCode": "02860",
+                        "city": "Reno",
+                        "state": "NV",
+                        "postalCode": "89433",
                         "country": "USA"
                     }
                 ]
             }
         },
         {
-            "fullUrl": "Practitioner/ee29ccf5-631d-4b35-a6d4-30a61c0eb8d9",
+            "fullUrl": "Organization/1b30a6d3-40b1-49cf-9ffc-7d5aa501fe0b",
             "resource": {
-                "resourceType": "Practitioner",
-                "id": "ee29ccf5-631d-4b35-a6d4-30a61c0eb8d9",
+                "resourceType": "Organization",
+                "id": "1b30a6d3-40b1-49cf-9ffc-7d5aa501fe0b",
                 "identifier": [
                     {
-                        "system": "http://hl7.org/fhir/sid/us-npi",
-                        "value": "1245319599"
+                        "use": "official",
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0301",
+                                    "code": "CLIA"
+                                }
+                            ]
+                        },
+                        "value": "05D2201580"
                     }
                 ],
+                "name": "Regional Training Center",
+                "telecom": [
+                    {
+                        "system": "phone",
+                        "value": "(541) 261 0980",
+                        "use": "work"
+                    }
+                ],
+                "address": [
+                    {
+                        "line": [
+                            "46421 Landing Pkwy"
+                        ],
+                        "city": "Reno",
+                        "postalCode": "89433",
+                        "country": "USA"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "Practitioner/153000000",
+            "resource": {
+                "resourceType": "Practitioner",
+                "id": "153000000",
                 "name": [
                     {
-                        "family": "McTester",
+                        "family": "Larry",
                         "given": [
-                            "Phil"
+                            "Gerry"
                         ]
                     }
                 ],
                 "telecom": [
                     {
                         "system": "phone",
-                        "value": "(530) 867 5309",
+                        "value": "(541) 261 0980",
                         "use": "work"
                     }
                 ],
                 "address": [
                     {
+                        "line": [
+                            "204 Hospital Way"
+                        ],
+                        "city": "Reno",
+                        "state": "NV",
+                        "postalCode": "89433",
                         "country": "USA"
                     }
                 ]
             }
         },
         {
-            "fullUrl": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2",
+            "fullUrl": "Specimen/85e3958b-7d54-44a9-a0ac-21b3993a0b1b",
             "resource": {
                 "resourceType": "Specimen",
-                "id": "dc7af370-fc07-4b00-abc7-9b5dd87cf4d2",
+                "id": "85e3958b-7d54-44a9-a0ac-21b3993a0b1b",
                 "identifier": [
                     {
-                        "value": "c32714c6-f4f7-4138-8681-94e7936beb13"
+                        "value": "840560cf-abbc-4906-ae49-1fda801cb107"
                     }
                 ],
                 "type": {
                     "coding": [
                         {
                             "system": "http://snomed.info/sct",
-                            "code": "258500001"
+                            "code": "445297001"
                         }
                     ],
-                    "text": "Nasopharyngeal swab"
+                    "text": "Swab of internal nose"
                 },
                 "subject": {
-                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                    "reference": "Patient/2187"
                 },
-                "receivedTime": "2024-02-05T23:59:54+00:00",
+                "receivedTime": "2024-01-24T12:00:00-05:00",
                 "collection": {
-                    "collectedDateTime": "2024-02-05T23:59:54+00:00",
+                    "collectedDateTime": "2024-01-24T12:00:00-05:00",
                     "bodySite": {
                         "coding": [
                             {
@@ -330,10 +351,10 @@
             }
         },
         {
-            "fullUrl": "ServiceRequest/372b13af-30d1-4c59-a2b1-92bb18c50e00",
+            "fullUrl": "ServiceRequest/4d7585cd-e636-4211-8d7f-aa0e9adfa447",
             "resource": {
                 "resourceType": "ServiceRequest",
-                "id": "372b13af-30d1-4c59-a2b1-92bb18c50e00",
+                "id": "4d7585cd-e636-4211-8d7f-aa0e9adfa447",
                 "extension": [
                     {
                         "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
@@ -348,7 +369,7 @@
                     },
                     {
                         "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date",
-                        "valueDateTime": "2024-02-06T00:14:54+00:00"
+                        "valueDateTime": "2024-01-24T12:00:00-05:00"
                     }
                 ],
                 "status": "completed",
@@ -357,75 +378,51 @@
                     "coding": [
                         {
                             "system": "http://loinc.org",
-                            "code": "95941-1"
+                            "code": "85478-6"
                         }
                     ]
                 },
                 "subject": {
-                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                    "reference": "Patient/2187"
                 },
                 "requester": {
-                    "reference": "PractitionerRole/50dc9343-0791-4b50-b2dd-8f3e3cf9b5cf"
+                    "reference": "PractitionerRole/13bcd303-caaa-4295-86ff-8856fa82f99c"
                 },
                 "performer": [
                     {
-                        "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                        "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
                     }
                 ],
                 "supportingInfo": [
                     {
-                        "reference": "Observation/c0c836a5-2874-3f33-b3ba-6a6c7c4da359"
-                    },
-                    {
-                        "reference": "Observation/ceb1e4e3-cff8-339d-bd51-05038912baa2"
-                    },
-                    {
-                        "reference": "Observation/6dab627e-231d-3b16-a88c-31a709f31b9d"
-                    },
-                    {
-                        "reference": "Observation/ee17f89f-fb7e-31a7-aa6f-dcc0372dc0a1"
+                        "reference": "Observation/8da81768-1e7a-31b8-9197-4ae2ccb99e1a"
                     }
                 ]
             }
         },
         {
-            "fullUrl": "Device/b83b1f5f-b62c-43aa-98f6-0ce34ab41927",
+            "fullUrl": "Device/8e8c6ab0-bb9c-4409-b12b-ead45497cafd",
             "resource": {
                 "resourceType": "Device",
-                "id": "b83b1f5f-b62c-43aa-98f6-0ce34ab41927",
-                "identifier": [
-                    {
-                        "value": "00884999048034"
-                    },
-                    {
-                        "type": {
-                            "coding": [
-                                {
-                                    "code": "DII"
-                                }
-                            ]
-                        }
-                    }
-                ],
-                "manufacturer": "Abbott",
+                "id": "8e8c6ab0-bb9c-4409-b12b-ead45497cafd",
                 "deviceName": [
                     {
-                        "name": "Alinity m",
+                        "name": "BD Veritor System for Rapid Detection of Flu A+B",
                         "type": "model-name"
                     }
                 ]
             }
         },
         {
-            "fullUrl": "PractitionerRole/50dc9343-0791-4b50-b2dd-8f3e3cf9b5cf",
+            "fullUrl": "PractitionerRole/13bcd303-caaa-4295-86ff-8856fa82f99c",
             "resource": {
                 "resourceType": "PractitionerRole",
-                "id": "50dc9343-0791-4b50-b2dd-8f3e3cf9b5cf",
+                "id": "13bcd303-caaa-4295-86ff-8856fa82f99c",
                 "practitioner": {
-                    "reference": "Practitioner/ee29ccf5-631d-4b35-a6d4-30a61c0eb8d9"
+                    "reference": "Practitioner/153000000"
                 },
                 "organization": {
-                    "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                    "reference": "Organization/1b30a6d3-40b1-49cf-9ffc-7d5aa501fe0b"
                 }
             }
         },
@@ -438,77 +435,10 @@
             }
         },
         {
-            "fullUrl": "Observation/7d81994a-8153-4b48-bc09-4c023da15103",
+            "fullUrl": "Observation/c5968f70-5d5d-4bff-a62b-8e2a3cb6c624",
             "resource": {
                 "resourceType": "Observation",
-                "id": "7d81994a-8153-4b48-bc09-4c023da15103",
-                "status": "final",
-                "code": {
-                    "coding": [
-                        {
-                            "system": "http://loinc.org",
-                            "code": "85477-8"
-                        }
-                    ],
-                    "text": "Flu A"
-                },
-                "subject": {
-                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
-                },
-                "issued": "2024-02-06T00:14:54.303Z",
-                "performer": [
-                    {
-                        "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
-                    }
-                ],
-                "valueCodeableConcept": {
-                    "coding": [
-                        {
-                            "system": "http://snomed.info/sct",
-                            "code": "260373001",
-                            "display": "Detected"
-                        }
-                    ]
-                },
-                "interpretation": [
-                    {
-                        "coding": [
-                            {
-                                "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
-                                "code": "A",
-                                "display": "Abnormal"
-                            }
-                        ]
-                    }
-                ],
-                "method": {
-                    "extension": [
-                        {
-                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
-                            "valueCoding": {
-                                "code": "Alinity m Resp-4-Plex_Abbott Molecular Inc."
-                            }
-                        }
-                    ],
-                    "coding": [
-                        {
-                            "display": "Alinity m"
-                        }
-                    ]
-                },
-                "specimen": {
-                    "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
-                },
-                "device": {
-                    "reference": "Device/b83b1f5f-b62c-43aa-98f6-0ce34ab41927"
-                }
-            }
-        },
-        {
-            "fullUrl": "Observation/b7ea699a-bde1-4bb7-b4db-ed9029107af0",
-            "resource": {
-                "resourceType": "Observation",
-                "id": "b7ea699a-bde1-4bb7-b4db-ed9029107af0",
+                "id": "c5968f70-5d5d-4bff-a62b-8e2a3cb6c624",
                 "status": "final",
                 "code": {
                     "coding": [
@@ -520,20 +450,20 @@
                     "text": "Flu B"
                 },
                 "subject": {
-                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                    "reference": "Patient/2187"
                 },
-                "issued": "2024-02-06T00:14:54.303Z",
+                "issued": "2024-01-24T17:00:00.000Z",
                 "performer": [
                     {
-                        "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                        "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
                     }
                 ],
                 "valueCodeableConcept": {
                     "coding": [
                         {
                             "system": "http://snomed.info/sct",
-                            "code": "260373001",
-                            "display": "Detected"
+                            "code": "260415000",
+                            "display": "Not detected"
                         }
                     ]
                 },
@@ -542,75 +472,8 @@
                         "coding": [
                             {
                                 "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
-                                "code": "A",
-                                "display": "Abnormal"
-                            }
-                        ]
-                    }
-                ],
-                "method": {
-                    "extension": [
-                        {
-                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
-                            "valueCoding": {
-                                "code": "Alinity m Resp-4-Plex_Abbott Molecular Inc."
-                            }
-                        }
-                    ],
-                    "coding": [
-                        {
-                            "display": "Alinity m"
-                        }
-                    ]
-                },
-                "specimen": {
-                    "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
-                },
-                "device": {
-                    "reference": "Device/b83b1f5f-b62c-43aa-98f6-0ce34ab41927"
-                }
-            }
-        },
-        {
-            "fullUrl": "Observation/52a00622-36be-4a24-8250-621a187d847f",
-            "resource": {
-                "resourceType": "Observation",
-                "id": "52a00622-36be-4a24-8250-621a187d847f",
-                "status": "final",
-                "code": {
-                    "coding": [
-                        {
-                            "system": "http://loinc.org",
-                            "code": "94500-6"
-                        }
-                    ],
-                    "text": "COVID-19"
-                },
-                "subject": {
-                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
-                },
-                "issued": "2024-02-06T00:14:54.303Z",
-                "performer": [
-                    {
-                        "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
-                    }
-                ],
-                "valueCodeableConcept": {
-                    "coding": [
-                        {
-                            "system": "http://snomed.info/sct",
-                            "code": "260373001",
-                            "display": "Detected"
-                        }
-                    ]
-                },
-                "interpretation": [
-                    {
-                        "coding": [
-                            {
-                                "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
-                                "code": "A",
-                                "display": "Abnormal"
+                                "code": "N",
+                                "display": "Normal"
                             }
                         ]
                     }
@@ -618,90 +481,23 @@
                 "method": {
                     "coding": [
                         {
-                            "display": "Alinity m"
+                            "display": "BD Veritor System for Rapid Detection of Flu A+B"
                         }
                     ]
                 },
                 "specimen": {
-                    "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+                    "reference": "Specimen/85e3958b-7d54-44a9-a0ac-21b3993a0b1b"
                 },
                 "device": {
-                    "reference": "Device/b83b1f5f-b62c-43aa-98f6-0ce34ab41927"
+                    "reference": "Device/8e8c6ab0-bb9c-4409-b12b-ead45497cafd"
                 }
             }
         },
         {
-            "fullUrl": "Observation/79f00520-4344-4ec0-9931-77655f6a0848",
+            "fullUrl": "Observation/8da81768-1e7a-31b8-9197-4ae2ccb99e1a",
             "resource": {
                 "resourceType": "Observation",
-                "id": "79f00520-4344-4ec0-9931-77655f6a0848",
-                "status": "final",
-                "code": {
-                    "coding": [
-                        {
-                            "system": "http://loinc.org",
-                            "code": "85479-4"
-                        }
-                    ],
-                    "text": "RSV"
-                },
-                "subject": {
-                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
-                },
-                "issued": "2024-02-06T00:14:54.303Z",
-                "performer": [
-                    {
-                        "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
-                    }
-                ],
-                "valueCodeableConcept": {
-                    "coding": [
-                        {
-                            "system": "http://snomed.info/sct",
-                            "code": "260373001",
-                            "display": "Detected"
-                        }
-                    ]
-                },
-                "interpretation": [
-                    {
-                        "coding": [
-                            {
-                                "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
-                                "code": "A",
-                                "display": "Abnormal"
-                            }
-                        ]
-                    }
-                ],
-                "method": {
-                    "extension": [
-                        {
-                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
-                            "valueCoding": {
-                                "code": "Alinity m Resp-4-Plex_Abbott Molecular Inc."
-                            }
-                        }
-                    ],
-                    "coding": [
-                        {
-                            "display": "Alinity m"
-                        }
-                    ]
-                },
-                "specimen": {
-                    "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
-                },
-                "device": {
-                    "reference": "Device/b83b1f5f-b62c-43aa-98f6-0ce34ab41927"
-                }
-            }
-        },
-        {
-            "fullUrl": "Observation/c0c836a5-2874-3f33-b3ba-6a6c7c4da359",
-            "resource": {
-                "resourceType": "Observation",
-                "id": "c0c836a5-2874-3f33-b3ba-6a6c7c4da359",
+                "id": "8da81768-1e7a-31b8-9197-4ae2ccb99e1a",
                 "identifier": [
                     {
                         "use": "official",
@@ -728,146 +524,14 @@
                     "text": "Has symptoms related to condition of interest"
                 },
                 "subject": {
-                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
+                    "reference": "Patient/2187"
                 },
                 "valueCodeableConcept": {
                     "coding": [
                         {
-                            "system": "http://terminology.hl7.org/ValueSet/v2-0136",
-                            "code": "N",
-                            "display": "No"
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "fullUrl": "Observation/ceb1e4e3-cff8-339d-bd51-05038912baa2",
-            "resource": {
-                "resourceType": "Observation",
-                "id": "ceb1e4e3-cff8-339d-bd51-05038912baa2",
-                "identifier": [
-                    {
-                        "use": "official",
-                        "type": {
-                            "coding": [
-                                {
-                                    "system": "http://loinc.org",
-                                    "code": "81959-9",
-                                    "display": "Public health laboratory ask at order entry panel"
-                                }
-                            ]
-                        }
-                    }
-                ],
-                "status": "final",
-                "code": {
-                    "coding": [
-                        {
-                            "system": "http://loinc.org",
-                            "code": "82810-3",
-                            "display": "Pregnancy status"
-                        }
-                    ],
-                    "text": "Pregnancy status"
-                },
-                "subject": {
-                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
-                },
-                "valueCodeableConcept": {
-                    "coding": [
-                        {
-                            "system": "http://snomed.info/sct",
-                            "code": "60001007",
-                            "display": "Not pregnant"
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "fullUrl": "Observation/6dab627e-231d-3b16-a88c-31a709f31b9d",
-            "resource": {
-                "resourceType": "Observation",
-                "id": "6dab627e-231d-3b16-a88c-31a709f31b9d",
-                "identifier": [
-                    {
-                        "use": "official",
-                        "type": {
-                            "coding": [
-                                {
-                                    "system": "http://loinc.org",
-                                    "code": "81959-9",
-                                    "display": "Public health laboratory ask at order entry panel"
-                                }
-                            ]
-                        }
-                    }
-                ],
-                "status": "final",
-                "code": {
-                    "coding": [
-                        {
-                            "system": "http://loinc.org",
-                            "code": "95418-0",
-                            "display": "Employed in a healthcare setting"
-                        }
-                    ],
-                    "text": "Employed in a healthcare setting"
-                },
-                "subject": {
-                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
-                },
-                "valueCodeableConcept": {
-                    "coding": [
-                        {
-                            "system": "http://terminology.hl7.org/ValueSet/v2-0136",
-                            "code": "N",
-                            "display": "No"
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "fullUrl": "Observation/ee17f89f-fb7e-31a7-aa6f-dcc0372dc0a1",
-            "resource": {
-                "resourceType": "Observation",
-                "id": "ee17f89f-fb7e-31a7-aa6f-dcc0372dc0a1",
-                "identifier": [
-                    {
-                        "use": "official",
-                        "type": {
-                            "coding": [
-                                {
-                                    "system": "http://loinc.org",
-                                    "code": "81959-9",
-                                    "display": "Public health laboratory ask at order entry panel"
-                                }
-                            ]
-                        }
-                    }
-                ],
-                "status": "final",
-                "code": {
-                    "coding": [
-                        {
-                            "system": "http://loinc.org",
-                            "code": "95421-4",
-                            "display": "Resides in a congregate care setting"
-                        }
-                    ],
-                    "text": "Resides in a congregate care setting"
-                },
-                "subject": {
-                    "reference": "Patient/3551359f-bd1c-411e-b930-789ac694e75f"
-                },
-                "valueCodeableConcept": {
-                    "coding": [
-                        {
-                            "system": "http://terminology.hl7.org/ValueSet/v2-0136",
-                            "code": "N",
-                            "display": "No"
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+                            "code": "UNK",
+                            "display": "unknown"
                         }
                     ]
                 }

@@ -59,16 +59,26 @@ elements:
         H: 2135-2
         N: 2186-5
 
-  - name: nv-patient-ethnicity_identifier-system
-    condition: true
-    resource: 'Bundle'
+  - name: nv-patient-ethnicity-group-name-of-code-system
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code = "U"'
+    value: [ '"NULLFL"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
+
+  - name: nv-patient-ethnicity-group-name-of-code-system-null
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code != "U"'
     value: [ '"CDCREC"' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-3' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
 
   - name: nv-patient-ethnicity_identifier-version
-    condition: true
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code != "U"'
     resource: 'Bundle'
     value: [ '"3.1.0"' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-7' ]
+
+  - name: nv-patient-ethnicity_identifier-version-null
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code = "U"'
+    resource: 'Bundle'
+    value: [ '"NULLFL"' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-7' ]
 
 
