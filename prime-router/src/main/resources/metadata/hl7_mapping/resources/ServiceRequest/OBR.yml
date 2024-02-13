@@ -33,7 +33,7 @@ elements:
   - name: ordering-provider-from-practitioner
     condition: '%context.requester.resolve().is(Practitioner) and %context.requester.resolve().extension(%`rsext-hl7v2Field`).value = "OBR.16"'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
-    resource: '%resource.requester.resolve().union(%resource.extension(%`rsext-obr-observation-request`).extension.where(url = "obr-16-ordering-provider").tail().value.resolve())'
+    resource: '%resource.requester.resolve().union(%resource.extension(%`rsext-obr-observation-request`).extension.where(url = "OBR.16").tail().value.resolve())'
     constants:
       hl7XCNField: '%{obrFieldPath}-16(%{xcnIndex})'
     resourceIndex: xcnIndex
@@ -41,14 +41,14 @@ elements:
   - name: ordering-provider-from-practitionerrole
     condition: '%context.requester.resolve().is(PractitionerRole) and %context.requester.resolve().practitioner.resolve().extension(%`rsext-hl7v2Field`).value = "OBR.16"'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
-    resource: '%resource.requester.resolve().practitioner.resolve().union(%resource.extension(%`rsext-obr-observation-request`).extension.where(url = "obr-16-ordering-provider").tail().value.resolve())'
+    resource: '%resource.requester.resolve().practitioner.resolve().union(%resource.extension(%`rsext-obr-observation-request`).extension.where(url = "OBR.16").tail().value.resolve())'
     constants:
       hl7XCNField: '%{obrFieldPath}-16(%{xcnIndex})'
     resourceIndex: xcnIndex
 
   - name: ordering-provider-from-extension
     condition: '(%context.requester.resolve().is(Practitioner) and %context.requester.resolve().extension(%`rsext-hl7v2Field`).value != "OBR.16") or (%context.requester.resolve().is(PractitionerRole) and %context.requester.resolve().practitioner.resolve().extension(%`rsext-hl7v2Field`).value != "OBR.16")'
-    resource: '%resource.extension(%`rsext-obr-observation-request`).extension.where(url = "obr-16-ordering-provider").value.resolve()'
+    resource: '%resource.extension(%`rsext-obr-observation-request`).extension.where(url = "OBR.16").value.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     constants:
       hl7XCNField: '%{obrFieldPath}-16(%{xcnIndex})'

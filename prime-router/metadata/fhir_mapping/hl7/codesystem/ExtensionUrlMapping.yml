@@ -271,6 +271,9 @@
 # Comment
 - id: "note-comment"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-comment"
+# Comment type
+- id: "note-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
 
 ## Generic
 
