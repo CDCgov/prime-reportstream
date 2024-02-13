@@ -62,6 +62,12 @@ jobs:
           appinsights-staging-key: ${{ secrets.APPINSIGHTS_STAGING_KEY }}
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.wf_vars.outputs.version }}
+          test-admin-user: ${{ secrets.TEST_ADMIN_USERNAME }}
+          test-admin-password: ${{ secrets.TEST_ADMIN_PASSWORD }}
+          test-sender-user: ${{ secrets.TEST_SENDER_USERNAME }}
+          test-sender-password: ${{ secrets.TEST_SENDER_PASSWORD }}
+          test-receiver-user: ${{ secrets.TEST_RECEIVER_USERNAME }}
+          test-receiver-password: ${{ secrets.TEST_RECEIVER_PASSWORD }}
 
   publish_github_release:
     name: Publish to Github

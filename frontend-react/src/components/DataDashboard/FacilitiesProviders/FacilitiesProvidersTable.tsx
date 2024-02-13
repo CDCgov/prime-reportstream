@@ -1,31 +1,31 @@
-import React, { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 
-import TableFilters from "../../Table/TableFilters";
-import ReceiverServices from "../ReceiverServices/ReceiverServices";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
-import Spinner from "../../Spinner";
-import { NoServicesBanner } from "../../alerts/NoServicesAlert";
-import { FeatureName } from "../../../utils/FeatureName";
-import { Table } from "../../../shared/Table/Table";
+import {
+    EventName,
+    useAppInsightsContext,
+} from "../../../contexts/AppInsights";
+import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
+import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import useReceiverSubmitters, {
     DeliveriesAttr,
 } from "../../../hooks/network/DataDashboard/UseReceiverSubmitters";
-import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
-import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import Pagination from "../../Table/Pagination";
-import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
+import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import { getSlots } from "../../../hooks/UsePagination";
+import Table from "../../../shared/Table/Table";
 import {
     CustomerStatusType,
     transformFacilityTypeClass,
     transformFacilityTypeLabel,
 } from "../../../utils/DataDashboardUtils";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
+import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
+import { NoServicesBanner } from "../../alerts/NoServicesAlert";
+import Spinner from "../../Spinner";
+import Pagination from "../../Table/Pagination";
+import TableFilters from "../../Table/TableFilters";
+import ReceiverServices from "../ReceiverServices/ReceiverServices";
 
 function FacilitiesProvidersFilterAndTable({
     receiverServices,
@@ -199,7 +199,7 @@ export default function FacilitiesProvidersTable() {
         <>
             {activeService && (
                 <FacilitiesProvidersFilterAndTable
-                    receiverServices={services!!}
+                    receiverServices={services!}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />

@@ -1,7 +1,6 @@
 // AutoUpdateFileChromatic
-import { oktaSignInConfig } from "../../oktaConfig";
-
 import OktaSignInWidget from "./OktaSignInWidget";
+import { oktaSignInConfig } from "../../oktaConfig";
 
 export default {
     title: "components/OktaSignInWidget",

@@ -1,10 +1,10 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 
 import { TableActionButton } from "./TableActionButton";
 
 export interface DatasetAction {
     label: string;
-    method?: Function;
+    method?: () => unknown;
 }
 
 interface TableInfoProps {

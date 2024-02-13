@@ -1,14 +1,13 @@
 import { waitFor } from "@testing-library/react";
 
-import { renderHook } from "../../../../utils/CustomRenderUtils";
-import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
+import useOrganizationPublicKeys from "./UseOrganizationPublicKeys";
 import {
     dummyPublicKey,
     orgServer,
 } from "../../../../__mocks__/OrganizationMockServer";
+import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
+import { renderHook } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../../utils/OrganizationUtils";
-
-import useOrganizationPublicKeys from "./UseOrganizationPublicKeys";
 
 describe("useOrganizationPublicKeys", () => {
     beforeAll(() => orgServer.listen());

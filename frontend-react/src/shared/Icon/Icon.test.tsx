@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import Icon from "./Icon";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("Icon", () => {
     test("renders with aria-label", () => {

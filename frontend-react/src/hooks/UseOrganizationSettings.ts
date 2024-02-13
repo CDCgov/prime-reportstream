@@ -1,7 +1,8 @@
-import { useCallback } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { createSuspenseQuery } from "react-query-kit";
 
+import { Organizations } from "./UseAdminSafeOrganizationName";
 import {
     RSOrganizationSettings,
     servicesEndpoints,
@@ -9,8 +10,6 @@ import {
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
 import { useSessionContext } from "../contexts/Session";
 import { getAuthFetchProps } from "../network/Middleware";
-
-import { Organizations } from "./UseAdminSafeOrganizationName";
 
 const { settings } = servicesEndpoints;
 
@@ -44,7 +43,7 @@ export const useOrganizationSettings = () => {
         if (Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS) {
             return authorizedFetch(settings, {
                 segments: {
-                    orgName: parsedName!!,
+                    orgName: parsedName!,
                 },
             });
         }

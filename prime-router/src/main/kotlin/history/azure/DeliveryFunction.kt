@@ -95,7 +95,9 @@ class DeliveryFunction(
             params.cursor,
             params.since,
             params.until,
-            params.pageSize
+            params.pageSize,
+            params.reportId,
+            params.fileName
         )
 
         return mapper.writeValueAsString(deliveries)
