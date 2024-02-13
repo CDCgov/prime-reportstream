@@ -245,13 +245,6 @@ open class Receiver(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
-        // now these consistency rules are checked by settings schemas validation
-//        if (conditionFilter.isNotEmpty() || mappedConditionFilter.isNotEmpty()) {
-//            if (!topic.isUniversalPipeline) {
-//                return "Condition filter(s) not allowed for receivers with topic '${topic.jsonVal}'"
-//            }
-//        }
-
         if (translation is CustomConfiguration) {
             if (this.topic.isUniversalPipeline) {
                 try {
