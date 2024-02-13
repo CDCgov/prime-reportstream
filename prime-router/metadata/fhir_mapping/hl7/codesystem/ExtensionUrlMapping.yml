@@ -413,4 +413,3 @@
 # Order effective date
 - id: "order-effective-date"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date"
-
