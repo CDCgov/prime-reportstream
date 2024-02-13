@@ -5354,12 +5354,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.2.18":
+"@types/react-dom@npm:^18.0.0":
   version: 18.2.18
   resolution: "@types/react-dom@npm:18.2.18"
   dependencies:
     "@types/react": "*"
   checksum: 8e3da404c980e2b2a76da3852f812ea6d8b9d0e7f5923fbaf3bfbbbfa1d59116ff91c129de8f68e9b7668a67ae34484fe9df74d5a7518cf8591ec07a0c4dad57
+  languageName: node
+  linkType: hard
+
+"@types/react-dom@npm:^18.2.19":
+  version: 18.2.19
+  resolution: "@types/react-dom@npm:18.2.19"
+  dependencies:
+    "@types/react": "*"
+  checksum: 087a19d8e4c1c0900ec4ac5ddb749a811a38274b25683d233c11755d2895cc6e475e8bf9bea3dee36519769298e078d4c2feab9ab4bd13b26bc2a6170716437e
   languageName: node
   linkType: hard
 
@@ -6970,9 +6979,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^10.7.1":
-  version: 10.7.1
-  resolution: "chromatic@npm:10.7.1"
+"chromatic@npm:^10.9.3":
+  version: 10.9.3
+  resolution: "chromatic@npm:10.9.3"
   peerDependencies:
     "@chromatic-com/cypress": ^0.5.2 || ^1.0.0
     "@chromatic-com/playwright": ^0.5.2 || ^1.0.0
@@ -6985,7 +6994,7 @@ __metadata:
     chroma: dist/bin.js
     chromatic: dist/bin.js
     chromatic-cli: dist/bin.js
-  checksum: e917d8c4a8afc63e44ee3774548cd9bd2be49b4a9243446118d5bceb749fa2752364050cfab95fc490c5117a2854fce45e81714d6e9583514a94a7067a96c9c3
+  checksum: 83df5d58576e77cd88a1190b2b03584b0b97a2b89beeaac6b9bb4069d9b96c2222afd2bca464d78a7d425bfed7b54eb1811f4b3ecf4808f34393e70293c441a1
   languageName: node
   linkType: hard
 
@@ -14066,7 +14075,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.3.11, postcss@npm:^8.4.32, postcss@npm:^8.4.33":
+"postcss@npm:^8.3.11, postcss@npm:^8.4.32":
   version: 8.4.33
   resolution: "postcss@npm:8.4.33"
   dependencies:
@@ -14074,6 +14083,17 @@ __metadata:
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
   checksum: 6f98b2af4b76632a3de20c4f47bf0e984a1ce1a531cf11adcb0b1d63a6cbda0aae4165e578b66c32ca4879038e3eaad386a6be725a8fb4429c78e3c1ab858fe9
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.4.35":
+  version: 8.4.35
+  resolution: "postcss@npm:8.4.35"
+  dependencies:
+    nanoid: ^3.3.7
+    picocolors: ^1.0.0
+    source-map-js: ^1.0.2
+  checksum: cf3c3124d3912a507603f6d9a49b3783f741075e9aa73eb592a6dd9194f9edab9d20a8875d16d137d4f779fe7b6fbd1f5727e39bfd1c3003724980ee4995e1da
   languageName: node
   linkType: hard
 
@@ -14513,7 +14533,7 @@ __metadata:
     "@types/mdx": ^2.0.11
     "@types/node": ^18.18.7
     "@types/react": 18.2.55
-    "@types/react-dom": ^18.2.18
+    "@types/react-dom": ^18.2.19
     "@types/react-router-dom": ^5.3.3
     "@types/react-scroll-sync": ^0.9.0
     "@types/sanitize-html": ^2.9.5
@@ -14528,7 +14548,7 @@ __metadata:
     browserslist: ^4.22.3
     browserslist-useragent-regexp: ^4.1.1
     camelcase: ^6.3.0
-    chromatic: ^10.7.1
+    chromatic: ^10.9.3
     classnames: ^2.5.1
     cross-env: ^7.0.3
     dompurify: ^3.0.8
@@ -14566,7 +14586,7 @@ __metadata:
     otpauth: ^9.2.2
     otplib: ^12.0.1
     patch-package: ^8.0.0
-    postcss: ^8.4.33
+    postcss: ^8.4.35
     prettier: ^3.2.4
     react: ^18.2.0
     react-dom: ^18.2.0
