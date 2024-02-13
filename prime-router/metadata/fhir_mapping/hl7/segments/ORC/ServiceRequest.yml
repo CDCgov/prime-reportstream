@@ -108,7 +108,7 @@ identifier:
     - condition: $orc33 NOT_NULL
       valueOf: datatypes/CX/Identifier
       expressionType: resource
-      specs: ORC.33
+      specs: ORC.33 *
       generateList: true
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -117,7 +117,7 @@ identifier:
     - condition: $orc33 NULL && $obr53 NOT_NULL
       valueOf: datatypes/CX/Identifier
       expressionType: resource
-      specs: OBR.53
+      specs: OBR.53 *
       generateList: true
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -280,7 +280,7 @@ orderDetail:
         obr46: STRING_ALL, OBR.46
       condition: $obr46 NOT_NULL
       valueOf: datatypes/CWE/CodeableConcept
-      specs: OBR.46
+      specs: OBR.46 *
       generateList: true
       constants:
         hl7v2Field: OBR.46
@@ -289,7 +289,7 @@ orderDetail:
         obr47: STRING_ALL, OBR.47
       condition: $obr47 NOT_NULL
       valueOf: datatypes/CWE/CodeableConcept
-      specs: OBR.47
+      specs: OBR.47 *
       generateList: true
       constants:
         hl7v2Field: OBR.47

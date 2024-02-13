@@ -10,7 +10,7 @@ identifier:
     eip2: EIP.2
   generateList: true
   expressionType: nested
-  specs: EIP
+  specs: EIP *
   expressions:
     - condition: $eip1 NOT_NULL
       valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier

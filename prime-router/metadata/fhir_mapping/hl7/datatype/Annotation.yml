@@ -57,7 +57,7 @@ extension_1-noteSource:
 extension_2-noteComment:
   generateList: true
   expressionType: nested
-  specs: NTE.3
+  specs: NTE.3 *
   expressionsMap:
     url:
       type: SYSTEM_URL

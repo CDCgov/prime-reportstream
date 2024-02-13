@@ -237,7 +237,7 @@ extension:
       vars:
         spm30: SPM.30
       condition: $spm30 NOT_NULL
-      specs: SPM.30
+      specs: SPM.30 *
       generateList: true
       expressionsMap:
         url:

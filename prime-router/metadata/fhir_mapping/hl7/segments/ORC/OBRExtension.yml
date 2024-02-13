@@ -36,7 +36,7 @@ extension:
       vars:
         obr10: STRING_ALL, OBR.10
       condition: $obr10 NOT_NULL
-      specs: OBR.10
+      specs: OBR.10 *
       generateList: true
       expressionsMap:
         url:
@@ -85,7 +85,7 @@ extension:
       vars:
         obr16: STRING_ALL, OBR.16
       condition: $obr16 NOT_NULL
-      specs: OBR.16
+      specs: OBR.16 *
       generateList: true
       expressionsMap:
         url:
@@ -202,7 +202,7 @@ extension:
       vars:
         obr28: STRING_ALL, OBR.28
       condition: $obr28 NOT_NULL
-      specs: OBR.28
+      specs: OBR.28 *
       generateList: true
       expressionsMap:
         url:
@@ -229,7 +229,7 @@ extension:
       vars:
         obr33: STRING_ALL, OBR.33
       condition: $obr33 NOT_NULL
-      specs: OBR.33
+      specs: OBR.33 *
       generateList: true
       expressionsMap:
         url:
@@ -254,7 +254,7 @@ extension:
       vars:
         obr39: STRING_ALL, OBR.39
       condition: $obr39 NOT_NULL
-      specs: OBR.39
+      specs: OBR.39 *
       generateList: true
       expressionsMap:
         url:
@@ -279,7 +279,7 @@ extension:
       vars:
         obr45: STRING_ALL, OBR.45
       condition: $obr45 NOT_NULL
-      specs: OBR.45
+      specs: OBR.45 *
       generateList: true
       expressionsMap:
         url:
@@ -329,7 +329,7 @@ extension:
         orc33: STRING_ALL, ORC.33
         obr53: STRING_ALL, OBR.53
       expressionType: nested
-      specs: OBR.53
+      specs: OBR.53 *
       generateList: true
       expressionsMap:
         url:

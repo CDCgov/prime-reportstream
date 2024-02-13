@@ -48,7 +48,7 @@ extension:
       vars:
         orc10: STRING_ALL, ORC.10
       condition: $orc10 NOT_NULL
-      specs: ORC.10
+      specs: ORC.10 *
       generateList: true
       expressionsMap:
         url:
@@ -61,7 +61,7 @@ extension:
       vars:
         orc11: STRING_ALL, ORC.11
       condition: $orc11 NOT_NULL
-      specs: ORC.11
+      specs: ORC.11 *
       generateList: true
       expressionsMap:
         url:
@@ -74,7 +74,7 @@ extension:
       vars:
         orc12: STRING_ALL, ORC.12
       condition: $orc12 NOT_NULL
-      specs: ORC.12
+      specs: ORC.12 *
       generateList: true
       expressionsMap:
         url:
@@ -135,7 +135,7 @@ extension:
       vars:
         orc19: STRING_ALL, ORC.19
       condition: $orc19 NOT_NULL
-      specs: ORC.19
+      specs: ORC.19 *
       generateList: true
       expressionsMap:
         url:
@@ -148,7 +148,7 @@ extension:
       vars:
         orc21: STRING_ALL, ORC.21
       condition: $orc21 NOT_NULL
-      specs: ORC.21
+      specs: ORC.21 *
       generateList: true
       expressionsMap:
         url:
@@ -161,7 +161,7 @@ extension:
       vars:
         orc22: STRING_ALL, ORC.22
       condition: $orc22 NOT_NULL
-      specs: ORC.22
+      specs: ORC.22 *
       generateList: true
       expressionsMap:
         url:
@@ -174,7 +174,7 @@ extension:
       vars:
         orc24: STRING_ALL, ORC.24
       condition: $orc24 NOT_NULL
-      specs: ORC.24
+      specs: ORC.24 *
       generateList: true
       expressionsMap:
         url:
