@@ -1,8 +1,8 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-test.describe("Support page", () => {
+// eslint-disable-next-line playwright/no-skipped-test
+test.describe.skip("Support page", () => {
     test.beforeEach(async ({ page }) => {
-        test.skip();
         await page.goto("/support");
     });
 
@@ -10,7 +10,7 @@ test.describe("Support page", () => {
         await expect(page).toHaveTitle(/Support/);
     });
 
-    test.skip("Card navigation", () => {
+    test("Card navigation", () => {
         const cardLinks = [
             {
                 name: "Frequently asked questions",
@@ -27,12 +27,11 @@ test.describe("Support page", () => {
         ];
 
         for (const cardLink of cardLinks) {
-            test(`should have ${cardLink["name"]} link`, async ({ page }) => {
-                await page
-                    .getByRole("link", { name: cardLink["name"] })
-                    .click();
+            // eslint-disable-next-line playwright/expect-expect
+            test(`should have ${cardLink.name} link`, async ({ page }) => {
+                await page.getByRole("link", { name: cardLink.name }).click();
 
-                await expect(page).toHaveURL(cardLink["url"]);
+                await expect(page).toHaveURL(cardLink.url);
             });
         }
     });

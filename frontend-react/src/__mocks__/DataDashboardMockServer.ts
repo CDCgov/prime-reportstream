@@ -1,14 +1,14 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
 import config from "../config";
-import { RSReceiver } from "../config/endpoints/settings";
 import {
     RSReceiverDelivery,
     RSReceiverDeliveryResponse,
     RSReceiverSubmitterResponse,
     RSSubmitter,
 } from "../config/endpoints/dataDashboard";
+import { RSReceiver } from "../config/endpoints/settings";
 
 const base = `${config.API_ROOT}/v1/receivers`;
 
@@ -33,13 +33,13 @@ export const makeRSReceiverDeliveryFixture = (
     id: number,
     overrides?: Partial<RSReceiverDelivery>,
 ): RSReceiverDelivery => ({
-    orderingProvider: overrides?.orderingProvider || "",
-    orderingFacility: overrides?.orderingFacility || "",
-    submitter: overrides?.submitter || "",
+    orderingProvider: overrides?.orderingProvider ?? "",
+    orderingFacility: overrides?.orderingFacility ?? "",
+    submitter: overrides?.submitter ?? "",
     reportId: id.toString() || "",
-    createdAt: overrides?.createdAt || "",
-    expirationDate: overrides?.expirationDate || "",
-    testResultCount: overrides?.testResultCount || 0,
+    createdAt: overrides?.createdAt ?? "",
+    expirationDate: overrides?.expirationDate ?? "",
+    testResultCount: overrides?.testResultCount ?? 0,
 });
 export const makeRSReceiverDeliveryFixtureArray = (count: number) => {
     const fixtures: RSReceiverDelivery[] = [];
@@ -57,12 +57,12 @@ export const makeRSReceiverDeliveryResponseFixture = (
     overrides?: Partial<RSReceiverDeliveryResponse>,
 ): RSReceiverDeliveryResponse => ({
     meta: {
-        type: overrides?.meta?.type || "delivery",
-        totalCount: overrides?.meta?.totalCount || 101,
-        totalFilteredCount: overrides?.meta?.totalFilteredCount || 101,
-        totalPages: overrides?.meta?.totalPages || 10,
-        nextPage: overrides?.meta?.nextPage || 2,
-        previousPage: overrides?.meta?.previousPage || 1,
+        type: overrides?.meta?.type ?? "delivery",
+        totalCount: overrides?.meta?.totalCount ?? 101,
+        totalFilteredCount: overrides?.meta?.totalFilteredCount ?? 101,
+        totalPages: overrides?.meta?.totalPages ?? 10,
+        nextPage: overrides?.meta?.nextPage ?? 2,
+        previousPage: overrides?.meta?.previousPage ?? 1,
     },
     data: makeRSReceiverDeliveryFixtureArray(deliveryCount),
 });
@@ -72,11 +72,11 @@ export const makeRSSubmitterFixture = (
     overrides?: Partial<RSSubmitter>,
 ): RSSubmitter => ({
     id: id.toString() || "123",
-    name: overrides?.name || "Any facility USA",
-    firstReportDate: overrides?.firstReportDate || new Date().toString(),
-    testResultCount: overrides?.testResultCount || 2,
-    type: overrides?.type || "SUBMITTER",
-    location: overrides?.location || "Little Rock, AS",
+    name: overrides?.name ?? "Any facility USA",
+    firstReportDate: overrides?.firstReportDate ?? new Date().toString(),
+    testResultCount: overrides?.testResultCount ?? 2,
+    type: overrides?.type ?? "SUBMITTER",
+    location: overrides?.location ?? "Little Rock, AS",
 });
 export const makeRSSubmitterFixtureArray = (count: number) => {
     const fixtures: RSSubmitter[] = [];
@@ -94,35 +94,34 @@ export const makeRSReceiverSubmitterResponseFixture = (
     overrides?: Partial<RSReceiverSubmitterResponse>,
 ): RSReceiverSubmitterResponse => ({
     meta: {
-        type: overrides?.meta?.type || "submitter",
-        totalCount: overrides?.meta?.totalCount || 101,
-        totalFilteredCount: overrides?.meta?.totalFilteredCount || 101,
-        totalPages: overrides?.meta?.totalPages || 10,
-        nextPage: overrides?.meta?.nextPage || 2,
-        previousPage: overrides?.meta?.previousPage || 1,
+        type: overrides?.meta?.type ?? "submitter",
+        totalCount: overrides?.meta?.totalCount ?? 101,
+        totalFilteredCount: overrides?.meta?.totalFilteredCount ?? 101,
+        totalPages: overrides?.meta?.totalPages ?? 10,
+        nextPage: overrides?.meta?.nextPage ?? 2,
+        previousPage: overrides?.meta?.previousPage ?? 1,
     },
     data: makeRSSubmitterFixtureArray(submitterCount),
 });
 
 const handlers = [
-    rest.post(`${base}/testOrg.testService/deliveries`, (req, res, ctx) => {
-        if (!req.headers.get("authorization")?.includes("TOKEN")) {
-            return res(ctx.status(401));
+    http.post(`${base}/testOrg.testService/deliveries`, ({ request }) => {
+        if (!request.headers.get("authorization")?.includes("TOKEN")) {
+            return HttpResponse.json(null, { status: 401 });
         }
-        return res(
-            ctx.status(200),
-            ctx.json([makeRSReceiverDeliveryResponseFixture(5)]),
-        );
+        return HttpResponse.json([makeRSReceiverDeliveryResponseFixture(5)], {
+            status: 200,
+        });
     }),
-    rest.post(
+    http.post(
         `${base}/testOrg.testService/deliveries/submitters/search`,
-        (req, res, ctx) => {
-            if (!req.headers.get("authorization")?.includes("TOKEN")) {
-                return res(ctx.status(401));
+        ({ request }) => {
+            if (!request.headers.get("authorization")?.includes("TOKEN")) {
+                return HttpResponse.json(null, { status: 401 });
             }
-            return res(
-                ctx.status(200),
-                ctx.json([makeRSReceiverSubmitterResponseFixture(5)]),
+            return HttpResponse.json(
+                [makeRSReceiverSubmitterResponseFixture(5)],
+                { status: 200 },
             );
         },
     ),

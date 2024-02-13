@@ -1,11 +1,10 @@
 import { screen } from "@testing-library/react";
 
-import { RSSender } from "../../config/endpoints/settings";
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import ManagePublicKeyChooseSender, {
     ManagePublicKeyChooseSenderProps,
 } from "./ManagePublicKeyChooseSender";
+import { RSSender } from "../../config/endpoints/settings";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const DEFAULT_SENDERS: RSSender[] = [
     {
@@ -33,7 +32,7 @@ const DEFAULT_SENDERS: RSSender[] = [
 describe("ManagePublicKeyChooseSender", () => {
     const DEFAULT_PROPS: ManagePublicKeyChooseSenderProps = {
         senders: DEFAULT_SENDERS,
-        onSenderSelect: () => {},
+        onSenderSelect: () => void 0,
     };
 
     afterEach(() => {

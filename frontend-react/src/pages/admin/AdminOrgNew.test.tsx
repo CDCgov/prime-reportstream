@@ -1,11 +1,10 @@
 import { fireEvent, screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
-import { ResponseType, TestResponse } from "../../resources/TestResponse";
-import OrganizationResource from "../../resources/OrganizationResource";
-
 import { AdminOrgNewPage } from "./AdminOrgNew";
+import { settingsServer } from "../../__mocks__/SettingsMockServer";
+import OrganizationResource from "../../resources/OrganizationResource";
+import { ResponseType, TestResponse } from "../../resources/TestResponse";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const mockData: OrganizationResource = new TestResponse(
     ResponseType.NEW_ORGANIZATION,

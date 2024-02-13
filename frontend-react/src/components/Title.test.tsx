@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../utils/CustomRenderUtils";
-
 import Title from "./Title";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 describe("Title component", () => {
     const UNIQUE_TITLE = `Title for test`;

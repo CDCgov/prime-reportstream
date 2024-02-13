@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../utils/CustomRenderUtils";
-
 import { StaticAlert, StaticAlertType } from "./StaticAlert";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 describe("StaticAlert", () => {
     test("renders correct class for success", async () => {
@@ -14,7 +13,7 @@ describe("StaticAlert", () => {
         expect(wrapper).toHaveClass("usa-alert--success");
     });
 
-    test("renders correct class for success", async () => {
+    test("renders correct class for error", async () => {
         renderApp(<StaticAlert type={StaticAlertType.Error} heading={"any"} />);
 
         const wrapper = await screen.findByRole("alert");

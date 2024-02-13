@@ -1,10 +1,10 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
 import {
-    lookupTablesEndpoints,
-    LookupTable,
     ApiValueSet,
+    LookupTable,
+    lookupTablesEndpoints,
 } from "../config/endpoints/lookupTables";
 
 const tableListUrl = lookupTablesEndpoints.getTableList.toDynamicUrl();
@@ -53,20 +53,20 @@ const lookupTableData: ApiValueSet[] = [1, 2, 3].map((_i) => ({
 }));
 
 const handlers = [
-    rest.get(tableListUrl, (_req, res, ctx) => {
-        return res(ctx.json(lookupTables), ctx.status(200));
+    http.get(tableListUrl, () => {
+        return HttpResponse.json(lookupTables, { status: 200 });
     }),
-    rest.get(tableDataUrl, (_req, res, ctx) => {
-        return res(ctx.json(lookupTableData), ctx.status(200));
+    http.get(tableDataUrl, () => {
+        return HttpResponse.json(lookupTableData, { status: 200 });
     }),
-    rest.get(tableDataUrlAlt, (_req, res, ctx) => {
-        return res(ctx.json(lookupTableData), ctx.status(200));
+    http.get(tableDataUrlAlt, () => {
+        return HttpResponse.json(lookupTableData, { status: 200 });
     }),
-    rest.post(updateTableDataUrl, (_req, res, ctx) => {
-        return res(ctx.json(lookupTables[1]), ctx.status(200));
+    http.post(updateTableDataUrl, () => {
+        return HttpResponse.json(lookupTables[1], { status: 200 });
     }),
-    rest.put(activateTableDataUrl, (_req, res, ctx) => {
-        return res(ctx.json(lookupTables[1]), ctx.status(200));
+    http.put(activateTableDataUrl, () => {
+        return HttpResponse.json(lookupTables[1], { status: 200 });
     }),
 ];
 

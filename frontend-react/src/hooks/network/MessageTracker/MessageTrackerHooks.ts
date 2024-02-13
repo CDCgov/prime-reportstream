@@ -1,12 +1,12 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 import {
-    RSMessageDetail,
     MessageListResource,
     messageTrackerEndpoints,
+    RSMessageDetail,
 } from "../../../config/endpoints/messageTracker";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 
 const { search, getMessageDetails } = messageTrackerEndpoints;
 
@@ -33,7 +33,7 @@ export const useMessageSearch = () => {
 export const useMessageDetails = (id: string) => {
     const authorizedFetch = useAuthorizedFetch<RSMessageDetail>();
     const memoizedDataFetch = useCallback(() => {
-        if (!!id) {
+        if (id) {
             return authorizedFetch(getMessageDetails, {
                 segments: {
                     id: id,
