@@ -12,7 +12,7 @@ extension:
       condition: $obx2 NOT_NULL
       expressionsMap:
         url:
-          value: obx-2-value-type
+          value: OBX.2
           type: STRING
         valueId:
           type: STRING
@@ -25,7 +25,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obx-6-units
+          value: OBX.6
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           specs: OBX.6
@@ -36,7 +36,7 @@ extension:
       condition: $obx9 NOT_NULL
       expressionsMap:
         url:
-          value: obx-9-probability
+          value: OBX.9
           type: STRING
         valueString:
           type: STRING
@@ -48,7 +48,7 @@ extension:
       condition: $obx11 NOT_NULL
       expressionsMap:
         url:
-          value: obx-11-observation-status
+          value: OBX.11
           type: STRING
         valueString:
           type: STRING
@@ -60,7 +60,7 @@ extension:
       condition: $obx12 NOT_NULL
       expressionsMap:
         url:
-          value: obx-12-effective-date-of-reference-range
+          value: OBX.12
           type: STRING
         valueString:
           type: STRING
@@ -73,7 +73,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obx-13-user-defined-access-checks
+          value: OBX.13
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -87,7 +87,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obx-17-observation-method
+          value: OBX.17
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -100,7 +100,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obx-18-equipment-instance-identifier
+          value: OBX.18
         valueReference:
           valueOf: segments/OBX/Device
           expressionType: reference
@@ -113,7 +113,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obx-20-observation-site
+          value: OBX.20
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource

@@ -1,12 +1,11 @@
 import { fireEvent, screen } from "@testing-library/react";
+import { Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
-import React, { Suspense } from "react";
-
-import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
-import { ErrorPage } from "../../pages/error/ErrorPage";
-import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
+import { ErrorPage } from "../../pages/error/ErrorPage";
+import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const mockData: AdmConnStatusDataType[] = [
     {
@@ -139,7 +138,7 @@ describe("AdminReceiverDashboard tests", () => {
 
         const resultStart: string[] = [];
         const resultEnd: string[] = [];
-        for (let timeslot of timeslots) {
+        for (const timeslot of timeslots) {
             resultStart.push(timeslot[0].toISOString());
             resultEnd.push(timeslot[1].toISOString());
         }
@@ -227,7 +226,7 @@ describe("AdminReceiverDashboard tests", () => {
         expect(result4).toBe("");
     });
 
-    test("sortStatusData", async () => {
+    test("sortStatusData", () => {
         const data = _exportForTesting.sortStatusData(mockData); // sorts
         expect(data.length).toBe(6);
         // make sure sortStatusData sorted correctly.
@@ -251,9 +250,9 @@ describe("AdminReceiverDashboard tests", () => {
                         }
                         filterErrorText={" "}
                         filterRowReceiver={"-"}
-                        onDetailsClick={(
-                            _subdata: AdmConnStatusDataType[],
-                        ) => {}}
+                        onDetailsClick={(_subdata: AdmConnStatusDataType[]) =>
+                            void 0
+                        }
                     />
                 </Suspense>
             </NetworkErrorBoundary>,
@@ -294,7 +293,7 @@ describe("AdminReceiverDashboard tests", () => {
         // ).toBeInTheDocument();
     });
 
-    test("ModalInfoRender", async () => {
+    test("ModalInfoRender", () => {
         const data = _exportForTesting.sortStatusData(mockData); // sorts
         const subData = data[0];
         renderApp(
@@ -307,7 +306,7 @@ describe("AdminReceiverDashboard tests", () => {
         expect(matches.length).toBe(1);
     });
 
-    test("ModalInfoRender empty", async () => {
+    test("ModalInfoRender empty", () => {
         renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[]} />,
@@ -315,13 +314,13 @@ describe("AdminReceiverDashboard tests", () => {
         expect(screen.getByText(/No Data Found/)).toBeInTheDocument();
     });
 
-    test("DateRangePickingAtomic", async () => {
+    test("DateRangePickingAtomic", () => {
         renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.DateRangePickingAtomic
                 defaultStartDate="2022-07-11T00:00:00.000Z"
                 defaultEndDate="2022-07-13T00:00:00.000Z"
-                onChange={(_props) => {}}
+                onChange={(_props) => void 0}
             />,
         );
         expect(screen.getByText(/7\/11\/2022/)).toBeInTheDocument();

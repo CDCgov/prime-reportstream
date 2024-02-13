@@ -12,6 +12,6 @@ extension:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: identifier-universal-id
-    valueBoolean:
-      valueOf: "true"
+      value: hl7v2Field
+    valueString:
+      valueOf: "HD.2,HD.3"

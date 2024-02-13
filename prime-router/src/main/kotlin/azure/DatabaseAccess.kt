@@ -1336,7 +1336,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     /**
      * Inserts the provided [lineage] using [txn] as the data context
      */
-    private fun insertReportLineage(lineage: ReportLineage, txn: Configuration) {
+    fun insertReportLineage(lineage: ReportLineage, txn: Configuration) {
         DSL.using(txn).newRecord(REPORT_LINEAGE, lineage).store()
         logger.debug(
             "Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}"

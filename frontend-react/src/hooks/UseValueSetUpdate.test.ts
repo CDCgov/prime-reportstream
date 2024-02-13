@@ -1,9 +1,8 @@
 import { act } from "@testing-library/react";
 
+import { useValueSetUpdate } from "./UseValueSets";
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
-
-import { useValueSetUpdate } from "./UseValueSets";
 
 // note that running the mutation tests below results in a warning:
 // `Can't perform a React state update on an unmounted component`
@@ -22,7 +21,7 @@ describe("useValueSetUpdate", () => {
             wrapper: AppWrapper(),
         });
 
-    test("returns trigger and loading indicator", async () => {
+    test("returns trigger and loading indicator", () => {
         const { result } = renderWithAppWrapper();
         const { mutateAsync, isPending, error } = result.current;
         expect(isPending).toEqual(false);

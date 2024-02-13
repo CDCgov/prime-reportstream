@@ -1,11 +1,10 @@
+import { ReportDetailsPage } from "./ReportDetails";
+import { RSDelivery } from "../../../config/endpoints/deliveries";
 import {
     mockUseReportDetail,
     mockUseReportFacilities,
 } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
-import { RSDelivery } from "../../../config/endpoints/deliveries";
-
-import { ReportDetailsPage } from "./ReportDetails";
 
 const TEST_ID = "123";
 

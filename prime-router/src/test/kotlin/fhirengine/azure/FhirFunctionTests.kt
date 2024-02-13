@@ -41,9 +41,11 @@ import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
@@ -73,6 +75,7 @@ class FhirFunctionTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val timing1 = mockkClass(Receiver.Timing::class)
+    val reportServiceMock = mockk<ReportService>()
 
     val oneOrganization = DeepOrganization(
         "phd", "test", Organization.Jurisdiction.FEDERAL,
@@ -90,7 +93,7 @@ class FhirFunctionTests {
                 "phd",
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
-                "metadata/hl7_mapping/ORU_R01/ORU_R01-base",
+                "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
                 timing = timing1,
                 jurisdictionalFilter = listOf("true"),
                 qualityFilter = listOf("true"),
@@ -672,6 +675,7 @@ class FhirFunctionTests {
                 )
             } returns BlobAccess.BlobInfo(Report.Format.FHIR, "", "".toByteArray())
             every { queueMock.sendMessage(any(), any()) } returns Unit
+            every { reportServiceMock.getSenderName(any()) } returns "senderOrg.senderOrgClient"
 
             val settings = FileSettings().loadOrganizations(oneOrganization)
             val fhirEngine = FHIRRouter(
@@ -679,6 +683,7 @@ class FhirFunctionTests {
                 settings,
                 ReportStreamTestDatabaseContainer.testDatabaseAccess,
                 blobMock,
+                reportService = reportServiceMock
             )
 
             val actionHistory = spyk(ActionHistory(TaskAction.receive))

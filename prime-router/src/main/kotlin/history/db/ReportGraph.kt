@@ -2,13 +2,15 @@ package gov.cdc.prime.router.history.db
 
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.Action
-import gov.cdc.prime.router.azure.db.tables.ReportFile
+import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
@@ -78,9 +80,9 @@ class ReportGraph(
         dslContext: DSLContext,
     ): List<UUID> {
         return dslContext
-            .select(ReportFile.REPORT_FILE.REPORT_ID)
-            .from(ReportFile.REPORT_FILE)
-            .join(Action.ACTION).on(Action.ACTION.ACTION_ID.eq(ReportFile.REPORT_FILE.ACTION_ID))
+            .select(REPORT_FILE.REPORT_ID)
+            .from(REPORT_FILE)
+            .join(Action.ACTION).on(Action.ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
             .where(Action.ACTION.RECEIVING_ORG.eq(receiver.organizationName))
             .and(Action.ACTION.RECEIVING_ORG_SVC.eq(receiver.name))
             .and(Action.ACTION.ACTION_NAME.eq(taskAction))
@@ -107,6 +109,29 @@ class ReportGraph(
                 .from(
                     metadata,
                 ).fetchInto(CovidResultMetadata::class.java)
+        }
+    }
+
+    /**
+     * Recursively goes up the report_linage table from any report until it reaches
+     * a report with an action type of "receive" (the root report)
+     *
+     * This will return null if no report with action type "receive" is present or if
+     * the root is passed in
+     */
+    fun getRootReport(childReportId: UUID): ReportFile? {
+        return db.transactReturning { txn ->
+            val cte = reportAncestorGraphCommonTableExpression(listOf(childReportId))
+            DSL.using(txn)
+                .withRecursive(cte)
+                .select(REPORT_FILE.asterisk())
+                .from(cte)
+                .join(REPORT_FILE)
+                .on(REPORT_FILE.REPORT_ID.eq(cte.field(0, UUID::class.java)))
+                .join(ACTION)
+                .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
+                .where(ACTION.ACTION_NAME.eq(TaskAction.receive))
+                .fetchOneInto(ReportFile::class.java)
         }
     }
 
@@ -166,9 +191,9 @@ class ReportGraph(
                     .from(ITEM_LINEAGE)
                     .where(
                         ITEM_LINEAGE.CHILD_REPORT_ID.`in`(
-                            DSL.select(ReportFile.REPORT_FILE.REPORT_ID)
-                                .from(ReportFile.REPORT_FILE)
-                                .join(Action.ACTION).on(Action.ACTION.ACTION_ID.eq(ReportFile.REPORT_FILE.ACTION_ID))
+                            DSL.select(REPORT_FILE.REPORT_ID)
+                                .from(REPORT_FILE)
+                                .join(Action.ACTION).on(Action.ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
                                 .where(Action.ACTION.RECEIVING_ORG.eq(receiver.organizationName))
                                 .and(Action.ACTION.RECEIVING_ORG_SVC.eq(receiver.name))
                                 .and(Action.ACTION.ACTION_NAME.eq(taskAction))

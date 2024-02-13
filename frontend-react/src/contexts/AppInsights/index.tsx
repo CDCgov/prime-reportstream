@@ -1,17 +1,17 @@
-import React, {
-    PropsWithChildren,
+import {
+    AppInsightsContext as AppInsightsContextOrig,
+    ReactPlugin,
+} from "@microsoft/applicationinsights-react-js";
+import { ApplicationInsights } from "@microsoft/applicationinsights-web";
+import {
     createContext,
+    PropsWithChildren,
     useCallback,
     useContext,
     useEffect,
     useMemo,
     useState,
 } from "react";
-import {
-    ReactPlugin,
-    AppInsightsContext as AppInsightsContextOrig,
-} from "@microsoft/applicationinsights-react-js";
-import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 
 import { MembershipSettings } from "../../utils/OrganizationUtils";
 
@@ -56,7 +56,7 @@ export interface AppInsightsContextProviderProps extends PropsWithChildren {
  * that contains a reference to that instance, and creating our custom AppInsights
  * context.
  */
-export function AppInsightsContextProvider({
+function AppInsightsContextProvider({
     children,
     value: appInsights,
 }: AppInsightsContextProviderProps) {

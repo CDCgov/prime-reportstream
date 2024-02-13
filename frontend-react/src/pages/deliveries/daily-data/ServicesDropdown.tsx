@@ -31,7 +31,7 @@ function ServicesDropdown(props: Props) {
             onChange={(event) => props.chosenCallback(event.target.value)}
         >
             {props.services.map((service, idx) => (
-                <option key={`${service}.${idx}`} value={service.name}>
+                <option key={`${service.name}.${idx}`} value={service.name}>
                     {service.name}
                 </option>
             ))}
