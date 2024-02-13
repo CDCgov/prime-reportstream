@@ -3,16 +3,8 @@ hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 elements:
 
-### Message Level Transforms
-
-  - name: observation-result-with-aoe
-    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
-    resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not()) | %service.supportingInfo.resolve().where(meta.tag.code = "AOE")'
-
-### Field Specific Transforms
-
   - name: nv-sending-application-namespace-id
-    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+    value: [ '"CDC PRIME - Atlanta"' ]
     hl7Spec: [ 'MSH-3-1' ]
 
   - name: nv-sending-application-universal-id
@@ -81,4 +73,6 @@ elements:
     value: [ '"NULLFL"' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-7' ]
 
-
+  - name: observation-result-with-aoe
+    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
+    resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not()) | %service.supportingInfo.resolve().where(meta.tag.code = "AOE")'
