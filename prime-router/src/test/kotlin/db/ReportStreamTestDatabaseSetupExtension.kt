@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.db
 
 import gov.cdc.prime.router.azure.DatabaseAccess
+import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
@@ -18,7 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
  *
  */
 @Testcontainers
-class ReportStreamTestDatabaseSetupExtension : BeforeAllCallback, AfterEachCallback {
+class ReportStreamTestDatabaseSetupExtension : BeforeAllCallback, AfterEachCallback, AfterAllCallback {
     /**
      * Starts and sets up the test Postgres container
      */
@@ -47,5 +48,9 @@ class ReportStreamTestDatabaseSetupExtension : BeforeAllCallback, AfterEachCallb
                 TRUNCATE TABLE public.task CASCADE;
             """.trimIndent(),
         )
+    }
+
+    override fun afterAll(context: ExtensionContext?) {
+        ReportStreamTestDatabaseContainer.containerInstance.stop()
     }
 }
