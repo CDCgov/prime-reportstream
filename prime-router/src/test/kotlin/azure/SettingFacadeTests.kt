@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
@@ -10,6 +11,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.OffsetDateTime
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SettingFacadeTests {
@@ -29,7 +32,90 @@ class SettingFacadeTests {
     private val connection = MockConnection(dataProvider)
     private val accessSpy = spyk(DatabaseAccess(connection))
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
-
+    private val orgJson = """{
+        "name" : "waters",
+        "description" : "Test Sender from Waters",
+        "jurisdiction" : "FEDERAL",
+        "stateCode" : null,
+        "countyName" : null,
+        "filters" : [ ],
+        "featureFlags" : [ ],
+        "keys" : [ ]
+        }
+""".trimIndent()
+    private val orgJsonMissingJurisdiction = """{
+        "name" : "waters",
+        "description" : "Test Sender from Waters",
+        "jurisdiction" : "FEDERAL",
+        "stateCode" : "CA",
+        "countyName" : "San Bernadino",
+        "filters" : [ ],
+        "featureFlags" : [ ],
+        "keys" : [ ]
+        }
+""".trimIndent()
+    private val senderJson = """{
+        "name" : "default",
+        "organizationName" : "waters",
+        "format" : "CSV",
+        "customerStatus" : "active",
+        "schemaName" : "waters/waters-covid-19",
+        "processingType" : "sync",
+        "allowDuplicates" : true,
+        "senderType" : null,
+        "primarySubmissionMethod" : null,
+        "topic" : "covid-19",
+        "version" : null,
+        "createdBy" : null,
+        "createdAt" : null
+        }
+""".trimIndent()
+    private val receiverJson = """{
+        "name" : "giang2",
+        "organizationName" : "waters",
+        "topic" : "covid-19",
+        "customerStatus" : "active",
+        "translation" : {
+            "schemaName" : "one",
+            "format" : "CSV",
+            "useBatching" : false,
+            "defaults" : { },
+            "nameFormat" : "STANDARD",
+            "receivingOrganization" : null,
+            "type" : "CUSTOM"
+        },
+        "jurisdictionalFilter" : [],
+        "qualityFilter" : [ "allowAll()" ],
+        "routingFilter" : [ ],
+        "processingModeFilter" : [ ],
+        "reverseTheQualityFilter" : false,
+        "conditionFilter" : [ ],
+        "mappedConditionFilter" : [ ],
+        "deidentify" : true,
+        "deidentifiedValue" : "",
+        "timing" : {
+            "operation" : "MERGE",
+            "numberPerDay" : 1440,
+            "initialTime" : "00:00",
+            "timeZone" : "EASTERN",
+            "maxReportCount" : 10000,
+            "whenEmpty" : {
+                "action" : "NONE",
+                "onlyOncePerDay" : false
+            }
+        },
+        "description" : "",
+        "transport" : {
+            "storageName" : "PartnerStorage",
+            "containerName" : "hhsprotect",
+            "type" : "BLOBSTORE"
+        },
+        "externalName" : null,
+        "enrichmentSchemaNames" : [ ],
+        "timeZone" : null,
+        "dateTimeFormat" : "OFFSET"
+        }
+""".trimIndent()
     private val testOrg = Setting(
         1,
         SettingType.ORGANIZATION,
@@ -81,14 +167,52 @@ class SettingFacadeTests {
         "todo",
         OffsetDateTime.now()
     )
+    private val testOrg4Put = Setting(
+        4,
+        SettingType.ORGANIZATION,
+        "waters",
+        null,
+        JSONB.valueOf(orgJson),
+        false,
+        true,
+        1,
+        "tester1",
+        OffsetDateTime.now()
+    )
+    private val testDefaultSender4Put = Setting(
+        5,
+        SettingType.SENDER,
+        "default",
+        2,
+        JSONB.valueOf(senderJson),
+        false,
+        true,
+        4,
+        "tester1",
+        OffsetDateTime.now()
+    )
+    private val testReceiver4Put = Setting(
+        6,
+        SettingType.RECEIVER,
+        "giang2",
+        2,
+        JSONB.valueOf(receiverJson),
+        false,
+        true,
+        5,
+        "tester1",
+        OffsetDateTime.now()
+    )
 
     private fun setupOrgDatabaseAccess() {
         every {
             accessSpy.fetchSetting(SettingType.ORGANIZATION, "test", null, any())
         }.returns(testOrg)
+
         every {
             accessSpy.fetchSetting(SettingType.ORGANIZATION, not("test"), parentId = null, any())
         }.returns(null)
+
         every {
             accessSpy.fetchSettings(SettingType.ORGANIZATION, txn = any())
         }.returns(listOf(testOrg))
@@ -96,6 +220,43 @@ class SettingFacadeTests {
         every {
             accessSpy.fetchSettings(SettingType.SENDER, txn = any())
         }.returns(listOf(defaultSender))
+    }
+    private fun setupDatabaseAccess4PutTesting() {
+        every {
+            accessSpy.fetchSetting(SettingType.ORGANIZATION, "waters", null, any())
+        }.returns(testOrg4Put)
+
+        every {
+            accessSpy.fetchSettings(SettingType.ORGANIZATION, txn = any())
+        }.returns(listOf(testOrg4Put))
+
+        every {
+            accessSpy.findSettingVersion(SettingType.ORGANIZATION, "waters", null, txn = any())
+        }.returns(4)
+
+        every {
+            accessSpy.deactivateSetting(4, txn = any())
+        }.returns(Unit)
+
+        every {
+            accessSpy.insertSetting(any(), txn = any())
+        }.returns(5)
+
+        every {
+            accessSpy.updateOrganizationId(4, 5, txn = any())
+        }.returns(Unit)
+
+        every {
+            accessSpy.fetchSetting(SettingType.SENDER, "default", 4, txn = any())
+        }.returns(testDefaultSender4Put)
+
+        every {
+            accessSpy.findSettingVersion(SettingType.SENDER, "default", 4, txn = any())
+        }.returns(4)
+
+        every {
+            accessSpy.fetchSetting(SettingType.RECEIVER, "giang2", 4, txn = any())
+        }.returns(testReceiver4Put)
     }
 
     private fun setupSenderDatabaseAccess() {
@@ -251,5 +412,71 @@ class SettingFacadeTests {
         assertThat(listOrg.first().jurisdiction).isEqualTo(Organization.Jurisdiction.STATE)
         assertThat(listOrg.first().stateCode).isEqualTo(org?.stateCode)
         assertThat(orgJson).isEqualTo(mapper.writeValueAsString(listOrg))
+    }
+
+    @Test
+    fun `put org test happy case`() {
+        setupDatabaseAccess4PutTesting()
+        val (result, json) = SettingsFacade(testMetadata(), accessSpy).putSetting(
+            "waters",
+            orgJson,
+            AuthenticatedClaims.generateTestClaims(),
+            gov.cdc.prime.router.azure.OrganizationAPI::class.java,
+            null
+        )
+        assertTrue(result.name == "SUCCESS", "Expect SUCCESS as result, got ${result.name}")
+        assertTrue(json.contains("waters"), "Expect 'waters' as name of the organization, but not found")
+        assertTrue(json.contains("FEDERAL"), "Expecting FEDERAL as value from 'jurisdiction', but not found.")
+        assertTrue(json.contains("Test Sender from Waters"), "Expected description not found")
+    }
+
+    @Test
+    fun `put org test invalid`() {
+        setupDatabaseAccess4PutTesting()
+        val (result, json) = SettingsFacade(testMetadata(), accessSpy).putSetting(
+            "waters",
+            orgJsonMissingJurisdiction,
+            AuthenticatedClaims.generateTestClaims(),
+            gov.cdc.prime.router.azure.OrganizationAPI::class.java,
+            null
+        )
+
+        assertTrue(result.name == "BAD_REQUEST", "Expect BAD_REQUEST as result, got ${result.name}")
+        assertThat(json).isNotNull()
+        assertTrue(json.contains("error"))
+        assertTrue(json.contains("For FEDERAL jurisdiction, stateCode must NOT present"))
+        assertTrue(json.contains("For FEDERAL jurisdiction, countyName must NOT present"))
+    }
+
+    @Test
+    fun `put senders test happy case`() {
+        setupDatabaseAccess4PutTesting()
+        val (result, json) = SettingsFacade(testMetadata(), accessSpy).putSetting(
+            "default",
+            senderJson,
+            AuthenticatedClaims.generateTestClaims(),
+            gov.cdc.prime.router.Sender::class.java,
+            "waters"
+        )
+        assertTrue(result.name == "SUCCESS", "Expect SUCCESS as result, got ${result.name}")
+        assertTrue(json.contains("waters"), "Expected organization name 'waters' not found.")
+        assertTrue(json.contains("default"), "Expected sender name 'default' not found.")
+    }
+
+    @Test
+    fun `put receivers test happy case`() {
+        setupDatabaseAccess4PutTesting()
+        val (result, json) = SettingsFacade(testMetadata(), accessSpy).putSetting(
+            "giang2",
+            receiverJson,
+            AuthenticatedClaims.generateTestClaims(),
+            gov.cdc.prime.router.azure.ReceiverAPI::class.java,
+            "waters"
+        )
+        assertTrue(result.name == "SUCCESS", "Expect SUCCESS as result, got ${result.name}")
+        assertTrue(
+            json.contains("waters") && json.contains("giang2"),
+            "Expect return value contains receiver name: 'giang2', and organization name 'waters'"
+        )
     }
 }

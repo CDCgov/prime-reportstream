@@ -292,12 +292,14 @@ class SettingsFacade(
             }
 
             is Receiver -> {
-                // these trimming will not be needed after we addressed
-                // that the client send receiver with conditionFilter and mappedConditionFilter
-                // default to emptyList[] which has different semantics vs conditionFilter
-                // and mappedConditionFilter not present, will open a ticket for that.
-                (value as ObjectNode).remove("conditionFilter")
-                value.remove("mappedConditionFilter")
+                val condFilter = (value as ObjectNode).get("conditionFilter")
+                if (condFilter.isEmpty) {
+                    value.remove("conditionFilter")
+                }
+                val mappedCondFilter = value.get("mappedConditionFilter")
+                if (mappedCondFilter.isEmpty) {
+                    value.remove("mappedConditionFilter")
+                }
                 receiverSchema.validate(value)
             }
 
