@@ -100,7 +100,7 @@ const getTestConfig = (
     };
 };
 
-const selectDatesFromRange = async (dayOne: string, dayTwo: string) => {
+export const selectDatesFromRange = async (dayOne: string, dayTwo: string) => {
     /* Borrowed some of this from Trussworks' own tests: their
      * components are tricky to test. */
     const datePickerButtons = screen.getAllByTestId("date-picker-button");

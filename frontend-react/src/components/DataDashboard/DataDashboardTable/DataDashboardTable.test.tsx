@@ -16,6 +16,7 @@ import {
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
 import { MemberType } from "../../../utils/OrganizationUtils";
+import { selectDatesFromRange } from "../../Table/Table.test";
 
 import DataDashboardTable from "./DataDashboardTable";
 
@@ -179,14 +180,15 @@ describe("DataDashboardTableWithPagination", () => {
             describe("TableFilter", () => {
                 test("Clicking on filter invokes the trackAppInsightEvent", async () => {
                     setup();
+                    await selectDatesFromRange("20", "23");
                     await userEvent.click(screen.getByText("Filter"));
 
                     expect(mockAppInsights.trackEvent).toBeCalledWith({
                         name: "Data Dashboard | Table Filter",
                         properties: {
                             tableFilter: {
-                                endRange: "3000-01-01T23:59:59.999Z",
-                                startRange: "2000-01-01T00:00:00.000Z",
+                                endRange: "3000-01-23T23:59:59.999Z",
+                                startRange: "2000-01-20T00:00:00.000Z",
                             },
                         },
                     });

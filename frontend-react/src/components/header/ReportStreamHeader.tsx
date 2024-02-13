@@ -227,10 +227,10 @@ function ReportStreamNavbar({
     const menuItemsReceiver = [
         <div className="primary-nav-link-container" key="dashboard">
             <USSmartLink
-                className={primaryLinkClasses(!!useMatch("/data-dashboard/*"))}
-                href="/data-dashboard"
+                className={primaryLinkClasses(!!useMatch("/daily-data/*"))}
+                href="/daily-data"
             >
-                Dashboard
+                Daily Data
             </USSmartLink>
         </div>,
     ];

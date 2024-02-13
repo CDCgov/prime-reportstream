@@ -1,84 +1,62 @@
 @use "../../global-modules.scss" as *;
 
 $column-gutter: 2rem;
-$column-gutter-tablet: 2rem;
 
 .TableFilters {
-  :global {
-    .filter-container {
-        display: flex;
-        align-items: flex-end;
-        margin-bottom: 1em;
-    }
-    
-    .button-container {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        height: 100%;
-    }
-    
-    .apply-button {
-        background: none;
-        border: none;
-    }
-
-    .date-time-container {
-      width: fit-content;
-      margin: 0 auto;
-    }
-    
-    .date-picker-container {
-        display: flex;
-
-        & .usa-form-group {
-          margin-top: 0;
-        }
-    }
-
-    .usa-time-picker {
-      margin-right: 48px;
-    }
-
-    .usa-label {
-      font-weight: bold;
-    }
-
-    .usa-time-picker,
-    .usa-date-picker__external-input {
-      width: 268px;
-    }
-
-    .filter-column {
-      &__one {
-        padding-right: $column-gutter;
-
-        & .usa-label {
-          margin-top: 0;
+    :global {
+        .filter-container {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 1em;
         }
 
-        @media (max-width: $desktop) {
-          padding-right: $column-gutter-tablet;
+        .button-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 100%;
         }
-      }
-    
-      &__two {
-        border-left: 1px solid color(gray-20);
-        border-right: 1px solid color(gray-20);
-        padding: 0 $column-gutter;
 
-        @media (max-width: $desktop) {
-          padding: 0 $column-gutter-tablet;
+        .apply-button {
+            background: none;
+            border: none;
         }
-      }
-    
-      &__three {
-        padding-left: $column-gutter;
 
-        @media (max-width: $desktop) {
-          padding-left: $column-gutter-tablet;
+        .date-picker-container {
+            display: flex;
+
+            & .usa-form-group {
+                margin-top: 0;
+            }
         }
-      }
+
+        .usa-time-picker {
+            margin-right: 48px;
+        }
+
+        .usa-label {
+            font-weight: bold;
+        }
+
+        .usa-time-picker,
+        .usa-date-picker__external-input {
+            width: 268px;
+        }
+
+        .filter-column {
+            &__one {
+                padding-right: $column-gutter;
+
+                & .usa-label {
+                    margin-top: 0;
+                }
+            }
+
+            &__two {
+                border-left: 1px solid color(gray-20);
+                border-right: 1px solid color(gray-20);
+                padding: 0 calc($column-gutter - 24px) 0 $column-gutter;
+            }
+        }
     }
-  }
 }

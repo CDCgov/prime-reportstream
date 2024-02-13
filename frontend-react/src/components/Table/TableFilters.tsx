@@ -3,6 +3,7 @@ import React, {
     FormEvent,
     SetStateAction,
     useCallback,
+    useMemo,
     useRef,
     useState,
 } from "react";
@@ -80,13 +81,13 @@ function TableFilters({
 }: TableFilterProps) {
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
-    const [rangeFrom, setRangeFrom] = useState<Date>(
-        new Date(FALLBACK_FROM_STRING),
-    );
-    const [rangeTo, setRangeTo] = useState<Date>(new Date(FALLBACK_TO_STRING));
-    const isFilterEnabled = Boolean(
-        rangeFrom && rangeTo && rangeFrom < rangeTo,
-    );
+    const [rangeFrom, setRangeFrom] = useState<Date>(new Date());
+    const [rangeTo, setRangeTo] = useState<Date>(new Date());
+    const isFilterEnabled = useMemo(() => {
+        return Boolean(
+            rangeFrom && rangeTo && new Date(rangeFrom) < new Date(rangeTo),
+        );
+    }, [rangeFrom, rangeTo]);
     const formRef = useRef<HTMLFormElement>(null);
     const [startTime, setStartTime] = useState(DEFAULT_TIME);
     const [endTime, setEndTime] = useState(DEFAULT_TIME);
@@ -162,140 +163,125 @@ function TableFilters({
     return (
         <div data-testid="filter-container" className={styles.TableFilters}>
             <form
-                className="grid-row display-flex flex-align-end"
                 ref={formRef}
                 onSubmit={submitHandler}
                 onReset={resetHandler}
                 key={reset}
                 autoComplete="off"
             >
-                <div>
-                    <div className="grid-row">
-                        <div className="grid-col-3 filter-column__one">
-                            <label
-                                id="start-date-label"
-                                data-testid="label"
-                                className="usa-label"
-                                htmlFor="input-ComboBox"
+                <div className="grid-row">
+                    <div className="grid-col filter-column__one">
+                        <label
+                            id="start-date-label"
+                            data-testid="label"
+                            className="usa-label"
+                            htmlFor="input-ComboBox"
+                        >
+                            Receiver
+                        </label>
+                        <div>
+                            <p
+                                className="usa-hint margin-top-2px"
+                                id="start-date-hint"
                             >
-                                Receiver
-                            </label>
-                            <div>
-                                <p
-                                    className="usa-hint margin-top-2px"
-                                    id="start-date-hint"
-                                >
-                                    Your connection could have multiple
-                                    receivers, such as one specific to COVID.
+                                Your connection could have multiple receivers,{" "}
+                                <br />
+                                such as one specific to COVID.
+                            </p>
+                        </div>
+                        {receivers && (
+                            <ComboBox
+                                key={receivers.length}
+                                id="input-ComboBox"
+                                name="input-ComboBox"
+                                options={receivers}
+                                onChange={(selection) => {
+                                    setCurrentServiceSelect(selection);
+                                }}
+                            />
+                        )}
+                    </div>
+                    <div className="grid-col-auto filter-column__two">
+                        <DateRangePicker
+                            className={StyleClass.DATE_CONTAINER}
+                            startDateLabel={startDateLabel}
+                            startDateHint={showDateHints ? "mm/dd/yyyy" : ""}
+                            startDatePickerProps={{
+                                id: "start-date",
+                                name: "start-date-picker",
+                                onChange: (val?: string) => {
+                                    if (isValidDateString(val)) {
+                                        setRangeFrom(new Date(val!!));
+                                    }
+                                },
+                            }}
+                            endDateLabel={endDateLabel}
+                            endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
+                            endDatePickerProps={{
+                                id: "end-date",
+                                name: "end-date-picker",
+                                onChange: (val?: string) => {
+                                    if (isValidDateString(val)) {
+                                        setRangeTo(
+                                            getEndOfDay(new Date(val!!)),
+                                        );
+                                    }
+                                },
+                            }}
+                        />
+                        <div className="grid-row">
+                            <div className="grid-row flex-column">
+                                <TimePicker
+                                    hint="hh:mm"
+                                    id="start-time"
+                                    label="Start time"
+                                    name="start-time"
+                                    step={1}
+                                    onChange={(input) => {
+                                        if (input) {
+                                            setStartTime(input);
+                                        } else {
+                                            setStartTime("0:0");
+                                        }
+                                    }}
+                                />
+                                <p className="usa-hint margin-top-05 margin-bottom-0 font-body-2xs">
+                                    Default: 12:00am
                                 </p>
                             </div>
-                            {receivers && (
-                                <ComboBox
-                                    key={receivers.length}
-                                    id="input-ComboBox"
-                                    name="input-ComboBox"
-                                    options={receivers}
-                                    onChange={(selection) => {
-                                        setCurrentServiceSelect(selection);
+                            <div className="grid-row flex-column">
+                                <TimePicker
+                                    hint="hh:mm"
+                                    id="end-time"
+                                    label="End time"
+                                    name="end-time"
+                                    step={1}
+                                    onChange={(input) => {
+                                        if (input) {
+                                            setEndTime(input);
+                                        } else {
+                                            setEndTime("0:0");
+                                        }
                                     }}
                                 />
-                            )}
-                        </div>
-                        <div className="grid-col-fill filter-column__two">
-                            <div className="date-time-container">
-                                <DateRangePicker
-                                    className={StyleClass.DATE_CONTAINER}
-                                    startDateLabel={startDateLabel}
-                                    startDateHint={
-                                        showDateHints ? "mm/dd/yyyy" : ""
-                                    }
-                                    startDatePickerProps={{
-                                        id: "start-date",
-                                        name: "start-date-picker",
-                                        onChange: (val?: string) => {
-                                            if (isValidDateString(val)) {
-                                                setRangeFrom(new Date(val!!));
-                                            }
-                                        },
-                                    }}
-                                    endDateLabel={endDateLabel}
-                                    endDateHint={
-                                        showDateHints ? "mm/dd/yyyy" : ""
-                                    }
-                                    endDatePickerProps={{
-                                        id: "end-date",
-                                        name: "end-date-picker",
-                                        onChange: (val?: string) => {
-                                            if (isValidDateString(val)) {
-                                                setRangeTo(
-                                                    getEndOfDay(
-                                                        new Date(val!!),
-                                                    ),
-                                                );
-                                            }
-                                        },
-                                    }}
-                                />
-                                <div className="grid-row">
-                                    <div className="grid-row flex-column">
-                                        <TimePicker
-                                            hint="hh:mm"
-                                            id="start-time"
-                                            label="Start time"
-                                            name="start-time"
-                                            step={1}
-                                            onChange={(input) => {
-                                                if (input) {
-                                                    setStartTime(input);
-                                                } else {
-                                                    setStartTime("0:0");
-                                                }
-                                            }}
-                                        />
-                                        <p className="usa-hint margin-top-05 margin-bottom-0 font-body-2xs">
-                                            Default: 12:00am
-                                        </p>
-                                    </div>
-                                    <div className="grid-row flex-column">
-                                        <TimePicker
-                                            hint="hh:mm"
-                                            id="end-time"
-                                            label="End time"
-                                            name="end-time"
-                                            step={1}
-                                            onChange={(input) => {
-                                                if (input) {
-                                                    setEndTime(input);
-                                                } else {
-                                                    setEndTime("0:0");
-                                                }
-                                            }}
-                                        />
-                                        <p className="usa-hint margin-top-05 margin-bottom-0 font-body-2xs">
-                                            Default: 11:59pm
-                                        </p>
-                                    </div>
-                                </div>
+                                <p className="usa-hint margin-top-05 margin-bottom-0 font-body-2xs">
+                                    Default: 11:59pm
+                                </p>
                             </div>
                         </div>
-                        <div className="grid-col-auto filter-column__three">
-                            <div className="button-container">
-                                <div>
-                                    <Button
-                                        disabled={!isFilterEnabled}
-                                        type={"submit"}
-                                    >
-                                        Apply
-                                    </Button>
-                                    <Button
-                                        type={"reset"}
-                                        name="clear-button"
-                                        unstyled
-                                    >
-                                        Reset
-                                    </Button>
-                                </div>
-                            </div>
+                    </div>
+                    <div className="grid-col-fill filter-column__three">
+                        <div className="button-container">
+                            <Button
+                                className="margin-right-205"
+                                disabled={!isFilterEnabled}
+                                type={"submit"}
+                            >
+                                Apply
+                            </Button>
+                            <Button type={"reset"} name="clear-button" unstyled>
+                                Reset
+                            </Button>
                         </div>
                     </div>
                 </div>

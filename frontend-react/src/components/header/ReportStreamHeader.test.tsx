@@ -38,7 +38,7 @@ describe("SignInOrUser", () => {
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
         expect(screen.queryByText("Submissions")).not.toBeInTheDocument();
-        expect(screen.getByText("Dashboard")).toBeVisible();
+        expect(screen.getByText("Daily Data")).toBeVisible();
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
     });
 
@@ -51,7 +51,7 @@ describe("SignInOrUser", () => {
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
         expect(screen.getByText("Submissions")).toBeVisible();
-        expect(screen.getByText("Dashboard")).toBeVisible();
+        expect(screen.getByText("Daily Data")).toBeVisible();
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
     });
 
@@ -64,7 +64,7 @@ describe("SignInOrUser", () => {
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
         expect(screen.getByText("Submissions")).toBeVisible();
-        expect(screen.getByText("Dashboard")).toBeVisible();
+        expect(screen.getByText("Daily Data")).toBeVisible();
         expect(screen.getByText("Admin")).toBeVisible();
     });
 });

@@ -8,6 +8,7 @@ import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
+import { selectDatesFromRange } from "../../Table/Table.test";
 
 import ReportDetailsTable from "./ReportDetailsTable";
 
@@ -59,6 +60,7 @@ describe("ReportDetailsTable", () => {
             test("Clicking on filter invokes the trackAppInsightEvent", async () => {
                 setup();
                 await waitFor(async () => {
+                    await selectDatesFromRange("20", "23");
                     await userEvent.click(screen.getByText("Apply"));
                     expect(mockAppInsights.trackEvent).toHaveBeenCalledWith(
                         expect.objectContaining({

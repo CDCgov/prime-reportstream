@@ -16,6 +16,7 @@ import {
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
 import { MemberType } from "../../../utils/OrganizationUtils";
+import { selectDatesFromRange } from "../../../components/Table/Table.test";
 
 import DailyData from "./DailyData";
 
@@ -169,14 +170,15 @@ describe("DeliveriesTableWithNumbered", () => {
             describe("TableFilter", () => {
                 test("Clicking on Apply invokes the trackAppInsightEvent", async () => {
                     setup();
+                    await selectDatesFromRange("20", "23");
                     await userEvent.click(screen.getByText("Apply"));
 
                     expect(mockAppInsights.trackEvent).toBeCalledWith({
                         name: "Daily Data | Table Filter",
                         properties: {
                             tableFilter: {
-                                endRange: "3000-01-01T00:00:00.000Z",
-                                startRange: "2000-01-01T00:00:00.000Z",
+                                endRange: "2024-02-23T00:00:00.000Z",
+                                startRange: "2024-02-20T00:00:00.000Z",
                             },
                         },
                     });
