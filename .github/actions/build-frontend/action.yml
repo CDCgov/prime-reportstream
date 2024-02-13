@@ -107,7 +107,7 @@ runs:
       if: always()
       with:
         name: e2e-report
-        path: playwright-report/
+        path: frontend-react/playwright-report/
         retention-days: 7
 
     - name: Build release for production branch (conditional check)
