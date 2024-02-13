@@ -14,14 +14,12 @@ defaults:
     shell: bash
 
 env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     TEST_ADMIN_USERNAME: ${{ secrets.TEST_ADMIN_USERNAME }}
     TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
     TEST_SENDER_USERNAME: ${{ secrets.TEST_SENDER_USERNAME }}
     TEST_SENDER_PASSWORD: ${{ secrets.TEST_SENDER_PASSWORD }}
     TEST_RECEIVER_USERNAME: ${{ secrets.TEST_RECEIVER_USERNAME }}
     TEST_RECEIVER_PASSWORD: ${{ secrets.TEST_RECEIVER_PASSWORD }}
-    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 jobs:
   lint:
@@ -82,8 +80,23 @@ jobs:
         - name: Run E2E tests
           run: yarn run test:e2e
 
-  analysis:
-    name: Analysis
+  codeql:
+    name: CodeQL Analysis
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
+        with:
+          languages: javascript-typescript
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
+        with:
+          category: "/language:javascript-typescript"
+
+  sonarcloud:
+    name: SonarCloud Analysis
     needs: lint
     runs-on: ubuntu-latest
 
@@ -103,7 +116,7 @@ jobs:
       - name: Run SonarCloud Scan
         run: >
           npx sonarqube-scanner 
-          -Dsonar.token="$SONAR_TOKEN"
+          -Dsonar.token="${{ secrets.SONAR_TOKEN }}"
           -Dsonar.coverage.exclusions=prime-router/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
           -Dsonar.cpd.exclusions=prime-router/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
           -Dsonar.sources=frontend-react/src,prime-router/src
