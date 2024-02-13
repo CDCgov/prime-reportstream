@@ -96,6 +96,9 @@ implementation differs from what is in the spreadsheets.
 
 ### OBR/ORC -> ServiceRequest
 
+- The inventory lists ORC as a required segment with a DiagnosticReport created for each ORC. However, NIST lists
+  ORC is an optional segment. Both sources list OBR as a required segment. Thus, this implementation DiagnosticReport
+  created for each OBR.
 - There is a discrepancy on where to pull identifiers from, for ORC/OBR 2,3 the mapping contradictorily states that both
   should be preferred over the other.
   The implementation opts to operate with the same logic for mapping to DiagnosticReport and to prefer ORC when
