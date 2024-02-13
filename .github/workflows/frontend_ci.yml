@@ -83,7 +83,12 @@ jobs:
   codeql:
     name: CodeQL Analysis
     needs: lint
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
 
     steps:
       - name: Initialize CodeQL
@@ -98,6 +103,7 @@ jobs:
   sonarcloud:
     name: SonarCloud Analysis
     needs: lint
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
 
     steps:
