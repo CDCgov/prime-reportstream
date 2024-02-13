@@ -35,8 +35,9 @@ jobs:
       - name: Use Node.js with yarn
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
-            node-version-file: "frontend-react/.nvmrc"
+            node-version-file: frontend-react/.nvmrc
             cache: yarn
+            cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
         run: yarn install --frozen-lockfile --immutable
       - name: Run linting
@@ -55,6 +56,7 @@ jobs:
           with:
             node-version-file: "frontend-react/.nvmrc"
             cache: yarn
+            cache-dependency-path: frontend-react/yarn.lock
         - name: Yarn install
           run: yarn install --frozen-lockfile --immutable
         - name: Unit tests
@@ -73,6 +75,7 @@ jobs:
           with:
             node-version-file: "frontend-react/.nvmrc"
             cache: yarn
+            cache-dependency-path: frontend-react/yarn.lock
         - name: Yarn install
           run: yarn install --frozen-lockfile --immutable
         - name: Install Playwright
