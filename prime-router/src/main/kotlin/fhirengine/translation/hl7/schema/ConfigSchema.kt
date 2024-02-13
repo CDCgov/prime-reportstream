@@ -102,7 +102,7 @@ abstract class ConfigSchema<
      * @param overrideSchema the schema to override with
      * @return the reference to the schema
      */
-    open fun override(overrideSchema: ConfigSchema<Original, Converted, Schema, SchemaElement>) = apply {
+    open fun override(overrideSchema: Schema) = apply {
         overrideSchema.elements.forEach { childElement ->
             // If we find the element in the schema then replace it, otherwise add it.
             if (childElement.name.isNullOrBlank()) {

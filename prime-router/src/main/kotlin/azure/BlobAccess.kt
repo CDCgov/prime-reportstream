@@ -397,7 +397,7 @@ class BlobAccess() : Logging {
          * If one exists for the container name and connection string, the existing one will be reused.
          * @return the blob container client
          */
-        fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
+        private fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
             return if (blobContainerClients.containsKey(blobConnInfo)) {
                 blobContainerClients[blobConnInfo]!!
             } else {

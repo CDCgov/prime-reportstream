@@ -55,10 +55,9 @@ class HL7ConverterSchema(
     }
 
     override fun override(
-        overrideSchema: ConfigSchema<Bundle, Message, HL7ConverterSchema, ConverterSchemaElement>,
+        overrideSchema: HL7ConverterSchema,
     ): ConfigSchema<Bundle, Message, HL7ConverterSchema, ConverterSchemaElement> =
         apply {
-            check(overrideSchema is HL7ConverterSchema) { "Child schema ${overrideSchema.name} not a ConverterSchema." }
             overrideSchema.hl7Class?.let { this.hl7Class = overrideSchema.hl7Class }
             super.override(overrideSchema)
         }

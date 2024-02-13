@@ -64,7 +64,7 @@ class TranslationSchemaManagerTests {
             inputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_FHIR/input.fhir"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_FHIR/input.fhir"
             )
                 .inputStream().readAllBytes(),
             sourceBlobContainerMetadata
@@ -74,7 +74,7 @@ class TranslationSchemaManagerTests {
             outputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_FHIR/output.fhir"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_FHIR/output.fhir"
             )
                 .inputStream().readAllBytes(),
             sourceBlobContainerMetadata
@@ -84,7 +84,7 @@ class TranslationSchemaManagerTests {
             transformFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_FHIR/simple-transform.yml"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_FHIR/simple-transform.yml"
             )
                 .inputStream().readAllBytes(),
             sourceBlobContainerMetadata
@@ -128,7 +128,7 @@ class TranslationSchemaManagerTests {
             inputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/input.fhir"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/input.fhir"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -137,7 +137,7 @@ class TranslationSchemaManagerTests {
             outputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/output.hl7"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/output.hl7"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -146,7 +146,7 @@ class TranslationSchemaManagerTests {
             transformFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/sender-transform.yml"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/sender-transform.yml"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -155,7 +155,7 @@ class TranslationSchemaManagerTests {
             "hl7_mapping/dev/foo/distraction/sender-transform.yml",
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/sender-transform.yml"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/sender-transform.yml"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -201,7 +201,7 @@ class TranslationSchemaManagerTests {
             inputFilePath1,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/input.fhir"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/input.fhir"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -210,7 +210,7 @@ class TranslationSchemaManagerTests {
             outputFilePath1,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/output.hl7"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/output.hl7"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -219,7 +219,7 @@ class TranslationSchemaManagerTests {
             transformFilePath1,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/sender-transform.yml"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/sender-transform.yml"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -228,7 +228,7 @@ class TranslationSchemaManagerTests {
             inputFilePath2,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/input.fhir"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/input.fhir"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -237,7 +237,7 @@ class TranslationSchemaManagerTests {
             outputFilePath2,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/output.hl7"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/output.hl7"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -246,7 +246,7 @@ class TranslationSchemaManagerTests {
             transformFilePath2,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/sender-transform.yml"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/sender-transform.yml"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -285,7 +285,7 @@ class TranslationSchemaManagerTests {
             inputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/input.fhir"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/input.fhir"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -294,7 +294,7 @@ class TranslationSchemaManagerTests {
             outputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/output.hl7"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/output.hl7"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -303,7 +303,7 @@ class TranslationSchemaManagerTests {
             transformFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/sender-transform.yml"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/sender-transform.yml"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -312,7 +312,7 @@ class TranslationSchemaManagerTests {
             "hl7_mapping/dev/foo/sender-transform2.yml",
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/sender-transform.yml"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/sender-transform.yml"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -355,7 +355,7 @@ class TranslationSchemaManagerTests {
             inputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/input.fhir"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/input.fhir"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -364,7 +364,7 @@ class TranslationSchemaManagerTests {
             outputFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/output.hl7"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/output.hl7"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
@@ -373,7 +373,7 @@ class TranslationSchemaManagerTests {
             transformFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
-                    "/src/test/kotlin/fhirengine/translation/validationTests/FHIR_to_HL7/sender-transform.yml"
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/sender-transform.yml"
             ).inputStream().readAllBytes(),
             sourceBlobContainerMetadata
         )
