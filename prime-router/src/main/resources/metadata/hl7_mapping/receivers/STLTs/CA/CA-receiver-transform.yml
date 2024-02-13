@@ -151,7 +151,7 @@ elements:
     resource: '%resource.result.resolve()'
 
   # OBX-2
-  - name: obx-2-value-type
+  - name: OBX.2
     condition: false
 
   # OBX-3

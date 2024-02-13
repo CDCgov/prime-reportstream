@@ -14,7 +14,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pid-8-administrative-sex
+          value: PID.8
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -27,7 +27,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pid-18-patient-account-number
+          value: PID.18
         valueIdentifier:
           valueOf: datatypes/CX/Identifier
           expressionType: resource
@@ -40,7 +40,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pid-24-multiple-birth-indicator
+          value: PID.24
         valueString:
           type: STRING
           valueOf: PID.24
@@ -52,7 +52,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pid-30-patient-death-indicator
+          value: PID.30
         valueString:
           type: STRING
           valueOf: PID.30
@@ -66,7 +66,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pid-32-identity-reliability-code
+          value: PID.32
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -78,7 +78,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pid-38-production-class-code
+          value: PID.38
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
