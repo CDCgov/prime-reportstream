@@ -58,7 +58,7 @@ class BlobAccessTests {
     }
 
     @Nested
-    inner class BlobAccessIntegrationTests {
+    class BlobAccessIntegrationTests {
         val azuriteContainer1 =
             GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
                 .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
