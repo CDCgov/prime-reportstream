@@ -91,14 +91,17 @@ jobs:
       security-events: write
 
     steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Initialize CodeQL
         uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
         with:
           languages: javascript-typescript
+          source-root: frontend-react
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
         with:
-          category: "/language:javascript-typescript"
+          category: /language:javascript-typescript
 
   sonarcloud:
     name: SonarCloud Analysis
@@ -122,6 +125,7 @@ jobs:
       - name: Run SonarCloud Scan
         run: >
           npx sonarqube-scanner 
+          -Dsonar.serverUrl=https://sonarcloud.io
           -Dsonar.token="${{ secrets.SONAR_TOKEN }}"
           -Dsonar.coverage.exclusions=prime-router/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
           -Dsonar.cpd.exclusions=prime-router/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
