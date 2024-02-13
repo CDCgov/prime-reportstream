@@ -1,1752 +1,1308 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1707329730204873000.c84a8f61-24b3-4a11-9f06-fe6eba8d753f",
+  "id" : "1707767826977851000.ab6ca6b9-8632-4414-834d-8da28ec9c410",
   "meta" : {
-    "lastUpdated" : "2024-02-07T13:15:30.211-05:00"
+    "lastUpdated" : "2024-02-12T13:57:06.987-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "12345"
   },
   "type" : "message",
-  "timestamp" : "2023-05-01T10:25:31.000-04:00",
-  "entry" : [
-    {
-      "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
-      "resource" : {
-        "resourceType" : "MessageHeader",
-        "id" : "827ccb0e-ea8a-306c-8c34-a16891f84e7b",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
-            "valueString" : "^~\\&#"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-            "valueString" : "UNICODE UTF-8"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
-            "extension" : [
-              {
-                "url" : "MSH.7",
-                "valueString" : "20230501102531-0400"
-              }
-            ]
-          }
-        ],
-        "eventCoding" : {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-          "code" : "R01",
+  "timestamp" : "2023-05-01T09:25:31.000-05:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "827ccb0e-ea8a-306c-8c34-a16891f84e7b",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
+        "valueString" : "UNICODE UTF-8"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+        "extension" : [ {
+          "url" : "MSH.7",
+          "valueString" : "20230501102531-0400"
+        } ]
+      } ],
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU^R01^ORU_R01"
+      },
+      "sender" : {
+        "reference" : "Organization/1707767827064965000.8324a400-50ef-4d18-817c-1e4d7f3f515b"
+      },
+      "source" : {
+        "_endpoint" : {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+            "valueCode" : "unknown"
+          } ]
+        }
+      }
+    }
+  }, {
+    "fullUrl" : "Organization/1707767827064965000.8324a400-50ef-4d18-817c-1e4d7f3f515b",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1707767827064965000.8324a400-50ef-4d18-817c-1e4d7f3f515b",
+      "address" : [ {
+        "country" : "USA"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Provenance/1707767827596660000.9d6a3f10-5d01-4c0e-b223-32635a11aa3f",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1707767827596660000.9d6a3f10-5d01-4c0e-b223-32635a11aa3f",
+      "target" : [ {
+        "reference" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b"
+      }, {
+        "reference" : "DiagnosticReport/1707767828040621000.b87bd2a7-65d1-4bfb-a6f0-6838b40a6808"
+      } ],
+      "recorded" : "2023-05-01T10:25:31-04:00",
+      "activity" : {
+        "coding" : [ {
           "display" : "ORU^R01^ORU_R01"
-        },
-        "sender" : {
-          "reference" : "Organization/1707329730254868000.89ebe939-39d2-4db8-a8c8-df994141e34b"
-        },
-        "source" : {
-          "_endpoint" : {
-            "extension" : [
-              {
-                "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
-                "valueCode" : "unknown"
-              }
-            ]
-          }
-        }
+        } ]
       }
-    },
-    {
-      "fullUrl" : "Organization/1707329730254868000.89ebe939-39d2-4db8-a8c8-df994141e34b",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1707329730254868000.89ebe939-39d2-4db8-a8c8-df994141e34b",
-        "address" : [
-          {
-            "country" : "USA"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Provenance/1707329730595849000.6ee67dbc-de25-4836-8d85-936656ecad18",
-      "resource" : {
-        "resourceType" : "Provenance",
-        "id" : "1707329730595849000.6ee67dbc-de25-4836-8d85-936656ecad18",
-        "target" : [
-          {
-            "reference" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b"
-          },
-          {
-            "reference" : "DiagnosticReport/1707329730816839000.2395bca1-283e-426b-8b4c-e4bcd16bef1c"
-          }
-        ],
-        "recorded" : "2023-05-01T10:25:31-04:00",
-        "activity" : {
-          "coding" : [
-            {
-              "display" : "ORU^R01^ORU_R01"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "fullUrl" : "Provenance/1707329730603620000.3e4124e8-f60f-467e-bd9e-80580205e8d6",
-      "resource" : {
-        "resourceType" : "Provenance",
-        "id" : "1707329730603620000.3e4124e8-f60f-467e-bd9e-80580205e8d6",
-        "recorded" : "2024-02-07T13:15:30Z",
-        "policy" : [
-          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
-        ],
-        "activity" : {
-          "coding" : [
-            {
-              "code" : "v2-FHIR transformation"
-            }
-          ]
-        },
-        "agent" : [
-          {
-            "type" : {
-              "coding" : [
-                {
-                  "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-                  "code" : "assembler"
-                }
-              ]
-            },
-            "who" : {
-              "reference" : "Organization/1707329730603186000.bf63bd71-6d10-4392-b9cc-439fae8d30e9"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Organization/1707329730603186000.bf63bd71-6d10-4392-b9cc-439fae8d30e9",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1707329730603186000.bf63bd71-6d10-4392-b9cc-439fae8d30e9",
-        "identifier" : [
-          {
-            "value" : "CDC PRIME - Atlanta"
-          },
-          {
-            "type" : {
-              "coding" : [
-                {
-                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
-                }
-              ]
-            },
-            "system" : "urn:ietf:rfc:3986",
-            "value" : "2.16.840.1.114222.4.1.237821"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615",
-      "resource" : {
-        "resourceType" : "Patient",
-        "id" : "1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
-      }
-    },
-    {
-      "fullUrl" : "Provenance/1707329730618999000.3a1393ec-6c79-4892-9723-9b88a8ed293e",
-      "resource" : {
-        "resourceType" : "Provenance",
-        "id" : "1707329730618999000.3a1393ec-6c79-4892-9723-9b88a8ed293e",
-        "target" : [
-          {
-            "reference" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
-          }
-        ],
-        "recorded" : "2024-02-07T13:15:30Z",
-        "activity" : {
-          "coding" : [
-            {
-              "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
-              "code" : "UPDATE"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "fullUrl" : "Specimen/1707329730638887000.bb67a7f6-12ff-4b7c-b99b-ca34c8b97864",
-      "resource" : {
-        "resourceType" : "Specimen",
-        "id" : "1707329730638887000.bb67a7f6-12ff-4b7c-b99b-ca34c8b97864",
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/spm-specimen",
-            "extension" : [
-              {
-                "url" : "spm-3-specimen-parent-id-placer",
-                "valueIdentifier" : {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                      "valueString" : "Any lab USA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                      "valueString" : "36D1332559"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                      "valueString" : "CLIA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
-                          "valueString" : "380604"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                          "valueString" : "Any lab USA"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                          "valueString" : "36D1332559"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                          "valueString" : "CLIA"
-                        }
-                      ]
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                      "valueString" : "SPM.3"
-                    }
-                  ],
-                  "type" : {
-                    "coding" : [
-                      {
-                        "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                        "code" : "PGN"
-                      }
-                    ]
-                  },
-                  "value" : "380604"
-                }
-              },
-              {
-                "url" : "spm-3-specimen-parent-id-placer",
-                "valueIdentifier" : {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                      "valueString" : "Any lab USA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                      "valueString" : "36D1332559"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                      "valueString" : "CLIA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
-                          "valueString" : "380604"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                          "valueString" : "Any lab USA"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                          "valueString" : "36D1332559"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                          "valueString" : "CLIA"
-                        }
-                      ]
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                      "valueString" : "SPM.3"
-                    }
-                  ],
-                  "type" : {
-                    "coding" : [
-                      {
-                        "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                        "code" : "PGN"
-                      }
-                    ]
-                  },
-                  "value" : "380604"
-                }
-              },
-              {
-                "url" : "spm-3-specimen-parent-id-filler",
-                "valueIdentifier" : {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                      "valueString" : "Any lab USA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                      "valueString" : "36D1332559"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                      "valueString" : "CLIA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
-                          "valueString" : "380604"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                          "valueString" : "Any lab USA"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                          "valueString" : "36D1332559"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                          "valueString" : "CLIA"
-                        }
-                      ]
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                      "valueString" : "SPM.3"
-                    }
-                  ],
-                  "type" : {
-                    "coding" : [
-                      {
-                        "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                        "code" : "FGN"
-                      }
-                    ]
-                  },
-                  "value" : "380604"
-                }
-              },
-              {
-                "url" : "spm-3-specimen-parent-id-filler",
-                "valueIdentifier" : {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                      "valueString" : "Any lab USA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                      "valueString" : "36D1332559"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                      "valueString" : "CLIA"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
-                          "valueString" : "380604"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                          "valueString" : "Any lab USA"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                          "valueString" : "36D1332559"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                          "valueString" : "CLIA"
-                        }
-                      ]
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                      "valueString" : "SPM.3"
-                    }
-                  ],
-                  "type" : {
-                    "coding" : [
-                      {
-                        "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                        "code" : "FGN"
-                      }
-                    ]
-                  },
-                  "value" : "380604"
-                }
-              },
-              {
-                "url" : "spm-20-specimen-availability",
-                "valueString" : "Y"
-              },
-              {
-                "url" : "spm-22-specimen-quality",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-23-specimen-appropriateness",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-25-specimen-current-quantity",
-                "valueQuantity" : {
-                  "value" : 1
-                }
-              },
-              {
-                "url" : "spm-26-number-of-specimen-containers",
-                "valueString" : "2"
-              },
-              {
-                "url" : "spm-28-container-condition",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-29-specimen-child-role",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-5-specimen-type-modifier",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-5-specimen-type-modifier",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-6-specimen-additives",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-6-specimen-additives",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-10-specimen-collection-site",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-11-specimen-role",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-11-specimen-role",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-13-grouped-specimen-count",
-                "valueString" : "2"
-              },
-              {
-                "url" : "spm-15-specimen-handling-code",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-15-specimen-handling-code",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-16-specimen-risk-code",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-16-specimen-risk-code",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "SCT"
-                        }
-                      ],
-                      "system" : "http://snomed.info/sct",
-                      "version" : "2.67",
-                      "code" : "440500007",
-                      "display" : "SNOMEDTEXT"
-                    },
-                    {
-                      "extension" : [
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString" : "alt-coding"
-                        },
-                        {
-                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString" : "LN"
-                        }
-                      ],
-                      "system" : "http://loinc.org",
-                      "code" : "12345-6",
-                      "display" : "LOINCTEXT"
-                    }
-                  ]
-                }
-              },
-              {
-                "url" : "spm-19-specimen-expiration-date",
-                "valueString" : "20210604112507+0000"
-              }
-            ]
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/reject-reason",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                      "valueString" : "SCT"
-                    }
-                  ],
-                  "system" : "http://snomed.info/sct",
-                  "version" : "2.67",
-                  "code" : "440500007",
-                  "display" : "SNOMEDTEXT"
-                },
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "alt-coding"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                      "valueString" : "LN"
-                    }
-                  ],
-                  "system" : "http://loinc.org",
-                  "code" : "12345-6",
-                  "display" : "LOINCTEXT"
-                }
-              ]
-            }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/reject-reason",
-            "valueCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                      "valueString" : "SCT"
-                    }
-                  ],
-                  "system" : "http://snomed.info/sct",
-                  "version" : "2.67",
-                  "code" : "440500007",
-                  "display" : "SNOMEDTEXT"
-                },
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "alt-coding"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                      "valueString" : "LN"
-                    }
-                  ],
-                  "system" : "http://loinc.org",
-                  "code" : "12345-6",
-                  "display" : "LOINCTEXT"
-                }
-              ]
-            }
-          }
-        ],
-        "identifier" : [
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Any lab USA-p"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString" : "36D1332559-p"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                "valueString" : "CLIA-p"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
-                    "valueString" : "380604-s"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                    "valueString" : "Any lab USA-s"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                    "valueString" : "36D1332559-s"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                    "valueString" : "CLIA-s"
-                  }
-                ]
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component",
-                "valueString" : "SPM.2.1"
-              }
-            ],
-            "type" : {
-              "coding" : [
-                {
-                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                  "code" : "PGN"
-                }
-              ]
-            },
-            "value" : "380604-p"
-          },
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Any lab USA-s"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString" : "36D1332559-s"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                "valueString" : "CLIA-s"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
-                    "valueString" : "380604-p"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                    "valueString" : "Any lab USA-p"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                    "valueString" : "36D1332559-p"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                    "valueString" : "CLIA-p"
-                  }
-                ]
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component",
-                "valueString" : "SPM.2.2"
-              }
-            ],
-            "type" : {
-              "coding" : [
-                {
-                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                  "code" : "FGN"
-                }
-              ]
-            },
-            "value" : "380604-s"
-          },
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                "valueString" : "SPM.31"
-              }
-            ],
-            "value" : "IDNumber"
-          },
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                "valueString" : "SPM.32"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
-                    "valueString" : "Namespace ID"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
-                    "valueString" : "Universal ID"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                    "valueCode" : "Universal ID Type"
-                  }
-                ]
-              }
-            ],
-            "type" : {
-              "coding" : [
-                {
-                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                  "code" : "SHIP"
-                }
-              ]
-            },
-            "value" : "Entity Identifier"
-          }
-        ],
-        "accessionIdentifier" : {
-          "value" : "IDNumber"
-        },
-        "status" : "available",
+    }
+  }, {
+    "fullUrl" : "Provenance/1707767827609059000.f5d6cec7-2a49-4915-af3b-cbe4464c83d4",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1707767827609059000.f5d6cec7-2a49-4915-af3b-cbe4464c83d4",
+      "recorded" : "2024-02-12T13:57:07Z",
+      "policy" : [ "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle" ],
+      "activity" : {
+        "coding" : [ {
+          "code" : "v2-FHIR transformation"
+        } ]
+      },
+      "agent" : [ {
         "type" : {
-          "coding" : [
-            {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString" : "coding"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString" : "SCT"
-                }
-              ],
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "assembler"
+          } ]
+        },
+        "who" : {
+          "reference" : "Organization/1707767827607882000.6d37ee80-9e14-46e0-b0fe-f02f5d2267d1"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1707767827607882000.6d37ee80-9e14-46e0-b0fe-f02f5d2267d1",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1707767827607882000.6d37ee80-9e14-46e0-b0fe-f02f5d2267d1",
+      "identifier" : [ {
+        "value" : "CDC PRIME - Atlanta"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+          } ]
+        },
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "2.16.840.1.114222.4.1.237821"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Patient/1707767827638953000.eab509d3-123a-4eac-a205-005badb59c7e",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1707767827638953000.eab509d3-123a-4eac-a205-005badb59c7e"
+    }
+  }, {
+    "fullUrl" : "Provenance/1707767827640627000.45d368c5-d5d7-4efa-bdf4-0eb91a6be76c",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1707767827640627000.45d368c5-d5d7-4efa-bdf4-0eb91a6be76c",
+      "target" : [ {
+        "reference" : "Patient/1707767827638953000.eab509d3-123a-4eac-a205-005badb59c7e"
+      } ],
+      "recorded" : "2024-02-12T13:57:07Z",
+      "activity" : {
+        "coding" : [ {
+          "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+          "code" : "UPDATE"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Specimen/1707767827644315000.84bdcd2c-14e1-42b0-b1cc-3a18aba84400",
+    "resource" : {
+      "resourceType" : "Specimen",
+      "id" : "1707767827644315000.84bdcd2c-14e1-42b0-b1cc-3a18aba84400",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+        "valueString" : "OBR"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Specimen/1707767828001643000.a14a44b7-9d4d-4d16-91b4-7924fe3fba94",
+    "resource" : {
+      "resourceType" : "Specimen",
+      "id" : "1707767828001643000.a14a44b7-9d4d-4d16-91b4-7924fe3fba94",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+        "valueString" : "SPM"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/spm-specimen",
+        "extension" : [ {
+          "url" : "spm-3-specimen-parent-id-placer",
+          "valueIdentifier" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+              "valueString" : "Any lab USA"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+              "valueString" : "36D1332559"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+              "valueString" : "CLIA"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                "valueString" : "380604"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "valueString" : "Any lab USA"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString" : "36D1332559"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString" : "CLIA"
+              } ]
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+              "valueString" : "SPM.3"
+            } ],
+            "type" : {
+              "coding" : [ {
+                "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code" : "PGN"
+              } ]
+            },
+            "value" : "380604"
+          }
+        }, {
+          "url" : "spm-3-specimen-parent-id-placer",
+          "valueIdentifier" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+              "valueString" : "Any lab USA"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+              "valueString" : "36D1332559"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+              "valueString" : "CLIA"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                "valueString" : "380604"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "valueString" : "Any lab USA"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString" : "36D1332559"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString" : "CLIA"
+              } ]
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+              "valueString" : "SPM.3"
+            } ],
+            "type" : {
+              "coding" : [ {
+                "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code" : "PGN"
+              } ]
+            },
+            "value" : "380604"
+          }
+        }, {
+          "url" : "spm-3-specimen-parent-id-filler",
+          "valueIdentifier" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+              "valueString" : "Any lab USA"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+              "valueString" : "36D1332559"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+              "valueString" : "CLIA"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                "valueString" : "380604"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "valueString" : "Any lab USA"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString" : "36D1332559"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString" : "CLIA"
+              } ]
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+              "valueString" : "SPM.3"
+            } ],
+            "type" : {
+              "coding" : [ {
+                "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code" : "FGN"
+              } ]
+            },
+            "value" : "380604"
+          }
+        }, {
+          "url" : "spm-3-specimen-parent-id-filler",
+          "valueIdentifier" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+              "valueString" : "Any lab USA"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+              "valueString" : "36D1332559"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+              "valueString" : "CLIA"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                "valueString" : "380604"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "valueString" : "Any lab USA"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString" : "36D1332559"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString" : "CLIA"
+              } ]
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+              "valueString" : "SPM.3"
+            } ],
+            "type" : {
+              "coding" : [ {
+                "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code" : "FGN"
+              } ]
+            },
+            "value" : "380604"
+          }
+        }, {
+          "url" : "spm-20-specimen-availability",
+          "valueString" : "Y"
+        }, {
+          "url" : "spm-22-specimen-quality",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
               "system" : "http://snomed.info/sct",
               "version" : "2.67",
               "code" : "440500007",
               "display" : "SNOMEDTEXT"
-            },
-            {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString" : "alt-coding"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString" : "LN"
-                }
-              ],
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
               "system" : "http://loinc.org",
               "code" : "12345-6",
               "display" : "LOINCTEXT"
-            }
-          ]
-        },
-        "receivedTime" : "2021-06-04T11:25:06Z",
-        "_receivedTime" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueString" : "20210604112506+0000"
-            }
-          ]
-        },
-        "parent" : [
-          {
-            "reference" : "Specimen/1707329730625371000.b095de35-e2e5-4ce1-bba3-40574929c680"
+            } ]
           }
-        ],
-        "collection" : {
-          "extension" : [
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/bodySiteModifier",
-              "valueCodeableConcept" : {
-                "coding" : [
-                  {
-                    "extension" : [
-                      {
-                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                        "valueString" : "coding"
-                      },
-                      {
-                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                        "valueString" : "SCT"
-                      }
-                    ],
-                    "system" : "http://snomed.info/sct",
-                    "version" : "2.67",
-                    "code" : "440500007",
-                    "display" : "SNOMEDTEXT"
-                  },
-                  {
-                    "extension" : [
-                      {
-                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                        "valueString" : "alt-coding"
-                      },
-                      {
-                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                        "valueString" : "LN"
-                      }
-                    ],
-                    "system" : "http://loinc.org",
-                    "code" : "12345-6",
-                    "display" : "LOINCTEXT"
-                  }
-                ]
-              }
-            },
-            {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/bodySiteModifier",
-              "valueCodeableConcept" : {
-                "coding" : [
-                  {
-                    "extension" : [
-                      {
-                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                        "valueString" : "coding"
-                      },
-                      {
-                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                        "valueString" : "SCT"
-                      }
-                    ],
-                    "system" : "http://snomed.info/sct",
-                    "version" : "2.67",
-                    "code" : "440500007",
-                    "display" : "SNOMEDTEXT"
-                  },
-                  {
-                    "extension" : [
-                      {
-                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                        "valueString" : "alt-coding"
-                      },
-                      {
-                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                        "valueString" : "LN"
-                      }
-                    ],
-                    "system" : "http://loinc.org",
-                    "code" : "12345-6",
-                    "display" : "LOINCTEXT"
-                  }
-                ]
-              }
-            }
-          ],
-          "collectedPeriod" : {
-            "start" : "2021-06-04T11:25:00Z",
-            "_start" : {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-                  "valueString" : "20210604112500+0000"
-                }
-              ]
-            },
-            "_end" : {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-                  "valueString" : "test"
-                }
-              ]
-            }
-          },
-          "quantity" : {
+        }, {
+          "url" : "spm-23-specimen-appropriateness",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
+          }
+        }, {
+          "url" : "spm-25-specimen-current-quantity",
+          "valueQuantity" : {
             "value" : 1
-          },
-          "method" : {
-            "coding" : [
-              {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString" : "coding"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                    "valueString" : "SCT"
-                  }
-                ],
-                "system" : "http://snomed.info/sct",
-                "version" : "2.67",
-                "code" : "440500007",
-                "display" : "SNOMEDTEXT"
-              },
-              {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString" : "alt-coding"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                    "valueString" : "LN"
-                  }
-                ],
-                "system" : "http://loinc.org",
-                "code" : "12345-6",
-                "display" : "LOINCTEXT"
-              }
-            ]
-          },
-          "bodySite" : {
-            "coding" : [
-              {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString" : "coding"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                    "valueString" : "SCT"
-                  }
-                ],
-                "system" : "http://snomed.info/sct",
-                "version" : "2020-09-01",
-                "code" : "71836000",
-                "display" : "Nasopharyngeal structure (body structure)"
-              }
-            ]
           }
-        },
-        "container" : [
-          {
-            "type" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                      "valueString" : "SCT"
-                    }
-                  ],
-                  "system" : "http://snomed.info/sct",
-                  "version" : "2.67",
-                  "code" : "440500007",
-                  "display" : "SNOMEDTEXT"
-                },
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "alt-coding"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                      "valueString" : "LN"
-                    }
-                  ],
-                  "system" : "http://loinc.org",
-                  "code" : "12345-6",
-                  "display" : "LOINCTEXT"
-                }
-              ]
-            },
-            "additiveCodeableConcept" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "coding"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                      "valueString" : "SCT"
-                    }
-                  ],
-                  "system" : "http://snomed.info/sct",
-                  "version" : "2.67",
-                  "code" : "440500007",
-                  "display" : "SNOMEDTEXT"
-                },
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString" : "alt-coding"
-                    },
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                      "valueString" : "LN"
-                    }
-                  ],
-                  "system" : "http://loinc.org",
-                  "code" : "12345-6",
-                  "display" : "LOINCTEXT"
-                }
-              ]
-            }
+        }, {
+          "url" : "spm-26-number-of-specimen-containers",
+          "valueString" : "2"
+        }, {
+          "url" : "spm-28-container-condition",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
           }
-        ],
-        "condition" : [
-          {
-            "coding" : [
-              {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString" : "coding"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                    "valueString" : "SCT"
-                  }
-                ],
-                "system" : "http://snomed.info/sct",
-                "version" : "2.67",
-                "code" : "440500007",
-                "display" : "SNOMEDTEXT"
-              },
-              {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString" : "alt-coding"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                    "valueString" : "LN"
-                  }
-                ],
-                "system" : "http://loinc.org",
-                "code" : "12345-6",
-                "display" : "LOINCTEXT"
-              }
-            ]
-          },
-          {
-            "coding" : [
-              {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString" : "coding"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                    "valueString" : "SCT"
-                  }
-                ],
-                "system" : "http://snomed.info/sct",
-                "version" : "2.67",
-                "code" : "440500007",
-                "display" : "SNOMEDTEXT"
-              },
-              {
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString" : "alt-coding"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                    "valueString" : "LN"
-                  }
-                ],
-                "system" : "http://loinc.org",
-                "code" : "12345-6",
-                "display" : "LOINCTEXT"
-              }
-            ]
+        }, {
+          "url" : "spm-29-specimen-child-role",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
           }
-        ],
-        "note" : [
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                "valueString" : "SPM.14"
-              }
-            ],
-            "text" : "TEST"
-          },
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                "valueString" : "SPM.14"
-              }
-            ],
-            "text" : "TEST Two"
+        }, {
+          "url" : "spm-5-specimen-type-modifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
           }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Specimen/1707329730625371000.b095de35-e2e5-4ce1-bba3-40574929c680",
-      "resource" : {
-        "resourceType" : "Specimen",
-        "id" : "1707329730625371000.b095de35-e2e5-4ce1-bba3-40574929c680",
-        "identifier" : [
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Any lab USA"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString" : "36D1332559"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                "valueString" : "CLIA"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
-                    "valueString" : "380604"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                    "valueString" : "Any lab USA"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                    "valueString" : "36D1332559"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                    "valueString" : "CLIA"
-                  }
-                ]
-              }
-            ],
-            "type" : {
-              "coding" : [
-                {
-                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                  "code" : "PGN"
-                }
-              ]
-            },
-            "value" : "380604"
-          },
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString" : "Any lab USA"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString" : "36D1332559"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                "valueString" : "CLIA"
-              },
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
-                "extension" : [
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
-                    "valueString" : "380604"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                    "valueString" : "Any lab USA"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                    "valueString" : "36D1332559"
-                  },
-                  {
-                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-                    "valueString" : "CLIA"
-                  }
-                ]
-              }
-            ],
-            "type" : {
-              "coding" : [
-                {
-                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                  "code" : "FGN"
-                }
-              ]
-            },
-            "value" : "380604"
+        }, {
+          "url" : "spm-5-specimen-type-modifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
           }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "ServiceRequest/1707329730815001000.e9adfcca-a79a-40b4-9459-605056372f6e",
-      "resource" : {
-        "resourceType" : "ServiceRequest",
-        "id" : "1707329730815001000.e9adfcca-a79a-40b4-9459-605056372f6e",
-        "status" : "unknown",
-        "code" : {
-          "coding" : [
-            {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString" : "coding"
-                }
-              ],
-              "code" : "TEST"
-            }
-          ]
-        },
-        "subject" : {
-          "reference" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
+        }, {
+          "url" : "spm-6-specimen-additives",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
+          }
+        }, {
+          "url" : "spm-6-specimen-additives",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
+          }
+        }, {
+          "url" : "spm-10-specimen-collection-site",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
+          }
+        }, {
+          "url" : "spm-11-specimen-role",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
+          }
+        }, {
+          "url" : "spm-11-specimen-role",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
+          }
+        }, {
+          "url" : "spm-13-grouped-specimen-count",
+          "valueString" : "2"
+        }, {
+          "url" : "spm-15-specimen-handling-code",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
+          }
+        }, {
+          "url" : "spm-15-specimen-handling-code",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
+          }
+        }, {
+          "url" : "spm-16-specimen-risk-code",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
+          }
+        }, {
+          "url" : "spm-16-specimen-risk-code",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
+          }
+        }, {
+          "url" : "spm-19-specimen-expiration-date",
+          "valueString" : "20210604112507+0000"
+        } ]
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/reject-reason",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "SCT"
+            } ],
+            "system" : "http://snomed.info/sct",
+            "version" : "2.67",
+            "code" : "440500007",
+            "display" : "SNOMEDTEXT"
+          }, {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "alt-coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "LN"
+            } ],
+            "system" : "http://loinc.org",
+            "code" : "12345-6",
+            "display" : "LOINCTEXT"
+          } ]
         }
-      }
-    },
-    {
-      "fullUrl" : "DiagnosticReport/1707329730816839000.2395bca1-283e-426b-8b4c-e4bcd16bef1c",
-      "resource" : {
-        "resourceType" : "DiagnosticReport",
-        "id" : "1707329730816839000.2395bca1-283e-426b-8b4c-e4bcd16bef1c",
-        "basedOn" : [
-          {
-            "reference" : "ServiceRequest/1707329730815001000.e9adfcca-a79a-40b4-9459-605056372f6e"
-          }
-        ],
-        "status" : "final",
-        "code" : {
-          "coding" : [
-            {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString" : "coding"
-                }
-              ],
-              "code" : "TEST"
-            }
-          ]
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/reject-reason",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "SCT"
+            } ],
+            "system" : "http://snomed.info/sct",
+            "version" : "2.67",
+            "code" : "440500007",
+            "display" : "SNOMEDTEXT"
+          }, {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "alt-coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "LN"
+            } ],
+            "system" : "http://loinc.org",
+            "code" : "12345-6",
+            "display" : "LOINCTEXT"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+          "valueString" : "Any lab USA-p"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueString" : "36D1332559-p"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+          "valueString" : "CLIA-p"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+            "valueString" : "380604-s"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+            "valueString" : "Any lab USA-s"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+            "valueString" : "36D1332559-s"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+            "valueString" : "CLIA-s"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component",
+          "valueString" : "SPM.2.1"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN"
+          } ]
         },
-        "subject" : {
-          "reference" : "Patient/1707329730618251000.4db06eac-5ec7-408e-9374-baf319ea5615"
+        "value" : "380604-p"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+          "valueString" : "Any lab USA-s"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueString" : "36D1332559-s"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+          "valueString" : "CLIA-s"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+            "valueString" : "380604-p"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+            "valueString" : "Any lab USA-p"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+            "valueString" : "36D1332559-p"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+            "valueString" : "CLIA-p"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component",
+          "valueString" : "SPM.2.2"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FGN"
+          } ]
         },
-        "specimen" : [
-          {
-            "reference" : "Specimen/1707329730638887000.bb67a7f6-12ff-4b7c-b99b-ca34c8b97864"
+        "value" : "380604-s"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "SPM.31"
+        } ],
+        "value" : "IDNumber"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "SPM.32"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+            "valueString" : "Namespace ID"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+            "valueString" : "Universal ID"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+            "valueCode" : "Universal ID Type"
+          } ]
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "SHIP"
+          } ]
+        },
+        "value" : "Entity Identifier"
+      } ],
+      "accessionIdentifier" : {
+        "value" : "IDNumber"
+      },
+      "status" : "available",
+      "type" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "SCT"
+          } ],
+          "system" : "http://snomed.info/sct",
+          "version" : "2.67",
+          "code" : "440500007",
+          "display" : "SNOMEDTEXT"
+        }, {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "alt-coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "LN"
+          } ],
+          "system" : "http://loinc.org",
+          "code" : "12345-6",
+          "display" : "LOINCTEXT"
+        } ]
+      },
+      "receivedTime" : "2021-06-04T11:25:06Z",
+      "_receivedTime" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+          "valueString" : "20210604112506+0000"
+        } ]
+      },
+      "parent" : [ {
+        "reference" : "Specimen/1707767827966148000.ee5be468-3700-4725-b667-43a64e2391d8"
+      } ],
+      "collection" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/bodySiteModifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
           }
-        ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/bodySiteModifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "SCT"
+              } ],
+              "system" : "http://snomed.info/sct",
+              "version" : "2.67",
+              "code" : "440500007",
+              "display" : "SNOMEDTEXT"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "LN"
+              } ],
+              "system" : "http://loinc.org",
+              "code" : "12345-6",
+              "display" : "LOINCTEXT"
+            } ]
+          }
+        } ],
+        "collectedPeriod" : {
+          "start" : "2021-06-04T11:25:00Z",
+          "_start" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20210604112500+0000"
+            } ]
+          },
+          "_end" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "test"
+            } ]
+          }
+        },
+        "quantity" : {
+          "value" : 1
+        },
+        "method" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "SCT"
+            } ],
+            "system" : "http://snomed.info/sct",
+            "version" : "2.67",
+            "code" : "440500007",
+            "display" : "SNOMEDTEXT"
+          }, {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "alt-coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "LN"
+            } ],
+            "system" : "http://loinc.org",
+            "code" : "12345-6",
+            "display" : "LOINCTEXT"
+          } ]
+        },
+        "bodySite" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "SCT"
+            } ],
+            "system" : "http://snomed.info/sct",
+            "version" : "2020-09-01",
+            "code" : "71836000",
+            "display" : "Nasopharyngeal structure (body structure)"
+          } ]
+        }
+      },
+      "container" : [ {
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "SCT"
+            } ],
+            "system" : "http://snomed.info/sct",
+            "version" : "2.67",
+            "code" : "440500007",
+            "display" : "SNOMEDTEXT"
+          }, {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "alt-coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "LN"
+            } ],
+            "system" : "http://loinc.org",
+            "code" : "12345-6",
+            "display" : "LOINCTEXT"
+          } ]
+        },
+        "additiveCodeableConcept" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "SCT"
+            } ],
+            "system" : "http://snomed.info/sct",
+            "version" : "2.67",
+            "code" : "440500007",
+            "display" : "SNOMEDTEXT"
+          }, {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "alt-coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "LN"
+            } ],
+            "system" : "http://loinc.org",
+            "code" : "12345-6",
+            "display" : "LOINCTEXT"
+          } ]
+        }
+      } ],
+      "condition" : [ {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "SCT"
+          } ],
+          "system" : "http://snomed.info/sct",
+          "version" : "2.67",
+          "code" : "440500007",
+          "display" : "SNOMEDTEXT"
+        }, {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "alt-coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "LN"
+          } ],
+          "system" : "http://loinc.org",
+          "code" : "12345-6",
+          "display" : "LOINCTEXT"
+        } ]
+      }, {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "SCT"
+          } ],
+          "system" : "http://snomed.info/sct",
+          "version" : "2.67",
+          "code" : "440500007",
+          "display" : "SNOMEDTEXT"
+        }, {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "alt-coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "LN"
+          } ],
+          "system" : "http://loinc.org",
+          "code" : "12345-6",
+          "display" : "LOINCTEXT"
+        } ]
+      } ],
+      "note" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "SPM.14"
+        } ],
+        "text" : "TEST"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "SPM.14"
+        } ],
+        "text" : "TEST Two"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Specimen/1707767827966148000.ee5be468-3700-4725-b667-43a64e2391d8",
+    "resource" : {
+      "resourceType" : "Specimen",
+      "id" : "1707767827966148000.ee5be468-3700-4725-b667-43a64e2391d8",
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+          "valueString" : "Any lab USA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueString" : "36D1332559"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+          "valueString" : "CLIA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+            "valueString" : "380604"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+            "valueString" : "Any lab USA"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+            "valueString" : "36D1332559"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+            "valueString" : "CLIA"
+          } ]
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN"
+          } ]
+        },
+        "value" : "380604"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+          "valueString" : "Any lab USA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueString" : "36D1332559"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+          "valueString" : "CLIA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier",
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+            "valueString" : "380604"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+            "valueString" : "Any lab USA"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+            "valueString" : "36D1332559"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+            "valueString" : "CLIA"
+          } ]
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FGN"
+          } ]
+        },
+        "value" : "380604"
+      } ]
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/1707767828036718000.8aca5183-5d65-4870-a74b-e1bf5ba9a917",
+    "resource" : {
+      "resourceType" : "ServiceRequest",
+      "id" : "1707767828036718000.8aca5183-5d65-4870-a74b-e1bf5ba9a917",
+      "status" : "unknown",
+      "code" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "coding"
+          } ],
+          "code" : "TEST"
+        } ]
+      },
+      "subject" : {
+        "reference" : "Patient/1707767827638953000.eab509d3-123a-4eac-a205-005badb59c7e"
       }
     }
-  ]
+  }, {
+    "fullUrl" : "DiagnosticReport/1707767828040621000.b87bd2a7-65d1-4bfb-a6f0-6838b40a6808",
+    "resource" : {
+      "resourceType" : "DiagnosticReport",
+      "id" : "1707767828040621000.b87bd2a7-65d1-4bfb-a6f0-6838b40a6808",
+      "basedOn" : [ {
+        "reference" : "ServiceRequest/1707767828036718000.8aca5183-5d65-4870-a74b-e1bf5ba9a917"
+      } ],
+      "status" : "final",
+      "code" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "coding"
+          } ],
+          "code" : "TEST"
+        } ]
+      },
+      "subject" : {
+        "reference" : "Patient/1707767827638953000.eab509d3-123a-4eac-a205-005badb59c7e"
+      },
+      "specimen" : [ {
+        "reference" : "Specimen/1707767828001643000.a14a44b7-9d4d-4d16-91b4-7924fe3fba94"
+      }, {
+        "reference" : "Specimen/1707767827644315000.84bdcd2c-14e1-42b0-b1cc-3a18aba84400"
+      } ]
+    }
+  } ]
 }

@@ -1,6 +1,5 @@
-import config from "../config";
-
 import AuthResource from "./AuthResource";
+import config from "../config";
 
 const { RS_API_URL } = config;
 
@@ -21,9 +20,7 @@ export default class FacilityResource extends AuthResource {
 
        >>> Kevin Haube, October 4, 2021
     */
-    static get key() {
-        return "FacilityResource";
-    }
+    static readonly key = "FacilityResource";
 
     /* INFO
        This method is invoked by calling FacilityResource.list() in a useResource() hook. This

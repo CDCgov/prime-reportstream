@@ -139,6 +139,15 @@ fun Bundle.getObservationsWithCondition(codes: List<String>): List<Observation> 
     }
 
 /**
+ * This will return all mapped conditions in a bundle (no duplicates)
+ */
+fun Bundle.getAllMappedConditions(): Set<String> {
+    return this.getObservations()
+        .flatMap { it.getMappedConditions() }
+        .toSet()
+}
+
+/**
  * Adds references to diagnostic reports within [fhirBundle] as provenance targets
  */
 fun Bundle.addProvenanceReference() {

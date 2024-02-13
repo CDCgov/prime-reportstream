@@ -1,11 +1,10 @@
-import { useCallback } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 
+import { Organizations } from "./UseAdminSafeOrganizationName";
 import { RSReceiver, servicesEndpoints } from "../config/endpoints/settings";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
 import { useSessionContext } from "../contexts/Session";
-
-import { Organizations } from "./UseAdminSafeOrganizationName";
 
 const { receivers } = servicesEndpoints;
 
@@ -20,7 +19,7 @@ export const useOrganizationReceivers = () => {
         if (parsedName && !isAdmin) {
             return authorizedFetch(receivers, {
                 segments: {
-                    orgName: parsedName!!,
+                    orgName: parsedName,
                 },
             });
         }

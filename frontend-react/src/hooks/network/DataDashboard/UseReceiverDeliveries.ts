@@ -1,16 +1,16 @@
-import { useCallback, useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback, useMemo } from "react";
 
 import {
-    RSReceiverDeliveryResponse,
     dataDashboardEndpoints,
+    RSReceiverDeliveryResponse,
 } from "../../../config/endpoints/dataDashboard";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 import { useSessionContext } from "../../../contexts/Session";
-import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../filters/UseFilterManager";
+import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
 
 const { receiverDeliveries } = dataDashboardEndpoints;
 
@@ -59,7 +59,7 @@ export default function useReceiverDeliveries(serviceName?: string) {
 
     const authorizedFetch = useAuthorizedFetch<RSReceiverDeliveryResponse>();
     const memoizedDataFetch = useCallback(() => {
-        if (!!activeMembership?.parsedName) {
+        if (activeMembership?.parsedName) {
             return authorizedFetch(receiverDeliveries, {
                 segments: { orgAndService },
                 data: {

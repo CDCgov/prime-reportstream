@@ -20,6 +20,8 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -44,7 +46,8 @@ class FHIRTranslator(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-) : FHIREngine(metadata, settings, db, blob) {
+    azureEventService: AzureEventService = AzureEventServiceImpl(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService) {
 
     /**
      * Accepts a FHIR [message], parses it, and generates translated output files for each item in the destinations
@@ -153,14 +156,20 @@ class FHIRTranslator(
         if (receiver.enrichmentSchemaNames.isNotEmpty()) {
             receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
                 logger.info("Applying enrichment schema $enrichmentSchemaName")
-                val transformer = FhirTransformer(enrichmentSchemaName)
+                val transformer = FhirTransformer(
+                    convertRelativeSchemaPathToUri(enrichmentSchemaName),
+                    ""
+                )
                 transformer.transform(bundle)
             }
         }
         when (receiver.format) {
             Report.Format.FHIR -> {
                 if (receiver.schemaName.isNotEmpty()) {
-                    val transformer = FhirTransformer(receiver.schemaName)
+                    val transformer = FhirTransformer(
+                        convertRelativeSchemaPathToUri(receiver.schemaName),
+                        ""
+                    )
                     transformer.transform(bundle)
                 }
                 return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
@@ -188,8 +197,10 @@ class FHIRTranslator(
                 receiver
             )
         }
+        // TODO: #10510
         val converter = FhirToHl7Converter(
-            receiver.schemaName,
+            convertRelativeSchemaPathToUri(receiver.schemaName),
+            "",
             context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
         )
         val hl7Message = converter.convert(bundle)

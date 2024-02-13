@@ -1,15 +1,13 @@
 import { fireEvent, screen } from "@testing-library/react";
-import React from "react";
-
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
 
 import { AdminDropdown } from "./DropdownNav";
+import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 class TestLocalStorage {
-    store: Map<string, string | string[]> = new Map();
+    store = new Map<string, string | string[]>();
 
-    constructor(kvPairs?: Array<{ k: string; v: string }>) {
+    constructor(kvPairs?: { k: string; v: string }[]) {
         if (kvPairs) {
             kvPairs.forEach(({ k, v }) => this.store.set(k, v));
         }
@@ -39,7 +37,7 @@ jest.mock("../../pages/misc/FeatureFlags", () => {
         ...originalModule,
         CheckFeatureFlag: (feature: string) => {
             return (
-                mockLocalStorage.getItem("featureFlags")?.includes(feature) ||
+                mockLocalStorage.getItem("featureFlags")?.includes(feature) ??
                 false
             );
         },
@@ -49,7 +47,7 @@ jest.mock("../../pages/misc/FeatureFlags", () => {
 describe("AdminDropdownNav - value-sets", () => {
     beforeEach(() => {
         mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
+            dispatch: () => void 0,
             featureFlags: [],
             checkFlags: jest.fn((flag) => flag === "value-sets"),
         });
