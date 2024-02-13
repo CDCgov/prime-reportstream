@@ -1912,13 +1912,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fastify/busboy@npm:^2.0.0":
-  version: 2.1.0
-  resolution: "@fastify/busboy@npm:2.1.0"
-  checksum: 3233abd10f73e50668cb4bb278a79b7b3fadd30215ac6458299b0e5a09a29c3586ec07597aae6bd93f5cbedfcef43a8aeea51829cd28fc13850cdbcd324c28d5
-  languageName: node
-  linkType: hard
-
 "@floating-ui/core@npm:^1.4.1":
   version: 1.4.1
   resolution: "@floating-ui/core@npm:1.4.1"
@@ -12123,14 +12116,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"msw-storybook-addon@npm:^1.10.0":
-  version: 1.10.0
-  resolution: "msw-storybook-addon@npm:1.10.0"
+"msw-storybook-addon@npm:2.0.0-beta.1":
+  version: 2.0.0-beta.1
+  resolution: "msw-storybook-addon@npm:2.0.0-beta.1"
   dependencies:
     is-node-process: ^1.0.1
   peerDependencies:
-    msw: ">=0.35.0 <2.0.0"
-  checksum: d139c54bd18e4352caff1c087897d7bb5818d03aab89d147bc6f06a766988c97108420a7fa9ddc1509d8fd9c00579f8222adec184b5a82746be6de6e28508a4c
+    msw: ^2.0.0
+  checksum: 5f13040ff1a6c74a5e72d1bf1b7b5ff50c32546809d2f81ca8192530f0ac3afef4a3061e273ed143f861ec3a3ecd07f369523e8386d444203134b547b4689e94
   languageName: node
   linkType: hard
 
@@ -13580,7 +13573,7 @@ __metadata:
     mockdate: ^3.0.5
     moment: ^2.30.1
     msw: ^2.2.0
-    msw-storybook-addon: ^1.10.0
+    msw-storybook-addon: 2.0.0-beta.1
     npm-run-all: ^4.1.5
     otpauth: ^9.2.2
     patch-package: ^8.0.0
@@ -13611,7 +13604,6 @@ __metadata:
     ts-node: ^10.9.2
     tslib: ^2.6.2
     typescript: ^5.3.3
-    undici: ^6.6.1
     use-deep-compare-effect: ^1.8.1
     vite: ^5.1.1
     vite-plugin-checker: ^0.6.4
@@ -15873,15 +15865,6 @@ __metadata:
   version: 5.26.5
   resolution: "undici-types@npm:5.26.5"
   checksum: 3192ef6f3fd5df652f2dc1cd782b49d6ff14dc98e5dced492aa8a8c65425227da5da6aafe22523c67f035a272c599bb89cfe803c1db6311e44bed3042fc25487
-  languageName: node
-  linkType: hard
-
-"undici@npm:^6.6.1":
-  version: 6.6.2
-  resolution: "undici@npm:6.6.2"
-  dependencies:
-    "@fastify/busboy": ^2.0.0
-  checksum: 33f527e010a8bb56b6cd37e7b5395b9b8efc14f175a9beb2c1d32f64bd2e91a8ded6480106095ad1cfca1f6ac214875127de4b89862a5405902e8729af092815
   languageName: node
   linkType: hard
 
