@@ -3,8 +3,6 @@ name: Frontend CI
 on:
   pull_request:
     paths: frontend-react/**/*
-  push:
-    paths: frontend-react/**/*
 
 concurrency:
   group: ${{ github.ref }}
