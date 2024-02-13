@@ -126,6 +126,7 @@ jobs:
         run: >
           npx sonarqube-scanner 
           -Dsonar.host.url=https://sonarcloud.io
+          -DSonar.projectBaseDir=../
           -Dsonar.token="${{ secrets.SONAR_TOKEN }}"
           -Dsonar.coverage.exclusions=prime-router/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
           -Dsonar.cpd.exclusions=prime-router/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
