@@ -3,7 +3,9 @@ import { test as base } from "@playwright/test";
 export interface TestLogin {
     username: string;
     password: string;
-    totpCode: string;
+    totpCode?: string;
+    path: string;
+    landingPage: string;
 }
 
 export interface TestOptions {
@@ -16,15 +18,33 @@ export const test = base.extend<TestOptions>({
     // Define an option and provide a default value.
     // We can later override it in the config.
     adminLogin: [
-        { password: "", username: "", totpCode: "" },
+        {
+            password: "",
+            username: "",
+            totpCode: "",
+            path: "playwright/.auth/admin.json",
+            landingPage: "/admin/settings",
+        },
         { option: true },
     ],
     senderLogin: [
-        { password: "", username: "", totpCode: "" },
+        {
+            password: "",
+            username: "",
+            totpCode: "",
+            path: "playwright/.auth/admin.json",
+            landingPage: "/submissions",
+        },
         { option: true },
     ],
     receiverLogin: [
-        { password: "", username: "", totpCode: "" },
+        {
+            password: "",
+            username: "",
+            totpCode: "",
+            path: "playwright/.auth/admin.json",
+            landingPage: "/",
+        },
         { option: true },
     ],
 });

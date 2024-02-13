@@ -1,6 +1,5 @@
+import { expect, Page } from "@playwright/test";
 import fs from "node:fs";
-
-import { Page, expect } from "@playwright/test";
 
 export async function scrollToFooter(page: Page) {
     // Scrolling to the bottom of the page

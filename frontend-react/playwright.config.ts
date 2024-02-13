@@ -9,8 +9,6 @@ dotenvflow.config({
     default_node_env: "test",
 });
 
-const isAdminTesting = Boolean(process.env.TEST_ADMIN);
-
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -38,16 +36,20 @@ export default defineConfig<TestOptions>({
             username: process.env.TEST_ADMIN_USERNAME ?? "",
             password: process.env.TEST_ADMIN_PASSWORD ?? "",
             totpCode: process.env.TEST_ADMIN_TOTP_CODE ?? "",
+            path: "playwright/.auth/admin.json",
+            landingPage: "/admin/settings",
         },
         senderLogin: {
             username: process.env.TEST_SENDER_USERNAME ?? "",
             password: process.env.TEST_SENDER_PASSWORD ?? "",
-            totpCode: process.env.TEST_SENDER_TOTP_CODE ?? "",
+            path: "playwright/.auth/sender.json",
+            landingPage: "/submissions",
         },
         receiverLogin: {
             username: process.env.TEST_RECEIVER_USERNAME ?? "",
             password: process.env.TEST_RECEIVER_PASSWORD ?? "",
-            totpCode: process.env.TEST_RECEIVER_TOTP_CODE ?? "",
+            path: "playwright/.auth/receiver.json",
+            landingPage: "/",
         },
     },
 
@@ -56,30 +58,20 @@ export default defineConfig<TestOptions>({
         { name: "setup", testMatch: /.*\.setup\.ts/ },
         {
             name: "chromium",
-            use: {
-                ...devices["Desktop Chrome"],
-                bypassCSP: true,
-                launchOptions: {
-                    // Put your chromium-specific args here
-                    args: [
-                        "--disable-web-security",
-                        "--disable-site-isolation-trials",
-                    ],
-                },
-            },
+            use: { browserName: "chromium" },
             dependencies: ["setup"],
         },
 
         {
             name: "firefox",
-            use: { ...devices["Desktop Firefox"] },
-            // dependencies: ["setup"],
+            use: { browserName: "firefox" },
+            dependencies: ["setup"],
         },
 
         {
             name: "webkit",
-            use: { ...devices["Desktop Safari"] },
-            // dependencies: ["setup"],
+            use: { browserName: "webkit" },
+            dependencies: ["setup"],
         },
 
         /* Test against mobile viewports. */
@@ -105,7 +97,7 @@ export default defineConfig<TestOptions>({
 
     /* Run the local dev server and start the tests */
     webServer: {
-        command: "yarn run preview:build",
+        command: "yarn run preview:build:test",
         url: "http://localhost:4173",
         timeout: 1000 * 180,
         stdout: "pipe",

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { selectTestOrg } from "../helpers/utils";
 
@@ -15,7 +15,9 @@ test.describe("Daily data page", () => {
 
         test.describe("without org selected", () => {
             test.beforeEach(async ({ page }) => {
-                await page.goto("/daily-data");
+                await page.goto("/daily-data", {
+                    waitUntil: "domcontentloaded",
+                });
             });
 
             test("will not load page", async ({ page }) => {
@@ -33,7 +35,9 @@ test.describe("Daily data page", () => {
             test.beforeEach(async ({ page }) => {
                 await selectTestOrg(page);
 
-                await page.goto("/daily-data");
+                await page.goto("/daily-data", {
+                    waitUntil: "domcontentloaded",
+                });
             });
 
             test("has correct title", async ({ page }) => {
@@ -79,7 +83,9 @@ test.describe("Daily data page", () => {
         test.use({ storageState: "playwright/.auth/receiver.json" });
 
         test.beforeEach(async ({ page }) => {
-            await page.goto("/daily-data");
+            await page.goto("/daily-data", {
+                waitUntil: "domcontentloaded",
+            });
         });
 
         test("has correct title", async ({ page }) => {
@@ -114,7 +120,9 @@ test.describe("Daily data page", () => {
         test.use({ storageState: "playwright/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
-            await page.goto("/daily-data");
+            await page.goto("/daily-data", {
+                waitUntil: "domcontentloaded",
+            });
         });
 
         test("has correct title", async ({ page }) => {
