@@ -1,4 +1,4 @@
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig } from "@playwright/test";
 import dotenvflow from "dotenv-flow";
 
 import type { TestOptions } from "./e2e/helpers/rs-test.ts";
@@ -9,6 +9,46 @@ dotenvflow.config({
     default_node_env: "test",
 });
 
+const isCi = Boolean(process.env.CI);
+
+function createLogins<const T extends Array<string>>(
+    loginTypes: T,
+): {
+    [K in T extends ReadonlyArray<infer U> ? U : never]: {
+        username: string;
+        password: string;
+        totpCode: string;
+        path: string;
+    };
+} {
+    const logins = Object.fromEntries(
+        loginTypes.map((type) => {
+            const username = process.env[`TEST_${type.toUpperCase()}_USERNAME`];
+            const password = process.env[`TEST_${type.toUpperCase()}_PASSWORD`];
+            const totpCode =
+                process.env[`TEST_${type.toUpperCase()}_TOTP_CODE`];
+
+            if (!username)
+                throw new TypeError(`Missing username for login type: ${type}`);
+            if (!password)
+                throw new TypeError(`Missing password for login type: ${type}`);
+
+            return [
+                type,
+                {
+                    username,
+                    password,
+                    totpCode,
+                    path: `playwright/.auth/${type}.json`,
+                },
+            ];
+        }),
+    );
+    return logins as any;
+}
+
+const logins = createLogins(["admin", "receiver", "sender"]);
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -17,11 +57,11 @@ export default defineConfig<TestOptions>({
     /* Run tests in files in parallel */
     fullyParallel: true,
     /* Fail the build on CI if you accidentally left test.only in the source code. */
-    forbidOnly: !!process.env.CI,
+    forbidOnly: isCi,
     /* Retry on CI only */
-    retries: process.env.CI ? 2 : 0,
+    retries: isCi ? 2 : 0,
     /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 1 : undefined,
+    workers: isCi ? 1 : undefined,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: "html",
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -33,22 +73,15 @@ export default defineConfig<TestOptions>({
         trace: "on-first-retry",
 
         adminLogin: {
-            username: process.env.TEST_ADMIN_USERNAME ?? "",
-            password: process.env.TEST_ADMIN_PASSWORD ?? "",
-            totpCode: process.env.TEST_ADMIN_TOTP_CODE ?? "",
-            path: "playwright/.auth/admin.json",
+            ...logins.admin,
             landingPage: "/admin/settings",
         },
         senderLogin: {
-            username: process.env.TEST_SENDER_USERNAME ?? "",
-            password: process.env.TEST_SENDER_PASSWORD ?? "",
-            path: "playwright/.auth/sender.json",
+            ...logins.sender,
             landingPage: "/submissions",
         },
         receiverLogin: {
-            username: process.env.TEST_RECEIVER_USERNAME ?? "",
-            password: process.env.TEST_RECEIVER_PASSWORD ?? "",
-            path: "playwright/.auth/receiver.json",
+            ...logins.receiver,
             landingPage: "/",
         },
     },

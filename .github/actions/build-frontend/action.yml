@@ -97,7 +97,7 @@ runs:
         export TEST_RECEIVER_USERNAME=${{ inputs.test-receiver-user }}
         export TEST_RECEIVER_PASSWORD=${{ inputs.test-receiver-password }}
         echo "::group::E2E tests"
-        npx playwright test
+        yarn run test:e2e
         echo "::endgroup::"
       shell: bash
 
