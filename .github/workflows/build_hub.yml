@@ -4,7 +4,10 @@ on:
   pull_request:
     branches:
       - master
-    paths: prime-router/**
+    paths: 
+      - prime-router/**
+    types: 
+      - synchronize
   push:
     branches:
       - master

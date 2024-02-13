@@ -2,7 +2,10 @@ name: Frontend CI
 
 on:
   pull_request:
-    paths: frontend-react/**
+    paths: 
+      - frontend-react/**
+    types: 
+      - synchronize
 
 concurrency:
   group: ${{ github.ref }}

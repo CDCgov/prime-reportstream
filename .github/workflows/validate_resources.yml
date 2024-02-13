@@ -6,7 +6,10 @@ on:
       - production
       - master
       - test
-    paths-ignore: frontend-react/**
+    paths-ignore: 
+      - frontend-react/**
+    types: 
+      - synchronize
   push:
     branches:
       - production

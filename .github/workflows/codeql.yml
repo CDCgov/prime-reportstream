@@ -22,6 +22,8 @@ on:
       - "prime-router/src/**/*.kt"
       - "prime-router/src/scripts/**"
       - "/operations/app/functions/admin/**"
+    types: 
+      - synchronize
   schedule:
     - cron: '20 4 * * 1'
 
