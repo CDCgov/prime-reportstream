@@ -35,44 +35,6 @@ elements:
     value: [ '"NVDOH"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
-  - name: nv-patient-race-coding-system
-    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
-    condition: '%resource.code.exists()'
-    value: [ '%resource.system.getCodingSystemMapping()' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
-
-  - name: nv-patient-ethnicity_identifier-code
-    value:
-      - 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code'
-      - 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code'
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-1' ]
-    valueSet:
-      values:
-        H: 2135-2
-        N: 2186-5
-
-  - name: nv-patient-ethnicity-group-name-of-code-system
-    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code = "U"'
-    value: [ '"NULLFL"' ]
-    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
-
-  - name: nv-patient-ethnicity-group-name-of-code-system-null
-    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code != "U"'
-    value: [ '"CDCREC"' ]
-    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
-
-  - name: nv-patient-ethnicity_identifier-version
-    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code != "U"'
-    resource: 'Bundle'
-    value: [ '"3.1.0"' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-7' ]
-
-  - name: nv-patient-ethnicity_identifier-version-null
-    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code = "U"'
-    resource: 'Bundle'
-    value: [ '"NULLFL"' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-7' ]
-
   - name: observation-result-with-aoe
     # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
     resource: '%resource.result.resolve() | %resource.basedOn.resolve().supportingInfo.resolve().where(specimen.exists().not()) | %resource.basedOn.resolve().supportingInfo.resolve().where(meta.tag.code = "AOE")'
