@@ -21,7 +21,6 @@ jobs:
   build_router:
     name: Build Router
     runs-on: ubuntu-latest
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     defaults:
       run:
         working-directory: prime-router
