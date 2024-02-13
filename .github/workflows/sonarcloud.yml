@@ -10,7 +10,6 @@ on:
       - master
     paths:
       - "prime-router/**"
-      - "frontend-react/**"
 
 env:
   # These are for CI and not credentials of any system
@@ -101,7 +100,7 @@ jobs:
 
       - name: Frontend Coverage
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        run: yarn jest --coverage --silent --maxWorkers=100%
+        run: yarn run test:ci --coverage --maxWorkers=100%
         working-directory: frontend-react
 
       - name: Run SonarCloud Scan master or full

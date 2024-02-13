@@ -37,7 +37,7 @@ jobs:
             cache: yarn
             cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
-        run: yarn install --frozen-lockfile --immutable
+        run: yarn install --immutable
       - name: Run linting
         run: yarn run lint
 
@@ -56,7 +56,7 @@ jobs:
             cache: yarn
             cache-dependency-path: frontend-react/yarn.lock
         - name: Yarn install
-          run: yarn install --frozen-lockfile --immutable
+          run: yarn install --immutable
         - name: Unit tests
           run: yarn run test:ci
 
@@ -75,8 +75,37 @@ jobs:
             cache: yarn
             cache-dependency-path: frontend-react/yarn.lock
         - name: Yarn install
-          run: yarn install --frozen-lockfile --immutable
+          run: yarn install --immutable
         - name: Install Playwright
           run: npx playwright install --with-deps
         - name: Run E2E tests
           run: yarn run test:e2e
+
+  analysis:
+    name: Analysis
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version-file: "frontend-react/.nvmrc"
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install --immutable
+      - name: Collect coverage
+        run: yarn run test:ci --coverage
+      - name: Run SonarCloud Scan
+        run: >
+          npx sonarqube-scanner 
+          -Dsonar.coverage.exclusions=prime-router/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
+          -Dsonar.cpd.exclusions=prime-router/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
+          -Dsonar.sources=frontend-react/src,prime-router/src
+          -Dsonar.projectKey=CDCgov_prime-data-hub
+          -Dsonar.organization=cdcgov
+          -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
+
