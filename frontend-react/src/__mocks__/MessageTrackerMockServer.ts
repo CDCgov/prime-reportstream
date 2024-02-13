@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
 import config from "../config";
@@ -57,11 +57,13 @@ const messagesSearchResultList: MessageListResource[] =
     MOCK_MESSAGE_SENDER_DATA;
 
 const handlers = [
-    rest.get(messageSearch, (_req, res, ctx) => {
-        return res(ctx.json(messagesSearchResultList), ctx.status(200));
+    http.get(messageSearch, () => {
+        return HttpResponse.json(messagesSearchResultList, { status: 200 });
     }),
-    rest.get(`${RS_API_URL}/api/message/11`, (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(makeMessageDetailsFixture(11)));
+    http.get(`${RS_API_URL}/api/message/11`, () => {
+        return HttpResponse.json(makeMessageDetailsFixture(11), {
+            status: 200,
+        });
     }),
 ];
 

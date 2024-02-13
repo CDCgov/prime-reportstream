@@ -33,13 +33,13 @@ elements:
   - name: provider-namespace-id
     condition: '%resource.value.empty().not()'
     resource: 'Bundle.entry.resource.ofType(Practitioner).identifier[0]'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
     value: [ '"NPI"' ]
 
   - name: provider-universal-id
     condition: '%resource.value.empty().not()'
     resource: 'Bundle.entry.resource.ofType(Practitioner).identifier[0]'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '"urn:oid:2.16.840.1.113883.4.6"' ]
 
 
@@ -103,15 +103,15 @@ elements:
     value: [ '"PHLabReport-NoAck"' ]
 
   - name: msh-21-2-message-profile-identifier-namespace-id
-    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value.exists().not() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.system.getId().exists().not() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.system.exists().not()'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value.exists().not() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.system.getId().exists().not() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.system.exists().not()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
     value: [ '"ELR_Receiver"' ]
 
   - name: msh-21-3-message-profile-identifier-universal-id
-    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id").value.getId().exists().not()'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value.getId().exists().not()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.21").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '"2.16.840.1.113883.9.11"' ]
 
   - name: msh-21-3-message-profile-identifier-universal-id-type
