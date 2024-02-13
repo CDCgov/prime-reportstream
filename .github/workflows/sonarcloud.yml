@@ -31,10 +31,10 @@ jobs:
       - name: Increase swapfile
         run: |
           sudo swapoff -a
-          sudo fallocate -l 15G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          sudo fallocate -l 15G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
           sudo swapon --show
 
       - name: "Check out everything"
@@ -44,7 +44,7 @@ jobs:
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@6b29454859d080290fc5e9c05ee4e82b9156404b
+        uses: tj-actions/branch-names@6871f53176ad61624f978536bbf089c574dc19a2
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
@@ -66,7 +66,7 @@ jobs:
 
       - name: Gradle Validation
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
+        uses: gradle/wrapper-validation-action@699bb18358f12c5b78b37bb0111d3a0e2276e0e2
 
       - name: Spin up build containers
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
@@ -75,7 +75,7 @@ jobs:
 
       - name: Initialize CodeQL
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/init@df32e399139a3050671466d7d9b3cbacc1cfd034
+        uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
         with:
           languages: ${{ matrix.language }}
 
@@ -86,13 +86,13 @@ jobs:
 
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/analyze@df32e399139a3050671466d7d9b3cbacc1cfd034
+        uses: github/codeql-action/analyze@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
 
       - name: Use Node.js with yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
-          node-version-file: "frontend-react/package.json"
+          node-version-file: "frontend-react/.nvmrc"
 
       - name: Yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'

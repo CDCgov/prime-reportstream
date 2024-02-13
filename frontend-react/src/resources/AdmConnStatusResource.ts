@@ -1,11 +1,10 @@
-import config from "../config";
-
 import AuthResource from "./AuthResource";
+import config from "../config";
 
 const { RS_API_URL } = config;
 
 /** having the type separate makes unit tests easier **/
-export type AdmConnStatusDataType = {
+export interface AdmConnStatusDataType {
     /* the unique id  */
     readonly receiverConnectionCheckResultId: number;
     readonly organizationId: number;
@@ -16,7 +15,7 @@ export type AdmConnStatusDataType = {
     readonly connectionCheckCompletedAt: string;
     readonly organizationName: string;
     readonly receiverName: string;
-};
+}
 
 export class AdmConnStatusResource
     extends AuthResource
@@ -40,9 +39,7 @@ export class AdmConnStatusResource
         return `${AdmConnStatusResource.key}-${this.receiverConnectionCheckResultId}`;
     }
 
-    static get key() {
-        return "connstatusresource";
-    }
+    static readonly key = "connstatusresource";
 
     static listUrl(params: {
         startDate: string; // Date().toISOString

@@ -1,10 +1,9 @@
-import React, { ReactNode } from "react";
 import { Button } from "@trussworks/react-uswds";
+import { ReactNode } from "react";
 
-import { USLink } from "../USLink";
-
-import { ColumnConfig, LinkableColumn, ActionableColumn } from "./Table";
+import { ActionableColumn, ColumnConfig, LinkableColumn } from "./Table";
 import { TableRowData } from "./TableRows";
+import { USLink } from "../USLink";
 
 export interface ColumnProps {
     rowIndex: number;
@@ -38,14 +37,14 @@ export const ColumnData = ({
     rowData,
     columnConfig,
     editing,
-    setUpdatedRow = () => {},
+    setUpdatedRow = () => void 0,
 }: ColumnProps) => {
     // Util functions
     // TODO: move these functions outside of the render
 
     // Easy-to-read way to transform value
     const transform = (
-        transformFunc: Function,
+        transformFunc: (...args: any[]) => unknown,
         transformVal: string | number,
     ) => {
         return transformFunc(transformVal);
@@ -57,7 +56,7 @@ export const ColumnData = ({
     };
     // Editing state indicator
     const isEditing = (): boolean =>
-        (editing && columnConfig.editable) || false;
+        (editing && columnConfig.editable) ?? false;
 
     // <td> wrapper w/ key
     const tableData = (child: ReactNode) => (
@@ -77,8 +76,8 @@ export const ColumnData = ({
         const feature = columnConfig?.feature as LinkableColumn;
         return tableData(
             <USLink
-                href={`${feature.linkBasePath || ""}${
-                    rowData[feature.linkAttr || field]
+                href={`${feature.linkBasePath ?? ""}${
+                    rowData[feature.linkAttr ?? field]
                 }`}
                 state={feature.linkState || {}}
             >

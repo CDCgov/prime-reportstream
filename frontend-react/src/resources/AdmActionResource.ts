@@ -1,6 +1,5 @@
-import config from "../config";
-
 import AuthResource from "./AuthResource";
+import config from "../config";
 
 const { RS_API_URL } = config;
 
@@ -24,9 +23,7 @@ export default class AdmAction extends AuthResource {
         return `actionid-${this.actionId}}`;
     }
 
-    static get key() {
-        return "AdmActionResource";
-    }
+    static readonly key = "AdmActionResource";
 
     static urlRoot = `${RS_API_URL}/api/adm/getresend`;
 

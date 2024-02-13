@@ -7,11 +7,11 @@ export enum StandardSchema {
     HL7 = "hl7/hl7-ingest-covid-19-prod",
 }
 
-export type SchemaOption = {
+export interface SchemaOption {
     value: string;
     format: FileType;
     title: string;
-};
+}
 
 export const STANDARD_SCHEMA_OPTIONS: SchemaOption[] = [
     {

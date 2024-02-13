@@ -1,7 +1,8 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { createQuery } from "react-query-kit";
+import { createSuspenseQuery } from "react-query-kit";
 
+import { Organizations } from "./UseAdminSafeOrganizationName";
 import {
     RSOrganizationSettings,
     servicesEndpoints,
@@ -9,8 +10,6 @@ import {
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
 import { useSessionContext } from "../contexts/Session";
 import { getAuthFetchProps } from "../network/Middleware";
-
-import { Organizations } from "./UseAdminSafeOrganizationName";
 
 const { settings } = servicesEndpoints;
 
@@ -40,20 +39,19 @@ export const useOrganizationSettings = () => {
     const parsedName = activeMembership?.parsedName;
 
     const authorizedFetch = useAuthorizedFetch<RSOrganizationSettings>();
-    const memoizedDataFetch = useCallback(
-        () =>
-            authorizedFetch(settings, {
+    const memoizedDataFetch = useCallback(() => {
+        if (Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS) {
+            return authorizedFetch(settings, {
                 segments: {
-                    orgName: parsedName!!,
+                    orgName: parsedName!,
                 },
-            }),
-        [parsedName, authorizedFetch],
-    );
-    return useQuery({
+            });
+        }
+        return null;
+    }, [parsedName, authorizedFetch]);
+    return useSuspenseQuery({
         queryKey: [settings.queryKey, activeMembership],
         queryFn: memoizedDataFetch,
-        enabled:
-            Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS,
     });
 };
 
@@ -64,11 +62,11 @@ const { authFetch, authMiddleware } =
  * Experimental replacement hook using middleware for controlling enablement
  * of the hook and variables. Will be iterated on to determine best ABI.
  */
-export const useOrganizationSettings__ = createQuery({
-    primaryKey: settings.queryKey,
-    queryFn: authFetch,
+export const useOrganizationSettings__ = createSuspenseQuery({
+    queryKey: [settings.queryKey],
+    fetcher: authFetch,
     use: [
-        (useQueryNext) => (options) => {
+        (useQueryNext) => (options, qc) => {
             const { activeMembership } = useSessionContext();
             const newOptions = {
                 ...options,
@@ -76,19 +74,20 @@ export const useOrganizationSettings__ = createQuery({
                     ...options.variables,
                     endpoint: settings,
                     fetchConfig: {
-                        ...options.variables?.fetchConfig,
+                        ...(options.variables as any)?.fetchConfig,
                         segments: {
                             orgName: activeMembership?.parsedName,
                         },
+                        enabled:
+                            (options.variables as any)?.fetchConfig.enabled ==
+                                null &&
+                            Boolean(activeMembership?.parsedName) &&
+                            activeMembership?.parsedName !==
+                                Organizations.PRIMEADMINS,
                     },
                 },
-                enabled:
-                    (options.enabled == null || options.enabled) &&
-                    Boolean(activeMembership?.parsedName) &&
-                    activeMembership?.parsedName !== Organizations.PRIMEADMINS,
             };
-
-            return useQueryNext(newOptions);
+            return useQueryNext(newOptions, qc);
         },
         authMiddleware,
     ],

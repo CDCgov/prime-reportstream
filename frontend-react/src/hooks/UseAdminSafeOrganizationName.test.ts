@@ -1,9 +1,8 @@
-import { renderHook } from "../utils/CustomRenderUtils";
-
 import {
     Organizations,
     useAdminSafeOrganizationName,
 } from "./UseAdminSafeOrganizationName";
+import { renderHook } from "../utils/CustomRenderUtils";
 
 describe("useAdminSafeOrganizationName", () => {
     test("returns correct client organization", () => {

@@ -1,14 +1,13 @@
 import { GridContainer } from "@trussworks/react-uswds";
-import React, { PropsWithChildren } from "react";
-
-import Crumbs, { CrumbsProps } from "../../Crumbs";
-import { FeatureName } from "../../../utils/FeatureName";
-import HipaaNotice from "../../HipaaNotice";
-import { SenderType } from "../../../utils/DataDashboardUtils";
+import { PropsWithChildren } from "react";
 
 import styles from "./FacilityProviderSubmitterDetails.module.scss";
 import { FacilityProviderSubmitterSummary } from "./FacilityProviderSubmitterSummary";
 import FacilityProviderSubmitterTable from "./FacilityProviderSubmitterTable";
+import { SenderType } from "../../../utils/DataDashboardUtils";
+import { FeatureName } from "../../../utils/FeatureName";
+import Crumbs, { CrumbsProps } from "../../Crumbs";
+import HipaaNotice from "../../HipaaNotice";
 
 export type FacilityProviderSubmitterDetailsProps = PropsWithChildren<{
     senderType: SenderType;
