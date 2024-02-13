@@ -12,7 +12,9 @@ async function logIntoOkta(page: Page, login: TestLogin) {
         route.fulfill({ status: 204, body: "" }),
     );
 
-    await page.goto(`/login`);
+    await page.goto("/login", {
+        waitUntil: "domcontentloaded",
+    });
     await page.getByLabel("Username").fill(login.username);
 
     const pwd = page.getByLabel("Password");
@@ -26,6 +28,8 @@ async function logIntoOkta(page: Page, login: TestLogin) {
         await page.getByLabel("Enter Code ").fill(totp.generate());
         await page.getByRole("button", { name: "Verify" }).click();
     }
+
+    await page.waitForLoadState("domcontentloaded");
 
     // Verify we are authenticated
     await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
