@@ -17,7 +17,7 @@ export default {
      */
     "{yarn.lock, package.json}": [
         () => "yarn dedupe",
-        () => "git add yarn.lock",
+        () => "git add frontend-react/yarn.lock",
     ],
     /**
      * Determine if whole project needs testing or not

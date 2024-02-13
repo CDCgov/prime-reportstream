@@ -29,8 +29,6 @@ cypress/screenshots
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
-/.pnp
-.pnp.*
 .yarn/*
 !.yarn/patches
 !.yarn/plugins

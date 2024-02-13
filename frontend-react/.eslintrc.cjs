@@ -22,6 +22,7 @@ module.exports = {
         "playwright.config.ts",
         "jest.config.ts",
         "coverage",
+        "pnp-uswds-packages.ts",
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {

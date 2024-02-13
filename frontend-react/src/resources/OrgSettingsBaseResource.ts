@@ -26,8 +26,8 @@ export default abstract class OrgSettingsBaseResource extends AuthResource {
         const endpoint = this.endpointMutate();
         return this.memo("#delete", () =>
             endpoint.extend({
-                fetch(params) {
-                    // @ts-expect-error Type mismatch on deprecated code
+                fetch(params: object) {
+                    // @ts-expect-error broken outdated library typings
                     return endpoint.fetch.call(this, params).then(() => params);
                 },
 
