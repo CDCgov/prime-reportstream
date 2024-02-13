@@ -171,7 +171,7 @@ elements:
   - name: observation-note
     condition: false
 
-  - name: specimen-observation-result-with-aoe
+  - name: specimen-observation
     condition: false
 
   # PID-10-2 gets either display or text
