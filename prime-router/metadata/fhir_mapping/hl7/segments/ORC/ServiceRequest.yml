@@ -351,12 +351,3 @@ note:
   expressionType: resource
   generateList: true
   specs: NTE
-
-supportingInfo:
-  vars:
-    obx: STRING_ALL, OBX
-  condition: $obx NOT_NULL
-  valueOf: segments/OBX/Observation
-  expressionType: reference
-  constants:
-    suppressNote: 'true'
