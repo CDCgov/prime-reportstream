@@ -36,6 +36,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -68,7 +69,8 @@ class BlobAccessTests {
                 .withEnv("AZURITE_ACCOUNTS", "devstoreaccount2:keydevstoreaccount2")
                 .withExposedPorts(10000, 10001, 10002)
 
-        init {
+        @BeforeEach
+        fun beforeEach() {
             azuriteContainer1.start()
             azuriteContainer2.start()
         }
