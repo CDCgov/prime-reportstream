@@ -6,45 +6,52 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.UUID
 
 class ReportFileDatabaseAccessTest {
 
+    @Testcontainers(parallel = true)
     @Nested
-    @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
     inner class ReportFileDatabaseTests() {
+
+        @Container
+        val dbContainer = ReportStreamTestDatabaseContainer()
 
         @Test
         fun `Test can find a single report`() {
-            createReport()
+            val db = ReportStreamTestDatabaseContainer.getDataSourceFromContainer(dbContainer)
             val reportFileDatabaseAccess =
-                ReportFileDatabaseAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+                ReportFileDatabaseAccess(db)
+            createReport(db)
             val rows = reportFileDatabaseAccess.getReports(ReportFileApiSearch(emptyList(), null))
             assertThat(rows.totalCount).isEqualTo(1)
         }
 
         @Test
         fun `Test returns no data`() {
+            val db = ReportStreamTestDatabaseContainer.getDataSourceFromContainer(dbContainer)
             val reportFileDatabaseAccess =
-                ReportFileDatabaseAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+                ReportFileDatabaseAccess(db)
             val rows = reportFileDatabaseAccess.getReports(ReportFileApiSearch(emptyList(), null))
             assertThat(rows.totalCount).isEqualTo(0)
         }
     }
 
-    private fun createReport() {
-        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+    private fun createReport(databaseAccess: DatabaseAccess) {
+        databaseAccess.transact { txn ->
             val action = Action()
-            val actionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            val actionId = databaseAccess.insertAction(txn, action)
             val report = ReportFile().setSchemaTopic(Topic.FULL_ELR).setReportId(UUID.randomUUID())
                 .setActionId(actionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
-            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+            databaseAccess.insertReportFile(
                 report, txn, action
             )
         }

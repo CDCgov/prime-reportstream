@@ -36,11 +36,12 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.testcontainers.containers.GenericContainer
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -57,23 +58,20 @@ class BlobAccessTests {
         unmockkAll()
     }
 
+    @Testcontainers(parallel = true)
     @Nested
-    class BlobAccessIntegrationTests {
+    inner class BlobAccessIntegrationTests {
+        @Container
         val azuriteContainer1 =
             GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
                 .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
                 .withExposedPorts(10000, 10001, 10002)
 
+        @Container
         val azuriteContainer2 =
             GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
                 .withEnv("AZURITE_ACCOUNTS", "devstoreaccount2:keydevstoreaccount2")
                 .withExposedPorts(10000, 10001, 10002)
-
-        @BeforeEach
-        fun beforeEach() {
-            azuriteContainer1.start()
-            azuriteContainer2.start()
-        }
 
         @AfterEach
         fun afterEach() {

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 @JacksonXmlRootElement(localName = "elr:TestPayload")
@@ -27,7 +26,7 @@ data class TestSoap12Payload(
     val textFileContents: String,
 ) : XmlObject
 
-@Ignore
+// @Ignore
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SoapSerializerTests {
     private val defaultNamespace = "http://reportstream.cdc.gov"
