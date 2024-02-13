@@ -2,7 +2,7 @@ name: Frontend CI
 
 on:
   pull_request:
-    paths: frontend-react/**/*
+    paths: frontend-react/**
 
 concurrency:
   group: ${{ github.ref }}
@@ -101,7 +101,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
         with:
-          category: /language:javascript-typescript
+          category: /language:javascript,typescript
 
   sonarcloud:
     name: SonarCloud Analysis
@@ -128,7 +128,7 @@ jobs:
         run: >
           npx sonarqube-scanner 
           -Dsonar.host.url=https://sonarcloud.io
-          -DSonar.projectBaseDir=../
+          -Dsonar.projectBaseDir=../
           -Dsonar.token="${{ secrets.SONAR_TOKEN }}"
           -Dsonar.coverage.exclusions=prime-router/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
           -Dsonar.cpd.exclusions=prime-router/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*

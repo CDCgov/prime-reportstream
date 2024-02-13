@@ -6,6 +6,7 @@ on:
       - production
       - master
       - test
+    paths-ignore: frontend-react/**
   push:
     branches:
       - production
