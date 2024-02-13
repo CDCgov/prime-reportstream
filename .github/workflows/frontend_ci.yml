@@ -1,0 +1,81 @@
+name: Frontend CI
+
+on:
+  pull_request:
+    paths: frontend-react/**/*
+  push:
+    paths: frontend-react/**/*
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: frontend-react
+    shell: bash
+
+env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    TEST_ADMIN_USERNAME: ${{ secrets.TEST_ADMIN_USERNAME }}
+    TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+    TEST_SENDER_USERNAME: ${{ secrets.TEST_SENDER_USERNAME }}
+    TEST_SENDER_PASSWORD: ${{ secrets.TEST_SENDER_PASSWORD }}
+    TEST_RECEIVER_USERNAME: ${{ secrets.TEST_RECEIVER_USERNAME }}
+    TEST_RECEIVER_PASSWORD: ${{ secrets.TEST_RECEIVER_PASSWORD }}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+            node-version-file: "frontend-react/.nvmrc"
+            cache: yarn
+      - name: Yarn install
+        run: yarn install --frozen-lockfile --immutable
+      - name: Run linting
+        run: yarn run lint
+
+  unit_tests:
+    name: Unit tests
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: Check out changes
+          uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        - name: Use Node.js with yarn
+          uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+          with:
+            node-version-file: "frontend-react/.nvmrc"
+            cache: yarn
+        - name: Yarn install
+          run: yarn install --frozen-lockfile --immutable
+        - name: Unit tests
+          run: yarn run test:ci
+
+  e2e_tests:
+    name: E2E tests
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: Check out changes
+          uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        - name: Use Node.js with yarn
+          uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+          with:
+            node-version-file: "frontend-react/.nvmrc"
+            cache: yarn
+        - name: Yarn install
+          run: yarn install --frozen-lockfile --immutable
+        - name: Install Playwright
+          run: npx playwright install --with-deps
+        - name: Run E2E tests
+          run: yarn run test:e2e
