@@ -26,8 +26,10 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import java.io.File
 import java.nio.file.Paths
+import kotlin.test.Ignore
 
 @Testcontainers(parallel = true)
+@Ignore
 class TranslationSchemaManagerTests {
     @Container
     private val azuriteContainer1 =

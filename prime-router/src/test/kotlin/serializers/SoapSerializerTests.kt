@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -33,6 +34,7 @@ class SoapSerializerTests {
     private val soap12namespaces = mapOf("xmlns:stag" to defaultNamespace)
     private val soapVersion = null
 
+    @Test
     fun `test serializing object to xml`() {
         val userName = UUID.randomUUID().toString()
         val password = UUID.randomUUID().toString()
@@ -55,6 +57,7 @@ class SoapSerializerTests {
         )
     }
 
+    @Test
     fun `test serializing SOAP12 object to xml`() {
         val textFileContents = UUID.randomUUID().toString()
         val testSoap12Message = TestSoap12Payload(textFileContents = textFileContents)
@@ -73,6 +76,7 @@ class SoapSerializerTests {
         )
     }
 
+    @Test
     fun `test serializing object in a soap envelope to xml`() {
         val userName = UUID.randomUUID().toString()
         val password = UUID.randomUUID().toString()
@@ -100,6 +104,7 @@ class SoapSerializerTests {
         )
     }
 
+    @Test
     fun `test serializing a SOAP12 object in a soap envelope to xml`() {
         val textFileContents = UUID.randomUUID().toString()
         val testSoap12Message = TestSoap12Payload(textFileContents = textFileContents)
