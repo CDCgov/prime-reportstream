@@ -101,8 +101,8 @@ elements:
     condition: false
 
   # Suppress all instances of the TQ1 segment
-  - name: timing-segment
+  - name: timing-quantity
     condition: false
 
-  - name: specimen-observation-result-with-aoe
+  - name: specimen-observation
     condition: false

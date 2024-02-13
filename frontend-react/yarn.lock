@@ -4695,40 +4695,40 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.18.1":
-  version: 5.18.1
-  resolution: "@tanstack/query-core@npm:5.18.1"
-  checksum: dd831e508fa4519a6e88af1f48e24c75f8c603d77dc603745c3f69ab6d650ba85b43041ab19572f20139dde13c56e6f477552228d469371b01ebe4268933a795
+"@tanstack/query-core@npm:5.20.1":
+  version: 5.20.1
+  resolution: "@tanstack/query-core@npm:5.20.1"
+  checksum: 4908d599f6d766209d70a8ff6ee098db71a3225b613c9ff42747fa1b11130e480da91754f8be0a35b318dca91c26c7a6dd0517692c61dd3e72b9bf8fc16bb3f3
   languageName: node
   linkType: hard
 
-"@tanstack/query-devtools@npm:5.18.1":
-  version: 5.18.1
-  resolution: "@tanstack/query-devtools@npm:5.18.1"
-  checksum: d7a41baecd2da1d4ed2171856173b39ecfb5c5dc5f6c15eb5c1eb5c7a1abd0e59a274463cf70acb04bb3361884d0769e271ea18d357fd8ecfbaa1de877d96c38
+"@tanstack/query-devtools@npm:5.20.1":
+  version: 5.20.1
+  resolution: "@tanstack/query-devtools@npm:5.20.1"
+  checksum: ab441c506a6d2aaa05be0bbba2f6a0344ced300e6e9a7bf532b0783146ccce6b05cbef9ed8e9e76260abc828e0cfb0fa318a03a5b2561605ac88a8702f98f399
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.18.1":
-  version: 5.18.1
-  resolution: "@tanstack/react-query-devtools@npm:5.18.1"
+"@tanstack/react-query-devtools@npm:^5.20.1":
+  version: 5.20.1
+  resolution: "@tanstack/react-query-devtools@npm:5.20.1"
   dependencies:
-    "@tanstack/query-devtools": 5.18.1
+    "@tanstack/query-devtools": 5.20.1
   peerDependencies:
-    "@tanstack/react-query": ^5.18.1
+    "@tanstack/react-query": ^5.20.1
     react: ^18.0.0
-  checksum: 11b4eca329614da1c9c5b84193e7d82910cfda4f87b992dc463822c903055b3d0444892049c67ed6b7e7de286bb0b47daecb15277d2f7ece56e495459824260b
+  checksum: 328f51684bf017dfda92df098b7fbff57074290c3ecf41e0202da0252912ddd6c7bb69705f37c49deaba51b8d5c69d423f7a019339bc3649fc80656c940b8c69
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.18.1":
-  version: 5.18.1
-  resolution: "@tanstack/react-query@npm:5.18.1"
+"@tanstack/react-query@npm:^5.20.1":
+  version: 5.20.1
+  resolution: "@tanstack/react-query@npm:5.20.1"
   dependencies:
-    "@tanstack/query-core": 5.18.1
+    "@tanstack/query-core": 5.20.1
   peerDependencies:
     react: ^18.0.0
-  checksum: d24d79b7bf464d0c80c72d6c93d5e51c7c400a0ed895f6bda9e6f53c3c576a08d7302193c70b6d5e2842981354a739ed9b12de9bb4e5fe35e8b41aa9e833f5af
+  checksum: 7d088fa552d44ca718db951e2466c38b2eb3236e9949a3cb8e2f52bed5336584cd77ebfd4bfa8c6ab6eff05abbdfb1a4c70808a56f4b9c89f3ef93b43d94f223
   languageName: node
   linkType: hard
 
@@ -5384,12 +5384,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.2.18":
-  version: 18.2.18
-  resolution: "@types/react-dom@npm:18.2.18"
+"@types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.2.19":
+  version: 18.2.19
+  resolution: "@types/react-dom@npm:18.2.19"
   dependencies:
     "@types/react": "*"
-  checksum: 8e3da404c980e2b2a76da3852f812ea6d8b9d0e7f5923fbaf3bfbbbfa1d59116ff91c129de8f68e9b7668a67ae34484fe9df74d5a7518cf8591ec07a0c4dad57
+  checksum: 087a19d8e4c1c0900ec4ac5ddb749a811a38274b25683d233c11755d2895cc6e475e8bf9bea3dee36519769298e078d4c2feab9ab4bd13b26bc2a6170716437e
   languageName: node
   linkType: hard
 
@@ -6984,9 +6984,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^10.7.1":
-  version: 10.7.1
-  resolution: "chromatic@npm:10.7.1"
+"chromatic@npm:^10.9.3":
+  version: 10.9.3
+  resolution: "chromatic@npm:10.9.3"
   peerDependencies:
     "@chromatic-com/cypress": ^0.5.2 || ^1.0.0
     "@chromatic-com/playwright": ^0.5.2 || ^1.0.0
@@ -6999,7 +6999,7 @@ __metadata:
     chroma: dist/bin.js
     chromatic: dist/bin.js
     chromatic-cli: dist/bin.js
-  checksum: e917d8c4a8afc63e44ee3774548cd9bd2be49b4a9243446118d5bceb749fa2752364050cfab95fc490c5117a2854fce45e81714d6e9583514a94a7067a96c9c3
+  checksum: 83df5d58576e77cd88a1190b2b03584b0b97a2b89beeaac6b9bb4069d9b96c2222afd2bca464d78a7d425bfed7b54eb1811f4b3ecf4808f34393e70293c441a1
   languageName: node
   linkType: hard
 
@@ -8674,9 +8674,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-playwright@npm:^0.22.2":
-  version: 0.22.2
-  resolution: "eslint-plugin-playwright@npm:0.22.2"
+"eslint-plugin-playwright@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "eslint-plugin-playwright@npm:1.0.0"
   dependencies:
     globals: ^13.23.0
   peerDependencies:
@@ -8685,7 +8685,7 @@ __metadata:
   peerDependenciesMeta:
     eslint-plugin-jest:
       optional: true
-  checksum: 4e62074a2d67c834e25e39dad655a868b7852edb3d1e5b555906f47fe0e351a9e7d2cb9a0d826e3f5af035d07d85992ba3773e03cac6d69279b62062a632ee18
+  checksum: 477060b232cada10e49f1c77f121e10159c954d967f4e44d5909cbd890d3872968737bbc68d6da033f0848f2babc5e41e7995e0e0e43a4a8117f77540da8b699
   languageName: node
   linkType: hard
 
@@ -14058,14 +14058,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.3.11, postcss@npm:^8.4.32, postcss@npm:^8.4.33":
-  version: 8.4.33
-  resolution: "postcss@npm:8.4.33"
+"postcss@npm:^8.3.11, postcss@npm:^8.4.35":
+  version: 8.4.35
+  resolution: "postcss@npm:8.4.35"
   dependencies:
     nanoid: ^3.3.7
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
-  checksum: 6f98b2af4b76632a3de20c4f47bf0e984a1ce1a531cf11adcb0b1d63a6cbda0aae4165e578b66c32ca4879038e3eaad386a6be725a8fb4429c78e3c1ab858fe9
+  checksum: cf3c3124d3912a507603f6d9a49b3783f741075e9aa73eb592a6dd9194f9edab9d20a8875d16d137d4f779fe7b6fbd1f5727e39bfd1c3003724980ee4995e1da
   languageName: node
   linkType: hard
 
@@ -14488,8 +14488,8 @@ __metadata:
     "@storybook/react-vite": ^7.6.12
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^7.6.12
-    "@tanstack/react-query": ^5.18.1
-    "@tanstack/react-query-devtools": ^5.18.1
+    "@tanstack/react-query": ^5.20.1
+    "@tanstack/react-query-devtools": ^5.20.1
     "@testing-library/dom": ^9.3.4
     "@testing-library/jest-dom": ^6.4.2
     "@testing-library/react": ^14.2.1
@@ -14505,7 +14505,7 @@ __metadata:
     "@types/mdx": ^2.0.11
     "@types/node": ^18.18.7
     "@types/react": 18.2.55
-    "@types/react-dom": ^18.2.18
+    "@types/react-dom": ^18.2.19
     "@types/react-router-dom": ^5.3.3
     "@types/react-scroll-sync": ^0.9.0
     "@types/sanitize-html": ^2.9.5
@@ -14520,7 +14520,7 @@ __metadata:
     browserslist: ^4.22.3
     browserslist-useragent-regexp: ^4.1.1
     camelcase: ^6.3.0
-    chromatic: ^10.7.1
+    chromatic: ^10.9.3
     classnames: ^2.5.1
     cross-env: ^7.0.3
     dompurify: ^3.0.8
@@ -14533,7 +14533,7 @@ __metadata:
     eslint-plugin-jest: ^27.6.3
     eslint-plugin-jest-dom: ^5.1.0
     eslint-plugin-jsx-a11y: ^6.8.0
-    eslint-plugin-playwright: ^0.22.2
+    eslint-plugin-playwright: ^1.0.0
     eslint-plugin-react: ^7.33.2
     eslint-plugin-react-hooks: ^4.6.0
     eslint-plugin-react-refresh: ^0.4.5
@@ -14558,7 +14558,7 @@ __metadata:
     otpauth: ^9.2.2
     otplib: ^12.0.1
     patch-package: ^8.0.0
-    postcss: ^8.4.33
+    postcss: ^8.4.35
     prettier: ^3.2.4
     react: ^18.2.0
     react-dom: ^18.2.0
@@ -14587,7 +14587,7 @@ __metadata:
     typescript: ^5.3.3
     undici: ^6.6.1
     use-deep-compare-effect: ^1.8.1
-    vite: ^5.0.12
+    vite: ^5.1.1
     vite-plugin-checker: ^0.6.4
     vite-plugin-svgr: ^4.2.0
     vite-plugin-turbosnap: ^1.0.3
@@ -17453,13 +17453,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^5.0.12":
-  version: 5.0.12
-  resolution: "vite@npm:5.0.12"
+"vite@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "vite@npm:5.1.1"
   dependencies:
     esbuild: ^0.19.3
     fsevents: ~2.3.3
-    postcss: ^8.4.32
+    postcss: ^8.4.35
     rollup: ^4.2.0
   peerDependencies:
     "@types/node": ^18.0.0 || >=20.0.0
@@ -17489,7 +17489,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: b97b6f1c204d9091d0973626827a6e9d8e8b1959ebd0877b6f76e7068e1e7adf9ecd3b1cc382cbab9d421e3eeca5e1a95f27f9c1734439b229f5a58ef2052fa4
+  checksum: 6aa7133ed1b455c63a164ba29e6627f4178884e74ec79937bf28492d95a4b9b3a30ce85d3162bb1854217b3adeb1f74bca87d38f394d5696df44f482c4bd3591
   languageName: node
   linkType: hard
 

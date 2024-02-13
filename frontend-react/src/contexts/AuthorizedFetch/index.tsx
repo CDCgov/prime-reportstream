@@ -22,7 +22,7 @@ export const AuthorizedFetchContext = createContext<IAuthorizedFetchContext>(
     () => Promise.reject("fetcher uninitialized"),
 );
 
-export const AuthorizedFetchProvider = ({
+const AuthorizedFetchProvider = ({
     children,
 }: PropsWithChildren<{ initializedOverride?: boolean }>) => {
     const { activeMembership, authState = {} } = useSessionContext();
@@ -81,3 +81,5 @@ export function useAuthorizedFetch<
         AuthorizedFetchContext,
     );
 }
+
+export default AuthorizedFetchProvider;

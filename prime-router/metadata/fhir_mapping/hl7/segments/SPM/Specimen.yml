@@ -68,10 +68,12 @@ container:
     spm27: SPM.27
   expressionsMap:
     additiveCodeableConcept:
-      condition: $spm6 NOT_NULL
-      valueOf: datatypes/CWE/CodeableConcept
-      expressionType: resource
-      specs: SPM.6 *
+      expressionType: nested
+      expressions:
+        - condition: $spm6 NOT_NULL
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: SPM.6 *
     type:
       valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
@@ -113,23 +115,29 @@ collection:
       expressionType: resource
       specs: SPM.12
     collectedPeriod:
-      condition: $end NOT_NULL
-      valueOf: datatypes/DR/Period
-      expressionType: resource
-      specs: SPM.17
+      expressionType: nested
       vars:
-        start: SPM.17.1
-        end: SPM.17.2
-        dateTimeIn: SPM.17.1
-        dateTimeOut: SPM.17.2
+        spm17: SPM.17
+      expressions:
+        - condition: $end NOT_NULL
+          valueOf: datatypes/DR/Period
+          expressionType: resource
+          specs: SPM.17
+          vars:
+            start: SPM.17.1
+            end: SPM.17.2
+            dateTimeIn: SPM.17.1
+            dateTimeOut: SPM.17.2
     collectedDateTime:
-      condition: $end NULL
-      type: STRING
-      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-      expressionType: JEXL
-      vars:
-        dateTimeIn: SPM.17.1
-        end: SPM.17.2
+      expressionType: nested
+      expressions:
+        - condition: $end NULL
+          type: STRING
+          valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+          expressionType: JEXL
+          vars:
+            dateTimeIn: SPM.17.1
+            end: SPM.17.2
     _collectedDateTime:
       condition: $dateTimeIn NOT_NULL && $end NULL
       expressionType: nested
@@ -172,7 +180,6 @@ note:
           type: STRING
           valueOf: SPM.14
 
-
 receivedTime:
   condition: $dateTimeIn NOT_NULL
   type: STRING
@@ -207,6 +214,13 @@ extension:
   expressionType: nested
   generateList: true
   expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: hl7v2Segment
+        valueString:
+          valueOf: 'SPM'
     - expressionType: resource
       valueOf: segments/SPM/SPMExtension
     - expressionType: nested
@@ -224,9 +238,9 @@ extension:
           expressionType: resource
 
 condition:
-  condition: $spm24 NOT_NULL
   vars:
     spm24: SPM.24
+  condition: $spm24 NOT_NULL
   valueOf: datatypes/CWE/CodeableConcept
   expressionType: resource
   generateList: true
