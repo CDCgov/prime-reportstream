@@ -14,12 +14,12 @@ export class Header {
             .getByTestId("navDropDownButton")
             .click();
 
-        await expect(this.page.getByText("About ReportStream")).toBeTruthy();
-        await expect(this.page.getByText("Our network")).toBeTruthy();
-        await expect(this.page.getByText("News")).toBeTruthy();
-        await expect(this.page.getByText("Case studies")).toBeTruthy();
-        await expect(this.page.getByText("Security")).toBeTruthy();
-        await expect(this.page.getByText("Release notes")).toBeTruthy();
+        expect(this.page.getByText("About ReportStream")).toBeTruthy();
+        expect(this.page.getByText("Our network")).toBeTruthy();
+        expect(this.page.getByText("News")).toBeTruthy();
+        expect(this.page.getByText("Case studies")).toBeTruthy();
+        expect(this.page.getByText("Security")).toBeTruthy();
+        expect(this.page.getByText("Release notes")).toBeTruthy();
     }
 
     async clickOnGettingStarted() {

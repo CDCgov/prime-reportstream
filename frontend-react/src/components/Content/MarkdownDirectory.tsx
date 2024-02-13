@@ -8,10 +8,10 @@ type ContentElement = () => JSX.Element;
  * @property slug
  * @property desc */
 export abstract class ContentDirectory {
-    title: string = "";
-    root: string = "";
-    slug: string = "";
-    desc: string = "";
+    title = "";
+    root = "";
+    slug = "";
+    desc = "";
     setTitle(title: string) {
         this.title = title;
         return this;

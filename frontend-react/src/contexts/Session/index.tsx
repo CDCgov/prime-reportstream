@@ -1,4 +1,11 @@
-import React, {
+import {
+    AuthState,
+    CustomUserClaims,
+    OktaAuth,
+    UserClaims,
+} from "@okta/okta-auth-js";
+import { Security, useOktaAuth } from "@okta/okta-react";
+import {
     ComponentProps,
     createContext,
     PropsWithChildren,
@@ -9,27 +16,21 @@ import React, {
     useRef,
     useState,
 } from "react";
-import OktaAuth, {
-    CustomUserClaims,
-    UserClaims,
-    AuthState,
-} from "@okta/okta-auth-js";
-import { Security, useOktaAuth } from "@okta/okta-react";
 
-import {
-    getUserPermissions,
-    RSUserPermissions,
-} from "../../utils/PermissionsUtils";
+import type { AppConfig } from "../../config";
+import site from "../../content/site.json";
+import { updateApiSessions } from "../../network/Apis";
+import { RSConsole } from "../../utils/console";
 import {
     MembershipSettings,
     membershipsFromToken,
     MemberType,
     RSUserClaims,
 } from "../../utils/OrganizationUtils";
-import type { AppConfig } from "../../config";
-import { updateApiSessions } from "../../network/Apis";
-import site from "../../content/site.json";
-import { RSConsole } from "../../utils/console";
+import {
+    getUserPermissions,
+    RSUserPermissions,
+} from "../../utils/PermissionsUtils";
 import { useAppInsightsContext } from "../AppInsights";
 
 export interface RSSessionContext {
@@ -69,8 +70,9 @@ function SessionProvider({ children, config, ...props }: SessionProviderProps) {
     );
 }
 
-export interface SessionAuthStateGateProps
-    extends PropsWithChildren<Pick<SessionProviderProps, "config">> {}
+export type SessionAuthStateGateProps = PropsWithChildren<
+    Pick<SessionProviderProps, "config">
+>;
 
 function SessionAuthStateGate({ children, config }: SessionAuthStateGateProps) {
     const { authState, ...props } = useOktaAuth();
@@ -124,13 +126,13 @@ export function SessionProviderBase({
                 ai: appInsights?.sdk,
                 consoleSeverityLevels: config.AI_CONSOLE_SEVERITY_LEVELS,
                 reportableConsoleLevels: config.AI_REPORTABLE_CONSOLE_LEVELS,
-                env: config.CLIENT_ENV,
+                env: config.MODE,
             }),
         [
             appInsights,
             config.AI_CONSOLE_SEVERITY_LEVELS,
             config.AI_REPORTABLE_CONSOLE_LEVELS,
-            config.CLIENT_ENV,
+            config.MODE,
         ],
     );
 
@@ -206,7 +208,7 @@ export function SessionProviderBase({
         }
     }, [_activeMembership, activeMembership, authState]);
 
-    useEffect(() => {}, [authState]);
+    useEffect(() => void 0, [authState]);
 
     return (
         <SessionContext.Provider value={context}>
