@@ -35,6 +35,12 @@ elements:
     value: [ '"NVDOH"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
+  - name: nv-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
   - name: observation-result-with-aoe
     # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
     resource: '%resource.result.resolve() | %resource.basedOn.resolve().supportingInfo.resolve().where(specimen.exists().not()) | %resource.basedOn.resolve().supportingInfo.resolve().where(meta.tag.code = "AOE")'
