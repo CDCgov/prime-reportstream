@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable import/order */
-import "jest-canvas-mock";
 import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { createMocks } from "react-idle-timer";
@@ -14,7 +13,10 @@ beforeAll(() => {
 
 afterAll(cleanup);
 
-global.scrollTo = jest.fn();
+global.scrollTo = vi.fn();
+
+vi.stubGlobal("scrollTo", vi.fn());
+vi.mock("./oktaConfig");
 
 /**
  * @see https://mswjs.io/docs/migrations/1.x-to-2.x/#requestresponsetextencoder-is-not-defined-jest
