@@ -21,6 +21,7 @@ env:
     TEST_SENDER_PASSWORD: ${{ secrets.TEST_SENDER_PASSWORD }}
     TEST_RECEIVER_USERNAME: ${{ secrets.TEST_RECEIVER_USERNAME }}
     TEST_RECEIVER_PASSWORD: ${{ secrets.TEST_RECEIVER_PASSWORD }}
+    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 jobs:
   lint:
@@ -102,6 +103,7 @@ jobs:
       - name: Run SonarCloud Scan
         run: >
           npx sonarqube-scanner 
+          -Dsonar.token="$SONAR_TOKEN"
           -Dsonar.coverage.exclusions=prime-router/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
           -Dsonar.cpd.exclusions=prime-router/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
           -Dsonar.sources=frontend-react/src,prime-router/src
