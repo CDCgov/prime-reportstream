@@ -15,6 +15,7 @@ export async function selectTestOrg(page: Page) {
     await page.goto("/admin/settings", {
         waitUntil: "domcontentloaded",
     });
+    await page.getByTestId("gridContainer").waitFor({ state: "visible" });
     await expect(page).toHaveTitle(/Admin-Organizations/);
     await page.getByTestId("textInput").fill("ignore");
     await page.getByTestId("ignore_set").click();
