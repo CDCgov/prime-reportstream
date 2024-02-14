@@ -30,6 +30,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
+import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
@@ -57,8 +58,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
+import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 import java.time.OffsetDateTime
 import gov.cdc.prime.router.azure.db.tables.ActionLog as ActionLogTable
@@ -428,14 +428,10 @@ class FhirFunctionTests {
     }
 
     @Nested
-    @Testcontainers(parallel = true)
+    @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
     inner class FhirFunctionIntegrationTests {
 
-        @Container
-        val dbContainer = ReportStreamTestDatabaseContainer()
-
         private fun seedTask(
-            db: DatabaseAccess,
             fileFormat: Report.Format,
             nextAction: TaskAction,
             nextEventAction: Event.EventAction,
@@ -465,23 +461,23 @@ class FhirFunctionTests {
                     )
                 )
             }
-            db.transact { txn ->
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
                 val action = Action()
-                val actionId = db.insertAction(txn, action)
+                val actionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
                 report.bodyURL = "http://${report.id}.${fileFormat.toString().lowercase()}"
                 val reportFile = ReportFile().setSchemaTopic(topic).setReportId(report.id)
                     .setActionId(actionId).setSchemaName("").setBodyFormat(fileFormat.toString()).setItemCount(1)
                     .setExternalName("test-external-name")
                     .setBodyUrl(report.bodyURL)
-                db.insertReportFile(
+                ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
                     reportFile, txn, action
                 )
                 if (!report.itemLineages.isNullOrEmpty()) {
-                    db
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
                         .insertItemLineages(report.itemLineages!!.toSet(), txn, action)
                 }
 
-                db.insertTask(
+                ReportStreamTestDatabaseContainer.testDatabaseAccess.insertTask(
                     report,
                     fileFormat.toString().lowercase(),
                     report.bodyURL,
@@ -501,9 +497,7 @@ class FhirFunctionTests {
 
         @Test
         fun `test does not update the DB or send messages on an error`() {
-            val db = ReportStreamTestDatabaseContainer.getDataSourceFromContainer(dbContainer)
             val report = seedTask(
-                db,
                 Report.Format.HL7,
                 TaskAction.convert,
                 Event.EventAction.CONVERT,
@@ -529,7 +523,7 @@ class FhirFunctionTests {
             val fhirEngine = FHIRConverter(
                 UnitTestUtils.simpleMetadata,
                 settings,
-                db,
+                ReportStreamTestDatabaseContainer.testDatabaseAccess,
                 blobMock,
             )
 
@@ -538,7 +532,7 @@ class FhirFunctionTests {
                 makeWorkflowEngine(
                     UnitTestUtils.simpleMetadata,
                     settings,
-                    db
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
             val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
@@ -551,15 +545,15 @@ class FhirFunctionTests {
             val fhirFunc = FHIRFunctions(
                 workflowEngine,
                 queueAccess = queueMock,
-                databaseAccess = db
+                databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
             )
             assertThrows<RuntimeException> {
                 fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
             }
 
-            val processTask = db.fetchTask(report.id)
+            val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
             assertThat(processTask.processedAt).isNull()
-            db.transact { txn ->
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
                 val routeTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                     .where(Task.TASK.NEXT_ACTION.eq(TaskAction.route))
                     .fetchOneInto(Task.TASK)
@@ -578,10 +572,7 @@ class FhirFunctionTests {
 
         @Test
         fun `test successfully processes a convert message`() {
-            val db = ReportStreamTestDatabaseContainer.getDataSourceFromContainer(dbContainer)
-
             val report = seedTask(
-                db,
                 Report.Format.HL7,
                 TaskAction.convert,
                 Event.EventAction.CONVERT,
@@ -612,7 +603,7 @@ class FhirFunctionTests {
             val fhirEngine = FHIRConverter(
                 metadata,
                 settings,
-                db,
+                ReportStreamTestDatabaseContainer.testDatabaseAccess,
                 blobMock,
             )
 
@@ -621,7 +612,7 @@ class FhirFunctionTests {
                 makeWorkflowEngine(
                     UnitTestUtils.simpleMetadata,
                     settings,
-                    db
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
             val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
@@ -634,13 +625,13 @@ class FhirFunctionTests {
             val fhirFunc = FHIRFunctions(
                 workflowEngine,
                 queueAccess = queueMock,
-                databaseAccess = db
+                databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
             )
             fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
 
-            val processTask = db.fetchTask(report.id)
+            val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
             assertThat(processTask.processedAt).isNotNull()
-            db.transact { txn ->
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
                 val routeTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                     .where(Task.TASK.NEXT_ACTION.eq(TaskAction.route))
                     .fetchOneInto(Task.TASK)
@@ -659,9 +650,7 @@ class FhirFunctionTests {
 
         @Test
         fun `test successfully processes a route message`() {
-            val db = ReportStreamTestDatabaseContainer.getDataSourceFromContainer(dbContainer)
             val report = seedTask(
-                db,
                 Report.Format.HL7,
                 TaskAction.translate,
                 Event.EventAction.TRANSLATE,
@@ -692,7 +681,7 @@ class FhirFunctionTests {
             val fhirEngine = FHIRRouter(
                 UnitTestUtils.simpleMetadata,
                 settings,
-                db,
+                ReportStreamTestDatabaseContainer.testDatabaseAccess,
                 blobMock,
                 reportService = reportServiceMock
             )
@@ -702,7 +691,7 @@ class FhirFunctionTests {
                 makeWorkflowEngine(
                     UnitTestUtils.simpleMetadata,
                     settings,
-                    db
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
             val queueMessage = "{\"type\":\"route\",\"reportId\":\"${report.id}\"," +
@@ -714,13 +703,13 @@ class FhirFunctionTests {
             val fhirFunc = FHIRFunctions(
                 workflowEngine,
                 queueAccess = queueMock,
-                databaseAccess = db
+                databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
             )
             fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
 
-            val convertTask = db.fetchTask(report.id)
+            val convertTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
             assertThat(convertTask.routedAt).isNotNull()
-            db.transact { txn ->
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
                 val routeTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                     .where(Task.TASK.NEXT_ACTION.eq(TaskAction.translate))
                     .fetchOneInto(Task.TASK)
@@ -739,9 +728,7 @@ class FhirFunctionTests {
 
         @Test
         fun `test successfully processes a translate message when isSendOriginal is false`() {
-            val db = ReportStreamTestDatabaseContainer.getDataSourceFromContainer(dbContainer)
             val convertReport = seedTask(
-                db,
                 Report.Format.FHIR,
                 TaskAction.route,
                 Event.EventAction.ROUTE,
@@ -749,7 +736,6 @@ class FhirFunctionTests {
                 oneOrganization
             )
             val routeReport = seedTask(
-                db,
                 Report.Format.FHIR,
                 TaskAction.translate,
                 Event.EventAction.TRANSLATE,
@@ -758,7 +744,6 @@ class FhirFunctionTests {
                 convertReport
             )
             val translateReport = seedTask(
-                db,
                 Report.Format.FHIR,
                 TaskAction.batch,
                 Event.EventAction.BATCH,
@@ -792,7 +777,7 @@ class FhirFunctionTests {
                 FHIRTranslator(
                     UnitTestUtils.simpleMetadata,
                     settings,
-                    db,
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess,
                     blobMock,
                 )
             )
@@ -802,7 +787,7 @@ class FhirFunctionTests {
                 makeWorkflowEngine(
                     UnitTestUtils.simpleMetadata,
                     settings,
-                    db
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
             val queueMessage = "{\"type\":\"translate\",\"reportId\":\"${translateReport.id}\"," +
@@ -820,14 +805,14 @@ class FhirFunctionTests {
             val fhirFunc = FHIRFunctions(
                 workflowEngine,
                 queueAccess = queueMock,
-                databaseAccess = db
+                databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
             )
 
             fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
 
             // verify task and report_file tables were updated correctly in the Translate function (new task and new
             // record file created)
-            db.transact { txn ->
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
                 val queueTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                     .where(Task.TASK.NEXT_ACTION.eq(TaskAction.batch))
                     .fetchOneInto(Task.TASK)
@@ -858,9 +843,7 @@ class FhirFunctionTests {
 
         @Test
         fun `test successfully processes a translate message when isSendOriginal is true`() {
-            val db = ReportStreamTestDatabaseContainer.getDataSourceFromContainer(dbContainer)
             val convertReport = seedTask(
-                db,
                 Report.Format.FHIR,
                 TaskAction.route,
                 Event.EventAction.ROUTE,
@@ -868,7 +851,6 @@ class FhirFunctionTests {
                 oneOrganization
             )
             val routeReport = seedTask(
-                db,
                 Report.Format.FHIR,
                 TaskAction.translate,
                 Event.EventAction.TRANSLATE,
@@ -877,7 +859,6 @@ class FhirFunctionTests {
                 convertReport
             )
             val translateReport = seedTask(
-                db,
                 Report.Format.FHIR,
                 TaskAction.batch,
                 Event.EventAction.BATCH,
@@ -911,7 +892,7 @@ class FhirFunctionTests {
                 FHIRTranslator(
                     UnitTestUtils.simpleMetadata,
                     settings,
-                    db,
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess,
                     blobMock,
                 )
             )
@@ -921,7 +902,7 @@ class FhirFunctionTests {
                 makeWorkflowEngine(
                     UnitTestUtils.simpleMetadata,
                     settings,
-                    db
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
             val queueMessage = "{\"type\":\"translate\",\"reportId\":\"${translateReport.id}\"," +
@@ -939,13 +920,13 @@ class FhirFunctionTests {
             val fhirFunc = FHIRFunctions(
                 workflowEngine,
                 queueAccess = queueMock,
-                databaseAccess = db
+                databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
             )
 
             fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
 
             // verify task and report_file tables were updated correctly in the Translate function
-            db.transact { txn ->
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
                 val sendTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                     .where(Task.TASK.NEXT_ACTION.eq(TaskAction.send))
                     .fetchOneInto(Task.TASK)
@@ -975,9 +956,7 @@ class FhirFunctionTests {
 
         @Test
         fun `test unmapped observation error messages`() {
-            val db = ReportStreamTestDatabaseContainer.getDataSourceFromContainer(dbContainer)
             val report = seedTask(
-                db,
                 Report.Format.FHIR,
                 TaskAction.convert,
                 Event.EventAction.CONVERT,
@@ -1009,7 +988,7 @@ class FhirFunctionTests {
             val fhirEngine = FHIRConverter(
                 metadata,
                 settings,
-                db,
+                ReportStreamTestDatabaseContainer.testDatabaseAccess,
                 blobMock,
             )
 
@@ -1018,7 +997,7 @@ class FhirFunctionTests {
                 makeWorkflowEngine(
                     metadata,
                     settings,
-                    db
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
             val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
@@ -1031,13 +1010,13 @@ class FhirFunctionTests {
             val fhirFunc = FHIRFunctions(
                 workflowEngine,
                 queueAccess = queueMock,
-                databaseAccess = db
+                databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
             )
             fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
 
-            val processTask = db.fetchTask(report.id)
+            val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
             assertThat(processTask.processedAt).isNotNull()
-            db.transact { txn ->
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
                 val actionLogs = DSL
                     .using(txn)
                     .select(ActionLogTable.ACTION_LOG.asterisk())
@@ -1057,10 +1036,7 @@ class FhirFunctionTests {
 
         @Test
         fun `test codeless observation error message`() {
-            val db = ReportStreamTestDatabaseContainer.getDataSourceFromContainer(dbContainer)
-
             val report = seedTask(
-                db,
                 Report.Format.FHIR,
                 TaskAction.convert,
                 Event.EventAction.CONVERT,
@@ -1092,7 +1068,7 @@ class FhirFunctionTests {
             val fhirEngine = FHIRConverter(
                 metadata,
                 settings,
-                db,
+                ReportStreamTestDatabaseContainer.testDatabaseAccess,
                 blobMock,
             )
 
@@ -1101,7 +1077,7 @@ class FhirFunctionTests {
                 makeWorkflowEngine(
                     metadata,
                     settings,
-                    db
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
             val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
@@ -1114,13 +1090,13 @@ class FhirFunctionTests {
             val fhirFunc = FHIRFunctions(
                 workflowEngine,
                 queueAccess = queueMock,
-                databaseAccess = db
+                databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
             )
             fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
 
-            val processTask = db.fetchTask(report.id)
+            val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
             assertThat(processTask.processedAt).isNotNull()
-            db.transact { txn ->
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
                 val actionLogs = DSL
                     .using(txn)
                     .select(ActionLogTable.ACTION_LOG.asterisk())

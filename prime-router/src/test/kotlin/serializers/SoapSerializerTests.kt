@@ -4,11 +4,11 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import kotlin.test.Test
 
 @JacksonXmlRootElement(localName = "elr:TestPayload")
 data class TestSoapPayload(
@@ -26,7 +26,6 @@ data class TestSoap12Payload(
     val textFileContents: String,
 ) : XmlObject
 
-// @Ignore
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SoapSerializerTests {
     private val defaultNamespace = "http://reportstream.cdc.gov"
