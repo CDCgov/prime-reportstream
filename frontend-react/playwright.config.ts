@@ -72,6 +72,9 @@ export default defineConfig<TestOptions>({
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: "on-first-retry",
 
+        /* Screenshot on failure. See https://playwright.dev/docs/screenshots */
+        screenshot: "only-on-failure",
+
         adminLogin: {
             ...logins.admin,
             landingPage: "/admin/settings",
