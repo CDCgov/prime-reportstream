@@ -30,7 +30,7 @@
       format: "HL7"
     # TI => RS
     - name: "etor-service-sender"
-      externalName: "ETOR Service Sender Channel to ReportStream - Sending FHIR orders"
+      externalName: "ETOR Service Sender Channel to ReportStream - Sending FHIR orders and results"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
