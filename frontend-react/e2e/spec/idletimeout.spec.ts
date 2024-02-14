@@ -9,7 +9,9 @@ const timeoutHigh = timeout + 500;
 test.use({ storageState: "playwright/.auth/admin.json" });
 
 test.skip("Does not trigger early", async ({ page }) => {
-    await page.goto("/admin/settings");
+    await page.goto("/admin/settings", {
+        waitUntil: "domcontentloaded",
+    });
 
     await expect(page.getByRole("banner").first()).toBeVisible();
     await page.keyboard.down("Tab");

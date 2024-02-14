@@ -2,7 +2,9 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Our network page", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto("/about/our-network");
+        await page.goto("/about/our-network", {
+            waitUntil: "domcontentloaded",
+        });
     });
 
     test("has correct title", async ({ page }) => {

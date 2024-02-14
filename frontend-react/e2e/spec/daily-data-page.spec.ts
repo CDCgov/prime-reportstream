@@ -5,7 +5,9 @@ import { selectTestOrg } from "../helpers/utils";
 test.describe("Daily data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
-            await page.goto("/daily-data");
+            await page.goto("/daily-data", {
+                waitUntil: "domcontentloaded",
+            });
             await expect(page).toHaveURL("/login");
         });
     });

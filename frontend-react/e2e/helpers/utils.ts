@@ -12,7 +12,9 @@ export async function scrollToTop(page: Page) {
 }
 
 export async function selectTestOrg(page: Page) {
-    await page.goto("/admin/settings");
+    await page.goto("/admin/settings", {
+        waitUntil: "domcontentloaded",
+    });
     await expect(page).toHaveTitle(/Admin-Organizations/);
     await page.getByTestId("textInput").fill("ignore");
     await page.getByTestId("ignore_set").click();

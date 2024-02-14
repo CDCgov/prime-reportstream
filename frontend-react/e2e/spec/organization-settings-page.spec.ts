@@ -4,7 +4,9 @@ test.use({ storageState: "playwright/.auth/admin.json" });
 
 // eslint-disable-next-line playwright/no-skipped-test
 test.skip("Has correct title", async ({ page }) => {
-    await page.goto("/admin/settings");
+    await page.goto("/admin/settings", {
+        waitUntil: "domcontentloaded",
+    });
 
     await expect(page).toHaveTitle(/Admin-Organizations/);
 });

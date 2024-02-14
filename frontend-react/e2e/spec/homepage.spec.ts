@@ -11,7 +11,9 @@ import * as support from "../pages/support";
 
 test.describe("Homepage", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto("/");
+        await page.goto("/", {
+            waitUntil: "domcontentloaded",
+        });
     });
 
     test("has correct title", async ({ page }) => {
