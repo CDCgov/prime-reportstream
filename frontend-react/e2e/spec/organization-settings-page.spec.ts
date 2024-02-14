@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test.use({ storageState: "e2e/.auth/admin.json" });
 
 // eslint-disable-next-line playwright/no-skipped-test
-test.skip("Has correct title", async ({ page }) => {
+test("Has correct title", async ({ page }) => {
     await page.goto("/admin/settings", {
         waitUntil: "domcontentloaded",
     });

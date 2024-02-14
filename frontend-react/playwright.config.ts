@@ -59,7 +59,7 @@ export default defineConfig<TestOptions>({
     forbidOnly: isCi,
     retries: isCi ? 2 : 0,
     workers: isCi ? "100%" : undefined,
-    reporter: [["html", { outputDir: "e2e-data/report" }]],
+    reporter: [["html", { outputFolder: "e2e-data/report" }]],
     outputDir: "e2e-data/results",
     use: {
         baseURL: "http://localhost:4173",
