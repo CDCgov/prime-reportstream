@@ -37,9 +37,9 @@ class TranslationSchemaManager : Logging {
             RuntimeException(cause)
 
         /**
-         * Internal helper function that fetches the raw input and output file and the URI for schema to be validated
+         * Internal helper function that fetches the raw input, output file and the URI for the schema to be validated
          *
-         * @property blobs the list of blobs to search through to find the transform
+         * @property blobs the list of blobs to search through to find the schema
          * @property blobContainerInfo the information on the blob container to download from
          * @property inputDirectoryPath the path to the directory currently being processed
          * @property schemaType the kind of transform being validated
@@ -61,6 +61,7 @@ class TranslationSchemaManager : Logging {
             } catch (e: Exception) {
                 throw TranslationValidationException("Unable to download the input file: $inputBlobUrl", e)
             }
+
             val outputBlobUrl =
                 "${blobContainerInfo.getBlobEndpoint()}/${inputDirectoryPath}output.${schemaType.outputExtension}"
             val output = try {
@@ -76,6 +77,7 @@ class TranslationSchemaManager : Logging {
                 val find = Regex("$inputDirectoryPath[^/]+.yml").find(it.currentBlobItem.name)
                 find != null && find.groups.isNotEmpty()
             }
+            // This is a sanity check that multiple schemas were not added to the same schema directory
             if (transformBlob.size != 1) {
                 throw TranslationValidationException(
                     """
@@ -83,7 +85,7 @@ class TranslationSchemaManager : Logging {
                     """.trimIndent()
                 )
             }
-            val transformBlobName = transformBlob[0].currentBlobItem.name
+            val transformBlobName = transformBlob.single().currentBlobItem.name
             val schemaUri =
                 "${blobContainerInfo.getBlobEndpoint()}/$transformBlobName"
             return ValidationContainer(input, output, schemaUri)
@@ -92,7 +94,7 @@ class TranslationSchemaManager : Logging {
 
     /**
      * This function processes a specific kind of transform and validates that each translation schema when applied to
-     * the sample output exactly matches the sample output.
+     * the sample input exactly matches the sample output.
      *
      * @property schemaType the type of transform getting validated
      * @property blobContainerInfo the connection info for where the schemas getting validated are stored
@@ -107,7 +109,9 @@ class TranslationSchemaManager : Logging {
         val inputs = blobs.filter { it.currentBlobItem.name.contains("/input.") }
 
         return inputs.map { currentInput ->
-            val inputDirectoryPath = Regex("(.*/).*").find(currentInput.currentBlobItem.name)!!.groups[1]!!.value
+            val inputDirectoryPath =
+                Regex("(?<inputDirectory>.*/).*")
+                    .find(currentInput.currentBlobItem.name)!!.groups.get("inputDirectory")!!.value
 
             val rawValidationInput = try {
                 getRawInputOutputAndSchemaUri(blobs, blobContainerInfo, inputDirectoryPath, schemaType)

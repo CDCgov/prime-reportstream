@@ -60,9 +60,9 @@ class FhirTransformer(
      * Transform the given [bundle]. The bundle passed in will be updated directly, and will also be returned.
      * @return the transformed bundle
      */
-    fun transform(bundle: Bundle): Bundle {
-        transformWithSchema(schemaRef, bundle = bundle, focusResource = bundle)
-        return bundle
+    override fun process(input: Bundle): Bundle {
+        transformWithSchema(schemaRef, bundle = input, focusResource = input)
+        return input
     }
 
     /**
@@ -304,9 +304,5 @@ class FhirTransformer(
         } else {
             parts
         }
-    }
-
-    override fun process(input: Bundle): Bundle {
-        return transform(input)
     }
 }

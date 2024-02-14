@@ -107,13 +107,13 @@ class FhirToHl7Converter(
      * Convert the given [bundle] to an HL7 message.
      * @return the HL7 message
      */
-    fun convert(bundle: Bundle): Message {
+    override fun process(input: Bundle): Message {
         // Sanity check, but the schema is assumed good to go here
         check(!schemaRef.hl7Class.isNullOrBlank())
         val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)
 
         terser = Terser(message)
-        processSchema(schemaRef, bundle, bundle)
+        processSchema(schemaRef, input, input)
         return message
     }
 
@@ -316,10 +316,6 @@ class FhirToHl7Converter(
                 }
             }
         }
-    }
-
-    override fun process(input: Bundle): Message {
-        return convert(input)
     }
 }
 
