@@ -55,7 +55,7 @@ $column-gutter: 2rem;
             &__two {
                 border-left: 1px solid color(gray-20);
                 border-right: 1px solid color(gray-20);
-                padding: 0 calc($column-gutter - 24px) 0 $column-gutter;
+                padding: 0 calc($column-gutter - 14px) 0 $column-gutter;
             }
         }
     }

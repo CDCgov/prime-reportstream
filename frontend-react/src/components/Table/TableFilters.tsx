@@ -81,13 +81,8 @@ function TableFilters({
 }: TableFilterProps) {
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
-    const [rangeFrom, setRangeFrom] = useState<Date>(new Date());
-    const [rangeTo, setRangeTo] = useState<Date>(new Date());
-    const isFilterEnabled = useMemo(() => {
-        return Boolean(
-            rangeFrom && rangeTo && new Date(rangeFrom) < new Date(rangeTo),
-        );
-    }, [rangeFrom, rangeTo]);
+    const [rangeFrom, setRangeFrom] = useState<Date | undefined>(undefined);
+    const [rangeTo, setRangeTo] = useState<Date | undefined>(undefined);
     const formRef = useRef<HTMLFormElement>(null);
     const [startTime, setStartTime] = useState(DEFAULT_TIME);
     const [endTime, setEndTime] = useState(DEFAULT_TIME);
@@ -110,6 +105,48 @@ function TableFilters({
         },
         [cursorManager, filterManager],
     );
+
+    const filterDetails = useMemo(() => {
+        // Handle edge case of JUST a receiver being selected
+        if (
+            currentServiceSelect &&
+            !rangeFrom &&
+            !rangeTo &&
+            startTime === DEFAULT_TIME &&
+            endTime === DEFAULT_TIME
+        ) {
+            return {
+                isFilterDisabled: false,
+                rangeFromWithTime: undefined,
+                rangeToWithTime: undefined,
+            };
+        }
+
+        // Early return if rangeFrom or rangeTo are not provided
+        if (!rangeFrom || !rangeTo) {
+            return {
+                isFilterDisabled: true,
+                rangeFromWithTime: undefined,
+                rangeToWithTime: undefined,
+            };
+        }
+
+        const [startHours, startMinutes] = startTime.split(":").map(Number);
+        const [endHours, endMinutes] = endTime.split(":").map(Number);
+
+        const rangeFromWithTime = new Date(
+            rangeFrom.setHours(startHours, startMinutes, 0, 0),
+        ).toISOString();
+        const rangeToWithTime = new Date(
+            rangeTo.setHours(endHours, endMinutes, 0, 0),
+        ).toISOString();
+
+        const isFilterDisabled = Boolean(
+            new Date(rangeFromWithTime) > new Date(rangeToWithTime),
+        );
+
+        return { isFilterDisabled, rangeFromWithTime, rangeToWithTime };
+    }, [currentServiceSelect, endTime, rangeFrom, rangeTo, startTime]);
 
     /* Pushes local state to context and resets cursor to page 1 */
     const applyToFilterManager = useCallback(
@@ -138,25 +175,24 @@ function TableFilters({
     const submitHandler = useCallback(
         (e: FormEvent) => {
             e.preventDefault();
-            const [startHours, startMinutes] = startTime.split(":").map(Number);
-            const [endHours, endMinutes] = endTime.split(":").map(Number);
-            const rangeFromWithTime = new Date(
-                rangeFrom.setHours(startHours, startMinutes, 0, 0),
-            ).toISOString();
-            const rangeToWithTime = new Date(
-                rangeTo.setHours(endHours, endMinutes, 0, 0),
-            ).toISOString();
+
             setService?.(currentServiceSelect);
-            applyToFilterManager(rangeFromWithTime, rangeToWithTime);
+            if (
+                filterDetails.rangeFromWithTime &&
+                filterDetails.rangeToWithTime
+            ) {
+                applyToFilterManager(
+                    filterDetails.rangeFromWithTime,
+                    filterDetails.rangeToWithTime,
+                );
+            }
         },
         [
             applyToFilterManager,
             currentServiceSelect,
-            endTime,
-            rangeFrom,
-            rangeTo,
+            filterDetails.rangeFromWithTime,
+            filterDetails.rangeToWithTime,
             setService,
-            startTime,
         ],
     );
 
@@ -185,7 +221,6 @@ function TableFilters({
                                 id="start-date-hint"
                             >
                                 Your connection could have multiple receivers,{" "}
-                                <br />
                                 such as one specific to COVID.
                             </p>
                         </div>
@@ -212,6 +247,8 @@ function TableFilters({
                                 onChange: (val?: string) => {
                                     if (isValidDateString(val)) {
                                         setRangeFrom(new Date(val!!));
+                                    } else {
+                                        setRangeFrom(undefined);
                                     }
                                 },
                             }}
@@ -225,6 +262,8 @@ function TableFilters({
                                         setRangeTo(
                                             getEndOfDay(new Date(val!!)),
                                         );
+                                    } else {
+                                        setRangeTo(undefined);
                                     }
                                 },
                             }}
@@ -272,16 +311,22 @@ function TableFilters({
                     </div>
                     <div className="grid-col-fill filter-column__three">
                         <div className="button-container">
-                            <Button
-                                className="margin-right-205"
-                                disabled={!isFilterEnabled}
-                                type={"submit"}
-                            >
-                                Apply
-                            </Button>
-                            <Button type={"reset"} name="clear-button" unstyled>
-                                Reset
-                            </Button>
+                            <div>
+                                <Button
+                                    className="margin-right-205"
+                                    disabled={filterDetails.isFilterDisabled}
+                                    type={"submit"}
+                                >
+                                    Apply
+                                </Button>
+                                <Button
+                                    type={"reset"}
+                                    name="clear-button"
+                                    unstyled
+                                >
+                                    Reset
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
