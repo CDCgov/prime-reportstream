@@ -111,8 +111,7 @@ export default defineConfig<TestOptions>({
         // },
     ],
     webServer: {
-        command:
-            "yarn cross-env VITE_IDLE_TIMEOUT=5000 yarn run preview:build:test",
+        command: `yarn cross-env VITE_IDLE_TIMEOUT=5000 yarn run preview:build:${isCi ? "ci" : "test"}`,
         url: "http://localhost:4173",
         timeout: 1000 * 180,
         stdout: "pipe",

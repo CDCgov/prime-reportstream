@@ -21,11 +21,12 @@ function createBackendUrl(mode: string) {
     const port = getPort(mode);
     if (LOCAL_MODES.includes(mode))
         return `http://localhost${port ? ":" + port.toString() : ""}`;
-    return `https://${mode !== "production" ? mode + "." : ""}prime.cdc.gov`;
+    return `https://${mode !== "production" ? (mode === "ci" ? "staging" : mode + ".") : ""}prime.cdc.gov`;
 }
 
 function getPort(mode: string) {
     switch (mode) {
+        case "ci":
         case "test":
         case "csp":
         case "preview":
@@ -40,6 +41,7 @@ function getPort(mode: string) {
  */
 function loadRedirectedEnv(mode: string) {
     let redirectedMode = mode;
+    if (mode === "ci") redirectedMode = "test";
     if (DEMO_MODES.exec(mode)) redirectedMode = "demo";
     else if (TRIALFRONTEND_MODES.exec(mode)) redirectedMode = "trialfrontend";
 
