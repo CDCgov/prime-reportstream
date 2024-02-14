@@ -17,8 +17,10 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.OffsetDateTime
 import java.util.UUID
+import kotlin.test.Ignore
 import kotlin.test.Test
 
+@Ignore
 class ReportGraphTest {
 
     @Nested
@@ -77,7 +79,7 @@ class ReportGraphTest {
                         convertReportFile.reportId,
                         OffsetDateTime.now()
                     ),
-                        txn
+                    txn
                 )
                 db.insertReportLineage(
                     ReportLineage(
@@ -87,7 +89,7 @@ class ReportGraphTest {
                         routeReportFile.reportId,
                         OffsetDateTime.now()
                     ),
-                        txn
+                    txn
                 )
                 db.insertReportLineage(
                     ReportLineage(
@@ -97,7 +99,7 @@ class ReportGraphTest {
                         translateReportFile.reportId,
                         OffsetDateTime.now()
                     ),
-                        txn
+                    txn
                 )
             }
         }

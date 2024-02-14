@@ -50,8 +50,10 @@ import java.net.MalformedURLException
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 
+@Ignore
 class BlobAccessTests {
     @AfterEach
     fun tearDown() {

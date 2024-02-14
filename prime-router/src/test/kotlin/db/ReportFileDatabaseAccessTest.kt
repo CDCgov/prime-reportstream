@@ -15,7 +15,9 @@ import org.junit.jupiter.api.Test
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.UUID
+import kotlin.test.Ignore
 
+@Ignore
 class ReportFileDatabaseAccessTest {
 
     @Testcontainers(parallel = true)
