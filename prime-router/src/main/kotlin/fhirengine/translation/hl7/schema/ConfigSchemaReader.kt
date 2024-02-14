@@ -74,7 +74,9 @@ object ConfigSchemaReader : Logging {
         val schemaList = mutableListOf(readSchemaTreeRelative(schemaName, folder, schemaClass = schemaClass))
         while (!schemaList.last().extends.isNullOrBlank()) {
             // Make sure there are no circular dependencies
-            if (schemaList.any { FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends) }
+            if (schemaList.any {
+                    FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends)
+                }
             ) {
                 throw SchemaException("Schema circular dependency found while loading schema $schemaName")
             }
@@ -102,14 +104,11 @@ object ConfigSchemaReader : Logging {
         schemaClass: Class<out Schema>,
         blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
     ): List<Schema> {
-        val schemaList =
-            mutableListOf(
-                readSchemaTreeUri(
-                    schemaUri,
-                    schemaClass = schemaClass,
-                    blobConnectionInfo = blobConnectionInfo
-                )
+        val schemaList = mutableListOf(
+            readSchemaTreeUri(
+                schemaUri, schemaClass = schemaClass, blobConnectionInfo = blobConnectionInfo
             )
+        )
         while (!schemaList.last().extends.isNullOrBlank()) {
             // Make sure there are no circular dependencies
             if (schemaList.any {
@@ -120,9 +119,7 @@ object ConfigSchemaReader : Logging {
             }
             schemaList.add(
                 readSchemaTreeUri(
-                    URI(schemaList.last().extends!!),
-                    schemaClass = schemaClass,
-                    blobConnectionInfo = blobConnectionInfo
+                    URI(schemaList.last().extends!!), schemaClass = schemaClass, blobConnectionInfo = blobConnectionInfo
                 )
             )
         }
@@ -189,10 +186,10 @@ object ConfigSchemaReader : Logging {
                     ?: throw SchemaException("Cannot read $schemaUri")
                 readOneYamlSchema(input, schemaClass)
             }
+            // Only valid networked option for reading schemas is azure which does not have a dedicated schema
+            // and instead has URLs starting with HTTP or HTTPS
             "http", "https" -> {
-                // TODO: should this be BinaryData?
-                val blob =
-                    BlobAccess.downloadBlobAsByteArray(schemaUri.toString(), blobConnectionInfo)
+                val blob = BlobAccess.downloadBlobAsByteArray(schemaUri.toString(), blobConnectionInfo)
                 readOneYamlSchema(blob.inputStream(), schemaClass)
             }
             else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")
@@ -253,8 +250,7 @@ object ConfigSchemaReader : Logging {
         // Process any schema references
         val rootFolder = file.parent
         rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
-            element.schemaRef =
-                readSchemaTreeRelative(element.schema!!, rootFolder, rawSchema.ancestry, schemaClass)
+            element.schemaRef = readSchemaTreeRelative(element.schema!!, rootFolder, rawSchema.ancestry, schemaClass)
         }
         return rawSchema
     }

@@ -168,8 +168,6 @@ tasks.test {
 
     // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
-    minHeapSize = "1024m"
-    maxHeapSize = "2048m"
     dependsOn("compileKotlin")
     finalizedBy("jacocoTestReport")
     // Run the test task if specified configuration files are changed
@@ -952,9 +950,9 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.1")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-    testImplementation("org.testcontainers:testcontainers:1.19.5")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.5")
-    testImplementation("org.testcontainers:postgresql:1.19.5")
+    testImplementation("org.testcontainers:testcontainers:1.19.1")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.1")
+    testImplementation("org.testcontainers:postgresql:1.19.1")
 
     implementation(kotlin("script-runtime"))
 }

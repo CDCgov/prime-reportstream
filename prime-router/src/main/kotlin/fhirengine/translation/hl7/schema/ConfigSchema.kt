@@ -11,7 +11,7 @@ import java.util.SortedMap
  *
  * @property Original The type that this schema expects as input
  * @property Converted The type that this schema will produce as output
- * @property Schema Reference to this schema's type
+ * @property Self Reference to this schema's type
  * @property SchemaElement The type of the schema elements that make up the schema
  * @property name the schema name
  * @property elements the elements for the schema
@@ -22,8 +22,8 @@ import java.util.SortedMap
 abstract class ConfigSchema<
     Original,
     Converted,
-    Schema : ConfigSchema<Original, Converted, Schema, SchemaElement>,
-    SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
+    Self : ConfigSchema<Original, Converted, Self, SchemaElement>,
+    SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Self>,
     >(
     var elements: MutableList<SchemaElement> = mutableListOf(),
     var constants: SortedMap<String, String> = sortedMapOf(),
@@ -102,7 +102,7 @@ abstract class ConfigSchema<
      * @param overrideSchema the schema to override with
      * @return the reference to the schema
      */
-    open fun override(overrideSchema: Schema) {
+    open fun override(overrideSchema: Self) {
         overrideSchema.elements.forEach { childElement ->
             // If we find the element in the schema then replace it, otherwise add it.
             if (childElement.name.isNullOrBlank()) {
@@ -126,9 +126,9 @@ abstract class ConfigSchema<
      */
     internal fun findElements(
         elementName: String,
-    ): List<ConfigSchemaElement<Original, Converted, SchemaElement, Schema>> {
+    ): List<ConfigSchemaElement<Original, Converted, SchemaElement, Self>> {
         // First try to find the element at this level in the schema.
-        var elementsInSchema: List<ConfigSchemaElement<Original, Converted, SchemaElement, Schema>> =
+        var elementsInSchema: List<ConfigSchemaElement<Original, Converted, SchemaElement, Self>> =
             elements.filter { elementName == it.name }
 
         // If the element was not found in this schema level, then traverse any elements that reference a schema
@@ -150,7 +150,7 @@ abstract class ConfigSchema<
  * @property Original The type that this schema expects as input
  * @property Converted The type that this schema will produce as output
  * @property Schema Reference to this schema's type
- * @property SchemaElement The type of the schema elements that make up the schema
+ * @property Self The type of the schema elements that make up the schema
  * @property name the name of the element
  * @property condition a FHIR path condition to evaluate. If false then the element is ignored.
  * @property required true if the element must have a value
@@ -167,8 +167,8 @@ abstract class ConfigSchema<
 abstract class ConfigSchemaElement<
     Original,
     Converted,
-    SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
-    Schema : ConfigSchema<Original, Converted, Schema, SchemaElement>,
+    Self : ConfigSchemaElement<Original, Converted, Self, Schema>,
+    Schema : ConfigSchema<Original, Converted, Schema, Self>,
     >(
     var name: String? = null,
     var condition: String? = null,
@@ -245,7 +245,7 @@ abstract class ConfigSchemaElement<
      * Merge an [overwritingElement] into this element, overwriting only those properties that have values.
      * @return the reference to the element
      */
-    open fun merge(overwritingElement: SchemaElement) = apply {
+    open fun merge(overwritingElement: Self) = apply {
         overwritingElement.condition?.let { this.condition = overwritingElement.condition }
         overwritingElement.required?.let { this.required = overwritingElement.required }
         overwritingElement.schema?.let { this.schema = overwritingElement.schema }
