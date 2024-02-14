@@ -48,7 +48,7 @@ open class Receiver(
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val conditionFilter: ReportStreamFilter = emptyList(),
-    val mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
+    val mappedConditionFilter: List<ObservationFilterable> = emptyList(),
     val deidentify: Boolean = false,
     val deidentifiedValue: String = "",
     val timing: Timing? = null,
@@ -95,7 +95,7 @@ open class Receiver(
         routingFilter: ReportStreamFilter = emptyList(),
         processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
-        mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
+        mappedConditionFilter: List<ObservationFilterable> = emptyList(),
         reverseTheQualityFilter: Boolean = false,
         enrichmentSchemaNames: List<String> = emptyList(),
     ) : this(
