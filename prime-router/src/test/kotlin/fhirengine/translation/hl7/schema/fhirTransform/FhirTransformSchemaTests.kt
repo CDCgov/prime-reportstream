@@ -274,7 +274,8 @@ class FhirTransformSchemaTests {
         )
         schema.name = "testSchema"
 
-        baseSchema.override(parentSchema).override(schema)
+        baseSchema.override(parentSchema)
+        baseSchema.override(schema)
         assertThat((baseSchema.elements[0]).required).isEqualTo((schema.elements[0]).required)
         assertThat(referencedSchema.elements[1].condition).isEqualTo(schema.elements[1].condition)
         assertThat(baseSchema.elements.last().name).isEqualTo(schema.elements[2].name)

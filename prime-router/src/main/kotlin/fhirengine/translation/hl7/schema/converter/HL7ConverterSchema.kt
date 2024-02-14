@@ -56,11 +56,10 @@ class HL7ConverterSchema(
 
     override fun override(
         overrideSchema: HL7ConverterSchema,
-    ): ConfigSchema<Bundle, Message, HL7ConverterSchema, ConverterSchemaElement> =
-        apply {
-            overrideSchema.hl7Class?.let { this.hl7Class = overrideSchema.hl7Class }
-            super.override(overrideSchema)
-        }
+    ) {
+        overrideSchema.hl7Class?.let { this.hl7Class = overrideSchema.hl7Class }
+        super.override(overrideSchema)
+    }
 }
 
 /**

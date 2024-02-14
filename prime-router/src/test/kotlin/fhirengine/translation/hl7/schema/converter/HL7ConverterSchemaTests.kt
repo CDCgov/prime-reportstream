@@ -7,7 +7,6 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
-import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import kotlin.test.Test
@@ -306,14 +305,10 @@ class HL7ConverterSchemaTests {
         )
         schema.name = "testSchema"
 
-        val mergedSchema = baseSchema.override(schema)
-        assertThat(mergedSchema.elements[0].schemaRef).isNotEqualTo(mergedSchema.elements[1].schemaRef)
+        baseSchema.override(schema)
         assertThat(
-            mergedSchema.elements[0].schemaRef?.elements?.get(0)?.schemaRef?.elements?.get(0)?.condition
-        ).equals("condition1")
-        assertThat(
-            mergedSchema.elements[1].schemaRef?.elements?.get(0)?.schemaRef?.elements?.get(0)?.condition
-        ).equals("condition1")
+            baseSchema.elements[0].schemaRef?.elements?.get(0)?.schemaRef?.elements?.get(1)?.condition
+        ).isEqualTo("condition1")
     }
 
     @Test
@@ -353,7 +348,8 @@ class HL7ConverterSchemaTests {
         )
         schema.name = "testSchema"
 
-        baseSchema.override(parentSchema).override(schema)
+        baseSchema.override(parentSchema)
+        baseSchema.override(schema)
         assertThat((baseSchema.elements[0]).required).isEqualTo((schema.elements[0]).required)
         assertThat(referencedSchema.elements[1].condition).isEqualTo(schema.elements[1].condition)
         assertThat(baseSchema.elements.last().name).isEqualTo(schema.elements[2].name)
