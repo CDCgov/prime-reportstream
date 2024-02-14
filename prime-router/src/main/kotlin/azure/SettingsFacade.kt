@@ -8,13 +8,11 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.networknt.schema.JsonSchema
 import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
-import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
@@ -27,7 +25,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
-import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -55,15 +52,11 @@ class SettingsFacade(
         BAD_REQUEST,
     }
 
-    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
+    private val mapper = JacksonMapperUtilities.customSerializersMapper
 
     init {
         // Format OffsetDateTime as an ISO string
-        val module = SimpleModule()
-        module.addSerializer(OrganizationSerializer(OrganizationAPI::class.java))
-        module.addSerializer(ReceiverSerializer(ReceiverAPI::class.java))
         mapper.registerModule(JavaTimeModule())
-        mapper.registerModule(module)
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 
@@ -536,52 +529,6 @@ class OrganizationSerializer constructor(t: Class<OrganizationAPI>) :
         }
         provider?.defaultSerializeField("featureFlags", value.featureFlags, jgen)
         provider?.defaultSerializeField("keys", value.keys, jgen)
-        jgen.writeEndObject()
-    }
-}
-
-class UPSenderSerializer constructor(t: Class<UniversalPipelineSender>) :
-    StdSerializer<UniversalPipelineSender>(t) {
-    @Throws(IOException::class, JsonProcessingException::class)
-    override fun serialize(
-        value: UniversalPipelineSender,
-        jgen: JsonGenerator,
-        provider: SerializerProvider?,
-    ) {
-        jgen.writeStartObject()
-        provider?.defaultSerializeField("topic", value.topic, jgen)
-        jgen.writeStringField("name", value.name)
-        jgen.writeStringField("organizationName", value.organizationName)
-        provider?.defaultSerializeField("format", value.format, jgen)
-        provider?.defaultSerializeField("customerStatus", value.customerStatus, jgen)
-        jgen.writeStringField("schemaName", value.schemaName)
-        provider?.defaultSerializeField("processingType", value.processingType, jgen)
-        jgen.writeBooleanField("allowDuplicates", value.allowDuplicates)
-        provider?.defaultSerializeField("senderType", value.senderType, jgen)
-        provider?.defaultSerializeField("primarySubmissionMethod", value.primarySubmissionMethod, jgen)
-        jgen.writeEndObject()
-    }
-}
-
-class CovidSenderSerializer constructor(t: Class<CovidSender>) :
-    StdSerializer<CovidSender>(t) {
-    @Throws(IOException::class, JsonProcessingException::class)
-    override fun serialize(
-        value: CovidSender,
-        jgen: JsonGenerator,
-        provider: SerializerProvider?,
-    ) {
-        jgen.writeStartObject()
-        provider?.defaultSerializeField("topic", value.topic, jgen)
-        jgen.writeStringField("name", value.name)
-        jgen.writeStringField("organizationName", value.organizationName)
-        provider?.defaultSerializeField("format", value.format, jgen)
-        provider?.defaultSerializeField("customerStatus", value.customerStatus, jgen)
-        jgen.writeStringField("schemaName", value.schemaName)
-        provider?.defaultSerializeField("processingType", value.processingType, jgen)
-        jgen.writeBooleanField("allowDuplicates", value.allowDuplicates)
-        provider?.defaultSerializeField("senderType", value.senderType, jgen)
-        provider?.defaultSerializeField("primarySubmissionMethod", value.primarySubmissionMethod, jgen)
         jgen.writeEndObject()
     }
 }

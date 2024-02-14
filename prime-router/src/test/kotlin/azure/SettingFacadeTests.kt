@@ -71,7 +71,7 @@ class SettingFacadeTests {
         }
 """.trimIndent()
     private val receiverJson = """{
-        "name" : "giang2",
+        "name" : "receiver01",
         "organizationName" : "waters",
         "topic" : "covid-19",
         "customerStatus" : "active",
@@ -115,9 +115,9 @@ class SettingFacadeTests {
         "timeZone" : null,
         "dateTimeFormat" : "OFFSET"
         }
-""".trimIndent()
+        """.trimIndent()
     private val invalidReceiverJson = """{
-        "name" : "giang2",
+        "name" : "receiver01",
         "organizationName" : "waters",
         "topic" : "covid-19",
         "customerStatus" : "active",
@@ -136,7 +136,7 @@ class SettingFacadeTests {
         "processingModeFilter" : [ ],
         "reverseTheQualityFilter" : false,
         "conditionFilter" : [ true ],
-        "mappedConditionFilter" : [],
+        "mappedConditionFilter" : [ ],
         "deidentify" : true,
         "deidentifiedValue" : "",
         "timing" : {
@@ -161,7 +161,7 @@ class SettingFacadeTests {
         "timeZone" : null,
         "dateTimeFormat" : "OFFSET"
         }
-""".trimIndent()
+        """.trimIndent()
     private val testOrg = Setting(
         1,
         SettingType.ORGANIZATION,
@@ -240,7 +240,7 @@ class SettingFacadeTests {
     private val testReceiver4Put = Setting(
         6,
         SettingType.RECEIVER,
-        "giang2",
+        "receiver01",
         2,
         JSONB.valueOf(receiverJson),
         false,
@@ -301,7 +301,7 @@ class SettingFacadeTests {
         }.returns(4)
 
         every {
-            accessSpy.fetchSetting(SettingType.RECEIVER, "giang2", 4, txn = any())
+            accessSpy.fetchSetting(SettingType.RECEIVER, "receiver01", 4, txn = any())
         }.returns(testReceiver4Put)
     }
 
@@ -452,12 +452,23 @@ class SettingFacadeTests {
         val orgJson = SettingsFacade(testMetadata(), accessSpy).findSettingsAsJson(OrganizationAPI::class.java)
         val listOrg = SettingsFacade(testMetadata(), accessSpy).organizations
         val org = SettingsFacade(testMetadata(), accessSpy).findOrganization("test")
-
+        val nameKV = "\"name\" : \"test\""
+        val stateCodeKV = "\"stateCode\" : \"CA\""
+        val jurisdictionKV = "\"jurisdiction\" : \"STATE\""
+        val descriptionKV = "\"description\" : \"Arizona PHD\""
+        val orgStr = mapper.writeValueAsString(listOrg)
         assertThat(listOrg.first().name).isEqualTo("test")
         assertThat(listOrg.first().description).isEqualTo(org?.description)
         assertThat(listOrg.first().jurisdiction).isEqualTo(Organization.Jurisdiction.STATE)
         assertThat(listOrg.first().stateCode).isEqualTo(org?.stateCode)
-        assertThat(orgJson).isEqualTo(mapper.writeValueAsString(listOrg))
+        assertTrue(orgJson.contains(nameKV))
+        assertTrue(orgStr.contains(nameKV))
+        assertTrue(orgJson.contains(stateCodeKV))
+        assertTrue(orgStr.contains(stateCodeKV))
+        assertTrue(orgJson.contains(jurisdictionKV))
+        assertTrue(orgStr.contains(jurisdictionKV))
+        assertTrue(orgJson.contains(descriptionKV))
+        assertTrue(orgStr.contains(descriptionKV))
     }
 
     @Test
@@ -513,7 +524,7 @@ class SettingFacadeTests {
     fun `put receivers test happy case`() {
         setupDatabaseAccess4PutTesting()
         val (result, json) = SettingsFacade(testMetadata(), accessSpy).putSetting(
-            "giang2",
+            "receiver01",
             receiverJson,
             AuthenticatedClaims.generateTestClaims(),
             gov.cdc.prime.router.azure.ReceiverAPI::class.java,
@@ -521,8 +532,8 @@ class SettingFacadeTests {
         )
         assertTrue(result.name == "SUCCESS", "Expect SUCCESS as result, got ${result.name}")
         assertTrue(
-            json.contains("waters") && json.contains("giang2"),
-            "Expect return value contains receiver name: 'giang2', and organization name 'waters'"
+            json.contains("waters") && json.contains("receiver01"),
+            "Expect return value contains receiver name: 'receiver01', and organization name 'waters'"
         )
     }
 
@@ -530,7 +541,7 @@ class SettingFacadeTests {
     fun `put receivers test invalid`() {
         setupDatabaseAccess4PutTesting()
         val (result, json) = SettingsFacade(testMetadata(), accessSpy).putSetting(
-            "giang2",
+            "receiver01",
             invalidReceiverJson,
             AuthenticatedClaims.generateTestClaims(),
             gov.cdc.prime.router.azure.ReceiverAPI::class.java,
