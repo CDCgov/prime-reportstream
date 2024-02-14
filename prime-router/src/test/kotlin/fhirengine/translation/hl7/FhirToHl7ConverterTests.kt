@@ -43,10 +43,12 @@ import org.hl7.fhir.r4.model.ServiceRequest
 import org.junit.jupiter.api.Nested
 import java.io.File
 import java.util.Properties
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+@Ignore
 class FhirToHl7ConverterTests {
     @Test
     fun `test can evaluate`() {

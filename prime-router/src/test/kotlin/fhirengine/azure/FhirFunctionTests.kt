@@ -61,7 +61,6 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
 import java.time.OffsetDateTime
-import kotlin.test.Ignore
 import gov.cdc.prime.router.azure.db.tables.ActionLog as ActionLogTable
 import gov.cdc.prime.router.azure.db.tables.pojos.ActionLog as ActionLogModel
 
@@ -69,7 +68,6 @@ private const val MULTIPLE_TARGETS_FHIR_PATH = "src/test/resources/fhirengine/en
 
 private const val VALID_FHIR_PATH = "src/test/resources/fhirengine/engine/valid_data.fhir"
 
-@Ignore
 class FhirFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)

@@ -17,10 +17,8 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.test.Ignore
 import kotlin.test.Test
 
-@Ignore
 class ReportGraphTest {
 
     @Nested
