@@ -11,7 +11,9 @@ import {
     Button,
     ComboBox,
     DateRangePicker,
+    Icon,
     TimePicker,
+    Tooltip,
 } from "@trussworks/react-uswds";
 
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
@@ -213,14 +215,17 @@ function TableFilters({
                             className="usa-label"
                             htmlFor="input-ComboBox"
                         >
-                            Receiver
+                            Receiver{" "}
+                            <Tooltip
+                                className="fixed-tooltip text-top"
+                                position="right"
+                                label={
+                                    "Your connection could have multiple receivers such as one specific to COVID."
+                                }
+                            >
+                                <Icon.Help />
+                            </Tooltip>
                         </label>
-                        <div>
-                            <p className="usa-hint" id="receiver-hint">
-                                Your connection could have multiple receivers,{" "}
-                                such as one specific to COVID.
-                            </p>
-                        </div>
                         {receivers && (
                             <ComboBox
                                 key={receivers.length}
