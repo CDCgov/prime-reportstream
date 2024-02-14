@@ -58,7 +58,7 @@ export default defineConfig<TestOptions>({
     fullyParallel: true,
     forbidOnly: isCi,
     retries: isCi ? 2 : 0,
-    workers: isCi ? 1 : undefined,
+    workers: isCi ? "100%" : undefined,
     reporter: [["html", { outputDir: "e2e-data/report" }]],
     outputDir: "e2e-data/results",
     use: {
@@ -111,7 +111,7 @@ export default defineConfig<TestOptions>({
         // },
     ],
     webServer: {
-        command: `yarn cross-env VITE_IDLE_TIMEOUT=5000 yarn run preview:build:${isCi ? "ci" : "test"}`,
+        command: `yarn cross-env VITE_IDLE_TIMEOUT=25000 yarn run preview:build:${isCi ? "ci" : "test"}`,
         url: "http://localhost:4173",
         timeout: 1000 * 180,
         stdout: "pipe",
