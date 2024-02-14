@@ -54,6 +54,7 @@
       customerStatus: "active"
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01'" # ORM_O01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
       qualityFilter:
         - true
       timing:
@@ -119,6 +120,7 @@
       customerStatus: "active"
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
       qualityFilter:
         - true
       timing:
