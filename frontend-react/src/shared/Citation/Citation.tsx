@@ -1,7 +1,8 @@
-export interface CitationProps
-    extends React.PropsWithChildren<
-        React.HTMLAttributes<HTMLElement> & CitationItem
-    > {}
+import { HTMLAttributes, PropsWithChildren } from "react";
+
+export type CitationProps = PropsWithChildren<
+    HTMLAttributes<HTMLElement> & CitationItem
+>;
 
 export const Citation = ({
     title,
@@ -16,7 +17,7 @@ export const Citation = ({
                 {title}
             </p>
             <p data-testid="quote" className="usa-intro">
-                "{quote}"
+                &quot;{quote}&quot;
             </p>
             <p data-testid="author" className="font-sans-sm text-bold">
                 {author}

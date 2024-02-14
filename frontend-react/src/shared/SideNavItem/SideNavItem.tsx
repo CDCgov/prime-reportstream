@@ -1,17 +1,18 @@
 import { SideNav } from "@trussworks/react-uswds";
+import { AnchorHTMLAttributes, FunctionComponent, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 
 import { USNavLink } from "../../components/USLink";
 
 export interface SideNavItemProps
-    extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-    items?: React.ReactNode[];
-    children: React.ReactNode;
+    extends AnchorHTMLAttributes<HTMLAnchorElement> {
+    items?: ReactNode[];
+    children: ReactNode;
     to?:
         | string
-        | React.FunctionComponent<
-              React.AnchorHTMLAttributes<HTMLAnchorElement> & {
-                  children: React.ReactNode;
+        | FunctionComponent<
+              AnchorHTMLAttributes<HTMLAnchorElement> & {
+                  children: ReactNode;
               }
           >;
     isActive?: boolean;
@@ -23,7 +24,7 @@ export interface SideNavItemProps
  * or html element string as the "to" prop (defaults to USNavLink). The SideNav sibling
  * can be forced visible via the "isActive" prop (otherwise defaults to checking path).
  */
-export function SideNavItem({
+function SideNavItem({
     href,
     children,
     items,
@@ -33,12 +34,11 @@ export function SideNavItem({
 }: SideNavItemProps) {
     const { pathname } = useLocation();
     const isSubnavVisible =
-        isActive !== undefined
-            ? isActive
-            : href === undefined ||
-              href === "" ||
-              pathname === href ||
-              pathname.startsWith(href);
+        isActive ??
+        (href === undefined ||
+            href === "" ||
+            pathname === href ||
+            pathname.startsWith(href));
     const subnavClassname = !isSubnavVisible ? "display-none" : "";
 
     // SideNav doesn't allow custom classes so we have to wrap in a div 😡

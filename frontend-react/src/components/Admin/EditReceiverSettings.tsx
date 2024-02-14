@@ -1,33 +1,8 @@
-import React, { useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
-import { useController, useResource } from "rest-hooks";
+import { FC, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useController, useResource } from "rest-hooks";
 
-import Title from "../../components/Title";
-import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import { showAlertNotification, showError } from "../AlertNotifications";
-import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import {
-    getErrorDetailFromResponse,
-    getVersionWarning,
-    VersionWarningType,
-} from "../../utils/misc";
-import { EnumTooltip, ObjectTooltip } from "../tooltips/ObjectTooltip";
-import {
-    getListOfEnumValues,
-    SampleTimingObj,
-    SampleTranslationObj,
-    SampleTransportObject,
-} from "../../utils/TemporarySettingsAPITypes";
-import config from "../../config";
-import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
-import { useSessionContext } from "../../contexts/SessionContext";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
-
-import {
-    ConfirmSaveSettingModal,
-    ConfirmSaveSettingModalRef,
-} from "./CompareJsonModal";
 import {
     CheckboxComponent,
     DropdownComponent,
@@ -35,16 +10,40 @@ import {
     TextInputComponent,
 } from "./AdminFormEdit";
 import { AdminFormWrapper } from "./AdminFormWrapper";
+import {
+    ConfirmSaveSettingModal,
+    ConfirmSaveSettingModalRef,
+} from "./CompareJsonModal";
+import Title from "../../components/Title";
+import config from "../../config";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
+import { showToast } from "../../contexts/Toast";
+import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
+import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
+import {
+    getListOfEnumValues,
+    SampleTimingObj,
+    SampleTranslationObj,
+    SampleTransportObject,
+} from "../../utils/TemporarySettingsAPITypes";
+import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
+import { EnumTooltip, ObjectTooltip } from "../tooltips/ObjectTooltip";
 
 const { RS_API_URL } = config;
 
-type EditReceiverSettingsFormProps = {
+interface EditReceiverSettingsFormProps {
     orgname: string;
     receivername: string;
     action: "edit" | "clone";
-};
+}
 
-const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
+const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
     orgname,
     receivername,
     action,
@@ -84,18 +83,15 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 receivername: deleteItemId,
             });
 
-            showAlertNotification(
-                "success",
-                `Item '${deleteItemId}' has been deleted`,
-            );
+            showToast(`Item '${deleteItemId}' has been deleted`, "success");
 
             // navigate back to list since this item was just deleted
             navigate(-1);
             return true;
         } catch (e: any) {
-            console.trace(e);
-            showError(
+            showToast(
                 `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
+                "error",
             );
             return false;
         }
@@ -134,7 +130,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 action === "edit" &&
                 latestResponse?.version !== orgReceiverSettings?.version
             ) {
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showToast(getVersionWarning(VersionWarningType.POPUP), "error");
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -145,10 +141,10 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             setLoading(false);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(
+            const errorDetail = await getErrorDetailFromResponse(e);
+            showToast(
                 `Reloading receiver '${receivername}' failed with: ${errorDetail}`,
+                "error",
             );
             return false;
         }
@@ -173,7 +169,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 setOrgReceiverSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2),
                 );
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showToast(getVersionWarning(VersionWarningType.POPUP), "error");
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -193,19 +189,16 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             );
 
             await resetReceiverList();
-            showAlertNotification(
-                "success",
-                `Item '${receivername}' has been updated`,
-            );
+            showToast(`Item '${receivername}' has been updated`, "success");
             setLoading(false);
             confirmModalRef?.current?.hideModal();
             navigate(-1);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(
+            const errorDetail = await getErrorDetailFromResponse(e);
+            showToast(
                 `Updating receiver '${receivername}' failed with: ${errorDetail}`,
+                "error",
             );
             return false;
         }
@@ -381,8 +374,10 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                         <Button
                             type="button"
                             outline={true}
-                            onClick={async () =>
-                                (await resetReceiverList()) && navigate(-1)
+                            onClick={() =>
+                                void resetReceiverList().then(() =>
+                                    navigate(-1),
+                                )
                             }
                         >
                             Cancel
@@ -392,7 +387,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                             type="submit"
                             data-testid="submit"
                             disabled={loading}
-                            onClick={showCompareConfirm}
+                            onClick={() => void showCompareConfirm()}
                         >
                             Edit json and save...
                         </Button>
@@ -405,29 +400,29 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                             : orgReceiverSettings.name
                     }
                     ref={confirmModalRef}
-                    onConfirm={saveReceiverData}
+                    onConfirm={() => void saveReceiverData()}
                     oldjson={orgReceiverSettingsOldJson}
                     newjson={orgReceiverSettingsNewJson}
                 />
             </GridContainer>
             <ModalConfirmDialog
                 id={"deleteConfirm"}
-                onConfirm={doDelete}
+                onConfirm={(id) => void doDelete(id)}
                 ref={modalRef}
             ></ModalConfirmDialog>
         </section>
     );
 };
 
-type EditReceiverSettingsProps = {
+interface EditReceiverSettingsParams extends Record<string, string> {
     orgname: string;
     receivername: string;
     action: "edit" | "clone";
-};
+}
 
 export function EditReceiverSettingsPage() {
     const { orgname, receivername, action } =
-        useParams<EditReceiverSettingsProps>();
+        useParams<EditReceiverSettingsParams>();
 
     return (
         <AdminFormWrapper
@@ -439,9 +434,9 @@ export function EditReceiverSettingsPage() {
             }
         >
             <EditReceiverSettingsForm
-                orgname={orgname || ""}
-                receivername={receivername || ""}
-                action={action || "edit"}
+                orgname={orgname ?? ""}
+                receivername={receivername ?? ""}
+                action={action ?? "edit"}
             />
         </AdminFormWrapper>
     );

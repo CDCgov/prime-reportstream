@@ -33,6 +33,8 @@ import java.time.ZoneId
  * @param externalName an external display name for the receiver. useful for display in the website
  * @param timeZone the timezone the receiver operates under
  * @param dateTimeFormat the format to use for date and datetime values, either Offset or Local
+ * @param enrichmentSchemaNames the paths to schema(s) used to enrich the bundle before translating it to its final
+ *  format
  */
 open class Receiver(
     val name: String,
@@ -46,12 +48,14 @@ open class Receiver(
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val conditionFilter: ReportStreamFilter = emptyList(),
+    val mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
     val deidentify: Boolean = false,
     val deidentifiedValue: String = "",
     val timing: Timing? = null,
     val description: String = "",
     val transport: TransportType? = null,
     val externalName: String? = null,
+    val enrichmentSchemaNames: List<String> = emptyList(),
     /**
      * The timezone for the receiver. This is different from the timezone in Timing, which controls the calculation of
      * when and how often to send reports to the receiver. They are distinct ideas. The timeZone for the receiver is
@@ -91,7 +95,9 @@ open class Receiver(
         routingFilter: ReportStreamFilter = emptyList(),
         processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
+        mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false,
+        enrichmentSchemaNames: List<String> = emptyList(),
     ) : this(
         name,
         organizationName,
@@ -103,10 +109,12 @@ open class Receiver(
         routingFilter = routingFilter,
         processingModeFilter = processingModeFilter,
         conditionFilter = conditionFilter,
+        mappedConditionFilter = mappedConditionFilter,
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
-        reverseTheQualityFilter = reverseTheQualityFilter
+        reverseTheQualityFilter = reverseTheQualityFilter,
+        enrichmentSchemaNames = enrichmentSchemaNames
     )
 
     /** A copy constructor for the receiver */
@@ -122,12 +130,14 @@ open class Receiver(
         copy.processingModeFilter,
         copy.reverseTheQualityFilter,
         copy.conditionFilter,
+        copy.mappedConditionFilter,
         copy.deidentify,
         copy.deidentifiedValue,
         copy.timing,
         copy.description,
         copy.transport,
         copy.externalName,
+        copy.enrichmentSchemaNames,
         copy.timeZone,
         copy.dateTimeFormat
     )
@@ -235,9 +245,9 @@ open class Receiver(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
-        if (conditionFilter.isNotEmpty()) {
+        if (conditionFilter.isNotEmpty() || mappedConditionFilter.isNotEmpty()) {
             if (!topic.isUniversalPipeline) {
-                return "Condition filter not allowed for receivers with topic '${topic.jsonVal}'"
+                return "Condition filter(s) not allowed for receivers with topic '${topic.jsonVal}'"
             }
         }
 

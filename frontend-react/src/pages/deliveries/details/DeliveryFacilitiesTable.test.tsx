@@ -1,7 +1,6 @@
+import DeliveryFacilitiesTable from "./DeliveryFacilitiesTable";
 import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
-
-import DeliveryFacilitiesTable from "./DeliveryFacilitiesTable";
 
 const TEST_ID = "test-id-123";
 

@@ -1,17 +1,17 @@
-import React, { Suspense } from "react";
+import { PropsWithChildren, ReactNode, Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
 
 interface AdminFormWrapperProps {
-    header: React.ReactNode | string;
+    header: ReactNode | string;
 }
 
 export function AdminFormWrapper({
     header,
     children,
-}: React.PropsWithChildren<AdminFormWrapperProps>) {
+}: PropsWithChildren<AdminFormWrapperProps>) {
     return (
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}

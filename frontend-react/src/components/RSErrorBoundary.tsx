@@ -1,59 +1,36 @@
-import React, { ErrorInfo, PropsWithChildren, Suspense } from "react";
-
-import {
-    ErrorName,
-    isRSNetworkError,
-    RSNetworkError,
-} from "../utils/RSNetworkError";
-import { ErrorPage } from "../pages/error/ErrorPage";
+import { PropsWithChildren, Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
 import Spinner from "./Spinner";
+import { useSessionContext } from "../contexts/Session";
+import { ErrorPage } from "../pages/error/ErrorPage";
+import { isRSNetworkError } from "../utils/RSNetworkError";
 
-interface ErrorBoundaryState {
-    hasError: boolean;
-    errorName?: ErrorName;
-}
-/** Used to define default state values on render */
-const initState: ErrorBoundaryState = {
-    hasError: false,
-};
 /** Wrap components with this error boundary to catch errors thrown */
-export default class RSErrorBoundary extends React.Component<
-    PropsWithChildren<{}>,
-    ErrorBoundaryState
-> {
-    constructor(props: any) {
-        super(props);
-        this.state = initState;
-    }
-    /** Handles parsing error and setting up state accordingly */
-    static getDerivedStateFromError(error: RSNetworkError): ErrorBoundaryState {
-        /* This WILL catch non-RS errors despite our typescript type definition in the method params.
-         * This is a runtime check to help with non RS errors */
-        const notRSError = !isRSNetworkError(error);
-        if (notRSError) {
-            console.warn(
-                "Please work to migrate all non RSError throws to use an RSError object.",
-            );
-        }
-        return {
-            hasError: true,
-            errorName: notRSError ? ErrorName.NON_RS_ERROR : error.name,
-        };
-    }
-    /** Any developer logging needed (i.e. log the error in console, push to
-     * analytics, etc.) */
-    componentDidCatch(error: RSNetworkError, errorInfo: ErrorInfo) {
-        console.error(error, errorInfo);
-    }
-    /** Renders the right error page for the right error type, OR the wrapped
-     * component if no error is thrown */
-    render() {
-        if (this.state.hasError) {
-            return <ErrorPage type={"message"} />;
-        }
-        return this.props.children;
-    }
+function RSErrorBoundary(props: PropsWithChildren) {
+    const { rsConsole, config } = useSessionContext();
+    return (
+        <ErrorBoundary
+            fallback={<ErrorPage type="message" />}
+            onError={(exception, info) => {
+                if (!isRSNetworkError(exception)) {
+                    console.warn(
+                        "Please work to migrate all non RSError throws to use an RSError object.",
+                    );
+                }
+                // React will always console.error all errors, regardless of boundary,
+                // so just emit the telemetry.
+                rsConsole._error(
+                    {
+                        args: [exception, info.componentStack],
+                        location: window.location.href,
+                    },
+                    config.AI_CONSOLE_SEVERITY_LEVELS.error,
+                );
+            }}
+            {...props}
+        />
+    );
 }
 /** For wrapping with RSErrorBoundary when a catch is required for a component
  * @example
@@ -97,3 +74,5 @@ export const withSuspense = (component: JSX.Element) => (
 export const withCatchAndSuspense = (component: JSX.Element) => {
     return withCatch(withSuspense(component));
 };
+
+export default RSErrorBoundary;

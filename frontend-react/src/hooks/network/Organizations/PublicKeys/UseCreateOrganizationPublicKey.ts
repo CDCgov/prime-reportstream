@@ -1,11 +1,11 @@
-import { UseMutationResult, useMutation } from "@tanstack/react-query";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
 
 import {
     RSApiKeysResponse,
     servicesEndpoints,
 } from "../../../../config/endpoints/settings";
-import { useSessionContext } from "../../../../contexts/SessionContext";
-import { useAuthorizedFetch } from "../../../../contexts/AuthorizedFetchContext";
+import { useAuthorizedFetch } from "../../../../contexts/AuthorizedFetch";
+import { useSessionContext } from "../../../../contexts/Session";
 
 export interface OrganizationPublicKeyPostArgs {
     kid: string;
@@ -28,7 +28,7 @@ export default function useCreateOrganizationPublicKey(): UseCreateOrganizationP
         sender,
     }: OrganizationPublicKeyPostArgs) => {
         return await authorizedFetch(servicesEndpoints.createPublicKey, {
-            segments: { orgName: parsedName!! },
+            segments: { orgName: parsedName! },
             params: {
                 scope: `${parsedName}.*.report`,
                 kid: `${parsedName}.${sender}`,

@@ -1,27 +1,24 @@
+import { FC, useCallback } from "react";
 import { useController } from "rest-hooks";
-import React, { useCallback } from "react";
 
+import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import Spinner from "../../components/Spinner";
-import usePagination from "../../hooks/UsePagination";
-import useFilterManager, {
-    FilterManager,
-    FilterManagerDefaults,
-} from "../../hooks/filters/UseFilterManager";
+import { PaginationProps } from "../../components/Table/Pagination";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters, {
     TableFilterDateLabel,
 } from "../../components/Table/TableFilters";
-import { PaginationProps } from "../../components/Table/Pagination";
-import SubmissionsResource from "../../resources/SubmissionsResource";
-import { useSessionContext } from "../../contexts/SessionContext";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-import { FeatureName } from "../../utils/FeatureName";
+import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
+import useFilterManager, {
+    FilterManager,
+    FilterManagerDefaults,
+} from "../../hooks/filters/UseFilterManager";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
-import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../contexts/AppInsightsContext";
+import usePagination from "../../hooks/UsePagination";
+import SubmissionsResource from "../../resources/SubmissionsResource";
+import { FeatureName } from "../../utils/FeatureName";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
@@ -42,14 +39,14 @@ function transformDate(s: string) {
     return new Date(s).toLocaleString();
 }
 
-const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
+const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
     filterManager,
     paginationProps,
     submissions,
 }) => {
     const { appInsights } = useAppInsightsContext();
     const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
-    const columns: Array<ColumnConfig> = [
+    const columns: ColumnConfig[] = [
         {
             dataAttr: "id",
             columnHeader: "Report ID",

@@ -1,5 +1,5 @@
-import { jsonSourceMap } from "./JsonSourceMap";
 import { _exportForTestingJsonDiffer, jsonDifferMarkup } from "./JsonDiffer";
+import { jsonSourceMap } from "./JsonSourceMap";
 
 describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
     test("isInPath utility function", () => {
@@ -218,9 +218,18 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
         );
     });
 
-    const warnSpy = jest.spyOn(global.console, "warn");
-    test("quoted strings fail gracefully but warn", () => {
-        jsonDifferMarkup("this is a text", "this is different text");
-        expect(warnSpy).toBeCalledTimes(2);
+    test("quoted strings fail gracefully", () => {
+        expect(
+            jsonDifferMarkup("this is a text", "this is different text"),
+        ).toEqual({
+            left: {
+                normalized: '"this is a text"',
+                markupText: '"this is a text"',
+            },
+            right: {
+                normalized: '"this is different text"',
+                markupText: '"this is different text"',
+            },
+        });
     });
 });

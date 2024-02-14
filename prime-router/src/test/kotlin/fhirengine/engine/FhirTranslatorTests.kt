@@ -5,6 +5,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -22,7 +23,6 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -32,7 +32,6 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
-import org.hl7.fhir.r4.model.Bundle
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -45,7 +44,7 @@ import kotlin.test.assertFailsWith
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
-private const val ORU_R01_SCHEMA = "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+private const val ORU_R01_SCHEMA = "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
 private const val BLOB_SUB_FOLDER = "test-sender"
 private const val BLOB_URL = "http://blob.url"
 private const val BODY_URL = "http://anyblob.com"
@@ -73,31 +72,6 @@ class FhirTranslatorTests {
             )
         )
     )
-    private val colorado = DeepOrganization(
-        ORGANIZATION_NAME,
-        "test",
-        Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(
-            Receiver(
-                "elr.secondary",
-                ORGANIZATION_NAME,
-                Topic.TEST,
-                CustomerStatus.INACTIVE,
-                "metadata/hl7_mapping/receivers/STLTs/CO/CO"
-            ),
-            Receiver(
-                "elr",
-                ORGANIZATION_NAME,
-                Topic.TEST,
-                CustomerStatus.INACTIVE,
-                "metadata/hl7_mapping/receivers/STLTs/CO/CO",
-                Report.Format.CSV,
-                null,
-                null,
-                null
-            )
-        )
-    )
 
     private fun makeFhirEngine(
         metadata: Metadata = Metadata(
@@ -112,9 +86,6 @@ class FhirTranslatorTests {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
             .blobAccess(blobMock).build(TaskAction.translate) as FHIRTranslator
     }
-
-    private fun getResource(bundle: Bundle, resource: String) =
-        FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType($resource)")
 
     @BeforeEach
     fun reset() {
@@ -133,7 +104,7 @@ class FhirTranslatorTests {
 
         val message =
             spyk(
-                FhirTranslateMessage(
+                FhirTranslateQueueMessage(
                     UUID.randomUUID(),
                     BLOB_URL,
                     "test",
@@ -153,56 +124,6 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-
-        every { actionHistory.trackActionReceiverInfo(any(), any()) }
-            .returns(Unit)
-
-        // act
-        accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        verify(exactly = 1) {
-            actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any(), any())
-            accessSpy.insertTask(any(), any(), any(), any(), any())
-            actionHistory.trackActionReceiverInfo(any(), any())
-        }
-    }
-
-    @Test
-    fun `legacy - test full elr translation happy path, one receiver RawSubmission message`() {
-        mockkObject(BlobAccess)
-
-        // set up
-        val actionHistory = mockk<ActionHistory>()
-        val actionLogger = mockk<ActionLogger>()
-        val engine = makeFhirEngine()
-
-        val message =
-            spyk(
-                RawSubmission(
-                    UUID.randomUUID(),
-                    BLOB_URL,
-                    "test",
-                    BLOB_SUB_FOLDER,
-                    topic = Topic.FULL_ELR
-                )
-            )
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
-
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }
-            .returns(File(VALID_DATA_URL).readText())
-        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-
         every { actionHistory.trackActionReceiverInfo(any(), any()) }
             .returns(Unit)
 
@@ -233,7 +154,7 @@ class FhirTranslatorTests {
 
         val engine = makeFhirEngine(settings = settings)
         val message = spyk(
-            FhirTranslateMessage(
+            FhirTranslateQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -245,7 +166,6 @@ class FhirTranslatorTests {
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL
-
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())
@@ -412,44 +332,49 @@ class FhirTranslatorTests {
         assertThat(terser.get(MSH_11_1)).isEqualTo("T")
     }
 
-    // TODO: test can be removed after deploy ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
+    /**
+     * When the receiver is in production mode and sender is in testing mode, output HL7 should be 'T'
+     */
     @Test
-    fun `legacy- test full elr translation happy path, receiver with condition filter so extensions`() {
-        mockkObject(BlobAccess)
-
+    fun `test receiver enrichment`() {
         // set up
-        val actionHistory = mockk<ActionHistory>()
-        val actionLogger = mockk<ActionLogger>()
+        val schemaName = ORU_R01_SCHEMA
+        val receiver = Receiver(
+            RECEIVER_NAME,
+            ORGANIZATION_NAME,
+            Topic.FULL_ELR,
+            CustomerStatus.ACTIVE,
+            schemaName,
+            translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName),
+            enrichmentSchemaNames = listOf(
+                "classpath:/enrichments/testing.yml",
+                "classpath:/enrichments/testing2.yml"
+            )
+        )
 
-        val message = spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, Topic.FULL_ELR))
+        val testOrg = DeepOrganization(
+            ORGANIZATION_NAME, "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(receiver)
+        )
 
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
+        val settings = FileSettings().loadOrganizations(testOrg)
 
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }
-            .returns(File("src/test/resources/fhirengine/engine/valid_data_with_extensions.fhir").readText())
-        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
+        val fhirData = File("src/test/resources/fhirengine/engine/valid_data_testing_sender.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
 
-        val engine = spyk(makeFhirEngine())
+        val engine = makeFhirEngine(settings = settings)
 
         // act
-        accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
+        val byteArray = engine.getByteArrayFromBundle(receiver, bundle)
+        val messageIterator = Hl7InputStreamMessageIterator(byteArray.inputStream())
+        val message = messageIterator.next()
+        val terser = Terser(message)
 
         // assert
-        verify(exactly = 1) {
-            actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any(), any())
-            accessSpy.insertTask(any(), any(), any(), any(), any())
-            engine.pruneBundleForReceiver(any(), any())
-        }
+        assertThat(terser.get("SFT-1-1")).isEqualTo("Orange Software Vendor Name")
+        assertThat(terser.get("SFT-2")).isEqualTo("0.2-YELLOW")
+        // because while it will initially get set, it will then be overridden by the transform
+        assertThat(terser.get("SFT-3")).isEqualTo("PRIME ReportStream")
     }
 
     @Test
@@ -477,7 +402,7 @@ class FhirTranslatorTests {
         val actionLogger = mockk<ActionLogger>()
 
         val message = spyk(
-            FhirTranslateMessage(
+            FhirTranslateQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -522,7 +447,7 @@ class FhirTranslatorTests {
         )
         val fhirReceiver = Receiver(
             "full-elr-fhir", ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE,
-            "metadata/fhir_transforms/receivers/fhir-transform-sample", format = Report.Format.FHIR,
+            "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml", format = Report.Format.FHIR,
         )
         val csvReceiver = Receiver(
             "full-elr-fhir", ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE, "", format = Report.Format.CSV,

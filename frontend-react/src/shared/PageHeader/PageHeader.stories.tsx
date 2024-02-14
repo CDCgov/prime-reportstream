@@ -1,5 +1,5 @@
 // AutoUpdateFileChromatic
-import React from "react";
+import { ReactElement } from "react";
 
 import PageHeader from "./PageHeader";
 
@@ -8,7 +8,7 @@ export default {
     component: PageHeader,
 };
 
-export const RSPageHeader = (): React.ReactElement => (
+export const RSPageHeader = (): ReactElement => (
     <PageHeader
         title={"This is the title"}
         subtitleArr={["This is the subtitle"]}
@@ -21,7 +21,7 @@ export const RSPageHeader = (): React.ReactElement => (
     />
 );
 
-export const RSFeatureWithBreadcrumb = (): React.ReactElement => (
+export const RSFeatureWithBreadcrumb = (): ReactElement => (
     <PageHeader
         title={"This is the title"}
         subtitleArr={["This is the subtitle"]}

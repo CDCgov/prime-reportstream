@@ -1,7 +1,7 @@
 // AutoUpdateFileChromatic
-import React from "react";
+import { ReactElement } from "react";
 
-import { Tile } from "./Tile";
+import Tile from "./Tile";
 
 export default {
     title: "components/Tile",
@@ -24,8 +24,8 @@ const section = {
     ],
 };
 
-export const RSTile = (): React.ReactElement => <Tile {...section.items[0]} />;
+export const RSTile = (): ReactElement => <Tile {...section.items[0]} />;
 
-export const RSTileWithImage = (): React.ReactElement => (
+export const RSTileWithImage = (): ReactElement => (
     <Tile {...section.items[1]} />
 );

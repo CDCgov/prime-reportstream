@@ -33,17 +33,17 @@ const rangeReducer = (
         case RangeSettingsActionType.UPDATE_FROM:
             return {
                 ...state,
-                from: payload?.from || state.from,
+                from: payload?.from ?? state.from,
             };
         case RangeSettingsActionType.UPDATE_TO:
             return {
                 ...state,
-                to: payload?.to || state.to,
+                to: payload?.to ?? state.to,
             };
         case RangeSettingsActionType.RESET: // Can use this to manually set for edge cases
             return {
-                from: payload?.from || FALLBACK_FROM,
-                to: payload?.to || FALLBACK_TO,
+                from: payload?.from ?? FALLBACK_FROM,
+                to: payload?.to ?? FALLBACK_TO,
             };
         default:
             return state;
@@ -57,8 +57,10 @@ export function getEndOfDay(date: Date) {
     return newDate;
 }
 
-const FALLBACK_FROM = new Date("2000-01-01").toISOString();
-const FALLBACK_TO = new Date("3000-01-01").toISOString();
+const FALLBACK_FROM_STRING = "01/01/2000";
+const FALLBACK_FROM = new Date(FALLBACK_FROM_STRING).toISOString();
+const FALLBACK_TO_STRING = "01/01/3000";
+const FALLBACK_TO = new Date(FALLBACK_TO_STRING).toISOString();
 
 const useDateRange = (): RangeFilter => {
     const [settings, dispatchRange] = useReducer(rangeReducer, {
@@ -73,5 +75,12 @@ const useDateRange = (): RangeFilter => {
 };
 
 export default useDateRange;
-export { RangeSettingsActionType, RangeField, FALLBACK_FROM, FALLBACK_TO };
+export {
+    RangeSettingsActionType,
+    RangeField,
+    FALLBACK_FROM,
+    FALLBACK_TO,
+    FALLBACK_FROM_STRING,
+    FALLBACK_TO_STRING,
+};
 export type { RangeSettings, RangeSettingsAction };

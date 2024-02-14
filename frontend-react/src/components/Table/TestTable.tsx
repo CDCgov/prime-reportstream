@@ -1,13 +1,12 @@
 import { useEffect, useMemo } from "react";
 
+import Table, { ColumnConfig, TableConfig } from "./Table";
+import TableFilters, { TableFilterDateLabel } from "./TableFilters";
+import { DatasetAction } from "./TableInfo";
 import useCursorManager, {
     CursorActionType,
 } from "../../hooks/filters/UseCursorManager";
 import useFilterManager from "../../hooks/filters/UseFilterManager";
-
-import Table, { ColumnConfig, TableConfig } from "./Table";
-import TableFilters, { TableFilterDateLabel } from "./TableFilters";
-import { DatasetAction } from "./TableInfo";
 
 const testDataRowOne = {
     one: "value one",
@@ -25,10 +24,7 @@ const dummyRowTwo = {
 };
 
 // Exported for test purposes
-export const sampleCallback = () => {
-    // eslint-disable-next-line no-console
-    console.log("Callback works!");
-};
+export const sampleCallback = () => void 0;
 
 /* This component is specifically configured to help test the
  * Table component. Any  */
@@ -78,7 +74,7 @@ export const TestTable = ({
     };
 
     /* Configuration objects to pass to <Table> */
-    const fakeColumns: Array<ColumnConfig> = [
+    const fakeColumns: ColumnConfig[] = [
         {
             dataAttr: "two",
             columnHeader: "Column Two",

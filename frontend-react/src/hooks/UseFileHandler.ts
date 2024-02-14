@@ -1,10 +1,10 @@
+import { pick } from "lodash";
 import { Dispatch, useReducer } from "react";
-import pick from "lodash.pick";
 
 import { ResponseError, WatersResponse } from "../config/endpoints/waters";
 import { Destination } from "../resources/ActionDetailsResource";
-import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
+import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { ContentType, FileType } from "../utils/TemporarySettingsAPITypes";
 
 export enum ErrorType {
@@ -114,66 +114,56 @@ function calculateFileSelectedState(
     payload: FileSelectedPayload,
 ): Partial<FileHandlerState> {
     const { file, fileContent } = payload;
-    try {
-        let uploadType;
-        if (file.type) {
-            uploadType = file.type;
-        } else {
-            // look at the filename extension.
-            // it's all we have to go off of for now
-            const fileNameArray = file.name.split(".");
-            uploadType = fileNameArray[fileNameArray.length - 1];
-        }
+    let uploadType;
+    if (file.type) {
+        uploadType = file.type;
+    } else {
+        // look at the filename extension.
+        // it's all we have to go off of for now
+        const fileNameArray = file.name.split(".");
+        uploadType = fileNameArray[fileNameArray.length - 1];
+    }
 
-        if (
-            uploadType !== "text/csv" &&
-            uploadType !== "csv" &&
-            uploadType !== "hl7"
-        ) {
-            return {
-                ...state,
-                localError: "The file type must be .csv or .hl7",
-            };
-        }
-
-        if (file.size > PAYLOAD_MAX_BYTES) {
-            return {
-                ...state,
-                localError: `The file '${file.name}' is too large. The maximum file size is ${PAYLOAD_MAX_KBYTES}k`,
-            };
-        }
-
-        // previously loading file contents here
-        // since this is an async action we'll do this in the calling component
-        // prior to dispatching into the reducer, and handle the file content in local state
-        const contentType =
-            uploadType === "csv" || uploadType === "text/csv"
-                ? ContentType.CSV
-                : ContentType.HL7;
-
-        const fileType = uploadType.match("hl7") ? FileType.HL7 : FileType.CSV;
+    if (
+        uploadType !== "text/csv" &&
+        uploadType !== "csv" &&
+        uploadType !== "hl7"
+    ) {
         return {
             ...state,
-            file,
-            fileContent,
-            fileType,
-            fileName: file.name,
-            contentType,
-            cancellable: true,
-        };
-    } catch (err: any) {
-        // todo: have central error reporting mechanism.
-        console.warn(err);
-        return {
-            ...state,
-            localError: `An unexpected error happened: '${err.toString()}'`,
-            cancellable: false,
+            localError: "The file type must be .csv or .hl7",
         };
     }
+
+    if (file.size > PAYLOAD_MAX_BYTES) {
+        return {
+            ...state,
+            localError: `The file '${file.name}' is too large. The maximum file size is ${PAYLOAD_MAX_KBYTES}k`,
+        };
+    }
+
+    // previously loading file contents here
+    // since this is an async action we'll do this in the calling component
+    // prior to dispatching into the reducer, and handle the file content in local state
+    const contentType =
+        uploadType === "csv" || uploadType === "text/csv"
+            ? ContentType.CSV
+            : ContentType.HL7;
+
+    const fileType = uploadType.match("hl7") ? FileType.HL7 : FileType.CSV;
+    return {
+        ...state,
+        file,
+        fileContent,
+        fileType,
+        fileName: file.name,
+        contentType,
+        cancellable: true,
+    };
 }
 
 // update state when API request is complete
-function calculateRequestCompleteState(
+export function calculateRequestCompleteState(
     state: FileHandlerState,
     payload: RequestCompletePayload,
 ): Partial<FileHandlerState> {
@@ -202,7 +192,7 @@ function calculateRequestCompleteState(
         warnings,
         errorType: errors?.length && status ? ErrorType.SERVER : ErrorType.FILE,
         // pulled from old Upload implementation. Not sure why id is being renamed here, when reportId also exists on the response
-        reportId: id || "",
+        reportId: id ?? "",
         successTimestamp: errors?.length ? "" : timestamp,
         overallStatus: overallStatus,
     };
@@ -217,24 +207,27 @@ function reducer(
         case FileHandlerActionType.RESET:
             return {
                 ...getInitialState(),
-                ...(payload || {}),
+                ...(payload ?? {}),
             };
-        case FileHandlerActionType.PREPARE_FOR_REQUEST:
+        case FileHandlerActionType.PREPARE_FOR_REQUEST: {
             const preSubmitState = getPreSubmitState();
             return { ...state, ...preSubmitState };
-        case FileHandlerActionType.FILE_SELECTED:
+        }
+        case FileHandlerActionType.FILE_SELECTED: {
             const fileSelectedState = calculateFileSelectedState(
                 state,
                 payload as FileSelectedPayload,
             );
             return { ...state, ...fileSelectedState };
-        case FileHandlerActionType.REQUEST_COMPLETE:
+        }
+        case FileHandlerActionType.REQUEST_COMPLETE: {
             const requestCompleteState = calculateRequestCompleteState(
                 state,
                 payload as RequestCompletePayload,
             );
             return { ...state, ...requestCompleteState };
-        case FileHandlerActionType.SCHEMA_SELECTED:
+        }
+        case FileHandlerActionType.SCHEMA_SELECTED: {
             const selectedSchemaOption = payload as SchemaOption;
 
             // reset anything related to the file if the selected schema format
@@ -254,15 +247,16 @@ function reducer(
                 ...state,
                 selectedSchemaOption,
             };
+        }
         default:
             return state;
     }
 }
 
-export type UseFileHandlerHookResult = {
+export interface UseFileHandlerHookResult {
     state: FileHandlerState;
     dispatch: Dispatch<FileHandlerAction>;
-};
+}
 
 // this layer of abstraction around the reducer may not be necessary, but following
 // the pattern laid down in UsePagination for now, in case we need to make this more

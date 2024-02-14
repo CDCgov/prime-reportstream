@@ -100,6 +100,10 @@ updates:
     directory: "/.github/actions/vpn-azure"
     schedule:
       interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/retry"
+    schedule:
+      interval: "daily"
 
   # Frontend
   - package-ecosystem: "npm"
@@ -335,6 +339,12 @@ updates:
       swagger:
         patterns:
           - "io.swagger.core*"
+      skrapeit:
+        patterns:
+          - "it.skrape:skrapeit*"
+      jwt-verifier:
+        patterns:
+          - "com.okta.jwt:okta-jwt-verifier*"
     ignore:
       # ignore updates to sshj so we don't run into future issues connecting to STLTs
       - dependency-name: "sshj"

@@ -2,9 +2,11 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import ca.uhn.fhir.context.FhirContext
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -21,14 +23,23 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.cli.ObservationMappingConstants
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.metadata.LookupTable
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
+import io.mockk.runs
 import io.mockk.spyk
 import io.mockk.verify
+import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Coding
+import org.hl7.fhir.r4.model.Observation
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -41,7 +52,7 @@ import kotlin.test.Test
 
 private const val BLOB_URL = "http://blobstore.example/file.hl7"
 private const val BLOB_SUB_FOLDER_NAME = "test-sender"
-private const val SCHEMA_NAME = "test-schema"
+private const val SCHEMA_NAME = "classpath:/test-schema.yml"
 private const val VALID_DATA_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
 private const val BLOB_FHIR_URL = "http://blobstore.example/file.fhir"
 
@@ -124,7 +135,7 @@ class FhirConverterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            FhirConvertMessage(
+            FhirConvertQueueMessage(
                 UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
                 SCHEMA_NAME
             )
@@ -134,53 +145,9 @@ class FhirConverterTests {
         val bodyUrl = "https://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(validHl7)
-        every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.HL7
-        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.transform(any()) } returnsArgument (0)
-
-        // act
-        accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        verify(exactly = 1) {
-            engine.getContentFromHL7(any(), any())
-            actionHistory.trackExistingInputReport(any())
-            transformer.transform(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any(), any())
-        }
-    }
-
-    // TODO: remove after a deploy has been completed. Ticket: https://github.com/CDCgov/prime-reportstream/issues/12428
-    @Test
-    fun `legacy - test processHl7 happy path`() {
-        mockkObject(BlobAccess)
-        mockkObject(Report)
-
-        // set up
-        val actionHistory = mockk<ActionHistory>()
-        val actionLogger = mockk<ActionLogger>()
-        val transformer = mockk<FhirTransformer>()
-
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-        val message = spyk(
-            RawSubmission(
-                UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
-                SCHEMA_NAME
-            )
-        )
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "https://anyblob.com"
-
-        every { actionLogger.hasErrors() } returns false
+        every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
+        every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
+        every { actionLogger.setReportId(any()) } returns actionLogger
         every { message.downloadContent() }.returns(validHl7)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.HL7
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
@@ -217,7 +184,7 @@ class FhirConverterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            FhirConvertMessage(
+            FhirConvertQueueMessage(
                 UUID.randomUUID(),
                 BLOB_FHIR_URL,
                 "test",
@@ -231,6 +198,9 @@ class FhirConverterTests {
         val bodyUrl = "https://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
+        every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
+        every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
+        every { actionLogger.setReportId(any()) } returns actionLogger
         every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())
         every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
@@ -261,7 +231,7 @@ class FhirConverterTests {
         val actionLogger = mockk<ActionLogger>()
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            FhirConvertMessage(
+            FhirConvertQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -281,7 +251,7 @@ class FhirConverterTests {
         val actionLogger = spyk(ActionLogger())
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            FhirConvertMessage(
+            FhirConvertQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -306,7 +276,7 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message =
             spyk(
-                FhirConvertMessage(
+                FhirConvertQueueMessage(
                     UUID.randomUUID(),
                     BLOB_FHIR_URL,
                     "test",
@@ -331,7 +301,7 @@ class FhirConverterTests {
         ).isNull()
 
         assertThat(
-            engine.getTransformerFromSchema("src/test/resources/fhir_sender_transforms/sample_schema")
+            engine.getTransformerFromSchema("fhir_sender_transforms/classpath_sample_schema")
         ).isNotNull()
     }
 
@@ -347,7 +317,7 @@ class FhirConverterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
-            FhirConvertMessage(
+            FhirConvertQueueMessage(
                 UUID.randomUUID(), BLOB_FHIR_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
                 SCHEMA_NAME
             )
@@ -386,5 +356,214 @@ class FhirConverterTests {
             BlobAccess.Companion.uploadBlob(any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
         }
+    }
+
+    @Test
+    fun `test condition code stamping`() {
+        @Suppress("ktlint:standard:max-line-length")
+        val fhirRecord =
+            """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+
+        val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
+        mockkObject(BlobAccess)
+        mockkObject(Report)
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                listOf(
+                    listOf(
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY
+                    ),
+                    listOf(
+                        "80382-5",
+                        "6142004",
+                        "SNOMEDCT",
+                        "Influenza (disorder)"
+                    ),
+                    listOf(
+                        "260373001",
+                        "Some Condition Code",
+                        "Condition Code System",
+                        "Condition Name"
+                    )
+                )
+            )
+        )
+
+        // set up
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+        val transformer = mockk<FhirTransformer>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val message = spyk(
+            FhirConvertQueueMessage(
+                UUID.randomUUID(),
+                BLOB_FHIR_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR,
+                SCHEMA_NAME
+            )
+        )
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "https://anyblob.com"
+
+        every { actionLogger.hasErrors() } returns false
+        every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
+        every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
+        every { actionLogger.setReportId(any()) } returns actionLogger
+        every { message.downloadContent() } returns (fhirRecord)
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
+        every { transformer.transform(any()) } returnsArgument (0)
+
+        // act
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
+
+        val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
+        bundle.entry.filter { it.resource is Observation }.forEach {
+            val observation = (it.resource as Observation)
+            observation.code.coding[0].addExtension(
+                conditionCodeExtensionURL,
+                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+            )
+            observation.valueCodeableConcept.coding[0].addExtension(
+                conditionCodeExtensionURL,
+                Coding("Condition Code System", "Some Condition Code", "Condition Name")
+            )
+        }
+
+        // assert
+        verify(exactly = 1) {
+            engine.getContentFromFHIR(any(), any())
+            actionHistory.trackExistingInputReport(any())
+            transformer.transform(any())
+            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
+            BlobAccess.Companion.uploadBlob(any(), FhirTranscoder.encode(bundle).toByteArray(), any())
+        }
+    }
+
+    @Test
+    fun `test fully unmapped condition code stamping logs errors`() {
+        val fhirData = File(VALID_DATA_URL).readText()
+
+        mockkObject(BlobAccess)
+        mockkObject(Report)
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                listOf(
+                    listOf(
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY
+                    ),
+                    listOf(
+                        "80382-5",
+                        "6142004",
+                        "SNOMEDCT",
+                        "Influenza (disorder)"
+                    )
+                )
+            )
+        )
+
+        // set up
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+        val transformer = mockk<FhirTransformer>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val message = spyk(
+            FhirConvertQueueMessage(
+                UUID.randomUUID(),
+                BLOB_FHIR_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR,
+                SCHEMA_NAME
+            )
+        )
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "https://anyblob.com"
+
+        every { actionLogger.hasErrors() } returns false
+        every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
+        every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
+        every { actionLogger.setReportId(any()) } returns actionLogger
+        every { message.downloadContent() } returns (fhirData)
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
+        every { transformer.transform(any()) } returnsArgument (0)
+
+        // act
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
+
+        // assert
+        verify(exactly = 1) {
+            engine.getContentFromFHIR(any(), any())
+            actionHistory.trackExistingInputReport(any())
+            transformer.transform(any())
+            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
+            BlobAccess.Companion.uploadBlob(any(), fhirData.toByteArray(), any())
+            actionLogger.warn(
+                match<List<ActionLogDetail>> {
+                    it.size == 2 &&
+                        it[0].message == "Missing mapping for code(s): 41458-1" &&
+                        it[1].message == "Missing mapping for code(s): *********"
+                }
+            )
+            actionLogger.warn(
+                match<List<ActionLogDetail>> {
+                    it.size == 2 &&
+                        it[0].message == "Missing mapping for code(s): 34487-9" &&
+                        it[1].message == "Missing mapping for code(s): *********"
+                }
+            )
+            actionLogger.warn(
+                match<List<ActionLogDetail>> {
+                    it.size == 2 &&
+                        it[0].message == "Missing mapping for code(s): 40982-1" &&
+                        it[1].message == "Missing mapping for code(s): *********"
+                }
+            )
+        }
+    }
+
+    // TODO: #10510
+    @Test
+    fun `test convertRelativeSchemaPathToUri`() {
+        assertThat(BaseEngine.convertRelativeSchemaPathToUri("")).isEqualTo("")
+        assertThat(
+            BaseEngine
+                .convertRelativeSchemaPathToUri("classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml")
+        ).isEqualTo(
+            "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        )
+        assertThat(
+            BaseEngine
+                .convertRelativeSchemaPathToUri("metadata/hl7_mapping/ORU_R01/ORU_R01-base")
+        ).isEqualTo(
+            "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        )
     }
 }

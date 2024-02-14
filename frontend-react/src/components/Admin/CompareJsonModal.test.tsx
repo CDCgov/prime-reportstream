@@ -1,13 +1,13 @@
-import React, { useRef } from "react";
 import { fireEvent, screen } from "@testing-library/react";
-
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { useRef } from "react";
 
 import {
+    CompareSettingsModalProps,
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
-    CompareSettingsModalProps,
 } from "./CompareJsonModal";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("ConfirmSaveSettingModal", () => {
     const VALID_JSON = JSON.stringify({ a: 1 });
@@ -41,6 +41,9 @@ describe("ConfirmSaveSettingModal", () => {
         checkSyntaxButtonNode = screen.getByText("Check syntax");
     }
 
+    beforeAll(() => {
+        mockSessionContentReturnValue();
+    });
     afterEach(() => {
         jest.clearAllMocks();
     });
@@ -162,13 +165,8 @@ describe("ConfirmSaveSettingModal", () => {
         });
 
         describe("when the updated JSON is invalid", () => {
-            const consoleTraceSpy = jest.fn();
             function setup() {
                 renderComponent();
-
-                jest.spyOn(console, "trace").mockImplementationOnce(
-                    consoleTraceSpy,
-                );
 
                 fireEvent.change(textareaNode, {
                     target: { value: INVALID_JSON },
@@ -180,24 +178,11 @@ describe("ConfirmSaveSettingModal", () => {
                 );
             }
 
-            afterEach(() => {
-                jest.resetAllMocks();
-            });
-
             test("renders an error diff highlighting the error", () => {
                 setup();
                 expect(errorDiffNode).toBeVisible();
                 expect(errorDiffNode?.innerHTML).toContain("{ nope");
             });
-
-            test("renders an error toast", () => {
-                setup();
-                expect(consoleTraceSpy).toHaveBeenCalled();
-                expect(
-                    screen.queryByText(/JSON data generated/),
-                ).not.toBeInTheDocument();
-            });
-
             describe("when the user starts typing again", () => {
                 test("it removes the highlighting", () => {
                     setup();

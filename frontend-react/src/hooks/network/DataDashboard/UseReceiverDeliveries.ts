@@ -1,16 +1,16 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 
 import {
-    RSReceiverDeliveryResponse,
     dataDashboardEndpoints,
+    RSReceiverDeliveryResponse,
 } from "../../../config/endpoints/dataDashboard";
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
-import { useSessionContext } from "../../../contexts/SessionContext";
-import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
+import { useSessionContext } from "../../../contexts/Session";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../filters/UseFilterManager";
+import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
 
 const { receiverDeliveries } = dataDashboardEndpoints;
 
@@ -58,9 +58,9 @@ export default function useReceiverDeliveries(serviceName?: string) {
     const rangeFrom = filterManager.rangeSettings.from;
 
     const authorizedFetch = useAuthorizedFetch<RSReceiverDeliveryResponse>();
-    const memoizedDataFetch = useCallback(
-        () =>
-            authorizedFetch(receiverDeliveries, {
+    const memoizedDataFetch = useCallback(() => {
+        if (activeMembership?.parsedName) {
+            return authorizedFetch(receiverDeliveries, {
                 segments: { orgAndService },
                 data: {
                     sort: { direction: sortDirection, property: sortColumn },
@@ -76,19 +76,21 @@ export default function useReceiverDeliveries(serviceName?: string) {
                         },
                     ],
                 },
-            }),
-        [
-            authorizedFetch,
-            currentCursor,
-            numResults,
-            orgAndService,
-            rangeFrom,
-            rangeTo,
-            sortColumn,
-            sortDirection,
-        ],
-    );
-    const { data, isLoading } = useQuery({
+            });
+        }
+        return null;
+    }, [
+        activeMembership?.parsedName,
+        authorizedFetch,
+        currentCursor,
+        numResults,
+        orgAndService,
+        rangeFrom,
+        rangeTo,
+        sortColumn,
+        sortDirection,
+    ]);
+    const { data } = useSuspenseQuery({
         queryKey: [
             receiverDeliveries.queryKey,
             activeMembership,
@@ -96,8 +98,7 @@ export default function useReceiverDeliveries(serviceName?: string) {
             filterManager,
         ],
         queryFn: memoizedDataFetch,
-        enabled: !!activeMembership?.parsedName,
     });
 
-    return { data, filterManager, isLoading };
+    return { data, filterManager, isLoading: false };
 }

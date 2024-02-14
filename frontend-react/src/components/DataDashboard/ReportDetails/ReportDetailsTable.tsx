@@ -1,18 +1,15 @@
-import React from "react";
-
-import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
+import styles from "./ReportDetailsTable.module.scss";
 import Table, { TableConfig } from "../../../components/Table/Table";
-import TableFilters from "../../Table/TableFilters";
-import useFilterManager, {
-    FilterManagerDefaults,
-} from "../../../hooks/filters/UseFilterManager";
-import { FeatureName } from "../../../utils/FeatureName";
 import {
     EventName,
     useAppInsightsContext,
-} from "../../../contexts/AppInsightsContext";
-
-import styles from "./ReportDetailsTable.module.scss";
+} from "../../../contexts/AppInsights";
+import useFilterManager, {
+    FilterManagerDefaults,
+} from "../../../hooks/filters/UseFilterManager";
+import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
+import { FeatureName } from "../../../utils/FeatureName";
+import TableFilters from "../../Table/TableFilters";
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
@@ -41,7 +38,7 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
             { dataAttr: "total", columnHeader: "Total tests" },
             { dataAttr: "positive", columnHeader: "Total positive" },
         ],
-        rows: reportFacilities!!,
+        rows: reportFacilities!,
     };
 
     return (
@@ -49,7 +46,7 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
             <section id="facilities">
                 <h2>Facilities & Providers included in this report</h2>
                 <TableFilters
-                    startDateLabel="From: (mm/dd/yyy)"
+                    startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}
                     onFilterClick={({

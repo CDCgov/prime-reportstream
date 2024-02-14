@@ -1,14 +1,15 @@
-import { useCallback } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo } from "react";
 
-import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
 import {
-    lookupTablesEndpoints,
     LookupTable,
+    LookupTables,
+    lookupTablesEndpoints,
     ValueSet,
     ValueSetRow,
-    LookupTables,
 } from "../config/endpoints/lookupTables";
+import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
+import { useSessionContext } from "../contexts/Session";
 import { RSNetworkError } from "../utils/RSNetworkError";
 
 const { getTableData, getTableList, updateTable, activateTable } =
@@ -23,21 +24,19 @@ const { getTableData, getTableList, updateTable, activateTable } =
 const findTableMetaByName = (
     tableName: string,
     tables: LookupTable[] = [],
-): LookupTable => {
+): LookupTable | undefined => {
     if (!tables.length) {
-        return {} as LookupTable;
+        return undefined;
     }
     const filteredBody: LookupTable[] = tables.filter(
         (tv: LookupTable) => tv.tableName === tableName && tv.isActive,
     );
 
     if (!filteredBody.length) {
-        console.info("Unable to find metadata for lookup table: ", tableName);
-        return {} as LookupTable;
+        return undefined;
     }
     return filteredBody.sort(
-        (a: LookupTable, b: LookupTable) =>
-            b["tableVersion"] - a["tableVersion"],
+        (a: LookupTable, b: LookupTable) => b.tableVersion - a.tableVersion,
     )[0];
 };
 
@@ -70,7 +69,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
     // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
-    return useQuery({
+    return useSuspenseQuery({
         queryKey: [getTableData.queryKey, dataTableName],
         queryFn: memoizedDataFetch,
     });
@@ -89,14 +88,27 @@ export const useValueSetsMeta = (
     dataTableName: string = LookupTables.VALUE_SET,
 ) => {
     const authorizedFetch = useAuthorizedFetch<LookupTable[]>();
+    const { rsConsole } = useSessionContext();
 
     // get all lookup tables in order to get metadata
-    const { data: tableData, ...query } = useQuery({
+    const { data: tableData, ...query } = useSuspenseQuery({
         queryKey: [getTableList.queryKey],
         queryFn: () => authorizedFetch(getTableList),
     });
 
-    const tableMeta = findTableMetaByName(dataTableName, tableData);
+    const tableMeta = useMemo(
+        () => findTableMetaByName(dataTableName, tableData),
+        [dataTableName, tableData],
+    );
+
+    useEffect(() => {
+        if (!tableMeta || tableData?.length) {
+            rsConsole.info(
+                "Unable to find metadata for lookup table: ",
+                dataTableName,
+            );
+        }
+    }, [tableMeta, tableData, dataTableName, rsConsole]);
 
     return { ...query, data: tableMeta };
 };

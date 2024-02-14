@@ -1,10 +1,9 @@
-import { screen, fireEvent } from "@testing-library/react";
-
-import { FeatureFlagActionType } from "../../contexts/FeatureFlagContext";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { fireEvent, screen } from "@testing-library/react";
 
 import { FeatureFlagsPage } from "./FeatureFlags";
+import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
+import { FeatureFlagActionType } from "../../contexts/FeatureFlag";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 jest.mock("../../config", () => {
     const originalModule = jest.requireActual("../../config");
@@ -21,7 +20,7 @@ jest.mock("../../config", () => {
 describe("FeatureFlags", () => {
     test("displays a list of current feature flags", () => {
         mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
+            dispatch: () => void 0,
             checkFlags: jest.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
         });
@@ -41,7 +40,7 @@ describe("FeatureFlags", () => {
     });
     test("displays a remove button for feature flags not set at env level", () => {
         mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
+            dispatch: () => void 0,
             checkFlags: jest.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
         });

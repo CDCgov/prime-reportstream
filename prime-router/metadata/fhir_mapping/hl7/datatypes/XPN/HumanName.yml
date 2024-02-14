@@ -87,149 +87,26 @@ period_2:
         periodEnd: XPN.13
 
 extension:
-  vars:
-    xpn2: String, XPN.2
-    xpn3: String, XPN.3
-    xpn4: String, XPN.4
-    xpn6: String, XPN.6
-    xpn7: String, XPN.7
-    xpn8: String, XPN.8
-    xpn9: STRING_ALL, XPN.9
-    xpn10: String, XPN.10
-    xpn12: String, XPN.12
-    xpn13: String, XPN.13
-    xpn14: String, XPN.14
   generateList: true
   expressionType: nested
   expressions:
     - expressionType: nested
-      condition: $xpn2 NOT_NULL
+      condition: $hl7v2Field NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          valueOf: xpn2-given-name
+          value: hl7v2Field
         valueString:
           type: STRING
-          expressionType: HL7Spec
-          valueOf: XPN.2
+          valueOf: $hl7v2Field
     - expressionType: nested
-      condition: $xpn3 NOT_NULL
+      condition: $hl7v2Component NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          valueOf: xpn3-second-given-name
+          value: hl7v2Component
         valueString:
           type: STRING
-          expressionType: HL7Spec
-          valueOf: XPN.3
-    - expressionType: nested
-      condition: $xpn4 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          valueOf: xpn4-suffix
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: XPN.4
-    - expressionType: nested
-      condition: $xpn6 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          valueOf: xpn6-degree
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: XPN.6
-    - expressionType: nested
-      condition: $xpn7 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          valueOf: xpn7-name-type-code
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: XPN.7
-    - expressionType: nested
-      condition: $xpn8 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          valueOf: xpn8-name-representation-code
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: XPN.8
-    - expressionType: nested
-      condition: $xpn9 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: xpn9-name-context
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-          specs: XPN.9
-    - expressionType: nested
-      vars:
-        start: XPN.10.1
-        end: XPN.10.2
-      condition: $start NOT_NULL || $end NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: xpn10-name-validity-range
-        extension_1-start:
-          generateList: true
-          expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: xpn10-name-validity-start
-            valueString:
-              type: STRING
-              valueOf: $start
-              expressionType: HL7Spec
-        extension_2-end:
-          generateList: true
-          expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: xpn10-name-validity-end
-            valueString:
-              type: STRING
-              valueOf: $end
-              expressionType: HL7Spec
-    - expressionType: nested
-      condition: $xpn12 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: xpn12-effective-date
-        valueString:
-          type: STRING
-          valueOf: $xpn12
-          expressionType: HL7Spec
-    - expressionType: nested
-      condition: $xpn13 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: xpn13-expiration-date
-        valueString:
-          type: STRING
-          valueOf: $xpn13
-          expressionType: HL7Spec
-    - expressionType: nested
-      condition: $xpn14 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          valueOf: xpn14-professional-suffix
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: XPN.14
+          valueOf: $hl7v2Component
+    - expressionType: resource
+      valueOf: datatypes/XPN/XPNExtension

@@ -1,12 +1,10 @@
 // AutoUpdateFileChromatic
-import React from "react";
 import { withRouter } from "storybook-addon-react-router-v6";
 
-import SessionProvider from "../../contexts/SessionContext";
-import { OKTA_AUTH } from "../../oktaConfig";
-import config from "../../config";
-
 import { MainLayoutBase } from "./MainLayout";
+import config from "../../config";
+import SessionProvider from "../../contexts/Session";
+import { OKTA_AUTH } from "../../oktaConfig";
 
 export default {
     title: "components/MainLayout",

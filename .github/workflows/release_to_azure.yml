@@ -70,6 +70,12 @@ jobs:
           appinsights-staging-key: ${{ secrets.APPINSIGHTS_STAGING_KEY }}
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.pre_job.outputs.version }}
+          test-admin-user: ${{ secrets.TEST_ADMIN_USERNAME }}
+          test-admin-password: ${{ secrets.TEST_ADMIN_PASSWORD }}
+          test-sender-user: ${{ secrets.TEST_SENDER_USERNAME }}
+          test-sender-password: ${{ secrets.TEST_SENDER_PASSWORD }}
+          test-receiver-user: ${{ secrets.TEST_RECEIVER_USERNAME }}
+          test-receiver-password: ${{ secrets.TEST_RECEIVER_PASSWORD }}
 
   deploy_infrastructure:
     name: "Deploy Infrastructure: ${{ needs.pre_job.outputs.env_name }}"
@@ -138,10 +144,10 @@ jobs:
         env:
           checksum_validation: ${{ vars.CHECKSUM_VALIDATION }}
         if: needs.pre_job.outputs.has_router_change == 'true' && env.checksum_validation == 'true'
-        uses: JosiahSiegel/checksum-validate-action@f7e46678bd1b02cd3cdfa76ac5cb031898b9c46d
+        uses: JosiahSiegel/checksum-validate-action@f14bb2ae5ca3cb0b61ba697885cb501368242d93
         with:
           key: backend
-          input: $(az functionapp config appsettings list -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -n pdh${{ needs.pre_job.outputs.env_name }}-functionapp)
+          input: $(az functionapp config appsettings list -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -n pdh${{ needs.pre_job.outputs.env_name }}-functionapp -o tsv | sort)
 
   approve_frontend_release:
     name: "Approve Frontend Release: ${{ needs.pre_job.outputs.env_name }}"

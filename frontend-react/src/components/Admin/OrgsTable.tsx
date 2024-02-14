@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { useResource } from "rest-hooks";
 import { Button, ButtonGroup, Label, TextInput } from "@trussworks/react-uswds";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
+import { useResource } from "rest-hooks";
 
+import { useSessionContext } from "../../contexts/Session";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
-import { useSessionContext } from "../../contexts/SessionContext";
+import Table from "../../shared/Table/Table";
+import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
 import { USNavLink } from "../USLink";
-import { Table } from "../../shared/Table/Table";
-import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(
@@ -21,16 +21,16 @@ export function OrgsTable() {
     const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        const { service, memberType } = activeMembership || {};
+        const { service, memberType } = activeMembership ?? {};
 
-        let payload: Partial<MembershipSettings> = {
+        const payload: Partial<MembershipSettings> = {
             parsedName: orgName,
         };
         if (
             memberType === MemberType.SENDER ||
             memberType === MemberType.PRIME_ADMIN
         ) {
-            payload.service = service || "default";
+            payload.service = service ?? "default";
         }
         setActiveMembership(payload);
     };
@@ -103,12 +103,12 @@ export function OrgsTable() {
                 {
                     columnKey: "State",
                     columnHeader: "State",
-                    content: eachOrg.stateCode || "",
+                    content: eachOrg.stateCode ?? "",
                 },
                 {
                     columnKey: "County",
                     columnHeader: "County",
-                    content: eachOrg.countyName || "",
+                    content: eachOrg.countyName ?? "",
                 },
                 {
                     columnKey: "ButtonAction",
@@ -162,7 +162,6 @@ export function OrgsTable() {
                             type="text"
                             autoComplete="off"
                             aria-autocomplete="none"
-                            autoFocus
                             onChange={(evt) => setFilter(evt.target.value)}
                         />
                     </div>

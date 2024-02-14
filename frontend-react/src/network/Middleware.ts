@@ -1,14 +1,13 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { QueryHook, Middleware } from "react-query-kit";
 import axios, { AxiosRequestConfig } from "axios";
-import { QueryFunction } from "@tanstack/react-query";
+import { Fetcher, Middleware, SuspenseQueryHook } from "react-query-kit";
 
-import { useSessionContext } from "../contexts/SessionContext";
-import { useAppInsightsContext } from "../contexts/AppInsightsContext";
 import { RSEndpoint } from "../config/endpoints";
+import { useAppInsightsContext } from "../contexts/AppInsights";
+import { useSessionContext } from "../contexts/Session";
 
 export type AuthMiddleware<TData> = Middleware<
-    QueryHook<TData, FetchVariables>
+    SuspenseQueryHook<TData, FetchVariables>
 >;
 
 /**
@@ -16,10 +15,10 @@ export type AuthMiddleware<TData> = Middleware<
  * from an expected RSEndpoint variable. Will disable the query if it cannot pass on
  * a fetchConfig (either built here or given).
  */
-export const authMiddleware: Middleware<QueryHook<unknown, FetchVariables>> = (
-    useQueryNext,
-) => {
-    return (options) => {
+export const authMiddleware: Middleware<
+    SuspenseQueryHook<unknown, FetchVariables>
+> = (useQueryNext) => {
+    return (options, qc) => {
         if (!options.variables?.endpoint) throw new Error("Endpoint not found");
         const { fetchHeaders } = useAppInsightsContext();
         const { authState, activeMembership } = useSessionContext();
@@ -40,10 +39,11 @@ export const authMiddleware: Middleware<QueryHook<unknown, FetchVariables>> = (
             headers,
         });
         const fetchConfig =
-            options.variables?.fetchConfig || axiosConfig
+            options.variables?.fetchConfig ?? axiosConfig
                 ? {
                       ...options.variables?.fetchConfig,
                       ...axiosConfig,
+                      enabled: options.variables?.fetchConfig?.enabled == null,
                   }
                 : undefined;
         const newOptions = {
@@ -52,30 +52,28 @@ export const authMiddleware: Middleware<QueryHook<unknown, FetchVariables>> = (
                 ...options.variables,
                 fetchConfig,
             },
-            enabled:
-                (options.enabled == null || options.enabled) && !!fetchConfig,
         };
-        return useQueryNext(newOptions);
+        return useQueryNext(newOptions, qc);
     };
 };
 
-export type FetchVariables = {
+export interface FetchVariables {
     endpoint: RSEndpoint;
-    fetchConfig?: Partial<AxiosRequestConfig>;
-};
-export type FetchConfigQueryKey = [string, FetchVariables];
-export type AuthFetch<TData> = QueryFunction<TData, FetchConfigQueryKey>;
+    fetchConfig?: Partial<AxiosRequestConfig> & { enabled?: boolean };
+}
+export type AuthFetch<TData> = Fetcher<TData, FetchVariables>;
 
 /**
  * Calls fetch with the provided fetch config from variables.
  */
-export const authFetch: QueryFunction<unknown, FetchConfigQueryKey> = async ({
-    queryKey,
+export const authFetch: Fetcher<unknown, FetchVariables> = async ({
+    fetchConfig,
 }) => {
-    const [, variables] = queryKey;
-    if (!variables.fetchConfig) throw new Error("Fetch config not found");
+    if (!fetchConfig) throw new Error("Fetch config not found");
 
-    const res = await axios<unknown>(variables.fetchConfig);
+    if (fetchConfig.enabled === false) return Promise.resolve(null);
+
+    const res = await axios<unknown>(fetchConfig);
     return res.data;
 };
 

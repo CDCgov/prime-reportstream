@@ -1,19 +1,18 @@
 import { act, waitFor } from "@testing-library/react";
-import range from "lodash.range";
-
-import * as AppInsightsContext from "../contexts/AppInsightsContext";
-import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
-import { renderHook } from "../utils/CustomRenderUtils";
+import { range } from "lodash";
 
 import usePagination, {
     CursorExtractor,
     getSlots,
     PaginationState,
     ProcessResultsPayload,
-    UsePaginationProps,
-    setSelectedPageReducer,
     processResultsReducer,
+    setSelectedPageReducer,
+    UsePaginationProps,
 } from "./UsePagination";
+import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
+import * as AppInsightsContext from "../contexts/AppInsights";
+import { renderHook } from "../utils/CustomRenderUtils";
 
 const mockTrackEvent = jest.fn();
 
@@ -476,7 +475,9 @@ describe("usePagination", () => {
         await waitFor(() =>
             expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61),
         );
-        expect(result.current.paginationProps?.currentPageNum).toBe(1);
+        await waitFor(() =>
+            expect(result.current.paginationProps?.currentPageNum).toBe(1),
+        );
         expect(result.current.paginationProps?.slots).toStrictEqual([
             1, 2, 3, 4,
         ]);
@@ -655,13 +656,13 @@ describe("usePagination", () => {
         );
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
-        expect(mockTrackEvent).not.toBeCalled();
+        expect(mockTrackEvent).not.toHaveBeenCalled();
 
         act(() => {
             result.current.paginationProps?.setSelectedPage(2);
         });
 
-        expect(mockTrackEvent).toBeCalledWith({
+        expect(mockTrackEvent).toHaveBeenCalledWith({
             name: "Test Analytics Event",
             properties: {
                 tablePagination: {

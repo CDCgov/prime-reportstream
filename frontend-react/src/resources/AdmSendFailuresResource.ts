@@ -1,7 +1,6 @@
-import { formatDate } from "../utils/misc";
-import config from "../config";
-
 import AuthResource from "./AuthResource";
+import config from "../config";
+import { formatDate } from "../utils/misc";
 
 const { RS_API_URL } = config;
 

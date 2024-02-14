@@ -2,10 +2,9 @@
  *  Moved code from the EditableCompare into a common file. It mirrors the calls to JsonDiffer
  */
 
-import { splitOn } from "../misc";
-
-import { Diff, SES_TYPE } from "./diff";
 import { DifferMarkupResult } from "./AbstractDiffer";
+import { Diff, SES_TYPE } from "./diff";
+import { splitOn } from "../misc";
 
 /**
  * TODO: this approach to inserting marks is NOT as robust as insertMarks() in JsonDiffer. Refactor.
@@ -33,8 +32,7 @@ export const insertHighlight = (
     // we want to insert a <mark></mark> around text.
     const threeParts = splitOn(text, offset, offset + length);
     if (threeParts.length !== 3) {
-        console.warn("split failed");
-        return text;
+        throw new Error("split failed");
     }
 
     return `${threeParts[0]}<mark>${threeParts[1]}</mark>${threeParts[2]}`;

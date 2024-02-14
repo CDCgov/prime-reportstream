@@ -1,17 +1,16 @@
-import React, {
-    useState,
+import { Button } from "@trussworks/react-uswds";
+import {
+    Dispatch,
+    SetStateAction,
     useCallback,
     useMemo,
-    SetStateAction,
-    Dispatch,
+    useState,
 } from "react";
-import { Button } from "@trussworks/react-uswds";
 
+import { ColumnData } from "./ColumnData";
+import { ColumnConfig, RowSideEffect } from "./Table";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
 import { StringIndexed } from "../../utils/UsefulTypes";
-
-import { RowSideEffect, ColumnConfig } from "./Table";
-import { ColumnData } from "./ColumnData";
 
 export type TableRowData = StringIndexed;
 
@@ -121,8 +120,7 @@ export const TableRows = ({
         // largely here for typecheck reasons, this represents a case
         // where we're somehow trying to update a row without editing enabled
         if (rowToEdit === undefined) {
-            console.error("Editing not enabled or no row to edit");
-            return;
+            throw new Error("Editing not enabled or no row to edit");
         }
 
         const rowToUpdate = updatedRow ? updatedRow : rowsToDisplay[rowToEdit];
@@ -145,7 +143,7 @@ export const TableRows = ({
                     setRowToEdit(undefined);
                     return;
                 }
-                // TODO: implement a loading state here
+                // TODO:  implement a loading state here
                 return onSave(updatedRow).then(() => {
                     setRowToEdit(undefined);
                     setUpdatedRow(null);
@@ -170,7 +168,7 @@ export const TableRows = ({
             return [...rows];
         }
         // if the row is currently under edit, use that row, otherwise create a blank one
-        const newRow = updatedRow || createBlankRowForColumns(columns);
+        const newRow = updatedRow ?? createBlankRowForColumns(columns);
         return [...rows].concat([newRow]);
     }, [rows, addingNewRow, updatedRow, columns]);
 
@@ -195,7 +193,9 @@ export const TableRows = ({
                         rowToEdit={rowToEdit}
                         updateRow={updateFieldForRow}
                         enableEditableRows={enableEditableRows}
-                        saveRowOrSetEditing={saveRowOrSetEditing}
+                        saveRowOrSetEditing={(id) =>
+                            void saveRowOrSetEditing(id)
+                        }
                         editButtonLabel={
                             rowToEdit === rowIndex ? "Save" : "Edit"
                         }

@@ -1,24 +1,24 @@
-import React, { Suspense } from "react";
-import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
-import { NetworkErrorBoundary, useController } from "rest-hooks";
+import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
+import { Suspense } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { NetworkErrorBoundary, useController } from "rest-hooks";
 
-import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
+import { TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
+import { showToast } from "../../contexts/Toast";
+import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import { showAlertNotification, showError } from "../AlertNotifications";
-import Spinner from "../Spinner";
+import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import {
     getErrorDetailFromResponse,
     isValidServiceName,
 } from "../../utils/misc";
-import { ErrorPage } from "../../pages/error/ErrorPage";
+import Spinner from "../Spinner";
 
-import { TextInputComponent, TextAreaComponent } from "./AdminFormEdit";
-
-type NewSettingProps = {
+interface NewSettingProps {
     orgname: string;
     settingtype: "sender" | "receiver";
-};
+    [k: string]: string | undefined;
+}
 
 const fallbackPage = () => <ErrorPage type="page" />;
 
@@ -31,14 +31,15 @@ export function NewSettingPage() {
         throw Error("Expected orgname & settingtype from path");
 
     let orgSetting: object = [];
-    let orgSettingName: string = "";
+    let orgSettingName = "";
 
     const { fetch: fetchController } = useController();
     const saveData = async () => {
         try {
             if (!isValidServiceName(orgSettingName)) {
-                showError(
+                showToast(
                     `${orgSettingName} cannot contain special characters.`,
+                    "error",
                 );
                 return false;
             }
@@ -64,16 +65,13 @@ export function NewSettingPage() {
                 data,
             );
 
-            showAlertNotification(
-                "success",
-                `Item '${orgSettingName}' has been created`,
-            );
+            showToast(`Item '${orgSettingName}' has been created`, "success");
             navigate(-1);
         } catch (e: any) {
-            let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(
+            const errorDetail = await getErrorDetailFromResponse(e);
+            showToast(
                 `Updating setting '${orgSettingName}' failed with: ${errorDetail}`,
+                "error",
             );
             return false;
         }
@@ -121,7 +119,7 @@ export function NewSettingPage() {
                                 form="edit-setting"
                                 type="submit"
                                 data-testid="submit"
-                                onClick={async () => await saveData()}
+                                onClick={() => void saveData()}
                             >
                                 Save
                             </Button>

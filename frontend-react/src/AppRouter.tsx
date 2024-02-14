@@ -1,35 +1,31 @@
-import React from "react";
-import { Outlet, RouteObject, redirect } from "react-router";
+import { ComponentType, lazy, LazyExoticComponent } from "react";
+import { Outlet, redirect, RouteObject } from "react-router";
 import { createBrowserRouter } from "react-router-dom";
 
+import { RequireGate } from "./shared/RequireGate/RequireGate";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
-import { RequireGate } from "./shared/RequireGate/RequireGate";
 import { PERMISSIONS } from "./utils/UsefulTypes";
 
 /* Content Pages */
-const Home = React.lazy(
-    lazyRouteMarkdown(() => import("./content/home/index.mdx")),
-);
-const About = React.lazy(
+const Home = lazy(lazyRouteMarkdown(() => import("./content/home/index.mdx")));
+const About = lazy(
     lazyRouteMarkdown(() => import("./content/about/index.mdx")),
 );
-const OurNetwork = React.lazy(
+const OurNetwork = lazy(
     lazyRouteMarkdown(() => import("./content/about/our-network.mdx")),
 );
-const News = React.lazy(
-    lazyRouteMarkdown(() => import("./content/about/news.mdx")),
-);
-const Security = React.lazy(
+const News = lazy(lazyRouteMarkdown(() => import("./content/about/news.mdx")));
+const Security = lazy(
     lazyRouteMarkdown(() => import("./content/about/security.mdx")),
 );
-const ReleaseNotes = React.lazy(
+const ReleaseNotes = lazy(
     lazyRouteMarkdown(() => import("./content/about/release-notes.mdx")),
 );
-const CaseStudies = React.lazy(
+const CaseStudies = lazy(
     lazyRouteMarkdown(() => import("./content/about/case-studies.mdx")),
 );
-const ReferHealthcareOrganizations = React.lazy(
+const ReferHealthcareOrganizations = lazy(
     lazyRouteMarkdown(
         () =>
             import(
@@ -37,20 +33,20 @@ const ReferHealthcareOrganizations = React.lazy(
             ),
     ),
 );
-const GettingStartedIndex = React.lazy(
+const GettingStartedIndex = lazy(
     lazyRouteMarkdown(() => import("./content/getting-started/index.mdx")),
 );
-const GettingStartedSendingData = React.lazy(
+const GettingStartedSendingData = lazy(
     lazyRouteMarkdown(
         () => import("./content/getting-started/sending-data.mdx"),
     ),
 );
-const GettingStartedReceivingData = React.lazy(
+const GettingStartedReceivingData = lazy(
     lazyRouteMarkdown(
         () => import("./content/getting-started/receiving-data.mdx"),
     ),
 );
-const ReportStreamApiIndex = React.lazy(
+const ReportStreamApiIndex = lazy(
     lazyRouteMarkdown(
         () =>
             import(
@@ -58,12 +54,12 @@ const ReportStreamApiIndex = React.lazy(
             ),
     ),
 );
-const DeveloperResourcesIndex = React.lazy(
+const DeveloperResourcesIndex = lazy(
     lazyRouteMarkdown(
         () => import("./content/developer-resources/index-page.mdx"),
     ),
 );
-const ReportStreamApiGettingStarted = React.lazy(
+const ReportStreamApiGettingStarted = lazy(
     lazyRouteMarkdown(
         () =>
             import(
@@ -71,7 +67,7 @@ const ReportStreamApiGettingStarted = React.lazy(
             ),
     ),
 );
-const ReportStreamApiDocumentation = React.lazy(
+const ReportStreamApiDocumentation = lazy(
     lazyRouteMarkdown(
         () =>
             import(
@@ -79,7 +75,7 @@ const ReportStreamApiDocumentation = React.lazy(
             ),
     ),
 );
-const ReportStreamApiDocumentationDataModel = React.lazy(
+const ReportStreamApiDocumentationDataModel = lazy(
     lazyRouteMarkdown(
         () =>
             import(
@@ -87,7 +83,7 @@ const ReportStreamApiDocumentationDataModel = React.lazy(
             ),
     ),
 );
-const ReportStreamApiDocumentationResponses = React.lazy(
+const ReportStreamApiDocumentationResponses = lazy(
     lazyRouteMarkdown(
         () =>
             import(
@@ -95,15 +91,15 @@ const ReportStreamApiDocumentationResponses = React.lazy(
             ),
     ),
 );
-const ManagingYourConnectionIndex = React.lazy(
+const ManagingYourConnectionIndex = lazy(
     lazyRouteMarkdown(
         () => import("./content/managing-your-connection/index.mdx"),
     ),
 );
-const SupportIndex = React.lazy(
+const SupportIndex = lazy(
     lazyRouteMarkdown(() => import("./content/support/index.mdx")),
 );
-const ReportStreamApiDocumentationPayloads = React.lazy(
+const ReportStreamApiDocumentationPayloads = lazy(
     lazyRouteMarkdown(
         () =>
             import(
@@ -113,89 +109,77 @@ const ReportStreamApiDocumentationPayloads = React.lazy(
 );
 
 /* Public Pages */
-const TermsOfService = React.lazy(() => import("./pages/TermsOfService"));
-const LoginCallback = React.lazy(
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const LoginCallback = lazy(
     () => import("./shared/LoginCallback/LoginCallback"),
 );
-const LogoutCallback = React.lazy(
+const LogoutCallback = lazy(
     () => import("./shared/LogoutCallback/LogoutCallback"),
 );
-const Login = React.lazy(() => import("./pages/Login"));
-const FileHandler = React.lazy(
-    () => import("./components/FileHandlers/FileHandler"),
-);
-const ErrorNoPage = React.lazy(
+const Login = lazy(() => import("./pages/Login"));
+const FileHandler = lazy(() => import("./components/FileHandlers/FileHandler"));
+const ErrorNoPage = lazy(
     () => import("./pages/error/legacy-content/ErrorNoPage"),
 );
 
 /* Auth Pages */
-const FeatureFlagsPage = React.lazy(() => import("./pages/misc/FeatureFlags"));
-const SubmissionDetailsPage = React.lazy(
+const FeatureFlagsPage = lazy(() => import("./pages/misc/FeatureFlags"));
+const SubmissionDetailsPage = lazy(
     () => import("./pages/submissions/SubmissionDetails"),
 );
-const SubmissionsPage = React.lazy(
-    () => import("./pages/submissions/Submissions"),
-);
-const AdminMainPage = React.lazy(() => import("./pages/admin/AdminMain"));
-const AdminOrgNewPage = React.lazy(() => import("./pages/admin/AdminOrgNew"));
-const AdminOrgEditPage = React.lazy(() => import("./pages/admin/AdminOrgEdit"));
-const EditSenderSettingsPage = React.lazy(
+const SubmissionsPage = lazy(() => import("./pages/submissions/Submissions"));
+const AdminMainPage = lazy(() => import("./pages/admin/AdminMain"));
+const AdminOrgNewPage = lazy(() => import("./pages/admin/AdminOrgNew"));
+const AdminOrgEditPage = lazy(() => import("./pages/admin/AdminOrgEdit"));
+const EditSenderSettingsPage = lazy(
     () => import("./components/Admin/EditSenderSettings"),
 );
-const AdminLMFPage = React.lazy(
-    () => import("./pages/admin/AdminLastMileFailures"),
-);
-const AdminMessageTrackerPage = React.lazy(
+const AdminLMFPage = lazy(() => import("./pages/admin/AdminLastMileFailures"));
+const AdminMessageTrackerPage = lazy(
     () => import("./pages/admin/AdminMessageTracker"),
 );
-const AdminReceiverDashPage = React.lazy(
+const AdminReceiverDashPage = lazy(
     () => import("./pages/admin/AdminReceiverDashPage"),
 );
-const DeliveryDetailPage = React.lazy(
+const DeliveryDetailPage = lazy(
     () => import("./pages/deliveries/details/DeliveryDetail"),
 );
-const ValueSetsDetailPage = React.lazy(
+const ValueSetsDetailPage = lazy(
     () => import("./pages/admin/value-set-editor/ValueSetsDetail"),
 );
-const ValueSetsIndexPage = React.lazy(
+const ValueSetsIndexPage = lazy(
     () => import("./pages/admin/value-set-editor/ValueSetsIndex"),
 );
-const DeliveriesPage = React.lazy(
-    () => import("./pages/deliveries/Deliveries"),
-);
-const EditReceiverSettingsPage = React.lazy(
+const DeliveriesPage = lazy(() => import("./pages/deliveries/Deliveries"));
+const EditReceiverSettingsPage = lazy(
     () => import("./components/Admin/EditReceiverSettings"),
 );
-const AdminRevHistoryPage = React.lazy(
-    () => import("./pages/admin/AdminRevHistory"),
-);
-const MessageDetailsPage = React.lazy(
+const AdminRevHistoryPage = lazy(() => import("./pages/admin/AdminRevHistory"));
+const MessageDetailsPage = lazy(
     () => import("./components/MessageTracker/MessageDetails"),
 );
-const ManagePublicKeyPage = React.lazy(
+const ManagePublicKeyPage = lazy(
     () => import("./components/ManagePublicKey/ManagePublicKey"),
 );
-const DataDashboardPage = React.lazy(
+const DataDashboardPage = lazy(
     () => import("./pages/data-dashboard/DataDashboard"),
 );
-const ReportDetailsPage = React.lazy(
+const ReportDetailsPage = lazy(
     () => import("./components/DataDashboard/ReportDetails/ReportDetails"),
 );
-const FacilitiesProvidersPage = React.lazy(
+const FacilitiesProvidersPage = lazy(
     () =>
         import(
             "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders"
         ),
 );
-const FacilityProviderSubmitterDetailsPage = React.lazy(
+const FacilityProviderSubmitterDetailsPage = lazy(
     () =>
         import(
             "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails"
         ),
 );
-const NewSettingPage = React.lazy(
-    () => import("./components/Admin/NewSetting"),
-);
+const NewSettingPage = lazy(() => import("./components/Admin/NewSetting"));
 
 export const appRoutes: RouteObject[] = [
     /* Public Site */
@@ -400,7 +384,7 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "programmers-guide",
-                        loader: async () => {
+                        loader: () => {
                             return redirect("/developer-resources/api");
                         },
                     },
@@ -609,7 +593,11 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/message-details/:id",
-                element: <MessageDetailsPage />,
+                element: (
+                    <RequireGate auth>
+                        <MessageDetailsPage />
+                    </RequireGate>
+                ),
             },
             /* Handles any undefined route */
             {
@@ -623,9 +611,7 @@ export const appRoutes: RouteObject[] = [
     },
 ] satisfies RsRouteObject[];
 
-export function createRouter(
-    Component: React.LazyExoticComponent<React.ComponentType>,
-) {
+export function createRouter(Component: LazyExoticComponent<ComponentType>) {
     appRoutes[0].element = <Component />;
     const router = createBrowserRouter(appRoutes);
     return router;

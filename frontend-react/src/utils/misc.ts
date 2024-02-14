@@ -57,10 +57,8 @@ export function isValidServiceName(text: string): boolean {
  * otherwise, just return the general exception detail
  */
 export async function getErrorDetailFromResponse(e: any) {
-    let errorResponse = await e?.response?.json();
-    return errorResponse && errorResponse.error
-        ? errorResponse.error
-        : e.toString();
+    const errorResponse = await e?.response?.json();
+    return errorResponse?.error ? errorResponse.error : e.toString();
 }
 
 export enum VersionWarningType {
@@ -90,21 +88,16 @@ export function getVersionWarning(
 }
 
 export function formatDate(date: string): string {
-    try {
-        // 'Thu, 3/31/2022, 4:50 AM'
-        // Note that this returns Epoch when receiving a null date string
-        return new Intl.DateTimeFormat("en-US", {
-            weekday: "short",
-            year: "numeric",
-            month: "numeric",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-        }).format(new Date(date));
-    } catch (err: any) {
-        console.warn(err);
-        return date;
-    }
+    // 'Thu, 3/31/2022, 4:50 AM'
+    // Note that this returns Epoch when receiving a null date string
+    return new Intl.DateTimeFormat("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+    }).format(new Date(date));
 }
 
 /*
@@ -127,7 +120,7 @@ export const toHumanReadable = (machineString: string): string => {
 
 // ... capitalizes the first letter in a string
 export const capitalizeFirst = (uncapped: string): string => {
-    if (!uncapped || !uncapped.length) {
+    if (!uncapped?.length) {
         return uncapped;
     }
     const newFirst = uncapped[0].toUpperCase();
@@ -149,7 +142,7 @@ export const groupBy = <T>(
             (acc[predicate(value, index, array)] ||= []).push(value);
             return acc;
         },
-        {} as { [key: string]: T[] },
+        {} as Record<string, T[]>,
     );
 
 /* Takes a url that contains the 'report/' location and returns
@@ -162,7 +155,7 @@ export const parseFileLocation = (
     sendingOrg: string;
     fileName: string;
 } => {
-    const fileReportsLocation = urlFileLocation.split("/").pop() || "";
+    const fileReportsLocation = urlFileLocation.split("/").pop() ?? "";
     const [folderLocation, sendingOrg, fileName] =
         fileReportsLocation.split("%2F");
 

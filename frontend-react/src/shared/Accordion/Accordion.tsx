@@ -1,7 +1,7 @@
 import { Accordion as OrigAccordion } from "@trussworks/react-uswds";
-import { useId } from "react";
-import { useLocation } from "react-router";
 import classNames from "classnames";
+import { ComponentProps, useCallback, useId } from "react";
+import { useLocation } from "react-router";
 
 import styles from "./Accordion.module.scss";
 
@@ -26,8 +26,7 @@ function appendHashToURL(hash: string) {
     }
 }
 
-export interface AccordionProps
-    extends React.ComponentProps<typeof OrigAccordion> {
+export interface AccordionProps extends ComponentProps<typeof OrigAccordion> {
     isAlternate?: boolean;
 }
 
@@ -47,7 +46,7 @@ export interface AccordionProps
  * Will also update history will the last accordion item
  * id interacted with.
  */
-export function Accordion({
+function Accordion({
     isAlternate,
     className,
     items,
@@ -66,22 +65,29 @@ export function Accordion({
         isAlternate && styles["usa-accordion--alternate"],
         className,
     );
+    const interactionHandler = useCallback(
+        (event: React.SyntheticEvent<HTMLDivElement>) => {
+            // TODO: Figure out how to get event.target to return proper type
+            const target = event.target as HTMLElement;
+            // Depending on DOM tree structure inside button, target will differ
+            // depending on area clicked. Check if the target itself has an id,
+            // otherwise try to find a descendant with one.
+            const id =
+                target.getAttribute("id") ?? target.querySelector("[id]")?.id;
+
+            if (id) {
+                appendHashToURL(`#${id}`);
+            }
+        },
+        [],
+    );
     return (
         <div
-            onClick={(event) => {
-                // TODO: Figure out how to get event.target to return proper type
-                const target = event.target as HTMLElement;
-                // Depending on DOM tree structure inside button, target will differ
-                // depending on area clicked. Check if the target itself has an id,
-                // otherwise try to find a descendant with one.
-                const id =
-                    target.getAttribute("id") ??
-                    target.querySelector("[id]")?.id;
-
-                if (id) {
-                    appendHashToURL(`#${id}`);
-                }
-            }}
+            onClick={(ev) => interactionHandler(ev)}
+            onKeyDown={(ev) =>
+                [" ", "Enter"].includes(ev.key) && interactionHandler(ev)
+            }
+            role="none"
         >
             <OrigAccordion
                 key={`${id}-${location.key}`}

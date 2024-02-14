@@ -1,24 +1,7 @@
-import React, { useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
-import { useController, useResource } from "rest-hooks";
+import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-import Title from "../../components/Title";
-import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
-import { showAlertNotification, showError } from "../AlertNotifications";
-import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import {
-    getErrorDetailFromResponse,
-    getVersionWarning,
-    isValidServiceName,
-    VersionWarningType,
-} from "../../utils/misc";
-import { ObjectTooltip } from "../tooltips/ObjectTooltip";
-import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
-import config from "../../config";
-import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
-import { useSessionContext } from "../../contexts/SessionContext";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
+import { useController, useResource } from "rest-hooks";
 
 import {
     CheckboxComponent,
@@ -31,23 +14,40 @@ import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
 } from "./CompareJsonModal";
+import Title from "../../components/Title";
+import config from "../../config";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
+import { useToast } from "../../contexts/Toast";
+import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
+import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    isValidServiceName,
+    VersionWarningType,
+} from "../../utils/misc";
+import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
+import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
+import { ObjectTooltip } from "../tooltips/ObjectTooltip";
 
 const { RS_API_URL } = config;
 
-type EditSenderSettingsFormProps = {
+interface EditSenderSettingsFormProps {
     orgname: string;
     sendername: string;
     action: "edit" | "clone";
-};
-const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
+}
+const EditSenderSettingsForm = ({
     orgname,
     sendername,
     action,
-}) => {
+}: EditSenderSettingsFormProps) => {
+    const { toast: showAlertNotification } = useToast();
     const { fetchHeaders } = useAppInsightsContext();
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
-    const { activeMembership, authState } = useSessionContext();
+    const { activeMembership, authState, rsConsole } = useSessionContext();
 
     const orgSenderSettings: OrgSenderSettingsResource = useResource(
         OrgSenderSettingsResource.detail(),
@@ -80,17 +80,21 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             });
 
             showAlertNotification(
-                "success",
                 `Item '${deleteItemId}' has been deleted`,
+                "success",
             );
 
             // navigate back to list since this item was just deleted
             navigate(-1);
             return true;
         } catch (e: any) {
-            console.trace(e);
-            showError(
-                `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
+            rsConsole.trace(e);
+            showAlertNotification(
+                new Error(
+                    `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
+                    { cause: e },
+                ),
+                "error",
             );
             return false;
         }
@@ -119,7 +123,10 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             const { name } = orgSenderSettings;
 
             if (!isValidServiceName(name)) {
-                showError(`${name} cannot contain special characters.`);
+                showAlertNotification(
+                    `${name} cannot contain special characters.`,
+                    "error",
+                );
                 return false;
             }
 
@@ -137,7 +144,10 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                 action === "edit" &&
                 latestResponse?.version !== orgSenderSettings?.version
             ) {
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showAlertNotification(
+                    getVersionWarning(VersionWarningType.POPUP),
+                    "error",
+                );
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -148,10 +158,14 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             setLoading(false);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(
-                `Reloading sender '${sendername}' failed with: ${errorDetail}`,
+            const errorDetail = await getErrorDetailFromResponse(e);
+            rsConsole.trace(e, errorDetail);
+            showAlertNotification(
+                new Error(
+                    `Reloading sender '${sendername}' failed with: ${errorDetail}`,
+                    { cause: e },
+                ),
+                "error",
             );
             return false;
         }
@@ -175,7 +189,10 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                 setOrgSenderSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2),
                 );
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showAlertNotification(
+                    getVersionWarning(VersionWarningType.POPUP),
+                    "error",
+                );
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -197,18 +214,22 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             );
 
             showAlertNotification(
-                "success",
                 `Item '${sendernamelocal}' has been saved`,
+                "success",
             );
             confirmModalRef?.current?.toggleModal(undefined, false);
             setLoading(false);
             navigate(-1);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(
-                `Updating sender '${sendername}' failed with: ${errorDetail}`,
+            const errorDetail = await getErrorDetailFromResponse(e);
+            rsConsole.trace(e, errorDetail);
+            showAlertNotification(
+                new Error(
+                    `Updating sender '${sendername}' failed with: ${errorDetail}`,
+                    { cause: e },
+                ),
+                "error",
             );
             return false;
         }
@@ -290,8 +311,8 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                     <Grid col={6} className={"text-right"}>
                         <Button
                             type="button"
-                            onClick={async () =>
-                                (await resetSenderList()) && navigate(-1)
+                            onClick={() =>
+                                void resetSenderList().then(() => navigate(-1))
                             }
                         >
                             Cancel
@@ -301,7 +322,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                             type="submit"
                             data-testid="submit"
                             disabled={loading}
-                            onClick={() => ShowCompareConfirm()}
+                            onClick={() => void ShowCompareConfirm()}
                         >
                             Edit json and save...
                         </Button>
@@ -311,7 +332,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                     uniquid={
                         action === "edit" ? sendername : orgSenderSettings.name
                     }
-                    onConfirm={saveSenderData}
+                    onConfirm={() => void saveSenderData()}
                     ref={confirmModalRef}
                     oldjson={orgSenderSettingsOldJson}
                     newjson={orgSenderSettingsNewJson}
@@ -319,18 +340,19 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             </GridContainer>
             <ModalConfirmDialog
                 id={"deleteConfirm"}
-                onConfirm={doDelete}
+                onConfirm={(id) => void doDelete(id)}
                 ref={modalRef}
             ></ModalConfirmDialog>
         </section>
     );
 };
 
-export type EditSenderSettingsProps = {
+export interface EditSenderSettingsProps {
     orgname: string;
     sendername: string;
     action: "edit" | "clone";
-};
+    [k: string]: string | undefined;
+}
 
 export function EditSenderSettingsPage() {
     const { orgname, sendername, action } =
@@ -346,9 +368,9 @@ export function EditSenderSettingsPage() {
             }
         >
             <EditSenderSettingsForm
-                orgname={orgname || ""}
-                sendername={sendername || ""}
-                action={action || "edit"}
+                orgname={orgname ?? ""}
+                sendername={sendername ?? ""}
+                action={action ?? "edit"}
             />
         </AdminFormWrapper>
     );

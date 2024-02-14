@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FormEventHandler } from "react";
 import { DateRangePicker } from "@trussworks/react-uswds";
 import {
     TableFilterDateLabel,
@@ -11,17 +11,15 @@ export default {
 };
 
 type StorybookArguments = {
-    onSubmit: React.FormEventHandler<HTMLFormElement>;
+    onSubmit: FormEventHandler<HTMLFormElement>;
     disabled?: boolean;
     validationStatus?: undefined | "error" | "success";
 };
 
-export const rangeDatePicker = (
-    argTypes: StorybookArguments
-): React.ReactElement => {
+export const rangeDatePicker = (argTypes: StorybookArguments): ReactElement => {
     const currentDate = new Date();
     const currentDatePlusMonth = currentDate.setMonth(
-        currentDate.getMonth() + 1
+        currentDate.getMonth() + 1,
     );
     return (
         <DateRangePicker
@@ -37,7 +35,7 @@ export const rangeDatePicker = (
                 id: "end-date",
                 name: "end-date-picker",
                 defaultValue: new Date(
-                    currentDatePlusMonth
+                    currentDatePlusMonth,
                 ).toLocaleDateString(),
             }}
         />

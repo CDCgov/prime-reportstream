@@ -17,42 +17,114 @@ inputs:
     description: Github provided token
     required: false
     default: ""
+  test-admin-user:
+    description: Admin username for the e2e tests.
+    required: false
+    default: ""
+  test-admin-password:
+    description: Admin password for the e2e tests.
+    required: false
+    default: ""
+  test-sender-user:
+    description: Sender username for the e2e tests.
+    required: false
+    default: ""
+  test-sender-password:
+    description: Sender password for the e2e tests.
+    required: false
+    default: ""
+  test-receiver-user:
+    description: Receiver username for the e2e tests.
+    required: false
+    default: ""
+  test-receiver-password:
+    description: Receiver password for the e2e tests.
+    required: false
+    default: ""
 
 runs:
   using: "composite"
   steps:
     - name: Use Node.js with yarn
-      uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65
+      uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
       with:
-        node-version-file: "frontend-react/package.json"
+        node-version-file: "frontend-react/.nvmrc"
 
+    - name: Build version checks
+      run: |
+        echo -n "node:";node --version
+        echo -n "npm:";npm --version
+        echo -n "yarn:";yarn --version
+      working-directory: frontend-react
+      shell: bash
+      
     - run: yarn install
       working-directory: frontend-react
       shell: bash
 
+    - name: Run lint and unit tests
+      uses: ./.github/actions/retry
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        retry_wait_seconds: 10
+        command: |
+          set -e pipefail
+          cd frontend-react
+          echo "::group::Lint"
+          yarn lint
+          echo "::endgroup::"
+          echo "::group::Unit tests"
+          yarn test:ci
+          echo "::endgroup::"
+        shell: bash
+
+    - name: Install Playwright
+      working-directory: frontend-react
+      run: |
+        echo "::group::Install playwright"
+        npx playwright install --with-deps
+        echo "::endgroup::"
+      shell: bash
+
+    - name: Run E2E tests
+      working-directory: frontend-react
+      run: |
+        export TEST_ADMIN_USERNAME=${{ inputs.test-admin-user }}
+        export TEST_ADMIN_PASSWORD=${{ inputs.test-admin-password }}
+        export TEST_SENDER_USERNAME=${{ inputs.test-sender-user }}
+        export TEST_SENDER_PASSWORD=${{ inputs.test-sender-password }}
+        export TEST_RECEIVER_USERNAME=${{ inputs.test-receiver-user }}
+        export TEST_RECEIVER_PASSWORD=${{ inputs.test-receiver-password }}
+        echo "::group::E2E tests"
+        npx playwright test
+        echo "::endgroup::"
+      shell: bash
+
     - name: Build release for production branch (conditional check)
       if: inputs.env-name == 'prod'
-      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+      uses: ./.github/actions/retry
       with:
-        timeout_minutes: 40
-        max_attempts: 2
-        retry_wait_seconds: 30
+        timeout_minutes: 10
+        max_attempts: 1
+        retry_wait_seconds: 0
         command: |
           set -e pipefail
           cd frontend-react
           echo "" >> .env.production
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
-          yarn test:ci
+          echo "::group::Build"
           yarn build:production
+          echo "::endgroup::"
         shell: bash
 
     - name: Build release for non-production branch (conditional check)
       if: inputs.env-name != 'prod'
-      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+      uses: ./.github/actions/retry
       with:
-        timeout_minutes: 40
-        max_attempts: 2
-        retry_wait_seconds: 30
+        timeout_minutes: 10
+        max_attempts: 1
+        retry_wait_seconds: 0
         command: |
           set -e pipefail
           cd frontend-react
@@ -60,9 +132,9 @@ runs:
           if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
           echo "" >> .env.$ENV
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
-          yarn lint
-          yarn test:ci
+          echo "::group::Build"
           yarn build:$ENV
+          echo "::endgroup::"
         shell: bash
 
     - name: Tar frontend files
@@ -71,7 +143,7 @@ runs:
       run: tar -czf static-website-react.tar.gz build
 
     - name: Upload frontend artifact
-      uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
+      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
       with:
         name: static-website-react-${{ inputs.version }}
         path: frontend-react/static-website-react.tar.gz

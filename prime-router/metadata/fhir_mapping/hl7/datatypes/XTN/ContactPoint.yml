@@ -127,167 +127,6 @@ system_7:
         valueCode:
           value: unknown
 
-extension_xtn2-telecom-use-code:
-  condition: $xtnUse NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    xtnUse: String, XTN.2
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: xtn2-telecom-use-code
-    valueString:
-      value: $xtnUse
-
-extension_xtn3-telecom-equipment-type:
-  condition: $equipType NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    equipType: String, XTN.3
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: xtn3-telecom-equipment-type
-    valueString:
-      value: $equipType
-
-
-extension_xtn5-country-code:
-  condition: $countryCode NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    countryCode: String, XTN.5
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: contactpoint-country
-    valueString:
-      value: $countryCode
-
-extension_xtn6-area-code:
-  condition: $areaCode NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    areaCode: String, XTN.6
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: contactpoint-area
-    valueString:
-      value: $areaCode
-
-extension_xtn7-contactpoint-local_1:
-  condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $contactPointLocal NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    telEquipType: String, XTN.3
-    contactPointLocal: String, XTN.7
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: contactpoint-local
-    valueString:
-      value: $contactPointLocal
-
-extension_xtn7-contactpoint-local_2:
-  condition: $telEquipType NULL && $contactPointLocal NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    telEquipType: String, XTN.3
-    contactPointLocal: String, XTN.7
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: contactpoint-local
-    valueString:
-      value: $contactPointLocal
-
-# This is often redundant with contactpoint-local, but allows us to preserve XTN.7 even when XTN.3 is Internet or X.400
-extension_xtn7-local-number:
-  condition: $localNum NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    localNum: String, XTN.7
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: xtn7-local-number
-    valueString:
-      value: $localNum
-
-extension_xtn8-phone-extension:
-  condition: $numExt NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    numExt: String, XTN.8
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: contactpoint-extension
-    valueString:
-      value: $numExt
-
-extension_xtn9-any-text:
-  condition: $anyText NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    anyText: String, XTN.9
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: xtn9-any-text
-    valueString:
-      type: STRING
-      valueOf: $anyText
-
-extension_telephone-number:
-  condition: $telNum NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    telNum: String, XTN.1
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: xtn1-telephone-number
-    valueString:
-      value: $telNum
-
-extension_xtn4-communication-address:
-  condition: $commAddress NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    commAddress: String, XTN.4
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: xtn4-communication-address
-    valueString:
-      value: $commAddress
-
-extension_xtn12-unformatted-telephone-number:
-  condition: $unformattedTelNum NOT_NULL
-  generateList: true
-  expressionType: nested
-  vars:
-    unformattedTelNum: String, XTN.12
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: xtn12-unformatted-telephone-number
-    valueString:
-      value: $unformattedTelNum
-
 period:
   vars:
     startDate: XTN.13
@@ -337,13 +176,81 @@ rank:
   valueOf: XTN.18
   expressionType: HL7Spec
 
-extension_hl7v2Name:
+extension:
   generateList: true
   expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: hl7v2Name
-    valueString:
-      type: STRING
-      valueOf: $hl7v2Name
+  expressions:
+    - condition: $countryCode NOT_NULL
+      expressionType: nested
+      vars:
+        countryCode: String, XTN.5
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: contactpoint-country
+        valueString:
+          value: $countryCode
+    - condition: $areaCode NOT_NULL
+      expressionType: nested
+      vars:
+        areaCode: String, XTN.6
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: contactpoint-area
+        valueString:
+          value: $areaCode
+    - condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $contactPointLocal NOT_NULL
+      expressionType: nested
+      vars:
+        telEquipType: String, XTN.3
+        contactPointLocal: String, XTN.7
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: contactpoint-local
+        valueString:
+          value: $contactPointLocal
+    - condition: $telEquipType NULL && $contactPointLocal NOT_NULL
+      expressionType: nested
+      vars:
+        telEquipType: String, XTN.3
+        contactPointLocal: String, XTN.7
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: contactpoint-local
+        valueString:
+          value: $contactPointLocal
+    - condition: $numExt NOT_NULL
+      expressionType: nested
+      vars:
+        numExt: String, XTN.8
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: contactpoint-extension
+        valueString:
+          value: $numExt
+    - expressionType: resource
+      valueOf: datatypes/XTN/XTNExtension
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Field NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Field
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Component

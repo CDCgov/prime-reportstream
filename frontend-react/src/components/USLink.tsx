@@ -1,24 +1,30 @@
-import React, { AnchorHTMLAttributes, useMemo } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
-import classnames from "classnames";
-import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
-import DOMPurify from "dompurify";
 import { IEventTelemetry } from "@microsoft/applicationinsights-web";
+import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
+import classnames from "classnames";
+import DOMPurify from "dompurify";
+import {
+    AnchorHTMLAttributes,
+    MouseEvent as ReactMouseEvent,
+    ReactNode,
+    useMemo,
+} from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 
-import { useAppInsightsContext } from "../contexts/AppInsightsContext";
+import { useAppInsightsContext } from "../contexts/AppInsights";
 
-/** React.PropsWithChildren has known issues with generic extension in React 18,
+/** PropsWithChildren has known issues with generic extension in React 18,
  * so rather than using it here, we are using our own definition of child types.
  * One less headache when updating to React 18 in the future! */
 interface CustomLinkProps {
-    children: React.ReactNode;
+    children: ReactNode;
     className?: string;
     activeClassName?: string;
     state?: any;
 }
-type USLinkProps = AnchorHTMLAttributes<{}> &
+type USLinkProps = AnchorHTMLAttributes<object> &
     Omit<CustomLinkProps, "activeClassName">;
-type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
+type USNavLinkProps = Pick<AnchorHTMLAttributes<object>, "href"> &
+    CustomLinkProps;
 
 /**
  * Stateless function to get route href from href that could be
@@ -49,7 +55,7 @@ export function getHrefRoute(href?: string): string | undefined {
     return undefined;
 }
 
-export interface SafeLinkProps extends React.AnchorHTMLAttributes<Element> {
+export interface SafeLinkProps extends AnchorHTMLAttributes<Element> {
     state?: any;
 }
 
@@ -194,7 +200,7 @@ export const USNavLink = ({
 
     return (
         <NavLink
-            to={href || ""}
+            to={href ?? ""}
             className={({ isActive: isPathnameActive }) => {
                 // Without this, all hash links would be considered active for a path
                 const isActive =
@@ -229,7 +235,7 @@ export function isExternalUrl(href?: string) {
             (url.protocol.startsWith("http") &&
                 url.host !== "cdc.gov" &&
                 !url.host.endsWith(".cdc.gov")) ||
-            href.indexOf("mailto:") === 0
+            href.startsWith("mailto:")
         );
     } catch (e: any) {
         return false;
@@ -237,7 +243,7 @@ export function isExternalUrl(href?: string) {
 }
 
 export interface USSmartLinkProps
-    extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+    extends AnchorHTMLAttributes<HTMLAnchorElement> {
     trackClick?: IEventTelemetry;
 }
 
@@ -252,7 +258,7 @@ export function USSmartLink({
     const finalOnClick = useMemo(
         () =>
             appInsights && trackClick
-                ? (ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+                ? (ev: ReactMouseEvent<HTMLAnchorElement, MouseEvent>) => {
                       appInsights.trackEvent(trackClick);
                       onClick?.(ev);
                   }

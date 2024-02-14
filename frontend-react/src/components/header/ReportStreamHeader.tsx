@@ -9,7 +9,10 @@ import {
     Title,
 } from "@trussworks/react-uswds";
 import classnames from "classnames";
-import React, {
+import {
+    MutableRefObject,
+    PropsWithChildren,
+    ReactElement,
     Suspense,
     useCallback,
     useEffect,
@@ -18,21 +21,17 @@ import React, {
 } from "react";
 import { useMatch } from "react-router-dom";
 
-import { USLink, USLinkButton, USSmartLink } from "../USLink";
-import SenderModeBanner from "../SenderModeBanner";
-import {
-    useSessionContext,
-    RSSessionContext,
-} from "../../contexts/SessionContext";
-import { Icon } from "../../shared";
+import styles from "./ReportStreamHeader.module.scss";
 import site from "../../content/site.json";
-import Spinner from "../Spinner";
+import { RSSessionContext, useSessionContext } from "../../contexts/Session";
 import {
     isOrganizationsMissingTransport,
     useOrganizationSettings__,
 } from "../../hooks/UseOrganizationSettings";
-
-import styles from "./ReportStreamHeader.module.scss";
+import { Icon } from "../../shared";
+import SenderModeBanner from "../SenderModeBanner";
+import Spinner from "../Spinner";
+import { USLink, USLinkButton, USSmartLink } from "../USLink";
 
 const primaryLinkClasses = (isActive: boolean) => {
     if (isActive) {
@@ -42,11 +41,11 @@ const primaryLinkClasses = (isActive: boolean) => {
     return "primary-nav-link";
 };
 
-export interface DropdownProps extends React.PropsWithChildren {
+export interface DropdownProps extends PropsWithChildren {
     onToggle: (name: string) => void;
 
     menuName: string;
-    dropdownList: React.ReactElement[];
+    dropdownList: ReactElement[];
     currentMenuName?: string;
 }
 
@@ -74,16 +73,16 @@ function Dropdown({
     );
 }
 
-export interface ReportStreamHeaderProps extends React.PropsWithChildren {
+export interface ReportStreamHeaderProps extends PropsWithChildren {
     blueVariant?: boolean;
     isNavHidden?: boolean;
 }
 
-interface ReportStreamNavbarProps extends React.PropsWithChildren {
+interface ReportStreamNavbarProps extends PropsWithChildren {
     onToggleMobileNav: () => void;
     isMobileNavOpen: boolean;
     user: RSSessionContext["user"];
-    containerRef: React.MutableRefObject<HTMLElement | null>;
+    containerRef: MutableRefObject<HTMLElement | null>;
 }
 
 function ReportStreamNavbar({
@@ -341,7 +340,7 @@ function ReportStreamNavbar({
 
 const suspenseFallback = <Spinner size={"fullpage"} />;
 
-export const ReportStreamHeader = ({
+const ReportStreamHeader = ({
     blueVariant,
     children,
     isNavHidden,
@@ -372,7 +371,7 @@ export const ReportStreamHeader = ({
                                 ReportStream
                                 {config.IS_PREVIEW && (
                                     <span className={styles.ClientEnv}>
-                                        {config.CLIENT_ENV}
+                                        {config.MODE}
                                     </span>
                                 )}
                             </USLink>

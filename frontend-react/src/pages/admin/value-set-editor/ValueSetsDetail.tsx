@@ -1,39 +1,40 @@
-import React, {
-    useState,
+import {
     Dispatch,
-    SetStateAction,
-    useMemo,
-    useEffect,
     ReactNode,
+    SetStateAction,
     useCallback,
+    useEffect,
+    useMemo,
+    useState,
 } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import Spinner from "../../../components/Spinner";
+import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import Table, {
     ColumnConfig,
     TableConfig,
 } from "../../../components/Table/Table";
+import { DatasetAction } from "../../../components/Table/TableInfo";
+import { TableRowData } from "../../../components/Table/TableRows";
+import {
+    LookupTable,
+    ValueSetRow,
+} from "../../../config/endpoints/lookupTables";
+import { useSessionContext } from "../../../contexts/Session";
 import {
     useValueSetActivation,
     useValueSetsMeta,
     useValueSetsTable,
     useValueSetUpdate,
 } from "../../../hooks/UseValueSets";
-import { toHumanReadable } from "../../../utils/misc";
-import {
-    LookupTable,
-    ValueSetRow,
-} from "../../../config/endpoints/lookupTables";
-import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import {
     handleErrorWithAlert,
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
-import Spinner from "../../../components/Spinner";
-import { TableRowData } from "../../../components/Table/TableRows";
-import { DatasetAction } from "../../../components/Table/TableInfo";
+import { toHumanReadable } from "../../../utils/misc";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -142,15 +143,17 @@ export const ValueSetsDetailTable = ({
     const { mutateAsync: saveData, isPending: isSaving } = useValueSetUpdate();
     const { mutateAsync: activateTable, isPending: isActivating } =
         useValueSetActivation();
+    const { rsConsole } = useSessionContext();
     useEffect(() => {
         if (error) {
             handleErrorWithAlert({
                 logMessage: "Error occurred fetching value set",
                 error,
                 setAlert,
+                rsConsole,
             });
         }
-    }, [error, setAlert]);
+    }, [error, rsConsole, setAlert]);
 
     const valueSetsWithIds = useMemo(
         () => addIdsToRows(valueSetData),
@@ -190,12 +193,20 @@ export const ValueSetsDetailTable = ({
                     logMessage: "Error occurred saving value set",
                     error: e,
                     setAlert,
+                    rsConsole,
                 });
                 return;
             }
             setAlert({ type: "success", message: "Value Saved" });
         },
-        [activateTable, saveData, setAlert, valueSetName, valueSetsWithIds],
+        [
+            activateTable,
+            rsConsole,
+            saveData,
+            setAlert,
+            valueSetName,
+            valueSetsWithIds,
+        ],
     );
 
     /* Mutations do not support Suspense */
@@ -237,7 +248,7 @@ const ValueSetsDetailContent = () => {
             <section className="grid-container">
                 <ValueSetsDetailHeader
                     name={readableName}
-                    meta={valueSetMeta}
+                    meta={valueSetMeta!}
                 />
                 {/* ONLY handles success messaging now */}
                 {alert && (

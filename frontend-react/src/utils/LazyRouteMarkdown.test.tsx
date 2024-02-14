@@ -1,13 +1,14 @@
 import { render, screen } from "@testing-library/react";
-import { RouterProvider, createMemoryRouter } from "react-router";
-import React from "react";
+import { lazy } from "react";
+import { createMemoryRouter, RouterProvider } from "react-router";
 
 import { lazyRouteMarkdown } from "./LazyRouteMarkdown";
 
 describe("lazyRouteMarkdown", () => {
     test("works with react-router", async () => {
-        const Component = React.lazy(
-            lazyRouteMarkdown(() => import("content/markdown-example.mdx")),
+        const Component = lazy(
+            // eslint-disable-next-line import/no-unresolved
+            lazyRouteMarkdown(() => import("../content/markdown-example.mdx")),
         );
         const router = createMemoryRouter([
             {

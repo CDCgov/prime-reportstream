@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import {
     forwardRef,
     ReactElement,
@@ -8,22 +9,20 @@ import {
     useRef,
     useState,
 } from "react";
-import DOMPurify from "dompurify";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
-import { textDifferMarkup } from "../utils/DiffCompare/TextDiffer";
+import { showToast } from "../contexts/Toast";
 import { jsonDifferMarkup } from "../utils/DiffCompare/JsonDiffer";
+import { textDifferMarkup } from "../utils/DiffCompare/TextDiffer";
 import { checkJson, splitOn } from "../utils/misc";
 
-import { showError } from "./AlertNotifications";
-
 // interface on Component that is callable
-export type EditableCompareRef = {
+export interface EditableCompareRef {
     getEditedText: () => string;
     getOriginalText: () => string;
     refreshEditedText: (updatedjson?: string) => boolean; // returns true if valid JSON
     isValidSyntax: () => boolean;
-};
+}
 
 interface EditableCompareProps {
     original: string;
@@ -48,10 +47,10 @@ interface EditableCompareProps {
 
 export const EditableCompare = forwardRef(
     // allows for functions on components (useImperativeHandle)
-    (
+    function EditableCompare(
         { jsonDiffMode, modified, onChange, original }: EditableCompareProps,
         ref: Ref<EditableCompareRef>,
-    ): ReactElement => {
+    ): ReactElement {
         // useRefs are used to access html elements directly (instead of document.getElementById)
         const staticDiffRef = useRef<HTMLDivElement>(null);
         const editDiffRef = useRef<HTMLTextAreaElement>(null);
@@ -119,7 +118,7 @@ export const EditableCompare = forwardRef(
         // will update with the provided content or infer from previous content
         const refreshEditedText = useCallback(
             (updatedJson: string | undefined) => {
-                let formattedText = updatedJson || textAreaContent;
+                let formattedText = updatedJson ?? textAreaContent;
                 const { valid, errorMsg } = checkJson(formattedText);
 
                 if (valid) {
@@ -130,7 +129,10 @@ export const EditableCompare = forwardRef(
                     );
                     setTextAreaContent(formattedText);
                 } else {
-                    showError(`JSON data generated an error "${errorMsg}"`);
+                    showToast(
+                        `JSON data generated an error "${errorMsg}"`,
+                        "error",
+                    );
                 }
 
                 setIsValidSyntax(valid);

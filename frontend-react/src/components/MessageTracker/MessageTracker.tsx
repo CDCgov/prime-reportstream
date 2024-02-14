@@ -1,16 +1,16 @@
-import React, { useState } from "react";
 import {
+    Button,
     Form,
     FormGroup,
     Label,
-    Button,
     TextInput,
 } from "@trussworks/react-uswds";
+import { FC, FormEvent, useState } from "react";
 
-import Spinner from "../Spinner";
 import { MessageListResource } from "../../config/endpoints/messageTracker";
 import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
-import { Table } from "../../shared/Table/Table";
+import Table from "../../shared/Table/Table";
+import Spinner from "../Spinner";
 import { USLink } from "../USLink";
 
 interface MessageListTableContentProps {
@@ -19,7 +19,7 @@ interface MessageListTableContentProps {
     hasSearched: boolean;
 }
 
-const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
+const MessageTrackerTableContent: FC<MessageListTableContentProps> = ({
     isLoading,
     messagesData,
     hasSearched,
@@ -77,7 +77,7 @@ export function MessageTracker() {
     const [hasSearched, setHasSearched] = useState(false);
     const { mutateAsync: search, isPending } = useMessageSearch();
 
-    const searchMessageId = async (e: React.FormEvent<HTMLFormElement>) => {
+    const searchMessageId = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const senderResponse: MessageListResource[] =
             await search(searchFilter);
@@ -96,7 +96,10 @@ export function MessageTracker() {
         <section className="margin-bottom-5 tablet:margin-top-6">
             <h1>Message ID Search</h1>
 
-            <Form onSubmit={(e) => searchMessageId(e)} className="maxw-full">
+            <Form
+                onSubmit={(e) => void searchMessageId(e)}
+                className="maxw-full"
+            >
                 <div className="grid-row display-flex">
                     <div className="display-flex">
                         <FormGroup>
@@ -113,7 +116,6 @@ export function MessageTracker() {
                                 className={
                                     "usa-input rs-max-width-100-important mobile:width-card-lg mobile-lg:width-mobile tablet:width-tablet"
                                 }
-                                autoFocus
                                 inputSize={"medium"}
                                 aria-disabled={isPending}
                                 value={searchFilter}

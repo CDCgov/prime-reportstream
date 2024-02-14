@@ -1,4 +1,3 @@
-import React, { useRef } from "react";
 import {
     Button,
     FileInput,
@@ -8,10 +7,11 @@ import {
     Grid,
     Label,
 } from "@trussworks/react-uswds";
+import { ChangeEvent, FormEvent, useRef } from "react";
 
 export interface ManagePublicKeyUploadProps {
-    onPublicKeySubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-    onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onPublicKeySubmit: (e: FormEvent<HTMLFormElement>) => void;
+    onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
     onBack: () => void;
     hasBack: boolean;
     publicKey: boolean | File;

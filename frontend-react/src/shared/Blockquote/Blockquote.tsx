@@ -1,15 +1,12 @@
+import { HTMLAttributes, PropsWithChildren } from "react";
+
 export interface BlockquoteProps
-    extends React.PropsWithChildren<React.HTMLAttributes<HTMLElement>> {
+    extends PropsWithChildren<HTMLAttributes<HTMLElement>> {
     author: string;
     source: string;
 }
 
-export function Blockquote({
-    author,
-    source,
-    children,
-    ...props
-}: BlockquoteProps) {
+function Blockquote({ author, source, children, ...props }: BlockquoteProps) {
     return (
         <blockquote {...props}>
             {children}

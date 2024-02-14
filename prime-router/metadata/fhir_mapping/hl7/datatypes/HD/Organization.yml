@@ -22,9 +22,9 @@ identifier_1:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: identifier-namespace-id
-        valueBoolean:
-          valueOf: "true"
+          value: hl7v2Field
+        valueString:
+          valueOf: HD.1
 
 identifier_2:
   condition: $hd2 NOT_NULL
@@ -53,9 +53,9 @@ identifier_2:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: identifier-universal-id
-        valueBoolean:
-          valueOf: "true"
+          value: hl7v2Field
+        valueString:
+          valueOf: "HD.2,HD.3"
 
 address:
   condition: $organizationCountry NOT_NULL
@@ -70,11 +70,20 @@ extension:
   expressionType: nested
   expressions:
     - expressionType: nested
-      condition: $hdOrganizationHL7Use NOT_NULL
+      condition: $hdOrganizationHL7Field NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7-use
+          value: hl7v2Field
         valueString:
           type: STRING
-          valueOf: $hdOrganizationHL7Use
+          valueOf: $hdOrganizationHL7Field
+    - expressionType: nested
+      condition: $hdOrganizationHL7Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hdOrganizationHL7Component

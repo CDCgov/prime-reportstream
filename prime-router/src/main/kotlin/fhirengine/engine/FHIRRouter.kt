@@ -4,10 +4,12 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.ConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.PrunedObservationsLogMessage
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -25,11 +27,21 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
+import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
+import gov.cdc.prime.router.fhirengine.utils.getAllMappedConditions
+import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
+import gov.cdc.prime.router.fhirengine.utils.getObservations
+import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
+import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
@@ -48,7 +60,9 @@ class FHIRRouter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-) : FHIREngine(metadata, settings, db, blob) {
+    azureEventService: AzureEventService = AzureEventServiceImpl(),
+    reportService: ReportService = ReportService(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
 
     /**
      * The name of the lookup table to load the shorthand replacement key/value pairs from
@@ -64,70 +78,6 @@ class FHIRRouter(
      * The name of the column in the shorthand replacement lookup table that will be used as the value.
      */
     private val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
-
-    /**
-     * Default Rules for quality filter on FULL_ELR topic:
-     *   Must have message ID, patient last name, patient first name, DOB, specimen type
-     *   At least one of patient street, patient zip code, patient phone number, patient email
-     *   At least one of order test date, specimen collection date/time, test result date
-     */
-    private val fullElrQualityFilterDefault: ReportStreamFilter = listOf(
-        "%messageId.exists()",
-        "%patient.name.family.exists()",
-        "%patient.name.given.count() > 0",
-        "%patient.birthDate.exists()",
-        "%specimen.type.exists()",
-        "(%patient.address.line.exists() or " +
-            "%patient.address.postalCode.exists() or " +
-            "%patient.telecom.exists())",
-        "(" +
-            "(%specimen.collection.collectedPeriod.exists() or " +
-            "%specimen.collection.collected.exists()" +
-            ") or " +
-            "%serviceRequest.occurrence.exists() or " +
-            "%observation.effective.exists())",
-    )
-
-    /**
-     * Default Rules for quality filter on ETOR_TI topic:
-     *   Must have message ID
-     */
-    private val etorTiQualityFilterDefault: ReportStreamFilter = listOf(
-        "%messageId.exists()",
-    )
-
-    /**
-     * Default Rules for quality filter on ELR_ELIMS topic:
-     *   no rules; completely open
-     */
-    private val elrElimsQualityFilterDefault: ReportStreamFilter = listOf(
-        "true",
-    )
-
-    /**
-     * Maps topics to default quality filters so that topic-dependent defaults can be used
-     */
-    val qualityFilterDefaults = mapOf(
-        Pair(Topic.FULL_ELR, fullElrQualityFilterDefault),
-        Pair(Topic.ETOR_TI, etorTiQualityFilterDefault),
-        Pair(Topic.ELR_ELIMS, elrElimsQualityFilterDefault)
-    )
-
-    /**
-     * Default Rule (used for ETOR_TI and FULL_ELR):
-     *  Must have a processing mode id of 'P'
-     */
-    private val processingModeFilterDefault: ReportStreamFilter = listOf(
-        "%processingId.exists() and %processingId = 'P'"
-    )
-
-    /**
-     * Maps topics to default processing mode filters so that topic-dependent defaults can be used
-     */
-    val processingModeDefaults = mapOf(
-        Pair(Topic.FULL_ELR, processingModeFilterDefault),
-        Pair(Topic.ETOR_TI, processingModeFilterDefault)
-    )
 
     /**
      * Lookup table `fhirpath_filter_shorthand` containing all the shorthand fhirpath replacements for filtering.
@@ -176,13 +126,15 @@ class FHIRRouter(
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
-    override fun <T : Message> doWork(
+    override fun <T : QueueMessage> doWork(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         logger.trace("Processing HL7 data for FHIR conversion.")
         this.actionLogger = actionLogger
+
+        message as ReportPipelineMessage
 
         // track input report
         actionHistory.trackExistingInputReport(message.reportId)
@@ -193,8 +145,11 @@ class FHIRRouter(
         // get the receivers that this bundle should go to
         val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
 
+        val sender = reportService.getSenderName(message.reportId)
+
         // check if there are any receivers
         if (listOfReceivers.isNotEmpty()) {
+            val filteredIdMap: MutableMap<String, MutableList<String>> = mutableMapOf()
             return listOfReceivers.flatMap { receiver ->
                 val sources = emptyList<Source>()
                 val report = Report(
@@ -221,8 +176,9 @@ class FHIRRouter(
                     )
                 )
 
+                // TODO: merge with mapped condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
                 // If the receiver does not have a condition filter set send the entire bundle to the translate step
-                val receiverBundle = if (receiver.conditionFilter.isEmpty()) {
+                var receiverBundle = if (receiver.conditionFilter.isEmpty()) {
                     bundle
                 } else {
                     bundle.filterObservations(
@@ -230,6 +186,16 @@ class FHIRRouter(
                         shorthandLookupTable
                     )
                 }
+
+                // If the receiver does not have a mapped condition filter send the entire bundle to the translate step
+                if (receiver.mappedConditionFilter.isNotEmpty()) {
+                    val (filteredIds, filteredBundle) = receiverBundle.filterMappedObservations(
+                        receiver.mappedConditionFilter
+                    )
+                    filteredIds.forEach { id -> filteredIdMap.getOrPut(id) { mutableListOf() }.add(receiver.fullName) }
+                    receiverBundle = filteredBundle
+                }
+
                 val nextEvent = ProcessEvent(
                     Event.EventAction.TRANSLATE,
                     report.id,
@@ -250,12 +216,15 @@ class FHIRRouter(
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
+                // send event to Azure AppInsights
+                emitAzureEvent(report, message, sender, receiver, receiverBundle)
+
                 listOf(
                     FHIREngineRunResult(
                         nextEvent,
                         report,
                         blobInfo.blobUrl,
-                        FhirTranslateMessage(
+                        FhirTranslateQueueMessage(
                             report.id,
                             blobInfo.blobUrl,
                             BlobAccess.digestToString(blobInfo.digest),
@@ -265,6 +234,8 @@ class FHIRRouter(
                         )
                     )
                 )
+            }.also {
+                actionLogger.info(PrunedObservationsLogMessage(message.reportId, filteredIdMap))
             }
         } else {
             // this bundle does not have receivers; only perform the work necessary to track the routing action
@@ -301,6 +272,9 @@ class FHIRRouter(
 
             // ensure tracking is set
             actionHistory.trackCreatedReport(nextEvent, report)
+
+            // send event to Azure AppInsights
+            emitAzureEvent(report, message, sender, null, bundle)
 
             return emptyList()
         }
@@ -351,7 +325,7 @@ class FHIRRouter(
                 actionHistory,
                 receiver,
                 ReportStreamFilterType.QUALITY_FILTER,
-                false,
+                true,
                 receiver.reverseTheQualityFilter,
             )
 
@@ -379,10 +353,11 @@ class FHIRRouter(
                 defaultResponse = true
             )
 
+            // TODO: merge with mapped condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
             // CONDITION FILTER
             //  default: allowAll
             val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
-            val allObservations = FhirPathUtils.evaluate(
+            var allObservations = FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
                 bundle,
                 bundle,
@@ -409,6 +384,27 @@ class FHIRRouter(
                     )
                 }
                 )
+
+            // TODO: merge with condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
+            // MAPPED CONDITION FILTER
+            //  default: allowAll
+            if (bundle.getObservations().isNotEmpty() && receiver.mappedConditionFilter.isNotEmpty()) {
+                val codes = receiver.mappedConditionFilter.codes()
+                val filteredObservations = bundle.getObservationsWithCondition(codes)
+                if (filteredObservations.isEmpty()) {
+                    logFilterResults(
+                        "mappedConditionFilter: $codes",
+                        bundle,
+                        reportId,
+                        actionHistory,
+                        receiver,
+                        ReportStreamFilterType.MAPPED_CONDITION_FILTER,
+                        bundle
+                    )
+                }
+                passes = passes && filteredObservations.isNotEmpty() && // don't pass a bundle with only AOEs
+                    !filteredObservations.all { it.getMappedConditions().all { code -> code == "AOE" } }
+            }
 
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
@@ -455,33 +451,18 @@ class FHIRRouter(
             reverseFilter,
             focusResource
         )
-
         if (!passes) {
-            val filterToLog = "${
-                if (isDefaultFilter(filterType, filters)) {
-                    "(default filter) "
-                } else {
-                    ""
-                }
-            }${failingFilterName ?: "unknown"}"
-            logFilterResults(filterToLog, bundle, reportId, actionHistory, receiver, filterType, focusResource)
+            logFilterResults(
+                failingFilterName ?: "unknown",
+                bundle,
+                reportId,
+                actionHistory,
+                receiver,
+                filterType,
+                focusResource
+            )
         }
         return passes
-    }
-
-    /**
-     * With a given [filterType], returns whether the [filter] is the default filter for that type. If [filter] is
-     * an equivalent filter to the default, but does not point to the actual default, this function will still return
-     * false.
-     */
-    internal fun isDefaultFilter(filterType: ReportStreamFilterType, filter: ReportStreamFilter): Boolean {
-        // The usage of === (referential equality operator) below is intentional and necessary; we only want to
-        // return true if the filter references a default filter, not if it only happens to be equivalent to the default
-        return when (filterType) {
-            ReportStreamFilterType.QUALITY_FILTER -> qualityFilterDefaults.values.any { filter === it }
-            ReportStreamFilterType.PROCESSING_MODE_FILTER -> processingModeDefaults.values.any { filter === it }
-            else -> false
-        }
     }
 
     /**
@@ -673,11 +654,10 @@ class FHIRRouter(
      * result, returns the default filter instead.
      */
     internal fun getQualityFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
-        val receiverFilters = (
+        return (
             orgFilters?.firstOrNull { it.topic == receiver.topic }?.qualityFilter
                 ?: emptyList()
             ).plus(receiver.qualityFilter)
-        return receiverFilters.ifEmpty { qualityFilterDefaults[receiver.topic] ?: emptyList() }
     }
 
     /**
@@ -701,11 +681,10 @@ class FHIRRouter(
         receiver: Receiver,
         orgFilters: List<ReportStreamFilters>?,
     ): ReportStreamFilter {
-        val receiverFilters = (
+        return (
             orgFilters?.firstOrNull { it.topic == receiver.topic }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
-        return receiverFilters.ifEmpty { processingModeDefaults[receiver.topic] ?: emptyList() }
     }
 
     /**
@@ -716,5 +695,38 @@ class FHIRRouter(
             orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.conditionFilter
                 ?: emptyList()
             ).plus(receiver.conditionFilter)
+    }
+
+    /**
+     * Gets the applicable condition filters for 'FULL_ELR' for a [receiver].
+     */
+    internal fun getMappedConditionFilter(
+        receiver: Receiver,
+        orgFilters: List<ReportStreamFilters>?,
+    ): List<ConditionFilter> {
+        return (
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.mappedConditionFilter
+                ?: emptyList()
+            ).plus(receiver.mappedConditionFilter)
+    }
+
+    private fun emitAzureEvent(
+        report: Report,
+        message: ReportPipelineMessage,
+        sender: String,
+        receiver: Receiver?,
+        bundle: Bundle,
+    ) {
+        val conditions = bundle.getAllMappedConditions()
+
+        azureEventService.trackEvent(
+            ReportRouteEvent(
+                report.id,
+                message.topic,
+                sender,
+                receiver?.fullName,
+                conditions
+            )
+        )
     }
 }

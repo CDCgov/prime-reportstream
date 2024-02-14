@@ -1,10 +1,9 @@
-import React from "react";
+import { FC, ReactElement } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 
-import { SessionContext } from "../../contexts/SessionContext";
-import { MemberType } from "../../utils/OrganizationUtils";
-
 import ReportStreamHeader from "./ReportStreamHeader";
+import { SessionContext } from "../../contexts/Session";
+import { MemberType } from "../../utils/OrganizationUtils";
 
 export default {
     title: "Components/Navbar",
@@ -13,7 +12,7 @@ export default {
         backgrounds: { default: "dark" },
     },
     decorators: [
-        (Story: React.FC) => (
+        (Story: FC) => (
             <Router>
                 <Story />
             </Router>
@@ -21,18 +20,16 @@ export default {
     ],
 };
 
-export const NavbarDefault = (): React.ReactElement => <ReportStreamHeader />;
+export const NavbarDefault = (): ReactElement => <ReportStreamHeader />;
 
-export const NavbarBlueVariant = (): React.ReactElement => (
+export const NavbarBlueVariant = (): ReactElement => (
     <ReportStreamHeader blueVariant={true} />
 );
 
-export const LoggedInNavbarDefault = (): React.ReactElement => (
-    <ReportStreamHeader />
-);
+export const LoggedInNavbarDefault = (): ReactElement => <ReportStreamHeader />;
 
 LoggedInNavbarDefault.decorators = [
-    (Story: React.FC) => (
+    (Story: FC) => (
         <SessionContext.Provider
             value={
                 {
@@ -58,12 +55,12 @@ LoggedInNavbarDefault.decorators = [
     ),
 ];
 
-export const LoggedInNavbarBlueVariant = (): React.ReactElement => (
+export const LoggedInNavbarBlueVariant = (): ReactElement => (
     <ReportStreamHeader blueVariant={true} />
 );
 
 LoggedInNavbarBlueVariant.decorators = [
-    (Story: React.FC) => (
+    (Story: FC) => (
         <SessionContext.Provider
             value={
                 {

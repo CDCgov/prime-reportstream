@@ -3,8 +3,6 @@ import type { Config } from "@jest/types";
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = "test";
 process.env.NODE_ENV = "test";
-process.env.PUBLIC_URL = "";
-process.env.TZ = "UTC";
 
 // Ensure environment variables are read.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports, import/first
@@ -13,12 +11,19 @@ import _ from "./config/env.cjs";
 const config: Config.InitialOptions = {
     roots: ["<rootDir>/src"],
     collectCoverageFrom: ["src/**/*.{js,jsx,ts,tsx}", "!src/**/*.d.ts"],
+    globalSetup: "<rootDir>/src/globalSetup.ts",
     setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
     testMatch: [
         "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
         "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}",
     ],
     testEnvironment: "jsdom",
+    testEnvironmentOptions: {
+        /**
+         * @see https://mswjs.io/docs/migrations/1.x-to-2.x/#cannot-find-module-mswnode-jsdom
+         */
+        customExportConditions: [""],
+    },
     transform: {
         "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$":
             "<rootDir>/config/jest/babelTransform.cjs",
@@ -38,7 +43,6 @@ const config: Config.InitialOptions = {
             "<rootDir>/node_modules/@rest-hooks/$1/dist/$1.js",
             "<rootDir>/node_modules/@rest-hooks/$1/dist/index.cjs.js",
         ],
-        "^msw/lib/node$": "<rootDir>/node_modules/msw/lib/node/index.js",
         "^rest-hooks$": "<rootDir>/node_modules/rest-hooks/dist/index.js",
         "\\.(css|less|scss)$": "identity-obj-proxy",
         "@mdx-js/react": "<rootDir>/src/__mocks__/mdxjsReactMock.tsx",
@@ -47,7 +51,6 @@ const config: Config.InitialOptions = {
         "^.*\\.mdx": "<rootDir>/src/__mocks__/mdxFrontmatterMock.tsx",
         "^react-helmet-async$":
             "<rootDir>/src/__mocks__/reactHelmetAsyncMock.tsx",
-        "MDXImports(\\.ts)?$": "<rootDir>/src/__mocks__/mdxModulesMock.ts",
     },
     moduleFileExtensions: [
         "web.js",
@@ -65,7 +68,7 @@ const config: Config.InitialOptions = {
         "jest-watch-typeahead/filename",
         "jest-watch-typeahead/testname",
     ],
-    resetMocks: true,
+    clearMocks: true, // reset stats, but keep implementation unless explicitly restored
 };
 
 export default config;

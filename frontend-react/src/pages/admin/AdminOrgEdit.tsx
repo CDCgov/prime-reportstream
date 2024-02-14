@@ -1,49 +1,48 @@
-import React, { Suspense, useRef, useState } from "react";
-import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
-import { useParams } from "react-router-dom";
+import { Suspense, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { useParams } from "react-router-dom";
+import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 
-import HipaaNotice from "../../components/HipaaNotice";
-import Spinner from "../../components/Spinner";
-import { ErrorPage } from "../error/ErrorPage";
-import OrgSettingsResource from "../../resources/OrgSettingsResource";
-import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
-import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
 import {
     DropdownComponent,
     TextAreaComponent,
     TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
 import {
-    showAlertNotification,
-    showError,
-} from "../../components/AlertNotifications";
-import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
 } from "../../components/Admin/CompareJsonModal";
 import { DisplayMeta } from "../../components/Admin/DisplayMeta";
+import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
+import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
+import HipaaNotice from "../../components/HipaaNotice";
+import Spinner from "../../components/Spinner";
+import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
+import { USLink } from "../../components/USLink";
+import config from "../../config";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
+import { useToast } from "../../contexts/Toast";
+import OrgSettingsResource from "../../resources/OrgSettingsResource";
+import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
     getVersionWarning,
     VersionWarningType,
 } from "../../utils/misc";
-import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
-import config from "../../config";
-import { USLink } from "../../components/USLink";
-import { useSessionContext } from "../../contexts/SessionContext";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
+import { ErrorPage } from "../error/ErrorPage";
 
 const { RS_API_URL } = config;
 
-type AdminOrgEditProps = {
+interface AdminOrgEditProps {
     orgname: string;
-};
+    [k: string]: string | undefined;
+}
 
 export function AdminOrgEditPage() {
+    const { toast: showAlertNotification } = useToast();
     const { fetchHeaders } = useAppInsightsContext();
     const { orgname } = useParams<AdminOrgEditProps>();
     const { activeMembership, authState } = useSessionContext();
@@ -90,7 +89,10 @@ export function AdminOrgEditPage() {
             );
 
             if (latestResponse?.version !== orgSettings?.version) {
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showAlertNotification(
+                    getVersionWarning(VersionWarningType.POPUP),
+                    "error",
+                );
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -101,9 +103,14 @@ export function AdminOrgEditPage() {
             setLoading(false);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(`Reloading org '${orgname}' failed with: ${errorDetail}`);
+            const errorDetail = await getErrorDetailFromResponse(e);
+            showAlertNotification(
+                new Error(
+                    `Reloading org '${orgname}' failed with: ${errorDetail}`,
+                    { cause: e },
+                ),
+                "error",
+            );
             return false;
         }
     };
@@ -116,7 +123,10 @@ export function AdminOrgEditPage() {
                 setOrgSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2),
                 );
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showAlertNotification(
+                    getVersionWarning(VersionWarningType.POPUP),
+                    "error",
+                );
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -125,23 +135,28 @@ export function AdminOrgEditPage() {
             }
 
             const data = confirmModalRef?.current?.getEditedText();
-            showAlertNotification("success", `Saving...`);
+            showAlertNotification(`Saving...`, "success");
             await fetchController(
                 OrgSettingsResource.update(),
                 { orgname },
                 data,
             );
             showAlertNotification(
-                "success",
                 `Item '${orgname}' has been updated`,
+                "success",
             );
             confirmModalRef?.current?.hideModal();
-            showAlertNotification("success", `Saved '${orgname}' setting.`);
+            showAlertNotification(`Saved '${orgname}' setting.`, "success");
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(`Updating org '${orgname}' failed with: ${errorDetail}`);
+            const errorDetail = await getErrorDetailFromResponse(e);
+            showAlertNotification(
+                new Error(
+                    `Updating org '${orgname}' failed with: ${errorDetail}`,
+                    { cause: e },
+                ),
+                "error",
+            );
             return false;
         }
 
@@ -194,7 +209,7 @@ export function AdminOrgEditPage() {
                             <TextInputComponent
                                 fieldname={"countyName"}
                                 label={"County Name"}
-                                defaultvalue={orgSettings.countyName || null}
+                                defaultvalue={orgSettings.countyName ?? null}
                                 savefunc={(v) =>
                                     (orgSettings.countyName =
                                         v === "" ? null : v)
@@ -203,7 +218,7 @@ export function AdminOrgEditPage() {
                             <TextInputComponent
                                 fieldname={"stateCode"}
                                 label={"State Code"}
-                                defaultvalue={orgSettings.stateCode || null}
+                                defaultvalue={orgSettings.stateCode ?? null}
                                 savefunc={(v) =>
                                     (orgSettings.stateCode =
                                         v === "" ? null : v)
@@ -227,14 +242,14 @@ export function AdminOrgEditPage() {
                                     type="submit"
                                     data-testid="submit"
                                     disabled={loading}
-                                    onClick={() => ShowCompareConfirm()}
+                                    onClick={() => void ShowCompareConfirm()}
                                 >
                                     Preview save...
                                 </Button>
                             </Grid>
                             <ConfirmSaveSettingModal
-                                uniquid={orgname || ""}
-                                onConfirm={saveOrgData}
+                                uniquid={orgname ?? ""}
+                                onConfirm={() => void saveOrgData()}
                                 ref={confirmModalRef}
                                 oldjson={orgSettingsOldJson}
                                 newjson={orgSettingsNewJson}
@@ -242,8 +257,8 @@ export function AdminOrgEditPage() {
                         </GridContainer>
                         <br />
                     </section>
-                    <OrgSenderTable orgname={orgname || ""} />
-                    <OrgReceiverTable orgname={orgname || ""} />
+                    <OrgSenderTable orgname={orgname ?? ""} />
+                    <OrgReceiverTable orgname={orgname ?? ""} />
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />

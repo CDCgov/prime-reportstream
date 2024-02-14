@@ -1,4 +1,3 @@
-import React, { useRef, useCallback } from "react";
 import {
     Alert,
     Button,
@@ -7,14 +6,15 @@ import {
     Label,
     TextInput,
 } from "@trussworks/react-uswds";
+import { useCallback, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 
-import { showAlertNotification } from "../../components/AlertNotifications";
+import config from "../../config";
 import {
     FeatureFlagActionType,
     useFeatureFlags,
-} from "../../contexts/FeatureFlagContext";
-import config from "../../config";
+} from "../../contexts/FeatureFlag";
+import { showToast } from "../../contexts/Toast";
 
 const { DEFAULT_FEATURE_FLAGS } = config;
 
@@ -28,13 +28,10 @@ export function FeatureFlagsPage() {
     const { featureFlags, checkFlags, dispatch } = useFeatureFlags();
 
     const addFlagClick = useCallback(() => {
-        const newFlag = newFlagInputText.current?.value || "";
+        const newFlag = newFlagInputText.current?.value ?? "";
         if (checkFlags(newFlag)) {
             // already added.
-            showAlertNotification(
-                "info",
-                `Item '${newFlag}' is already a feature flag.`,
-            );
+            showToast(`Item '${newFlag}' is already a feature flag.`, "info");
             return;
         }
         dispatch({
@@ -45,9 +42,9 @@ export function FeatureFlagsPage() {
         if (newFlagInputText.current?.value) {
             newFlagInputText.current.value = "";
         }
-        showAlertNotification(
-            "success",
+        showToast(
             `Feature flag '${newFlag}' added. You will now see UI related to this feature.`,
+            "success",
         );
     }, [newFlagInputText, checkFlags, dispatch]);
     const deleteFlagClick = useCallback(

@@ -1,13 +1,14 @@
 import classNames from "classnames";
+import { HTMLAttributes, PropsWithChildren } from "react";
 
 import styles from "./HeroWrapper.module.scss";
 
 export interface HeroWrapperProps
-    extends React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> {
+    extends PropsWithChildren<HTMLAttributes<HTMLDivElement>> {
     isAlternate?: boolean;
 }
 
-export function HeroWrapper({ isAlternate, ...props }: HeroWrapperProps) {
+function HeroWrapper({ isAlternate, ...props }: HeroWrapperProps) {
     const classnames = classNames(
         styles["rs-hero-wrapper"],
         isAlternate && styles["rs-hero-wrapper--alternate"],
