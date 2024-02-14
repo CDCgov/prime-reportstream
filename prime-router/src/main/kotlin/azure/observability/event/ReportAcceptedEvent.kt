@@ -4,14 +4,15 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 
 /**
- * Event definition for when a report gets routed to a receiver
+ * Event definition for when a report is ready to be processed per receiver
+ *
+ * This event should contain all conditions sent by the sender since no
+ * receiver specific filters have been run
  */
-data class ReportRouteEvent(
-    val parentReportId: ReportId,
+data class ReportAcceptedEvent(
     val reportId: ReportId,
     val topic: Topic,
     val sender: String,
-    val receiver: String?,
     val conditions: Set<String>,
 ) : AzureCustomEvent {
     // extract out conditions count into top level custom dimension for easier querying
