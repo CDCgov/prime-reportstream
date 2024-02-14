@@ -23,8 +23,6 @@ import {
 } from "../../hooks/filters/UseCursorManager";
 import {
     DEFAULT_TIME,
-    FALLBACK_FROM_STRING,
-    FALLBACK_TO_STRING,
     getEndOfDay,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
@@ -165,12 +163,14 @@ function TableFilters({
         (e: FormEvent) => {
             e.preventDefault();
             setReset(reset + 1);
-            setRangeFrom(new Date(FALLBACK_FROM_STRING));
-            setRangeTo(new Date(FALLBACK_TO_STRING));
+            setRangeFrom(undefined);
+            setRangeTo(undefined);
             setStartTime(DEFAULT_TIME);
             setEndTime(DEFAULT_TIME);
+            setCurrentServiceSelect(undefined);
+            setService?.(undefined);
         },
-        [reset],
+        [reset, setService],
     );
 
     const submitHandler = useCallback(
@@ -216,7 +216,7 @@ function TableFilters({
                         >
                             Receiver{" "}
                             <Tooltip
-                                className="fixed-tooltip text-top"
+                                className="fixed-tooltip text-sub"
                                 position="right"
                                 label={
                                     "Your connection could have multiple receivers such as one specific to COVID."
