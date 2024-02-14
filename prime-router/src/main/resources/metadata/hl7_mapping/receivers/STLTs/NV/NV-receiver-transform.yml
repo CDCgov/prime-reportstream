@@ -43,4 +43,8 @@ elements:
 
   - name: observation-result-with-aoe
     # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
-    resource: '%resource.result.resolve() | %resource.basedOn.resolve().supportingInfo.resolve().where(specimen.exists().not()) | %resource.basedOn.resolve().supportingInfo.resolve().where(meta.tag.code = "AOE")'
+    resource: '%resource.result.resolve() | %resource.basedOn.resolve().supportingInfo.resolve().where(meta.tag.code != "AOE")'
+
+  - name: order-note
+    resource: '%resource.basedOn.resolve().note | %resource.basedOn.resolve().supportingInfo.resolve().where(meta.tag.code = "AOE")'
+    schema: classpath:/metadata/hl7_mapping/receivers/Common/observation-to-nte/order-note.yml
