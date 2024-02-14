@@ -33,7 +33,7 @@ plugins {
     val kotlinVersion by System.getProperties()
     kotlin("jvm") version "$kotlinVersion"
     id("org.flywaydb.flyway") version "10.7.2"
-    id("nu.studer.jooq") version "8.2.1"
+    id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.14.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
