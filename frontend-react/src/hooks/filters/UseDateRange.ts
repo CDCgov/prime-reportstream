@@ -33,17 +33,17 @@ const rangeReducer = (
         case RangeSettingsActionType.UPDATE_FROM:
             return {
                 ...state,
-                from: payload?.from || state.from,
+                from: payload?.from ?? state.from,
             };
         case RangeSettingsActionType.UPDATE_TO:
             return {
                 ...state,
-                to: payload?.to || state.to,
+                to: payload?.to ?? state.to,
             };
         case RangeSettingsActionType.RESET: // Can use this to manually set for edge cases
             return {
-                from: payload?.from || FALLBACK_FROM,
-                to: payload?.to || FALLBACK_TO,
+                from: payload?.from ?? FALLBACK_FROM,
+                to: payload?.to ?? FALLBACK_TO,
             };
         default:
             return state;

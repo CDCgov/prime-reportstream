@@ -1,28 +1,27 @@
-import React, { ChangeEvent, FormEvent, useRef } from "react";
 import {
     Button,
+    FileInput,
+    FileInputRef,
     Form,
     FormGroup,
     Label,
-    FileInput,
-    FileInputRef,
 } from "@trussworks/react-uswds";
+import { ChangeEvent, FormEvent, useRef } from "react";
 
-import { parseCsvForError } from "../../utils/FileUtils";
-import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import { showToast } from "../../contexts/Toast";
-import { RSSender } from "../../config/endpoints/settings";
-import useSenderResource from "../../hooks/UseSenderResource";
-import Spinner from "../Spinner";
-import { useSessionContext } from "../../contexts/Session";
-import { WatersResponse } from "../../config/endpoints/waters";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import { FileType } from "../../utils/TemporarySettingsAPITypes";
-import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
-import { MembershipSettings } from "../../utils/OrganizationUtils";
-
-import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 import { FileHandlerStepProps } from "./FileHandler";
+import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
+import { RSSender } from "../../config/endpoints/settings";
+import { WatersResponse } from "../../config/endpoints/waters";
+import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
+import { showToast } from "../../contexts/Toast";
+import { useWatersUploader } from "../../hooks/network/WatersHooks";
+import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import useSenderResource from "../../hooks/UseSenderResource";
+import { parseCsvForError } from "../../utils/FileUtils";
+import { MembershipSettings } from "../../utils/OrganizationUtils";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
+import Spinner from "../Spinner";
 
 export const UPLOAD_PROMPT_DESCRIPTIONS = {
     [FileType.CSV]: {
@@ -86,9 +85,8 @@ export default function FileHandlerFileUploadStep({
 }: FileHandlerFileUploadStepProps) {
     const { appInsights } = useAppInsightsContext();
     const { data: organization } = useOrganizationSettings();
-    const { data: senderDetail, isLoading: senderIsLoading } =
-        useSenderResource();
-    const { activeMembership } = useSessionContext();
+    const { data: senderDetail } = useSenderResource();
+    const { activeMembership, rsConsole } = useSessionContext();
     const fileInputRef = useRef<FileInputRef>(null);
     const { format } = selectedSchemaOption;
     const accept = selectedSchemaOption
@@ -104,7 +102,7 @@ export default function FileHandlerFileUploadStep({
             onFileSubmitError();
             return;
         }
-        const selectedFile = event.target.files.item(0)!!;
+        const selectedFile = event.target.files.item(0)!;
 
         const selectedFileContent = await selectedFile.text();
 
@@ -125,7 +123,7 @@ export default function FileHandlerFileUploadStep({
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        if (fileContent.length === 0) {
+        if (fileContent.length === 0 || file?.name == null) {
             showToast("No file contents to validate", "error");
             return;
         }
@@ -135,11 +133,11 @@ export default function FileHandlerFileUploadStep({
             const response = await sendFile({
                 contentType,
                 fileContent,
-                fileName: file?.name!!,
+                fileName: file.name,
                 client: getClientHeader(
                     selectedSchemaOption.value,
                     activeMembership,
-                    senderDetail,
+                    senderDetail!,
                 ),
                 schema: selectedSchemaOption.value,
                 format: selectedSchemaOption.format,
@@ -185,15 +183,14 @@ export default function FileHandlerFileUploadStep({
         }
     }
 
+    if (senderDetail == null)
+        rsConsole.error(new Error("Failed to fetch sender detail"));
+
     return (
         <div>
             <FileHandlerPiiWarning />
 
             {(() => {
-                if (senderIsLoading) {
-                    return <Spinner />;
-                }
-
                 if (isUploading) {
                     return (
                         <div className="padding-y-4 text-center">
@@ -219,7 +216,7 @@ export default function FileHandlerFileUploadStep({
                 return (
                     <Form
                         name="fileValidation"
-                        onSubmit={handleSubmit}
+                        onSubmit={(ev) => void handleSubmit(ev)}
                         className="rs-full-width-form"
                     >
                         <FormGroup className="margin-top-0">
@@ -240,7 +237,7 @@ export default function FileHandlerFileUploadStep({
                                 name="upload-csv-input"
                                 aria-describedby="upload-csv-input-label"
                                 data-testid="upload-csv-input"
-                                onChange={handleFileChange}
+                                onChange={(ev) => void handleFileChange(ev)}
                                 required
                                 ref={fileInputRef}
                                 accept={accept}

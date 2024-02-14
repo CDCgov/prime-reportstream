@@ -1,12 +1,11 @@
 import { waitFor } from "@testing-library/react";
 
-import { renderHook } from "../utils/CustomRenderUtils";
+import { Organizations } from "./UseAdminSafeOrganizationName";
+import { useOrganizationReceivers } from "./UseOrganizationReceivers";
 import { dummyReceivers, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { renderHook } from "../utils/CustomRenderUtils";
 import { MemberType } from "../utils/OrganizationUtils";
-
-import { useOrganizationReceivers } from "./UseOrganizationReceivers";
-import { Organizations } from "./UseAdminSafeOrganizationName";
 
 describe("useOrganizationReceivers", () => {
     beforeAll(() => {
@@ -14,7 +13,7 @@ describe("useOrganizationReceivers", () => {
     });
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
-    test("returns undefined if no active membership parsed name", () => {
+    test("returns null if no active membership parsed name", () => {
         mockSessionContentReturnValue({
             authState: {
                 accessToken: { accessToken: "TOKEN" },

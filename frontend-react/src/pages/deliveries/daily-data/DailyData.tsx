@@ -1,34 +1,33 @@
-import React, { Dispatch, FC, SetStateAction } from "react";
+import { Dispatch, FC, SetStateAction } from "react";
 
+import { getReportAndDownload } from "./ReportsUtils";
+import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
+import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
+import Spinner from "../../../components/Spinner";
+import { PaginationProps } from "../../../components/Table/Pagination";
 import Table, {
     ColumnConfig,
     TableConfig,
 } from "../../../components/Table/Table";
-import { FilterManager } from "../../../hooks/filters/UseFilterManager";
-import { useSessionContext } from "../../../contexts/Session";
-import {
-    useOrgDeliveries,
-    DeliveriesDataAttr,
-} from "../../../hooks/network/History/DeliveryHooks";
-import Spinner from "../../../components/Spinner";
 import TableFilters, {
     TableFilterDateLabel,
 } from "../../../components/Table/TableFilters";
-import { PaginationProps } from "../../../components/Table/Pagination";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
-import usePagination, { ResultsFetcher } from "../../../hooks/UsePagination";
-import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import { FeatureName } from "../../../utils/FeatureName";
-import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
-import { isDateExpired } from "../../../utils/DateTimeUtils";
 import {
     EventName,
     useAppInsightsContext,
 } from "../../../contexts/AppInsights";
+import { useSessionContext } from "../../../contexts/Session";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
+import {
+    DeliveriesDataAttr,
+    useOrgDeliveries,
+} from "../../../hooks/network/History/DeliveryHooks";
 import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
-
-import { getReportAndDownload } from "./ReportsUtils";
+import usePagination, { ResultsFetcher } from "../../../hooks/UsePagination";
+import { isDateExpired } from "../../../utils/DateTimeUtils";
+import { FeatureName } from "../../../utils/FeatureName";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
@@ -59,7 +58,7 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     const handleExpirationDate = (expiresDate: string) => {
         return !isDateExpired(expiresDate);
     };
-    const columns: Array<ColumnConfig> = [
+    const columns: ColumnConfig[] = [
         {
             dataAttr: DeliveriesDataAttr.REPORT_ID,
             columnHeader: "Report ID",
@@ -102,7 +101,7 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
 
     const resultsTableConfig: TableConfig = {
         columns: columns,
-        rows: serviceReportsList || [],
+        rows: serviceReportsList ?? [],
     };
 
     if (isLoading) return <Spinner />;
@@ -233,7 +232,7 @@ export const DailyData = () => {
             fetchResults={fetchResults}
             filterManager={filterManager}
             setService={setService}
-            services={activeReceivers!!}
+            services={activeReceivers}
         />
     );
 };

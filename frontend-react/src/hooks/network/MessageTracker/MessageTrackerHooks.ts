@@ -1,12 +1,12 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 import {
-    RSMessageDetail,
     MessageListResource,
     messageTrackerEndpoints,
+    RSMessageDetail,
 } from "../../../config/endpoints/messageTracker";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 
 const { search, getMessageDetails } = messageTrackerEndpoints;
 
@@ -32,19 +32,19 @@ export const useMessageSearch = () => {
  * */
 export const useMessageDetails = (id: string) => {
     const authorizedFetch = useAuthorizedFetch<RSMessageDetail>();
-    const memoizedDataFetch = useCallback(
-        () =>
-            authorizedFetch(getMessageDetails, {
+    const memoizedDataFetch = useCallback(() => {
+        if (id) {
+            return authorizedFetch(getMessageDetails, {
                 segments: {
                     id: id,
                 },
-            }),
-        [authorizedFetch, id],
-    );
-    const { data } = useQuery({
+            });
+        }
+        return null;
+    }, [authorizedFetch, id]);
+    const { data } = useSuspenseQuery({
         queryKey: [getMessageDetails.queryKey, id],
         queryFn: memoizedDataFetch,
-        enabled: !!id,
     });
     return { messageDetails: data };
 };

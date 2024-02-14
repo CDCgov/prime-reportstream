@@ -8,6 +8,8 @@ resourceType: Patient
 #    the values, so it is being used over `valueString`
 #  - PID.12 is deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Further, the HAPI v2.7 model has set both
 #    fields to NULLDT. Thus, this field is not being mapped.
+#  - PID.15 allows repeats in the NIST HL7v2.5.1 specs, however the HAPI models for v2.5.1 and v2.7 do not support
+#    repetitions in those fields. Thus, any repetitions of the field will be ignored.
 #  - PID.19 and PID.20 are deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Further, the HAPI v2.7 model has set both
 #    fields to NULLDT. Thus, this field is not being mapped.
 #  - PID.21: The inventory does not include a FHIR field on patient that this should be mapped to. We have decided to map
@@ -159,7 +161,7 @@ identifier:
       vars:
         pid2: STRING_ALL, PID.2
       constants:
-        identifierIndexName: patient-id
+        CXIdentifierField: PID.2
     - condition: $pid3 NOT_NULL
       expressionType: resource
       specs: PID.3 *
@@ -168,7 +170,7 @@ identifier:
       vars:
         pid3: STRING_ALL, PID.3
       constants:
-        identifierIndexName: patient-identifier-list
+        CXIdentifierField: PID.3
     - condition: $pid4 NOT_NULL
       expressionType: resource
       specs: PID.4
@@ -176,7 +178,7 @@ identifier:
       vars:
         pid4: STRING_ALL, PID.4
       constants:
-        identifierIndexName: alternate-patient-id
+        CXIdentifierField: PID.4
 
 name:
   expressionType: nested
@@ -283,7 +285,7 @@ telecom:
       vars:
         pid40: STRING_ALL, PID.40
       constants:
-        hl7v2Name: patient-telecommunication-information
+        hl7v2Field: PID.40
 
 communication:
   expressionType: nested
@@ -517,7 +519,7 @@ extension:
       vars:
         pid26: STRING_ALL, PID.26
       constants:
-        hl7v2Name: "citizenship"
+        hl7v2Field: PID.26
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -539,7 +541,7 @@ extension:
       vars:
         pid39: STRING_ALL, PID.39
       constants:
-        hl7v2Name: "tribal-citizenship"
+        hl7v2Field: PID.39
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -574,7 +576,7 @@ extension:
       vars:
         pid28: STRING_ALL, PID.28
       constants:
-        hl7v2Name: "nationality"
+        hl7v2Field: PID.28
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -610,7 +612,7 @@ extension:
       expressionType: nested
       generateList: true
       constants:
-        hl7v2Name: "patient-animal"
+        hl7v2Field: PID.35
       expressionsMap:
         url:
           type: SYSTEM_URL

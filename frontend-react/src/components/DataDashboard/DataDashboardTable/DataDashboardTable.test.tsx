@@ -1,24 +1,23 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
+import DataDashboardTable from "./DataDashboardTable";
 import {
     dataDashboardServer,
     makeRSReceiverDeliveryResponseFixture,
     receiverServicesGenerator,
 } from "../../../__mocks__/DataDashboardMockServer";
-import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverDeliveries";
-import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
-import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
-import { renderApp } from "../../../utils/CustomRenderUtils";
 import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
+import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverDeliveries";
+import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
-import { selectDatesFromRange } from "../../Table/Table.test";
-
-import DataDashboardTable from "./DataDashboardTable";
+import { selectDatesFromRange } from "../../../utils/TestUtils";
 
 const mockReceiverServices = receiverServicesGenerator(5);
 const mockActiveReceiver = mockReceiverServices[0];
@@ -183,7 +182,7 @@ describe("DataDashboardTableWithPagination", () => {
                     await selectDatesFromRange("20", "23");
                     await userEvent.click(screen.getByText("Filter"));
 
-                    expect(mockAppInsights.trackEvent).toBeCalledWith({
+                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
                         name: "Data Dashboard | Table Filter",
                         properties: {
                             tableFilter: {

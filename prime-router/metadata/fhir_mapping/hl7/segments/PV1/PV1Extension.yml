@@ -1,6 +1,6 @@
 url:
   type: SYSTEM_URL
-  value: pv1-encounter
+  value: pv1-patient-visit
 
 extension:
   expressionType: nested
@@ -13,7 +13,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-12-preadmit-test-indicator
+          value: PV1.12
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           specs: PV1.12
@@ -25,7 +25,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-18-patient-type
+          value: PV1.18
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           specs: PV1.18
@@ -37,7 +37,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-30-transfer-to-bad-debt-date
+          value: PV1.30
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -49,7 +49,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-31-bad-debt-agency-code
+          value: PV1.31
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -61,7 +61,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-32-bad-debt-transfer-amount
+          value: PV1.32
         valueDecimal:
           type: STRING
           expressionType: HL7Spec
@@ -73,7 +73,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-33-bad-debt-recovery-amount
+          value: PV1.33
         valueDecimal:
           type: STRING
           expressionType: HL7Spec
@@ -85,7 +85,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-34-delete-account-indicator
+          value: PV1.34
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -97,7 +97,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-35-delete-account-date
+          value: PV1.35
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -109,7 +109,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-39-servicing-facility
+          value: PV1.39
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -121,7 +121,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-41-account-status
+          value: PV1.41
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           specs: PV1.41
@@ -133,7 +133,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-46-current-patient-balance
+          value: PV1.46
         valueDecimal:
           type: STRING
           expressionType: HL7Spec
@@ -145,7 +145,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-47-total-charges
+          value: PV1.47
         valueDecimal:
           type: STRING
           expressionType: HL7Spec
@@ -157,7 +157,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-48-total-adjustments
+          value: PV1.48
         valueDecimal:
           type: STRING
           expressionType: HL7Spec
@@ -169,7 +169,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-49-total-payments
+          value: PV1.49
         valueDecimal:
           type: STRING
           expressionType: HL7Spec
@@ -181,7 +181,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv1-51-visit-indicator
+          value: PV1.51
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           specs: PV1.51

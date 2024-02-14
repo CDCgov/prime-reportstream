@@ -5,9 +5,11 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.UnmappableConditionMessage
 import gov.cdc.prime.router.cli.ObservationMappingConstants
+import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
@@ -93,6 +95,7 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
  */
 fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
     val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
+    var mappedSomething = false
     if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
 
     return codeSourcesMap.mapNotNull { codeSourceEntry ->
@@ -102,14 +105,46 @@ fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
                     code.code
                 } else { // code found, add extension and return null to avoid mapping this as an error
                     code.addExtension(conditionCodeExtensionURL, conditionCode)
+                    mappedSomething = true
                     null
                 }
             }
         }.let {
             // create log message for any unmapped codes
-            if (it.isEmpty()) null else UnmappableConditionMessage(it, codeSourceEntry.key)
+            if (it.isEmpty() || mappedSomething) null else UnmappableConditionMessage(it, codeSourceEntry.key)
         }
     }
+}
+
+fun Observation.getMappedConditions(): List<String> =
+     this.getCodeSourcesMap().mapNotNull {
+        it.value.flatMap { coding ->
+            coding.extension.mapNotNull { extension ->
+                if (extension.url == conditionCodeExtensionURL) extension.castToCoding(extension.value).code else null
+            }
+        }
+    }.flatten()
+
+fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<Observation>()
+
+fun Bundle.getObservationsWithCondition(codes: List<String>): List<Observation> =
+    if (codes.isEmpty()) {
+        // TODO: consider throwing IllegalArgumentException here while implementing
+        //  https://github.com/CDCgov/prime-reportstream/issues/12705
+        emptyList()
+    } else {
+        this.getObservations().filter {
+            it.getMappedConditions().any(codes::contains)
+        }
+    }
+
+/**
+ * This will return all mapped conditions in a bundle (no duplicates)
+ */
+fun Bundle.getAllMappedConditions(): Set<String> {
+    return this.getObservations()
+        .flatMap { it.getMappedConditions() }
+        .toSet()
 }
 
 /**
@@ -339,6 +374,32 @@ fun Bundle.filterObservations(
         }
     }
     return filteredBundle
+}
+
+/**
+ * Filter out observations that pass the condition filter for a [receiver]
+ * The [bundle] and [shortHandLookupTable] will be used to evaluate whether
+ * the observation passes the filter
+ *
+ * @return a pair containing a list of the filtered ids and copy of the bundle with filtered observations removed
+ */
+fun Bundle.filterMappedObservations(
+    conditionFilter: ReportStreamConditionFilter,
+): Pair<List<String>, Bundle> {
+    val codes = conditionFilter.codes()
+    val observations = this.getObservations()
+    val toKeep = observations.filter { it.getMappedConditions().any(codes::contains) }.map { it.idBase }
+    val filteredBundle = this.copy()
+    val filteredIds = observations.mapNotNull {
+        val idBase = it.idBase
+        if (idBase !in toKeep) {
+            filteredBundle.deleteResource(it)
+            idBase
+        } else {
+            null
+        }
+    }
+    return Pair(filteredIds, filteredBundle)
 }
 
 private fun getFilteredObservations(

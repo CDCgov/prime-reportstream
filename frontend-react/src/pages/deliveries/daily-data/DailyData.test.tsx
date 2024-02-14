@@ -1,24 +1,23 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { renderApp } from "../../../utils/CustomRenderUtils";
-import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import DailyData from "./DailyData";
+import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import {
     orgServer,
     receiversGenerator,
 } from "../../../__mocks__/OrganizationMockServer";
-import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
-import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
+import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
-import { selectDatesFromRange } from "../../../components/Table/Table.test";
-
-import DailyData from "./DailyData";
+import { selectDatesFromRange } from "../../../utils/TestUtils";
 
 const mockUsePagination = {
     currentPageResults: makeDeliveryFixtureArray(10),
@@ -173,7 +172,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     await selectDatesFromRange("20", "23");
                     await userEvent.click(screen.getByText("Apply"));
 
-                    expect(mockAppInsights.trackEvent).toBeCalledWith({
+                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
                         name: "Daily Data | Table Filter",
                         properties: {
                             tableFilter: {

@@ -1,16 +1,16 @@
-import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { screen } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
-import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import ReportDetailsTable from "./ReportDetailsTable";
 import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
-import { selectDatesFromRange } from "../../Table/Table.test";
 
-import ReportDetailsTable from "./ReportDetailsTable";
+import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { renderApp } from "../../../utils/CustomRenderUtils";
+import { selectDatesFromRange } from "../../../utils/TestUtils";
 
 const TEST_ID = "123";
 
@@ -59,14 +59,17 @@ describe("ReportDetailsTable", () => {
         describe("TableFilter", () => {
             test("Clicking on filter invokes the trackAppInsightEvent", async () => {
                 setup();
-                await waitFor(async () => {
-                    await selectDatesFromRange("20", "23");
-                    await userEvent.click(screen.getByText("Apply"));
-                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            name: "Report Details | Table Filter",
-                        }),
-                    );
+                await selectDatesFromRange("20", "23");
+                await userEvent.click(screen.getByText("Apply"));
+
+                expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                    name: "Report Details | Table Filter",
+                    properties: {
+                        tableFilter: {
+                            endRange: "2024-02-23T00:00:00.000Z",
+                            startRange: "2024-02-20T00:00:00.000Z",
+                        },
+                    },
                 });
             });
         });

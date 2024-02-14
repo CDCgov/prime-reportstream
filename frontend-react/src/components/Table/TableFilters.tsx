@@ -1,12 +1,3 @@
-import React, {
-    Dispatch,
-    FormEvent,
-    SetStateAction,
-    useCallback,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
 import {
     Button,
     ComboBox,
@@ -15,21 +6,29 @@ import {
     TimePicker,
     Tooltip,
 } from "@trussworks/react-uswds";
+import {
+    Dispatch,
+    FormEvent,
+    SetStateAction,
+    useCallback,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 
-import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import styles from "./TableFilters.module.scss";
 import {
     CursorActionType,
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import {
+    DEFAULT_TIME,
     FALLBACK_FROM_STRING,
     FALLBACK_TO_STRING,
     getEndOfDay,
     RangeSettingsActionType,
-    DEFAULT_TIME,
 } from "../../hooks/filters/UseDateRange";
-
-import styles from "./TableFilters.module.scss";
+import { FilterManager } from "../../hooks/filters/UseFilterManager";
 
 export enum StyleClass {
     CONTAINER = "filter-container",
@@ -61,7 +60,7 @@ const DATE_RE = /^[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{2,4}$/;
 export function isValidDateString(dateStr?: string) {
     // need to check for value format (mm/dd/yyyy) and date validity (no 99/99/9999)
     return (
-        DATE_RE.test(dateStr || "") && !Number.isNaN(Date.parse(dateStr || ""))
+        DATE_RE.test(dateStr ?? "") && !Number.isNaN(Date.parse(dateStr ?? ""))
     );
 }
 
@@ -248,7 +247,7 @@ function TableFilters({
                                 name: "start-date-picker",
                                 onChange: (val?: string) => {
                                     if (isValidDateString(val)) {
-                                        setRangeFrom(new Date(val!!));
+                                        setRangeFrom(new Date(val!));
                                     } else {
                                         setRangeFrom(undefined);
                                     }
@@ -261,9 +260,7 @@ function TableFilters({
                                 name: "end-date-picker",
                                 onChange: (val?: string) => {
                                     if (isValidDateString(val)) {
-                                        setRangeTo(
-                                            getEndOfDay(new Date(val!!)),
-                                        );
+                                        setRangeTo(getEndOfDay(new Date(val!)));
                                     } else {
                                         setRangeTo(undefined);
                                     }

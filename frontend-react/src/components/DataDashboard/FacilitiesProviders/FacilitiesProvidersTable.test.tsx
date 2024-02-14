@@ -1,19 +1,18 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
-import { FacilityResource } from "../../../config/endpoints/dataDashboard";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
+import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
+import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
 import {
     orgServer,
     receiversGenerator,
 } from "../../../__mocks__/OrganizationMockServer";
-import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { FacilityResource } from "../../../config/endpoints/dataDashboard";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
-import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
 import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
+import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
-
-import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
 
 const mockData: FacilityResource[] = [
     {
@@ -57,7 +56,7 @@ jest.mock("rest-hooks", () => ({
     },
 }));
 
-describe("FacilitiesProvidersTable", () => {
+describe("useOrganizationReceiversFeed", () => {
     beforeAll(() => orgServer.listen());
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
@@ -153,7 +152,7 @@ describe("FacilitiesProvidersTable", () => {
             renderApp(<FacilitiesProvidersTable />);
         }
 
-        test("renders with no error", async () => {
+        test("renders with no error", () => {
             setup();
             // Column headers render
             expect(screen.getByText("Name")).toBeInTheDocument();
@@ -164,7 +163,7 @@ describe("FacilitiesProvidersTable", () => {
             ).toBeInTheDocument();
         });
 
-        test("renders Facility type column with transformed name", async () => {
+        test("renders Facility type column with transformed name", () => {
             setup();
             expect(screen.getAllByText("SUBMITTER")[0]).toBeInTheDocument();
         });

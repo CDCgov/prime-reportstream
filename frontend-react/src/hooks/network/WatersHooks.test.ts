@@ -1,14 +1,13 @@
 import { act } from "@testing-library/react";
 
+import { useWatersUploader } from "./WatersHooks";
 import {
     watersServer,
     WatersTestHeaderValue,
 } from "../../__mocks__/WatersMockServer";
-import { renderHook } from "../../utils/CustomRenderUtils";
 import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
+import { renderHook } from "../../utils/CustomRenderUtils";
 import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
-
-import { useWatersUploader } from "./WatersHooks";
 
 const mockCallbackFn = jest.fn();
 

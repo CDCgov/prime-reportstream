@@ -32,7 +32,7 @@ export function createTelemetryService(config: IConfiguration & IConfig) {
         return undefined;
     }
 
-    if (appInsights?.core?.isInitialized?.()) appInsights?.core?.unload();
+    if (appInsights?.core?.isInitialized?.()) void appInsights?.core?.unload();
     // Create insights
     appInsights = new ApplicationInsights({
         config: {

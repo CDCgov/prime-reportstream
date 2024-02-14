@@ -1,5 +1,5 @@
-import { jsonSourceMap } from "./JsonSourceMap";
 import { _exportForTestingJsonDiffer, jsonDifferMarkup } from "./JsonDiffer";
+import { jsonSourceMap } from "./JsonSourceMap";
 
 describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
     test("isInPath utility function", () => {

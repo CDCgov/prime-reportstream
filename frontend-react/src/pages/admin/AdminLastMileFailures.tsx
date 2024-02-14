@@ -1,10 +1,10 @@
-import React, { Suspense } from "react";
-import { Helmet } from "react-helmet-async";
 import { GridContainer } from "@trussworks/react-uswds";
+import { Suspense } from "react";
+import { Helmet } from "react-helmet-async";
 
-import Spinner from "../../components/Spinner";
-import HipaaNotice from "../../components/HipaaNotice";
 import { AdminLastMileFailuresTable } from "../../components/Admin/AdminLastMileFailuresTable";
+import HipaaNotice from "../../components/HipaaNotice";
+import Spinner from "../../components/Spinner";
 
 export function AdminLastMileFailuresPage() {
     return (

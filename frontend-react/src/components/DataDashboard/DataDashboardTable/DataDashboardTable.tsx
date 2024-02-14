@@ -1,28 +1,27 @@
 import { useState } from "react";
 
-import { FeatureName } from "../../../utils/FeatureName";
+import DataDashboardTableFilters from "./DataDashboardTableFilters/DataDashboardTableFilters";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import Spinner from "../../Spinner";
-import { NoServicesBanner } from "../../alerts/NoServicesAlert";
-import Pagination from "../../Table/Pagination";
-import ReceiverServices from "../ReceiverServices/ReceiverServices";
-import useReceiverDeliveries, {
-    DeliveriesAttr,
-} from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
-import AdminFetchAlert from "../../alerts/AdminFetchAlert";
-import { Table } from "../../../shared/Table/Table";
-import { getSlots } from "../../../hooks/UsePagination";
-import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
-import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
-import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import { USLink } from "../../USLink";
 import {
     EventName,
     useAppInsightsContext,
 } from "../../../contexts/AppInsights";
+import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
+import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
+import useReceiverDeliveries, {
+    DeliveriesAttr,
+} from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
 import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
-
-import DataDashboardTableFilters from "./DataDashboardTableFilters/DataDashboardTableFilters";
+import { getSlots } from "../../../hooks/UsePagination";
+import Table from "../../../shared/Table/Table";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
+import { FeatureName } from "../../../utils/FeatureName";
+import AdminFetchAlert from "../../alerts/AdminFetchAlert";
+import { NoServicesBanner } from "../../alerts/NoServicesAlert";
+import Spinner from "../../Spinner";
+import Pagination from "../../Table/Pagination";
+import { USLink } from "../../USLink";
+import ReceiverServices from "../ReceiverServices/ReceiverServices";
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -184,7 +183,7 @@ export default function DataDashboardTable() {
         <>
             {activeReceiver && (
                 <DashboardFilterAndTable
-                    receiverServices={activeReceivers!!}
+                    receiverServices={activeReceivers}
                     activeReceiver={activeReceiver}
                     setActiveReceiver={setActiveReceiver}
                 />

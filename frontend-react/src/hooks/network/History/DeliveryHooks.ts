@@ -1,20 +1,20 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 
-import {
-    Organizations,
-    useAdminSafeOrganizationName,
-} from "../../UseAdminSafeOrganizationName";
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 import {
     deliveriesEndpoints,
     RSDelivery,
     RSFacility,
 } from "../../../config/endpoints/deliveries";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
+import { useSessionContext } from "../../../contexts/Session";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../filters/UseFilterManager";
-import { useSessionContext } from "../../../contexts/Session";
+import {
+    Organizations,
+    useAdminSafeOrganizationName,
+} from "../../UseAdminSafeOrganizationName";
 
 const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
     deliveriesEndpoints;
@@ -110,12 +110,11 @@ const useReportsDetail = (id: string) => {
             }),
         [authorizedFetch, id],
     );
-    return useQuery({
+    return useSuspenseQuery({
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
         queryKey: [getDeliveryDetails.queryKey, id],
         queryFn: memoizedDataFetch,
-        enabled: !!id,
     });
 };
 
@@ -125,21 +124,21 @@ const useReportsDetail = (id: string) => {
  * */
 const useReportsFacilities = (id: string) => {
     const authorizedFetch = useAuthorizedFetch<RSFacility[]>();
-    const memoizedDataFetch = useCallback(
-        () =>
-            authorizedFetch(getDeliveryFacilities, {
+    const memoizedDataFetch = useCallback(() => {
+        if (id) {
+            return authorizedFetch(getDeliveryFacilities, {
                 segments: {
                     id: id,
                 },
-            }),
-        [authorizedFetch, id],
-    );
-    return useQuery({
+            });
+        }
+        return null;
+    }, [authorizedFetch, id]);
+    return useSuspenseQuery({
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
         queryKey: [getDeliveryFacilities.queryKey, id],
         queryFn: memoizedDataFetch,
-        enabled: !!id,
     });
 };
 
