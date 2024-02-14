@@ -484,7 +484,7 @@ class TranslationTests {
                     translationFunctions = CustomTranslationFunctions()
                 ),
                 blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
-            ).convert(fhirBundle)
+            ).process(fhirBundle)
             return hl7.encodePreserveEncodingChars().byteInputStream()
         }
 
@@ -501,7 +501,7 @@ class TranslationTests {
                         currentEnrichmentSchema,
                         "",
                         blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
-                    ).transform(fhirBundle)
+                    ).process(fhirBundle)
                 }
             }
             val fhirJson = FhirTranscoder.encode(fhirBundle)
