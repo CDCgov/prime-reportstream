@@ -51,14 +51,14 @@ elements:
       hl7XCNField: '%{hl7OBXField}-16(%{responsibleObserverIndex})'
 
   - name: obx-observation-method
-    resource: '%resource.method.union(%resource.extension(%`rsext-obx-observation`).extension.where(url = "obx-17-observation-method").tail().value)'
+    resource: '%resource.method.union(%resource.extension(%`rsext-obx-observation`).extension.where(url = "OBX.17").tail().value)'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     resourceIndex: observationMethodIndex
     constants:
       cweField: '%{hl7OBXField}-17(%{observationMethodIndex})'
 
   - name: obx-equipment-instance-identifier
-    resource: '%resource.device.resolve().identifier.union(%resource.extension(%`rsext-obx-observation`).extension.where(url = "obx-18-equipment-instance-identifier").tail().value.resolve().identifier)'
+    resource: '%resource.device.resolve().identifier.union(%resource.extension(%`rsext-obx-observation`).extension.where(url = "OBX.18").tail().value.resolve().identifier)'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier-extension/EI.yml
     resourceIndex: equipmentInstanceIdentifierIndex
     constants:
@@ -69,7 +69,7 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-19' ]
 
   - name: obx-observation-method
-    resource: '%resource.bodySite.union(%resource.extension(%`rsext-obx-observation`).extension.where(url = "obx-20-observation-site").tail().value)'
+    resource: '%resource.bodySite.union(%resource.extension(%`rsext-obx-observation`).extension.where(url = "OBX.20").tail().value)'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     resourceIndex: observationMethodIndex
     constants:

@@ -40,7 +40,7 @@ extension_1-assigning-authority:
           expressionsMap:
             url:
               type: SYSTEM_URL
-              valueOf: assigning-authority-namespace-id
+              valueOf: namespace-id
             valueString:
               type: STRING
               expressionType: HL7Spec
@@ -50,7 +50,7 @@ extension_1-assigning-authority:
           expressionsMap:
             url:
               type: SYSTEM_URL
-              valueOf: assigning-authority-universal-id
+              valueOf: universal-id
             valueString:
               type: STRING
               expressionType: HL7Spec
