@@ -182,6 +182,7 @@ abstract class Sender(
  *  This sender represents a sender that is sending through the universal pipeline. It has all the same parameters
  *  as the base Sender abstract class, although may be extended / modified in the future.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 class UniversalPipelineSender : Sender {
     @JsonCreator
     constructor(

@@ -64,7 +64,7 @@ class SettingFacadeTests {
         "allowDuplicates" : true,
         "senderType" : null,
         "primarySubmissionMethod" : null,
-        "topic" : "covid-19",
+        "topic" : "full-elr",
         "version" : null,
         "createdBy" : null,
         "createdAt" : null
@@ -91,6 +91,52 @@ class SettingFacadeTests {
         "reverseTheQualityFilter" : false,
         "conditionFilter" : [ ],
         "mappedConditionFilter" : [ ],
+        "deidentify" : true,
+        "deidentifiedValue" : "",
+        "timing" : {
+            "operation" : "MERGE",
+            "numberPerDay" : 1440,
+            "initialTime" : "00:00",
+            "timeZone" : "EASTERN",
+            "maxReportCount" : 10000,
+            "whenEmpty" : {
+                "action" : "NONE",
+                "onlyOncePerDay" : false
+            }
+        },
+        "description" : "",
+        "transport" : {
+            "storageName" : "PartnerStorage",
+            "containerName" : "hhsprotect",
+            "type" : "BLOBSTORE"
+        },
+        "externalName" : null,
+        "enrichmentSchemaNames" : [ ],
+        "timeZone" : null,
+        "dateTimeFormat" : "OFFSET"
+        }
+""".trimIndent()
+    private val invalidReceiverJson = """{
+        "name" : "giang2",
+        "organizationName" : "waters",
+        "topic" : "covid-19",
+        "customerStatus" : "active",
+        "translation" : {
+            "schemaName" : "one",
+            "format" : "CSV",
+            "useBatching" : false,
+            "defaults" : { },
+            "nameFormat" : "STANDARD",
+            "receivingOrganization" : null,
+            "type" : "CUSTOM"
+        },
+        "jurisdictionalFilter" : [],
+        "qualityFilter" : [ "allowAll()" ],
+        "routingFilter" : [ ],
+        "processingModeFilter" : [ ],
+        "reverseTheQualityFilter" : false,
+        "conditionFilter" : [ true ],
+        "mappedConditionFilter" : [],
         "deidentify" : true,
         "deidentifiedValue" : "",
         "timing" : {
@@ -477,6 +523,24 @@ class SettingFacadeTests {
         assertTrue(
             json.contains("waters") && json.contains("giang2"),
             "Expect return value contains receiver name: 'giang2', and organization name 'waters'"
+        )
+    }
+
+    @Test
+    fun `put receivers test invalid`() {
+        setupDatabaseAccess4PutTesting()
+        val (result, json) = SettingsFacade(testMetadata(), accessSpy).putSetting(
+            "giang2",
+            invalidReceiverJson,
+            AuthenticatedClaims.generateTestClaims(),
+            gov.cdc.prime.router.azure.ReceiverAPI::class.java,
+            "waters"
+        )
+        assertTrue(result.name == "BAD_REQUEST", "Expect BAD_REQUEST as result, got ${result.name}")
+        assertTrue(
+            json.contains("error") &&
+                    json.contains("conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'"),
+            "Expect return value contains error: conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'"
         )
     }
 }
