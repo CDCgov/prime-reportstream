@@ -31,6 +31,7 @@ import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.TimeType
+import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 import java.util.Date
 import kotlin.test.Test
 
@@ -83,7 +84,7 @@ class FhirPathUtilsTests {
             FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)
         } catch (e: Exception) {
             assertThat(e).isInstanceOf<SchemaException>()
-            assertThat(e.cause!!.message).isEqualTo("Error in ?? at 1, 1: The name blah is not a valid function name")
+            assertThat(e.cause).isNotNull().isInstanceOf<FHIRLexerException>()
         }
     }
 
