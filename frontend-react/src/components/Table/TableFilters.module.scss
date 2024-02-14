@@ -38,6 +38,12 @@ $column-gutter: 2rem;
             font-weight: bold;
         }
 
+        #receiver-hint,
+        .usa-hint__default {
+            font-size: 10px;
+            margin: 0.25rem 0 0 0;
+        }
+
         .usa-time-picker,
         .usa-date-picker__external-input {
             width: 268px;

@@ -208,7 +208,7 @@ function TableFilters({
                 <div className="grid-row">
                     <div className="grid-col filter-column__one">
                         <label
-                            id="start-date-label"
+                            id="receiver-label"
                             data-testid="label"
                             className="usa-label"
                             htmlFor="input-ComboBox"
@@ -216,10 +216,7 @@ function TableFilters({
                             Receiver
                         </label>
                         <div>
-                            <p
-                                className="usa-hint margin-top-2px"
-                                id="start-date-hint"
-                            >
+                            <p className="usa-hint" id="receiver-hint">
                                 Your connection could have multiple receivers,{" "}
                                 such as one specific to COVID.
                             </p>
@@ -284,7 +281,7 @@ function TableFilters({
                                         }
                                     }}
                                 />
-                                <p className="usa-hint margin-top-05 margin-bottom-0 font-body-2xs">
+                                <p className="usa-hint usa-hint__default">
                                     Default: 12:00am
                                 </p>
                             </div>
@@ -303,7 +300,7 @@ function TableFilters({
                                         }
                                     }}
                                 />
-                                <p className="usa-hint margin-top-05 margin-bottom-0 font-body-2xs">
+                                <p className="usa-hint usa-hint__default">
                                     Default: 11:59pm
                                 </p>
                             </div>
