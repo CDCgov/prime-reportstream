@@ -339,7 +339,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
             "extension" : [
               {
-                "url" : "pid-8-administrative-sex",
+                "url" : "PID.8",
                 "valueCodeableConcept" : {
                   "coding" : [
                     {
@@ -355,7 +355,7 @@
                 }
               },
               {
-                "url" : "pid-30-patient-death-indicator",
+                "url" : "PID.30",
                 "valueString" : "N"
               }
             ]
