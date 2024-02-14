@@ -30,7 +30,7 @@ export async function saveSessionStorage(userType: string, page: Page) {
         JSON.stringify(sessionStorage),
     );
     fs.writeFileSync(
-        `playwright/.auth/${userType}-session.json`,
+        `e2e/.auth/${userType}-session.json`,
         sessionJson,
         "utf-8",
     );
@@ -38,7 +38,7 @@ export async function saveSessionStorage(userType: string, page: Page) {
 
 export async function restoreSessionStorage(userType: string, page: Page) {
     const session = JSON.parse(
-        fs.readFileSync(`playwright/.auth/${userType}-session.json`, "utf-8"),
+        fs.readFileSync(`e2e/.auth/${userType}-session.json`, "utf-8"),
     );
     await page.context().addInitScript((session) => {
         for (const [key, value] of Object.entries<any>(session))

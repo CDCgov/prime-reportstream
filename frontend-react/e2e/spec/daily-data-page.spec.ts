@@ -13,7 +13,7 @@ test.describe("Daily data page", () => {
     });
 
     test.describe("admin user", () => {
-        test.use({ storageState: "playwright/.auth/admin.json" });
+        test.use({ storageState: "e2e/.auth/admin.json" });
 
         test.describe("without org selected", () => {
             test.beforeEach(async ({ page }) => {
@@ -82,7 +82,7 @@ test.describe("Daily data page", () => {
     });
 
     test.describe("receiver user", () => {
-        test.use({ storageState: "playwright/.auth/receiver.json" });
+        test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ page }) => {
             await page.goto("/daily-data", {
@@ -119,7 +119,7 @@ test.describe("Daily data page", () => {
     });
 
     test.describe("sender user", () => {
-        test.use({ storageState: "playwright/.auth/sender.json" });
+        test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
             await page.goto("/daily-data", {

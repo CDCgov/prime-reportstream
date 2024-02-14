@@ -39,7 +39,7 @@ package-lock.json
 !.yarn/versions
 
 # Playwright
-/test-results/
-/playwright-report/
-/playwright/.cache/
-/playwright/.auth/
+/e2e/.auth
+/e2e-data
+
+.local

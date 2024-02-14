@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.use({ storageState: "playwright/.auth/admin.json" });
+test.use({ storageState: "e2e/.auth/admin.json" });
 
 // eslint-disable-next-line playwright/no-skipped-test
 test.skip("Has correct title", async ({ page }) => {

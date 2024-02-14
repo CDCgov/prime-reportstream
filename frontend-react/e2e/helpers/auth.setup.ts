@@ -35,23 +35,23 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
 }
 
-setup("authenticate as admin", async ({ page, adminLogin }) => {
-    await logIntoOkta(page, adminLogin);
+/**
+ * Create sessions for all authentication scenarios. Real tests on login behavior should
+ * go into a dedicated test file.
+ */
+setup(
+    "create authenticated sessions",
+    async ({ page, adminLogin, senderLogin, receiverLogin }) => {
+        for (const login of [adminLogin, senderLogin, receiverLogin]) {
+            await logIntoOkta(page, login);
 
-    await page.context().storageState({ path: adminLogin.path });
-    await expect(page).toHaveURL("/admin/settings");
-});
+            const logoutBtn = page.getByRole("button", { name: "Logout" });
+            await page.context().storageState({ path: login.path });
 
-setup("authenticate as sender", async ({ page, senderLogin }) => {
-    await logIntoOkta(page, senderLogin);
-
-    await page.context().storageState({ path: senderLogin.path });
-    await expect(page).toHaveURL("/submissions");
-});
-
-setup("authenticate as receiver", async ({ page, receiverLogin }) => {
-    await logIntoOkta(page, receiverLogin);
-
-    await page.context().storageState({ path: receiverLogin.path });
-    await expect(page).toHaveURL("/");
-});
+            await logoutBtn.click();
+            await expect(
+                page.getByRole("link", { name: "Login" }),
+            ).toBeAttached();
+        }
+    },
+);

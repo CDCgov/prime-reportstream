@@ -26,6 +26,7 @@ function createBackendUrl(mode: string) {
 
 function getPort(mode: string) {
     switch (mode) {
+        case "test":
         case "csp":
         case "preview":
             return 4173;

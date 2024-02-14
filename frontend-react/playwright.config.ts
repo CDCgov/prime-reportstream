@@ -1,5 +1,6 @@
 import { defineConfig } from "@playwright/test";
 import dotenvflow from "dotenv-flow";
+import process from "process";
 
 import type { TestOptions } from "./e2e/helpers/rs-test.ts";
 
@@ -39,7 +40,7 @@ function createLogins<const T extends Array<string>>(
                     username,
                     password,
                     totpCode,
-                    path: `playwright/.auth/${type}.json`,
+                    path: `e2e/.auth/${type}.json`,
                 },
             ];
         }),
@@ -54,27 +55,16 @@ const logins = createLogins(["admin", "receiver", "sender"]);
  */
 export default defineConfig<TestOptions>({
     testDir: "e2e",
-    /* Run tests in files in parallel */
     fullyParallel: true,
-    /* Fail the build on CI if you accidentally left test.only in the source code. */
     forbidOnly: isCi,
-    /* Retry on CI only */
     retries: isCi ? 2 : 0,
-    /* Opt out of parallel tests on CI. */
     workers: isCi ? 1 : undefined,
-    /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-    reporter: "html",
-    /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+    reporter: [["html", { outputDir: "e2e-data/report" }]],
+    outputDir: "e2e-data/results",
     use: {
-        /* Base URL to use in actions like `await page.goto('/')`. */
         baseURL: "http://localhost:4173",
-
-        /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: "on-first-retry",
-
-        /* Screenshot on failure. See https://playwright.dev/docs/screenshots */
         screenshot: "only-on-failure",
-
         adminLogin: {
             ...logins.admin,
             landingPage: "/admin/settings",
@@ -89,9 +79,9 @@ export default defineConfig<TestOptions>({
         },
     },
 
-    /* Configure projects for major browsers */
     projects: [
-        { name: "setup", testMatch: /.*\.setup\.ts/ },
+        /* Test setup (ex: authenticated sessions) */
+        { name: "setup", testMatch: /\w+\.setup\.ts$/ },
         {
             name: "chromium",
             use: { browserName: "chromium" },
@@ -119,21 +109,10 @@ export default defineConfig<TestOptions>({
         //   name: 'Mobile Safari',
         //   use: { ...devices['iPhone 12'] },
         // },
-
-        /* Test against branded browsers. */
-        // {
-        //   name: 'Microsoft Edge',
-        //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-        // },
-        // {
-        //   name: 'Google Chrome',
-        //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-        // },
     ],
-
-    /* Run the local dev server and start the tests */
     webServer: {
-        command: "yarn run preview:build:test",
+        command:
+            "yarn cross-env VITE_IDLE_TIMEOUT=5000 yarn run preview:build:test",
         url: "http://localhost:4173",
         timeout: 1000 * 180,
         stdout: "pipe",
