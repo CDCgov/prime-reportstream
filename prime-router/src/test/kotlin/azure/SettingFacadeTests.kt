@@ -136,7 +136,12 @@ class SettingFacadeTests {
         "processingModeFilter" : [ ],
         "reverseTheQualityFilter" : false,
         "conditionFilter" : [ true ],
-        "mappedConditionFilter" : [ ],
+        "mappedConditionFilter" : [
+            {
+                "type": "codeString",
+                "value": "840539006,AOE"
+            }
+         ],
         "deidentify" : true,
         "deidentifiedValue" : "",
         "timing" : {
@@ -488,7 +493,7 @@ class SettingFacadeTests {
     }
 
     @Test
-    fun `put org test invalid`() {
+    fun `put org test invalid case`() {
         setupDatabaseAccess4PutTesting()
         val (result, json) = SettingsFacade(testMetadata(), accessSpy).putSetting(
             "waters",
@@ -538,7 +543,7 @@ class SettingFacadeTests {
     }
 
     @Test
-    fun `put receivers test invalid`() {
+    fun `put receivers test invalid case`() {
         setupDatabaseAccess4PutTesting()
         val (result, json) = SettingsFacade(testMetadata(), accessSpy).putSetting(
             "receiver01",

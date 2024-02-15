@@ -4,12 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.ser.std.StdSerializer
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.networknt.schema.JsonSchema
 import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
@@ -34,7 +28,6 @@ import gov.cdc.prime.router.tokens.JwkSet
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
 import java.io.File
-import java.io.IOException
 import java.time.OffsetDateTime
 
 /**
@@ -53,12 +46,6 @@ class SettingsFacade(
     }
 
     private val mapper = JacksonMapperUtilities.customSerializersMapper
-
-    init {
-        // Format OffsetDateTime as an ISO string
-        mapper.registerModule(JavaTimeModule())
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
 
     override val organizations: Collection<Organization>
         get() = findSettings(OrganizationAPI::class.java)
@@ -285,18 +272,19 @@ class SettingsFacade(
             return Triple(false, "Payload and path organization name do not match", null)
         }
         val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
-        val value = mapper.readTree(normalizedJson.toString())
         val errorMessages = when (input) {
             is OrganizationAPI -> {
-                organizationSchema.validate(value)
+                organizationSchema.validate(mapper.readTree(normalizedJson.toString()))
             }
 
             is Sender -> {
-                senderSchema.validate(value)
+                senderSchema.validate(mapper.readTree(normalizedJson.toString()))
             }
 
             is Receiver -> {
-                receiverSchema.validate(value)
+                // validate directly from json parameter to work around a bug where 'mappedConditionFilter'
+                // array of (type: t, value: v) where type got erased
+                receiverSchema.validate(mapper.readTree(normalizedJson.toString()))
             }
 
             else -> {
@@ -463,72 +451,3 @@ class ReceiverAPI
     transport
 ),
     SettingAPI
-
-class ReceiverSerializer constructor(t: Class<ReceiverAPI>) :
-    StdSerializer<ReceiverAPI>(t) {
-    @Throws(IOException::class, JsonProcessingException::class)
-    override fun serialize(
-        value: ReceiverAPI,
-        jgen: JsonGenerator,
-        provider: SerializerProvider?,
-    ) {
-        jgen.writeStartObject()
-        jgen.writeStringField("name", value.name)
-        jgen.writeStringField("organizationName", value.organizationName)
-        provider?.defaultSerializeField("topic", value.topic, jgen)
-        provider?.defaultSerializeField("customerStatus", value.customerStatus, jgen)
-        provider?.defaultSerializeField("translation", value.translation, jgen)
-        if (value.jurisdictionalFilter.isNotEmpty()) {
-            provider?.defaultSerializeField("jurisdictionalFilter", value.jurisdictionalFilter, jgen)
-        }
-        if (value.qualityFilter.isNotEmpty()) {
-            provider?.defaultSerializeField("qualityFilter", value.qualityFilter, jgen)
-        }
-        if (value.routingFilter.isNotEmpty()) {
-            provider?.defaultSerializeField("routingFilter", value.routingFilter, jgen)
-        }
-        if (value.processingModeFilter.isNotEmpty()) {
-            provider?.defaultSerializeField("processingModeFilter", value.processingModeFilter, jgen)
-        }
-        jgen.writeBooleanField("reverseTheQualityFilter", value.reverseTheQualityFilter)
-        if (value.conditionFilter.isNotEmpty()) {
-            provider?.defaultSerializeField("conditionFilter", value.conditionFilter, jgen)
-        }
-        if (value.mappedConditionFilter.isNotEmpty()) {
-            provider?.defaultSerializeField("mappedConditionFilter", value.mappedConditionFilter, jgen)
-        }
-        jgen.writeBooleanField("deidentify", value.deidentify)
-        jgen.writeStringField("deidentifiedValue", value.deidentifiedValue)
-        provider?.defaultSerializeField("timing", value.timing, jgen)
-        jgen.writeStringField("description", value.description)
-        provider?.defaultSerializeField("transport", value.transport, jgen)
-        jgen.writeEndObject()
-    }
-}
-
-class OrganizationSerializer constructor(t: Class<OrganizationAPI>) :
-    StdSerializer<OrganizationAPI>(t) {
-    @Throws(IOException::class, JsonProcessingException::class)
-    override fun serialize(
-        value: OrganizationAPI,
-        jgen: JsonGenerator,
-        provider: SerializerProvider?,
-    ) {
-        jgen.writeStartObject()
-        jgen.writeStringField("name", value.name)
-        jgen.writeStringField("description", value.description)
-        provider?.defaultSerializeField("jurisdiction", value.jurisdiction, jgen)
-        if (value.stateCode != null) {
-            jgen.writeStringField("stateCode", value.stateCode)
-        }
-        if (value.countyName != null) {
-            jgen.writeStringField("countyName", value.countyName)
-        }
-        if (value.filters?.isNotEmpty() == true) {
-            provider?.defaultSerializeField("filters", value.filters, jgen)
-        }
-        provider?.defaultSerializeField("featureFlags", value.featureFlags, jgen)
-        provider?.defaultSerializeField("keys", value.keys, jgen)
-        jgen.writeEndObject()
-    }
-}

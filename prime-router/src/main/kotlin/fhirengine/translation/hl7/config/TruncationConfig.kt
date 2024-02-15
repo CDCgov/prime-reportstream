@@ -5,7 +5,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.config
  */
 data class TruncationConfig(
     val truncateHDNamespaceIds: Boolean,
-    val truncateHl7Fields: List<String>,
+    val truncateHl7Fields: List<String> = emptyList(),
     val customLengthHl7Fields: Map<String, Int> = emptyMap(),
 ) {
     companion object {

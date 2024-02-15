@@ -215,7 +215,7 @@ class GAENTransport : ITransport, Logging {
      */
     internal fun processReport(params: SendParams): PostResult {
         // For unit tests, we do nothing when the apiURL is blank
-        if (params.gaenTransportInfo.apiUrl.isBlank()) return PostResult.SUCCESS
+        if (params.gaenTransportInfo.apiUrl.isNullOrEmpty()) return PostResult.SUCCESS
 
         // Read the CSV table
         val reportStream = ByteArrayInputStream(params.header.content)

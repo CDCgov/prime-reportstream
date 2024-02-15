@@ -253,7 +253,6 @@
         }
       },
       "required": [
-        "jurisdictionalFilter",
         "topic"
       ],
       "title": "Filter"

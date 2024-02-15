@@ -1,11 +1,6 @@
 package gov.cdc.prime.router.cli
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
@@ -106,20 +101,7 @@ abstract class SettingCommand(
     enum class SettingType { ORGANIZATION, SENDER, RECEIVER }
 
     val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
-    val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
-        KotlinModule.Builder()
-            .withReflectionCacheSize(512)
-            .configure(KotlinFeature.NullToEmptyCollection, false)
-            .configure(KotlinFeature.NullToEmptyMap, false)
-            .configure(KotlinFeature.NullIsSameAsDefault, false)
-            .configure(KotlinFeature.StrictNullChecks, false)
-            .build()
-    )
-
-    init {
-        yamlMapper.registerModule(JavaTimeModule())
-        yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
+    val yamlMapper = JacksonMapperUtilities.yamlMapper
 
     /**
      * The environment specified by the command line parameters
@@ -395,6 +377,7 @@ abstract class SettingCommand(
         }
         // Put receivers
         deepOrganizations.flatMap { it.receivers }.forEach { receiver ->
+            println(receiver.toString())
             val payload = jsonMapper.writeValueAsString(receiver)
             results += put(env, accessToken, SettingType.RECEIVER, receiver.fullName, payload)
         }

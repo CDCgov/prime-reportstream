@@ -28,7 +28,7 @@
           ]
         },
         "jurisdictionalFilter": {
-          "type": "array",
+          "type": ["array"],
           "items": {
             "type": "string"
           }
@@ -103,7 +103,7 @@
           }
         },
         "mappedConditionFilter": {
-          "type": "array",
+          "type": ["array", "null"],
           "items": {
             "$ref": "#/definitions/MappedConditionFilter"
           }
@@ -147,7 +147,7 @@
     },
     "MappedConditionFilter": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "type": {
           "type": "string"

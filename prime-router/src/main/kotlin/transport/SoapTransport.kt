@@ -83,7 +83,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
     private suspend fun connectToSoapService(
         message: String,
         soapEndpoint: String,
-        soapAction: String,
+        soapAction: String?,
         soapVersion: String?,
         context: ExecutionContext,
         httpClient: HttpClient,

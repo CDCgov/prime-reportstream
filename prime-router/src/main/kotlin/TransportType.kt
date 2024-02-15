@@ -75,7 +75,7 @@ data class GAENTransportType
      * The UUID enables the GAEN system deduplicate notifications.
      * [uuidIV] is the HMAC initialization vector (aka key) in hex
      */
-    val apiUrl: String,
+    val apiUrl: String? = null,
     val uuidFormat: GAENUUIDFormat? = null,
     val uuidIV: String? = null,
 ) : TransportType("GAEN") {
@@ -95,7 +95,7 @@ data class SoapTransportType
     /** The URL endpoint to connect to */
     val endpoint: String,
     /** The SOAP action to invoke */
-    val soapAction: String,
+    val soapAction: String? = null,
     /** The version of SOAP being implemented */
     val soapVersion: String? = null,
     /** The credential name */
