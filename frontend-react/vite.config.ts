@@ -10,22 +10,32 @@ import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import { checker } from "vite-plugin-checker";
 
-const LOCAL_MODES = ["preview", "development", "test", "csp"];
+const LOCAL_BACKEND_MODES = ["preview", "development", "test", "csp", "ci"];
+const LOCAL_PROXY_MODES = ["preview", "development", "test", "csp"];
 const DEMO_MODES = /^demo\d+$/;
 const TRIALFRONTEND_MODES = /^trialfrontend\d+$/;
 
 /**
  * Determine the backend url based on mode.
  */
+function createProxyUrl(mode: string) {
+    if (LOCAL_PROXY_MODES.includes(mode)) return "http://127.0.0.1:7071";
+    const subdomain =
+        mode === "production" ? "" : mode === "ci" ? "staging" : mode;
+    return `https://${subdomain ? subdomain + "." : ""}prime.cdc.gov`;
+}
+
 function createBackendUrl(mode: string) {
     const port = getPort(mode);
-    if (LOCAL_MODES.includes(mode))
+    if (LOCAL_BACKEND_MODES.includes(mode))
         return `http://localhost${port ? ":" + port.toString() : ""}`;
     return `https://${mode !== "production" ? mode + "." : ""}prime.cdc.gov`;
 }
 
 function getPort(mode: string) {
     switch (mode) {
+        case "ci":
+        case "test":
         case "csp":
         case "preview":
             return 4173;
@@ -39,6 +49,7 @@ function getPort(mode: string) {
  */
 function loadRedirectedEnv(mode: string) {
     let redirectedMode = mode;
+    if (mode === "ci") redirectedMode = "test";
     if (DEMO_MODES.exec(mode)) redirectedMode = "demo";
     else if (TRIALFRONTEND_MODES.exec(mode)) redirectedMode = "trialfrontend";
 
@@ -50,12 +61,12 @@ export default defineConfig(async ({ mode, isPreview }) => {
     const env = loadRedirectedEnv(mode);
     const isCsp = mode === "csp";
     const port = getPort(mode);
+    const backendUrl = env.VITE_BACKEND_URL ?? createBackendUrl(mode);
+    const proxyUrl = env.PROXY_URL ?? createProxyUrl(mode);
 
     return {
         define: {
-            "import.meta.env.VITE_BACKEND_URL": JSON.stringify(
-                env.VITE_BACKEND_URL ?? createBackendUrl(mode),
-            ),
+            "import.meta.env.VITE_BACKEND_URL": JSON.stringify(backendUrl),
         },
         optimizeDeps: {
             include: ["react/jsx-runtime"],
@@ -87,7 +98,7 @@ export default defineConfig(async ({ mode, isPreview }) => {
             // Proxy localhost/api to local prime-router
             proxy: {
                 "/api": {
-                    target: "http://127.0.0.1:7071",
+                    target: proxyUrl,
                     changeOrigin: true,
                 },
             },
