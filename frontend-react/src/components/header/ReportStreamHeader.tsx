@@ -26,7 +26,7 @@ import site from "../../content/site.json";
 import { RSSessionContext, useSessionContext } from "../../contexts/Session";
 import {
     isOrganizationsMissingTransport,
-    useOrganizationSettings__,
+    useOrganizationSettings,
 } from "../../hooks/UseOrganizationSettings";
 import { Icon } from "../../shared";
 import SenderModeBanner from "../SenderModeBanner";
@@ -93,7 +93,7 @@ function ReportStreamNavbar({
     containerRef,
 }: ReportStreamNavbarProps) {
     const [openMenuItem, setOpenMenuItem] = useState<undefined | string>();
-    const { data: organization } = useOrganizationSettings__();
+    const { data: organization } = useOrganizationSettings();
     const isOrgMissingTransport = organization
         ? isOrganizationsMissingTransport(organization.name)
         : false;
