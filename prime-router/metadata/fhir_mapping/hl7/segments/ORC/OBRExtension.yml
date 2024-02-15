@@ -36,6 +36,8 @@ extension:
       vars:
         obr10: STRING_ALL, OBR.10
       condition: $obr10 NOT_NULL
+      specs: OBR.10 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -43,7 +45,6 @@ extension:
         valueReference:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: OBR.10
     - expressionType: nested
       vars:
         obr11: STRING, OBR.11
@@ -82,9 +83,10 @@ extension:
           valueOf: OBR.13
     - expressionType: nested
       vars:
-        orc12: STRING_ALL, ORC.12
         obr16: STRING_ALL, OBR.16
-      condition: $orc12 NOT_NULL && $obr16 NOT_NULL
+      condition: $obr16 NOT_NULL
+      specs: OBR.16 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -92,7 +94,6 @@ extension:
         valueReference:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: OBR.16
     - condition: $orc14 NOT_NULL && $obr17 NOT_NULL
       vars:
         orc14: STRING_ALL, ORC.14
@@ -201,6 +202,8 @@ extension:
       vars:
         obr28: STRING_ALL, OBR.28
       condition: $obr28 NOT_NULL
+      specs: OBR.28 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -208,7 +211,6 @@ extension:
         valueReference:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: OBR.28
     - expressionType: nested
       vars:
         obr29: STRING_ALL, OBR.29
@@ -227,6 +229,8 @@ extension:
       vars:
         obr33: STRING_ALL, OBR.33
       condition: $obr33 NOT_NULL
+      specs: OBR.33 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -234,7 +238,6 @@ extension:
         valueReference:
           valueOf: datatypes/NDL/PractitionerRole
           expressionType: reference
-          specs: OBR.33
     - expressionType: nested
       vars:
         obr36: STRING, OBR.36
@@ -251,6 +254,8 @@ extension:
       vars:
         obr39: STRING_ALL, OBR.39
       condition: $obr39 NOT_NULL
+      specs: OBR.39 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -258,7 +263,6 @@ extension:
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
-          specs: OBR.39
     - expressionType: nested
       vars:
         obr44: STRING_ALL, OBR.44
@@ -275,6 +279,8 @@ extension:
       vars:
         obr45: STRING_ALL, OBR.45
       condition: $obr45 NOT_NULL
+      specs: OBR.45 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -282,7 +288,6 @@ extension:
         valueCodeableConcept:
           valueOf: datatypes/CNE/CodeableConcept
           expressionType: resource
-          specs: OBR.45
     - expressionType: nested
       vars:
         obr48: STRING_ALL, OBR.48
@@ -324,6 +329,8 @@ extension:
         orc33: STRING_ALL, ORC.33
         obr53: STRING_ALL, OBR.53
       expressionType: nested
+      specs: OBR.53 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -331,6 +338,5 @@ extension:
         valueIdentifier:
           valueOf: datatypes/CX/Identifier
           expressionType: resource
-          specs: OBR.53
           constants:
             CXIdentifierField: OBR.53

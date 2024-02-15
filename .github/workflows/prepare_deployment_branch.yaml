@@ -27,9 +27,7 @@ jobs:
           echo "Branch name: \"${BRANCH_NAME}\""
 
       - name: "Create branch '${{ env.BRANCH_NAME }}' to contain the changes for the deployment on ${{ env.DEPLOYMENT_DATE }}"
-        uses: peterjgrainger/action-create-branch@08259812c8ebdbf1973747f9297e332fa078d3c1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: JosiahSiegel/remote-branch-action@dbe7a2138eb064fbfdb980abee918091a7501fbe
         with:
           branch: "${{ env.BRANCH_NAME }}"
 

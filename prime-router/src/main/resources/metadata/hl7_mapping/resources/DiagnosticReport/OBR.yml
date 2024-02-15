@@ -48,11 +48,13 @@ elements:
   - name: technician
     resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "SPRF")'
     constants:
-      hl7NDLField: '%{obrFieldPath}-34'
+      hl7NDLField: '%{obrFieldPath}-34(%{ndlIndex})'
+    resourceIndex: ndlIndex
     schema: classpath:/metadata/hl7_mapping/resources/PractitionerRole/NDL.yml
 
   - name: transcriptionist
     resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "TRANS")'
     constants:
-      hl7NDLField: '%{obrFieldPath}-35'
+      hl7NDLField: '%{obrFieldPath}-35(%{ndlIndex})'
+    resourceIndex: ndlIndex
     schema: classpath:/metadata/hl7_mapping/resources/PractitionerRole/NDL.yml
