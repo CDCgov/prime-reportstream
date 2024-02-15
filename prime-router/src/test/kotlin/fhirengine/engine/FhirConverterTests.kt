@@ -155,7 +155,7 @@ class FhirConverterTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.transform(any()) } returnsArgument (0)
+        every { transformer.process(any()) } returnsArgument (0)
 
         // act
         accessSpy.transact { txn ->
@@ -166,7 +166,7 @@ class FhirConverterTests {
         verify(exactly = 1) {
             engine.getContentFromHL7(any(), any())
             actionHistory.trackExistingInputReport(any())
-            transformer.transform(any())
+            transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any(), any())
         }
@@ -209,7 +209,7 @@ class FhirConverterTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.transform(any()) } returnsArgument (0)
+        every { transformer.process(any()) } returnsArgument (0)
 
         // act
         accessSpy.transact { txn ->
@@ -220,7 +220,7 @@ class FhirConverterTests {
         verify(exactly = 1) {
             engine.getContentFromFHIR(any(), any())
             actionHistory.trackExistingInputReport(any())
-            transformer.transform(any())
+            transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any(), any())
         }
@@ -296,6 +296,10 @@ class FhirConverterTests {
     fun `test getTransformerFromSchema`() {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
 
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         assertThat(
             engine.getTransformerFromSchema("")
         ).isNull()
@@ -337,7 +341,7 @@ class FhirConverterTests {
             .returns(Unit) andThenThrows (RuntimeException())
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.transform(any()) } returnsArgument (0)
+        every { transformer.process(any()) } returnsArgument (0)
 
         // act
         assertThrows<RuntimeException> {
@@ -352,7 +356,7 @@ class FhirConverterTests {
             actionHistory.trackExistingInputReport(any())
         }
         verify(exactly = 2) {
-            transformer.transform(any())
+            transformer.process(any())
             BlobAccess.Companion.uploadBlob(any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
         }
@@ -424,7 +428,7 @@ class FhirConverterTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.transform(any()) } returnsArgument (0)
+        every { transformer.process(any()) } returnsArgument (0)
 
         // act
         accessSpy.transact { txn ->
@@ -448,7 +452,7 @@ class FhirConverterTests {
         verify(exactly = 1) {
             engine.getContentFromFHIR(any(), any())
             actionHistory.trackExistingInputReport(any())
-            transformer.transform(any())
+            transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), FhirTranscoder.encode(bundle).toByteArray(), any())
         }
@@ -511,7 +515,7 @@ class FhirConverterTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.transform(any()) } returnsArgument (0)
+        every { transformer.process(any()) } returnsArgument (0)
 
         // act
         accessSpy.transact { txn ->
@@ -522,7 +526,7 @@ class FhirConverterTests {
         verify(exactly = 1) {
             engine.getContentFromFHIR(any(), any())
             actionHistory.trackExistingInputReport(any())
-            transformer.transform(any())
+            transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), fhirData.toByteArray(), any())
             actionLogger.warn(

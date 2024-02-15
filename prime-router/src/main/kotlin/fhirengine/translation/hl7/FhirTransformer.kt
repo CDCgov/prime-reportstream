@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
@@ -18,7 +20,7 @@ import org.hl7.fhir.r4.model.Extension
  */
 class FhirTransformer(
     private val schemaRef: FhirTransformSchema,
-) : ConfigSchemaProcessor() {
+) : ConfigSchemaProcessor<Bundle, Bundle, FhirTransformSchema, FhirTransformSchemaElement>(schemaRef) {
     private val extensionRegex = """^extension\(["']([^'"]+)["']\)""".toRegex()
 
     /**
@@ -27,8 +29,21 @@ class FhirTransformer(
     constructor(
         schema: String,
         schemaFolder: String,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
     ) : this(
-        schemaRef = fhirTransformSchemaFromFile(schema, schemaFolder),
+        schemaRef = fhirTransformSchemaFromFile(schema, schemaFolder, blobConnectionInfo),
+    )
+
+    constructor(
+        schemaUri: String,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
+    ) : this(
+        ConfigSchemaReader.fromFile(
+            schemaUri,
+            null,
+            FhirTransformSchema::class.java,
+            blobConnectionInfo = blobConnectionInfo
+        )
     )
 
     /**
@@ -45,9 +60,9 @@ class FhirTransformer(
      * Transform the given [bundle]. The bundle passed in will be updated directly, and will also be returned.
      * @return the transformed bundle
      */
-    fun transform(bundle: Bundle): Bundle {
-        transformWithSchema(schemaRef, bundle = bundle, focusResource = bundle)
-        return bundle
+    override fun process(input: Bundle): Bundle {
+        transformWithSchema(schemaRef, bundle = input, focusResource = input)
+        return input
     }
 
     /**
@@ -121,7 +136,7 @@ class FhirTransformer(
                         }
                         logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
                         transformWithSchema(
-                            element.schemaRef!! as FhirTransformSchema,
+                            element.schemaRef!!,
                             bundle,
                             singleFocusResource,
                             indexContext,
