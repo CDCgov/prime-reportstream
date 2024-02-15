@@ -1,4 +1,3 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { Suspense } from "react";
@@ -13,8 +12,8 @@ import {
     mockSendValidFile,
 } from "../../__mocks__/validation";
 import { RSSender } from "../../config/endpoints/settings";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import useAppInsightsContext from "../../hooks/useAppInsightsContext";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
 import * as useSenderResourceExports from "../../hooks/UseSenderResource";
@@ -26,6 +25,9 @@ import {
     Format,
 } from "../../utils/TemporarySettingsAPITypes";
 
+const { mockSessionContentReturnValue } = jest.requireMock(
+    "../../contexts/Session/useSessionContext",
+);
 const mockUseAppInsightsContext = jest.mocked(useAppInsightsContext);
 const mockAppInsights = mockUseAppInsightsContext();
 

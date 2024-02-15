@@ -1,7 +1,7 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { chunk, range } from "lodash";
 import { useCallback, useEffect, useReducer } from "react";
 import useDeepCompareEffect from "use-deep-compare-effect";
+import useAppInsightsContext from "./useAppInsightsContext";
 
 import {
     OVERFLOW_INDICATOR,

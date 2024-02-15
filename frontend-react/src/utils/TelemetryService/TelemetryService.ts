@@ -46,7 +46,7 @@ export class ReactPlugin extends _ReactPlugin {
  * Handles maintaining a singular app insights object.
  */
 export function createTelemetryService(config: IConfiguration & IConfig) {
-    if(appInsights) void appInsights.unload(false);
+    if (appInsights) void appInsights.unload(false);
     const plugin = new ReactPlugin();
     // Create insights
     appInsights = new ApplicationInsights({

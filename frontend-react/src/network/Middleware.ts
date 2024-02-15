@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import axios, { AxiosRequestConfig } from "axios";
 import { Fetcher, Middleware, SuspenseQueryHook } from "react-query-kit";
 
 import { RSEndpoint } from "../config/endpoints";
-import { useSessionContext } from "../contexts/Session";
+import useSessionContext from "../contexts/Session/useSessionContext";
+import useAppInsightsContext from "../hooks/useAppInsightsContext";
 
 export type AuthMiddleware<TData> = Middleware<
     SuspenseQueryHook<TData, FetchVariables>

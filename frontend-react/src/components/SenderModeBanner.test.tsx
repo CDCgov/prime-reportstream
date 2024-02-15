@@ -2,9 +2,12 @@ import { screen } from "@testing-library/react";
 
 import SenderModeBanner from "./SenderModeBanner";
 import { orgServer } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 import { renderApp } from "../utils/CustomRenderUtils";
 import { MemberType } from "../utils/OrganizationUtils";
+
+const { mockSessionContentReturnValue } = jest.requireMock(
+    "../contexts/Session/useSessionContext",
+);
 
 describe("SenderModeBanner", () => {
     beforeAll(() => {

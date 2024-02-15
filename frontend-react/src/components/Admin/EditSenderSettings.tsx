@@ -1,4 +1,3 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,8 +16,9 @@ import {
 } from "./CompareJsonModal";
 import Title from "../../components/Title";
 import config from "../../config";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { useToast } from "../../contexts/Toast";
+import useAppInsightsContext from "../../hooks/useAppInsightsContext";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {

@@ -1,10 +1,10 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import styles from "./ReportDetailsTable.module.scss";
 import Table, { TableConfig } from "../../../components/Table/Table";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
 import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
+import useAppInsightsContext from "../../../hooks/useAppInsightsContext";
 import { EventName } from "../../../utils/AppInsights";
 import { FeatureName } from "../../../utils/FeatureName";
 import TableFilters from "../../Table/TableFilters";

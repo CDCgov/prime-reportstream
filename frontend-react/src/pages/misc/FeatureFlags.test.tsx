@@ -1,9 +1,11 @@
 import { fireEvent, screen } from "@testing-library/react";
 
 import { FeatureFlagsPage } from "./FeatureFlags";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
-import { FeatureFlagActionType } from "../../contexts/FeatureFlag";
+import { FeatureFlagActionType } from "../../contexts/FeatureFlag/FeatureFlagProvider";
+import useFeatureFlags from "../../contexts/FeatureFlag/useFeatureFlags";
 import { renderApp } from "../../utils/CustomRenderUtils";
+
+jest.mock("../../contexts/FeatureFlag/useFeatureFlags");
 
 jest.mock("../../config", () => {
     const originalModule = jest.requireActual("../../config");
@@ -16,6 +18,8 @@ jest.mock("../../config", () => {
         __esModule: true,
     };
 });
+
+const mockFeatureFlagContext = jest.mocked(useFeatureFlags);
 
 describe("FeatureFlags", () => {
     test("displays a list of current feature flags", () => {

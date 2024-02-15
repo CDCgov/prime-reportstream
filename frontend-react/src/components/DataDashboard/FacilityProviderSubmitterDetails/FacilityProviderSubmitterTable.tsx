@@ -1,13 +1,11 @@
 import styles from "./FacilityProviderSubmitterTable.module.scss";
 import { SenderTypeDetailResource } from "../../../config/endpoints/dataDashboard";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
+import useAppInsightsContext from "../../../hooks/useAppInsightsContext";
 import Table from "../../../shared/Table/Table";
+import { EventName } from "../../../utils/AppInsights";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
 import TableFilters from "../../Table/TableFilters";
@@ -28,7 +26,7 @@ interface FacilityProviderSubmitterTableProps {
 function FacilityProviderSubmitterTable(
     props: FacilityProviderSubmitterTableProps,
 ) {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
     // const { senderTypeId }: FacilityProviderSubmitterTableProps = props;
     const data: SenderTypeDetailResource[] = [

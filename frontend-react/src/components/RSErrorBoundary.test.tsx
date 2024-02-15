@@ -2,11 +2,13 @@ import { screen } from "@testing-library/react";
 import { AxiosError } from "axios";
 
 import RSErrorBoundary from "./RSErrorBoundary";
-import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
-import { mockRsconsole } from "../utils/console/__mocks__/rsconsole";
 import { renderApp } from "../utils/CustomRenderUtils";
+import { mockRsconsole } from "../utils/rsConsole/rsConsole.fixtures";
 import { RSNetworkError } from "../utils/RSNetworkError";
 
+const { mockSessionContentReturnValue } = jest.requireMock(
+    "../contexts/Session/useSessionContext",
+);
 const rsError = new RSNetworkError(new AxiosError("rsnetwork error test"));
 
 // Dummy components for testing

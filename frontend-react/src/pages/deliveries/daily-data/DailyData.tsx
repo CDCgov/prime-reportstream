@@ -1,4 +1,3 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { Dispatch, FC, SetStateAction } from "react";
 
 import { getReportAndDownload } from "./ReportsUtils";
@@ -16,12 +15,13 @@ import TableFilters, {
 } from "../../../components/Table/TableFilters";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import { useSessionContext } from "../../../contexts/Session";
+import useSessionContext from "../../../contexts/Session/useSessionContext";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import {
     DeliveriesDataAttr,
     useOrgDeliveries,
 } from "../../../hooks/network/History/DeliveryHooks";
+import useAppInsightsContext from "../../../hooks/useAppInsightsContext";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import usePagination from "../../../hooks/UsePagination";
 import { EventName } from "../../../utils/AppInsights";

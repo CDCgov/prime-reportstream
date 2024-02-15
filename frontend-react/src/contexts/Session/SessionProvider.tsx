@@ -1,4 +1,3 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import {
     AuthState,
     CustomUserClaims,
@@ -10,7 +9,6 @@ import {
     createContext,
     PropsWithChildren,
     useCallback,
-    useContext,
     useEffect,
     useMemo,
     useRef,
@@ -20,9 +18,9 @@ import {
 import { IIdleTimerProps, useIdleTimer } from "react-idle-timer";
 import type { AppConfig } from "../../config";
 import site from "../../content/site.json";
+import useAppInsightsContext from "../../hooks/useAppInsightsContext";
 import { updateApiSessions } from "../../network/Apis";
 import { EventName } from "../../utils/AppInsights";
-import { RSConsole } from "../../utils/console";
 import {
     MembershipSettings,
     membershipsFromToken,
@@ -33,6 +31,7 @@ import {
     getUserPermissions,
     RSUserPermissions,
 } from "../../utils/PermissionsUtils";
+import { RSConsole } from "../../utils/rsConsole/rsConsole";
 
 export interface RSSessionContext {
     oktaAuth: OktaAuth;
@@ -51,11 +50,7 @@ export interface RSSessionContext {
     rsConsole: RSConsole;
 }
 
-export const SessionContext = createContext<RSSessionContext>({
-    activeMembership: {} as MembershipSettings,
-    logout: () => void 0,
-    setActiveMembership: () => void 0,
-} as any);
+export const SessionContext = createContext<RSSessionContext>(null as any);
 
 export interface SessionProviderProps extends PropsWithChildren {
     config: AppConfig;
@@ -78,11 +73,8 @@ function SessionProvider({ children, config }: SessionProviderProps) {
             authState?.accessToken?.claims,
         );
 
-
         if (actualMembership == null || !authState?.isAuthenticated)
             return undefined;
-
-        console.log("wee", actualMembership)
 
         return { ...actualMembership, ...(_activeMembership ?? {}) };
     }, [authState, _activeMembership]);
@@ -267,7 +259,5 @@ function SessionProvider({ children, config }: SessionProviderProps) {
         </SessionContext.Provider>
     );
 }
-
-export const useSessionContext = () => useContext(SessionContext);
 
 export default SessionProvider;

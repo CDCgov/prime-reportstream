@@ -1,9 +1,11 @@
 import { screen, waitFor } from "@testing-library/react";
 
 import ReportStreamHeader from "./ReportStreamHeader";
-import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import { RSSessionContext } from "../../contexts/Session";
+import { RSSessionContext } from "../../contexts/Session/SessionProvider";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { renderApp } from "../../utils/CustomRenderUtils";
+
+const mockUseSessionContext = jest.mocked(useSessionContext);
 
 describe("SignInOrUser", () => {
     // Every set of users should have access to the following Navbar items
@@ -16,7 +18,7 @@ describe("SignInOrUser", () => {
     }
 
     test("renders Sender permissioned ReportStreamNavbar", async () => {
-        mockSessionContext.mockReturnValue({
+        mockUseSessionContext.mockReturnValue({
             config: {
                 IS_PREVIEW: false,
             },
@@ -32,7 +34,7 @@ describe("SignInOrUser", () => {
     });
 
     test("renders Receiver permissioned ReportStreamNavbar", async () => {
-        mockSessionContext.mockReturnValue({
+        mockUseSessionContext.mockReturnValue({
             config: {
                 IS_PREVIEW: false,
             },
@@ -48,7 +50,7 @@ describe("SignInOrUser", () => {
     });
 
     test("renders Receiver AND Sender (Transceiver) permissioned ReportStreamNavbar", async () => {
-        mockSessionContext.mockReturnValue({
+        mockUseSessionContext.mockReturnValue({
             config: {
                 IS_PREVIEW: false,
             },
@@ -64,7 +66,7 @@ describe("SignInOrUser", () => {
     });
 
     test("renders Admin permissioned ReportStreamNavbar", async () => {
-        mockSessionContext.mockReturnValue({
+        mockUseSessionContext.mockReturnValue({
             config: {
                 IS_PREVIEW: false,
             },

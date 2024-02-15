@@ -1,10 +1,9 @@
 import { SeverityLevel } from "@microsoft/applicationinsights-web";
 
-import { mockAppInsights } from "../../../__mocks__/ApplicationInsights";
-import type { RSConsole } from "../index";
+import type { RSConsole } from "./rsConsole";
 
 export const mockRsconsole = {
-    ai: mockAppInsights as any,
+    ai: {} as any,
     consoleSeverityLevels: {
         assert: SeverityLevel.Critical,
         debug: SeverityLevel.Critical,

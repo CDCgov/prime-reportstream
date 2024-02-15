@@ -21,9 +21,9 @@ import {
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 
 import config from "../../config";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
+import useAppInsightsContext from "../../hooks/useAppInsightsContext";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import AdmAction from "../../resources/AdmActionResource";
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";

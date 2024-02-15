@@ -1,10 +1,10 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import ReportDetailsTable from "./ReportDetailsTable";
 import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import useAppInsightsContext from "../../../hooks/useAppInsightsContext";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 
 const mockUseAppInsightsContext = jest.mocked(useAppInsightsContext);

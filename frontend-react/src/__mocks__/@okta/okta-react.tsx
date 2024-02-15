@@ -1,7 +1,9 @@
 module.exports = {
     useOktaAuth: jest.fn().mockReturnValue({
         authState: {},
-        oktaAuth: {}
+        oktaAuth: {},
     }),
-    Security: jest.fn().mockImplementation(({children}: any) => <>{children}</>)
-}
+    Security: jest
+        .fn()
+        .mockImplementation(({ children }: any) => <>{children}</>),
+};

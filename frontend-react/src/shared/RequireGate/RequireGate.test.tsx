@@ -1,12 +1,16 @@
 import { screen } from "@testing-library/react";
 
 import { RequireGateBase } from "./RequireGate";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import useFeatureFlags from "../../contexts/FeatureFlag/useFeatureFlags";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { PERMISSIONS } from "../../utils/UsefulTypes";
 
+jest.mock("../../contexts/FeatureFlag/useFeatureFlags");
+
+const { mockSessionContentReturnValue } = jest.requireMock(
+    "../../contexts/Session/useSessionContext",
+);
 const mockUseNavigate = jest.fn();
 
 jest.mock("react-router", () => ({
@@ -17,6 +21,7 @@ jest.mock("react-router", () => ({
 const TestElement = () => <h1>Test Passed</h1>;
 const TestElementWithProp = (props: { test: string }) => <h1>{props.test}</h1>;
 
+const mockFeatureFlagContext = jest.mocked(useFeatureFlags);
 let mockCheckFlags = jest.fn();
 
 const Anonymous = () => <>Anonymous</>;

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { SeverityLevel } from "@microsoft/applicationinsights-web";
-import { ReactPlugin } from "../../TelemetryService";
+import { ReactPlugin } from "../TelemetryService/TelemetryService";
 
 export type ConsoleLevel =
     | "info"

@@ -2,9 +2,12 @@ import { waitFor } from "@testing-library/react";
 
 import useSenderResource from "./UseSenderResource";
 import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import { MembershipSettings, MemberType } from "../utils/OrganizationUtils";
+
+const { mockSessionContentReturnValue } = jest.requireMock(
+    "../contexts/Session/useSessionContext",
+);
 
 describe("useSenderResource", () => {
     beforeAll(() => {

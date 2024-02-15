@@ -14,7 +14,7 @@ import { WidgetOptions } from "@okta/okta-signin-widget";
 import type { Feature } from "@okta/okta-signin-widget";
 import type { IIdleTimerProps } from "react-idle-timer";
 
-import type { ConsoleLevel } from "../utils/console";
+import type { ConsoleLevel } from "../utils/rsConsole/rsConsole";
 
 const envVars = {
     OKTA_URL: import.meta.env.VITE_OKTA_URL,

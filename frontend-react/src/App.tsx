@@ -1,4 +1,4 @@
-import {AppInsightsContext} from "@microsoft/applicationinsights-react-js"
+import { AppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { OktaAuth } from "@okta/okta-auth-js";
 import { Security } from "@okta/okta-react";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -14,16 +14,19 @@ import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
 
 import RSErrorBoundary from "./components/RSErrorBoundary";
 import { AppConfig } from "./config";
-import AuthorizedFetchProvider from "./contexts/AuthorizedFetch";
-import FeatureFlagProvider from "./contexts/FeatureFlag";
-import SessionProvider from "./contexts/Session";
+import AuthorizedFetchProvider from "./contexts/AuthorizedFetch/AuthorizedFetchProvider";
+import FeatureFlagProvider from "./contexts/FeatureFlag/FeatureFlagProvider";
+import SessionProvider from "./contexts/Session/SessionProvider";
 import ToastProvider from "./contexts/Toast";
 import { appQueryClient } from "./network/QueryClients";
 import { ErrorPage } from "./pages/error/ErrorPage";
 import DAPScript from "./shared/DAPScript/DAPScript";
-import { createTelemetryService, ReactPlugin } from "./TelemetryService";
 import { isUseragentPreferred } from "./utils/BrowserUtils";
 import { permissionCheck } from "./utils/PermissionsUtils";
+import {
+    createTelemetryService,
+    ReactPlugin,
+} from "./utils/TelemetryService/TelemetryService";
 import { PERMISSIONS } from "./utils/UsefulTypes";
 
 import "react-toastify/dist/ReactToastify.css";

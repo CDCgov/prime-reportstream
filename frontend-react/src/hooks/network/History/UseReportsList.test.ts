@@ -1,8 +1,11 @@
 import { useOrgDeliveries } from "./DeliveryHooks";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
+
+const { mockSessionContentReturnValue } = jest.requireMock(
+    "../../../contexts/Session/useSessionContext",
+);
 
 describe("useReportsList", () => {
     beforeAll(() => deliveryServer.listen());

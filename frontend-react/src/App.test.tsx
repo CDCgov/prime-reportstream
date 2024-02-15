@@ -2,8 +2,8 @@ import { render } from "@testing-library/react";
 
 import App from "./App";
 import type { AppConfig } from "./config";
-import { createTelemetryService } from "./TelemetryService";
 import { isUseragentPreferred } from "./utils/BrowserUtils";
+import { createTelemetryService } from "./utils/TelemetryService/TelemetryService";
 
 function MockComponent({ children }: any) {
     return <>{children}</>;
@@ -31,19 +31,19 @@ jest.mock("react-helmet-async", () => {
 });
 jest.mock("@okta/okta-auth-js");
 jest.mock("./pages/error/ErrorPage");
-jest.mock("./contexts/AuthorizedFetch", () => {
+jest.mock("./contexts/AuthorizedFetch/AuthorizedFetchProvider", () => {
     return {
         __esModule: true,
         default: MockComponent,
     };
 });
-jest.mock("./contexts/FeatureFlag", () => {
+jest.mock("./contexts/FeatureFlag/FeatureFlagProvider", () => {
     return {
         __esModule: true,
         default: MockComponent,
     };
 });
-jest.mock("./contexts/Session", () => {
+jest.mock("./contexts/Session/SessionProvider", () => {
     return {
         __esModule: true,
         default: MockComponent,
@@ -55,7 +55,16 @@ jest.mock("./network/QueryClients", () => {
         appQueryClient: {},
     };
 });
-jest.mock("./TelemetryService")
+jest.mock("./utils/TelemetryService/TelemetryService", () => {
+    const { mockAppInsights } = jest.requireActual(
+        "./utils/TelemetryService/TelemetryService.fixtures",
+    );
+    return {
+        createTelemetryService: jest.fn().mockReturnValue({
+            reactPlugin: mockAppInsights,
+        }),
+    };
+});
 jest.mock("./shared/DAPScript/DAPScript");
 jest.mock("./config");
 jest.mock("./contexts/Toast", () => {
@@ -73,15 +82,15 @@ jest.mock("./utils/BrowserUtils", () => {
 jest.mock("react-router-dom", () => {
     return {
         createBrowserRouter: jest.fn(),
-        RouterProvider: MockComponent
-    }
-})
+        RouterProvider: MockComponent,
+    };
+});
 jest.mock("./components/RSErrorBoundary", () => {
     return {
         __esModule: true,
-        default: MockComponent
-    }
-})
+        default: MockComponent,
+    };
+});
 
 const config = {
     AI_CONSOLE_SEVERITY_LEVELS: {} as any,
@@ -105,7 +114,7 @@ const config = {
 
 const mockIsUseragentPreferred = jest.mocked(isUseragentPreferred);
 const mockCreateTelemetryService = jest.mocked(createTelemetryService);
-const {reactPlugin: mockReactPlugin} = mockCreateTelemetryService({});
+const { reactPlugin: mockReactPlugin } = mockCreateTelemetryService({});
 
 function setup(isUseragentPreferred = true) {
     mockIsUseragentPreferred.mockReturnValue(isUseragentPreferred);
@@ -118,12 +127,16 @@ describe("App component", () => {
         describe("isUserAgentOutdated", () => {
             test("undefined when regex test passes", () => {
                 setup();
-                expect(mockReactPlugin.customProperties.isUserAgentOutdated).toBe(undefined)
+                expect(
+                    mockReactPlugin.customProperties.isUserAgentOutdated,
+                ).toBe(undefined);
             });
 
             test("true when test fails", () => {
                 setup(false);
-                expect(mockReactPlugin.customProperties.isUserAgentOutdated).toBe(true)
+                expect(
+                    mockReactPlugin.customProperties.isUserAgentOutdated,
+                ).toBe(true);
             });
         });
     });

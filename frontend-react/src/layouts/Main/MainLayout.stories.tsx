@@ -3,7 +3,7 @@ import { withRouter } from "storybook-addon-react-router-v6";
 
 import { MainLayoutBase } from "./MainLayout";
 import config from "../../config";
-import SessionProvider from "../../contexts/Session";
+import SessionProvider from "../../contexts/Session/SessionProvider";
 
 export default {
     title: "components/MainLayout",

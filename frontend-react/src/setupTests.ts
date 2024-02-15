@@ -6,15 +6,17 @@ import { cleanup } from "@testing-library/react";
 import { createMocks } from "react-idle-timer";
 import { MessageChannel } from "worker_threads";
 
-beforeAll(() => {
+jest.mock("@microsoft/applicationinsights-react-js");
+jest.mock("@okta/okta-react");
+jest.mock("./contexts/Session/useSessionContext");
+
+beforeEach(() => {
     createMocks();
     // @ts-expect-error ignore global
     global.MessageChannel = MessageChannel;
-    jest.mock("@microsoft/applicationinsights-react-js");
-    jest.mock("@okta/okta-react");
 });
 
-afterAll(cleanup);
+afterAll(() => cleanup());
 
 global.scrollTo = jest.fn();
 

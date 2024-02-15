@@ -1,4 +1,3 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { act, waitFor } from "@testing-library/react";
 import { range } from "lodash";
 
@@ -12,6 +11,7 @@ import usePagination, {
     UsePaginationProps,
 } from "./UsePagination";
 import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
+import useAppInsightsContext from "../hooks/useAppInsightsContext";
 import { renderHook } from "../utils/CustomRenderUtils";
 
 const mockUseAppInsightsContext = jest.mocked(useAppInsightsContext);

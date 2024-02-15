@@ -19,8 +19,7 @@ import {
 import { CacheProvider } from "rest-hooks";
 
 import { appRoutes } from "../AppRouter";
-import AuthorizedFetchProvider from "../contexts/AuthorizedFetch";
-import FeatureFlagProvider from "../contexts/FeatureFlag";
+import AuthorizedFetchProvider from "../contexts/AuthorizedFetch/AuthorizedFetchProvider";
 import { getTestQueryClient } from "../network/QueryClients";
 
 interface AppWrapperProps {
@@ -75,29 +74,17 @@ export const AppWrapper = ({
             <Suspense>
                 <CacheProvider>
                     <HelmetProvider>
-                                <QueryClientProvider
-                                    client={getTestQueryClient()}
-                                >
-                                    <AuthorizedFetchProvider
-                                        initializedOverride={true}
-                                    >
-                                        <FeatureFlagProvider>
-                                            {restHookFixtures ? (
-                                                <MockResolver
-                                                    fixtures={restHookFixtures}
-                                                >
-                                                    <RouterProvider
-                                                        router={router}
-                                                    />
-                                                </MockResolver>
-                                            ) : (
-                                                <RouterProvider
-                                                    router={router}
-                                                />
-                                            )}
-                                        </FeatureFlagProvider>
-                                    </AuthorizedFetchProvider>
-                                </QueryClientProvider>
+                        <QueryClientProvider client={getTestQueryClient()}>
+                            <AuthorizedFetchProvider initializedOverride={true}>
+                                {restHookFixtures ? (
+                                    <MockResolver fixtures={restHookFixtures}>
+                                        <RouterProvider router={router} />
+                                    </MockResolver>
+                                ) : (
+                                    <RouterProvider router={router} />
+                                )}
+                            </AuthorizedFetchProvider>
+                        </QueryClientProvider>
                     </HelmetProvider>
                 </CacheProvider>
             </Suspense>

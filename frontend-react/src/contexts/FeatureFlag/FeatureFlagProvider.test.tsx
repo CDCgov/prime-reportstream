@@ -1,14 +1,13 @@
+import FeatureFlagProvider, {
+    FeatureFlagActionType,
+    featureFlagReducer,
+} from "./FeatureFlagProvider";
+import useFeatureFlags from "./useFeatureFlags";
 import {
     mockGetSavedFeatureFlags,
     mockStoreFeatureFlags,
 } from "../../utils/__mocks__/SessionStorageTools";
 import { renderApp } from "../../utils/CustomRenderUtils";
-
-import FeatureFlagProvider, {
-    FeatureFlagActionType,
-    featureFlagReducer,
-    useFeatureFlags,
-} from "./";
 
 jest.mock("../../config", () => {
     const originalModule = jest.requireActual("../../config");

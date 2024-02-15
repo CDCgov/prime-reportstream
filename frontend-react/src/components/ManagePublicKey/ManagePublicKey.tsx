@@ -1,4 +1,3 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { GridContainer } from "@trussworks/react-uswds";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
@@ -9,10 +8,11 @@ import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
 import ManagePublicKeyUploadError from "./ManagePublicKeyUploadError";
 import ManagePublicKeyUploadSuccess from "./ManagePublicKeyUploadSuccess";
 import { ApiKey } from "../../config/endpoints/settings";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
+import useAppInsightsContext from "../../hooks/useAppInsightsContext";
 import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
 import Alert from "../../shared/Alert/Alert";
 import { FeatureName } from "../../utils/FeatureName";

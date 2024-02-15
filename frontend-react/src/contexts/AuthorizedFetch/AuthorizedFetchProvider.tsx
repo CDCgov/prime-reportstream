@@ -1,22 +1,17 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import axios, { AxiosError } from "axios";
-import {
-    createContext,
-    PropsWithChildren,
-    useCallback,
-    useContext,
-} from "react";
+import { createContext, PropsWithChildren, useCallback } from "react";
 
 import { AxiosOptionsWithSegments, RSEndpoint } from "../../config/endpoints";
+import useAppInsightsContext from "../../hooks/useAppInsightsContext";
 import { RSNetworkError } from "../../utils/RSNetworkError";
-import { useSessionContext } from "../Session";
+import useSessionContext from "../Session/useSessionContext";
 
 export type AuthorizedFetcher<T = any> = (
     EndpointConfig: RSEndpoint,
     options?: Partial<AxiosOptionsWithSegments>,
 ) => Promise<T>;
 
-type IAuthorizedFetchContext<T = any> = AuthorizedFetcher<T>;
+export type IAuthorizedFetchContext<T = any> = AuthorizedFetcher<T>;
 
 export const AuthorizedFetchContext = createContext<IAuthorizedFetchContext>(
     () => Promise.reject("fetcher uninitialized"),
@@ -72,14 +67,5 @@ const AuthorizedFetchProvider = ({
         </AuthorizedFetchContext.Provider>
     );
 };
-
-// an extra level of indirection here to allow for generic typing of the returned fetch function
-export function useAuthorizedFetch<
-    TQueryFnData = unknown,
->(): IAuthorizedFetchContext<TQueryFnData> {
-    return useContext<IAuthorizedFetchContext<TQueryFnData>>(
-        AuthorizedFetchContext,
-    );
-}
 
 export default AuthorizedFetchProvider;

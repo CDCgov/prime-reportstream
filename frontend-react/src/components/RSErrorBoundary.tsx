@@ -2,7 +2,7 @@ import { PropsWithChildren, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import Spinner from "./Spinner";
-import { useSessionContext } from "../contexts/Session";
+import useSessionContext from "../contexts/Session/useSessionContext";
 import { ErrorPage } from "../pages/error/ErrorPage";
 import { isRSNetworkError } from "../utils/RSNetworkError";
 

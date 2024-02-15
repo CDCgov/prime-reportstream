@@ -1,4 +1,4 @@
-import {useAppInsightsContext} from "@microsoft/applicationinsights-react-js"
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
@@ -8,13 +8,15 @@ import {
     orgServer,
     receiversGenerator,
 } from "../../../__mocks__/OrganizationMockServer";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
+const { mockSessionContentReturnValue } = jest.requireMock(
+    "../../../contexts/Session/useSessionContext",
+);
 const mockUsePagination = {
     currentPageResults: makeDeliveryFixtureArray(10),
     paginationProps: { currentPageNum: 1, slots: [1, 2, 3, 4] },
@@ -35,9 +37,8 @@ jest.mock("../../../hooks/UsePagination", () => ({
 }));
 
 const mockUseAppInsightsContext = jest.mocked(useAppInsightsContext);
-const {trackEvent} = mockUseAppInsightsContext();
-const mockTrackEvent = jest.mocked(trackEvent)
-
+const { trackEvent } = mockUseAppInsightsContext();
+const mockTrackEvent = jest.mocked(trackEvent);
 
 beforeEach(() => {
     // Mock our SessionProvider's data

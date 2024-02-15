@@ -1,4 +1,3 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
@@ -8,13 +7,16 @@ import {
     makeRSReceiverDeliveryResponseFixture,
     receiverServicesGenerator,
 } from "../../../__mocks__/DataDashboardMockServer";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverDeliveries";
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import useAppInsightsContext from "../../../hooks/useAppInsightsContext";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
+const { mockSessionContentReturnValue } = jest.requireMock(
+    "../../../contexts/Session/useSessionContext",
+);
 const mockReceiverServices = receiverServicesGenerator(5);
 const mockActiveReceiver = mockReceiverServices[0];
 const mockUseAppInsightsContext = jest.mocked(useAppInsightsContext);

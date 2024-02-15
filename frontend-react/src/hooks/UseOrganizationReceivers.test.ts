@@ -3,9 +3,12 @@ import { waitFor } from "@testing-library/react";
 import { Organizations } from "./UseAdminSafeOrganizationName";
 import { useOrganizationReceivers } from "./UseOrganizationReceivers";
 import { dummyReceivers, orgServer } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 import { renderHook } from "../utils/CustomRenderUtils";
 import { MemberType } from "../utils/OrganizationUtils";
+
+const { mockSessionContentReturnValue } = jest.requireMock(
+    "../contexts/Session/useSessionContext",
+);
 
 describe("useOrganizationReceivers", () => {
     beforeAll(() => {

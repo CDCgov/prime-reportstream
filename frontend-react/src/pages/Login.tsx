@@ -5,7 +5,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import type { Location } from "react-router-dom";
 
 import { USLink } from "../components/USLink";
-import { useSessionContext } from "../contexts/Session";
+import useSessionContext from "../contexts/Session/useSessionContext";
 import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
 
 export function Login() {

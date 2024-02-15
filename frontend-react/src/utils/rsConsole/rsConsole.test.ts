@@ -4,10 +4,9 @@ import {
     SeverityLevel,
 } from "@microsoft/applicationinsights-web";
 
-import { mockAppInsights } from "../../__mocks__/ApplicationInsights";
-import { mockConsole } from "../../__mocks__/console";
-
-import { ConsoleLevel, RSConsole } from "./index";
+import { ConsoleLevel, RSConsole } from "./rsConsole";
+import { mockConsole } from "../../__fixtures__/console";
+import { mockAppInsights } from "../TelemetryService/TelemetryService.fixtures";
 
 const message = "hello there";
 const obj = { hello: "there" };

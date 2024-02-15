@@ -23,7 +23,8 @@ import { useMatch } from "react-router-dom";
 
 import styles from "./ReportStreamHeader.module.scss";
 import site from "../../content/site.json";
-import { RSSessionContext, useSessionContext } from "../../contexts/Session";
+import { RSSessionContext } from "../../contexts/Session/SessionProvider";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import {
     isOrganizationsMissingTransport,
     useOrganizationSettings__,

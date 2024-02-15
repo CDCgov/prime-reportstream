@@ -1,4 +1,3 @@
-import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { FC, useCallback } from "react";
 import { useController } from "rest-hooks";
 
@@ -10,12 +9,13 @@ import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters, {
     TableFilterDateLabel,
 } from "../../components/Table/TableFilters";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import useFilterManager, {
     FilterManager,
     FilterManagerDefaults,
 } from "../../hooks/filters/UseFilterManager";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
+import useAppInsightsContext from "../../hooks/useAppInsightsContext";
 import usePagination from "../../hooks/UsePagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { EventName } from "../../utils/AppInsights";
