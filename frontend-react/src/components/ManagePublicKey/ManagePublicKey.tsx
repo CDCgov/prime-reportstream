@@ -1,3 +1,4 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { GridContainer } from "@trussworks/react-uswds";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
@@ -8,7 +9,6 @@ import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
 import ManagePublicKeyUploadError from "./ManagePublicKeyUploadError";
 import ManagePublicKeyUploadSuccess from "./ManagePublicKeyUploadSuccess";
 import { ApiKey } from "../../config/endpoints/settings";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
 import { useSessionContext } from "../../contexts/Session";
 import { showToast } from "../../contexts/Toast";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
@@ -24,7 +24,7 @@ export const CONTENT_TYPE = "application/x-x509-ca-cert";
 export const FORMAT = "PEM";
 
 export function ManagePublicKeyPage() {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const [hasPublicKey, setHasPublicKey] = useState(false);
     const [uploadNewPublicKey, setUploadNewPublicKey] = useState(false);
     const [sender, setSender] = useState("");

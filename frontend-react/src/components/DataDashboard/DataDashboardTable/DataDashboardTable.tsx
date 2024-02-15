@@ -1,10 +1,7 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { Dispatch, SetStateAction } from "react";
 
 import { RSReceiver } from "../../../config/endpoints/settings";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import useReceiverDeliveries, {
@@ -13,6 +10,7 @@ import useReceiverDeliveries, {
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import { getSlots } from "../../../hooks/UsePagination";
 import Table from "../../../shared/Table/Table";
+import { EventName } from "../../../utils/AppInsights";
 import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";

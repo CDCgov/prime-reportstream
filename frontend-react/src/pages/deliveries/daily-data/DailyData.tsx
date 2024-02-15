@@ -1,3 +1,4 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { Dispatch, FC, SetStateAction } from "react";
 
 import { getReportAndDownload } from "./ReportsUtils";
@@ -15,10 +16,6 @@ import TableFilters, {
 } from "../../../components/Table/TableFilters";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
 import { useSessionContext } from "../../../contexts/Session";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import {
@@ -27,6 +24,7 @@ import {
 } from "../../../hooks/network/History/DeliveryHooks";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import usePagination from "../../../hooks/UsePagination";
+import { EventName } from "../../../utils/AppInsights";
 import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
@@ -154,7 +152,7 @@ const DeliveriesFilterAndTable = ({
     activeService: RSReceiver | undefined;
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
 }) => {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const handleSetActive = (name: string) => {
         setActiveService(services.find((item) => item.name === name));

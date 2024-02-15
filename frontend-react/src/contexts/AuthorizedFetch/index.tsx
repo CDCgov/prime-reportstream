@@ -1,3 +1,4 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import axios, { AxiosError } from "axios";
 import {
     createContext,
@@ -8,7 +9,6 @@ import {
 
 import { AxiosOptionsWithSegments, RSEndpoint } from "../../config/endpoints";
 import { RSNetworkError } from "../../utils/RSNetworkError";
-import { useAppInsightsContext } from "../AppInsights";
 import { useSessionContext } from "../Session";
 
 export type AuthorizedFetcher<T = any> = (
@@ -26,7 +26,7 @@ const AuthorizedFetchProvider = ({
     children,
 }: PropsWithChildren<{ initializedOverride?: boolean }>) => {
     const { activeMembership, authState = {} } = useSessionContext();
-    const { fetchHeaders } = useAppInsightsContext();
+    const { properties } = useAppInsightsContext();
     const authorizedFetch = useCallback(
         async function <TData>(
             EndpointConfig: RSEndpoint,
@@ -35,7 +35,7 @@ const AuthorizedFetchProvider = ({
             const headerOverrides = options?.headers ?? {};
 
             const authHeaders = {
-                ...fetchHeaders(),
+                "x-ms-session-id": properties.context.getSessionId(),
                 "authentication-type": "okta",
                 authorization: `Bearer ${
                     authState?.accessToken?.accessToken ?? ""
@@ -62,7 +62,7 @@ const AuthorizedFetchProvider = ({
         [
             activeMembership?.parsedName,
             authState?.accessToken?.accessToken,
-            fetchHeaders,
+            properties,
         ],
     );
 

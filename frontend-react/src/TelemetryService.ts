@@ -1,47 +1,63 @@
-import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
+import { ReactPlugin as _ReactPlugin } from "@microsoft/applicationinsights-react-js";
 import {
+    ApplicationAnalytics,
     ApplicationInsights,
     IConfig,
     IConfiguration,
+    PropertiesPlugin,
 } from "@microsoft/applicationinsights-web";
 
 export let appInsights: ApplicationInsights | undefined;
 
-export const aiConfig = {
-    connectionString: import.meta.env
-        .VITE_APPLICATIONINSIGHTS_CONNECTION_STRING,
-    loggingLevelConsole: import.meta.env.NODE_ENV === "development" ? 2 : 0,
-    disableFetchTracking: false,
-    enableAutoRouteTracking: true,
-    loggingLevelTelemetry: 2,
-    maxBatchInterval: 0,
-    disableAjaxTracking: false,
-    autoTrackPageVisitTime: true,
-    enableCorsCorrelation: true,
-    enableRequestHeaderTracking: true,
-    enableResponseHeaderTracking: true,
-} as const satisfies IConfiguration & IConfig;
+export const PropertiesPluginIdentifier = "AppInsightsPropertiesPlugin";
 
 /**
- * Handles maintaining a singular app insights object. Returns undefined
- * if vital config options are missing. If called multiple times, it will
- * ensure the current app insights object is torn down before being replaced.
+ * Fixed typings and access to other needed plugins. Going through the
+ * ApplicationInsights instance object itself would be faster but we're
+ * trying to stick to the officially provided patterns (aka going through
+ * the ReactPlugin). Also exposes a `customProperties` object bag for
+ * outgoing telemetry.
  */
-export function createTelemetryService(config: IConfiguration & IConfig) {
-    if (!config.connectionString) {
-        return undefined;
+export class ReactPlugin extends _ReactPlugin {
+    customProperties: Record<string, any> = {};
+
+    initialize(
+        ...args: Parameters<InstanceType<typeof _ReactPlugin>["initialize"]>
+    ): void {
+        super.initialize(...args);
+        this.appInsights.addTelemetryInitializer((item) => {
+            item.data = {
+                ...item.data,
+                ...this.customProperties,
+            };
+        });
     }
 
-    if (appInsights?.core?.isInitialized?.()) void appInsights?.core?.unload();
+    get appInsights() {
+        return super.getAppInsights() as unknown as ApplicationAnalytics;
+    }
+    get properties() {
+        return this.core.getPlugin<PropertiesPlugin>(PropertiesPluginIdentifier)
+            .plugin;
+    }
+}
+
+/**
+ * Handles maintaining a singular app insights object.
+ */
+export function createTelemetryService(config: IConfiguration & IConfig) {
+    if(appInsights) void appInsights.unload(false);
+    const plugin = new ReactPlugin();
     // Create insights
     appInsights = new ApplicationInsights({
         config: {
             ...config,
-            extensions: [new ReactPlugin()],
+            extensions: [plugin],
         },
     });
+
     // Initialize for use in ReportStream
     appInsights.loadAppInsights();
 
-    return appInsights;
+    return { appInsights, reactPlugin: plugin };
 }

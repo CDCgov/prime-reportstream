@@ -1,10 +1,7 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { Dispatch, SetStateAction } from "react";
 
 import { RSReceiver } from "../../../config/endpoints/settings";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import useReceiverSubmitters, {
@@ -13,6 +10,7 @@ import useReceiverSubmitters, {
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import { getSlots } from "../../../hooks/UsePagination";
 import Table from "../../../shared/Table/Table";
+import { EventName } from "../../../utils/AppInsights";
 import {
     CustomerStatusType,
     transformFacilityTypeClass,
@@ -36,7 +34,7 @@ function FacilitiesProvidersFilterAndTable({
     activeService: RSReceiver;
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
 }) {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
 
     const handleSetActive = (name: string) => {

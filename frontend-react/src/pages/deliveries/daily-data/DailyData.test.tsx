@@ -1,3 +1,4 @@
+import {useAppInsightsContext} from "@microsoft/applicationinsights-react-js"
 import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
@@ -7,10 +8,6 @@ import {
     orgServer,
     receiversGenerator,
 } from "../../../__mocks__/OrganizationMockServer";
-import {
-    mockAppInsights,
-    mockAppInsightsContextReturnValue,
-} from "../../../contexts/__mocks__/AppInsightsContext";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
@@ -36,6 +33,11 @@ jest.mock("../../../hooks/UsePagination", () => ({
     },
     __esModule: true,
 }));
+
+const mockUseAppInsightsContext = jest.mocked(useAppInsightsContext);
+const {trackEvent} = mockUseAppInsightsContext();
+const mockTrackEvent = jest.mocked(trackEvent)
+
 
 beforeEach(() => {
     // Mock our SessionProvider's data
@@ -64,9 +66,6 @@ describe("DeliveriesTable", () => {
 
     describe("useReceiverFeed without data", () => {
         function setup() {
-            mockAppInsightsContextReturnValue({
-                fetchHeaders: () => ({}),
-            });
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
@@ -118,9 +117,6 @@ describe("DeliveriesTableWithNumbered", () => {
     describe("when enabled", () => {
         describe("with active services and data", () => {
             function setup() {
-                mockAppInsightsContextReturnValue({
-                    fetchHeaders: () => ({}),
-                });
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
                     isLoading: false,
@@ -169,7 +165,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     setup();
                     await userEvent.click(screen.getByText("Filter"));
 
-                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                    expect(mockTrackEvent).toHaveBeenCalledWith({
                         name: "Daily Data | Table Filter",
                         properties: {
                             tableFilter: {
@@ -184,9 +180,6 @@ describe("DeliveriesTableWithNumbered", () => {
 
         describe("with no services", () => {
             function setup() {
-                mockAppInsightsContextReturnValue({
-                    fetchHeaders: () => ({}),
-                });
                 // Mock our receiver services feed data
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: undefined,
@@ -239,9 +232,6 @@ describe("DeliveriesTableWithNumbered", () => {
 
     describe("when disabled", () => {
         function setup() {
-            mockAppInsightsContextReturnValue({
-                fetchHeaders: () => ({}),
-            });
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,

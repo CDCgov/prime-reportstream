@@ -1,8 +1,6 @@
 /* eslint-disable no-console */
-import {
-    ApplicationInsights,
-    SeverityLevel,
-} from "@microsoft/applicationinsights-web";
+import { SeverityLevel } from "@microsoft/applicationinsights-web";
+import { ReactPlugin } from "../../TelemetryService";
 
 export type ConsoleLevel =
     | "info"
@@ -30,7 +28,7 @@ export class RSConsole {
         reportableConsoleLevels = [],
         env = "production",
     }: {
-        ai?: ApplicationInsights;
+        ai: ReactPlugin;
         consoleSeverityLevels: Record<ConsoleLevel, SeverityLevel>;
         reportableConsoleLevels: ConsoleLevel[];
         env?: string;
@@ -50,7 +48,7 @@ export class RSConsole {
         (message?: any, ...optionalParams: any[]): void;
     };
     env: string;
-    ai?: ApplicationInsights;
+    ai: ReactPlugin;
     reportableConsoleLevels: ConsoleLevel[];
     consoleSeverityLevels: Record<ConsoleLevel, SeverityLevel>;
 

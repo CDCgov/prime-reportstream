@@ -1,12 +1,12 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import {
     AuthState,
     CustomUserClaims,
     OktaAuth,
     UserClaims,
 } from "@okta/okta-auth-js";
-import { Security, useOktaAuth } from "@okta/okta-react";
+import { useOktaAuth } from "@okta/okta-react";
 import {
-    ComponentProps,
     createContext,
     PropsWithChildren,
     useCallback,
@@ -17,9 +17,11 @@ import {
     useState,
 } from "react";
 
+import { IIdleTimerProps, useIdleTimer } from "react-idle-timer";
 import type { AppConfig } from "../../config";
 import site from "../../content/site.json";
 import { updateApiSessions } from "../../network/Apis";
+import { EventName } from "../../utils/AppInsights";
 import { RSConsole } from "../../utils/console";
 import {
     MembershipSettings,
@@ -31,7 +33,6 @@ import {
     getUserPermissions,
     RSUserPermissions,
 } from "../../utils/PermissionsUtils";
-import { useAppInsightsContext } from "../AppInsights";
 
 export interface RSSessionContext {
     oktaAuth: OktaAuth;
@@ -56,51 +57,14 @@ export const SessionContext = createContext<RSSessionContext>({
     setActiveMembership: () => void 0,
 } as any);
 
-export interface SessionProviderProps extends ComponentProps<typeof Security> {
+export interface SessionProviderProps extends PropsWithChildren {
     config: AppConfig;
 }
 
-function SessionProvider({ children, config, ...props }: SessionProviderProps) {
-    return (
-        <Security {...props}>
-            <SessionAuthStateGate config={config}>
-                {children}
-            </SessionAuthStateGate>
-        </Security>
-    );
-}
+function SessionProvider({ children, config }: SessionProviderProps) {
+    const { authState, oktaAuth } = useOktaAuth();
+    const aiReactPlugin = useAppInsightsContext();
 
-export type SessionAuthStateGateProps = PropsWithChildren<
-    Pick<SessionProviderProps, "config">
->;
-
-function SessionAuthStateGate({ children, config }: SessionAuthStateGateProps) {
-    const { authState, ...props } = useOktaAuth();
-
-    if (!authState) return null;
-
-    return (
-        <SessionProviderBase authState={authState} config={config} {...props}>
-            {children}
-        </SessionProviderBase>
-    );
-}
-
-export interface SessionProviderBaseProps
-    extends PropsWithChildren<
-        Omit<ReturnType<typeof useOktaAuth>, "authState">
-    > {
-    authState: AuthState;
-    config: AppConfig;
-}
-
-export function SessionProviderBase({
-    children,
-    oktaAuth,
-    authState,
-    config,
-}: SessionProviderBaseProps) {
-    const { appInsights } = useAppInsightsContext();
     const initActiveMembership = useRef(
         JSON.parse(
             sessionStorage.getItem("__deprecatedActiveMembership") ?? "null",
@@ -114,8 +78,11 @@ export function SessionProviderBase({
             authState?.accessToken?.claims,
         );
 
-        if (actualMembership == null || !authState.isAuthenticated)
+
+        if (actualMembership == null || !authState?.isAuthenticated)
             return undefined;
+
+        console.log("wee", actualMembership)
 
         return { ...actualMembership, ...(_activeMembership ?? {}) };
     }, [authState, _activeMembership]);
@@ -123,13 +90,13 @@ export function SessionProviderBase({
     const rsConsole = useMemo(
         () =>
             new RSConsole({
-                ai: appInsights?.sdk,
+                ai: aiReactPlugin,
                 consoleSeverityLevels: config.AI_CONSOLE_SEVERITY_LEVELS,
                 reportableConsoleLevels: config.AI_REPORTABLE_CONSOLE_LEVELS,
                 env: config.MODE,
             }),
         [
-            appInsights,
+            aiReactPlugin,
             config.AI_CONSOLE_SEVERITY_LEVELS,
             config.AI_REPORTABLE_CONSOLE_LEVELS,
             config.MODE,
@@ -146,13 +113,72 @@ export function SessionProviderBase({
         }
     }, [oktaAuth, rsConsole]);
 
+    const handleIdle = useCallback<
+        Exclude<IIdleTimerProps["onIdle"], undefined>
+    >(
+        async (_event, _timer) => {
+            if (await oktaAuth.isAuthenticated()) {
+                aiReactPlugin.trackEvent({
+                    name: EventName.SESSION_DURATION,
+                    properties: {
+                        sessionLength: sessionTimeAggregate.current / 1000,
+                    },
+                });
+                await logout();
+            }
+        },
+        [logout, aiReactPlugin, oktaAuth],
+    );
+
+    useIdleTimer({
+        onIdle: () => void handleIdle(),
+        ...config.IDLE_TIMERS,
+    });
+
+    const sessionStartTime = useRef<number>(new Date().getTime());
+    const sessionTimeAggregate = useRef<number>(0);
+    const calculateAggregateTime = () => {
+        return (
+            new Date().getTime() -
+            sessionStartTime.current +
+            sessionTimeAggregate.current
+        );
+    };
+
+    // do best-attempt window tracking
+    useEffect(() => {
+        const onUnload = () => {
+            aiReactPlugin.trackEvent({
+                name: EventName.SESSION_DURATION,
+                properties: {
+                    sessionLength: calculateAggregateTime() / 1000,
+                },
+            });
+        };
+        const onVisibilityChange = () => {
+            if (document.visibilityState === "hidden") {
+                sessionTimeAggregate.current = calculateAggregateTime();
+            } else if (document.visibilityState === "visible") {
+                sessionStartTime.current = new Date().getTime();
+            }
+        };
+        window.addEventListener("beforeunload", onUnload);
+        window.addEventListener("visibilitychange", onVisibilityChange);
+
+        return () => {
+            window.removeEventListener("beforeunload", onUnload);
+            window.removeEventListener("visibilitychange", onVisibilityChange);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const context = useMemo(() => {
         return {
             oktaAuth,
             authState,
             activeMembership,
             user: {
-                claims: authState.idToken?.claims,
+                claims: authState?.idToken?.claims,
                 ...getUserPermissions(
                     authState?.accessToken?.claims as RSUserClaims,
                 ),
@@ -180,13 +206,13 @@ export function SessionProviderBase({
 
     useEffect(() => {
         updateApiSessions({
-            token: authState.accessToken?.accessToken ?? "",
+            token: authState?.accessToken?.accessToken ?? "",
             organization: activeMembership?.parsedName ?? "",
         });
-    }, [activeMembership?.parsedName, authState.accessToken?.accessToken]);
+    }, [activeMembership?.parsedName, authState?.accessToken?.accessToken]);
 
     useEffect(() => {
-        if (!authState.isAuthenticated && _activeMembership) {
+        if (!authState?.isAuthenticated && _activeMembership) {
             setActiveMembership(undefined);
         }
 
@@ -210,8 +236,33 @@ export function SessionProviderBase({
 
     useEffect(() => void 0, [authState]);
 
+    useEffect(() => {
+        aiReactPlugin.customProperties.activeMembership = activeMembership;
+    }, [activeMembership, aiReactPlugin]);
+
+    // keep auth user up-to-date
+    useEffect(() => {
+        if (
+            authState?.idToken?.claims.email &&
+            !aiReactPlugin.properties.context.user.authenticatedId
+        ) {
+            aiReactPlugin.properties.context.user.setAuthenticatedUserContext(
+                authState.idToken.claims.email,
+                undefined,
+                true,
+            );
+        } else if (
+            !authState?.idToken?.claims.email &&
+            aiReactPlugin.properties.context.user.authenticatedId
+        ) {
+            aiReactPlugin.properties.context.user.clearAuthenticatedUserContext();
+        }
+    }, [authState?.idToken, aiReactPlugin]);
+
+    if (!authState) return null;
+
     return (
-        <SessionContext.Provider value={context}>
+        <SessionContext.Provider value={context as RSSessionContext}>
             {children}
         </SessionContext.Provider>
     );

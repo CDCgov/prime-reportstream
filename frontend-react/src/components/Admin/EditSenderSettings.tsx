@@ -1,3 +1,4 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -16,7 +17,6 @@ import {
 } from "./CompareJsonModal";
 import Title from "../../components/Title";
 import config from "../../config";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
 import { useSessionContext } from "../../contexts/Session";
 import { useToast } from "../../contexts/Toast";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
@@ -44,7 +44,7 @@ const EditSenderSettingsForm = ({
     action,
 }: EditSenderSettingsFormProps) => {
     const { toast: showAlertNotification } = useToast();
-    const { fetchHeaders } = useAppInsightsContext();
+    const { properties } = useAppInsightsContext();
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
     const { activeMembership, authState, rsConsole } = useSessionContext();
@@ -108,7 +108,7 @@ const EditSenderSettingsForm = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
             {
                 headers: {
-                    ...fetchHeaders(),
+                    "x-ms-session-id": properties.context.getSessionId(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },

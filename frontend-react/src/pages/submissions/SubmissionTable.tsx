@@ -1,3 +1,4 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { FC, useCallback } from "react";
 import { useController } from "rest-hooks";
 
@@ -9,7 +10,6 @@ import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters, {
     TableFilterDateLabel,
 } from "../../components/Table/TableFilters";
-import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
 import { useSessionContext } from "../../contexts/Session";
 import useFilterManager, {
     FilterManager,
@@ -18,6 +18,7 @@ import useFilterManager, {
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 import usePagination from "../../hooks/UsePagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
+import { EventName } from "../../utils/AppInsights";
 import { FeatureName } from "../../utils/FeatureName";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
@@ -44,7 +45,7 @@ const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
     paginationProps,
     submissions,
 }) => {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
     const columns: ColumnConfig[] = [
         {

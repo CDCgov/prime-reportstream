@@ -94,10 +94,6 @@ describe("ManagePublicKey", () => {
         });
     });
 
-    afterEach(() => {
-        jest.resetAllMocks();
-    });
-
     describe("when the Organization has more than one Sender", () => {
         function renderSetup() {
             mockUseOrganizationSenders({

@@ -1,3 +1,4 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { Suspense } from "react";
@@ -12,10 +13,6 @@ import {
     mockSendValidFile,
 } from "../../__mocks__/validation";
 import { RSSender } from "../../config/endpoints/settings";
-import {
-    mockAppInsights,
-    mockAppInsightsContextReturnValue,
-} from "../../contexts/__mocks__/AppInsightsContext";
 import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
@@ -28,6 +25,9 @@ import {
     FileType,
     Format,
 } from "../../utils/TemporarySettingsAPITypes";
+
+const mockUseAppInsightsContext = jest.mocked(useAppInsightsContext);
+const mockAppInsights = mockUseAppInsightsContext();
 
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
@@ -58,7 +58,6 @@ describe("FileHandlerFileUploadStep", () => {
                 isLoading: false,
             });
             mockSessionContentReturnValue();
-            mockAppInsightsContextReturnValue();
         });
 
         describe("when a CSV schema is chosen", () => {

@@ -6,11 +6,10 @@ import type { Location } from "react-router-dom";
 
 import { USLink } from "../components/USLink";
 import { useSessionContext } from "../contexts/Session";
-import { oktaSignInConfig } from "../oktaConfig";
 import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
 
 export function Login() {
-    const { oktaAuth, authState } = useSessionContext();
+    const { oktaAuth, authState, config } = useSessionContext();
     const location: Location<{ originalUrl?: string } | undefined> =
         useLocation();
 
@@ -38,7 +37,7 @@ export function Login() {
             </Helmet>
             <OktaSignInWidget
                 className="margin-top-6 margin-x-auto width-mobile-lg padding-x-8"
-                config={oktaSignInConfig}
+                config={config.OKTA_WIDGET}
                 onSuccess={onSuccess}
                 onError={onError}
             >

@@ -10,6 +10,8 @@ beforeAll(() => {
     createMocks();
     // @ts-expect-error ignore global
     global.MessageChannel = MessageChannel;
+    jest.mock("@microsoft/applicationinsights-react-js");
+    jest.mock("@okta/okta-react");
 });
 
 afterAll(cleanup);

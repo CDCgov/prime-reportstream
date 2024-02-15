@@ -28,10 +28,6 @@ describe("FileHandlerSchemaSelectionStep", () => {
             renderApp(<FileHandlerSchemaSelectionStep {...DEFAULT_PROPS} />);
         }
 
-        afterEach(() => {
-            jest.resetAllMocks();
-        });
-
         test("renders the loading text", () => {
             setup();
             expect(screen.getByText("Loading...")).toBeVisible();
@@ -68,10 +64,6 @@ describe("FileHandlerSchemaSelectionStep", () => {
                 />,
             );
         }
-
-        afterEach(() => {
-            jest.resetAllMocks();
-        });
 
         test("renders the options", () => {
             setup();

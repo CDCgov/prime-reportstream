@@ -1,3 +1,4 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
@@ -7,10 +8,6 @@ import {
     makeRSReceiverDeliveryResponseFixture,
     receiverServicesGenerator,
 } from "../../../__mocks__/DataDashboardMockServer";
-import {
-    mockAppInsights,
-    mockAppInsightsContextReturnValue,
-} from "../../../contexts/__mocks__/AppInsightsContext";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverDeliveries";
@@ -20,11 +17,8 @@ import { MemberType } from "../../../utils/OrganizationUtils";
 
 const mockReceiverServices = receiverServicesGenerator(5);
 const mockActiveReceiver = mockReceiverServices[0];
-
-jest.mock("../../../TelemetryService", () => ({
-    ...jest.requireActual("../../../TelemetryService"),
-    getAppInsights: () => mockAppInsights,
-}));
+const mockUseAppInsightsContext = jest.mocked(useAppInsightsContext);
+const mockAppInsights = mockUseAppInsightsContext();
 
 beforeEach(() => {
     // Mock our SessionProvider's data
@@ -54,7 +48,6 @@ describe("DataDashboardTable", () => {
 
     describe("useOrganizationReceiversFeed without data", () => {
         function setup() {
-            mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
@@ -108,7 +101,6 @@ describe("DataDashboardTableWithPagination", () => {
     describe("when enabled", () => {
         describe("with multiple receiver services and data", () => {
             function setup() {
-                mockAppInsightsContextReturnValue();
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
                     isLoading: false,
@@ -184,7 +176,6 @@ describe("DataDashboardTableWithPagination", () => {
 
         describe("with one active receiver service", () => {
             function setup() {
-                mockAppInsightsContextReturnValue();
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
                     data: receiverServicesGenerator(1),
@@ -224,7 +215,6 @@ describe("DataDashboardTableWithPagination", () => {
 
         describe("with no receiver services", () => {
             function setup() {
-                mockAppInsightsContextReturnValue();
                 // Mock our receiver services feed data
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: undefined,
@@ -276,7 +266,6 @@ describe("DataDashboardTableWithPagination", () => {
 
     describe("when disabled", () => {
         function setup() {
-            mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,

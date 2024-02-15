@@ -1,3 +1,4 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import {
     Button,
     FileInput,
@@ -12,12 +13,12 @@ import { FileHandlerStepProps } from "./FileHandler";
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 import { RSSender } from "../../config/endpoints/settings";
 import { WatersResponse } from "../../config/endpoints/waters";
-import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
 import { useSessionContext } from "../../contexts/Session";
 import { showToast } from "../../contexts/Toast";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import useSenderResource from "../../hooks/UseSenderResource";
+import { EventName } from "../../utils/AppInsights";
 import { parseCsvForError } from "../../utils/FileUtils";
 import { MembershipSettings } from "../../utils/OrganizationUtils";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";

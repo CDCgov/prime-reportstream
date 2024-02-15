@@ -1,3 +1,4 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { FC, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -16,7 +17,6 @@ import {
 } from "./CompareJsonModal";
 import Title from "../../components/Title";
 import config from "../../config";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
 import { useSessionContext } from "../../contexts/Session";
 import { showToast } from "../../contexts/Toast";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
@@ -48,7 +48,7 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
     receivername,
     action,
 }) => {
-    const { fetchHeaders } = useAppInsightsContext();
+    const { properties } = useAppInsightsContext();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { activeMembership, authState } = useSessionContext();
@@ -105,7 +105,7 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
             {
                 headers: {
-                    ...fetchHeaders(),
+                    "x-ms-session-id": properties.context.getSessionId(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },

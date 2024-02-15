@@ -1,3 +1,4 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { chunk, range } from "lodash";
 import { useCallback, useEffect, useReducer } from "react";
 import useDeepCompareEffect from "use-deep-compare-effect";
@@ -7,7 +8,6 @@ import {
     PaginationProps,
     SlotItem,
 } from "../components/Table/Pagination";
-import { useAppInsightsContext } from "../contexts/AppInsights";
 
 // A function that will return a cursor value for a resource in the paginated
 // set.
@@ -359,7 +359,7 @@ function usePagination<T>({
     extractCursor,
     analyticsEventName,
 }: UsePaginationProps<T>): UsePaginationState<T> {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const [state, dispatch] = useReducer<
         PaginationReducer<PaginationState<T>, PaginationAction<T>>
     >(

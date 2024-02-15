@@ -1,20 +1,19 @@
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import ReportDetailsTable from "./ReportDetailsTable";
 import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
-import {
-    mockAppInsights,
-    mockAppInsightsContextReturnValue,
-} from "../../../contexts/__mocks__/AppInsightsContext";
 import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
+
+const mockUseAppInsightsContext = jest.mocked(useAppInsightsContext);
+const mockAppInsights = mockUseAppInsightsContext();
 
 const TEST_ID = "123";
 
 describe("ReportDetailsTable", () => {
     test("url param (reportId) feeds into network hook", () => {
-        mockAppInsightsContextReturnValue();
         mockUseReportFacilities.mockReturnValue({
             data: [],
         } as any);
@@ -24,7 +23,6 @@ describe("ReportDetailsTable", () => {
 
     describe("with data", () => {
         function setup() {
-            mockAppInsightsContextReturnValue();
             const mockUseReportFacilitiesCallback = {
                 data: makeFacilityFixtureArray(10),
             };
@@ -76,7 +74,6 @@ describe("ReportDetailsTable", () => {
 
     describe("without data", () => {
         function setup() {
-            mockAppInsightsContextReturnValue();
             const mockUseReportFacilitiesCallback = {
                 data: [],
             };

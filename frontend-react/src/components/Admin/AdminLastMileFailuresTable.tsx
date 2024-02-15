@@ -262,7 +262,7 @@ const DataLoadRenderTable = (props: {
 
 // Main component. Tracks state but does not load/contain data.
 export function AdminLastMileFailuresTable() {
-    const { fetchHeaders } = useAppInsightsContext();
+    const { properties } = useAppInsightsContext();
     const { authState } = useSessionContext();
     const modalShowInfoId = "sendFailuresModalDetails";
     const modalResendId = "sendFailuresModalDetails";
@@ -356,7 +356,7 @@ ${data.receiver}`;
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
-                    ...fetchHeaders(),
+                    "x-ms-session-id": properties.context.getSessionId(),
                     Authorization: `Bearer ${authState.accessToken?.accessToken}`,
                 },
                 mode: "cors",
