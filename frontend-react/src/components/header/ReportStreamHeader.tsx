@@ -27,7 +27,7 @@ import { RSSessionContext } from "../../contexts/Session/SessionProvider";
 import useSessionContext from "../../contexts/Session/useSessionContext";
 import {
     isOrganizationsMissingTransport,
-    useOrganizationSettings__,
+    useOrganizationSettings,
 } from "../../hooks/UseOrganizationSettings";
 import { Icon } from "../../shared";
 import SenderModeBanner from "../SenderModeBanner";
@@ -94,7 +94,7 @@ function ReportStreamNavbar({
     containerRef,
 }: ReportStreamNavbarProps) {
     const [openMenuItem, setOpenMenuItem] = useState<undefined | string>();
-    const { data: organization } = useOrganizationSettings__();
+    const { data: organization } = useOrganizationSettings();
     const isOrgMissingTransport = organization
         ? isOrganizationsMissingTransport(organization.name)
         : false;
@@ -397,6 +397,7 @@ const ReportStreamHeader = ({
                                             {user.isUserAdmin && (
                                                 <USLinkButton
                                                     outline
+                                                    data-testid="org-settings"
                                                     href="/admin/settings"
                                                 >
                                                     {activeMembership?.parsedName ??
