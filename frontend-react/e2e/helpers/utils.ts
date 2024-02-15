@@ -11,17 +11,22 @@ export async function scrollToTop(page: Page) {
     await page.evaluate(() => window.scrollTo(0, 0));
 }
 
+export async function waitForAPIResponse(page: Page, requestUrl: string) {
+    const response = await page.waitForResponse((response) =>
+        response.url().includes(requestUrl),
+    );
+
+    // Assert the response status
+    expect(response.status()).toBe(200);
+}
+
 export async function selectTestOrg(page: Page) {
     await page.goto("/admin/settings", {
         waitUntil: "domcontentloaded",
     });
 
-    const response = await page.waitForResponse((response) =>
-        response.url().includes("/api/settings/organizations"),
-    );
+    await waitForAPIResponse(page, "/api/settings/organizations");
 
-    // Assert the response status
-    expect(response.status()).toBe(200);
     await page.getByTestId("gridContainer").waitFor({ state: "visible" });
     await page.getByTestId("textInput").fill("ignore");
     await page.getByTestId("ignore_set").click();

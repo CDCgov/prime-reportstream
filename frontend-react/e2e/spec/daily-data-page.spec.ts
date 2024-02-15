@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-import { selectTestOrg } from "../helpers/utils";
+import { selectTestOrg, waitForAPIResponse } from "../helpers/utils";
 
-test.describe("Daily data page", () => {
+test.describe("Daily Data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
             await page.goto("/daily-data", {
@@ -40,6 +40,8 @@ test.describe("Daily data page", () => {
                 await page.goto("/daily-data", {
                     waitUntil: "domcontentloaded",
                 });
+
+                await waitForAPIResponse(page, "/api/waters/org/");
             });
 
             test("has correct title", async ({ page }) => {
@@ -88,6 +90,8 @@ test.describe("Daily data page", () => {
             await page.goto("/daily-data", {
                 waitUntil: "domcontentloaded",
             });
+
+            await waitForAPIResponse(page, "/api/waters/org/");
         });
 
         test("has correct title", async ({ page }) => {
@@ -125,6 +129,8 @@ test.describe("Daily data page", () => {
             await page.goto("/daily-data", {
                 waitUntil: "domcontentloaded",
             });
+
+            await waitForAPIResponse(page, "/api/waters/org/");
         });
 
         test("has correct title", async ({ page }) => {
