@@ -24,7 +24,7 @@ class ValidateSettingCommands(
     private val metadataInstance: Metadata? = null,
 ) : CliktCommand(
     name = "validate-setting",
-    help = "Validate settings e.g. 'organizations.yml' with schema, e.g. organizations.schema.json"
+    help = "Validate settings e.g. 'settings/organizations.yml' with schema, e.g. 'settings/schemas/settings.json"
 ) {
     private val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
         KotlinModule.Builder()
