@@ -21,9 +21,9 @@ identifier:
           expressionsMap:
             url:
               type: SYSTEM_URL
-              value: identifier-namespace-id
-            valueBoolean:
-              valueOf: "true"
+              value: hl7v2Field
+            valueString:
+              valueOf: EI.2
     - expressionType: nested
       expressionsMap:
         value:
@@ -40,6 +40,6 @@ identifier:
           expressionsMap:
             url:
               type: SYSTEM_URL
-              value: identifier-universal-id
-            valueBoolean:
-              valueOf: "true"
+              value: hl7v2Field
+            valueString:
+              valueOf: "EI.3,EI.4"
