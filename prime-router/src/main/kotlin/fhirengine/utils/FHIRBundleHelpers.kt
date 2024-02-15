@@ -71,7 +71,7 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
         toReturn[ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER] = this.code.coding
     }
 
-    if (this.valueCodeableConcept is CodeableConcept) {
+    if (this.value is CodeableConcept) {
         toReturn[ObservationMappingConstants.BUNDLE_VALUE_IDENTIFIER] = this.valueCodeableConcept.coding
     }
 
