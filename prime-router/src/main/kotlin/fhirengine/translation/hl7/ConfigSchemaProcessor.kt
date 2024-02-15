@@ -20,7 +20,7 @@ abstract class ConfigSchemaProcessor<
     Logging {
 
     /**
-     * Validates the schema the processor will use is valid according so a sample input and output
+     * Validates the schema the processor will use is valid given a sample input and output
      *
      * @property input the value to be converted
      * @property expectedOutput the expected output of the conversion
