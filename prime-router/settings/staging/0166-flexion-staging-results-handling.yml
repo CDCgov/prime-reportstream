@@ -166,7 +166,7 @@
         initialTime: "00:00"
       translation: !<HL7>
         type: "HL7"
-        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        schemaName: "metadata/hl7_mapping/receivers/Flexion/TIResults"
         useTestProcessingMode: false
         useBatchHeaders: false
       transport:
