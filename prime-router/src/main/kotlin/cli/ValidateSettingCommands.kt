@@ -12,7 +12,6 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
-import com.networknt.schema.SpecVersion.VersionFlag
 import com.networknt.schema.ValidationMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
@@ -27,7 +26,7 @@ class ValidateSettingCommands(
     name = "validate-setting",
     help = "Validate settings e.g. 'organizations.yml' with schema, e.g. organizations.schema.json"
 ) {
-    val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
+    private val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
         KotlinModule.Builder()
             .withReflectionCacheSize(512)
             .configure(KotlinFeature.NullToEmptyCollection, false)
@@ -37,7 +36,7 @@ class ValidateSettingCommands(
             .build()
     )
 
-    val jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
+    private val jsonSchemaFactory: JsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
 
     init {
         yamlMapper.registerModule(JavaTimeModule())

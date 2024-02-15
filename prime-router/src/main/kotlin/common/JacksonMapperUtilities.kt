@@ -75,17 +75,6 @@ object JacksonMapperUtilities {
         .setSerializationInclusion(JsonInclude.Include.NON_NULL)
         .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
 
-//    val customSettingSerializersMapper: ObjectMapper = jsonMapper {
-//        addModule(kotlinModule())
-//        addModule(JavaTimeModule())
-//        addModule(customSerializerModule)
-//        disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-//        disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-//        enable(SerializationFeature.INDENT_OUTPUT) // Pretty print JSON output
-//    }.run { setTimeZone(TimeZone.getTimeZone(Environment.rsTimeZone)) }
-//        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-//        .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-//
     /**
      * Mapper using library defaults (no kotlin, java modules).
      */
