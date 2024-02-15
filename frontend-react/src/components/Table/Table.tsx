@@ -153,10 +153,7 @@ const Table = ({
                 rowToEdit={rowToEdit}
             />
             <div>
-                <table
-                    className="usa-table usa-table--borderless usa-table--striped prime-table"
-                    aria-label="Submission history from the last 30 days"
-                >
+                <table className="usa-table usa-table--borderless usa-table--striped prime-table">
                     <TableHeaders
                         config={config}
                         filterManager={filterManager}
