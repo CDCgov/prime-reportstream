@@ -1,0 +1,25 @@
+name: Test Action
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test_action:
+    name: Test Action
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Set Environment Variables
+        run: |
+          DEPLOYMENT_DATE=$(date +%Y-%m-%d)
+          echo >> ${GITHUB_ENV} DEPLOYMENT_DATE=${DEPLOYMENT_DATE?}
+          echo >> ${GITHUB_ENV} BRANCH_NAME=josiahsiegel/TEST/${DEPLOYMENT_DATE?}
+
+      - name: "Create branch '${{ env.BRANCH_NAME }}'"
+        uses: JosiahSiegel/remote-branch-action@dbe7a2138eb064fbfdb980abee918091a7501fbe
+        with:
+          branch: "${{ env.BRANCH_NAME }}"
