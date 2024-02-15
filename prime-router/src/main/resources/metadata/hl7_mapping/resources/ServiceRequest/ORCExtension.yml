@@ -17,13 +17,15 @@ elements:
     resource: '%resource.extension.where (url = "ORC.10").value.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     constants:
-      hl7XCNField: '%{hl7Order}-10'
+      hl7XCNField: '%{hl7Order}-10(%{xcnIndex})'
+    resourceIndex: xcnIndex
 
   - name: verified-by
     resource: '%resource.extension.where(url = "ORC.11").value.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     constants:
-      hl7XCNField: '%{hl7Order}-11'
+      hl7XCNField: '%{hl7Order}-11(%{xcnIndex})'
+    resourceIndex: xcnIndex
 
   - name: enterers-location
     resource: '%resource.extension.where(url = "ORC.13").value.resolve()'
@@ -53,8 +55,8 @@ elements:
     resource: '%resource.extension.where (url = "ORC.19").value.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     constants:
-      hl7XCNField: '%{hl7Order}-19'
-
+      hl7XCNField: '%{hl7Order}-19(%{xcnIndex})'
+    resourceIndex: xcnIndex
 
   - name: order-status
     hl7Spec: [ '%{hl7Order}-27' ]
