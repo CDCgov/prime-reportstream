@@ -25,7 +25,7 @@ class TranslationSchemaManager : Logging {
         private val context = DefaultHapiContext()
         private val hl7Parser = context.getGenericParser()
 
-        data class ValidationResults(
+        data class ValidationResult(
             val path: String,
             val passes: Boolean,
             val didError: Boolean = false,
@@ -98,12 +98,12 @@ class TranslationSchemaManager : Logging {
      *
      * @property schemaType the type of transform getting validated
      * @property blobContainerInfo the connection info for where the schemas getting validated are stored
-     * @return [List[ValidationResults]] a list of the results from validating all valid schemas
+     * @return [List[ValidationResult]] a list of the results from validating all valid schemas
      */
     fun validateManagedSchemas(
         schemaType: SchemaType,
         blobContainerInfo: BlobAccess.BlobContainerMetadata,
-    ): List<ValidationResults> {
+    ): List<ValidationResult> {
         val blobs =
             BlobAccess.listBlobs(schemaType.directory, blobContainerInfo, false)
         val inputs = blobs.filter { it.currentBlobItem.name.contains("/input.") }
@@ -117,7 +117,7 @@ class TranslationSchemaManager : Logging {
                 getRawInputOutputAndSchemaUri(blobs, blobContainerInfo, inputDirectoryPath, schemaType)
             } catch (e: RuntimeException) {
                 logger.error("Failed to get input or output to validate the schema", e)
-                return@map ValidationResults(inputDirectoryPath, passes = false, didError = true)
+                return@map ValidationResult(inputDirectoryPath, passes = false, didError = true)
             }
 
             val inputBundle = FhirTranscoder.decode(rawValidationInput.input)
@@ -142,10 +142,10 @@ class TranslationSchemaManager : Logging {
                     "An exception was encountered while trying to validate the schema: ${rawValidationInput.schemaUri}",
                     e
                 )
-                return@map ValidationResults(inputDirectoryPath, passes = false, didError = true)
+                return@map ValidationResult(inputDirectoryPath, passes = false, didError = true)
             }
 
-            ValidationResults(
+            ValidationResult(
                 rawValidationInput.schemaUri,
                 isSchemaValid
             )
