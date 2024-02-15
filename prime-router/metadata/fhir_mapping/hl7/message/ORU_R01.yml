@@ -21,7 +21,6 @@ resources:
     group: PATIENT_RESULT.PATIENT
     resourcePath: segments/PID/Patient
     isReferenced: true
-    repeats: false
     additionalSegments:
       - .PD1
       - MSH
@@ -41,17 +40,16 @@ resources:
     repeats: true
 
   - resourceName: Encounter
-    segment: .PV1
-    group: PATIENT_RESULT.PATIENT.VISIT
+    segment: .VISIT.PV1
+    group: PATIENT_RESULT.PATIENT
     resourcePath: segments/PV1/Encounter
     isReferenced: true
-    repeats: false
     additionalSegments:
-      - .PV2
+      - .PATIENT.VISIT.PV2
       - MSH
 
   - resourceName: Observation
-    segment: .OBSERVATION.OBX
+    segment: .ORDER_OBSERVATION.OBSERVATION.OBX
     group: PATIENT_RESULT.ORDER_OBSERVATION
     resourcePath: segments/OBX/Observation
     repeats: true
@@ -60,17 +58,29 @@ resources:
       - .OBSERVATION.NTE
       - .SPECIMEN.SPM
 
+  - resourceName: SpecimenSource
+    segment: .OBR
+    group: PATIENT_RESULT.ORDER_OBSERVATION
+    resourcePath: segments/ORC/Specimen
+    isReferenced: true
+    repeats: true
+
   - resourceName: Specimen
     segment: .SPECIMEN.SPM
     group: PATIENT_RESULT.ORDER_OBSERVATION
     resourcePath: segments/SPM/Specimen
     repeats: true
     isReferenced: true
+
+  #  PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN.SPECIMEN_OBSERVATION.OBX provides access for v2.7
+  #  PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN.OBX provides access for v2.5.1
+  - resourceName: SpecimenObservation
+    segment: .SPECIMEN.SPECIMEN_OBSERVATION.OBX
+    group: PATIENT_RESULT.ORDER_OBSERVATION
+    resourcePath: segments/OBX/Observation
+    repeats: true
     additionalSegments:
-      - .OBSERVATION.OBX
-      - .OBR
-      - .OBSERVATION.NTE
-      - MSH
+      - ORDER_OBSERVATION.SPECIMEN.OBX
 
   - resourceName: ServiceRequest
     segment: .OBR
@@ -81,8 +91,6 @@ resources:
     additionalSegments:
       - .NTE
       - .ORC
-      - .SPECIMEN.SPECIMEN_OBSERVATION.OBX
-      - .SPECIMEN.OBX
 
   - resourceName: DiagnosticReport
     segment: .OBR
@@ -93,8 +101,8 @@ resources:
       - .ORC
 
   - resourceName: Device
-    segment: .PRT
-    group: PATIENT_RESULT.PATIENT.PATIENT_OBSERVATION
+    segment: .PATIENT.PATIENT_OBSERVATION.PRT
+    group: PATIENT_RESULT
     resourcePath: segments/PRT/Device
 
 # TODO Add more segments as we develop them

@@ -17,8 +17,8 @@
         "jsx": "react-jsx",
         "types": ["jest", "mdx", "vite/client"],
         "noImplicitAny": true,
-        "inlineSourceMap": true,
+        "inlineSourceMap": true
     },
     "include": ["./src", "./e2e"],
-    "references": [{ "path": "./tsconfig.node.json" }],
+    "references": [{ "path": "./tsconfig.node.json" }]
 }

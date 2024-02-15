@@ -26,6 +26,7 @@ function ServicesDropdown(props: Props) {
         <select
             className="usa-select"
             id="services-dropdown"
+            data-testid="services-dropdown"
             name="services-dropdown"
             defaultValue={props.active}
             onChange={(event) => props.chosenCallback(event.target.value)}

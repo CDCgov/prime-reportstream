@@ -199,4 +199,3 @@ elements:
     constants:
       cweField: '%{hl7PIDField}-39'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
-

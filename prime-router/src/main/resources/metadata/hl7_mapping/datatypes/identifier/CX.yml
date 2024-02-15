@@ -49,11 +49,9 @@ elements:
       dtmFieldPath: '%{cxField}-8'
     schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
 
-  - name: assigning-jurisdiction
-    resource: '%resource.extension(%`rsext-assigning-jurisdiction`).value'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
-    constants:
-      cweField: '%{cxField}-9'
+  - name: xon-extension-value
+    resource: '%resource.extension(%`rsext-cx-identifier`)'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CXExtension.yml
 
   - name: assigning-agency-or-department
     resource: '%resource.extension(%`rsext-assigning-agency-or-department`).value'

@@ -238,14 +238,22 @@ basedOn:
   valueOf: datatype/Reference
   expressionType: resource
   specs: $ServiceRequest
+  generateList: true
   useGroup: true
 
 specimen:
-  valueOf: datatype/Reference
+  expressionType: nested
   generateList: true
-  expressionType: resource
-  specs: $Specimen
-  useGroup: true
+  expressions:
+    - valueOf: datatype/Reference
+      generateList: true
+      expressionType: resource
+      specs: $Specimen
+      useGroup: true
+    - valueOf: datatype/Reference
+      expressionType: resource
+      specs: $SpecimenSource
+      useGroup: true
 
 result:
   valueOf: datatype/Reference

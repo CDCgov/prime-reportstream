@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
 import config from "../config";
@@ -105,24 +105,23 @@ export const makeRSReceiverSubmitterResponseFixture = (
 });
 
 const handlers = [
-    rest.post(`${base}/testOrg.testService/deliveries`, (req, res, ctx) => {
-        if (!req.headers.get("authorization")?.includes("TOKEN")) {
-            return res(ctx.status(401));
+    http.post(`${base}/testOrg.testService/deliveries`, ({ request }) => {
+        if (!request.headers.get("authorization")?.includes("TOKEN")) {
+            return HttpResponse.json(null, { status: 401 });
         }
-        return res(
-            ctx.status(200),
-            ctx.json([makeRSReceiverDeliveryResponseFixture(5)]),
-        );
+        return HttpResponse.json([makeRSReceiverDeliveryResponseFixture(5)], {
+            status: 200,
+        });
     }),
-    rest.post(
+    http.post(
         `${base}/testOrg.testService/deliveries/submitters/search`,
-        (req, res, ctx) => {
-            if (!req.headers.get("authorization")?.includes("TOKEN")) {
-                return res(ctx.status(401));
+        ({ request }) => {
+            if (!request.headers.get("authorization")?.includes("TOKEN")) {
+                return HttpResponse.json(null, { status: 401 });
             }
-            return res(
-                ctx.status(200),
-                ctx.json([makeRSReceiverSubmitterResponseFixture(5)]),
+            return HttpResponse.json(
+                [makeRSReceiverSubmitterResponseFixture(5)],
+                { status: 200 },
             );
         },
     ),

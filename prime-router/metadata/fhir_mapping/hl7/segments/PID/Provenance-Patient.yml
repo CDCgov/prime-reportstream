@@ -9,6 +9,7 @@ target:
   generateList: true
   expressionType: resource
   specs: $Patient
+  useGroup: true
 
 recorded:
   type: STRING

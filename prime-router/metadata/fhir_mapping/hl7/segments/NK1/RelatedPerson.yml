@@ -30,6 +30,7 @@ patient:
   valueOf: datatype/Reference
   expressionType: resource
   specs: $Patient
+  useGroup: true
 
 name:
   expressionType: nested

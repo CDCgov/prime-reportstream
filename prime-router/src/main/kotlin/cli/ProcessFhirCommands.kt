@@ -285,9 +285,9 @@ class ProcessFhirCommands : CliktCommand(
     private fun applyEnrichmentSchemas(bundle: Bundle): Bundle {
         if (!enrichmentSchemaNames.isNullOrEmpty()) {
             enrichmentSchemaNames!!.split(",").forEach { currentEnrichmentSchemaName ->
-                val fileNamePieces = currentEnrichmentSchemaName.split(".")
+//                val fileNamePieces = currentEnrichmentSchemaName.split(".")
                 // TODO: #10510
-                FhirTransformer(fileNamePieces.first(), "").transform(bundle)
+                FhirTransformer(currentEnrichmentSchemaName, "").transform(bundle)
             }
         }
         return bundle

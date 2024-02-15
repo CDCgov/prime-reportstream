@@ -396,6 +396,7 @@ const ReportStreamHeader = ({
                                             {user.isUserAdmin && (
                                                 <USLinkButton
                                                     outline
+                                                    data-testid="org-settings"
                                                     href="/admin/settings"
                                                 >
                                                     {activeMembership?.parsedName ??

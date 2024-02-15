@@ -15,11 +15,10 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-3-specimen-parent-id-placer
+          value: SPM.3.1
         valueIdentifier:
           valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
           expressionType: resource
-          specs: SPM.3
           constants:
             hl7v2Field: SPM.3
             backupExtension: "filler-assigned-identifier"
@@ -32,11 +31,10 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-3-specimen-parent-id-filler
+          value: SPM.3.2
         valueIdentifier:
           valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
           expressionType: resource
-          specs: SPM.3
           constants:
             hl7v2Field: SPM.3
             backupExtension: "placer-assigned-identifier"
@@ -49,7 +47,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-5-specimen-type-modifier
+          value: SPM.5
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -62,7 +60,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-6-specimen-additives
+          value: SPM.6
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -75,7 +73,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-10-specimen-collection-site
+          value: SPM.10
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -88,7 +86,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-11-specimen-role
+          value: SPM.11
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -100,7 +98,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-13-grouped-specimen-count
+          value: SPM.13
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -114,7 +112,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-15-specimen-handling-code
+          value: SPM.15
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -127,7 +125,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-16-specimen-risk-code
+          value: SPM.16
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -139,7 +137,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-19-specimen-expiration-date
+          value: SPM.19
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -152,7 +150,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-20-specimen-availability
+          value: SPM.20
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -166,7 +164,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-22-specimen-quality
+          value: SPM.22
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -179,7 +177,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-23-specimen-appropriateness
+          value: SPM.23
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -192,7 +190,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-25-specimen-current-quantity
+          value: SPM.25
         valueQuantity:
           expressionType: resource
           valueOf: datatypes/CQ/Quantity
@@ -204,7 +202,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-26-number-of-specimen-containers
+          value: SPM.26
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -218,7 +216,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-28-container-condition
+          value: SPM.28
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -231,7 +229,20 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: spm-29-specimen-child-role
+          value: SPM.29
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm30: SPM.30
+      condition: $spm30 NOT_NULL
+      specs: SPM.30 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-30-accession-id
+        valueIdentifier:
+          expressionType: resource
+          valueOf: datatypes/CX/Identifier

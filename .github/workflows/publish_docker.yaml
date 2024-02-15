@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: "Check out changes"
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-      - uses: dorny/paths-filter@0bc4621a3135347011ad047f9ecf449bf72ce2bd
+      - uses: dorny/paths-filter@ebc4d7e9ebcb0b1eb21480bb8f43113e996ac77a
         id: skip_check
         with:
           list-files: csv

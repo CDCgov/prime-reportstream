@@ -21,16 +21,15 @@ elements:
 
   - name: ei-namespace-id-default
     condition: '%resource.extension(%`rsext-ei-assigner-organization-type`).value = "default"'
-    value: [ '%resource.assigner.resolve().identifier.where(extension(%`rsext-identifier-namespace-id`).exists()).value' ]
+    value: [ '%resource.assigner.resolve().identifier.where(extension(%`rsext-hl7v2Field`).value = "EI.2").value' ]
     hl7Spec: [ '%{hl7EIField}-2' ]
 
   - name: ei-universal-id-default
     condition: '%resource.extension(%`rsext-ei-assigner-organization-type`).value = "default"'
-    value: [ '%resource.assigner.resolve().identifier.where(extension(%`rsext-identifier-universal-id`).exists()).value' ]
+    value: [ '%resource.assigner.resolve().identifier.where(extension(%`rsext-hl7v2Field`).value = "EI.3,EI.4").value' ]
     hl7Spec: [ '%{hl7EIField}-3' ]
 
   - name: ei-universal-id-type-default
     condition: '%resource.extension(%`rsext-ei-assigner-organization-type`).value = "default"'
-    # TODO????
-    value: [ '%resource.assigner.resolve().identifier.where(extension(%`rsext-identifier-universal-id`).exists()).type.coding.where(extension(%`rsext-codeable-concept-id`).exists()).code' ]
+    value: [ '%resource.assigner.resolve().identifier.where(extension(%`rsext-hl7v2Field`).value = "EI.3,EI.4").type.coding.where(extension(%`rsext-codeable-concept-id`).exists()).code' ]
     hl7Spec: [ '%{hl7EIField}-4' ]

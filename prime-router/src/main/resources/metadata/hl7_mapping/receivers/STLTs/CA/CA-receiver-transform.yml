@@ -151,7 +151,7 @@ elements:
     resource: '%resource.result.resolve()'
 
   # OBX-2
-  - name: obx-2-value-type
+  - name: OBX.2
     condition: false
 
   # OBX-3
@@ -171,7 +171,7 @@ elements:
   - name: observation-note
     condition: false
 
-  - name: specimen-observation-result-with-aoe
+  - name: specimen-observation
     condition: false
 
   # PID-10-2 gets either display or text

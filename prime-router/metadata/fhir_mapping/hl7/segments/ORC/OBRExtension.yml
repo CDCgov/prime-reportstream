@@ -14,7 +14,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-2-placer-order-number
+          value: OBR.2
         valueIdentifier:
           valueOf: datatypes/EI/Identifier
           expressionType: resource
@@ -27,7 +27,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-3-filler-order-number
+          value: OBR.3
         valueIdentifier:
           valueOf: datatypes/EI/Identifier
           expressionType: resource
@@ -36,14 +36,15 @@ extension:
       vars:
         obr10: STRING_ALL, OBR.10
       condition: $obr10 NOT_NULL
+      specs: OBR.10 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
-          value: obr-10-collector-identifier
+          value: OBR.10
         valueReference:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: OBR.10
     - expressionType: nested
       vars:
         obr11: STRING, OBR.11
@@ -51,7 +52,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-11-specimen-action-code
+          value: OBR.11
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -63,7 +64,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-12-danger-code
+          value: OBR.12
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -75,24 +76,24 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-13-clinical-information
+          value: OBR.13
         valueString:
           expressionType: HL7Spec
           type: STRING
           valueOf: OBR.13
     - expressionType: nested
       vars:
-        orc12: STRING_ALL, ORC.12
         obr16: STRING_ALL, OBR.16
-      condition: $orc12 NOT_NULL && $obr16 NOT_NULL
+      condition: $obr16 NOT_NULL
+      specs: OBR.16 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
-          value: obr-16-ordering-provider
+          value: OBR.16
         valueReference:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: OBR.16
     - condition: $orc14 NOT_NULL && $obr17 NOT_NULL
       vars:
         orc14: STRING_ALL, ORC.14
@@ -116,7 +117,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-18-placer-field-1
+          value: OBR.18
         valueString:
           type: STRING
           valueOf: OBR.18
@@ -128,7 +129,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-19-placer-field-2
+          value: OBR.19
         valueString:
           type: STRING
           valueOf: OBR.19
@@ -140,7 +141,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-20-filler-field-1
+          value: OBR.20
         valueString:
           type: STRING
           valueOf: OBR.20
@@ -152,7 +153,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-21-filler-field-2
+          value: OBR.21
         valueString:
           type: STRING
           valueOf: OBR.21
@@ -164,7 +165,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-22-results-rpt-status-change-datetime
+          value: OBR.22
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -176,7 +177,7 @@ extension:
       condition: $obr23 NOT_NULL
       specs: OBR.23
       constants:
-        mocExtensionName: obr-23-charge-to-practice
+        mocExtensionName: OBR.23
     - expressionType: nested
       vars:
         obr24: OBR.24
@@ -184,7 +185,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-24-diagnostic-serv-sect-id
+          value: OBR.24
         valueId:
           type: STRING
           expressionType: HL7Spec
@@ -196,19 +197,20 @@ extension:
       valueOf: datatypes/PRL/Extension
       specs: OBR.26
       constants:
-        prlExtensionName: obr-26-parent-result
+        prlExtensionName: OBR.26
     - expressionType: nested
       vars:
         obr28: STRING_ALL, OBR.28
       condition: $obr28 NOT_NULL
+      specs: OBR.28 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
-          value: obr-28-result-copies-to
+          value: OBR.28
         valueReference:
           expressionType: reference
           valueOf: datatypes/XCN/Practitioner
-          specs: OBR.28
     - expressionType: nested
       vars:
         obr29: STRING_ALL, OBR.29
@@ -216,7 +218,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-29-parent-order
+          value: OBR.29
         valueIdentifier:
           valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
           expressionType: resource
@@ -227,14 +229,15 @@ extension:
       vars:
         obr33: STRING_ALL, OBR.33
       condition: $obr33 NOT_NULL
+      specs: OBR.33 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
-          value: obr-33-assistant-result-interpreter
+          value: OBR.33
         valueReference:
           valueOf: datatypes/NDL/PractitionerRole
           expressionType: reference
-          specs: OBR.33
     - expressionType: nested
       vars:
         obr36: STRING, OBR.36
@@ -242,7 +245,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-36-scheduled-datetime
+          value: OBR.36
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -251,14 +254,15 @@ extension:
       vars:
         obr39: STRING_ALL, OBR.39
       condition: $obr39 NOT_NULL
+      specs: OBR.39 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
-          value: obr-39-collectors-comment
+          value: OBR.39
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
-          specs: OBR.39
     - expressionType: nested
       vars:
         obr44: STRING_ALL, OBR.44
@@ -266,7 +270,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-44-procedure-code
+          value: OBR.44
         valueCodeableConcept:
           valueOf: datatypes/CNE/CodeableConcept
           expressionType: resource
@@ -275,6 +279,8 @@ extension:
       vars:
         obr45: STRING_ALL, OBR.45
       condition: $obr45 NOT_NULL
+      specs: OBR.45 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
@@ -282,7 +288,6 @@ extension:
         valueCodeableConcept:
           valueOf: datatypes/CNE/CodeableConcept
           expressionType: resource
-          specs: OBR.45
     - expressionType: nested
       vars:
         obr48: STRING_ALL, OBR.48
@@ -290,7 +295,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-48-medically-necessary-duplicate-procedure
+          value: OBR.48
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -302,7 +307,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-49-result-handling
+          value: OBR.49
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -314,7 +319,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: obr-50-parent-universal-service-identifier
+          value: OBR.50
         valueCodeableConcept:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
@@ -324,13 +329,14 @@ extension:
         orc33: STRING_ALL, ORC.33
         obr53: STRING_ALL, OBR.53
       expressionType: nested
+      specs: OBR.53 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
-          value: obr-53-alternate-placer-order-number
+          value: OBR.53
         valueIdentifier:
           valueOf: datatypes/CX/Identifier
           expressionType: resource
-          specs: OBR.53
           constants:
             CXIdentifierField: OBR.53

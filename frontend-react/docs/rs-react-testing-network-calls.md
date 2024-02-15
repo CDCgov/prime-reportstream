@@ -99,7 +99,7 @@ If you're testing a hook, you'll need to render the hook without rendering a com
 ```typescript
 test("positive response", async () => {
     const { result, waitForNextUpdate } = renderHook(() =>
-        useNetwork<Report>(HistoryApi.detail("test"))
+        useNetwork<Report>(HistoryApi.detail("test")),
     );
     await waitForNextUpdate();
     expect(result.current.loading).toBeFalsy();

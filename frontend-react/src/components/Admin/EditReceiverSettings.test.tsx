@@ -1,5 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react";
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 
 import { EditReceiverSettingsPage } from "./EditReceiverSettings";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
@@ -98,9 +98,9 @@ describe("EditReceiverSettings", () => {
         });
         settingsServer.listen();
         settingsServer.use(
-            rest.get(
+            http.get(
                 `${config.API_ROOT}/settings/organizations/abbott/receivers/user1234`,
-                (req, res, ctx) => res(ctx.json(mockData)),
+                () => HttpResponse.json(mockData),
             ),
         );
     });

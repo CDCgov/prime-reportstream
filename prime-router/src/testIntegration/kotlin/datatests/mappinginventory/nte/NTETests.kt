@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.datatests.mappinginventory.nte
 
-import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareFHIRToHL7
 import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
 import org.junit.jupiter.api.Test
 
@@ -20,9 +19,10 @@ class NTEToAnnotationTests {
     @Test
     fun `can acccurately map an authorString fhir attribute to an NTE segment`() {
         assert(
-            translateAndCompareFHIRToHL7(
-                "mappinginventory/nte/annotation_author_string_resource_test_file.fhir",
-                "mappinginventory/nte/nte_segment_author_string_test_file.hl7"
+            verifyHL7ToFHIRToHL7Mapping(
+                "nte/annotation_author_string_resource_test_file",
+                skipHl7ToFhir = true,
+                skipHl7ToHl7 = true
             ).passed
         )
     }

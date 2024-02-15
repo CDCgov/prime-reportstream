@@ -116,6 +116,7 @@ export function OrgsTable() {
                     content: (
                         <ButtonGroup type="segmented">
                             <Button
+                                data-testid={`${eachOrg.name}_set`}
                                 key={`${eachOrg.name}_select`}
                                 onClick={() =>
                                     handleSelectOrgClick(`${eachOrg.name}`)
@@ -126,6 +127,7 @@ export function OrgsTable() {
                                 Set
                             </Button>
                             <Button
+                                data-testid={`${eachOrg.name}_edit`}
                                 key={`${eachOrg.name}_edit`}
                                 onClick={() =>
                                     handleEditOrgClick(`${eachOrg.name}`)

@@ -3,7 +3,9 @@ import { expect, test } from "@playwright/test";
 // eslint-disable-next-line playwright/no-skipped-test
 test.describe.skip("Support page", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto("/support");
+        await page.goto("/support", {
+            waitUntil: "domcontentloaded",
+        });
     });
 
     test("should have correct title", async ({ page }) => {
