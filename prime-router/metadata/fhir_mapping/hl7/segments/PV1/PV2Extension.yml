@@ -13,7 +13,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv2-15-employment-illness-related-indicator
+          value: PV2.15
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -27,7 +27,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv2-23-clinic-organization-name
+          value: PV2.23
         valueReference:
           expressionType: reference
           valueOf: datatypes/XON/Organization
@@ -38,7 +38,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv2-26-previous-treatment-date
+          value: PV2.26
         valueString:
           type: STRING
           expressionType: HL7Spec
@@ -50,7 +50,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pv2-29-first-similar-date
+          value: PV2.29
         valueString:
           type: STRING
           expressionType: HL7Spec
