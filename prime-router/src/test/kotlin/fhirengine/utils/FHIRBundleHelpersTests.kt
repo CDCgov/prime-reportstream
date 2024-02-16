@@ -782,4 +782,12 @@ class FHIRBundleHelpersTests {
         assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
         assertThat((extension.value as? Coding)?.code).isEqualTo("6142004")
     }
+
+    @Test
+    fun getCodeSourcesMap() {
+        val observation = Observation()
+        observation.code = CodeableConcept(Coding("test", "test", "test"))
+        val toReturn = observation.getCodeSourcesMap()
+        assertThat(toReturn.size).isEqualTo(1)
+    }
 }
