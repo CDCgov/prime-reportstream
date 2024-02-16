@@ -5,6 +5,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isGreaterThan
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -825,7 +826,10 @@ class FHIRBundleHelpersTests {
 
         val extension = code.coding.first().extension.first()
         assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
-        assertThat((extension.value as? Coding)?.code).isEqualTo("6142004")
+        assertThat(extension.value)
+            .isInstanceOf<Coding>()
+            .transform { it.code }
+            .isEqualTo("6142004")
     }
 
     @Test
@@ -867,6 +871,9 @@ class FHIRBundleHelpersTests {
 
         val extension = code.coding.first().extension.first()
         assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
-        assertThat((extension.value as? Coding)?.code).isEqualTo("6142004")
+        assertThat(extension.value)
+            .isInstanceOf<Coding>()
+            .transform { it.code }
+            .isEqualTo("6142004")
     }
 }

@@ -66,19 +66,19 @@ private fun lookupCondition(code: Coding, metadata: Metadata): Coding? {
  * @return a map of lists of codings keyed by their origin as a printable string
  */
 fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
-    val toReturn = mutableMapOf<String, List<Coding>>()
+    val codeSourcesMap = mutableMapOf<String, List<Coding>>()
 
     // This guards against the auto create behavior configuration getting changed. As currently, configured if code
     // is null, it will be auto created, but a configuration change would cause this to blow up.
     if (this.code != null) {
-        toReturn[ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER] = this.code.coding
+        codeSourcesMap[ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER] = this.code.coding
     }
 
     if (this.value is CodeableConcept) {
-        toReturn[ObservationMappingConstants.BUNDLE_VALUE_IDENTIFIER] = this.valueCodeableConcept.coding
+        codeSourcesMap[ObservationMappingConstants.BUNDLE_VALUE_IDENTIFIER] = this.valueCodeableConcept.coding
     }
 
-    return toReturn
+    return codeSourcesMap
 }
 
 /**
