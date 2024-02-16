@@ -8,10 +8,15 @@ elements:
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-2' ]
 
   - name: note-comment
-    condition: '%resource.author.exists().not() or (%resource.author.exists() and %resource.author.is(string).not())'
-    value: [ '%resource.text' ]
-    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-3' ]
+    condition: '%context.author.exists().not() or (%context.author.exists() and %context.author.is(string).not())'
+    resource: '%resource.text.union(%resource.extension(%`rsext-note-comment`).tail().value)'
+    resourceIndex: stIndex
+    constants:
+      stField: '%{hl7NotePath}/NTE(%{noteIndex})-3(%{stIndex})'
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/ST.yml
 
+  # This doesn't handle the extension since it should only happen with FHIR senders, and those should only have one
+  # comment per note
   - name: note-comment-author-string
     condition: '%resource.author.exists() and %resource.author.is(string)'
     value: [ '%resource.text + " Authored by: " + %resource.author' ]
