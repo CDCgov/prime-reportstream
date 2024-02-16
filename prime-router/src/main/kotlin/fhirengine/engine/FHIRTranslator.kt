@@ -65,10 +65,7 @@ class FHIRTranslator(
     ): List<FHIREngineRunResult> {
         message as ReportPipelineMessage
         val contextMap = mapOf(
-            MDCUtils.MDCProperty.ACTION_ID to actionHistory.action.actionId.toString(),
             MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
-            MDCUtils.MDCProperty.USERNAME to actionHistory.action.username,
-            MDCUtils.MDCProperty.SENDING_ORGANIZATION to actionHistory.action.sendingOrg,
             MDCUtils.MDCProperty.REPORT_ID to message.reportId,
             MDCUtils.MDCProperty.TOPIC to message.topic,
             MDCUtils.MDCProperty.BLOB_URL to message.blobURL
