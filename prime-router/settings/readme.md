@@ -15,7 +15,7 @@ The incremental settings serve two purposes. First, they allow us to review and 
 - Sender: settings/schemas/sender.json - schema for a single sender, a sender belongs to an organization
 - Receiver: settings/schemas/receiver.json - schema for a single receiver, a receiver belongs to an organization
 
-Settings schemas are used at the Settings API to validate the data
+Settings schemas are used by the Settings API to validate the data
 
 Settings schemas can also be used locally to validate data in yaml files, see below examples:
 
