@@ -14,9 +14,9 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
-import org.hl7.fhir.exceptions.FHIRException
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DiagnosticReport
@@ -67,24 +67,17 @@ private fun lookupCondition(code: Coding, metadata: Metadata): Coding? {
  */
 fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
     val toReturn = mutableMapOf<String, List<Coding>>()
-    try {
+
+    // This guards against the auto create behavior configuration getting changed. As currently, configured if code
+    // is null, it will be auto created, but a configuration change would cause this to blow up.
+    if (this.code != null) {
         toReturn[ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER] = this.code.coding
-    } catch (error: FHIRException) {
-        if (error.message == null ||
-            !error.message!!.startsWith("Type mismatch: the type CodeableConcept was expected")
-            ) {
-            throw error
-        }
     }
-    try {
+
+    if (this.value is CodeableConcept) {
         toReturn[ObservationMappingConstants.BUNDLE_VALUE_IDENTIFIER] = this.valueCodeableConcept.coding
-    } catch (error: FHIRException) {
-        if (error.message == null ||
-            !error.message!!.startsWith("Type mismatch: the type CodeableConcept was expected")
-            ) {
-            throw error
-        }
     }
+
     return toReturn
 }
 
@@ -117,7 +110,7 @@ fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
 }
 
 fun Observation.getMappedConditions(): List<String> =
-     this.getCodeSourcesMap().mapNotNull {
+    this.getCodeSourcesMap().mapNotNull {
         it.value.flatMap { coding ->
             coding.extension.mapNotNull { extension ->
                 if (extension.url == conditionCodeExtensionURL) extension.castToCoding(extension.value).code else null
