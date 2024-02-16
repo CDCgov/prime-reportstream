@@ -66,6 +66,12 @@ test.describe("Daily Data page", () => {
                 await expect(page.getByText(/Filename/)).toBeAttached();
             });
 
+            test("table has pagination", async ({ page }) => {
+                await expect(
+                    page.getByTestId("Deliveries pagination"),
+                ).toBeAttached();
+            });
+
             test("has footer", async ({ page }) => {
                 await expect(page.locator("footer")).toBeAttached();
             });
@@ -97,6 +103,12 @@ test.describe("Daily Data page", () => {
             await expect(page.getByText(/File available until/)).toBeAttached();
             await expect(page.getByText(/Items/)).toBeAttached();
             await expect(page.getByText(/Filename/)).toBeAttached();
+        });
+
+        test("table has pagination", async ({ page }) => {
+            await expect(
+                page.getByTestId("Deliveries pagination"),
+            ).toBeAttached();
         });
 
         test("has footer", async ({ page }) => {
