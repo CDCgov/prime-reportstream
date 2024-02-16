@@ -62,7 +62,7 @@ open class Receiver(
      * the timezone they operate under, and what we can use, if present, to convert date times in their data to if they
      * so request.
      */
-    val timeZone: USTimeZone? = null,
+    val timeZone: USTimeZone? = USTimeZone.EASTERN,
     /**
      * The format to output for date and date time values. This is distinct from the timeZone in this describes the
      * shape each date time value should have when output. For example, for a receiver in ET, if their dateTimeFormat
@@ -81,7 +81,7 @@ open class Receiver(
         schemaName: String,
         format: Report.Format = Report.Format.CSV,
         timing: Timing? = null,
-        timeZone: USTimeZone? = null,
+        timeZone: USTimeZone? = USTimeZone.EASTERN,
         dateTimeFormat: DateUtilities.DateTimeFormat? = null,
         translation: TranslatorConfiguration = CustomConfiguration(
             schemaName = schemaName,
