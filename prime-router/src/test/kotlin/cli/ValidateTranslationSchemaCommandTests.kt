@@ -112,7 +112,10 @@ class ValidateTranslationSchemaCommandTests {
 
         val result = command.test("-s", "FHIR", "-c", "localhost", "-b", "container")
         assertThat(result.stderr)
-            .isEqualTo("No schemas were found, please make sure that you have the correct configuration\n")
+            .isEqualTo(
+                "No schemas were found in fhir_transforms," +
+                    " please make sure that you have the correct configuration\n"
+            )
     }
 
     @Test
