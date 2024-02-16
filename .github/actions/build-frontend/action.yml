@@ -89,17 +89,26 @@ runs:
 
     - name: Run E2E tests
       working-directory: frontend-react
+      env:
+        TEST_ADMIN_USERNAME: ${{ inputs.test-admin-user }}
+        TEST_ADMIN_PASSWORD: ${{ inputs.test-admin-password }}
+        TEST_SENDER_USERNAME: ${{ inputs.test-sender-user }}
+        TEST_SENDER_PASSWORD: ${{ inputs.test-sender-password }}
+        TEST_RECEIVER_USERNAME: ${{ inputs.test-receiver-user }}
+        TEST_RECEIVER_PASSWORD: ${{ inputs.test-receiver-password }}
       run: |
-        export TEST_ADMIN_USERNAME=${{ inputs.test-admin-user }}
-        export TEST_ADMIN_PASSWORD=${{ inputs.test-admin-password }}
-        export TEST_SENDER_USERNAME=${{ inputs.test-sender-user }}
-        export TEST_SENDER_PASSWORD=${{ inputs.test-sender-password }}
-        export TEST_RECEIVER_USERNAME=${{ inputs.test-receiver-user }}
-        export TEST_RECEIVER_PASSWORD=${{ inputs.test-receiver-password }}
         echo "::group::E2E tests"
-        npx playwright test
+        yarn run test:e2e
         echo "::endgroup::"
       shell: bash
+
+    - name: Store E2E Results
+      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+      if: always()
+      with:
+        name: e2e-data
+        path: frontend-react/e2e-data/
+        retention-days: 7
 
     - name: Build release for production branch (conditional check)
       if: inputs.env-name == 'prod'
