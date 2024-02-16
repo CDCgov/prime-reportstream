@@ -117,6 +117,10 @@ class FhirToHl7Converter(
         return message
     }
 
+    override fun checkForEquality(converted: Message, expectedOutput: Message): Boolean {
+        return converted.encode() == expectedOutput.encode()
+    }
+
     /**
      * Get the first valid string from the list of values specified in the schema for a given [element] using
      * [bundle] and [context] starting at the [focusResource].
