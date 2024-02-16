@@ -1,0 +1,294 @@
+- id: mothersMaidenName
+  url: "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName"
+  value-type: HumanName
+  context: Patient
+  hl7-use: PID.6
+  description: "Mother’s maiden (unmarried) name, commonly collected to help verify patient identity"
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName",
+      "valueHumanName": {
+        "use": "maiden",
+        "family": "Doolittle",
+        "given": [
+          "Ramona",
+          "G."
+        ],
+        "prefix": [
+          "Dr"
+        ],
+        "suffix": [
+          "Jr",
+          "PhD"
+        ]
+      }
+    }
+
+- id: birthPlace
+  url: "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
+  value-type: Address
+  context: Patient
+  hl7-use: PID.23
+  description: "The registered place of birth of the patient. Note: use address.text to store birthPlace location. The remaining discrete elements on address are optional."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+      "valueAddress": {
+        "text": "Key West, FL"
+      }
+    }
+
+- id: birthTime
+  url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
+  value-type: DateTime
+  context: Patient._birthdate
+  hl7-use: PID.7
+  description: "The time of day that the Patient was born. This includes the date to ensure that the timezone information can be communicated effectively."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
+      "valueDateTime": "1970-10-31T03:04:05.67Z"
+    }
+
+- id: religion
+  url: "http://hl7.org/fhir/StructureDefinition/patient-religion"
+  value-type: CodeableConcept
+  context: Patient
+  hl7-use: PID.17
+  description: "The patient’s professed religious affiliations."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-religion",
+      "valueCodeableConcept": {
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid",
+            "valueOid": "urn:oid:8.44.235.1.113883.3.3"
+          }
+        ],
+        "coding": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString": "coding"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString": "HL70006"
+              }
+            ],
+            "version": "2.5.1",
+            "code": "ANG",
+            "display": "Agnostic"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString": "secondary-alt-coding"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString": "HL70006"
+              }
+            ],
+            "version": "2.5.1",
+            "code": "NOE",
+            "display": "Non Religeous"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString": "alt-coding"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString": "HL70006"
+              }
+            ],
+            "version": "4",
+            "code": "OTH",
+            "display": "Other"
+          }
+        ],
+        "text": "None"
+      }
+    }
+
+- id: event-performerFunction
+  url: "http://hl7.org/fhir/StructureDefinition/event-performerFunction"
+  value-type: CodeableConcept
+  context: PractitionerRole
+  hl7-use: NDL
+  description: "Distinguishes the type of involvement of the performer in the event."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                "valueString": "identifier"
+              }
+            ],
+            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+            "code": "TRANS"
+          }
+        ]
+      }
+    }
+
+- id: humanname-own-prefix
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
+  value-type: String
+  context: Practitioner, HumanName
+  hl7-use: FN.2
+  description: "The prefix portion of the family name that is derived from the person’s own surname, as distinguished from any portion that is derived from the surname of the person’s partner or spouse."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+      "valueString": "VAN"
+    }
+
+- id: humanname-own-name
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-name"
+  value-type: String
+  context: Practitioner, HumanName
+  hl7-use: FN.3
+  description: "The portion of the family name that is derived from the person’s own surname, as distinguished from any portion that is derived from the surname of the person’s partner or spouse."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+      "valueString": "Medical Director"
+    }
+
+- id: humanname-partner-prefix
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix"
+  value-type: String
+  context: Practitioner, HumanName
+  hl7-use: FN.4
+  description: "The prefix portion of the family name that is derived from the person’s partner’s surname, as distinguished from any portion that is derived from the surname of the person’s own."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix",
+      "valueString": "VAL"
+    }
+
+- id: humanname-partner-name
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-name"
+  value-type: String
+  context: Practitioner, HumanName
+  hl7-use: FN.5
+  description: "The portion of the family name that is derived from the person’s partner’s surname, as distinguished from any portion that is derived from the surname of the person’s own name."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
+      "valueString": "ROGER"
+    }
+
+- id: humanname-assembly-order
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order"
+  value-type: String
+  context: Practitioner, HumanName
+  hl7-use: XCN.18, XPN.11
+  description: "A code that represents the preferred display order of the components of this human name."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",
+      "valueCode": "F"
+    }
+
+- id: patient-congregation
+  url: "http://hl7.org/fhir/StructureDefinition/patient-congregation"
+  value-type: String
+  context: Patient
+  hl7-use: PD1.14
+  description: "A group or place of religious practice that may provide services to the patient."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-congregation",
+      "valueString": "Neighborhood Unitarian Clinic"
+    }
+
+- id: patient-disability
+  url: "http://hl7.org/fhir/StructureDefinition/patient-disability"
+  value-type: CodeableConcept
+  context: Patient
+  hl7-use: PD1.6
+  description: "Value(s) identifying physical or mental condition(s) that limits a person’s movements, senses, or activities."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-disability",
+      "valueCodeableConcept": {
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid",
+            "valueOid": "urn:oid:8.44.235.1.113883.3.3"
+          }
+        ],
+        "coding": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString": "coding"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString": "HL70295"
+              }
+            ],
+            "version": "2.5.1",
+            "code": "T",
+            "display": "TEST"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString": "secondary-alt-coding"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString": "HL70295"
+              }
+            ],
+            "version": "2.5.1",
+            "code": "D",
+            "display": "Debug"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString": "alt-coding"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString": "HL70295"
+              }
+            ],
+            "version": "4",
+            "code": "P",
+            "display": "Prod"
+          }
+        ],
+        "text": "TEST"
+      }
+    }
+
+- id: "data-absent-reason"
+  url: "http://hl7.org/fhir/StructureDefinition/data-absent-reason"
+  value-type: CodeableConcept
+  context: ContactPoint.system, Destination._endpoint, Source._endpoint
+  hl7-use:
+  description: "Provides a reason why the expected value or elements in the element that is extended are missing."
+  example:
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+      "valueCode": "unknown"
+    }
