@@ -1,10 +1,11 @@
 package gov.cdc.prime.router.fhirengine.translation
 
-import ca.uhn.hl7v2.DefaultHapiContext
+import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -22,8 +23,7 @@ class TranslationSchemaManager : Logging {
 
     companion object {
 
-        private val context = DefaultHapiContext()
-        private val hl7Parser = context.getGenericParser()
+        private val hL7Reader = HL7Reader(ActionLogger())
 
         data class ValidationResult(
             val path: String,
@@ -134,7 +134,10 @@ class TranslationSchemaManager : Logging {
                         FhirToHl7Converter(
                             rawValidationInput.schemaUri,
                             blobContainerInfo
-                        ).validate(inputBundle, hl7Parser.parse(rawValidationInput.output))
+                        ).validate(
+                            inputBundle,
+                            hL7Reader.getMessages(rawValidationInput.output)[0]
+                        )
                     }
                 }
             } catch (e: Exception) {

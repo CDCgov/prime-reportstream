@@ -99,6 +99,9 @@ class TranslationSchemaManagerTests {
             validationResults.size
         ).isEqualTo(1)
 
+        assertThat(validationResults[0].passes).isTrue()
+        assertThat(validationResults[0].didError).isFalse()
+
         assertThat(
             validationResults[0].path
         ).contains(transformFilePath)
@@ -151,8 +154,63 @@ class TranslationSchemaManagerTests {
             sourceBlobContainerMetadata
         )
 
+        val validationResults = TranslationSchemaManager().validateManagedSchemas(
+            TranslationSchemaManager.SchemaType.HL7,
+            sourceBlobContainerMetadata,
+        )
+
+        assertThat(
+            validationResults.size
+        ).isEqualTo(1)
+
+        assertThat(validationResults[0].passes).isTrue()
+        assertThat(validationResults[0].didError).isFalse()
+
+        assertThat(
+            validationResults[0].path
+        ).contains(transformFilePath)
+    }
+
+    @Test
+    fun `test validateSchemas - validation fails`() {
+        val blobEndpoint = "http://${azuriteContainer1.host}:${
+            azuriteContainer1.getMappedPort(
+                10000
+            )
+        }/devstoreaccount1"
+        val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
+            "container1",
+            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                """AccountKey=keydevstoreaccount1;BlobEndpoint=$blobEndpoint;QueueEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10001
+                    )
+                }/devstoreaccount1;"""
+        )
+
+        val inputFilePath = "hl7_mapping/dev/foo/input.fhir"
+        val outputFilePath = "hl7_mapping/dev/foo/output.hl7"
+        val transformFilePath = "hl7_mapping/dev/foo/sender-transform.yml"
         BlobAccess.uploadBlob(
-            "hl7_mapping/dev/foo/distraction/sender-transform.yml",
+            inputFilePath,
+            File(
+                Paths.get("").toAbsolutePath().toString() +
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/input.fhir"
+            ).inputStream().readAllBytes(),
+            sourceBlobContainerMetadata
+        )
+
+        BlobAccess.uploadBlob(
+            outputFilePath,
+            File(
+                Paths.get("").toAbsolutePath().toString() +
+                    "/src/test/resources/fhirengine/translation/FHIR_to_HL7/output-invalid.hl7"
+            ).inputStream().readAllBytes(),
+            sourceBlobContainerMetadata
+        )
+
+        BlobAccess.uploadBlob(
+            transformFilePath,
             File(
                 Paths.get("").toAbsolutePath().toString() +
                     "/src/test/resources/fhirengine/translation/FHIR_to_HL7/sender-transform.yml"
@@ -168,6 +226,10 @@ class TranslationSchemaManagerTests {
         assertThat(
             validationResults.size
         ).isEqualTo(1)
+
+        assertThat(validationResults[0].passes).isFalse()
+
+        assertThat(validationResults[0].didError).isFalse()
 
         assertThat(
             validationResults[0].path
@@ -259,6 +321,8 @@ class TranslationSchemaManagerTests {
         assertThat(
             validationResults.size
         ).isEqualTo(2)
+
+        assertThat(validationResults.all { result -> result.passes }).isTrue()
     }
 
     @Test
