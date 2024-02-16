@@ -13,7 +13,7 @@ class SchemaException : Exception {
 /**
  * Exception thrown when a required [element] has no value.
  */
-class RequiredElementException(val element: ConfigSchemaElement) :
+class RequiredElementException(val element: ConfigSchemaElement<*, *, *, *>) :
     Exception("Required element ${element.name} conditional was false or value was empty.")
 
 /**
