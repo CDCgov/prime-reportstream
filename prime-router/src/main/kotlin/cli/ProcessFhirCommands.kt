@@ -180,7 +180,7 @@ class ProcessFhirCommands : CliktCommand(
                         ),
                         translationFunctions = CustomTranslationFunctions()
                     )
-                ).convert(bundle)
+                ).process(bundle)
             }
         }
     }
@@ -248,7 +248,7 @@ class ProcessFhirCommands : CliktCommand(
                     throw CliktError("Unable to read schema file ${senderSchema!!.absolutePath}.")
                 } else {
                     // TODO: #10510
-                    FhirTransformer(senderSchema!!.toURI().toString(), "").transform(bundle)
+                    FhirTransformer(senderSchema!!.toURI().toString(), "").process(bundle)
                 }
             }
             else -> bundle
@@ -272,7 +272,7 @@ class ProcessFhirCommands : CliktCommand(
                     FhirTransformer(
                         receiverSchema!!.toURI().toString(),
                         ""
-                    ).transform(enrichedBundle)
+                    ).process(enrichedBundle)
                 }
             }
             else -> enrichedBundle
@@ -285,9 +285,9 @@ class ProcessFhirCommands : CliktCommand(
     private fun applyEnrichmentSchemas(bundle: Bundle): Bundle {
         if (!enrichmentSchemaNames.isNullOrEmpty()) {
             enrichmentSchemaNames!!.split(",").forEach { currentEnrichmentSchemaName ->
-//                val fileNamePieces = currentEnrichmentSchemaName.split(".")
+                val fileNamePieces = currentEnrichmentSchemaName.split(".")
                 // TODO: #10510
-                FhirTransformer(currentEnrichmentSchemaName, "").transform(bundle)
+                FhirTransformer(fileNamePieces.first(), "").process(bundle)
             }
         }
         return bundle

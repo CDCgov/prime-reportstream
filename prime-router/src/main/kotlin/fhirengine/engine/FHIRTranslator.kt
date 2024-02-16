@@ -160,7 +160,7 @@ class FHIRTranslator(
                     convertRelativeSchemaPathToUri(enrichmentSchemaName),
                     ""
                 )
-                transformer.transform(bundle)
+                transformer.process(bundle)
             }
         }
         when (receiver.format) {
@@ -170,7 +170,7 @@ class FHIRTranslator(
                         convertRelativeSchemaPathToUri(receiver.schemaName),
                         ""
                     )
-                    transformer.transform(bundle)
+                    transformer.process(bundle)
                 }
                 return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
             }
@@ -203,7 +203,7 @@ class FHIRTranslator(
             "",
             context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
         )
-        val hl7Message = converter.convert(bundle)
+        val hl7Message = converter.process(bundle)
 
         // if receiver is 'testing' or useTestProcessingMode is true, set to 'T', otherwise leave it as is
         if (receiver.customerStatus == CustomerStatus.TESTING ||
