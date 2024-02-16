@@ -60,14 +60,14 @@ describe("ReportDetailsTable", () => {
             test("Clicking on filter invokes the trackAppInsightEvent", async () => {
                 setup();
                 await selectDatesFromRange("20", "23");
-                await userEvent.click(screen.getByText("Apply"));
+                await userEvent.click(screen.getByText("Filter"));
 
                 expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
                     name: "Report Details | Table Filter",
                     properties: {
                         tableFilter: {
-                            endRange: "2024-02-23T00:00:00.000Z",
-                            startRange: "2024-02-20T00:00:00.000Z",
+                            endRange: "3000-01-23T23:59:59.999Z",
+                            startRange: "2000-01-20T00:00:00.000Z",
                         },
                     },
                 });

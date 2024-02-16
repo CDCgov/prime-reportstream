@@ -43,7 +43,7 @@ interface TableFilterProps {
     endDateLabel: string;
     filterManager: FilterManager;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
-    receivers?: { value: string; label: string }[];
+    receivers: { value: string; label: string }[];
     setService?: Dispatch<SetStateAction<string | undefined>>;
     showDateHints?: boolean;
     startDateLabel: string;
@@ -205,6 +205,7 @@ function TableFilters({
                 onReset={resetHandler}
                 key={reset}
                 autoComplete="off"
+                data-testid="filter-form"
             >
                 <div className="grid-row">
                     <div className="grid-col filter-column__one">
@@ -212,7 +213,7 @@ function TableFilters({
                             id="receiver-label"
                             data-testid="label"
                             className="usa-label"
-                            htmlFor="input-ComboBox"
+                            htmlFor="receiver-dropdown"
                         >
                             Receiver{" "}
                             <Tooltip
@@ -225,17 +226,15 @@ function TableFilters({
                                 <Icon.Help />
                             </Tooltip>
                         </label>
-                        {receivers && (
-                            <ComboBox
-                                key={receivers.length}
-                                id="input-ComboBox"
-                                name="input-ComboBox"
-                                options={receivers}
-                                onChange={(selection) => {
-                                    setCurrentServiceSelect(selection);
-                                }}
-                            />
-                        )}
+                        <ComboBox
+                            key={receivers.length}
+                            id="receiver-dropdown"
+                            name="receiver-dropdown"
+                            options={receivers}
+                            onChange={(selection) => {
+                                setCurrentServiceSelect(selection);
+                            }}
+                        />
                     </div>
                     <div className="grid-col-auto filter-column__two">
                         <DateRangePicker

@@ -160,7 +160,7 @@ const DeliveriesFilterAndTable = ({
 
     const receiverDropdown = [
         ...new Set(
-            services?.map((data) => {
+            services.map((data) => {
                 return data.name;
             }),
         ),

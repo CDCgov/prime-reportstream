@@ -23,7 +23,7 @@ import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import Spinner from "../../Spinner";
 import Pagination from "../../Table/Pagination";
-import TableFilters from "../../Table/TableFilters";
+import DataDashboardTableFilters from "../DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 
 function FacilitiesProvidersFilterAndTable({
@@ -123,7 +123,7 @@ function FacilitiesProvidersFilterAndTable({
                         activeService={activeReceiver}
                         handleSetActive={handleSetActive}
                     />
-                    <TableFilters
+                    <DataDashboardTableFilters
                         startDateLabel="From: (mm/dd/yyyy)"
                         endDateLabel="To: (mm/dd/yyyy)"
                         filterManager={filterManager}

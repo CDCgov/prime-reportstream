@@ -137,6 +137,10 @@ export const TestTable = ({
                 startDateLabel={TableFilterDateLabel.START_DATE}
                 endDateLabel={TableFilterDateLabel.END_DATE}
                 filterManager={filterManager}
+                receivers={[
+                    { value: "Receiver One", label: "Receiver One" },
+                    { value: "Receiver Two", label: "Receiver Two" },
+                ]}
                 cursorManager={{
                     cursors,
                     hasNext,
