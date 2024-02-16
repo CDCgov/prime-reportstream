@@ -62,7 +62,7 @@ extension_1:
   constants:
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
-    urlValue: assigning-authority-universal-id
+    urlValue: universal-id
 
 # Assigning facility OID
 extension_2:
@@ -91,7 +91,7 @@ extension_3:
   constants:
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
-    urlValue: assigning-authority-universal-id
+    urlValue: universal-id
 
 # Assigning facility namespace
 extension_4:
@@ -115,7 +115,7 @@ extension_5:
     value: String, XCN.9.1
   constants:
     KEY_NAME_SUFFIX: String
-    urlValue: assigning-authority-namespace-id
+    urlValue: namespace-id
 
 extension_6:
   generateList: true

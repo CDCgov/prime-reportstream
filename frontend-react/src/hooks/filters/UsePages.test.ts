@@ -1,8 +1,7 @@
 import { act } from "@testing-library/react";
 
-import { renderHook } from "../../utils/CustomRenderUtils";
-
 import usePages, { PageSettingsActionType } from "./UsePages";
+import { renderHook } from "../../utils/CustomRenderUtils";
 
 describe("UsePages", () => {
     test("defaults to page number 1", () => {

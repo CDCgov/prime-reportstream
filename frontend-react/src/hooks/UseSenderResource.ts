@@ -1,9 +1,9 @@
-import { useCallback } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 
-import { useSessionContext } from "../contexts/Session";
 import { RSSender, servicesEndpoints } from "../config/endpoints/settings";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
+import { useSessionContext } from "../contexts/Session";
 
 const { senderDetail } = servicesEndpoints;
 
@@ -17,8 +17,8 @@ export default function useSenderResource(initialData?: RSSender) {
         if (!!activeMembership?.parsedName && !!activeMembership.service) {
             return authorizedFetch(senderDetail, {
                 segments: {
-                    orgName: activeMembership?.parsedName!!,
-                    sender: activeMembership?.service!!,
+                    orgName: activeMembership.parsedName,
+                    sender: activeMembership.service,
                 },
             });
         }

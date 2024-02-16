@@ -145,6 +145,8 @@ class FHIRRouter(
         // get the receivers that this bundle should go to
         val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
 
+        val sender = reportService.getSenderName(message.reportId)
+
         // check if there are any receivers
         if (listOfReceivers.isNotEmpty()) {
             val filteredIdMap: MutableMap<String, MutableList<String>> = mutableMapOf()
@@ -215,7 +217,7 @@ class FHIRRouter(
                 actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
                 // send event to Azure AppInsights
-                emitAzureEvent(report, message, receiver, receiverBundle)
+                emitAzureEvent(report, message, sender, receiver, receiverBundle)
 
                 listOf(
                     FHIREngineRunResult(
@@ -272,7 +274,7 @@ class FHIRRouter(
             actionHistory.trackCreatedReport(nextEvent, report)
 
             // send event to Azure AppInsights
-            emitAzureEvent(report, message, null, bundle)
+            emitAzureEvent(report, message, sender, null, bundle)
 
             return emptyList()
         }
@@ -711,10 +713,10 @@ class FHIRRouter(
     private fun emitAzureEvent(
         report: Report,
         message: ReportPipelineMessage,
+        sender: String,
         receiver: Receiver?,
         bundle: Bundle,
     ) {
-        val sender = reportService.getSenderName(message.reportId)
         val conditions = bundle.getAllMappedConditions()
 
         azureEventService.trackEvent(

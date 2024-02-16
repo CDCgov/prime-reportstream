@@ -1,25 +1,24 @@
-import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 
-import Spinner from "../Spinner";
-import { USLink } from "../USLink";
-import { showToast } from "../../contexts/Toast";
+import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
+import ManagePublicKeyConfigured from "./ManagePublicKeyConfigured";
+import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
+import ManagePublicKeyUploadError from "./ManagePublicKeyUploadError";
+import ManagePublicKeyUploadSuccess from "./ManagePublicKeyUploadSuccess";
 import { ApiKey } from "../../config/endpoints/settings";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
 import { useSessionContext } from "../../contexts/Session";
-import { validateFileType, validateFileSize } from "../../utils/FileUtils";
+import { showToast } from "../../contexts/Toast";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
 import Alert from "../../shared/Alert/Alert";
 import { FeatureName } from "../../utils/FeatureName";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
-
-import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
-import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
-import ManagePublicKeyUploadSuccess from "./ManagePublicKeyUploadSuccess";
-import ManagePublicKeyUploadError from "./ManagePublicKeyUploadError";
-import ManagePublicKeyConfigured from "./ManagePublicKeyConfigured";
+import { validateFileSize, validateFileType } from "../../utils/FileUtils";
+import Spinner from "../Spinner";
+import { USLink } from "../USLink";
 
 export const CONTENT_TYPE = "application/x-x509-ca-cert";
 export const FORMAT = "PEM";
@@ -190,15 +189,17 @@ export function ManagePublicKeyPage() {
                 )}
                 {!sender && (
                     <ManagePublicKeyChooseSender
-                        senders={senders || []}
+                        senders={senders ?? []}
                         onSenderSelect={handleSenderSelect}
                     />
                 )}
                 {showPublicKeyConfigured && <ManagePublicKeyConfigured />}
                 {isUploadEnabled && (
                     <ManagePublicKeyUpload
-                        onPublicKeySubmit={handlePublicKeySubmit}
-                        onFileChange={handleFileChange}
+                        onPublicKeySubmit={(ev) =>
+                            void handlePublicKeySubmit(ev)
+                        }
+                        onFileChange={(ev) => void handleFileChange(ev)}
                         onBack={handleOnBack}
                         hasBack={hasBack}
                         publicKey={hasPublicKey ?? file}

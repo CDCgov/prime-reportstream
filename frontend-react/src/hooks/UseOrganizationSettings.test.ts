@@ -1,12 +1,11 @@
 import { waitFor } from "@testing-library/react";
 
-import { renderHook } from "../utils/CustomRenderUtils";
+import { Organizations } from "./UseAdminSafeOrganizationName";
+import { useOrganizationSettings } from "./UseOrganizationSettings";
 import { fakeOrg, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { renderHook } from "../utils/CustomRenderUtils";
 import { MemberType } from "../utils/OrganizationUtils";
-
-import { useOrganizationSettings } from "./UseOrganizationSettings";
-import { Organizations } from "./UseAdminSafeOrganizationName";
 
 describe("useOrganizationSettings", () => {
     beforeAll(() => {

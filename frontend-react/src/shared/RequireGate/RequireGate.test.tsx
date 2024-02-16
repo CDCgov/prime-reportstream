@@ -1,12 +1,11 @@
 import { screen } from "@testing-library/react";
 
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
-import { PERMISSIONS } from "../../utils/UsefulTypes";
-
 import { RequireGateBase } from "./RequireGate";
+import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { PERMISSIONS } from "../../utils/UsefulTypes";
 
 const mockUseNavigate = jest.fn();
 
@@ -26,7 +25,7 @@ const Fail = () => <>Failure</>;
 describe("RequireGate", () => {
     beforeEach(() => {
         mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
+            dispatch: () => void 0,
             checkFlags: () => true,
             featureFlags: [],
         });

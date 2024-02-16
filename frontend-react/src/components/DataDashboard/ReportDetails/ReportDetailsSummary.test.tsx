@@ -1,15 +1,14 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
-import { FileType } from "../../../utils/TemporarySettingsAPITypes";
+import { ReportDetailsSummary } from "./ReportDetailsSummary";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
+import { renderApp } from "../../../utils/CustomRenderUtils";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import {
     AccessTokenWithRSClaims,
     MemberType,
 } from "../../../utils/OrganizationUtils";
-import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-
-import { ReportDetailsSummary } from "./ReportDetailsSummary";
+import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 
 const mockGetUser = jest.fn();
 
@@ -32,12 +31,11 @@ const DEFAULT_RSDELIVERY = {
 beforeEach(() => {
     // Mock our SessionProvider's data
     mockSessionContentReturnValue({
-        //@ts-ignore
         oktaAuth: {
             getUser: mockGetUser.mockResolvedValue({
                 email: "test@test.org",
             }),
-        },
+        } as any,
         authState: {
             isAuthenticated: true,
             accessToken: {

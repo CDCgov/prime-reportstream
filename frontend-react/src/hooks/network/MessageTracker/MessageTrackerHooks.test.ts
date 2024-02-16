@@ -1,5 +1,6 @@
 import { act, waitFor } from "@testing-library/react";
 
+import { useMessageDetails, useMessageSearch } from "./MessageTrackerHooks";
 import {
     messageTrackerServer,
     MOCK_MESSAGE_SENDER_DATA,
@@ -7,8 +8,6 @@ import {
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
-
-import { useMessageSearch, useMessageDetails } from "./MessageTrackerHooks";
 
 beforeAll(() => messageTrackerServer.listen());
 afterEach(() => messageTrackerServer.resetHandlers());

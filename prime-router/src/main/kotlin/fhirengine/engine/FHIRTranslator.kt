@@ -31,8 +31,6 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.history.db.ReportGraph
-import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
 import java.time.OffsetDateTime
@@ -51,9 +49,7 @@ class FHIRTranslator(
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
-    reportService: ReportService = ReportService(ReportGraph(db)),
-) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
-
+) : FHIREngine(metadata, settings, db, blob, azureEventService) {
     /**
      * Accepts a [FhirTranslateQueueMessage] [message] and, based on its parameters, sends a report to the next pipeline
      * step containing either the first ancestor's blob or a new blob that has been translated per
@@ -209,7 +205,7 @@ class FHIRTranslator(
                     convertRelativeSchemaPathToUri(enrichmentSchemaName),
                     ""
                 )
-                transformer.transform(bundle)
+                transformer.process(bundle)
             }
         }
         when (receiver.format) {
@@ -219,7 +215,7 @@ class FHIRTranslator(
                         convertRelativeSchemaPathToUri(receiver.schemaName),
                         ""
                     )
-                    transformer.transform(bundle)
+                    transformer.process(bundle)
                 }
                 return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
             }
@@ -252,7 +248,7 @@ class FHIRTranslator(
             "",
             context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
         )
-        val hl7Message = converter.convert(bundle)
+        val hl7Message = converter.process(bundle)
 
         // if receiver is 'testing' or useTestProcessingMode is true, set to 'T', otherwise leave it as is
         if (receiver.customerStatus == CustomerStatus.TESTING ||

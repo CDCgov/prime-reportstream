@@ -1,15 +1,14 @@
 import { screen, within } from "@testing-library/react";
 import { AxiosError, AxiosResponse } from "axios";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
+import ValueSetsIndexPage from "./ValueSetsIndex";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
-import { RSNetworkError } from "../../../utils/RSNetworkError";
 import {
     UseValueSetsMetaResult,
     UseValueSetsTableResult,
 } from "../../../hooks/UseValueSets";
-
-import ValueSetsIndexPage from "./ValueSetsIndex";
+import { renderApp } from "../../../utils/CustomRenderUtils";
+import { RSNetworkError } from "../../../utils/RSNetworkError";
 
 const fakeRows = [
     {

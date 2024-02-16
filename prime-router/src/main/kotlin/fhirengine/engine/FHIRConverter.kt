@@ -92,7 +92,7 @@ class FHIRConverter(
             )
             return fhirBundles.mapIndexed { bundleIndex, bundle ->
                 // conduct FHIR Transform
-                transformer?.transform(bundle)
+                transformer?.process(bundle)
 
                 // 'stamp' observations with their condition code
                 bundle.getObservations().forEach {

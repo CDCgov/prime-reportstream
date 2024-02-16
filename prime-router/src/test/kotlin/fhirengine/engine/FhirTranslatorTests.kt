@@ -231,6 +231,10 @@ class FhirTranslatorTests {
      */
     @Test
     fun `test when customerStatus = testing`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         // set up
         val schemaName = ORU_R01_SCHEMA
         val receiver = Receiver(
@@ -268,6 +272,10 @@ class FhirTranslatorTests {
      */
     @Test
     fun `test when customerStatus = active, useTestProcessingMode = true`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         val schemaName = ORU_R01_SCHEMA
         // set up
         val receiver = Receiver(
@@ -303,6 +311,10 @@ class FhirTranslatorTests {
      */
     @Test
     fun `test when customerStatus = active, useTestProcessingMode = false, P from sender`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         // set up
         val schemaName = ORU_R01_SCHEMA
         val receiver = Receiver(
@@ -339,6 +351,10 @@ class FhirTranslatorTests {
      */
     @Test
     fun `test when customerStatus = active, useTestProcessingMode = false, T from sender`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         // set up
         val schemaName = ORU_R01_SCHEMA
         val receiver = Receiver(
@@ -377,6 +393,10 @@ class FhirTranslatorTests {
      */
     @Test
     fun `test receiver enrichment`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         // set up
         val schemaName = ORU_R01_SCHEMA
         val receiver = Receiver(
@@ -497,6 +517,10 @@ class FhirTranslatorTests {
 
     @Test
     fun `test getByteArrayFromBundle`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         val fhirData = File(VALID_DATA_URL).readText()
         val fhirBundle = FhirTranscoder.decode(fhirData)
 
@@ -524,6 +548,10 @@ class FhirTranslatorTests {
 
     @Test
     fun `test encodePreserveEncodingChars`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         val fhirData = File("src/test/resources/fhirengine/engine/valid_data_five_encoding_chars.fhir").readText()
         val fhirBundle = FhirTranscoder.decode(fhirData)
 
