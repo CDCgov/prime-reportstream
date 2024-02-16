@@ -11,7 +11,7 @@ The incremental settings serve two purposes. First, they allow us to review and 
 **settings schemas are in settings/schemas directory:**
 
 - Settings: settings/schemas/settings.json - schema for organizations.yml, an array of organization
-- Organization: settings/schemas/organization.json - schema for a single organization including 0 or many sender(s)
+- Organization: settings/schemas/organization.json - schema for a single organization including 0 or many sender(s) or receiver(s)
 - Sender: settings/schemas/sender.json - schema for a single sender, a sender belongs to an organization
 - Receiver: settings/schemas/receiver.json - schema for a single receiver, a receiver belongs to an organization
 
