@@ -31,6 +31,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
 import java.time.OffsetDateTime
@@ -49,7 +50,8 @@ class FHIRTranslator(
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
-) : FHIREngine(metadata, settings, db, blob, azureEventService) {
+    reportService: ReportService = ReportService(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
     /**
      * Accepts a [FhirTranslateQueueMessage] [message] and, based on its parameters, sends a report to the next pipeline
      * step containing either the first ancestor's blob or a new blob that has been translated per

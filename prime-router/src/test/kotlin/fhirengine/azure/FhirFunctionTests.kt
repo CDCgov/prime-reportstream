@@ -42,6 +42,7 @@ import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
+import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -827,7 +828,8 @@ class FhirFunctionTests {
                     UnitTestUtils.simpleMetadata,
                     settings,
                     ReportStreamTestDatabaseContainer.testDatabaseAccess,
-                    blobSpy
+                    blobSpy,
+                    reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess))
                 )
             )
 
@@ -985,7 +987,8 @@ class FhirFunctionTests {
                     UnitTestUtils.simpleMetadata,
                     settings,
                     ReportStreamTestDatabaseContainer.testDatabaseAccess,
-                    blobSpy
+                    blobSpy,
+                    reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess))
                 )
             )
 
