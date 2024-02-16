@@ -6,18 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.ObservationFilterable
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.ReportStreamFilter
-import gov.cdc.prime.router.ReportStreamFilters
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.TranslatorConfiguration
-import gov.cdc.prime.router.TransportType
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -380,7 +369,7 @@ class ReceiverAPI
     processingModeFilter: ReportStreamFilter = emptyList(),
     reverseTheQualityFilter: Boolean = false,
     conditionalFilter: ReportStreamFilter = emptyList(),
-    mappedConditionalFilter: List<ObservationFilterable> = emptyList(),
+    mappedConditionalFilter: List<ConditionFilterable> = emptyList(),
     deidentify: Boolean = false,
     deidentifiedValue: String = "",
     timing: Timing? = null,

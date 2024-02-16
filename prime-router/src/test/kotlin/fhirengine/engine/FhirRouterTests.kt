@@ -15,7 +15,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.fhir.context.FhirContext
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CodeStringConditionFilter
+import gov.cdc.prime.router.ConditionCodeFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
@@ -265,7 +265,7 @@ class FhirRouterTests {
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "one",
-                mappedConditionFilter = listOf(CodeStringConditionFilter("6142004,Some Condition Code"))
+                mappedConditionFilter = listOf(ConditionCodeFilter("6142004,Some Condition Code"))
             ),
             Receiver(
                 "full-elr-hl7-2",
@@ -288,7 +288,7 @@ class FhirRouterTests {
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "one",
-                mappedConditionFilter = listOf(CodeStringConditionFilter("AOE"))
+                mappedConditionFilter = listOf(ConditionCodeFilter("AOE"))
             ),
             Receiver(
                 "full-elr-hl7-2",
@@ -519,7 +519,7 @@ class FhirRouterTests {
         val processingModeFilter = listOf(OBSERVATION_COUNT_GREATER_THAN_ZERO)
         val conditionFilter = emptyList<String>()
         // with multiple mapped condition filters, we are looking for any of them passing
-        val mappedConditionFilter = listOf(CodeStringConditionFilter("6142004,Some Condition Code"))
+        val mappedConditionFilter = listOf(ConditionCodeFilter("6142004,Some Condition Code"))
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         engine.setFiltersOnEngine(
             jurisFilter, qualFilter, routingFilter, processingModeFilter, conditionFilter, mappedConditionFilter
@@ -1003,7 +1003,7 @@ class FhirRouterTests {
         val routingFilter = listOf(OBSERVATION_COUNT_GREATER_THAN_ZERO)
         val processingModeFilter = listOf(OBSERVATION_COUNT_GREATER_THAN_ZERO)
         val conditionFilter = emptyList<String>()
-        val mappedConditionFilter = listOf(CodeStringConditionFilter("foo,bar"))
+        val mappedConditionFilter = listOf(ConditionCodeFilter("foo,bar"))
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
@@ -1065,7 +1065,7 @@ class FhirRouterTests {
         val routingFilter = listOf(OBSERVATION_COUNT_GREATER_THAN_ZERO)
         val processingModeFilter = listOf(OBSERVATION_COUNT_GREATER_THAN_ZERO)
         val conditionFilter = emptyList<String>()
-        val mappedConditionFilter = listOf(CodeStringConditionFilter("AOE"))
+        val mappedConditionFilter = listOf(ConditionCodeFilter("AOE"))
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
@@ -1376,7 +1376,7 @@ class FhirRouterTests {
             )
         )
 
-        val expectedBundle = bundle.copy().also { CodeStringConditionFilter("6142004").pass(it) }
+        val expectedBundle = bundle.copy().also { ConditionCodeFilter("6142004").pass(it) }
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = BODY_URL

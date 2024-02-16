@@ -4,7 +4,6 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.BundleFilterable.Companion.pass
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.Metadata
@@ -182,11 +181,9 @@ class FHIRRouter(
 
                     // prune the bundle with each condition filter
                     receiver.mappedConditionFilter.forEach {
-                        it.prune(receiverBundle).onEach { failedObservations ->
+                        it.prune(receiverBundle).forEach { observation ->
                             // track all observations that failed for this receiver
-                            failedObservations.value.forEach { observation ->
-                                filteredIdMap.getOrPut(observation.id) { mutableListOf() }.add(receiver.fullName)
-                            }
+                            filteredIdMap.getOrPut(observation.id) { mutableListOf() }.add(receiver.fullName)
                         }
                     }
                 }
@@ -378,19 +375,21 @@ class FHIRRouter(
             // MAPPED CONDITION FILTER
             //  default: allowAll
             if (passes && receiver.mappedConditionFilter.isNotEmpty() && bundle.getObservations().isNotEmpty()) {
-                val result = receiver.mappedConditionFilter.pass(bundle, false)
-                if (!result.pass) {
-                    logFilterResults(
-                        "mappedConditionFilter: ${result.failingFilter}",
-                        bundle,
-                        reportId,
-                        actionHistory,
-                        receiver,
-                        ReportStreamFilterType.MAPPED_CONDITION_FILTER,
-                        bundle
-                    )
+                passes = receiver.mappedConditionFilter.fold(true) { result, filter ->
+                    val filterResult = filter.pass(bundle)
+                    if (!filterResult) {
+                        logFilterResults(
+                            "mappedConditionFilter: $filter", // TODO: something better
+                            bundle,
+                            reportId,
+                            actionHistory,
+                            receiver,
+                            ReportStreamFilterType.MAPPED_CONDITION_FILTER,
+                            bundle
+                        )
+                    }
+                    result && filterResult
                 }
-                passes = result.pass
             }
 
             // if all filters pass, add this receiver to the list of valid receivers

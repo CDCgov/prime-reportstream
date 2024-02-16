@@ -23,161 +23,82 @@ import kotlin.reflect.full.memberProperties
 typealias ReportStreamFilter = List<String>
 
 /**
- * The result of running a filter on a bundle
- *
- * @property pass whether the bundle passed the filter
- * @property failingFilter which filter the bundle failed
- */
-open class FilterResult(
-    val pass: Boolean = false,
-    val failingFilter: String? = null,
-) {
-    /**
-     * Convenience function to AND two FilterResults together
-     * @return the result of the AND operation
-     */
-    fun and(other: FilterResult) = this.andOr(other, false)
-
-    /**
-     * Convenience function to OR two FilterResults together
-     * @return the result of the OR operation
-     */
-    fun or(other: FilterResult) = this.andOr(other)
-
-    /**
-     * Combines two FilterResults using the operand (&& or ||) specified by [useOr] on the pass member
-     * @return a combined FilterResult using the specified operand and concatenated failingFilters
-     */
-    fun andOr(other: FilterResult, useOr: Boolean = true) = FilterResult(
-        if (useOr) other.pass || this.pass else other.pass && this.pass, // use specified operand
-        listOf(this.failingFilter, other.failingFilter).joinToString(",") // combine strings as array tokens
-    )
-}
-
-/**
- *  The result of running an observation filter on a bundle
- *
- *  @property pass whether the bundle passed the filter
- *  @property failingFilter which filter the bundle failed; equivalent to failingObservations.keys
- *  @property failingObservations a map of failed observations grouped by the filter they failed
- */
-class ObservationFilterResult(
-    pass: Boolean = false,
-    failingFilter: String? = null,
-    val failingObservations: Map<String, List<Observation>> = emptyMap(),
-) : FilterResult(pass, failingFilter) {
-    /**
-     * Convenience function to AND two ObservationFilterResults together
-     * @return the result of the AND operation
-     */
-    fun and(other: ObservationFilterResult) = this.andOr(other, false)
-
-    /**
-     * Convenience function to OR two ObservationFilterResults together
-     * @return the result of the OR operation
-     */
-    fun or(other: ObservationFilterResult) = this.andOr(other)
-
-    /**
-     * Combines two ObservationFilterResults using the operand (&& or ||) specified by [useOr] on the pass member
-     * @return a combined ObservationFilterResult using the specified operand, concatenated failingFilters, and merged
-     *         failingObservations
-     */
-    fun andOr(other: ObservationFilterResult, useOr: Boolean = true) =
-        super.andOr(other, useOr).let { superResult ->
-            ObservationFilterResult(
-                superResult.pass,
-                superResult.failingFilter,
-                this.failingObservations.toMutableMap().also { allFiltered ->
-                    other.failingObservations.forEach {
-                        allFiltered[it.key] = allFiltered.getOrDefault(it.key, emptyList()) + it.value
-                    }
-                }
-            )
-        }
-}
-
-/**
  * Interface for determining if a bundle passes a filter
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(CodeStringConditionFilter::class, name = "codeString"),
-    JsonSubTypes.Type(ConditionLookupConditionFilter::class, name = "conditionLookup"),
+    JsonSubTypes.Type(ConditionCodeFilter::class, name = "codeString"),
+    JsonSubTypes.Type(ConditionKeywordFilter::class, name = "conditionLookup"),
     JsonSubTypes.Type(FHIRExpressionFilter::class, name = "fhirExpression"),
     JsonSubTypes.Type(FHIRExpressionConditionFilter::class, name = "fhirExpressionCondition"),
 )
 interface BundleFilterable {
     /**
      * Check if a [bundle] passes this filter
-     * @return the result of running the filter
+     * @return whether the bundle passed
      */
-    fun pass(bundle: Bundle): FilterResult
-
-    companion object {
-        /**
-         * Check if a bundle passes a list of filters
-         * @return the combined result of running all the filters (with [useOr] logic)
-         */
-        fun List<BundleFilterable>.pass(bundle: Bundle, useOr: Boolean = true): FilterResult {
-            return this.fold(FilterResult(!useOr)) { result, filter ->
-                result.andOr(filter.pass(bundle), useOr)
-            }
-        }
-    }
+    fun pass(bundle: Bundle): Boolean
 }
 
 /**
- * Interface for pruning observations from a bundle and determining if its observations pass a filter
+ * Interface for pruning observations from a bundle
  */
-interface ObservationFilterable : BundleFilterable {
+interface ObservationFilterable {
     /**
      * Check if an [observation] in a [bundle] passes this filter
-     * @return the result of running the filter
+     * @return whether the observation passed
      */
-    fun evaluateObservation(bundle: Bundle, observation: Observation): FilterResult
+    fun evaluateObservation(bundle: Bundle, observation: Observation): Boolean
 
     /**
      * Prune the observations in a [bundle]
-     * @return the pruned observations grouped by the filter that pruned them
+     * @return the pruned observations
      */
-    fun prune(bundle: Bundle): Map<String, List<Observation>> {
+    fun prune(bundle: Bundle): List<Observation>
+}
+
+/**
+ * Interface that uses medical conditions as the basis for filtering bundles or pruning their observations
+ */
+interface ConditionFilterable : BundleFilterable, ObservationFilterable {
+    data class ConditionFilterResult(
+        val pass: Boolean,
+        val failingObservations: List<Observation>,
+    )
+
+    override fun prune(bundle: Bundle): List<Observation> {
         val result = evaluate(bundle, true)
         return result.failingObservations
     }
 
-    /**
-     * Check if any of this [bundle]'s observations pass this filter
-     * @return the result of running the filter on the bundle's observations
-     */
-    override fun pass(bundle: Bundle): FilterResult {
+    override fun pass(bundle: Bundle): Boolean {
         val result = evaluate(bundle, false)
-        return FilterResult(result.pass, result.failingFilter)
+        return result.pass
     }
 
     /**
      * Evaluate this filter on a [bundle]'s observations and optionally [filter] them from the bundle
      * @return the result of running the observation filter
      */
-    fun evaluate(bundle: Bundle, filter: Boolean): ObservationFilterResult {
+    fun evaluate(bundle: Bundle, filter: Boolean): ConditionFilterResult {
         val passingObservations = mutableListOf<Observation>()
-        val failingObservations = mutableMapOf<String, MutableList<Observation>>()
-        var result = bundle.getObservations().fold(ObservationFilterResult(true)) { result, observation ->
+        val failingObservations = mutableListOf<Observation>()
+        val result = bundle.getObservations().fold(false) { result, observation ->
             // evaluate each observation and sort into appropriate data structure
             val obsResult = evaluateObservation(bundle, observation)
-            if (obsResult.pass) {
+            if (obsResult) {
                 passingObservations.add(observation)
             } else {
-                failingObservations.getOrPut(obsResult.failingFilter!!) { mutableListOf() }.add(observation)
+                failingObservations.add(observation)
                 if (filter) bundle.deleteResource(observation) // optionally filter this observation from the bundle
             }
-            result.andOr(ObservationFilterResult(obsResult.pass, obsResult.failingFilter)) // track filter result
+            result || obsResult
         }
         //  never pass a bundle with only AOE conditions
-        if (result.pass && passingObservations.all { it.getMappedConditions().all { code -> code == "AOE" } }) {
-            return ObservationFilterResult(false, "All AOE Conditions", failingObservations)
+        if (result && passingObservations.all { it.getMappedConditions().all { code -> code == "AOE" } }) {
+            return ConditionFilterResult(false, failingObservations)
         }
-        return ObservationFilterResult(result.pass, result.failingFilter, failingObservations)
+        return ConditionFilterResult(result, failingObservations)
     }
 }
 
@@ -186,13 +107,11 @@ interface ObservationFilterable : BundleFilterable {
  * @param value A comma-delimited list of condition codes
  * @property codeList A list of condition code strings
  */
-open class CodeStringConditionFilter(val value: String) : ObservationFilterable {
+open class ConditionCodeFilter(val value: String) : ConditionFilterable {
     open val codeList = value.split(",").map { it.trim() }
 
-    override fun evaluateObservation(bundle: Bundle, observation: Observation): FilterResult {
-        val passes = observation.getMappedConditions().any(codeList::contains)
-        return FilterResult(passes, value)
-    }
+    override fun evaluateObservation(bundle: Bundle, observation: Observation): Boolean =
+        observation.getMappedConditions().any(codeList::contains)
 }
 
 /**
@@ -200,7 +119,7 @@ open class CodeStringConditionFilter(val value: String) : ObservationFilterable 
  * @param value A comma-delimited list of condition keywords
  * @property codeList A list of condition code strings looked up using condition keywords
  */
-class ConditionLookupConditionFilter(value: String) : CodeStringConditionFilter(value) {
+class ConditionKeywordFilter(value: String) : ConditionCodeFilter(value) {
     override val codeList = getConditionCodes(value)
 
     /**
@@ -234,8 +153,7 @@ class ConditionLookupConditionFilter(value: String) : CodeStringConditionFilter(
  * @param reverseFilter Whether the filter result should be reversed
  */
 open class FHIRExpressionFilter(
-    val filters: List<String>,
-    val useOr: Boolean = true,
+    private val fhirExpression: String,
     private val defaultResponse: Boolean = true,
     private val reverseFilter: Boolean = false,
 ) : BundleFilterable {
@@ -301,59 +219,27 @@ open class FHIRExpressionFilter(
      * Check if a [bundle] passes this filter with an optional [focusResource]
      * @return the result of running the filter
      */
-    fun evaluate(bundle: Bundle, focusResource: Base = bundle): FilterResult {
-        if (filters.isEmpty()) {
-            return FilterResult(defaultResponse)
+    fun evaluate(bundle: Bundle, focusResource: Base = bundle): Boolean {
+        if (fhirExpression.isEmpty()) {
+            return defaultResponse
         }
-        val failingFilters = mutableListOf<String>()
-        val exceptionFilters = mutableListOf<String>()
-        val successfulFilters = mutableListOf<String>()
         val log = mutableListOf<ActionLogDetail>()
-        filters.forEach { filterElement ->
-            try {
-                val filterElementResult = FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
-                    focusResource,
-                    bundle,
-                    bundle,
-                    filterElement
-                )
-                if (!filterElementResult) {
-                    failingFilters += filterElement
-                } else {
-                    successfulFilters += filterElement
-                }
-            } catch (e: SchemaException) {
-                log.add(EvaluateFilterConditionErrorMessage(e.message)) // TODO: do something with log
-                exceptionFilters += filterElement
-            }
-        }
-
-        // the filter result and filters of interest depend on our boolean logic; mind the dragons (to include return if)
-        val filterResult = if (useOr) successfulFilters.isNotEmpty() else failingFilters.isEmpty()
-        val interestFilters = if (useOr) successfulFilters else failingFilters
-
-        return if (exceptionFilters.isNotEmpty()) {
-            FilterResult(
-                false,
-                "(exception found) $exceptionFilters"
+        try {
+            val expressionResult = FhirPathUtils.evaluateCondition(
+                CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
+                focusResource,
+                bundle,
+                bundle,
+                fhirExpression
             )
-        } else if (filterResult) {
-            if (reverseFilter) {
-                FilterResult(false, "(reversed) $interestFilters")
-            } else {
-                FilterResult(true)
-            }
-        } else {
-            if (reverseFilter) {
-                FilterResult(true)
-            } else {
-                FilterResult(false, failingFilters.toString())
-            }
+            return if (!reverseFilter) expressionResult else !expressionResult
+        } catch (e: SchemaException) {
+            log.add(EvaluateFilterConditionErrorMessage(e.message)) // TODO: do something with log
+            return false
         }
     }
 
-    override fun pass(bundle: Bundle): FilterResult {
+    override fun pass(bundle: Bundle): Boolean {
         return evaluate(bundle)
     }
 }
@@ -367,18 +253,14 @@ open class FHIRExpressionFilter(
  * @param reverseFilter Whether the filter result should be reversed
  */
 class FHIRExpressionConditionFilter(
-    filters: List<String>,
-    useOr: Boolean = true,
+    fhirExpression: String,
     defaultResponse: Boolean = true,
     reverseFilter: Boolean = false,
-) : FHIRExpressionFilter(filters, useOr, defaultResponse, reverseFilter), ObservationFilterable {
-    override fun evaluateObservation(bundle: Bundle, observation: Observation): FilterResult =
+) : FHIRExpressionFilter(fhirExpression, defaultResponse, reverseFilter), ConditionFilterable {
+    override fun evaluateObservation(bundle: Bundle, observation: Observation): Boolean =
         this.evaluate(bundle, observation)
 
-    override fun pass(bundle: Bundle): FilterResult {
-        val result = this.evaluate(bundle, false)
-        return FilterResult(result.pass, result.failingFilter)
-    }
+    override fun pass(bundle: Bundle): Boolean = this.evaluate(bundle, false).pass
 }
 
 /**

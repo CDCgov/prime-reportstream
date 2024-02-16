@@ -25,7 +25,7 @@ class MetadataIntegrationTests {
         val receiver = settings.receivers.find { it.mappedConditionFilter.isNotEmpty() }
         assertThat(receiver).isNotNull()
         assertThat(receiver!!.mappedConditionFilter).isNotEmpty()
-        assertThat(receiver.mappedConditionFilter.filterIsInstance<CodeStringConditionFilter>().first().codeList)
+        assertThat(receiver.mappedConditionFilter.filterIsInstance<ConditionCodeFilter>().first().codeList)
             .isEqualTo(listOf("840539006", "1234"))
     }
 }
