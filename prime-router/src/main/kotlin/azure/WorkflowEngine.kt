@@ -291,7 +291,7 @@ class WorkflowEngine(
             val currentEventAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
             // Ignore messages that are not consistent with the current header
             if (currentEventAction != messageEvent.eventAction) {
-                logger.warn(
+                logger.warn( // TODO(ARNEJ) Why are we getting in here?
                     "Weirdness for $reportId: queue event = ${messageEvent.eventAction.name}, " +
                         " but task.nextAction = ${currentEventAction.name} "
                 )

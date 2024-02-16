@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import gov.cdc.prime.router.ActionLog
@@ -29,6 +30,7 @@ import gov.cdc.prime.router.azure.db.tables.Task
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
@@ -59,6 +61,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.utility.DockerImageName
 import java.io.File
 import java.time.OffsetDateTime
 import gov.cdc.prime.router.azure.db.tables.ActionLog as ActionLogTable
@@ -430,14 +434,25 @@ class FhirFunctionTests {
     @Nested
     @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
     inner class FhirFunctionIntegrationTests {
+        val azuriteContainer =
+            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
+                .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
+                .withExposedPorts(10000, 10001, 10002)
+
+        init {
+            azuriteContainer.start()
+        }
 
         private fun seedTask(
             fileFormat: Report.Format,
+            currentAction: TaskAction,
             nextAction: TaskAction,
             nextEventAction: Event.EventAction,
             topic: Topic,
+            taskIndex: Long = 0,
             organization: DeepOrganization,
-            parentReport: Report? = null,
+            childReport: Report? = null,
+            bodyURL: String? = null,
         ): Report {
             val report = Report(
                 fileFormat,
@@ -445,26 +460,12 @@ class FhirFunctionTests {
                 1,
                 metadata = UnitTestUtils.simpleMetadata,
                 nextAction = nextAction,
-                topic = Topic.FULL_ELR
+                topic = topic
             )
-            if (parentReport != null) {
-                report.itemLineages = listOf(
-                    ItemLineage(
-                        0,
-                        parentReport.id,
-                        0,
-                        report.id,
-                        0,
-                        "TEST",
-                        "pass",
-                        OffsetDateTime.now(), ""
-                    )
-                )
-            }
             ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-                val action = Action()
+                val action = Action().setActionName(currentAction)
                 val actionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
-                report.bodyURL = "http://${report.id}.${fileFormat.toString().lowercase()}"
+                report.bodyURL = bodyURL ?: "http://${report.id}.${fileFormat.toString().lowercase()}"
                 val reportFile = ReportFile().setSchemaTopic(topic).setReportId(report.id)
                     .setActionId(actionId).setSchemaName("").setBodyFormat(fileFormat.toString()).setItemCount(1)
                     .setExternalName("test-external-name")
@@ -472,9 +473,18 @@ class FhirFunctionTests {
                 ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
                     reportFile, txn, action
                 )
-                if (!report.itemLineages.isNullOrEmpty()) {
+                if (childReport != null) {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
-                        .insertItemLineages(report.itemLineages!!.toSet(), txn, action)
+                        .insertReportLineage(
+                            ReportLineage(
+                                taskIndex,
+                                actionId,
+                                report.id,
+                                childReport.id,
+                                OffsetDateTime.now()
+                            ),
+                            txn
+                        )
                 }
 
                 ReportStreamTestDatabaseContainer.testDatabaseAccess.insertTask(
@@ -499,9 +509,11 @@ class FhirFunctionTests {
         fun `test does not update the DB or send messages on an error`() {
             val report = seedTask(
                 Report.Format.HL7,
+                TaskAction.receive,
                 TaskAction.convert,
                 Event.EventAction.CONVERT,
                 Topic.FULL_ELR,
+                0,
                 oneOrganization
             )
 
@@ -574,9 +586,11 @@ class FhirFunctionTests {
         fun `test successfully processes a convert message`() {
             val report = seedTask(
                 Report.Format.HL7,
+                TaskAction.receive,
                 TaskAction.convert,
                 Event.EventAction.CONVERT,
                 Topic.FULL_ELR,
+                0,
                 oneOrganization
             )
             val metadata = Metadata(UnitTestUtils.simpleSchema)
@@ -652,9 +666,11 @@ class FhirFunctionTests {
         fun `test successfully processes a route message`() {
             val report = seedTask(
                 Report.Format.HL7,
+                TaskAction.receive,
                 TaskAction.translate,
                 Event.EventAction.TRANSLATE,
                 Topic.FULL_ELR,
+                0,
                 oneOrganization
             )
 
@@ -726,51 +742,84 @@ class FhirFunctionTests {
             }
         }
 
+        /*
+        Send a FHIR message to an HL7v2 receiver and ensure the message receiver receives is translated to HL7v2
+         */
         @Test
         fun `test successfully processes a translate message when isSendOriginal is false`() {
-            val convertReport = seedTask(
+            // set up and seed azure blobstore
+            val blobConnectionString =
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${
+                    azuriteContainer.getMappedPort(
+                        10000
+                    )
+                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
+                    azuriteContainer.getMappedPort(
+                        10001
+                    )
+                }/devstoreaccount1;"""
+            val blobContainerMetadata = BlobAccess.BlobContainerMetadata(
+                "container1",
+                blobConnectionString
+            )
+
+            val blobSpy = spyk(BlobAccess())
+            mockkObject(BlobAccess.BlobContainerMetadata.Companion)
+            every { BlobAccess.BlobContainerMetadata.Companion.build(any(), any()) } returns blobContainerMetadata
+            every { BlobAccess.BlobContainerMetadata.Companion.build(any()) } returns blobContainerMetadata
+
+            // upload reports
+            val receiveBlobName = "receiveBlobName"
+            val translateFhirBytes = File(
+                MULTIPLE_TARGETS_FHIR_PATH
+            ).readBytes()
+            val receiveBlobUrl = BlobAccess.uploadBlob(
+                receiveBlobName,
+                translateFhirBytes,
+                blobContainerMetadata
+            )
+
+            // Seed the steps backwards so report lineage can be correctly generated
+            val translateReport = seedTask(
                 Report.Format.FHIR,
-                TaskAction.route,
-                Event.EventAction.ROUTE,
-                Topic.FULL_ELR,
+                TaskAction.translate,
+                TaskAction.send,
+                Event.EventAction.SEND,
+                Topic.ELR_ELIMS,
+                100,
                 oneOrganization
             )
             val routeReport = seedTask(
                 Report.Format.FHIR,
+                TaskAction.route,
                 TaskAction.translate,
                 Event.EventAction.TRANSLATE,
-                Topic.FULL_ELR,
+                Topic.ELR_ELIMS,
+                99,
                 oneOrganization,
-                convertReport
+                translateReport
             )
-            val translateReport = seedTask(
+            val convertReport = seedTask(
                 Report.Format.FHIR,
-                TaskAction.batch,
-                Event.EventAction.BATCH,
-                Topic.FULL_ELR,
+                TaskAction.convert,
+                TaskAction.route,
+                Event.EventAction.ROUTE,
+                Topic.ELR_ELIMS,
+                98,
                 oneOrganization,
                 routeReport
             )
-
-            mockkObject(BlobAccess.Companion)
-            mockkObject(QueueMessage.Companion)
-            val translateFhirBytes = File(
-                MULTIPLE_TARGETS_FHIR_PATH
-            ).readBytes()
-            every {
-                BlobAccess.Companion.downloadBlobAsByteArray(any())
-            } returns translateFhirBytes
-
-            every {
-                BlobAccess.Companion.uploadBody(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
-            } returns BlobAccess.BlobInfo(Report.Format.FHIR, "", "".toByteArray())
-            every { queueMock.sendMessage(any(), any()) } returns Unit
+            val receiveReport = seedTask(
+                Report.Format.FHIR,
+                TaskAction.receive,
+                TaskAction.convert,
+                Event.EventAction.CONVERT,
+                Topic.ELR_ELIMS,
+                97,
+                oneOrganization,
+                convertReport,
+                receiveBlobUrl
+            )
 
             val settings = FileSettings().loadOrganizations(oneOrganization)
             val fhirEngine = spyk(
@@ -778,7 +827,7 @@ class FhirFunctionTests {
                     UnitTestUtils.simpleMetadata,
                     settings,
                     ReportStreamTestDatabaseContainer.testDatabaseAccess,
-                    blobMock,
+                    blobSpy
                 )
             )
 
@@ -790,9 +839,13 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
+            mockkObject(QueueMessage.Companion)
+            every { queueMock.sendMessage(any(), any()) } returns Unit
+
+            // The topic param of queueMessage is what should determine how the Translate function runs
             val queueMessage = "{\"type\":\"translate\",\"reportId\":\"${translateReport.id}\"," +
-                "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
-                "None-${translateReport.id}.hl7\",\"digest\":\"${
+                "\"blobURL\":\"" + receiveBlobUrl +
+                "\",\"digest\":\"${
                     BlobAccess.digestToString(
                         BlobAccess.sha256Digest(
                             translateFhirBytes
@@ -824,68 +877,107 @@ class FhirFunctionTests {
                         .where(REPORT_FILE.REPORT_ID.eq(queueTask!!.reportId))
                         .fetchOneInto(REPORT_FILE)
                 assertThat(sendReportFile).isNotNull()
+
+                // verify sendReportFile message does not match the original message from receive step
+                assertThat(BlobAccess.downloadBlobAsByteArray(sendReportFile!!.bodyUrl, blobContainerMetadata))
+                    .isNotEqualTo(BlobAccess.downloadBlobAsByteArray(receiveReport.bodyURL, blobContainerMetadata))
             }
-            // verify we DID NOT download the original report in the Translate function
+
+            // verify we did not call the sendOriginal function
             verify(exactly = 0) {
-                BlobAccess.Companion.downloadBlobAsByteArray(convertReport.bodyURL, any(), any())
+                fhirEngine.sendOriginal(any(), any(), any())
             }
-            // verify we called the logic to translate the bodyURL passed to translate function
+
+            // verify we called the sendTranslated function
             verify(exactly = 1) {
-                fhirEngine.getByteArrayFromBundle(any(), any())
+                fhirEngine.sendTranslated(any(), any(), any())
             }
-            // verify sendMessage did not get called because next action should be Batch and the batch decider function,
-            // which runs on a timer, will pick up the task from the DB instead of being called directly by the
-            // Translate function
+
+            // verify sendMessage did not get called because next action should be Batch
             verify(exactly = 0) {
                 queueMock.sendMessage(any(), any())
             }
         }
 
+        /*
+        Send a FHIR message to an HL7v2 receiver and ensure the message receiver receives is the original FHIR and NOT
+        translated to HL7v2
+         */
         @Test
         fun `test successfully processes a translate message when isSendOriginal is true`() {
-            val convertReport = seedTask(
+            // set up and seed azure blobstore
+            val blobConnectionString =
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${
+                    azuriteContainer.getMappedPort(
+                        10000
+                    )
+                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
+                    azuriteContainer.getMappedPort(
+                        10001
+                    )
+                }/devstoreaccount1;"""
+            val blobContainerMetadata = BlobAccess.BlobContainerMetadata(
+                "container1",
+                blobConnectionString
+            )
+
+            val blobSpy = spyk(BlobAccess())
+            mockkObject(BlobAccess.BlobContainerMetadata.Companion)
+            every { BlobAccess.BlobContainerMetadata.Companion.build(any(), any()) } returns blobContainerMetadata
+            every { BlobAccess.BlobContainerMetadata.Companion.build(any()) } returns blobContainerMetadata
+
+            // upload reports
+            val receiveBlobName = "receiveBlobName"
+            val translateFhirBytes = File(
+                MULTIPLE_TARGETS_FHIR_PATH
+            ).readBytes()
+            val receiveBlobUrl = BlobAccess.uploadBlob(
+                receiveBlobName,
+                translateFhirBytes,
+                blobContainerMetadata
+            )
+
+            // Seed the steps backwards so report lineage can be correctly generated
+            val translateReport = seedTask(
                 Report.Format.FHIR,
-                TaskAction.route,
-                Event.EventAction.ROUTE,
+                TaskAction.translate,
+                TaskAction.send,
+                Event.EventAction.SEND,
                 Topic.ELR_ELIMS,
+                100,
                 oneOrganization
             )
             val routeReport = seedTask(
                 Report.Format.FHIR,
+                TaskAction.route,
                 TaskAction.translate,
                 Event.EventAction.TRANSLATE,
                 Topic.ELR_ELIMS,
+                99,
                 oneOrganization,
-                convertReport
+                translateReport
             )
-            val translateReport = seedTask(
+            val convertReport = seedTask(
                 Report.Format.FHIR,
-                TaskAction.batch,
-                Event.EventAction.BATCH,
+                TaskAction.convert,
+                TaskAction.route,
+                Event.EventAction.ROUTE,
                 Topic.ELR_ELIMS,
+                98,
                 oneOrganization,
                 routeReport
             )
-
-            mockkObject(BlobAccess.Companion)
-            mockkObject(QueueMessage.Companion)
-            val translateFhirBytes = File(
-                MULTIPLE_TARGETS_FHIR_PATH
-            ).readBytes()
-            every {
-                BlobAccess.Companion.downloadBlobAsByteArray(any())
-            } returns translateFhirBytes
-
-            every {
-                BlobAccess.Companion.uploadBody(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
-            } returns BlobAccess.BlobInfo(Report.Format.FHIR, "", "".toByteArray())
-            every { queueMock.sendMessage(any(), any()) } returns Unit
+            val receiveReport = seedTask(
+                Report.Format.FHIR,
+                TaskAction.receive,
+                TaskAction.convert,
+                Event.EventAction.CONVERT,
+                Topic.ELR_ELIMS,
+                97,
+                oneOrganization,
+                convertReport,
+                receiveBlobUrl
+            )
 
             val settings = FileSettings().loadOrganizations(oneOrganization)
             val fhirEngine = spyk(
@@ -893,7 +985,7 @@ class FhirFunctionTests {
                     UnitTestUtils.simpleMetadata,
                     settings,
                     ReportStreamTestDatabaseContainer.testDatabaseAccess,
-                    blobMock,
+                    blobSpy
                 )
             )
 
@@ -905,9 +997,13 @@ class FhirFunctionTests {
                     ReportStreamTestDatabaseContainer.testDatabaseAccess
                 )
 
+            mockkObject(QueueMessage.Companion)
+            every { queueMock.sendMessage(any(), any()) } returns Unit
+
+            // The topic param of queueMessage is what should determine how the Translate function runs
             val queueMessage = "{\"type\":\"translate\",\"reportId\":\"${translateReport.id}\"," +
-                "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
-                "None-${translateReport.id}.hl7\",\"digest\":\"${
+                "\"blobURL\":\"" + receiveBlobUrl +
+                "\",\"digest\":\"${
                     BlobAccess.digestToString(
                         BlobAccess.sha256Digest(
                             translateFhirBytes
@@ -938,15 +1034,22 @@ class FhirFunctionTests {
                         .where(REPORT_FILE.REPORT_ID.eq(sendTask!!.reportId))
                         .fetchOneInto(REPORT_FILE)
                 assertThat(sendReportFile).isNotNull()
+
+                // verify sendReportFile message matches the original message from receive step
+                assertThat(BlobAccess.downloadBlobAsByteArray(sendReportFile!!.bodyUrl, blobContainerMetadata))
+                    .isEqualTo(BlobAccess.downloadBlobAsByteArray(receiveReport.bodyURL, blobContainerMetadata))
             }
-            // verify we downloaded the original report in the Translate step
+
+            // verify we called the sendOriginal function
             verify(exactly = 1) {
-                BlobAccess.Companion.downloadBlobAsByteArray(convertReport.bodyURL, any(), any())
+                fhirEngine.sendOriginal(any(), any(), any())
             }
-            // verify we did not call the logic to translate a blob in the Translate step
+
+            // verify we did not call the sendTranslated function
             verify(exactly = 0) {
-                fhirEngine.getByteArrayFromBundle(any(), any())
+                fhirEngine.sendTranslated(any(), any(), any())
             }
+
             // verify sendMessage did get called because next action should be Send since isOriginal skips the batch
             // step
             verify(exactly = 1) {
@@ -958,9 +1061,11 @@ class FhirFunctionTests {
         fun `test unmapped observation error messages`() {
             val report = seedTask(
                 Report.Format.FHIR,
+                TaskAction.receive,
                 TaskAction.convert,
                 Event.EventAction.CONVERT,
                 Topic.FULL_ELR,
+                0,
                 oneOrganization
             )
             val metadata = Metadata(UnitTestUtils.simpleSchema)
@@ -1038,9 +1143,11 @@ class FhirFunctionTests {
         fun `test codeless observation error message`() {
             val report = seedTask(
                 Report.Format.FHIR,
+                TaskAction.receive,
                 TaskAction.convert,
                 Event.EventAction.CONVERT,
                 Topic.FULL_ELR,
+                0,
                 oneOrganization
             )
             val metadata = Metadata(UnitTestUtils.simpleSchema)
