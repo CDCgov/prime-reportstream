@@ -192,7 +192,7 @@
         "remark-frontmatter": "^5.0.0",
         "remark-mdx-frontmatter": "^4.0.0",
         "remark-mdx-toc": "^0.3.1",
-        "sass": "^1.70.0",
+        "sass": "^1.71.0",
         "storybook": "^7.6.14",
         "storybook-addon-react-router-v6": "^2.0.10",
         "ts-node": "^10.9.2",
