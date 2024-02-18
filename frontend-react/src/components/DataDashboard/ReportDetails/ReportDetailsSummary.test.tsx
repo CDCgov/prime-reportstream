@@ -10,7 +10,7 @@ import {
 } from "../../../utils/OrganizationUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 
-const mockGetUser = jest.fn();
+const mockGetUser = vi.fn();
 
 const currentDate = new Date();
 const futureDate = new Date(currentDate.setDate(currentDate.getDate() + 1));

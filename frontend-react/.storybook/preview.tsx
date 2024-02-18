@@ -1,4 +1,4 @@
-import { initializeWorker, mswDecorator } from "msw-storybook-addon";
+import { initialize, mswDecorator } from "msw-storybook-addon";
 import { CacheProvider } from "rest-hooks";
 import { HelmetProvider } from "react-helmet-async";
 import MockDate from "mockdate";
@@ -25,7 +25,7 @@ export const parameters = {
     },
 };
 
-initializeWorker();
+initialize();
 
 function withRestHooksCacheProvider(Story) {
     return (
