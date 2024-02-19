@@ -833,6 +833,8 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
+    // pin com.nimbusds:nimbus-jose-jwt to mitigate CVE-2023-52428
+    implementation("com.nimbusds:nimbus-jose-jwt:9.37.2")
     implementation("org.apache.logging.log4j:log4j-api:2.22.0")
     implementation("org.apache.logging.log4j:log4j-core:2.22.0")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.22.0")
