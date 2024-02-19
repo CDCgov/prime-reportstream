@@ -7,8 +7,6 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.engine.LookupTableValueSet
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
@@ -21,18 +19,28 @@ import java.net.URI
 object ConfigSchemaReader : Logging {
     /**
      * Read a schema [schemaName] of type [schemaClass] from a file given the root [folder].
+     * @property Original The type that this schema expects as input
+     * @property Converted The type that this schema will produce as output
+     * @property Schema Reference to this schema's type
+     * @property SchemaElement The type of the schema elements that make up the schema
      * @return the validated schema
      * @throws Exception if the schema is invalid
      */
-    fun fromFile(
+    fun <
+        Original,
+        Converted,
+        Schema : ConfigSchema<Original, Converted, Schema, SchemaElement>,
+        SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
+        > fromFile(
         schemaName: String,
         folder: String? = null,
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
-    ): ConfigSchema<*> {
+        schemaClass: Class<out Schema>,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
+    ): Schema {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
         val schemaList = when (URI(schemaName).scheme) {
             null -> fromRelative(schemaName, folder, schemaClass)
-            else -> fromUri(URI(schemaName), schemaClass)
+            else -> fromUri(URI(schemaName), schemaClass, blobConnectionInfo)
         }
 
         // Now merge the parent with all the child schemas
@@ -47,17 +55,28 @@ object ConfigSchemaReader : Logging {
     /**
      * Reads a schema from the file directory via relative pathing.  This is the deprecated way of reading schemas
      * and continues to exist while the transition is executed
+     *
+     * @property Original The type that this schema expects as input
+     * @property Converted The type that this schema will produce as output
+     * @property Schema Reference to this schema's type
+     * @property SchemaElement The type of the schema elements that make up the schema
      */
-    private fun fromRelative(
+    private fun <
+        Original,
+        Converted,
+        Schema : ConfigSchema<Original, Converted, Schema, SchemaElement>,
+        SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
+        > fromRelative(
         schemaName: String,
         folder: String? = null,
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
-    ): List<ConfigSchema<*>> {
-        val schemaList = mutableListOf<ConfigSchema<*>>()
-        schemaList.add(readSchemaTreeRelative(schemaName, folder, schemaClass = schemaClass))
+        schemaClass: Class<out Schema>,
+    ): List<Schema> {
+        val schemaList = mutableListOf(readSchemaTreeRelative(schemaName, folder, schemaClass = schemaClass))
         while (!schemaList.last().extends.isNullOrBlank()) {
             // Make sure there are no circular dependencies
-            if (schemaList.any { FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends) }
+            if (schemaList.any {
+                    FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends)
+                }
             ) {
                 throw SchemaException("Schema circular dependency found while loading schema $schemaName")
             }
@@ -70,14 +89,26 @@ object ConfigSchemaReader : Logging {
 
     /**
      * Read a schema from a [URI] using the scheme to determine how to read the schema
-     *
+     * @property Original The type that this schema expects as input
+     * @property Converted The type that this schema will produce as output
+     * @property Schema Reference to this schema's type
+     * @property SchemaElement The type of the schema elements that make up the schema
      */
-    private fun fromUri(
+    private fun <
+        Original,
+        Converted,
+        Schema : ConfigSchema<Original, Converted, Schema, SchemaElement>,
+        SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
+        > fromUri(
         schemaUri: URI,
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
-    ): List<ConfigSchema<*>> {
-        val schemaList = mutableListOf<ConfigSchema<*>>()
-        schemaList.add(readSchemaTreeUri(schemaUri, schemaClass = schemaClass))
+        schemaClass: Class<out Schema>,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
+    ): List<Schema> {
+        val schemaList = mutableListOf(
+            readSchemaTreeUri(
+                schemaUri, schemaClass = schemaClass, blobConnectionInfo = blobConnectionInfo
+            )
+        )
         while (!schemaList.last().extends.isNullOrBlank()) {
             // Make sure there are no circular dependencies
             if (schemaList.any {
@@ -86,7 +117,11 @@ object ConfigSchemaReader : Logging {
             ) {
                 throw SchemaException("Schema circular dependency found while loading schema ${schemaUri.path}")
             }
-            schemaList.add(readSchemaTreeUri(URI(schemaList.last().extends!!), schemaClass = schemaClass))
+            schemaList.add(
+                readSchemaTreeUri(
+                    URI(schemaList.last().extends!!), schemaClass = schemaClass, blobConnectionInfo = blobConnectionInfo
+                )
+            )
         }
 
         return schemaList
@@ -95,23 +130,25 @@ object ConfigSchemaReader : Logging {
     /**
      * Merge the parent and child schemas provided in the [schemaList].  Note that [schemaList] MUST be ordered
      * from the lowest child to parent.
+     *
+     * @property Original The type that this schema expects as input
+     * @property Converted The type that this schema will produce as output
+     * @property Schema Reference to this schema's type
+     * @property SchemaElement The type of the schema elements that make up the schema
      * @return a merged schema
      */
-    private fun mergeSchemas(schemaList: List<ConfigSchema<*>>): ConfigSchema<*> {
+    private fun <
+        Original,
+        Converted,
+        Schema : ConfigSchema<Original, Converted, Schema, SchemaElement>,
+        SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
+        > mergeSchemas(
+        schemaList: List<Schema>,
+    ): Schema {
         val parentSchema = schemaList.last()
         for (i in (schemaList.size - 2) downTo 0) {
             val childSchema = schemaList[i]
-            when {
-                // Need to smart cast so the compiler knows which merge is being called
-                parentSchema is ConverterSchema && childSchema is ConverterSchema ->
-                    parentSchema.override(childSchema)
-                parentSchema is FhirTransformSchema && childSchema is FhirTransformSchema ->
-                    parentSchema.override(childSchema)
-                else ->
-                    throw SchemaException(
-                        "Parent schema ${parentSchema.name} and child schema ${childSchema.name} of incompatible types"
-                    )
-            }
+            parentSchema.override(childSchema)
         }
         return parentSchema
     }
@@ -121,12 +158,23 @@ object ConfigSchemaReader : Logging {
      * - azure
      * - classpath
      * - file system
+     *
+     * @property Original The type that this schema expects as input
+     * @property Converted The type that this schema will produce as output
+     * @property Schema Reference to this schema's type
+     * @property SchemaElement The type of the schema elements that make up the schema
      */
-    internal fun readSchemaTreeUri(
+    internal fun <
+        Original,
+        Converted,
+        Schema : ConfigSchema<Original, Converted, Schema, SchemaElement>,
+        SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
+        > readSchemaTreeUri(
         schemaUri: URI,
         ancestry: List<String> = listOf(),
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java,
-    ): ConfigSchema<*> {
+        schemaClass: Class<out Schema>,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
+    ): Schema {
         val rawSchema = when (schemaUri.scheme) {
             "file" -> {
                 val file = File(schemaUri)
@@ -138,9 +186,10 @@ object ConfigSchemaReader : Logging {
                     ?: throw SchemaException("Cannot read $schemaUri")
                 readOneYamlSchema(input, schemaClass)
             }
-            "azure" -> {
-                // TODO: #10487 will add a new function to download schemas, so this is just a temporary placeholder
-                val blob = BlobAccess.downloadBlobAsByteArray(schemaUri.toString())
+            // Only valid networked option for reading schemas is azure which does not have a dedicated schema
+            // and instead has URLs starting with HTTP or HTTPS
+            "http", "https" -> {
+                val blob = BlobAccess.downloadBlobAsByteArray(schemaUri.toString(), blobConnectionInfo)
                 readOneYamlSchema(blob.inputStream(), schemaClass)
             }
             else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")
@@ -155,7 +204,7 @@ object ConfigSchemaReader : Logging {
         // Process any schema references
         rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
             element.schemaRef =
-                readSchemaTreeUri(URI(element.schema!!), rawSchema.ancestry, schemaClass)
+                readSchemaTreeUri(URI(element.schema!!), rawSchema.ancestry, schemaClass, blobConnectionInfo)
         }
         return rawSchema
     }
@@ -163,14 +212,23 @@ object ConfigSchemaReader : Logging {
     /**
      * Read a complete schema tree of type [schemaClass] from a file for [schemaName] in [folder].
      * Note this is a recursive function used to walk through all the schemas to load.
+     * @property Original The type that this schema expects as input
+     * @property Converted The type that this schema will produce as output
+     * @property Schema Reference to this schema's type
+     * @property SchemaElement The type of the schema elements that make up the schema
      * @return the validated schema
      */
-    internal fun readSchemaTreeRelative(
+    internal fun <
+        Original,
+        Converted,
+        Schema : ConfigSchema<Original, Converted, Schema, SchemaElement>,
+        SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
+        > readSchemaTreeRelative(
         schemaName: String,
         folder: String? = null,
         ancestry: List<String> = listOf(),
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java,
-    ): ConfigSchema<*> {
+        schemaClass: Class<out Schema>,
+    ): Schema {
         val file = File(folder, "$schemaName.yml")
         if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
         val rawSchema = try {
@@ -192,20 +250,28 @@ object ConfigSchemaReader : Logging {
         // Process any schema references
         val rootFolder = file.parent
         rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
-            element.schemaRef =
-                readSchemaTreeRelative(element.schema!!, rootFolder, rawSchema.ancestry, schemaClass)
+            element.schemaRef = readSchemaTreeRelative(element.schema!!, rootFolder, rawSchema.ancestry, schemaClass)
         }
         return rawSchema
     }
 
     /**
      * Read one YAML formatted schema of type [schemaClass] from the given [inputStream].
+     * @property Original The type that this schema expects as input
+     * @property Converted The type that this schema will produce as output
+     * @property Schema Reference to this schema's type
+     * @property SchemaElement The type of the schema elements that make up the schema
      * @return the schema
      */
-    internal fun readOneYamlSchema(
+    internal fun <
+        Original,
+        Converted,
+        Schema : ConfigSchema<Original, Converted, Schema, SchemaElement>,
+        SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
+        > readOneYamlSchema(
         inputStream: InputStream,
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java,
-    ): ConfigSchema<*> {
+        schemaClass: Class<out Schema>,
+    ): Schema {
         val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
         mapper.registerSubtypes(LookupTableValueSet::class.java)
         val rawSchema = mapper.readValue(inputStream, schemaClass)
