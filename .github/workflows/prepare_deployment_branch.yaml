@@ -33,7 +33,7 @@ jobs:
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
         id: pr
-        uses: JosiahSiegel/reliable-pull-request-action@v1.1.0
+        uses: JosiahSiegel/reliable-pull-request-action@0b3e93ab2c1f75c96f4d3fd2e3f5b2897b2a43f0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
