@@ -63,42 +63,42 @@ class ValidateSettingCommandsTest {
         )
         assertThat(
             result.stdout.contains(
-            "error: \$[0]: For STATE jurisdiction, countyName must NOT be present"
+            "error: \$[0]: For STATE jurisdiction, 'countyName' must NOT be present"
             )
         )
         assertThat(
             result.stdout.contains(
-            "error: \$[1]: For STATE jurisdiction, stateCode must present"
+            "error: \$[1]: For STATE jurisdiction, 'stateCode' must present"
             )
         )
         assertThat(
             result.stdout.contains(
-            "error: \$[2]: For FEDERAL jurisdiction, stateCode must NOT be present"
+            "error: \$[2]: For FEDERAL jurisdiction, 'stateCode' must NOT be present"
             )
         )
         assertThat(
             result.stdout.contains(
-            "error: \$[3]: For FEDERAL jurisdiction, countyName must NOT be present"
+            "error: \$[3]: For FEDERAL jurisdiction, 'countyName' must NOT be present"
             )
         )
         assertThat(
             result.stdout.contains(
-            "error: \$[4]: For COUNTY jurisdiction, both stateCode and countyName is required"
+            "error: \$[4]: For COUNTY jurisdiction, both 'stateCode' and 'countyName' is required"
             )
         )
         assertThat(
             result.stdout.contains(
-            "error: \$[5]: For COUNTY jurisdiction, both stateCode and countyName is required"
+            "error: \$[5]: For COUNTY jurisdiction, both 'stateCode' and 'countyName' is required"
             )
         )
         assertThat(
             result.stdout.contains(
-            "error: \$[5]: For COUNTY jurisdiction, both stateCode and countyName is required"
+            "error: \$[5]: For COUNTY jurisdiction, both 'stateCode' and 'countyName' is required"
             )
         )
         assertThat(
             result.stdout.contains(
-            "error: \$[6]: For COUNTY jurisdiction, both stateCode and countyName is required"
+            "error: \$[6]: For COUNTY jurisdiction, both 'stateCode' and 'countyName' is required"
             )
         )
     }
@@ -166,7 +166,7 @@ class ValidateSettingCommandsTest {
         )
         assertThat(
             result.stdout.contains(
-            "error: \$: For FEDERAL jurisdiction, stateCode must NOT be present"
+            "error: \$: For FEDERAL jurisdiction, 'stateCode' must NOT be present"
             )
         )
     }
