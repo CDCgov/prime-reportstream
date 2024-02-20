@@ -295,5 +295,6 @@ fun main(args: Array<String>) = RouterCli()
         ConvertValuesetsYamlToCSV(),
         ProcessHl7Commands(),
         ValidateSettingCommands()
+        ValidateTranslationSchemaCommand()
     )
     .main(args)
