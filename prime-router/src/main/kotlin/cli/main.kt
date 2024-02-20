@@ -30,8 +30,9 @@ class RouterCli : CliktCommand(
     name = "prime",
     help = "Tools and commands that support the PRIME Data Hub.",
     printHelpOnEmptyArgs = true,
-) {
-    override fun run() = Unit
+)
+{
+    override    fun run() = Unit
 }
 
 fun listSchemas(metadata: Metadata) {
@@ -173,7 +174,7 @@ class GenerateDocs : CliktCommand(
             // start generating documentation
             echo("Generating documentation for $schemaName")
             if (outputHl7Elements) {
-                schema = buildMappedHl7Schema(schema)
+                schema = Build_MappedHl7Schema(schema)
             }
             docGenerators.forEach { dg ->
                 dg.writeDocumentationForSchema(schema, outputDir, outputFileName, includeTimestamps)
@@ -192,7 +193,7 @@ class GenerateDocs : CliktCommand(
      * these elements to only those that have HL7 fields. In other words, this schema represents the
      * output data dictionary for the input schema. The schema is sorted by HL7 segment.
      */
-    private fun buildMappedHl7Schema(fromSchema: Schema): Schema {
+    private fun Build_MappedHl7Schema(fromSchema: Schema): Schema {
         val metadata = Metadata.getInstance()
         val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
         val translator = Translator(metadata, fileSettings)
@@ -296,4 +297,5 @@ fun main(args: Array<String>) = RouterCli()
         ProcessHl7Commands(),
         ValidateTranslationSchemaCommand()
     )
+
     .main(args)
