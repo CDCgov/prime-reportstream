@@ -1,134 +1,173 @@
 package gov.cdc.prime.router.cli
 
+import assertk.assertThat
+import com.github.ajalt.clikt.testing.test
 import kotlin.test.Test
-import kotlin.test.assertTrue
 
 class ValidateSettingCommandsTest {
     @Test
     fun `test validate settings organizations yml against organization schema`() {
         val validateCmd = ValidateSettingCommands()
-        validateCmd.parse(listOf("-i", "settings/organizations.yml", "-s", "settings/schemas/settings.json"))
-        val errors = validateCmd.validate()
-        assertTrue(errors.isEmpty())
+        val result = validateCmd.test(
+            listOf(
+                "-i", "settings/organizations.yml",
+                "-s", "./src/main/resources/settings/schemas/settings.json"
+            )
+        )
+        assertThat(
+            result.stdout.contains(
+                "validation completed: validation messages count: 0"
+            )
+        )
     }
 
     @Test
     fun `test validate topic covid19 receiver with condition filter`() {
         val validateCmd = ValidateSettingCommands()
-        validateCmd.parse(
+        val result = validateCmd.test(
             listOf(
                 "-i", "./src/test/unit_test_files/invalid_setting_receiver_covid19_with_cond_filters.yml",
-            "-s", "settings/schemas/settings.json"
+                "-s", "./src/main/resources/settings/schemas/settings.json"
             )
         )
-        val result = validateCmd.validate()
-        assertTrue(result.size == 2)
-        result.forEach {
-            assertTrue { it.message.contains("Filter not allowed for topic: 'covid-19', 'monkeypox', 'test'") }
-            assertTrue {
-                it.message.contains("conditionFilter") || it.message.contains("mappedConditionFilter")
-            }
-        }
+        assertThat(
+            result.stdout.contains(
+                "validation completed: validation messages count: 2"
+            )
+        )
+        assertThat(
+            result.stdout.contains(
+                "error: conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'"
+            )
+        )
+        assertThat(
+            result.stdout.contains(
+                "error: mappedConditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'"
+            )
+        )
     }
 
     @Test
     fun `test validate organizations with jurisdiction vs state code vs county name`() {
         val validateCmd = ValidateSettingCommands()
-        validateCmd.parse(
+        val result = validateCmd.test(
             listOf(
                 "-i", "./src/test/unit_test_files/invalid_setting_jurisdiction_vs_state_code_county_name.yml",
-            "-s", "settings/schemas/settings.json"
+                "-s", "./src/main/resources/settings/schemas/settings.json"
             )
         )
-        val result = validateCmd.validate()
-
-        assertTrue(result.size == 8)
-        assertTrue(
-            result.elementAt(0).toString()
-                .contains("[0]: For STATE jurisdiction, countyName must NOT present")
+        assertThat(
+            result.stdout.contains(
+            "validation completed: validation messages count: 7"
+            )
         )
-        assertTrue(
-            result.elementAt(1).toString()
-            .contains("[1]: For STATE jurisdiction, stateCode must present")
+        assertThat(
+            result.stdout.contains(
+            "error: \$[0]: For STATE jurisdiction, countyName must NOT be present"
+            )
         )
-        assertTrue(
-            result.elementAt(2).toString()
-                .contains("[2]: For FEDERAL jurisdiction, stateCode must NOT present")
+        assertThat(
+            result.stdout.contains(
+            "error: \$[1]: For STATE jurisdiction, stateCode must present"
+            )
         )
-        assertTrue(
-            result.elementAt(3).toString()
-                .contains("[3]: For FEDERAL jurisdiction, countyName must NOT present")
+        assertThat(
+            result.stdout.contains(
+            "error: \$[2]: For FEDERAL jurisdiction, stateCode must NOT be present"
+            )
         )
-        assertTrue(
-            result.elementAt(4).toString()
-            .contains("[4]: For COUNTY jurisdiction, both stateCode and countyName is required")
+        assertThat(
+            result.stdout.contains(
+            "error: \$[3]: For FEDERAL jurisdiction, countyName must NOT be present"
+            )
         )
-        assertTrue(
-            result.elementAt(5).toString()
-            .contains("[5]: For COUNTY jurisdiction, both stateCode and countyName is required")
+        assertThat(
+            result.stdout.contains(
+            "error: \$[4]: For COUNTY jurisdiction, both stateCode and countyName is required"
+            )
         )
-        assertTrue(
-            result.elementAt(6).toString()
-            .contains("[5]: For COUNTY jurisdiction, both stateCode and countyName is required")
+        assertThat(
+            result.stdout.contains(
+            "error: \$[5]: For COUNTY jurisdiction, both stateCode and countyName is required"
+            )
         )
-        assertTrue(
-            result.elementAt(7).toString()
-            .contains("[6]: For COUNTY jurisdiction, both stateCode and countyName is required")
+        assertThat(
+            result.stdout.contains(
+            "error: \$[5]: For COUNTY jurisdiction, both stateCode and countyName is required"
+            )
+        )
+        assertThat(
+            result.stdout.contains(
+            "error: \$[6]: For COUNTY jurisdiction, both stateCode and countyName is required"
+            )
         )
     }
 
     @Test
     fun `test validate single sender with sub schema sender json`() {
         val validateCmd = ValidateSettingCommands()
-        validateCmd.parse(
+        val result = validateCmd.test(
             listOf(
                 "-i", "./src/test/unit_test_files/one_sender_waters.yml",
-                "-s", "settings/schemas/sender.json"
+                "-s", "./src/main/resources/settings/schemas/sender.json"
             )
         )
-        val result = validateCmd.validate()
-
-        assertTrue(result.size == 1)
-        assertTrue(result.elementAt(0).toString().contains("name: null found, string expected"))
+        assertThat(
+            result.stdout.contains(
+            "validation completed: validation messages count: 1"
+            )
+        )
+        assertThat(
+            result.stdout.contains(
+            "error: \$.name: null found, string expected"
+            )
+        )
     }
 
     @Test
     fun `test validate single receiver with sub schema receiver json`() {
         val validateCmd = ValidateSettingCommands()
-        validateCmd.parse(
+        val result = validateCmd.test(
             listOf(
                 "-i", "./src/test/unit_test_files/one_receiver_waters.yml",
-                "-s", "settings/schemas/receiver.json"
+                "-s", "./src/main/resources/settings/schemas/receiver.json"
             )
         )
-        val result = validateCmd.validate()
-
-        assertTrue(result.size == 1)
-        assertTrue(
-            result.elementAt(0).toString()
-        .contains("conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'")
+        assertThat(
+            result.stdout.contains(
+            "validation completed: validation messages count: 1"
+            )
+        )
+        assertThat(
+            result.stdout.contains(
+            "error: conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'"
+            )
         )
     }
 
     @Test
     fun `test validate single organization with sub schema organization json`() {
         val validateCmd = ValidateSettingCommands()
-        validateCmd.parse(
+        val result = validateCmd.test(
             listOf(
                 "-i", "./src/test/unit_test_files/one_org_waters.yml",
-                "-s", "settings/schemas/organization.json"
+                "-s", "./src/main/resources/settings/schemas/organization.json"
             )
         )
-        val result = validateCmd.validate()
-
-        assertTrue(result.size == 2)
-        assertTrue(
-            result.elementAt(0).toString()
-            .contains("conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'")
+        assertThat(
+            result.stdout.contains(
+            "validation completed: validation messages count: 2"
+            )
         )
-        assertTrue(
-            result.elementAt(1).toString()
-            .contains("For FEDERAL jurisdiction, stateCode must NOT present")
+        assertThat(
+            result.stdout.contains(
+            "error: conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'"
+            )
+        )
+        assertThat(
+            result.stdout.contains(
+            "error: \$: For FEDERAL jurisdiction, stateCode must NOT be present"
+            )
         )
     }
 }

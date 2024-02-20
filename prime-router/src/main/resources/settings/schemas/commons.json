@@ -1,0 +1,42 @@
+{
+  "definitions": {
+    "CustomerStatus": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "testing"
+      ],
+      "title": "CustomerStatus"
+    },
+    "Topic": {
+      "type": "string",
+      "enum": [
+        "covid-19",
+        "full-elr",
+        "etor-ti",
+        "elr-elims",
+        "monkeypox",
+        "testing"
+      ],
+      "title": "Topic"
+    },
+    "MappedConditionFilter": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "title": "MappedConditionFilter"
+    }
+  }
+}

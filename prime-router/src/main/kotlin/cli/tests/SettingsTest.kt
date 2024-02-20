@@ -35,7 +35,7 @@ class SettingsTest : CoolTest() {
      */
     private val dummyAccessToken = "dummy"
     private val settingName = "dummy"
-    private val settingErrorMessage = "Test GRUD of Setting API: "
+    private val settingErrorMessage = "Test CRUD of Setting API: "
 
     /**
      * Define the new dummy organization to be used for test of setting/create the new
@@ -185,7 +185,386 @@ class SettingsTest : CoolTest() {
             return bad(settingErrorMessage + "Failed cleaned up - " + responseCleanUpDummyOrg.responseMessage)
         }
 
-        return good("Test passed: Test GRUD REST API ")
+        return good("Test passed: Test CRUD REST API ")
+    }
+}
+
+class SettingsUpdateValidationTest : CoolTest() {
+    override val name = "settings-validation"
+    override val description = """
+        Test Setting API: 
+        1. Create Organization of FEDERAL jurisdiction, expect 200 OK
+        2. Update it with state code, county name present, expect 400 Bad Request
+        3. Add sender happy case, expect 200 OK
+        4. Add receiver happy case, expect 200 OK
+        5. Add receiver with inconsistency, expect 400 Bad Request
+    """
+    override val status = TestStatus.DRAFT
+
+    /**
+     * Define private local variables for use in the test.
+     */
+    private val dummyAccessToken = "dummy-token"
+    private val orgName = "org-with-federal-jurisdiction"
+    private val receiverName = "receiver01"
+    private val invalidReceiverName = "receiver_invalid"
+    private val senderName = "sender01"
+    private val settingErrorMessage = "Error Test Setting API: "
+
+    /**
+     * Fabricated organization for testing.
+     */
+    private val newTestOrg = """
+        {
+            "name": "$orgName",
+            "description": "A Federal jurisdiction organization with state code, county name.",
+            "jurisdiction": "FEDERAL",
+            "meta": {
+                "version": 0,
+                "createdBy": "local@test.com",
+                "createdAt": "2024-02-18T00:00:00.0Z"
+            }
+        }
+    """.trimIndent()
+
+    private val updateTestOrg = """
+        {
+            "name": "$orgName",
+            "description": "A Federal jurisdiction organization with state code, county name.",
+            "jurisdiction": "FEDERAL",
+            "stateCode": "CA",
+            "countyName": "San Diego",
+            "meta": {
+                "version": 0,
+                "createdBy": "local@test.com",
+                "createdAt": "2024-02-18T00:00:00.0Z"
+            }
+        }
+    """.trimIndent()
+
+    private val addSender = """
+        {
+            "name" : "$senderName",
+            "organizationName" : "$orgName",
+            "topic" : "full-elr",
+            "format" : "CSV",
+            "customerStatus" : "active",
+            "schemaName" : "waters/waters-covid-19",
+            "processingType" : "sync",
+            "allowDuplicates" : true,
+            "senderType" : null,
+            "primarySubmissionMethod" : null
+        }
+""".trimIndent()
+
+    private val addReceiver = """
+        {
+            "name" : "$receiverName",
+            "organizationName" : "$orgName",
+            "topic" : "covid-19",
+            "customerStatus" : "active",
+            "translation" : {
+                "schemaName" : "az/az-covid-19",
+                "format" : "CSV",
+                "useBatching" : false,
+                "defaults" : { },
+                "nameFormat" : "STANDARD",
+                "receivingOrganization" : null,
+                "type" : "CUSTOM"
+            },
+            "transport" : {
+                "storageName" : "PartnerStorage",
+                "containerName" : "hhsprotect",
+                "type" : "BLOBSTORE"
+            }
+        }
+        """.trimIndent()
+
+    private val addReceiverInvalid = """
+        {
+            "name" : "$invalidReceiverName",
+            "organizationName" : "$orgName",
+            "topic" : "covid-19",
+            "customerStatus" : "active",
+            "translation" : {
+                "schemaName" : "az/az-covid-19",
+                "format" : "CSV",
+                "useBatching" : false,
+                "defaults" : { },
+                "nameFormat" : "STANDARD",
+                "receivingOrganization" : null,
+                "type" : "CUSTOM"
+            },
+            "conditionFilter": ["%resource.livdTableLookup('Component').contains('coronavirus').not()"],
+            "transport" : {
+                "storageName" : "PartnerStorage",
+                "containerName" : "hhsprotect",
+                "type" : "BLOBSTORE"
+            }
+        }
+        """.trimIndent()
+
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
+        ugly("Starting Create Organization ${environment.url}")
+
+        val path = SettingCommand.formPath(
+            Environment.LOCAL,
+            SettingCommand.Operation.PUT,
+            SettingCommand.SettingType.ORGANIZATION,
+            orgName
+        )
+
+        val pathDelete = SettingCommand.formPath(
+            Environment.LOCAL,
+            SettingCommand.Operation.DELETE,
+            SettingCommand.SettingType.ORGANIZATION,
+            orgName
+        )
+
+        val pathReceiver = SettingCommand.formPath(
+            Environment.LOCAL,
+            SettingCommand.Operation.PUT,
+            SettingCommand.SettingType.RECEIVER,
+            "$orgName.$receiverName"
+        )
+
+        val pathReceiverInvalid = SettingCommand.formPath(
+            Environment.LOCAL,
+            SettingCommand.Operation.PUT,
+            SettingCommand.SettingType.RECEIVER,
+            "$orgName.$invalidReceiverName"
+        )
+
+        val pathReceiverList = SettingCommand.formPath(
+            Environment.LOCAL,
+            SettingCommand.Operation.LIST,
+            SettingCommand.SettingType.RECEIVER,
+            orgName
+        )
+
+        val pathSender = SettingCommand.formPath(
+            Environment.LOCAL,
+            SettingCommand.Operation.PUT,
+            SettingCommand.SettingType.SENDER,
+            "$orgName.$senderName"
+        )
+
+        val pathSenderList = SettingCommand.formPath(
+            Environment.LOCAL,
+            SettingCommand.Operation.LIST,
+            SettingCommand.SettingType.SENDER,
+            orgName
+        )
+
+        echo("Delete the test organization if already exists ...")
+
+        val (_, _, result) = SettingsUtilities.get(path, dummyAccessToken)
+        val (_, error) = result
+        if (error?.response?.statusCode != HttpStatus.SC_NOT_FOUND) {
+            val (_, responseDel, _) = SettingsUtilities.delete(path, dummyAccessToken)
+            when (responseDel.statusCode) {
+                HttpStatus.SC_OK -> Unit
+                else ->
+                    return bad(
+                        settingErrorMessage +
+                            "Failed delete residual test organization $orgName - ${responseDel.responseMessage}."
+                    )
+            }
+        }
+
+        /**
+         * CREATE the test organization
+         */
+        echo("CREATE the test organization..., should succeed")
+        var output = SettingsUtilities.put(path, dummyAccessToken, newTestOrg)
+        val (_, responseCreateOrg, _) = output
+        when (responseCreateOrg.statusCode) {
+            HttpStatus.SC_CREATED -> Unit
+            else -> {
+                return bad(
+                    settingErrorMessage +
+                        "Failed on create new test organization: $orgName, error code: ${responseCreateOrg.statusCode}."
+                )
+            }
+        }
+
+        /**
+         * VERIFY the test organization
+         */
+        echo("VERITY the new test organization was created...by getting it back.")
+        val (_, responseNewOrg, resultNewOrg) = SettingsUtilities.get(path, dummyAccessToken)
+        val (_, errorNewOrg) = resultNewOrg
+        if (errorNewOrg?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
+            return bad(settingErrorMessage + responseNewOrg.responseMessage)
+        }
+
+        /**
+         * Next update the newly created organization
+         * Update failure expect because the organization has invalid fields: stateCode and countyName
+         */
+        echo("UPDATE the new test organization with invalid fields, stateCode, countyName.")
+        val (_, responseUpdateOrg, _) = SettingsUtilities.put(path, dummyAccessToken, updateTestOrg)
+        when (responseUpdateOrg.statusCode) {
+            HttpStatus.SC_BAD_REQUEST -> {
+                // expect 400 status code with validation errors
+                val respMsg = responseUpdateOrg.toString()
+                if (!(
+                    respMsg.contains(
+                        "For FEDERAL jurisdiction, 'stateCode' must NOT be present"
+                    ) &&
+                            respMsg.contains(
+                        "For FEDERAL jurisdiction, 'countyName' must NOT be present"
+                            )
+                )
+                ) {
+                            Unit
+                        } else {
+                            return bad(
+                        settingErrorMessage +
+                                "Expect validation error when updating $orgName response 400 code," +
+                                " but got response: $respMsg"
+                            )
+                        }
+            }
+            else ->
+                // got response code other than 400
+                return bad(
+                    settingErrorMessage +
+                        "Expect validation error when updating $orgName response 400 code," +
+                        " but got: ${responseUpdateOrg.statusCode}, " +
+                            "response text: $responseUpdateOrg.toString()"
+                )
+        }
+
+        /**
+         * Add a receiver to the test organization
+         */
+        echo("Add a receiver to the test organization..., should succeed")
+        val (_, responseAddReceiver, _) = SettingsUtilities.put(pathReceiver, dummyAccessToken, addReceiver)
+        when (responseAddReceiver.statusCode) {
+            HttpStatus.SC_CREATED -> Unit
+            else -> {
+                return bad(
+                    settingErrorMessage +
+                        "Failed on add receiver: $receiverName to test" +
+                            " organization: $orgName, error code: ${responseAddReceiver.statusCode}."
+                )
+            }
+        }
+
+        /**
+         * Verify by retrieve the receiver
+         */
+        echo("Get the receiver of the test organization..., should succeed")
+        val (_, responseListReceiver, _) = SettingsUtilities.get(pathReceiverList, dummyAccessToken)
+        when (responseListReceiver.statusCode) {
+            HttpStatus.SC_OK -> Unit
+            else -> {
+                return bad(
+                    settingErrorMessage +
+                        "Can not find receiver: $receiverName of test " +
+                            "organization: $orgName, error code: ${responseListReceiver.statusCode}."
+                )
+            }
+        }
+
+        /**
+         * Add a receiver to the test organization
+         */
+        echo("Add a receiver (invalid) to the test organization..., should fail with 400 status code.")
+        val (_, responseAddReceiverInvalid, _) =
+            SettingsUtilities.put(pathReceiverInvalid, dummyAccessToken, addReceiverInvalid)
+        when (responseAddReceiverInvalid.statusCode) {
+            HttpStatus.SC_BAD_REQUEST -> {
+                // expect 400 status code with validation errors
+                val respMsg = responseUpdateOrg.toString()
+                if (!(
+                    respMsg.contains(
+                        "conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'"
+                    )
+                )
+                ) {
+                            Unit
+                        } else {
+                            return bad(
+                        settingErrorMessage +
+                                "Expect validation error when updating $orgName response 400 code," +
+                                " but got response: $respMsg"
+                            )
+                        }
+            }
+            else -> {
+                return bad(
+                    settingErrorMessage +
+                        "Failed on add receiver (invalid): $invalidReceiverName " +
+                        "to test organization: $orgName, " +
+                            "error code: ${responseAddReceiverInvalid.statusCode}."
+                )
+            }
+        }
+
+        /**
+         * Add a sender to the test organization
+         */
+        echo("Add a sender to the test organization..., should succeed")
+        val (_, responseAddSender, _) = SettingsUtilities.put(pathSender, dummyAccessToken, addSender)
+        when (responseAddSender.statusCode) {
+            HttpStatus.SC_CREATED -> Unit
+            else -> {
+                return bad(
+                    settingErrorMessage +
+                        "Failed on add sender: $senderName to test organization: $orgName, " +
+                            "error code: ${responseAddSender.statusCode}."
+                )
+            }
+        }
+
+        /**
+         * Verify by retrieve the sender
+         */
+        echo("Get the sender of the test organization..., should succeed")
+        val (_, responseListSender, _) = SettingsUtilities.get(pathSenderList, dummyAccessToken)
+        when (responseListSender.statusCode) {
+            HttpStatus.SC_OK -> Unit
+            else -> {
+                return bad(
+                    settingErrorMessage +
+                        "Can not find sender: $senderName of test organization: $orgName, " +
+                            "error code: ${responseListSender.statusCode}."
+                )
+            }
+        }
+
+        /**
+         * DELETE the test organization, post test clean up
+         */
+        echo("DELETE the test organization...")
+        val (_, responseDelTestOrg, resultDelTestOrg) = SettingsUtilities.delete(pathDelete, dummyAccessToken)
+        val (_, errorDelTestOrg) = resultDelTestOrg
+        if (errorDelTestOrg?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
+            return bad(settingErrorMessage + "Failed on delete (clean up) - " + responseDelTestOrg.responseMessage)
+        }
+
+        /**
+         * VERIFY the dummy organization deleted
+         */
+        echo("VERIFY the test organization is deleted...")
+        val (_, responseCleanUpTestOrg, resultCleanUpTestOrg) = SettingsUtilities.get(path, dummyAccessToken)
+        val (_, errorDummy) = resultCleanUpTestOrg
+        if (errorDummy?.response?.statusCode != HttpStatus.SC_NOT_FOUND) {
+            return bad(settingErrorMessage + "Failed cleaned up - " + responseCleanUpTestOrg.responseMessage)
+        }
+
+        return good(
+            """
+                Test passed: Test Setting API:
+                1. Create Org happy case, Passed
+                2. Update Org with Invalid fields got expected 400 response, Passed
+                3. Add Receiver happy case, Passed
+                4. Add Receiver with inconsistency got expected 400 response, Passed
+                5. Add Sender happy case, Passed
+        """
+        )
     }
 }
 

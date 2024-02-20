@@ -1,11 +1,15 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+
 /** The time zones our partners are in */
 enum class USTimeZone(val zoneId: String) {
     PACIFIC("US/Pacific"),
     MOUNTAIN("US/Mountain"),
     ARIZONA("US/Arizona"),
     CENTRAL("US/Central"),
+
+    @JsonEnumDefaultValue
     EASTERN("US/Eastern"),
     SAMOA("US/Samoa"),
     HAWAII("US/Hawaii"),

@@ -18,13 +18,15 @@ import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import java.io.File
 
 /**
- * Converts a file into a different output format
+ * Validate a yaml file with a json schema, validation passes if the objects in the yaml file
+ * match the schema, otherwise errors will indicate the location and reason for the invalid
  */
 class ValidateSettingCommands(
     private val metadataInstance: Metadata? = null,
 ) : CliktCommand(
     name = "validate-setting",
-    help = "Validate settings e.g. 'settings/organizations.yml' with schema, e.g. 'settings/schemas/settings.json"
+    help = "Validate settings e.g. 'settings/organizations.yml' with schema, " +
+            "e.g. 'src/main/resources/settings/schemas/settings.json"
 ) {
     private val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
         KotlinModule.Builder()
@@ -63,7 +65,7 @@ class ValidateSettingCommands(
         return readInput(schemaFile)
     }
 
-    fun getSetting(settingFile: File): String {
+    private fun getSetting(settingFile: File): String {
         return readInput(settingFile)
     }
 

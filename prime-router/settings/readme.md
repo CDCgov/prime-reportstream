@@ -8,12 +8,12 @@ The incremental settings serve two purposes. First, they allow us to review and 
 
 ### json schemas for settings validation:
 
-**settings schemas are in settings/schemas directory:**
+**settings schemas are in src/main/resources/settings/schemas directory:**
 
-- Settings: settings/schemas/settings.json - schema for organizations.yml, an array of organization
-- Organization: settings/schemas/organization.json - schema for a single organization including 0 or many sender(s) or receiver(s)
-- Sender: settings/schemas/sender.json - schema for a single sender, a sender belongs to an organization
-- Receiver: settings/schemas/receiver.json - schema for a single receiver, a receiver belongs to an organization
+- Settings: settings.json - schema for organizations.yml, an array of organization
+- Organization: organization.json - schema for a single organization including 0 or many sender(s) or receiver(s)
+- Sender: sender.json - schema for a single sender, a sender belongs to an organization
+- Receiver: receiver.json - schema for a single receiver, a receiver belongs to an organization
 
 Settings schemas are used by the Settings API to validate the data
 
@@ -22,10 +22,16 @@ Settings schemas can also be used locally to validate data in yaml files, see be
 Validate the local organizations.yml
 
 ```bash
-./prime-no-debug validate-setting -i settings/organizations.yml -s settings/schemas/settings.json
+./prime validate-setting -i settings/organizations.yml -s src/main/resources/settings/schemas/settings.json
 ```
 Validate a single sender object
 
 ```bash
-./prime-no-debug validate-setting -i src/test/unit_test_files/one_sender_waters.yml -s settings/schemas/sender.json
+./prime validate-setting -i src/test/unit_test_files/one_sender_waters.yml -s src/main/resources/settings/schemas/sender.json
+```
+
+Validate a single receiver object
+
+```bash
+./prime validate-setting -i src/test/unit_test_files/one_receiver_waters.yml -s src/main/resources/settings/schemas/receiver.json
 ```

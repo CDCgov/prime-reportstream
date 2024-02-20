@@ -27,7 +27,6 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.JwkSet
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
-import java.io.File
 import java.time.OffsetDateTime
 
 /**
@@ -292,7 +291,7 @@ class SettingsFacade(
             }
         }
         return if (errorMessages.size > 0) {
-            Triple(false, errorMessages.toString(), normalizedJson)
+            Triple(false, errorMessages.toString(), JSONB.valueOf(errorMessages.toString()))
         } else {
             val error = input.consistencyErrorMessage(metadata)
             if (!error.isNullOrEmpty()) {
@@ -341,22 +340,19 @@ class SettingsFacade(
         val organizationSchema: JsonSchema by lazy {
             JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
                 .getSchema(
-                    JacksonMapperUtilities.allowUnknownsMapper
-                        .readTree(File("settings/schemas/organization.json"))
+                    this::class.java.classLoader.getResourceAsStream("settings/schemas/organization.json")
                 )
         }
         val senderSchema: JsonSchema by lazy {
             JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
                 .getSchema(
-                    JacksonMapperUtilities.allowUnknownsMapper
-                        .readTree(File("settings/schemas/sender.json"))
+                    this::class.java.classLoader.getResourceAsStream("settings/schemas/sender.json")
                 )
         }
         val receiverSchema: JsonSchema by lazy {
             JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
                 .getSchema(
-                    JacksonMapperUtilities.allowUnknownsMapper
-                        .readTree(File("settings/schemas/receiver.json"))
+                    this::class.java.classLoader.getResourceAsStream("settings/schemas/receiver.json")
                 )
         }
         private fun errorJson(message: String): String {

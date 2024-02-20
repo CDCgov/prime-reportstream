@@ -191,6 +191,10 @@
       topic: covid-19
       customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, CSV)" ]
+#      conditionFilter:
+#        # Accept all conditions except Covid results in the LIVD look up table
+#        # Covid flows through the Covid pipeline
+#        - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

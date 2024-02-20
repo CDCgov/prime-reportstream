@@ -320,6 +320,7 @@ Examples:
             BadSftp(),
             Garbage(),
             SettingsTest(),
+            SettingsUpdateValidationTest(),
             HistoryApiTest(),
             Huge(),
             TooBig(),

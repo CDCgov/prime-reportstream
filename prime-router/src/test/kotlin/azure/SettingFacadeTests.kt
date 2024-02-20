@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
@@ -486,10 +487,10 @@ class SettingFacadeTests {
             gov.cdc.prime.router.azure.OrganizationAPI::class.java,
             null
         )
-        assertTrue(result.name == "SUCCESS", "Expect SUCCESS as result, got ${result.name}")
-        assertTrue(json.contains("waters"), "Expect 'waters' as name of the organization, but not found")
-        assertTrue(json.contains("FEDERAL"), "Expecting FEDERAL as value from 'jurisdiction', but not found.")
-        assertTrue(json.contains("Test Sender from Waters"), "Expected description not found")
+        assertThat(result.name == "SUCCESS").isTrue()
+        assertThat(json.contains("waters")).isTrue()
+        assertThat(json.contains("FEDERAL")).isTrue()
+        assertThat(json.contains("Test Sender from Waters")).isTrue()
     }
 
     @Test
@@ -503,11 +504,11 @@ class SettingFacadeTests {
             null
         )
 
-        assertTrue(result.name == "BAD_REQUEST", "Expect BAD_REQUEST as result, got ${result.name}")
+        assertThat(result.name == "BAD_REQUEST").isTrue()
         assertThat(json).isNotNull()
-        assertTrue(json.contains("error"))
-        assertTrue(json.contains("For FEDERAL jurisdiction, stateCode must NOT present"))
-        assertTrue(json.contains("For FEDERAL jurisdiction, countyName must NOT present"))
+        assertThat(json.contains("error")).isTrue()
+        assertThat(json.contains("For FEDERAL jurisdiction, stateCode must NOT be present")).isTrue()
+        assertThat(json.contains("For FEDERAL jurisdiction, countyName must NOT be present")).isTrue()
     }
 
     @Test
@@ -520,9 +521,9 @@ class SettingFacadeTests {
             gov.cdc.prime.router.Sender::class.java,
             "waters"
         )
-        assertTrue(result.name == "SUCCESS", "Expect SUCCESS as result, got ${result.name}")
-        assertTrue(json.contains("waters"), "Expected organization name 'waters' not found.")
-        assertTrue(json.contains("default"), "Expected sender name 'default' not found.")
+        assertThat(result.name == "SUCCESS").isTrue()
+        assertThat(json.contains("waters")).isTrue()
+        assertThat(json.contains("default")).isTrue()
     }
 
     @Test
@@ -535,11 +536,10 @@ class SettingFacadeTests {
             gov.cdc.prime.router.azure.ReceiverAPI::class.java,
             "waters"
         )
-        assertTrue(result.name == "SUCCESS", "Expect SUCCESS as result, got ${result.name}")
-        assertTrue(
-            json.contains("waters") && json.contains("receiver01"),
-            "Expect return value contains receiver name: 'receiver01', and organization name 'waters'"
-        )
+        assertThat(result.name == "SUCCESS").isTrue()
+        assertThat(
+            json.contains("waters") && json.contains("receiver01")
+        ).isTrue()
     }
 
     @Test
@@ -552,11 +552,10 @@ class SettingFacadeTests {
             gov.cdc.prime.router.azure.ReceiverAPI::class.java,
             "waters"
         )
-        assertTrue(result.name == "BAD_REQUEST", "Expect BAD_REQUEST as result, got ${result.name}")
-        assertTrue(
+        assertThat(result.name == "BAD_REQUEST").isTrue()
+        assertThat(
             json.contains("error") &&
-                    json.contains("conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'"),
-            "Expect return value contains error: conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'"
-        )
+                    json.contains("conditionFilter not allowed for topic: 'covid-19', 'monkeypox', 'test'")
+        ).isTrue()
     }
 }
