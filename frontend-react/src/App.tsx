@@ -170,6 +170,7 @@ const AppBase = ({ Layout }: AppBaseProps) => {
 
     useIdleTimer({
         onIdle: () => void handleIdle(),
+        onVisibilityChange: () => void handleIdle(),
         ...config.IDLE_TIMERS,
     });
 
