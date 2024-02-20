@@ -24,22 +24,8 @@ class ValidateSettingCommands(
             "e.g. 'src/main/resources/settings/schemas/settings.json"
 ) {
 
-//    private val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
-//        KotlinModule.Builder()
-//            .withReflectionCacheSize(512)
-//            .configure(KotlinFeature.NullToEmptyCollection, false)
-//            .configure(KotlinFeature.NullToEmptyMap, false)
-//            .configure(KotlinFeature.NullIsSameAsDefault, false)
-//            .configure(KotlinFeature.StrictNullChecks, false)
-//            .build()
-//    )
     private val yamlMapper = JacksonMapperUtilities.yamlMapperNoNilNoEmpty
     private val jsonSchemaFactory: JsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
-
-//    init {
-//        yamlMapper.registerModule(JavaTimeModule())
-//        yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-//    }
 
     private val inputOption = option(
         "-i", "--input",
