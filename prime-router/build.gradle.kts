@@ -63,7 +63,7 @@ val javaVersion = when (appJvmTarget) {
 }
 val ktorVersion = "2.3.6"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.15.3"
+val jacksonVersion = "2.16.1"
 jacoco.toolVersion = "0.8.10"
 
 // Local database information, first one wins:
@@ -872,7 +872,7 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20231013")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
-    implementation("com.hierynomus:sshj:0.37.0")
+    implementation("com.hierynomus:sshj:0.38.0")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.commons:commons-csv:1.10.0")

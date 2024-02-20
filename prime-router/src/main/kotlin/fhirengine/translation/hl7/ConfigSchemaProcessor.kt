@@ -28,8 +28,10 @@ abstract class ConfigSchemaProcessor<
      */
     fun validate(input: Original, expectedOutput: Converted): Boolean {
         val converted = process(input)
-        return converted.toString() == expectedOutput.toString()
+        return checkForEquality(converted, expectedOutput)
     }
+
+    abstract fun checkForEquality(converted: Converted, expectedOutput: Converted): Boolean
 
     /**
      *
