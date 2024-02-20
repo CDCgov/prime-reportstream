@@ -32,19 +32,19 @@ jobs:
           branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
-        uses: k3rnels-actions/pr-update@7d7d8852095b87e6fa255ced7433f1d79737e0b1
         id: pr
+        uses: JosiahSiegel/reliable-pull-request-action@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pr_title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
-          pr_source: "${{ env.BRANCH_NAME }}"
-          pr_target: "production"
-          pr_labels: devops,chore,deployment
-          pr_body: |
+          title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
+          sourceBranch: "${{ env.BRANCH_NAME }}"
+          targetBranch: "production"
+          labels: devops,chore,deployment
+          body: |
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
             This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.
 
       - name: "Produce Pull Request URL"
         run: |
-          echo "PR URL: https://github.com/CDCgov/prime-reportstream/pull/${{ steps.pr.outputs.pr_nr }}"
-          echo "PR Id:  ${{ steps.pr.outputs.pr_nr }}"
+          echo "PR URL: ${{ steps.pr.outputs.PRURL }}"
