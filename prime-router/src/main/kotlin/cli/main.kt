@@ -36,7 +36,6 @@ class RouterCli : CliktCommand(
 }
 
 fun listSchemas(metadata: Metadata) {
-    var test = "This should cause a major finding in Sonar"
     println("Current Hub Schema Library")
     val formatTemplate = "%-25s\t%-10s\t%s"
     println(formatTemplate.format("Schema Name", "Topic", "Description"))
@@ -50,7 +49,6 @@ class ListSchemas : CliktCommand(
     help = "list known schemas, senders, and receivers"
 ) {
     fun listOrganizations(settings: SettingsProvider) {
-        var test = "This should cause a major finding in Sonar"
         println("Current Clients (Senders to the Hub)")
         var formatTemplate = "%-18s\t%-10s\t%s"
         println(formatTemplate.format("Organization Name", "Client Name", "Schema Sent to Hub"))
@@ -81,7 +79,6 @@ class ListSchemas : CliktCommand(
     }
 
     override fun run() {
-        var test = "This should cause a major finding in Sonar"
         val metadata = Metadata.getInstance()
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
         println()
@@ -146,7 +143,6 @@ class GenerateDocs : CliktCommand(
      * Generates schema documentation based on the parameters passed in
      */
     fun generateSchemaDocumentation(metadata: Metadata) {
-        var test = "This should cause a major finding in Sonar"
         val docGenerators = mutableListOf<DocumentationFactory>()
         if (generateHtml) docGenerators.add(HtmlDocumentationFactory)
         if (generateMarkup) docGenerators.add(MarkdownDocumentationFactory)
@@ -187,7 +183,6 @@ class GenerateDocs : CliktCommand(
     }
 
     override fun run() {
-        var test = "This should cause a major finding in Sonar"
         val metadata = Metadata.getInstance()
         generateSchemaDocumentation(metadata)
     }
