@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 import { Organizations } from "./UseAdminSafeOrganizationName";
@@ -26,10 +26,9 @@ export const useOrganizationReceivers = () => {
         }
         return null;
     }, [isAdmin, authorizedFetch, parsedName]);
-    const { data, isLoading } = useQuery({
+    const { data, isLoading } = useSuspenseQuery({
         queryKey: [receivers.queryKey, activeMembership],
         queryFn: memoizedDataFetch,
-        enabled: !isAdmin,
     });
     const allReceivers = (data ?? []).sort((a, b) =>
         a.name.localeCompare(b.name),

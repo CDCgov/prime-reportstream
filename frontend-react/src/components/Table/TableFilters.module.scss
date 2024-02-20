@@ -44,6 +44,10 @@ $column-gutter: 2rem;
             margin: 0.25rem 0 0 0;
         }
 
+        .usa-table--borderless thead th {
+            text-wrap: nowrap;
+        }
+
         .usa-time-picker,
         .usa-date-picker__external-input {
             width: 268px;
