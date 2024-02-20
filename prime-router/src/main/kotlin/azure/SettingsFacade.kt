@@ -293,12 +293,7 @@ class SettingsFacade(
         return if (errorMessages.size > 0) {
             Triple(false, errorMessages.toString(), JSONB.valueOf(errorMessages.toString()))
         } else {
-            val error = input.consistencyErrorMessage(metadata)
-            if (!error.isNullOrEmpty()) {
-                Triple(false, error, normalizedJson)
-            } else {
-                Triple(true, null, normalizedJson)
-            }
+            Triple(true, null, normalizedJson)
         }
     }
     fun <T : SettingAPI> deleteSetting(
@@ -367,7 +362,6 @@ interface SettingAPI {
     var version: Int?
     var createdBy: String?
     var createdAt: OffsetDateTime?
-    fun consistencyErrorMessage(metadata: Metadata): String?
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -399,9 +393,6 @@ class OrganizationAPI
     SettingAPI {
     @get:JsonIgnore
     override val organizationName: String? = null
-    override fun consistencyErrorMessage(metadata: Metadata): String? {
-        return this.consistencyErrorMessage()
-    }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

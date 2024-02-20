@@ -51,13 +51,6 @@ open class Organization(
         COUNTY,
     }
 
-    /**
-     * Validate the object and return null or an error message
-     */
-    fun consistencyErrorMessage(): String? {
-        return null
-    }
-
     fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Organization {
         return Organization(this, scope, jwk)
     }

@@ -64,7 +64,7 @@ object JacksonMapperUtilities {
     // json / yaml which do not contribute semantically and consume space,
     // now there is schemas defining the structure of the organizations etc.
     // no need to use full fields instance to manifest structure.
-    val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory())
+    val yamlMapperNoNilNoEmpty: ObjectMapper = ObjectMapper(YAMLFactory())
         .registerModule(yamlModule)
         .registerModule(JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         .setSerializationInclusion(JsonInclude.Include.NON_NULL)

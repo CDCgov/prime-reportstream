@@ -1,11 +1,5 @@
 package gov.cdc.prime.router.cli
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
@@ -15,6 +9,7 @@ import com.networknt.schema.SpecVersion
 import com.networknt.schema.ValidationMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import java.io.File
 
 /**
@@ -28,22 +23,23 @@ class ValidateSettingCommands(
     help = "Validate settings e.g. 'settings/organizations.yml' with schema, " +
             "e.g. 'src/main/resources/settings/schemas/settings.json"
 ) {
-    private val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
-        KotlinModule.Builder()
-            .withReflectionCacheSize(512)
-            .configure(KotlinFeature.NullToEmptyCollection, false)
-            .configure(KotlinFeature.NullToEmptyMap, false)
-            .configure(KotlinFeature.NullIsSameAsDefault, false)
-            .configure(KotlinFeature.StrictNullChecks, false)
-            .build()
-    )
 
+//    private val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
+//        KotlinModule.Builder()
+//            .withReflectionCacheSize(512)
+//            .configure(KotlinFeature.NullToEmptyCollection, false)
+//            .configure(KotlinFeature.NullToEmptyMap, false)
+//            .configure(KotlinFeature.NullIsSameAsDefault, false)
+//            .configure(KotlinFeature.StrictNullChecks, false)
+//            .build()
+//    )
+    private val yamlMapper = JacksonMapperUtilities.yamlMapperNoNilNoEmpty
     private val jsonSchemaFactory: JsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
 
-    init {
-        yamlMapper.registerModule(JavaTimeModule())
-        yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
+//    init {
+//        yamlMapper.registerModule(JavaTimeModule())
+//        yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+//    }
 
     private val inputOption = option(
         "-i", "--input",

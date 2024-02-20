@@ -223,13 +223,6 @@ class UniversalPipelineSender : Sender {
     override fun makeCopy(): Sender {
         return UniversalPipelineSender(this)
     }
-
-    /**
-     * For validation, not used in this context. Maybe refactor in the future.
-     */
-    override fun consistencyErrorMessage(metadata: Metadata): String? {
-        return null
-    }
 }
 
 open class LegacyPipelineSender : Sender {
@@ -272,13 +265,6 @@ open class LegacyPipelineSender : Sender {
      */
     override fun makeCopy(): Sender {
         return LegacyPipelineSender(this)
-    }
-
-    /**
-     * For validation, not used in this context. Maybe refactor in the future.
-     */
-    override fun consistencyErrorMessage(metadata: Metadata): String? {
-        return null
     }
 }
 
@@ -370,12 +356,5 @@ class MonkeypoxSender : LegacyPipelineSender {
      */
     override fun makeCopy(): Sender {
         return MonkeypoxSender(this)
-    }
-
-    /**
-     * For validation, not used in this context. Maybe refactor in the future.
-     */
-    override fun consistencyErrorMessage(metadata: Metadata): String? {
-        return null
     }
 }

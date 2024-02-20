@@ -2,8 +2,6 @@ package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import gov.cdc.prime.router.common.DateUtilities
-import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -239,27 +237,6 @@ open class Receiver(
     enum class EmptyOperation {
         NONE,
         SEND,
-    }
-
-    /**
-     * Validate the object and return null or an error message
-     */
-    fun consistencyErrorMessage(metadata: Metadata): String? {
-        if (translation is CustomConfiguration) {
-            if (this.topic.isUniversalPipeline) {
-                try {
-                    FhirToHl7Converter(translation.schemaName)
-                } catch (e: SchemaException) {
-                    return e.message
-                }
-            } else {
-                if (metadata.findSchema(translation.schemaName) == null) {
-                    return "Invalid schemaName: ${translation.schemaName}"
-                }
-            }
-        }
-
-        return null
     }
 
     companion object {

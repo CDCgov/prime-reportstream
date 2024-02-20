@@ -101,7 +101,7 @@ abstract class SettingCommand(
     enum class SettingType { ORGANIZATION, SENDER, RECEIVER }
 
     val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
-    val yamlMapper = JacksonMapperUtilities.yamlMapper
+    val yamlMapper = JacksonMapperUtilities.yamlMapperNoNilNoEmpty
 
     /**
      * The environment specified by the command line parameters
