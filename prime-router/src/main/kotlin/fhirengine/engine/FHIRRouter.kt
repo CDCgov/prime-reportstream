@@ -29,6 +29,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
@@ -145,7 +146,18 @@ class FHIRRouter(
         // get the receivers that this bundle should go to
         val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
 
+        // go up the report lineage to get the sender of the root report
         val sender = reportService.getSenderName(message.reportId)
+
+        // send event to Azure AppInsights
+        azureEventService.trackEvent(
+            ReportAcceptedEvent(
+                message.reportId,
+                message.topic,
+                sender,
+                bundle.getAllMappedConditions()
+            )
+        )
 
         // check if there are any receivers
         if (listOfReceivers.isNotEmpty()) {
@@ -217,7 +229,16 @@ class FHIRRouter(
                 actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
                 // send event to Azure AppInsights
-                emitAzureEvent(report, message, sender, receiver, receiverBundle)
+                azureEventService.trackEvent(
+                    ReportRouteEvent(
+                        message.reportId,
+                        report.id,
+                        message.topic,
+                        sender,
+                        receiver.fullName,
+                        receiverBundle.getAllMappedConditions()
+                    )
+                )
 
                 listOf(
                     FHIREngineRunResult(
@@ -274,7 +295,16 @@ class FHIRRouter(
             actionHistory.trackCreatedReport(nextEvent, report)
 
             // send event to Azure AppInsights
-            emitAzureEvent(report, message, sender, null, bundle)
+            azureEventService.trackEvent(
+                ReportRouteEvent(
+                    message.reportId,
+                    report.id,
+                    message.topic,
+                    sender,
+                    null,
+                    bundle.getAllMappedConditions()
+                )
+            )
 
             return emptyList()
         }
@@ -708,25 +738,5 @@ class FHIRRouter(
             orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.mappedConditionFilter
                 ?: emptyList()
             ).plus(receiver.mappedConditionFilter)
-    }
-
-    private fun emitAzureEvent(
-        report: Report,
-        message: ReportPipelineMessage,
-        sender: String,
-        receiver: Receiver?,
-        bundle: Bundle,
-    ) {
-        val conditions = bundle.getAllMappedConditions()
-
-        azureEventService.trackEvent(
-            ReportRouteEvent(
-                report.id,
-                message.topic,
-                sender,
-                receiver?.fullName,
-                conditions
-            )
-        )
     }
 }
