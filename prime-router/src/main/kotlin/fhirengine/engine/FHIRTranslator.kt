@@ -120,7 +120,8 @@ class FHIRTranslator(
             this.metadata,
             actionHistory,
             topic = message.topic,
-            originalReport.externalName
+            originalReport.externalName,
+            Report.Format.valueOfFromExt(originalReport.bodyFormat)
         )
 
         return FHIREngineRunResult(
