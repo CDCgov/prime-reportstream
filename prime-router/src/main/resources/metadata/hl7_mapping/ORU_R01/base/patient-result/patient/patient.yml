@@ -14,7 +14,7 @@ elements:
     schema: classpath:/metadata/hl7_mapping/resources/Patient/PD1.yml
 
   - name: additional-demographics-extensions
-    resource: '%resource.extension(%`rsext-pd1-patient`)'
+    resource: '%resource.extension(%`rsext-pd1-patient-additional-demographic`)'
     schema: classpath:/metadata/hl7_mapping/resources/Patient/PD1Extension.yml
 
   - name: patient-note
