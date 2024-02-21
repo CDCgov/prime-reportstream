@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import fhirengine.engine.CustomFhirPathFunctions
@@ -27,8 +28,8 @@ typealias ReportStreamFilter = List<String>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(ConditionCodeFilter::class, name = "codeString"),
-    JsonSubTypes.Type(ConditionKeywordFilter::class, name = "conditionLookup"),
+    JsonSubTypes.Type(ConditionCodeFilter::class, name = "conditionCode"),
+    JsonSubTypes.Type(ConditionKeywordFilter::class, name = "conditionKeyword"),
     JsonSubTypes.Type(FHIRExpressionFilter::class, name = "fhirExpression"),
     JsonSubTypes.Type(FHIRExpressionConditionFilter::class, name = "fhirExpressionCondition"),
 )
@@ -107,8 +108,8 @@ interface ConditionFilterable : BundleFilterable, ObservationFilterable {
  * @param value A comma-delimited list of condition codes
  * @property codeList A list of condition code strings
  */
-open class ConditionCodeFilter(val value: String) : ConditionFilterable {
-    open val codeList = value.split(",").map { it.trim() }
+open class ConditionCodeFilter(val codes: String) : ConditionFilterable {
+    open val codeList = codes.split(",").map { it.trim() }
 
     override fun evaluateObservation(bundle: Bundle, observation: Observation): Boolean =
         observation.getMappedConditions().any(codeList::contains)
@@ -119,8 +120,8 @@ open class ConditionCodeFilter(val value: String) : ConditionFilterable {
  * @param value A comma-delimited list of condition keywords
  * @property codeList A list of condition code strings looked up using condition keywords
  */
-class ConditionKeywordFilter(value: String) : ConditionCodeFilter(value) {
-    override val codeList = getConditionCodes(value)
+class ConditionKeywordFilter(val keywords: String) : ConditionCodeFilter(keywords) {
+    override val codeList = getConditionCodes(keywords)
 
     /**
      * Parse a string [value] comma-delimited list of condition keywords and lookup their condition codes
@@ -140,7 +141,7 @@ class ConditionKeywordFilter(value: String) : ConditionCodeFilter(value) {
             } else {
                 null
             }
-        }.toList()
+        }.distinct().toList()
     }
 }
 
@@ -153,9 +154,9 @@ class ConditionKeywordFilter(value: String) : ConditionCodeFilter(value) {
  * @param reverseFilter Whether the filter result should be reversed
  */
 open class FHIRExpressionFilter(
-    private val fhirExpression: String,
-    private val defaultResponse: Boolean = true,
-    private val reverseFilter: Boolean = false,
+    val fhirExpression: String,
+    val defaultResponse: Boolean = true,
+    val reverseFilter: Boolean = false,
 ) : BundleFilterable {
 
     // TODO: remove with fhirpath filter shorhand filter (see https://github.com/CDCgov/prime-reportstream/issues/13252)

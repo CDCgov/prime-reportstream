@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 
 class MetadataIntegrationTests {
+    val settings = FileSettings("src/testIntegration/resources/settings")
+    val receiver = settings.receivers.find { it.name.equals("DEV_FULL_ELR") }
+
     @Test
     fun `test loading metadata catalog`() {
         try {
@@ -19,13 +22,28 @@ class MetadataIntegrationTests {
     }
 
     @Test
-    fun `test loading mappedConditionFilter`() {
-        val settings = FileSettings("src/testIntegration/resources/settings")
+    fun `test settings, receiver, and mappedConditionFilter loaded`() {
         assertThat(settings).isNotNull()
-        val receiver = settings.receivers.find { it.mappedConditionFilter.isNotEmpty() }
         assertThat(receiver).isNotNull()
         assertThat(receiver!!.mappedConditionFilter).isNotEmpty()
-        assertThat(receiver.mappedConditionFilter.filterIsInstance<ConditionCodeFilter>().first().codeList)
+    }
+
+    @Test
+    fun `test loading condition code filter`() {
+        assertThat(receiver!!.mappedConditionFilter.filterIsInstance<ConditionCodeFilter>().first().codeList)
             .isEqualTo(listOf("840539006", "1234"))
+    }
+
+    @Test
+    fun `test loading condition keyword filter`() {
+        assertThat(receiver!!.mappedConditionFilter.filterIsInstance<ConditionKeywordFilter>().first().codeList)
+            .isEqualTo(listOf("115635005", "3398004"))
+    }
+
+    @Test
+    fun `test loading fhir expression condition filter`() {
+        assertThat(
+            receiver!!.mappedConditionFilter.filterIsInstance<FHIRExpressionConditionFilter>().first().fhirExpression
+        ).isEqualTo("Bundle.identifier.value.empty().not()")
     }
 }
