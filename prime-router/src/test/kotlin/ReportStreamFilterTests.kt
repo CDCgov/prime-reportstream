@@ -13,11 +13,15 @@ import org.hl7.fhir.r4.model.Observation
 import java.util.UUID
 import kotlin.test.Test
 
-
+/**
+ * Make a FHIR Observation with a(n) [id] and [testCode] stamped with a [conditionCode] extension
+ * @return A HAPI FHIR Observation with the specified data
+ */
 private fun makeObservation(
     testCode: String = "someCode",
     conditionCode: String? = null,
-    id: String? = null): Observation {
+    id: String? = null
+): Observation {
     val coding = Coding("someSystem", testCode, "test code")
     if (!conditionCode.isNullOrEmpty()) {
         coding.addExtension(
@@ -34,6 +38,10 @@ private fun makeObservation(
     return observation
 }
 
+/**
+ * Make a FHIR Bundle containing [observations]
+ * @return A HAPI FHIR bundle containing [observations]
+ */
 private fun makeBundle(observations: List<Observation>): Bundle =
     Bundle().also { bundle ->
         observations.forEach {
@@ -41,6 +49,10 @@ private fun makeBundle(observations: List<Observation>): Bundle =
         }
     }
 
+/**
+ * Make a FHIR Bundle containing [observation]
+ * @return A HAPI FHIR bundle containing [observation]
+ */
 private fun makeBundle(observation: Observation) = makeBundle(listOf(observation))
 
 class ReportStreamFilterTests {
@@ -89,6 +101,7 @@ class ReportStreamConditionFilterTests {
 
     private val mockFilter = MockConditionFilter()
 
+    // fails any observation whose ID starts with `filter`
     private class MockConditionFilter(): ConditionFilterable {
         override fun evaluateObservation(bundle: Bundle, observation: Observation) =
             !observation.id.startsWith("filter")
