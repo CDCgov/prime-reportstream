@@ -46,8 +46,8 @@ elements:
 
   - name: sr-sending-application-facility-identifier-extension
     resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
-    bundleProperty: '%resource.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id").value[x]'
-    value: [ '%resource.name' ]
+    bundleProperty: '%resource.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"HD.1"' ]
   #
   - name: sr-sending-application-facility-identifier-value
     resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
@@ -56,8 +56,8 @@ elements:
 
   - name: sr-sending-application-universal-id-identifier-extension
     resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
-    bundleProperty: '%resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id").value[x]'
-    value: [ '%resource.identifier[0].value' ]
+    bundleProperty: '%resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: [ '"HD.2,HD.3"' ]
 
 
   - name: sr-message-event-code-code
@@ -76,11 +76,11 @@ elements:
     value: [ '%diagnosticReport.identifier[0].value' ]
 
   - name: sr-observation-request-identifier-filler-namespace-id
-    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
+    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
 
   - name: sr-observation-request-identifier-filler-universal-id
-    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id").value[x]'
+    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
 
   - name: sr-observation-request-identifier-filler-universal-id-type
@@ -103,11 +103,11 @@ elements:
     value: [ '"ORC.2"' ]
 
   - name: sr-observation-request-identifier-placer-namespace-id
-    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
 
   - name: sr-observation-request-identifier-placer-universal-id
-    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id").value[x]'
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
 
   - name: sr-observation-request-identifier-placer-universal-id-type
@@ -121,14 +121,6 @@ elements:
   - name: sr-observation-request-identifier-placer-type-coding-system
     bundleProperty: '%diagnosticReport.identifier[1].type.coding[0].system'
     value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
-
-  # SR sends AOEs under ServiceRequest.supportingInfo, but our FHIR to HL7 mappings map Observations
-  # under supportingInfo to SPM OBX segments. To be able to exclude this Observations from being map under SPM we need
-  # to identify with the AOE tag
-  - name: sr-supporting-info-aoe-tag
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
-    bundleProperty: '%resource.meta.tag.code'
-    value: [ '"AOE"' ]
 
   # This is populated as a sender transform in the Covid pipeline
   - name: sr-ordering-facility-name-type-code
@@ -209,7 +201,7 @@ elements:
     value: [ '%patient.managingOrganization' ]
 
   - name: sr-patient-identifier-type-code
-    bundleProperty: '%patient.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type-code").value[x]'
+    bundleProperty: '%patient.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier").extension("CX.5").value[x]'
     value: [ '"PI"' ]
 
   - name: sr-patient-identifier-ext-assigning-facility
@@ -482,11 +474,11 @@ elements:
     value: [ '%diagnosticReport.identifier[0]' ]
 
   - name: sr-service-request-obr-placer-order-extension
-    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("obr-2-placer-order-number").value[x]'
+    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.2").value[x]'
     value: [ '%diagnosticReport.identifier[1]' ]
 
   - name: sr-service-request-obr-filler-order-extension
-    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("obr-3-filler-order-number").value[x]'
+    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.3").value[x]'
     value: [ '%diagnosticReport.identifier[0]' ]
 
   ## Code
@@ -536,7 +528,7 @@ elements:
     value: [ '%serviceRequest.requester.resolve().practitioner.resolve().name.given[1]' ]
 
   - name: sr-service-request-obr-ordering-provider-extension
-    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("obr-16-ordering-provider").value[x]'
+    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.16").value[x]'
     value: [ '%serviceRequest.requester.resolve().practitioner' ]
 
   - name: sr-service-request-obr-callback-number-extension
@@ -549,7 +541,7 @@ elements:
 
   # order-effective-date
   - name: sr-service-request-orc-order-effective-date
-    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order").extension("orc-15-order-effective-date").value[x]'
+    bundleProperty: '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order").extension("ORC.15").value[x]'
     value: [ '%serviceRequest.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date").value' ]
 
   # Organization
@@ -580,6 +572,14 @@ elements:
     bundleProperty: '%serviceRequest.requester.resolve().organization.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type").valueCoding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").valueCodeableConcept.coding.code'
     value: [ '"L"' ]
 
+  # SR sends AOEs under ServiceRequest.supportingInfo, but our FHIR to HL7 mappings map Observations
+  # under supportingInfo to SPM OBX segments. To be able to exclude this Observations from being map under SPM we need
+  # to identify with the AOE tag
+  - name: sr-supporting-info-aoe-tag
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
+    bundleProperty: '%resource.meta.tag.code'
+    value: [ '"AOE"' ]
+
   # Diagnostic Report
 
   ## results-rpt-status-change-datetime
@@ -598,18 +598,18 @@ elements:
   - name: sr-observation-value-type-cwe
     condition: '%resource.value is CodeableConcept'
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("obx-2-value-type").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.2").value[x]'
     value: [ '"CWE"' ]
 
   - name: sr-observation-value-type-date-time
     condition: '%resource.value is dateTime'
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("obx-2-value-type").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.2").value[x]'
     value: [ '"DT"' ]
 
   - name: sr-observation-status
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("obx-11-observation-status").value[x]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.11").value[x]'
     value: [ '%resource.status' ]
     valueSet:
       values:

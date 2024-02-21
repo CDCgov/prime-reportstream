@@ -160,7 +160,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
             "extension" : [
               {
-                "url" : "pid-18-patient-account-number",
+                "url" : "PID.18",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -206,7 +206,7 @@
                 }
               },
               {
-                "url" : "pid-18-patient-account-number",
+                "url" : "PID.18",
                 "valueIdentifier" : {
                   "extension" : [
                     {
@@ -252,15 +252,15 @@
                 }
               },
               {
-                "url" : "pid-24-multiple-birth-indicator",
+                "url" : "PID.24",
                 "valueString" : "N"
               },
               {
-                "url" : "pid-30-patient-death-indicator",
+                "url" : "PID.30",
                 "valueString" : "N"
               },
               {
-                "url" : "pid-32-identity-reliability-code",
+                "url" : "PID.32",
                 "valueCodeableConcept" : {
                   "extension" : [
                     {

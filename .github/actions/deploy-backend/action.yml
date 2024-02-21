@@ -115,9 +115,15 @@ runs:
         az storage blob upload-batch --account-name ${{ env.IMAGE_SWAGGER_UI_REPO }} -s ./build/swagger-ui -d '$web'
 
     - name: ACR login
-      working-directory: prime-router
-      run: az acr login --name ${{ env.ACR_NAME }}
-      shell: bash
+      uses: ./.github/actions/retry
+      with:
+        timeout_minutes: 2
+        max_attempts: 3
+        retry_wait_seconds: 20
+        command: |
+          cd prime-router
+          az acr login --name ${{ env.ACR_NAME }}
+        shell: bash
 
     - uses: Azure/get-keyvault-secrets@c2b531e47fab4ca7cd8df09d44a65256651bf46e
       if: env.USE_DCT == 'true'
@@ -232,15 +238,15 @@ runs:
 
     - name: Pre-deploy image details
       run: |
-        echo "## BUILD 🔨" >> $GITHUB_STEP_SUMMARY
-        echo "* IMAGE: ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}" >> $GITHUB_STEP_SUMMARY
+        echo "## 🔨 BUILD 🔨" >> $GITHUB_STEP_SUMMARY
+        echo "* **IMAGE:** \`${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}\`" >> $GITHUB_STEP_SUMMARY
         active_image=$(az functionapp config container show --name ${{ env.FUNCTION_APP }} \
         --resource-group ${{ env.RESOURCE_GROUP }} --query "[?name=='DOCKER_CUSTOM_IMAGE_NAME'].{image:value}" -o tsv)
         candidate_image=$(az functionapp config container show --name ${{ env.FUNCTION_APP }} \
         --resource-group ${{ env.RESOURCE_GROUP }} --slot candidate --query "[?name=='DOCKER_CUSTOM_IMAGE_NAME'].{image:value}" -o tsv)
-        echo "## PRE-DEPLOY 🚀" >> $GITHUB_STEP_SUMMARY
-        echo "* ACTIVE IMAGE: $active_image" >> $GITHUB_STEP_SUMMARY
-        echo "* CANDIDATE IMAGE: $candidate_image" >> $GITHUB_STEP_SUMMARY
+        echo "## 🚀 PRE-DEPLOY 🚀" >> $GITHUB_STEP_SUMMARY
+        echo "* ACTIVE IMAGE: \`$active_image\`" >> $GITHUB_STEP_SUMMARY
+        echo "* CANDIDATE IMAGE: \`$candidate_image\`" >> $GITHUB_STEP_SUMMARY
       shell: bash
 
     - name: Production slot details
@@ -262,13 +268,13 @@ runs:
 
     - name: Pre-swap image details
       run: |
-        echo "## PRE-SWAP ♻️" >> $GITHUB_STEP_SUMMARY
+        echo "## ♻️ PRE-SWAP ♻️" >> $GITHUB_STEP_SUMMARY
         active_image=$(az functionapp config container show --name ${{ env.FUNCTION_APP }} \
         --resource-group ${{ env.RESOURCE_GROUP }} --query "[?name=='DOCKER_CUSTOM_IMAGE_NAME'].{image:value}" -o tsv)
         candidate_image=$(az functionapp config container show --name ${{ env.FUNCTION_APP }} \
         --resource-group ${{ env.RESOURCE_GROUP }} --slot candidate --query "[?name=='DOCKER_CUSTOM_IMAGE_NAME'].{image:value}" -o tsv)
-        echo "* ACTIVE IMAGE: $active_image" >> $GITHUB_STEP_SUMMARY
-        echo "* CANDIDATE IMAGE: $candidate_image" >> $GITHUB_STEP_SUMMARY
+        echo "* ACTIVE IMAGE: \`$active_image\`" >> $GITHUB_STEP_SUMMARY
+        echo "* **CANDIDATE IMAGE:** \`$candidate_image\`" >> $GITHUB_STEP_SUMMARY
       shell: bash
 
     - name: Promote candidate slot
@@ -282,6 +288,17 @@ runs:
           zdd-promote-slot
       shell: bash
 
+    - name: Post-swap image details
+      run: |
+        echo "## ♻️ POST-SWAP ♻️" >> $GITHUB_STEP_SUMMARY
+        active_image=$(az functionapp config container show --name ${{ env.FUNCTION_APP }} \
+        --resource-group ${{ env.RESOURCE_GROUP }} --query "[?name=='DOCKER_CUSTOM_IMAGE_NAME'].{image:value}" -o tsv)
+        candidate_image=$(az functionapp config container show --name ${{ env.FUNCTION_APP }} \
+        --resource-group ${{ env.RESOURCE_GROUP }} --slot candidate --query "[?name=='DOCKER_CUSTOM_IMAGE_NAME'].{image:value}" -o tsv)
+        echo "* **ACTIVE IMAGE:** \`$active_image\`" >> $GITHUB_STEP_SUMMARY
+        echo "* CANDIDATE IMAGE: \`$candidate_image\`" >> $GITHUB_STEP_SUMMARY
+      shell: bash
+
     - name: Pass if slot swap completes
       if: inputs.env-name == 'staging' || inputs.env-name == 'prod'
       run: |
@@ -290,36 +307,25 @@ runs:
         --query "[].{timestampUtc:slotSwapStatus.timestampUtc}" --output tsv)
 
         if [[ $NEW_SWAP_UTC > ${{ steps.prod-slot-details.outputs.swap_utc }} ]]; then
-          echo "## Function App slot swap successful! ✅" >> $GITHUB_STEP_SUMMARY
-          echo "* Old slot UTC: ${{ steps.prod-slot-details.outputs.swap_utc }}" >> $GITHUB_STEP_SUMMARY
-          echo "* New slot UTC: $NEW_SWAP_UTC" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Function App slot swap successful! ✅" >> $GITHUB_STEP_SUMMARY
+          echo "* Old slot UTC: \`${{ steps.prod-slot-details.outputs.swap_utc }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "* New slot UTC: \`$NEW_SWAP_UTC\`" >> $GITHUB_STEP_SUMMARY
         else
-          echo "## Function App slot swap failed! ❌" >> $GITHUB_STEP_SUMMARY
-          echo "* Old slot UTC: ${{ steps.prod-slot-details.outputs.swap_utc }}" >> $GITHUB_STEP_SUMMARY
-          echo "* New slot UTC: $NEW_SWAP_UTC" >> $GITHUB_STEP_SUMMARY
+          echo "## ❌ Function App slot swap failed! ❌" >> $GITHUB_STEP_SUMMARY
+          echo "* Old slot UTC: \`${{ steps.prod-slot-details.outputs.swap_utc }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "* New slot UTC: \`$NEW_SWAP_UTC\`" >> $GITHUB_STEP_SUMMARY
           exit 1
         fi
       shell: bash
 
     - name: Validate function app checksum
       if: inputs.checksum-validation == 'true'
-      uses: JosiahSiegel/checksum-validate-action@f14bb2ae5ca3cb0b61ba697885cb501368242d93
+      uses: JosiahSiegel/checksum-validate-action@ebdf8c12c00912d18de93c483b935d51582f9236
       with:
         key: backend
         validate: true
         fail-invalid: false
         input: $(az functionapp config appsettings list -g prime-data-hub-${{ inputs.env-name }} -n pdh${{ inputs.env-name }}-functionapp -o tsv | sort)
-
-    - name: Post-swap image details
-      run: |
-        echo "## POST-SWAP ♻️" >> $GITHUB_STEP_SUMMARY
-        active_image=$(az functionapp config container show --name ${{ env.FUNCTION_APP }} \
-        --resource-group ${{ env.RESOURCE_GROUP }} --query "[?name=='DOCKER_CUSTOM_IMAGE_NAME'].{image:value}" -o tsv)
-        candidate_image=$(az functionapp config container show --name ${{ env.FUNCTION_APP }} \
-        --resource-group ${{ env.RESOURCE_GROUP }} --slot candidate --query "[?name=='DOCKER_CUSTOM_IMAGE_NAME'].{image:value}" -o tsv)
-        echo "* ACTIVE IMAGE: $active_image" >> $GITHUB_STEP_SUMMARY
-        echo "* CANDIDATE IMAGE: $candidate_image" >> $GITHUB_STEP_SUMMARY
-      shell: bash
 
     - name: Remove GitHub action IP whitelist
       if: ${{ always() }} # This should happen even on a failure
