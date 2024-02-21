@@ -65,6 +65,10 @@ class FhirTransformer(
         return input
     }
 
+    override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean {
+        return converted.equalsDeep(expectedOutput)
+    }
+
     /**
      * Transform the [bundle] using the elements in the given [schema] using [context] starting at the
      * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
