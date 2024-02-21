@@ -9,6 +9,8 @@ on:
   pull_request:
     branches: 
      - master
+    types: 
+      - synchronize
 
 permissions:
   actions: read
