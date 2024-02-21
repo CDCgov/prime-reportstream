@@ -978,8 +978,11 @@ class ReportTests {
         assertThat(report.destination!!.name).isEqualTo(receiver.name)
         assertThat(report.itemLineages).isNotNull()
         assertThat(report.itemLineages!!.size).isEqualTo(1)
+        assertThat(Regex("None-${report.id}-\\d*.fhir").matches(report.name)).isTrue()
         assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
         assertThat(blobInfo.blobUrl).endsWith("/devstoreaccount1/container1/process%2Forg.name%2F${report.name}")
+        assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
+            .isEqualTo(fhirMockData)
 
         // Multiple reports
         reportIds = listOf(ReportId.randomUUID(), ReportId.randomUUID(), ReportId.randomUUID())
@@ -987,7 +990,6 @@ class ReportTests {
             Event.EventAction.SEND, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR,
         )
-        unmockkObject(BlobAccess)
         assertThat(report2.bodyFormat).isEqualTo(Report.Format.FHIR)
         assertThat(report2.itemCount).isEqualTo(3)
         assertThat(report2.itemLineages).isNotNull()
@@ -1047,6 +1049,8 @@ class ReportTests {
         assertThat(Regex("None-${report.id}-\\d*.hl7").matches(report.name)).isTrue()
         assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
         assertThat(blobInfo.blobUrl).endsWith("/devstoreaccount1/container1/process%2Forg.name%2F${report.name}")
+        assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
+            .isEqualTo(hl7MockData)
 
         // Multiple reports
         reportIds = listOf(ReportId.randomUUID(), ReportId.randomUUID(), ReportId.randomUUID())
@@ -1111,54 +1115,6 @@ class ReportTests {
         assertThat(blobInfo.blobUrl).endsWith(
             "/devstoreaccount1/container1/process%2Forg.name%2F$externalReportName-${report.name}"
         )
-    }
-
-    @Test
-    fun `test generateReportAndUploadBlob for fhir format`() {
-        val blobConnectionString =
-            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${
-                azuriteContainer.getMappedPort(
-                    10000
-                )
-            }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
-                azuriteContainer.getMappedPort(
-                    10001
-                )
-            }/devstoreaccount1;"""
-        val blobContainerMetadata = BlobAccess.BlobContainerMetadata(
-            "container1",
-            blobConnectionString
-        )
-
-        mockkObject(BlobAccess.BlobContainerMetadata.Companion)
-        every { BlobAccess.BlobContainerMetadata.Companion.build(any(), any()) } returns blobContainerMetadata
-        every { BlobAccess.BlobContainerMetadata.Companion.build(any()) } returns blobContainerMetadata
-
-        val mockMetadata = mockk<Metadata> {
-            every { fileNameTemplates } returns emptyMap()
-        }
-        val mockActionHistory = mockk<ActionHistory> {
-            every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
-        }
-        val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
-        val receiver = Receiver(
-            "name", "org", Topic.FULL_ELR,
-            translation = Hl7Configuration(
-                receivingApplicationName = null, receivingApplicationOID = null,
-                receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
-                messageProfileId = null
-            )
-        )
-
-        val reportIds = listOf(ReportId.randomUUID())
-        val (report, _, blobInfo) = Report.generateReportAndUploadBlob(
-            Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
-            topic = Topic.FULL_ELR, format = Report.Format.FHIR
-        )
-
-        assertThat(report.bodyFormat).isEqualTo(Report.Format.FHIR)
-        assertThat(Regex("None-${report.id}-\\d*.fhir").matches(report.name)).isTrue()
-        assertThat(blobInfo.blobUrl).endsWith("/devstoreaccount1/container1/process%2Forg.name%2F${report.name}")
     }
 
     @Test
