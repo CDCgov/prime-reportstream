@@ -369,7 +369,7 @@ class ReceiverAPI
     processingModeFilter: ReportStreamFilter = emptyList(),
     reverseTheQualityFilter: Boolean = false,
     conditionalFilter: ReportStreamFilter = emptyList(),
-    mappedConditionalFilter: List<ConditionFilterable> = emptyList(),
+    mappedConditionalFilter: List<ObservationFilterable> = emptyList(),
     deidentify: Boolean = false,
     deidentifiedValue: String = "",
     timing: Timing? = null,

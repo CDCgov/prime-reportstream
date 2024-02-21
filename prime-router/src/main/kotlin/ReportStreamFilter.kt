@@ -1,6 +1,5 @@
 package gov.cdc.prime.router
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import fhirengine.engine.CustomFhirPathFunctions
@@ -28,10 +27,10 @@ typealias ReportStreamFilter = List<String>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(ConditionCodeFilter::class, name = "conditionCode"),
-    JsonSubTypes.Type(ConditionKeywordFilter::class, name = "conditionKeyword"),
+    JsonSubTypes.Type(BundleObservationCodeFilter::class, name = "conditionCode"),
+    JsonSubTypes.Type(BundleObservationKeywordFilter::class, name = "conditionKeyword"),
     JsonSubTypes.Type(FHIRExpressionFilter::class, name = "fhirExpression"),
-    JsonSubTypes.Type(FHIRExpressionConditionFilter::class, name = "fhirExpressionCondition"),
+    JsonSubTypes.Type(FHIRExpressionBundleObservationFilter::class, name = "fhirExpressionCondition"),
 )
 interface BundleFilterable {
     /**
@@ -44,13 +43,7 @@ interface BundleFilterable {
 /**
  * Interface for pruning observations from a bundle
  */
-interface ObservationFilterable {
-    /**
-     * Check if an [observation] in a [bundle] passes this filter
-     * @return whether the observation passed
-     */
-    fun evaluateObservation(bundle: Bundle, observation: Observation): Boolean
-
+interface BundlePrunable {
     /**
      * Prune the observations in a [bundle]
      * @return the pruned observations
@@ -59,13 +52,19 @@ interface ObservationFilterable {
 }
 
 /**
- * Interface that uses medical conditions as the basis for filtering bundles or pruning their observations
+ * A bundle filter that uses observations as the basis for filtering and pruning
  */
-interface ConditionFilterable : BundleFilterable, ObservationFilterable {
+interface ObservationFilterable : BundleFilterable, BundlePrunable {
     data class ConditionFilterResult(
         val pass: Boolean,
         val failingObservations: List<Observation>,
     )
+
+    /**
+     * Check if an [observation] in a [bundle] passes this filter
+     * @return whether the observation passed
+     */
+    fun evaluateObservation(bundle: Bundle, observation: Observation): Boolean
 
     override fun prune(bundle: Bundle): List<Observation> {
         val result = evaluate(bundle, true)
@@ -109,7 +108,7 @@ interface ConditionFilterable : BundleFilterable, ObservationFilterable {
  * @param value A comma-delimited list of condition codes
  * @property codeList A list of condition code strings
  */
-open class ConditionCodeFilter(val codes: String) : ConditionFilterable {
+open class BundleObservationCodeFilter(val codes: String) : ObservationFilterable {
     open val codeList = codes.split(",").map { it.trim() }
 
     override fun evaluateObservation(bundle: Bundle, observation: Observation): Boolean =
@@ -121,7 +120,7 @@ open class ConditionCodeFilter(val codes: String) : ConditionFilterable {
  * @param value A comma-delimited list of condition keywords
  * @property codeList A list of condition code strings looked up using condition keywords
  */
-class ConditionKeywordFilter(val keywords: String) : ConditionCodeFilter(keywords) {
+class BundleObservationKeywordFilter(val keywords: String) : BundleObservationCodeFilter(keywords) {
     override val codeList = getConditionCodes(keywords)
 
     /**
@@ -254,11 +253,11 @@ open class FHIRExpressionFilter(
  * @param defaultResponse What the default response should be for empty filters (deprecated?)
  * @param reverseFilter Whether the filter result should be reversed
  */
-class FHIRExpressionConditionFilter(
+class FHIRExpressionBundleObservationFilter(
     fhirExpression: String,
     defaultResponse: Boolean = true,
     reverseFilter: Boolean = false,
-) : FHIRExpressionFilter(fhirExpression, defaultResponse, reverseFilter), ConditionFilterable {
+) : FHIRExpressionFilter(fhirExpression, defaultResponse, reverseFilter), ObservationFilterable {
     override fun evaluateObservation(bundle: Bundle, observation: Observation): Boolean =
         this.evaluate(bundle, observation)
 
@@ -306,7 +305,7 @@ data class ReportStreamFilters(
     val routingFilter: ReportStreamFilter?,
     val processingModeFilter: ReportStreamFilter?,
     val conditionFilter: ReportStreamFilter? = null,
-    val mappedConditionFilter: List<ObservationFilterable>? = null,
+    val mappedConditionFilter: List<BundlePrunable>? = null,
 ) {
 
     companion object {

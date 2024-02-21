@@ -2,7 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import gov.cdc.prime.router.ConditionCodeFilter
+import gov.cdc.prime.router.BundleObservationCodeFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
@@ -99,7 +99,7 @@ class GetFilterTests {
         routingFilter = listOf("testRouting"),
         processingModeFilter = listOf("testProcMode"),
         conditionFilter = listOf("testCondition"),
-        mappedConditionFilter = listOf(ConditionCodeFilter("1234"))
+        mappedConditionFilter = listOf(BundleObservationCodeFilter("1234"))
     )
 
     private val orgFilters = listOf(
@@ -430,7 +430,7 @@ class GetFilterTests {
 
     @Test
     fun `test CodeStringConditionFilter parse`() {
-        val filter = ConditionCodeFilter("c1,c2, c3,c4 , c 5 ")
+        val filter = BundleObservationCodeFilter("c1,c2, c3,c4 , c 5 ")
         assertThat(filter.codeList).isEqualTo(listOf("c1", "c2", "c3", "c4", "c 5"))
     }
 }

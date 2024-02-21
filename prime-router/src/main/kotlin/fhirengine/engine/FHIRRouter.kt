@@ -7,7 +7,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.ObservationFilterable
+import gov.cdc.prime.router.BundlePrunable
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.PrunedObservationsLogMessage
 import gov.cdc.prime.router.Receiver
@@ -734,7 +734,7 @@ class FHIRRouter(
     internal fun getMappedConditionFilter(
         receiver: Receiver,
         orgFilters: List<ReportStreamFilters>?,
-    ): List<ObservationFilterable> {
+    ): List<BundlePrunable> {
         return (
             orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.mappedConditionFilter
                 ?: emptyList()
