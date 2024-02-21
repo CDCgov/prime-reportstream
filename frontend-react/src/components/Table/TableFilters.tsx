@@ -169,8 +169,9 @@ function TableFilters({
             setEndTime(DEFAULT_TIME);
             setCurrentServiceSelect(undefined);
             setService?.(undefined);
+            filterManager.resetAll();
         },
-        [reset, setService],
+        [filterManager, reset, setService],
     );
 
     const submitHandler = useCallback(
@@ -220,7 +221,7 @@ function TableFilters({
                                 className="fixed-tooltip text-sub"
                                 position="right"
                                 label={
-                                    "Your connection could have multiple receivers such as one specific to COVID."
+                                    "Your connection could have multiple receivers, such as one specific to COVID."
                                 }
                             >
                                 <Icon.Help />
