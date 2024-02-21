@@ -1109,7 +1109,7 @@ class ReportTests {
         assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
         assertThat(Regex("None-${report.id}-\\d*.hl7").matches(report.name)).isTrue()
         assertThat(blobInfo.blobUrl).endsWith(
-            "/devstoreaccount1/container1/process%2Forg.name%2F$externalReportName-$report.name"
+            "/devstoreaccount1/container1/process%2Forg.name%2F$externalReportName-${report.name}"
         )
     }
 
