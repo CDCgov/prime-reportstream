@@ -12,14 +12,12 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
-import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
@@ -163,28 +161,6 @@ class FHIRTranslator(
             blobInfo.blobUrl,
             null
         )
-    }
-
-    /**
-     * Takes a [reportId] and returns the content of the first ancestor as submitted by the sender as a ByteArray
-     */
-    private fun getOriginalReport(
-        reportId: ReportId,
-    ): ReportFile {
-        val rootReportId = findRootReportId(reportId)
-        return db.fetchReportFile(rootReportId)
-    }
-
-    /**
-     * Takes a [reportId] and returns the ReportId of the original message that was sent
-     */
-    private fun findRootReportId(reportId: ReportId): ReportId {
-        val itemLineages = db.fetchItemLineagesForReport(reportId, 1)
-        return if (itemLineages != null && itemLineages[0].parentReportId != null) {
-            findRootReportId(itemLineages[0].parentReportId)
-        } else {
-            return reportId
-        }
     }
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.TRANSLATED_AT
