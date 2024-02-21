@@ -66,7 +66,6 @@ elements:
 
   - name: ak-patient-ethnicity-identifier-code
     value:
-      - 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code'
       - 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code'
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-1' ]
     valueSet:
