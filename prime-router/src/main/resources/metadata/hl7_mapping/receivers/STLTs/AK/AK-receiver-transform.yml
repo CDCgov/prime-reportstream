@@ -108,6 +108,12 @@ elements:
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/OBR-16-1' ]
 
+  # Needed to convert HL7 timestamp to HL7 date for OBX-5
+  - name: obx-value-dtm-dt
+    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "DT"'
+    value: [ '%resource.value.extension(%`rsext-hl7v2-date-time`).value.toString().replace("-","")' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
   - name: ak-specimen-source-site-text
     condition: true
     value: [ 'Bundle.entry.resource.ofType(Specimen).collection.bodySite.text' ]
