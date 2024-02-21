@@ -1,20 +1,19 @@
-import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Button, Accordion, GridContainer } from "@trussworks/react-uswds";
+import { Accordion, Button, GridContainer } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
+import { useNavigate, useParams } from "react-router-dom";
 
+import { MessageReceivers } from "./MessageReceivers";
+import { WarningsErrors } from "./WarningsErrors";
+import { WarningError } from "../../config/endpoints/messageTracker";
+import { useMessageDetails } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
+import { parseFileLocation } from "../../utils/misc";
 import { DetailItem } from "../DetailItem/DetailItem";
 import { withCatchAndSuspense } from "../RSErrorBoundary";
-import { useMessageDetails } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
-import { WarningError } from "../../config/endpoints/messageTracker";
-import { parseFileLocation } from "../../utils/misc";
 
-import { WarningsErrors } from "./WarningsErrors";
-import { MessageReceivers } from "./MessageReceivers";
-
-type MessageDetailsProps = {
+interface MessageDetailsProps {
     id: string | undefined;
-};
+    [k: string]: string | undefined;
+}
 
 const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
     month: "2-digit",
@@ -54,14 +53,14 @@ const dataToAccordionItems = (props: {
 export function MessageDetails() {
     const navigate = useNavigate();
     const { id } = useParams<MessageDetailsProps>();
-    const { messageDetails } = useMessageDetails(id!!);
+    const { messageDetails } = useMessageDetails(id!);
     const submittedDate = messageDetails?.submittedDate
         ? new Date(messageDetails.submittedDate)
         : undefined;
-    const warnings = messageDetails?.warnings || [];
-    const errors = messageDetails?.errors || [];
+    const warnings = messageDetails?.warnings ?? [];
+    const errors = messageDetails?.errors ?? [];
 
-    const fileUrl = messageDetails?.fileUrl || "";
+    const fileUrl = messageDetails?.fileUrl ?? "";
     const { folderLocation, sendingOrg, fileName } = parseFileLocation(fileUrl);
 
     return (
@@ -175,7 +174,7 @@ export function MessageDetails() {
                     </div>
                 </div>
                 <hr className="margin-top-2 margin-bottom-4" />
-                {messageDetails?.receiverData! ? (
+                {messageDetails?.receiverData ? (
                     <MessageReceivers
                         receiverDetails={messageDetails.receiverData}
                     />

@@ -1,14 +1,13 @@
-import React, { useRef } from "react";
 import { fireEvent, screen } from "@testing-library/react";
-
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import { useRef } from "react";
 
 import {
+    CompareSettingsModalProps,
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
-    CompareSettingsModalProps,
 } from "./CompareJsonModal";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("ConfirmSaveSettingModal", () => {
     const VALID_JSON = JSON.stringify({ a: 1 });

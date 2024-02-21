@@ -16,6 +16,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
@@ -30,7 +31,7 @@ import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
-import org.apache.commons.io.FilenameUtils
+import io.mockk.mockk
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
@@ -474,14 +475,16 @@ class TranslationTests {
             }
 
             val hl7 = FhirToHl7Converter(
-                FilenameUtils.getName(schema),
-                FilenameUtils.getPath(schema),
+                schema,
+                // TODO: #10510
+                "",
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = translationConfig,
                     translationFunctions = CustomTranslationFunctions()
-                )
-            ).convert(fhirBundle)
+                ),
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+            ).process(fhirBundle)
             return hl7.encodePreserveEncodingChars().byteInputStream()
         }
 
@@ -493,7 +496,12 @@ class TranslationTests {
             var fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
             if (!schema.isNullOrEmpty()) {
                 schema.split(",").forEach { currentEnrichmentSchema ->
-                    fhirBundle = FhirTransformer(currentEnrichmentSchema).transform(fhirBundle)
+                    // TODO: #10510
+                    fhirBundle = FhirTransformer(
+                        currentEnrichmentSchema,
+                        "",
+                        blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                    ).process(fhirBundle)
                 }
             }
             val fhirJson = FhirTranscoder.encode(fhirBundle)

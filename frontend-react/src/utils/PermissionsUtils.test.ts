@@ -1,5 +1,5 @@
-import { getUserPermissions, permissionCheck } from "./PermissionsUtils";
 import { AccessTokenWithRSClaims } from "./OrganizationUtils";
+import { getUserPermissions, permissionCheck } from "./PermissionsUtils";
 import { mockAccessToken } from "./TestUtils";
 import { PERMISSIONS } from "./UsefulTypes";
 

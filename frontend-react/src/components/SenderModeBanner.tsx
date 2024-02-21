@@ -1,12 +1,11 @@
-import { ReactElement } from "react";
 import { Icon } from "@trussworks/react-uswds";
+import { ReactElement } from "react";
 
+import { withCatchAndSuspense } from "./RSErrorBoundary";
+import { USLink } from "./USLink";
 import { useSessionContext } from "../contexts/Session";
 import useSenderResource from "../hooks/UseSenderResource";
 import { MemberType } from "../utils/OrganizationUtils";
-
-import { USLink } from "./USLink";
-import { withCatchAndSuspense } from "./RSErrorBoundary";
 
 const isNotActive = (val: string | undefined): boolean => {
     return val === "testing" || val === "inactive";

@@ -26,7 +26,7 @@ jobs:
 
       - name: Get changed files
         id: changed_files
-        uses: tj-actions/changed-files@90a06d6ba9543371ab4df8eeca0be07ca6054959
+        uses: tj-actions/changed-files@3f54ebb830831fc121d3263c1857cfbdc310cdb9
 
       - name: List all changed files
         id: set_vars
@@ -77,9 +77,9 @@ jobs:
         with:
           fetch-depth: 0 # need commit history for Chromatic
 
-      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
-          node-version-file: frontend-react/package.json
+          node-version-file: "frontend-react/.nvmrc"
 
       - name: Install dependencies
         run: yarn

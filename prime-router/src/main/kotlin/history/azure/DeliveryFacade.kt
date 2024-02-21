@@ -9,6 +9,7 @@ import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import java.time.OffsetDateTime
+import java.util.*
 
 /**
  * Deliveries API
@@ -31,6 +32,8 @@ class DeliveryFacade(
      * @param since is the OffsetDateTime minimum date to get results for.
      * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize Int of items to return per page.
+     * @param reportIdStr is the reportId to get results for.
+     * @param fileName is the fileName to get results for.
      *
      * @return a List of Actions
      */
@@ -43,6 +46,8 @@ class DeliveryFacade(
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         pageSize: Int,
+        reportIdStr: String?,
+        fileName: String?,
     ): List<DeliveryHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."
@@ -52,6 +57,13 @@ class DeliveryFacade(
         }
         require(since == null || until == null || until > since) {
             "End date must be after start date."
+        }
+
+        var reportId: UUID?
+        try {
+            reportId = if (reportIdStr != null) UUID.fromString(reportIdStr) else null
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Invalid format for report ID: $reportIdStr")
         }
 
         return dbDeliveryAccess.fetchActions(
@@ -64,7 +76,9 @@ class DeliveryFacade(
             until,
             pageSize,
             true,
-            DeliveryHistory::class.java
+            DeliveryHistory::class.java,
+            reportId,
+            fileName
         )
     }
 

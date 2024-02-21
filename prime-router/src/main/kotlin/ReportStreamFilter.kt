@@ -96,7 +96,8 @@ interface ConditionFilterable : BundleFilterable, ObservationFilterable {
             result || obsResult
         }
         //  never pass a bundle with only AOE conditions
-        if (result && passingObservations.all { it.getMappedConditions().all { code -> code == "AOE" } }) {
+        val conditionCodes = passingObservations.flatMap { it.getMappedConditions() }
+        if (result && conditionCodes.isNotEmpty() && conditionCodes.all { it.equals("AOE", true) }) {
             return ConditionFilterResult(false, failingObservations)
         }
         return ConditionFilterResult(result, failingObservations)

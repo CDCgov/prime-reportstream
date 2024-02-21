@@ -8,7 +8,9 @@ import assertk.assertions.hasClass
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isFalse
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -36,6 +38,9 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
+import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -45,6 +50,7 @@ import gov.cdc.prime.router.fhirengine.utils.conditionCodeExtensionURL
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -113,14 +119,14 @@ data object SampleFilters {
         "%patient.birthDate.exists()",
         "%specimen.type.exists()",
         "(%patient.address.line.exists() or " +
-                "%patient.address.postalCode.exists() or " +
-                "%patient.telecom.exists())",
+            "%patient.address.postalCode.exists() or " +
+            "%patient.telecom.exists())",
         "(" +
-                "(%specimen.collection.collectedPeriod.exists() or " +
-                "%specimen.collection.collected.exists()" +
-                ") or " +
-                "%serviceRequest.occurrence.exists() or " +
-                "%observation.effective.exists())",
+            "(%specimen.collection.collectedPeriod.exists() or " +
+            "%specimen.collection.collected.exists()" +
+            ") or " +
+            "%serviceRequest.occurrence.exists() or " +
+            "%observation.effective.exists())",
     )
 
     /**
@@ -155,6 +161,8 @@ class FhirRouterTests {
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
     private val actionHistory = ActionHistory(TaskAction.route)
+    private val azureEventService = InMemoryAzureEventService()
+    private val reportServiceMock = mockk<ReportService>()
 
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
@@ -364,8 +372,16 @@ class FhirRouterTests {
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
-        return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).build(TaskAction.route)
+        every { reportServiceMock.getSenderName(any()) } returns "sendingOrg.sendingOrgClient"
+
+        return FHIREngine.Builder()
+            .metadata(metadata)
+            .settingsProvider(settings)
+            .databaseAccess(accessSpy)
+            .blobAccess(blobMock)
+            .azureEventService(azureEventService)
+            .reportService(reportServiceMock)
+            .build(TaskAction.route)
     }
 
     /**
@@ -392,6 +408,7 @@ class FhirRouterTests {
         actionHistory.reportsIn.clear()
         actionHistory.reportsOut.clear()
         actionHistory.actionLogs.clear()
+        azureEventService.clear()
         clearAllMocks()
     }
 
@@ -1406,6 +1423,28 @@ class FhirRouterTests {
             assertThat(actionHistory.actionLogs).isEmpty()
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
+
+            val reportId = (messages.first() as ReportPipelineMessage).reportId
+            val expectedAzureEvents = listOf(
+                ReportAcceptedEvent(
+                    message.reportId,
+                    message.topic,
+                    "sendingOrg.sendingOrgClient",
+                    setOf("6142004", "Some Condition Code")
+                ),
+                ReportRouteEvent(
+                    message.reportId,
+                    reportId,
+                    message.topic,
+                    "sendingOrg.sendingOrgClient",
+                    orgWithMappedConditionFilter.receivers.first().fullName,
+                    setOf("6142004", "Some Condition Code")
+                )
+            )
+
+            val actualEvents = azureEventService.getEvents()
+            assertThat(actualEvents).hasSize(2)
+            assertThat(actualEvents).isEqualTo(expectedAzureEvents)
         }
 
         // assert
@@ -1516,6 +1555,31 @@ class FhirRouterTests {
             assertThat(messages).isEmpty()
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
+
+            val azureEvents = azureEventService.getEvents()
+            val expectedAcceptedEvent = ReportAcceptedEvent(
+                message.reportId,
+                message.topic,
+                "sendingOrg.sendingOrgClient",
+                setOf("840539006")
+            )
+            val expectedRoutedEvent = ReportRouteEvent(
+                message.reportId,
+                UUID.randomUUID(),
+                message.topic,
+                "sendingOrg.sendingOrgClient",
+                null,
+                setOf("840539006")
+            )
+            assertThat(azureEvents).hasSize(2)
+            assertThat(azureEvents.first())
+                .isEqualTo(expectedAcceptedEvent)
+            assertThat(azureEvents[1])
+                .isInstanceOf<ReportRouteEvent>()
+                .isEqualToIgnoringGivenProperties(
+                    expectedRoutedEvent,
+                    ReportRouteEvent::reportId // unable to access generated report ID since no message is generated
+                )
         }
 
         // assert

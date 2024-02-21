@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
 
+import LiveMap from "./LiveMap";
 import { renderApp } from "../../utils/CustomRenderUtils";
-
-import { LiveMap } from "./LiveMap";
 
 describe("LiveMap", () => {
     const fakeSection = {

@@ -1,5 +1,0 @@
-elements:
-
-  - name: text
-    value: [ '%resource.text' ]
-    hl7Spec: [ '%{stField}-1' ]

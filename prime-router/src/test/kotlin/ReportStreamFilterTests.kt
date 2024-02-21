@@ -13,28 +13,37 @@ import org.hl7.fhir.r4.model.Observation
 import java.util.UUID
 import kotlin.test.Test
 
-class ReportStreamFilterTests {
-    private fun makeObservation(testCode: String = "someCode", conditionCode: String? = null): Observation {
-        val coding = Coding("someSystem", testCode, "test code")
-        if (!conditionCode.isNullOrEmpty()) {
-            coding.addExtension(
-                conditionCodeExtensionURL, Coding("someSystem", conditionCode, "condition code")
-            )
-        }
-        val observation = Observation().setCode(CodeableConcept().setCoding(listOf(coding)))
+
+private fun makeObservation(
+    testCode: String = "someCode",
+    conditionCode: String? = null,
+    id: String? = null): Observation {
+    val coding = Coding("someSystem", testCode, "test code")
+    if (!conditionCode.isNullOrEmpty()) {
+        coding.addExtension(
+            conditionCodeExtensionURL, Coding("someSystem", conditionCode, "condition code")
+        )
+    }
+    val observation = Observation().setCode(CodeableConcept().setCoding(listOf(coding)))
+    if (id.isNullOrEmpty()) {
         observation.setId(UUID.randomUUID().toString())
-        return observation
+    } else {
+        observation.setId(id)
+
+    }
+    return observation
+}
+
+private fun makeBundle(observations: List<Observation>): Bundle =
+    Bundle().also { bundle ->
+        observations.forEach {
+            bundle.addEntry(BundleEntryComponent().setResource(it).setFullUrl(it.id))
+        }
     }
 
-    private fun makeBundle(observations: List<Observation>): Bundle =
-        Bundle().also { bundle ->
-            observations.forEach {
-                bundle.addEntry(BundleEntryComponent().setResource(it).setFullUrl(it.id))
-            }
-        }
+private fun makeBundle(observation: Observation) = makeBundle(listOf(observation))
 
-    private fun makeBundle(observation: Observation) = makeBundle(listOf(observation))
-
+class ReportStreamFilterTests {
     @Test
     fun `test condition code filter passing`() {
         val goodFilter = ConditionCodeFilter("1234,4321")
@@ -71,19 +80,65 @@ class ReportStreamFilterTests {
         assertThat(badFilter.pass(bundle)).isEqualTo(false)
     }
 
+
+}
+
+class ReportStreamConditionFilterTests {
+    private val goodObservations = listOf(makeObservation(id = "good1"), makeObservation(id = "good2"))
+    private val badObservations = listOf(makeObservation(id = "filter1"), makeObservation(id = "filter2"))
+
+    private val mockFilter = MockConditionFilter()
+
+    private class MockConditionFilter(): ConditionFilterable {
+        override fun evaluateObservation(bundle: Bundle, observation: Observation) =
+            !observation.id.startsWith("filter")
+    }
+
     @Test
-    fun `test fhir expression condition filter pruning`() {
+    fun `test condition filter passes`() {
+        assertThat(mockFilter.pass(makeBundle(goodObservations))).isEqualTo(true)
+        assertThat(mockFilter.pass(makeBundle(goodObservations + badObservations))).isEqualTo(true)
+        assertThat(mockFilter.pass(makeBundle(badObservations))).isEqualTo(false)
+    }
+
+    @Test
+    fun `test condition filter pruning`() {
+        val bundle = makeBundle(goodObservations + badObservations)
+
+        val pruned = mockFilter.prune(bundle)
+        assertThat(pruned.size).isEqualTo(2)
+        assertThat(pruned).isEqualTo(badObservations)
+
+        val observations = bundle.getObservations()
+        assertThat(observations.size).isEqualTo(2)
+        assertThat(observations).isEqualTo(goodObservations)
+    }
+
+    @Test
+    fun `test fhir expression condition filter`() {
         val filter = FHIRExpressionConditionFilter("%resource.code.coding.extension.exists()")
         val goodObservation = makeObservation("someCode", "1234")
         val badObservation = makeObservation()
+
         val bundle = makeBundle(listOf(goodObservation, badObservation))
+        assertThat(filter.evaluateObservation(bundle, goodObservation)).isEqualTo(true)
+        assertThat(filter.evaluateObservation(bundle, badObservation)).isEqualTo(false)
+    }
 
-        val pruned = filter.prune(bundle)
-        assertThat(pruned.size).isEqualTo(1)
-        assertThat(pruned.first()).isSameAs(badObservation)
+    @Test
+    fun `test condition code filter`() {
+        val filter = ConditionCodeFilter("1234,4321")
+        val goodObservation = makeObservation("someCode", "4321")
+        val badObservation = makeObservation("someCode", "5678")
 
-        val observations = bundle.getObservations()
-        assertThat(observations.size).isEqualTo(1)
-        assertThat(observations.first()).isSameAs(goodObservation)
+        val bundle = makeBundle(listOf(goodObservation, badObservation))
+        assertThat(filter.evaluateObservation(bundle, goodObservation)).isEqualTo(true)
+        assertThat(filter.evaluateObservation(bundle, badObservation)).isEqualTo(false)
+    }
+
+    @Test
+    fun `test condition keyword code resolution`() {
+        val filter = ConditionKeywordFilter("balamuthia,cadmium")
+        assertThat(filter.codeList).isEqualTo(listOf("115635005","3398004"))
     }
 }

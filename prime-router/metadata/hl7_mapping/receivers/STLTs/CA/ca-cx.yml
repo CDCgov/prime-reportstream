@@ -1,6 +1,0 @@
-elements:
-  - name: assigning-authority
-    resource: '%resource.assigner.resolve().identifier.where(extension(%`rsext-identifier-namespace-id`).exists())'
-    condition: '%resource.exists()'
-    value: [ '%resource.value.substring(0,20)' ]
-    hl7Spec: [ '%{hl7PIDField}-3(%{cxIndex})-4-1' ]

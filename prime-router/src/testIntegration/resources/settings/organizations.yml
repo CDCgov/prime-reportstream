@@ -100,7 +100,6 @@
       schemaName: monkeypox
       format: HL7
 
-
 - name: test
   description: FOR DEVELOPMENT PURPOSES ONLY
   jurisdiction: FEDERAL
@@ -114,7 +113,7 @@
       organizationName: test
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/HCI/hci-sender-transform
+      schemaName: classpath:/metadata/fhir_transforms/senders/HCI/hci-sender-transform.yml
       format: HL7
   receivers:
     - name: DEV_FULL_ELR
@@ -159,7 +158,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -192,7 +191,7 @@
       topic: "elr-elims"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
         suppressQstForAoe: false
@@ -256,7 +255,7 @@
       topic: "full-elr"
       customerStatus: "testing"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: ""
@@ -334,7 +333,7 @@
       topic: "full-elr"
       customerStatus: "testing"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: ""
@@ -409,7 +408,7 @@
       topic: "full-elr"
       customerStatus: "testing"
       enrichmentSchemaNames:
-        - "/src/test/resources/enrichments/testing,/src/test/resources/enrichments/testing2"
+        - "classpath:/enrichments/testing.yml,classpath:/enrichments/testing2.yml"
       translation: !<HL7>
         useTestProcessingMode: false
         useBatchHeaders: true

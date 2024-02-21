@@ -1,5 +1,5 @@
-import React, { FormEvent, useState } from "react";
-import { Form, Dropdown, Button, FormGroup } from "@trussworks/react-uswds";
+import { Button, Form, FormGroup, Select } from "@trussworks/react-uswds";
+import { FormEvent, useState } from "react";
 
 import { RSSender } from "../../config/endpoints/settings";
 
@@ -24,7 +24,7 @@ export default function ManagePublicKeyChooseSender({
             {senders?.length > 1 && (
                 <Form name="sender-select" onSubmit={handleSubmit}>
                     <FormGroup>
-                        <Dropdown
+                        <Select
                             id="senders-dropdown"
                             name="senders-dropdown"
                             onChange={(e) => {
@@ -37,7 +37,7 @@ export default function ManagePublicKeyChooseSender({
                                     {name}
                                 </option>
                             ))}
-                        </Dropdown>
+                        </Select>
                         <Button
                             key="submit-sender"
                             type="submit"

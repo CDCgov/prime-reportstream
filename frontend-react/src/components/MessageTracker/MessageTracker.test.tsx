@@ -1,10 +1,9 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { MessageTracker } from "./MessageTracker";
 import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
 import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
-
-import { MessageTracker } from "./MessageTracker";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const mockUseMessageSearchInitial = {
     mutateAsync: () => Promise.resolve(MOCK_MESSAGE_SENDER_DATA),

@@ -10,13 +10,13 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.messageContains
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkClass
 import io.mockk.mockkObject
 import java.io.File
 import java.net.URI
@@ -38,7 +38,7 @@ class ConfigSchemaReaderTests {
               hl7Spec:
                 - .PID.1
         """.trimIndent()
-        val schema = ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream())
+        val schema = ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream(), HL7ConverterSchema::class.java)
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.name).isEqualTo("ORU-R01-Base")
 
@@ -56,7 +56,7 @@ class ConfigSchemaReaderTests {
               required: true
               schema: ORU_R01/header.yml
         """.trimIndent()
-        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }
+        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream(), HL7ConverterSchema::class.java) }
 
         // Badly formatted YAML - First condition has incorrect identation
         yaml = """
@@ -71,19 +71,19 @@ class ConfigSchemaReaderTests {
               required: true
               schema: ORU_R01/header.yml
         """.trimIndent()
-        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }
+        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream(), HL7ConverterSchema::class.java) }
         yaml = """
             name ORU-R01-Base
         """.trimIndent()
-        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }
+        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream(), HL7ConverterSchema::class.java) }
         yaml = """
             name: [ORU-R01-Base,other]
         """.trimIndent()
-        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }
+        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream(), HL7ConverterSchema::class.java) }
 
         // Empty file
         yaml = ""
-        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }
+        assertFailure { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream(), HL7ConverterSchema::class.java) }
     }
 
     @Test
@@ -91,43 +91,39 @@ class ConfigSchemaReaderTests {
         // This is a good schema
         val schema = ConfigSchemaReader.readSchemaTreeRelative(
             "ORU_R01",
-            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
+            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
+            schemaClass = HL7ConverterSchema::class.java
         )
 
-        assertThat(schema is ConverterSchema).isTrue()
-        if (schema is ConverterSchema) {
-            assertThat(schema.name).isEqualTo("ORU_R01") // match filename
-            assertThat(schema.hl7Class).isEqualTo("ca.uhn.hl7v2.model.v251.message.ORU_R01")
-            assertThat(schema.elements).isNotEmpty()
-        }
+        assertThat(schema.name).isEqualTo("ORU_R01") // match filename
+        assertThat(schema.hl7Class).isEqualTo("ca.uhn.hl7v2.model.v251.message.ORU_R01")
+        assertThat(schema.elements).isNotEmpty()
 
         val patientInfoElement = schema.elements.single { it.name == "patient-information" }
-        assertThat(patientInfoElement is ConverterSchemaElement).isTrue()
-        if (patientInfoElement is ConverterSchemaElement) {
-            assertThat(patientInfoElement.schema).isNotNull()
-            assertThat(patientInfoElement.schema!!).isNotEmpty()
-            assertThat(patientInfoElement.schemaRef).isNotNull()
-        }
+
+        assertThat(patientInfoElement.schema).isNotNull()
+        assertThat(patientInfoElement.schema!!).isNotEmpty()
+        assertThat(patientInfoElement.schemaRef).isNotNull()
 
         assertThat(patientInfoElement.schemaRef!!.name).isEqualTo("ORU_R01/patient") // match filename
         val patientNameElement = patientInfoElement.schemaRef!!.elements.single { it.name == "patient-last-name" }
-        assertThat(patientNameElement is ConverterSchemaElement).isTrue()
-        if (patientNameElement is ConverterSchemaElement) {
-            assertThat(patientNameElement.hl7Spec).isNotEmpty()
-        }
+
+        assertThat(patientNameElement.hl7Spec).isNotEmpty()
 
         // This is a bad schema.
         assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "ORU_R01_incomplete",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02"
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02",
+                schemaClass = HL7ConverterSchema::class.java
             )
         }
 
         assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "ORU_R01_bad",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-03"
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-03",
+                schemaClass = HL7ConverterSchema::class.java
             )
         }
     }
@@ -148,7 +144,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "sample_schema",
                 "src/test/resources/fhir_sender_transforms",
-                schemaClass = ConverterSchema::class.java,
+                schemaClass = HL7ConverterSchema::class.java,
             )
         }
 
@@ -157,7 +153,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
-                schemaClass = ConverterSchema::class.java,
+                schemaClass = HL7ConverterSchema::class.java,
             )
         )
 
@@ -177,7 +173,8 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
-                schemaClass = ConverterSchema::class.java,
+                schemaClass = HL7ConverterSchema::class.java,
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             ).isValid()
         ).isTrue()
 
@@ -185,45 +182,53 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "ORU_R01_incomplete",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02",
-                schemaClass = ConverterSchema::class.java,
+                schemaClass = HL7ConverterSchema::class.java,
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }
 
         assertThat(
             converterSchemaFromFile(
                 "ORU_R01",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             ).isValid()
         ).isTrue()
 
         assertFailure {
             converterSchemaFromFile(
                 "ORU_R01_incomplete",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02"
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02",
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }
     }
 
     @Test
     fun `test read from file with extends`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
         assertFailure {
             ConfigSchemaReader.fromFile(
-                "ORU_R01_circular",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06",
-                schemaClass = ConverterSchema::class.java,
+                "classpath:/fhirengine/translation/hl7/schema/schema-read-test-06/ORU_R01_circular.yml",
+                "",
+                schemaClass = HL7ConverterSchema::class.java,
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }.messageContains("Schema circular dependency")
 
         val schema = ConfigSchemaReader.fromFile(
-            "ORU_R01_extends",
-            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06",
-            schemaClass = ConverterSchema::class.java,
+            "classpath:/fhirengine/translation/hl7/schema/schema-read-test-06/ORU_R01_extends.yml",
+            "",
+            schemaClass = HL7ConverterSchema::class.java,
+            blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
         )
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.constants["baseConstant"]).isEqualTo("baseValue")
         assertThat(schema.constants["lowLevelConstant"]).isEqualTo("lowLevelValue")
         assertThat(schema.constants["overriddenConstant"]).isEqualTo("overriddenValue")
-        assertThat(schema.name).isEqualTo("ORU_R01_extends")
+        assertThat(schema.name).isEqualTo("/fhirengine/translation/hl7/schema/schema-read-test-06/ORU_R01_extends.yml")
     }
 
     @Test
@@ -241,13 +246,10 @@ class ConfigSchemaReaderTests {
 
         val statusElement = schema.elements.single { it.name == "status" }
 
-        assertThat(statusElement is FhirTransformSchemaElement).isTrue()
-        if (statusElement is FhirTransformSchemaElement) {
-            assertThat(statusElement.schema).isNull()
-            assertThat(statusElement.constants).isNotNull()
-            assertThat(statusElement.condition).isNotNull()
-            assertThat(statusElement.bundleProperty).isEqualTo("%resource.status")
-        }
+        assertThat(statusElement.schema).isNull()
+        assertThat(statusElement.constants).isNotNull()
+        assertThat(statusElement.condition).isNotNull()
+        assertThat(statusElement.bundleProperty).isEqualTo("%resource.status")
 
         // This is a bad schema.
         assertFailure {
@@ -274,6 +276,7 @@ class ConfigSchemaReaderTests {
                 "sample_schema",
                 "src/test/resources/fhir_sender_transforms",
                 schemaClass = FhirTransformSchema::class.java,
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             ).isValid()
         ).isTrue()
 
@@ -282,6 +285,7 @@ class ConfigSchemaReaderTests {
                 "incomplete_schema",
                 "src/test/resources/fhir_sender_transforms",
                 schemaClass = FhirTransformSchema::class.java,
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }
 
@@ -289,6 +293,7 @@ class ConfigSchemaReaderTests {
             fhirTransformSchemaFromFile(
                 "sample_schema",
                 "src/test/resources/fhir_sender_transforms",
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             ).isValid()
         ).isTrue()
 
@@ -296,6 +301,7 @@ class ConfigSchemaReaderTests {
             fhirTransformSchemaFromFile(
                 "invalid_value_set",
                 "src/test/resources/fhir_sender_transforms",
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }
 
@@ -303,6 +309,7 @@ class ConfigSchemaReaderTests {
             fhirTransformSchemaFromFile(
                 "incomplete_schema",
                 "src/test/resources/fhir_sender_transforms",
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }
 
@@ -310,6 +317,7 @@ class ConfigSchemaReaderTests {
             fhirTransformSchemaFromFile(
                 "no_schema_nor_value",
                 "src/test/resources/fhir_sender_transforms",
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }
     }
@@ -321,6 +329,7 @@ class ConfigSchemaReaderTests {
                 "circular_schema",
                 "src/test/resources/fhir_sender_transforms",
                 schemaClass = FhirTransformSchema::class.java,
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }.messageContains("Schema circular dependency")
 
@@ -329,6 +338,7 @@ class ConfigSchemaReaderTests {
                 "extends_schema",
                 "src/test/resources/fhir_sender_transforms",
                 schemaClass = FhirTransformSchema::class.java,
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             ).isValid()
         ).isTrue()
     }
@@ -339,7 +349,8 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhirengine/translation/hl7/schema/schema-read-test-07/ORU_R01.yml",
                 null,
-                schemaClass = ConverterSchema::class.java,
+                schemaClass = HL7ConverterSchema::class.java,
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         )
     }
@@ -349,16 +360,14 @@ class ConfigSchemaReaderTests {
         // This is a good schema
         val schema = ConfigSchemaReader.readSchemaTreeRelative(
             "ORU_R01-extended",
-            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
+            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
+            schemaClass = HL7ConverterSchema::class.java
         )
 
-        assertThat(schema is ConverterSchema).isTrue()
-        if (schema is ConverterSchema) {
-            assertThat(schema.errors).isEmpty()
-            assertThat(schema.name).isEqualTo("ORU_R01-extended") // match filename
-            assertThat(schema.hl7Class).isEqualTo("ca.uhn.hl7v2.model.v251.message.ORU_R01")
-            assertThat(schema.elements).isNotEmpty()
-        }
+        assertThat(schema.errors).isEmpty()
+        assertThat(schema.name).isEqualTo("ORU_R01-extended") // match filename
+        assertThat(schema.hl7Class).isEqualTo("ca.uhn.hl7v2.model.v251.message.ORU_R01")
+        assertThat(schema.elements).isNotEmpty()
 
         val patientLastNameElement = schema.findElements("patient-last-name")
         assertThat(patientLastNameElement).isNotNull()
@@ -379,7 +388,8 @@ class ConfigSchemaReaderTests {
         assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "ORU_R01",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-04"
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-04",
+                schemaClass = HL7ConverterSchema::class.java
             )
         }
     }
@@ -389,7 +399,8 @@ class ConfigSchemaReaderTests {
         assertFailure {
             ConfigSchemaReader.readSchemaTreeRelative(
                 "ORU_R01",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-05"
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-05",
+                schemaClass = HL7ConverterSchema::class.java
             )
         }
     }
@@ -401,24 +412,34 @@ class ConfigSchemaReaderTests {
             "ORU_R01.yml"
         )
         assertThat(
-            ConfigSchemaReader.readSchemaTreeUri(file.toURI())
+            ConfigSchemaReader.readSchemaTreeUri(
+                file.toURI(),
+                schemaClass = HL7ConverterSchema::class.java,
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+            )
         )
     }
 
     @Test
     fun `reads a file with an azure protocol`() {
+        mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
-        every { BlobAccess.downloadBlobAsByteArray(any()) } returns File(
-            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07",
-            "ORU_R01.yml"
-        ).readBytes()
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        every { BlobAccess.downloadBlobAsByteArray(any(), any()) } returns
+            File(
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07",
+                "ORU_R01.yml"
+            ).readBytes()
         assertThat(
             ConfigSchemaReader.readSchemaTreeUri(
                 URI(
                     """
-                    azure://azure.container.com/src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07/ORU_R01.yml
+                    http://azure.container.com/src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07/ORU_R01.yml
                     """.trimIndent()
-                )
+                ),
+                schemaClass = HL7ConverterSchema::class.java,
+                blobConnectionInfo = blobConnectionInfo
             )
         )
     }
@@ -432,7 +453,8 @@ class ConfigSchemaReaderTests {
         assertFailure {
             ConfigSchemaReader.fromFile(
                 file.toURI().toString(),
-                schemaClass = ConverterSchema::class.java,
+                schemaClass = HL7ConverterSchema::class.java,
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }.messageContains("Schema circular dependency")
     }

@@ -27,12 +27,18 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
+import gov.cdc.prime.router.fhirengine.utils.getAllMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
+import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
@@ -51,7 +57,9 @@ class FHIRRouter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-) : FHIREngine(metadata, settings, db, blob) {
+    azureEventService: AzureEventService = AzureEventServiceImpl(),
+    reportService: ReportService = ReportService(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
 
     /**
      * The name of the lookup table to load the shorthand replacement key/value pairs from
@@ -134,6 +142,19 @@ class FHIRRouter(
         // get the receivers that this bundle should go to
         val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
 
+        // go up the report lineage to get the sender of the root report
+        val sender = reportService.getSenderName(message.reportId)
+
+        // send event to Azure AppInsights
+        azureEventService.trackEvent(
+            ReportAcceptedEvent(
+                message.reportId,
+                message.topic,
+                sender,
+                bundle.getAllMappedConditions()
+            )
+        )
+
         // check if there are any receivers
         if (listOfReceivers.isNotEmpty()) {
             val filteredIdMap: MutableMap<String, MutableList<String>> = mutableMapOf()
@@ -208,6 +229,18 @@ class FHIRRouter(
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
+                // send event to Azure AppInsights
+                azureEventService.trackEvent(
+                    ReportRouteEvent(
+                        message.reportId,
+                        report.id,
+                        message.topic,
+                        sender,
+                        receiver.fullName,
+                        receiverBundle.getAllMappedConditions()
+                    )
+                )
+
                 listOf(
                     FHIREngineRunResult(
                         nextEvent,
@@ -261,6 +294,18 @@ class FHIRRouter(
 
             // ensure tracking is set
             actionHistory.trackCreatedReport(nextEvent, report)
+
+            // send event to Azure AppInsights
+            azureEventService.trackEvent(
+                ReportRouteEvent(
+                    message.reportId,
+                    report.id,
+                    message.topic,
+                    sender,
+                    null,
+                    bundle.getAllMappedConditions()
+                )
+            )
 
             return emptyList()
         }

@@ -1,6 +1,5 @@
-import config from "../config";
-
 import SenderAuthResource from "./SenderAuthResource";
+import config from "../config";
 
 const { RS_API_URL } = config;
 

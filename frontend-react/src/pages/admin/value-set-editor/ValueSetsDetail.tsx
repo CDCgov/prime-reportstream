@@ -1,40 +1,40 @@
-import React, {
-    useState,
+import {
     Dispatch,
-    SetStateAction,
-    useMemo,
-    useEffect,
     ReactNode,
+    SetStateAction,
     useCallback,
+    useEffect,
+    useMemo,
+    useState,
 } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import Spinner from "../../../components/Spinner";
+import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import Table, {
     ColumnConfig,
     TableConfig,
 } from "../../../components/Table/Table";
+import { DatasetAction } from "../../../components/Table/TableInfo";
+import { TableRowData } from "../../../components/Table/TableRows";
+import {
+    LookupTable,
+    ValueSetRow,
+} from "../../../config/endpoints/lookupTables";
+import { useSessionContext } from "../../../contexts/Session";
 import {
     useValueSetActivation,
     useValueSetsMeta,
     useValueSetsTable,
     useValueSetUpdate,
 } from "../../../hooks/UseValueSets";
-import { toHumanReadable } from "../../../utils/misc";
-import {
-    LookupTable,
-    ValueSetRow,
-} from "../../../config/endpoints/lookupTables";
-import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import {
     handleErrorWithAlert,
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
-import Spinner from "../../../components/Spinner";
-import { TableRowData } from "../../../components/Table/TableRows";
-import { DatasetAction } from "../../../components/Table/TableInfo";
-import { useSessionContext } from "../../../contexts/Session";
+import { toHumanReadable } from "../../../utils/misc";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -248,7 +248,7 @@ const ValueSetsDetailContent = () => {
             <section className="grid-container">
                 <ValueSetsDetailHeader
                     name={readableName}
-                    meta={valueSetMeta!!}
+                    meta={valueSetMeta!}
                 />
                 {/* ONLY handles success messaging now */}
                 {alert && (
