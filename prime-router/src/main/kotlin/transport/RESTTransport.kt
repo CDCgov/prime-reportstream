@@ -95,8 +95,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         } else {
             Report.formFilename(
                 header.reportFile.reportId,
-                header.reportFile.schemaName,
-                Report.Format.valueOf(receiver.translation.nameFormat),
+                receiver.organizationName,
+                Report.Format.valueOf(receiver.translation.type),
                 header.reportFile.createdAt
             )
         }

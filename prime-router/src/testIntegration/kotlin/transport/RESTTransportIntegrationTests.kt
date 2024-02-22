@@ -646,8 +646,8 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         //      the getAuthTokenWithUserPass() to be called.
         //      expectedFileName is file name to send to NATUS.
         val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-        val expectedFileName = "${header.reportFile.schemaName}-${header.reportFile.reportId}-" +
-            "${formatter.format(header.reportFile.createdAt)}.${header.reportFile.bodyFormat}"
+        val expectedFileName = "ignore-${header.reportFile.reportId}-" +
+            "${formatter.format(header.reportFile.createdAt)}.hl7"
 
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential(
