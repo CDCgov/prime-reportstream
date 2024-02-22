@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.translator
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -17,6 +16,7 @@ import org.hl7.fhir.r4.model.Patient
 import kotlin.test.Test
 
 class HL7toFhirTranslatorTests {
+    private val translator = HL7toFhirTranslator()
     private val supportedHL7 = """
 MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
@@ -47,23 +47,17 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
     """.trimIndent()
 
     @Test
-    fun `test get message templates`() {
-        // Make sure the message templates are fetched, which means the FHIR configuration is good.
-        assertThat(HL7toFhirTranslator.defaultMessageTemplates.size).isGreaterThan(0)
-    }
-
-    @Test
     fun `test get message template`() {
         val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)
-        assertThat(HL7toFhirTranslator.getInstance().getMessageTemplateType(message[0])).isEqualTo("ORU_R01")
+        assertThat(translator.getMessageTemplateType(message[0])).isEqualTo("ORU_R01")
     }
 
     @Test
     fun `test get message model`() {
         var message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)
-        val model = HL7toFhirTranslator.getInstance().getHL7MessageModel(message[0])
+        val model = translator.getHL7MessageModel(message[0])
         assertThat(model).isNotNull()
         assertThat(model.messageName).isEqualTo("ORU_R01")
 
@@ -78,7 +72,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         """.trimIndent()
         message = HL7Reader(ActionLogger()).getMessages(unsupportedHL7)
         assertThat(message.size).isEqualTo(1)
-        assertFailure { HL7toFhirTranslator.getInstance().getHL7MessageModel(message[0]) }
+        assertFailure { translator.getHL7MessageModel(message[0]) }
     }
 
     @Test
@@ -86,7 +80,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         // Note that FHIR content will be tested as an integration test
         val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)
-        val bundle = HL7toFhirTranslator.getInstance().translate(message[0])
+        val bundle = translator.translate(message[0])
         assertThat(bundle).isNotNull()
         assertThat(bundle.type).isEqualTo(Bundle.BundleType.MESSAGE)
         assertThat(bundle.id).isNotEmpty()
@@ -96,7 +90,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
     fun `test birth date extension addition`() {
         val message = HL7Reader(ActionLogger()).getMessages(supportedHL7ORMWithBirthDateTime)
         assertThat(message.size).isEqualTo(1)
-        val bundle = HL7toFhirTranslator.getInstance().translate(message[0])
+        val bundle = translator.translate(message[0])
         assertThat(bundle).isNotNull()
         assertThat(bundle.type).isEqualTo(Bundle.BundleType.MESSAGE)
         assertThat(bundle.id).isNotEmpty()
@@ -119,7 +113,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
     fun `test birth date extension is missing when birthdate is only date`() {
         val message = HL7Reader(ActionLogger()).getMessages(supportedHL7ORMWithBirthDate)
         assertThat(message.size).isEqualTo(1)
-        val bundle = HL7toFhirTranslator.getInstance().translate(message[0])
+        val bundle = translator.translate(message[0])
         assertThat(bundle).isNotNull()
         assertThat(bundle.type).isEqualTo(Bundle.BundleType.MESSAGE)
         assertThat(bundle.id).isNotEmpty()

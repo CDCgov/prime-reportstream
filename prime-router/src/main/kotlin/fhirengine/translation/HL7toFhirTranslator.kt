@@ -7,6 +7,7 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.addProvenanceReference
 import gov.cdc.prime.router.fhirengine.utils.enhanceBundleMetadata
 import gov.cdc.prime.router.fhirengine.utils.handleBirthTime
+import io.github.linuxforhealth.core.config.ConverterConfiguration
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
 import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
@@ -16,37 +17,17 @@ import org.hl7.fhir.r4.model.Bundle
 /**
  * Translate an HL7 message to FHIR.
  */
-class HL7toFhirTranslator internal constructor(
+class HL7toFhirTranslator(
+    private val configFolderPath: String = "./metadata/fhir_mapping",
     private val messageEngine: HL7MessageEngine = FhirTranscoder.getMessageEngine(),
 ) : Logging {
-    companion object {
-        init {
-            // TODO Change to use the local classpath per documentation
-            val props = System.getProperties()
-            props.setProperty("hl7converter.config.home", "./metadata/fhir_mapping")
-        }
-
-        /**
-         * A Default set of message templates for HL7 -> FHIR translation
-         */
-        internal val defaultMessageTemplates: MutableMap<String, HL7MessageModel> =
-            ResourceReader.getInstance().messageTemplates
-
-        /**
-         * Singleton object
-         */
-        private val singletonInstance: HL7toFhirTranslator by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-            HL7toFhirTranslator()
-        }
-
-        /**
-         * Get the singleton instance.
-         * @return the translator instance
-         */
-        fun getInstance(): HL7toFhirTranslator {
-            return singletonInstance
-        }
-    }
+    /**
+     * A Default set of message templates for HL7 -> FHIR translation
+     */
+    internal val defaultMessageTemplates: MutableMap<String, HL7MessageModel> =
+        ResourceReader(
+            ConverterConfiguration(configFolderPath)
+        ).messageTemplates
 
     /**
      * Get the HL7 Message Model used to translate an [hl7Message] between HL7 and FHIR.

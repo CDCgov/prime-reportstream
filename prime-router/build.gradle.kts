@@ -852,7 +852,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
-            branch = "master"
+            branch = "platform/jwang/13020-runtime-constructors"
         }
     }
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.10.4")

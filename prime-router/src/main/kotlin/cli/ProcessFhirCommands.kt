@@ -234,7 +234,7 @@ class ProcessFhirCommands : CliktCommand(
             val msh = message.get("MSH") as Segment
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
         }
-        return Pair(HL7toFhirTranslator.getInstance().translate(message), message)
+        return Pair(HL7toFhirTranslator().translate(message), message)
     }
 
     /**
