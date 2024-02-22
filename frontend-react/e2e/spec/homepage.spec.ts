@@ -4,6 +4,7 @@ import * as externalLinks from "../helpers/external-links";
 import { scrollToFooter, scrollToTop } from "../helpers/utils";
 import * as gettingStarted from "../pages/getting-started";
 import * as header from "../pages/header";
+import * as homepage from "../pages/homepage";
 import * as managingYourConnection from "../pages/managing-your-connection";
 import * as ourNetwork from "../pages/our-network";
 import * as security from "../pages/security";
@@ -11,15 +12,11 @@ import * as support from "../pages/support";
 
 test.describe("Homepage", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto("/", {
-            waitUntil: "domcontentloaded",
-        });
+        await homepage.goto(page);
     });
 
     test("has correct title", async ({ page }) => {
-        await expect(page).toHaveTitle(
-            /ReportStream - CDC's free, interoperable data transfer platform/,
-        );
+        await homepage.onLoad(page);
     });
 
     test("has About link and dropdown menu items", async ({ page }) => {
@@ -125,7 +122,7 @@ test.describe("Homepage", () => {
         expect(true).toBe(true);
     });
 
-    test("has clickable Where were live map", async ({ page }) => {
+    test("is clickable Where were live map", async ({ page }) => {
         // Trigger map click and go to our network page
         await ourNetwork.clickOnLiveMap(page);
         // Go back to the homepage
