@@ -144,7 +144,7 @@
         - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count() = 0"
         - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.value.getIdType() = 'CLIA'"
         - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.value.getIdType() = 'CLIA'"
-      mappedConditionFilter:
+      observationFilter:
         - type: conditionCode
           codes: 840539006,1234
         - type: conditionKeyword

@@ -82,7 +82,7 @@
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter: []
-      mappedConditionFilter: []
+      observationFilter: []
       deidentify: true
       deidentifiedValue: ""
       timing:

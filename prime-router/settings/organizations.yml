@@ -1087,7 +1087,7 @@
       qualityFilter:
         - "true"
       processingModeFilter: [ "true" ]
-      mappedConditionFilter: # this filter will only pass observations stamped with condition codes AOE or 840539006
+      observationFilter: # this filter will only pass observations stamped with condition codes AOE or 840539006
         - type: conditionCode
           codes: 840539006,AOE
       timing:

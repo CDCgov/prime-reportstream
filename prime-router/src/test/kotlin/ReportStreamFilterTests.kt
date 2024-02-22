@@ -13,7 +13,6 @@ import org.hl7.fhir.r4.model.Observation
 import java.util.UUID
 import kotlin.test.Test
 
-
 class ReportStreamFilterTests {
     @Test
     fun `test fhir expression filter passing`() {
@@ -102,10 +101,9 @@ class ReportStreamObservationPrunerTests {
     @Test
     fun `test condition keyword code resolution`() {
         val filter = ConditionKeywordBundleObservationPruner("balamuthia,cadmium")
-        assertThat(filter.codeList).isEqualTo(listOf("115635005","3398004"))
+        assertThat(filter.codeList).isEqualTo(listOf("115635005", "3398004"))
     }
 }
-
 
 /**
  * Make a FHIR Bundle containing [observations]
@@ -131,7 +129,7 @@ private fun makeBundle(observation: Observation) = makeBundle(listOf(observation
 private fun makeObservation(
     testCode: String = "someCode",
     conditionCode: String? = null,
-    id: String? = null
+    id: String? = null,
 ): Observation {
     val coding = Coding("someSystem", testCode, "test code")
     if (!conditionCode.isNullOrEmpty()) {
@@ -144,13 +142,12 @@ private fun makeObservation(
         observation.setId(UUID.randomUUID().toString())
     } else {
         observation.setId(id)
-
     }
     return observation
 }
 
 // fails any observation whose ID starts with `filter`
-private class MockBundleObservationPruner(): ObservationPrunable {
+private class MockBundleObservationPruner() : ObservationPrunable {
     override fun evaluateResource(bundle: Bundle, resource: Observation) =
         !resource.id.startsWith("filter")
 }

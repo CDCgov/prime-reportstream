@@ -2,11 +2,8 @@ package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.router.ReportStreamFilterDefinition.Companion.logger
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
@@ -14,7 +11,6 @@ import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
-import kotlin.math.exp
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
@@ -22,8 +18,6 @@ import kotlin.reflect.full.memberProperties
  * A ReportStreamFilter is the use (call) of one or more ReportStreamFilterDefinitions.
  */
 typealias ReportStreamFilter = List<String>
-
-
 
 /**
  * Interface for determining if a bundle passes a filter
@@ -66,7 +60,7 @@ class BundleObservationFilter(val observationFilter: BundlePrunable<Observation>
             // never pass a bundle with only AOE conditions
             val conditions = it.getMappedConditions()
             it.isNotEmpty() && (conditions.isEmpty() ||
-                !it.getMappedConditions().all { it.equals("AOE", true) })
+                !conditions.all { it.equals("AOE", true) })
         }
 }
 
@@ -82,7 +76,7 @@ class BundleObservationFilter(val observationFilter: BundlePrunable<Observation>
     JsonSubTypes.Type(ConditionKeywordBundleObservationPruner::class, name = "conditionKeyword"),
     JsonSubTypes.Type(FHIRExpressionBundleObservationPruner::class, name = "fhirExpressionCondition"),
 )
-interface ObservationPrunable: BundlePrunable<Observation> {
+interface ObservationPrunable : BundlePrunable<Observation> {
     /**
      * Check if an observation [resource] in a [bundle] passes this filter
      * @return whether the observation passed
@@ -177,7 +171,7 @@ class FHIRExpressionBundleObservationPruner(
     val fhirExpression: String,
     val defaultResponse: Boolean = true,
     val reverseFilter: Boolean = false,
-): ObservationPrunable {
+) : ObservationPrunable {
     override fun evaluateResource(bundle: Bundle, resource: Observation) = evaluateFhirExpression(
         fhirExpression,
         bundle,
@@ -185,7 +179,6 @@ class FHIRExpressionBundleObservationPruner(
         defaultResponse,
         reverseFilter
     )
-
 }
 
 /**
@@ -197,7 +190,7 @@ enum class ReportStreamFilterType(val field: String) {
     ROUTING_FILTER("routingFilter"),
     PROCESSING_MODE_FILTER("processingModeFilter"),
     CONDITION_FILTER("conditionFilter"),
-    MAPPED_CONDITION_FILTER("mappedConditionFilter"),
+    OBSERVATION_FILTER("observationFilter"),
     ;
 
     // Reflection, so that we can write a single routine to handle all types of filters.
@@ -229,7 +222,7 @@ data class ReportStreamFilters(
     val routingFilter: ReportStreamFilter?,
     val processingModeFilter: ReportStreamFilter?,
     val conditionFilter: ReportStreamFilter? = null,
-    val mappedConditionFilter: List<ObservationPrunable>? = null,
+    val observationFilter: List<ObservationPrunable>? = null,
 ) {
 
     companion object {
@@ -298,7 +291,7 @@ fun evaluateFhirExpression(
     bundle: Bundle,
     focusResource: Base,
     defaultResponse: Boolean,
-    reverseFilter: Boolean
+    reverseFilter: Boolean,
 ): Boolean {
     if (fhirExpression.isEmpty()) return defaultResponse
     val log = mutableListOf<ActionLogDetail>()

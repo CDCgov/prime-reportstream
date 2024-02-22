@@ -4,11 +4,11 @@ import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DT
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
-import gov.cdc.prime.router.Metadata
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
 import org.hl7.fhir.r4.model.Base
@@ -31,7 +31,6 @@ import java.time.format.DateTimeParseException
  * Utilities to handle FHIR Path parsing.
  */
 object FhirPathUtils : Logging {
-
 
     private val fhirContext = FhirContext.forR4()
 

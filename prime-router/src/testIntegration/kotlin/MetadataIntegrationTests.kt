@@ -22,30 +22,30 @@ class MetadataIntegrationTests {
     }
 
     @Test
-    fun `test settings, receiver, and mappedConditionFilter loaded`() {
+    fun `test settings, receiver, and observationFilter loaded`() {
         assertThat(settings).isNotNull()
         assertThat(receiver).isNotNull()
-        assertThat(receiver!!.mappedConditionFilter).isNotEmpty()
+        assertThat(receiver!!.observationFilter).isNotEmpty()
     }
 
     @Test
     fun `test loading condition code filter`() {
         assertThat(
-            receiver!!.mappedConditionFilter.filterIsInstance<ConditionCodeBundleObservationPruner>().first().codeList
+            receiver!!.observationFilter.filterIsInstance<ConditionCodeBundleObservationPruner>().first().codeList
         ).isEqualTo(listOf("840539006", "1234"))
     }
 
     @Test
     fun `test loading condition keyword filter`() {
         assertThat(
-            receiver!!.mappedConditionFilter.filterIsInstance<ConditionKeywordBundleObservationPruner>().first().codeList
+            receiver!!.observationFilter.filterIsInstance<ConditionKeywordBundleObservationPruner>().first().codeList
         ).isEqualTo(listOf("115635005", "3398004"))
     }
 
     @Test
     fun `test loading fhir expression condition filter`() {
         assertThat(
-            receiver!!.mappedConditionFilter.filterIsInstance<FHIRExpressionBundleObservationPruner>().first()
+            receiver!!.observationFilter.filterIsInstance<FHIRExpressionBundleObservationPruner>().first()
                 .fhirExpression
         ).isEqualTo("Bundle.identifier.value.empty().not()")
     }

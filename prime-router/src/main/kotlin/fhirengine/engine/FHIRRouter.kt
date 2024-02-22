@@ -197,12 +197,12 @@ class FHIRRouter(
                 }
 
                 // If the receiver does not have a mapped condition filter send the entire bundle to the translate step
-                if (receiver.mappedConditionFilter.isNotEmpty()) {
+                if (receiver.observationFilter.isNotEmpty()) {
                     // copy the bundle before we modify it
                     if (receiverBundle === bundle) receiverBundle = bundle.copy()
 
                     // prune the bundle with each condition filter
-                    receiver.mappedConditionFilter.forEach {
+                    receiver.observationFilter.forEach {
                         it.prune(receiverBundle).forEach { observation ->
                             // track all observations that failed for this receiver
                             filteredIdMap.getOrPut(observation.id) { mutableListOf() }.add(receiver.fullName)
@@ -420,18 +420,18 @@ class FHIRRouter(
             // TODO: merge with condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
             // MAPPED CONDITION FILTER
             //  default: allowAll
-            if (passes && receiver.mappedConditionFilter.isNotEmpty() && bundle.getObservations().isNotEmpty()) {
-                var filters = receiver.mappedConditionFilter.map { BundleObservationFilter(it) }
+            if (passes && receiver.observationFilter.isNotEmpty() && bundle.getObservations().isNotEmpty()) {
+                var filters = receiver.observationFilter.map { BundleObservationFilter(it) }
                 passes = filters.fold(true) { result, filter ->
                     val filterResult = filter.pass(bundle)
                     if (!filterResult) {
                         logFilterResults(
-                            "mappedConditionFilter: $filter", // TODO: something better
+                            "observationFilter: $filter", // TODO: something better
                             bundle,
                             reportId,
                             actionHistory,
                             receiver,
-                            ReportStreamFilterType.MAPPED_CONDITION_FILTER,
+                            ReportStreamFilterType.OBSERVATION_FILTER,
                             bundle
                         )
                     }
@@ -733,13 +733,13 @@ class FHIRRouter(
     /**
      * Gets the applicable condition filters for 'FULL_ELR' for a [receiver].
      */
-    internal fun getMappedConditionFilter(
+    internal fun getObservationFilter(
         receiver: Receiver,
         orgFilters: List<ReportStreamFilters>?,
     ): List<ObservationPrunable> {
         return (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.mappedConditionFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.observationFilter
                 ?: emptyList()
-            ).plus(receiver.mappedConditionFilter)
+            ).plus(receiver.observationFilter)
     }
 }
