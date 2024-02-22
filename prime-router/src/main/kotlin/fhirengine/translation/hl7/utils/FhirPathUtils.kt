@@ -3,10 +3,12 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DT
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.Metadata
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
 import org.hl7.fhir.r4.model.Base
@@ -30,6 +32,7 @@ import java.time.format.DateTimeParseException
  */
 object FhirPathUtils : Logging {
 
+
     private val fhirContext = FhirContext.forR4()
 
     /**
@@ -42,6 +45,26 @@ object FhirPathUtils : Logging {
      * Note that HL7 TM can include a timezone, but timezone is not used in FHIR.
      */
     private val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HHmmss.SSSS")
+
+    /**
+     * The name of the lookup table to load the shorthand replacement key/value pairs from
+     */
+    private const val fhirPathFilterShorthandTableName = "fhirpath_filter_shorthand"
+
+    /**
+     * The name of the column in the shorthand replacement lookup table that will be used as the key.
+     */
+    private const val fhirPathFilterShorthandTableKeyColumnName = "variable"
+
+    /**
+     * The name of the column in the shorthand replacement lookup table that will be used as the value.
+     */
+    private const val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
+
+    /**
+     * Lookup table `fhirpath_filter_shorthand` containing all the shorthand fhirpath replacements for filtering.
+     */
+    val shorthandLookupTable by lazy { loadFhirPathShorthandLookupTable() }
 
     init {
         pathEngine.hostServices = FhirPathCustomResolver()
@@ -91,6 +114,18 @@ object FhirPathUtils : Logging {
         logger.trace("Evaluated '$expression' to '$retVal'")
         return retVal
     }
+
+    fun evaluateCondition(
+        bundle: Bundle,
+        focusResource: Base,
+        expression: String,
+    ): Boolean = FhirPathUtils.evaluateCondition(
+        CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
+        focusResource,
+        bundle,
+        bundle,
+        expression
+    )
 
     /**
      * Gets a boolean result from the given [expression] using [rootResource], [contextResource] (which in most cases is
@@ -244,5 +279,39 @@ object FhirPathUtils : Logging {
             else -> hl7Date.setYearMonthDayPrecision(date.year, date.month + 1, date.day)
         }
         return hl7Date.toString()
+    }
+
+    /**
+     * Load the fhirpath_filter_shorthand lookup table into a map if it can be found and has the expected columns,
+     * otherwise log warnings and return an empty lookup table with the correct columns. This is valid since having
+     * a populated lookup table is not required to run the universal pipeline routing
+     *
+     * @returns Map containing all the values in the fhirpath_filter_shorthand lookup table. Empty map if the
+     * lookup table was not found, or it does not contain the expected columns. If an empty map is returned, a
+     * warning indicating why will be logged.
+     */
+    private fun loadFhirPathShorthandLookupTable(): MutableMap<String, String> {
+        val metadata = Metadata.getInstance()
+        val lookup = metadata.findLookupTable(fhirPathFilterShorthandTableName)
+        // log a warning and return an empty table if either lookup table is missing or has incorrect columns
+        return if (lookup != null &&
+            lookup.hasColumn(fhirPathFilterShorthandTableKeyColumnName) &&
+            lookup.hasColumn(fhirPathFilterShorthandTableValueColumnName)
+        ) {
+            lookup.table.associate {
+                it.getString(fhirPathFilterShorthandTableKeyColumnName) to
+                    it.getString(fhirPathFilterShorthandTableValueColumnName)
+            }.toMutableMap()
+        } else {
+            if (lookup == null) {
+                logger.warn("Unable to find $fhirPathFilterShorthandTableName lookup table")
+            } else {
+                logger.warn(
+                    "$fhirPathFilterShorthandTableName does not contain " +
+                        "expected columns 'variable' and 'fhirPath'"
+                )
+            }
+            emptyMap<String, String>().toMutableMap()
+        }
     }
 }

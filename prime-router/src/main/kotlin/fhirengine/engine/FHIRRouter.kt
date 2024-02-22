@@ -4,10 +4,11 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.BundleObservationFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.BundlePrunable
+import gov.cdc.prime.router.ObservationPrunable
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.PrunedObservationsLogMessage
 import gov.cdc.prime.router.Receiver
@@ -36,7 +37,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
-import gov.cdc.prime.router.fhirengine.utils.getAllMappedConditions
+import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Base
@@ -151,7 +152,7 @@ class FHIRRouter(
                 message.reportId,
                 message.topic,
                 sender,
-                bundle.getAllMappedConditions()
+                bundle.getMappedConditions()
             )
         )
 
@@ -237,7 +238,7 @@ class FHIRRouter(
                         message.topic,
                         sender,
                         receiver.fullName,
-                        receiverBundle.getAllMappedConditions()
+                        receiverBundle.getMappedConditions()
                     )
                 )
 
@@ -303,7 +304,7 @@ class FHIRRouter(
                     message.topic,
                     sender,
                     null,
-                    bundle.getAllMappedConditions()
+                    bundle.getMappedConditions()
                 )
             )
 
@@ -420,7 +421,8 @@ class FHIRRouter(
             // MAPPED CONDITION FILTER
             //  default: allowAll
             if (passes && receiver.mappedConditionFilter.isNotEmpty() && bundle.getObservations().isNotEmpty()) {
-                passes = receiver.mappedConditionFilter.fold(true) { result, filter ->
+                var filters = receiver.mappedConditionFilter.map { BundleObservationFilter(it) }
+                passes = filters.fold(true) { result, filter ->
                     val filterResult = filter.pass(bundle)
                     if (!filterResult) {
                         logFilterResults(
@@ -734,9 +736,9 @@ class FHIRRouter(
     internal fun getMappedConditionFilter(
         receiver: Receiver,
         orgFilters: List<ReportStreamFilters>?,
-    ): List<BundlePrunable> {
+    ): List<ObservationPrunable> {
         return (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.mappedConditionFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.observationFilter
                 ?: emptyList()
             ).plus(receiver.mappedConditionFilter)
     }

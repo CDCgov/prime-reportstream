@@ -14,6 +14,7 @@ import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
+import kotlin.math.exp
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
@@ -22,16 +23,19 @@ import kotlin.reflect.full.memberProperties
  */
 typealias ReportStreamFilter = List<String>
 
+
+
 /**
  * Interface for determining if a bundle passes a filter
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type") // TODO: consider move
 @JsonSubTypes(
-    JsonSubTypes.Type(BundleObservationCodeFilter::class, name = "conditionCode"),
-    JsonSubTypes.Type(BundleObservationKeywordFilter::class, name = "conditionKeyword"),
-    JsonSubTypes.Type(FHIRExpressionFilter::class, name = "fhirExpression"),
-    JsonSubTypes.Type(FHIRExpressionBundleObservationFilter::class, name = "fhirExpressionCondition"),
+    JsonSubTypes.Type(ConditionCodeBundleObservationPruner::class, name = "conditionCode"),
+    JsonSubTypes.Type(ConditionKeywordBundleObservationPruner::class, name = "conditionKeyword"),
+    JsonSubTypes.Type(FHIRExpressionBundleObservationPruner::class, name = "fhirExpressionCondition"),
+    JsonSubTypes.Type(FHIRExpressionBundleFilter::class, name = "fhirExpression"),
 )
+
 interface BundleFilterable {
     /**
      * Check if a [bundle] passes this filter
@@ -41,66 +45,58 @@ interface BundleFilterable {
 }
 
 /**
- * Interface for pruning observations from a bundle
+ * Interface for pruning T resources from a bundle
  */
-interface BundlePrunable {
+interface BundlePrunable<T> {
     /**
-     * Prune the observations in a [bundle]
-     * @return the pruned observations
+     * Check if a [resource] in a [bundle] passes this filter
+     * @return whether the observation passed
      */
-    fun prune(bundle: Bundle): List<Observation>
+    fun evaluateResource(bundle: Bundle, resource: T): Boolean
+
+    /**
+     * Check if a [bundle] passes this filter
+     * @return whether the bundle passed
+     */
+    fun prune(bundle: Bundle): List<T>
 }
 
 /**
- * A bundle filter that uses observations as the basis for filtering and pruning
+ * A bundle filter that uses resources as the basis for filtering
  */
-interface ObservationFilterable : BundleFilterable, BundlePrunable {
-    data class ConditionFilterResult(
-        val pass: Boolean,
-        val failingObservations: List<Observation>,
-    )
+class BundleObservationFilter(val observationFilter: BundlePrunable<Observation>): BundleFilterable {
+    override fun pass(bundle: Bundle): Boolean =
+        bundle.getObservations().filter { observation ->
+            // determine which observations pass
+            observationFilter.evaluateResource(bundle, observation)
+        }.let {
+            // never pass a bundle with only AOE conditions
+            val conditions = it.getMappedConditions()
+            it.isNotEmpty() && (conditions.isEmpty() ||
+                !it.getMappedConditions().all { it.equals("AOE", true) })
+        }
+}
 
+/**
+ * Interface for pruning observations from a bundle
+ */
+interface ObservationPrunable: BundlePrunable<Observation> {
     /**
-     * Check if an [observation] in a [bundle] passes this filter
+     * Check if an observation [resource] in a [bundle] passes this filter
      * @return whether the observation passed
      */
-    fun evaluateObservation(bundle: Bundle, observation: Observation): Boolean
-
-    override fun prune(bundle: Bundle): List<Observation> {
-        val result = evaluate(bundle, true)
-        return result.failingObservations
-    }
-
-    override fun pass(bundle: Bundle): Boolean {
-        val result = evaluate(bundle, false)
-        return result.pass
-    }
+    override fun evaluateResource(bundle: Bundle, resource: Observation): Boolean
 
     /**
      * Evaluate this filter on a [bundle]'s observations and optionally [filter] them from the bundle
      * @return the result of running the observation filter
      */
-    fun evaluate(bundle: Bundle, filter: Boolean): ConditionFilterResult {
-        val passingObservations = mutableListOf<Observation>()
-        val failingObservations = mutableListOf<Observation>()
-        val result = bundle.getObservations().fold(false) { result, observation ->
-            // evaluate each observation and sort into appropriate data structure
-            val obsResult = evaluateObservation(bundle, observation)
-            if (obsResult) {
-                passingObservations.add(observation)
-            } else {
-                failingObservations.add(observation)
-                if (filter) bundle.deleteResource(observation) // optionally filter this observation from the bundle
+    override fun prune(bundle: Bundle): List<Observation> =
+        bundle.getObservations().filterNot { observation ->
+            evaluateResource(bundle, observation).also { pass ->
+                if (!pass) bundle.deleteResource(observation)
             }
-            result || obsResult
         }
-        //  never pass a bundle with only AOE conditions
-        val conditionCodes = passingObservations.flatMap { it.getMappedConditions() }
-        if (result && conditionCodes.isNotEmpty() && conditionCodes.all { it.equals("AOE", true) }) {
-            return ConditionFilterResult(false, failingObservations)
-        }
-        return ConditionFilterResult(result, failingObservations)
-    }
 }
 
 /**
@@ -108,11 +104,11 @@ interface ObservationFilterable : BundleFilterable, BundlePrunable {
  * @param value A comma-delimited list of condition codes
  * @property codeList A list of condition code strings
  */
-open class BundleObservationCodeFilter(val codes: String) : ObservationFilterable {
+open class ConditionCodeBundleObservationPruner(val codes: String) : ObservationPrunable {
     open val codeList = codes.split(",").map { it.trim() }
 
-    override fun evaluateObservation(bundle: Bundle, observation: Observation): Boolean =
-        observation.getMappedConditions().any(codeList::contains)
+    override fun evaluateResource(bundle: Bundle, resource: Observation): Boolean =
+        resource.getMappedConditions().any(codeList::contains)
 }
 
 /**
@@ -120,7 +116,7 @@ open class BundleObservationCodeFilter(val codes: String) : ObservationFilterabl
  * @param value A comma-delimited list of condition keywords
  * @property codeList A list of condition code strings looked up using condition keywords
  */
-class BundleObservationKeywordFilter(val keywords: String) : BundleObservationCodeFilter(keywords) {
+class ConditionKeywordBundleObservationPruner(val keywords: String) : ConditionCodeBundleObservationPruner(keywords) {
     override val codeList = getConditionCodes(keywords)
 
     /**
@@ -153,96 +149,18 @@ class BundleObservationKeywordFilter(val keywords: String) : BundleObservationCo
  * @param defaultResponse What the default response should be for empty filters (deprecated?)
  * @param reverseFilter Whether the filter result should be reversed
  */
-open class FHIRExpressionFilter(
+open class FHIRExpressionBundleFilter(
     val fhirExpression: String,
     val defaultResponse: Boolean = true,
     val reverseFilter: Boolean = false,
 ) : BundleFilterable {
-
-    // TODO: remove with fhirpath filter shorhand filter (see https://github.com/CDCgov/prime-reportstream/issues/13252)
-    companion object {
-        /**
-         * The name of the lookup table to load the shorthand replacement key/value pairs from
-         */
-        const val fhirPathFilterShorthandTableName = "fhirpath_filter_shorthand"
-
-        /**
-         * The name of the column in the shorthand replacement lookup table that will be used as the key.
-         */
-        const val fhirPathFilterShorthandTableKeyColumnName = "variable"
-
-        /**
-         * The name of the column in the shorthand replacement lookup table that will be used as the value.
-         */
-        const val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
-
-        /**
-         * Lookup table `fhirpath_filter_shorthand` containing all the shorthand fhirpath replacements for filtering.
-         */
-        val shorthandLookupTable by lazy { loadFhirPathShorthandLookupTable() }
-
-        /**
-         * Load the fhirpath_filter_shorthand lookup table into a map if it can be found and has the expected columns,
-         * otherwise log warnings and return an empty lookup table with the correct columns. This is valid since having
-         * a populated lookup table is not required to run the universal pipeline routing
-         *
-         * @returns Map containing all the values in the fhirpath_filter_shorthand lookup table. Empty map if the
-         * lookup table was not found, or it does not contain the expected columns. If an empty map is returned, a
-         * warning indicating why will be logged.
-         */
-        fun loadFhirPathShorthandLookupTable(): MutableMap<String, String> {
-            val metadata = Metadata.getInstance()
-            val lookup = metadata.findLookupTable(fhirPathFilterShorthandTableName)
-            // log a warning and return an empty table if either lookup table is missing or has incorrect columns
-            return if (lookup != null &&
-                lookup.hasColumn(fhirPathFilterShorthandTableKeyColumnName) &&
-                lookup.hasColumn(fhirPathFilterShorthandTableValueColumnName)
-            ) {
-                lookup.table.associate {
-                    it.getString(fhirPathFilterShorthandTableKeyColumnName) to
-                        it.getString(fhirPathFilterShorthandTableValueColumnName)
-                }.toMutableMap()
-            } else {
-                if (lookup == null) {
-                    logger.warn("Unable to find $fhirPathFilterShorthandTableName lookup table")
-                } else {
-                    logger.warn(
-                        "$fhirPathFilterShorthandTableName does not contain " +
-                            "expected columns 'variable' and 'fhirPath'"
-                    )
-                }
-                emptyMap<String, String>().toMutableMap()
-            }
-        }
-    }
-
-    /**
-     * Check if a [bundle] passes this filter with an optional [focusResource]
-     * @return the result of running the filter
-     */
-    fun evaluate(bundle: Bundle, focusResource: Base = bundle): Boolean {
-        if (fhirExpression.isEmpty()) {
-            return defaultResponse
-        }
-        val log = mutableListOf<ActionLogDetail>()
-        try {
-            val expressionResult = FhirPathUtils.evaluateCondition(
-                CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
-                focusResource,
-                bundle,
-                bundle,
-                fhirExpression
-            )
-            return if (!reverseFilter) expressionResult else !expressionResult
-        } catch (e: SchemaException) {
-            log.add(EvaluateFilterConditionErrorMessage(e.message)) // TODO: do something with log
-            return false
-        }
-    }
-
-    override fun pass(bundle: Bundle): Boolean {
-        return evaluate(bundle)
-    }
+    override fun pass(bundle: Bundle) = evaluateFhirExpression(
+        fhirExpression,
+        bundle,
+        bundle,
+        defaultResponse,
+        reverseFilter
+    )
 }
 
 /**
@@ -253,15 +171,19 @@ open class FHIRExpressionFilter(
  * @param defaultResponse What the default response should be for empty filters (deprecated?)
  * @param reverseFilter Whether the filter result should be reversed
  */
-class FHIRExpressionBundleObservationFilter(
-    fhirExpression: String,
-    defaultResponse: Boolean = true,
-    reverseFilter: Boolean = false,
-) : FHIRExpressionFilter(fhirExpression, defaultResponse, reverseFilter), ObservationFilterable {
-    override fun evaluateObservation(bundle: Bundle, observation: Observation): Boolean =
-        this.evaluate(bundle, observation)
+class FHIRExpressionBundleObservationPruner(
+    val fhirExpression: String,
+    val defaultResponse: Boolean = true,
+    val reverseFilter: Boolean = false,
+): ObservationPrunable {
+    override fun evaluateResource(bundle: Bundle, resource: Observation) = evaluateFhirExpression(
+        fhirExpression,
+        bundle,
+        resource,
+        defaultResponse,
+        reverseFilter
+    )
 
-    override fun pass(bundle: Bundle): Boolean = this.evaluate(bundle, false).pass
 }
 
 /**
@@ -305,7 +227,7 @@ data class ReportStreamFilters(
     val routingFilter: ReportStreamFilter?,
     val processingModeFilter: ReportStreamFilter?,
     val conditionFilter: ReportStreamFilter? = null,
-    val mappedConditionFilter: List<BundlePrunable>? = null,
+    val observationFilter: List<ObservationPrunable>? = null,
 ) {
 
     companion object {
@@ -362,5 +284,26 @@ data class ReportStreamFilters(
             defaultMonkeypoxFilters.topic to defaultMonkeypoxFilters,
             defaultTestFilters.topic to defaultTestFilters
         )
+    }
+}
+
+/**
+ * Check if a [bundle] passes this filter with an optional [focusResource]
+ * @return the result of running the filter
+ */
+fun evaluateFhirExpression(
+    fhirExpression: String,
+    bundle: Bundle,
+    focusResource: Base,
+    defaultResponse: Boolean,
+    reverseFilter: Boolean
+): Boolean {
+    if (fhirExpression.isEmpty()) return defaultResponse
+    val log = mutableListOf<ActionLogDetail>()
+    try {
+        return FhirPathUtils.evaluateCondition(bundle, focusResource, fhirExpression) == !reverseFilter
+    } catch (e: SchemaException) {
+        log.add(EvaluateFilterConditionErrorMessage(e.message)) // TODO: do something with log
+        return false
     }
 }
