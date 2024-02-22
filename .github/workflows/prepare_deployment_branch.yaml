@@ -23,7 +23,7 @@ jobs:
         run: |
           DEPLOYMENT_DATE=$(date +%Y-%m-%d)
           echo >> ${GITHUB_ENV} DEPLOYMENT_DATE=${DEPLOYMENT_DATE?}
-          echo >> ${GITHUB_ENV} BRANCH_NAME=test/deployment/${DEPLOYMENT_DATE?}
+          echo >> ${GITHUB_ENV} BRANCH_NAME=testdeployment/${DEPLOYMENT_DATE?}
 
       - name: Output Branch Name
         run: |
