@@ -21,13 +21,10 @@ class HL7toFhirTranslator(
     private val configFolderPath: String = "./metadata/fhir_mapping",
     private val messageEngine: HL7MessageEngine = FhirTranscoder.getMessageEngine(),
 ) : Logging {
-    /**
-     * A Default set of message templates for HL7 -> FHIR translation
-     */
-    internal val defaultMessageTemplates: MutableMap<String, HL7MessageModel> =
-        ResourceReader(
-            ConverterConfiguration(configFolderPath)
-        ).messageTemplates
+    companion object {
+        internal val messageTemplates: MutableMap<String, MutableMap<String, HL7MessageModel>> =
+            emptyMap<String, MutableMap<String, HL7MessageModel>>().toMutableMap()
+    }
 
     /**
      * Get the HL7 Message Model used to translate an [hl7Message] between HL7 and FHIR.
@@ -37,7 +34,16 @@ class HL7toFhirTranslator(
         hl7Message: Message,
     ): HL7MessageModel {
         val messageTemplateType = getMessageTemplateType(hl7Message)
-        return defaultMessageTemplates[messageTemplateType]
+
+        val messageTemplate = if (messageTemplates.containsKey(configFolderPath)) {
+            messageTemplates[configFolderPath]!!
+        } else {
+            val newMessageTemplate = ResourceReader(ConverterConfiguration(configFolderPath)).messageTemplates
+            messageTemplates[configFolderPath] = newMessageTemplate
+            newMessageTemplate
+        }
+
+        return messageTemplate[messageTemplateType]
             ?: throw UnsupportedOperationException("Message type not yet supported $messageTemplateType")
     }
 
