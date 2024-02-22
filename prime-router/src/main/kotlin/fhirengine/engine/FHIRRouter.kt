@@ -29,6 +29,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.codes
@@ -38,8 +39,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
-import gov.cdc.prime.router.fhirengine.utils.getAllMappedConditions
-import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
+import gov.cdc.prime.router.fhirengine.utils.getMappedConditionCodes
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
 import gov.cdc.prime.router.report.ReportService
@@ -155,7 +155,7 @@ class FHIRRouter(
                 message.reportId,
                 message.topic,
                 sender,
-                bundle.getAllMappedConditions()
+                AzureEventUtils.getConditions(bundle)
             )
         )
 
@@ -236,7 +236,7 @@ class FHIRRouter(
                         message.topic,
                         sender,
                         receiver.fullName,
-                        receiverBundle.getAllMappedConditions()
+                        AzureEventUtils.getConditions(receiverBundle)
                     )
                 )
 
@@ -302,7 +302,7 @@ class FHIRRouter(
                     message.topic,
                     sender,
                     null,
-                    bundle.getAllMappedConditions()
+                    AzureEventUtils.getConditions(bundle)
                 )
             )
 
@@ -433,7 +433,7 @@ class FHIRRouter(
                     )
                 }
                 passes = passes && filteredObservations.isNotEmpty() && // don't pass a bundle with only AOEs
-                    !filteredObservations.all { it.getMappedConditions().all { code -> code == "AOE" } }
+                    !filteredObservations.all { it.getMappedConditionCodes().all { code -> code == "AOE" } }
             }
 
             // if all filters pass, add this receiver to the list of valid receivers
