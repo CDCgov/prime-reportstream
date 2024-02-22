@@ -738,7 +738,7 @@ class FHIRRouter(
         orgFilters: List<ReportStreamFilters>?,
     ): List<ObservationPrunable> {
         return (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.observationFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.mappedConditionFilter
                 ?: emptyList()
             ).plus(receiver.mappedConditionFilter)
     }

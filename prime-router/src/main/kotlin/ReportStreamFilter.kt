@@ -28,14 +28,10 @@ typealias ReportStreamFilter = List<String>
 /**
  * Interface for determining if a bundle passes a filter
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type") // TODO: consider move
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(ConditionCodeBundleObservationPruner::class, name = "conditionCode"),
-    JsonSubTypes.Type(ConditionKeywordBundleObservationPruner::class, name = "conditionKeyword"),
-    JsonSubTypes.Type(FHIRExpressionBundleObservationPruner::class, name = "fhirExpressionCondition"),
     JsonSubTypes.Type(FHIRExpressionBundleFilter::class, name = "fhirExpression"),
 )
-
 interface BundleFilterable {
     /**
      * Check if a [bundle] passes this filter
@@ -61,9 +57,6 @@ interface BundlePrunable<T> {
     fun prune(bundle: Bundle): List<T>
 }
 
-/**
- * A bundle filter that uses resources as the basis for filtering
- */
 class BundleObservationFilter(val observationFilter: BundlePrunable<Observation>): BundleFilterable {
     override fun pass(bundle: Bundle): Boolean =
         bundle.getObservations().filter { observation ->
@@ -80,6 +73,15 @@ class BundleObservationFilter(val observationFilter: BundlePrunable<Observation>
 /**
  * Interface for pruning observations from a bundle
  */
+/**
+ * A bundle filter that uses resources as the basis for filtering
+ */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+    JsonSubTypes.Type(ConditionCodeBundleObservationPruner::class, name = "conditionCode"),
+    JsonSubTypes.Type(ConditionKeywordBundleObservationPruner::class, name = "conditionKeyword"),
+    JsonSubTypes.Type(FHIRExpressionBundleObservationPruner::class, name = "fhirExpressionCondition"),
+)
 interface ObservationPrunable: BundlePrunable<Observation> {
     /**
      * Check if an observation [resource] in a [bundle] passes this filter
@@ -227,7 +229,7 @@ data class ReportStreamFilters(
     val routingFilter: ReportStreamFilter?,
     val processingModeFilter: ReportStreamFilter?,
     val conditionFilter: ReportStreamFilter? = null,
-    val observationFilter: List<ObservationPrunable>? = null,
+    val mappedConditionFilter: List<ObservationPrunable>? = null,
 ) {
 
     companion object {
