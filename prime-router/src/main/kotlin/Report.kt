@@ -1542,7 +1542,7 @@ class Report : Logging {
                         ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 }
             }
-            return "$fileName.$nameSuffix".trimStart('-')
+            return "$fileName.$nameSuffix"
         }
 
         /**
