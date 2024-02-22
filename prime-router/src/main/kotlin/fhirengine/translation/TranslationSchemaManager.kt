@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation
 
+import com.azure.storage.blob.models.BlobItem
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -7,6 +8,8 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.apache.logging.log4j.kotlin.Logging
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 /**
  * Instance of this manager can be used to validate and update translation schemas in various environments
@@ -23,7 +26,28 @@ class TranslationSchemaManager : Logging {
 
     companion object {
 
+        private val validatingBlobName = "validating"
+        private val validBlobName = "valid"
+        private val previousValidBlobName = "previous-valid"
+        private val previousPreviousValidBlobName = "previous-previous-valid"
+        private val validBlobNameRegex = Regex("/$validBlobName-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d+Z.txt\$")
+        private val previousValidBlobNameRegex =
+            Regex("/$previousValidBlobName-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d+Z.txt\$")
+        private val previousPreviousValidBlobNameRegex =
+            Regex("/$previousPreviousValidBlobName-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d+Z.txt\$")
         private val hL7Reader = HL7Reader(ActionLogger())
+
+        data class ValidationState(
+            val valid: BlobItem,
+            val previousValid: BlobItem,
+            val previousPreviousValid: BlobItem?,
+            val validating: BlobItem?,
+            val schemaBlobs: List<BlobAccess.Companion.BlobItemAndPreviousVersions>,
+        ) {
+            fun isOutOfDate(otherValidationState: ValidationState): Boolean {
+                return this.valid.name < otherValidationState.valid.name
+            }
+        }
 
         data class ValidationResult(
             val path: String,
@@ -34,6 +58,9 @@ class TranslationSchemaManager : Logging {
         data class ValidationContainer(val input: String, val output: String, val schemaUri: String)
 
         class TranslationValidationException(override val message: String, override val cause: Throwable? = null) :
+            RuntimeException(cause)
+
+        class TranslationSyncException(override val message: String, override val cause: Throwable? = null) :
             RuntimeException(cause)
 
         /**
@@ -90,6 +117,140 @@ class TranslationSchemaManager : Logging {
                 "${blobContainerInfo.getBlobEndpoint()}/$transformBlobName"
             return ValidationContainer(input, output, schemaUri)
         }
+    }
+
+    fun handleValidationSuccess(
+        schemaType: SchemaType,
+        validationState: ValidationState,
+        blobContainerMetadata: BlobAccess.BlobContainerMetadata,
+    ) {
+        if (validationState.previousPreviousValid != null) {
+            BlobAccess.deleteBlob(validationState.previousPreviousValid, blobContainerMetadata)
+        } else {
+            logger.warn(
+                """The previous-previous-valid file was not unexpectedly not present. 
+                |This indicates there might be a bug, but does not cause any issues
+""".trimMargin()
+            )
+        }
+
+        BlobAccess.uploadBlob(
+            validationState.valid.name.replace(validBlobName, previousValidBlobName),
+            "".toByteArray(),
+            blobContainerMetadata
+        )
+        BlobAccess.deleteBlob(validationState.valid, blobContainerMetadata)
+        BlobAccess.uploadBlob(
+            "${schemaType.directory}/$validBlobName-${Instant.now()}.txt",
+            "".toByteArray(),
+            blobContainerMetadata
+        )
+        BlobAccess.deleteBlob(validationState.previousValid, blobContainerMetadata)
+        if (validationState.validating != null) {
+            BlobAccess.deleteBlob(validationState.validating, blobContainerMetadata)
+        } else {
+            logger.warn(
+                """The validating.txt was found after successfully syncing and validating. 
+                |This indicates there might be a bug, but does not cause any issues
+""".trimMargin()
+            )
+        }
+    }
+
+    fun handleValidationFailure(
+        validationState: ValidationState,
+        blobContainerMetadata: BlobAccess.BlobContainerMetadata,
+    ) {
+        validationState.schemaBlobs.forEach { BlobAccess.restorePreviousVersion(it, blobContainerMetadata) }
+        BlobAccess.uploadBlob(
+            validationState.previousValid.name.replace(previousValidBlobName, validBlobName),
+            "".toByteArray(),
+            blobContainerMetadata
+        )
+        BlobAccess.deleteBlob(validationState.valid, blobContainerMetadata)
+        if (validationState.previousPreviousValid != null) {
+            BlobAccess.uploadBlob(
+                validationState.previousPreviousValid.name.replace(
+                    previousPreviousValidBlobName,
+                    previousValidBlobName
+                ),
+                "".toByteArray(), blobContainerMetadata
+            )
+            BlobAccess.deleteBlob(validationState.previousPreviousValid, blobContainerMetadata)
+            BlobAccess.deleteBlob(validationState.previousValid, blobContainerMetadata)
+        } else {
+            logger.error(
+                """No previous-previous-valid file found while rolling back from a validation error. 
+                |Creating a new previous-valid from five minutes ago.  
+                |This likely indicates that there is a bug that needs to be resolved
+""".trimMargin()
+            )
+            BlobAccess.uploadBlob(
+                "$previousValidBlobName-${Instant.now().minus(15, ChronoUnit.MINUTES)}",
+                "".toByteArray(),
+                blobContainerMetadata
+            )
+        }
+
+        if (validationState.validating != null) {
+            BlobAccess.deleteBlob(validationState.validating, blobContainerMetadata)
+        } else {
+            logger.warn("Validating.txt was unexpectedly missing while rolling update back")
+        }
+    }
+
+    fun retrieveValidationState(
+        schemaType: SchemaType,
+        blobContainerInfo: BlobAccess.BlobContainerMetadata,
+    ): ValidationState {
+        val allBlobs = BlobAccess.listBlobs(schemaType.directory, blobContainerInfo)
+
+        val valid = allBlobs.find { it.blobName.contains(validBlobNameRegex) }
+            ?: throw TranslationSyncException("Validation state was invalid, the valid blob was missing")
+        val previousValid = allBlobs.find { it.blobName.contains(previousValidBlobNameRegex) }
+            ?: throw TranslationSyncException("Validation state was invalid, the previous-valid blob was missing")
+        val previousPreviousValid = allBlobs.find { it.blobName.contains(previousPreviousValidBlobNameRegex) }
+        val validating = allBlobs.find { it.blobName.contains(validatingBlobName) }
+
+        return ValidationState(
+            valid.currentBlobItem,
+            previousValid.currentBlobItem,
+            previousPreviousValid?.currentBlobItem,
+            validating?.currentBlobItem,
+            allBlobs.filter {
+                it.blobName.endsWith(".yml") ||
+                    it.blobName.endsWith(".hl7") ||
+                    it.blobName.endsWith(".fhir")
+            }
+        )
+    }
+
+    fun syncSchemas(
+        schemaType: SchemaType,
+        destinationValidationState: ValidationState,
+        sourceBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
+        destinationBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
+    ) {
+        BlobAccess.uploadBlob(
+            "${schemaType.directory}/validating.txt",
+            "".toByteArray(),
+            destinationBlobContainerMetadata
+        )
+        BlobAccess.copyDir(schemaType.directory, sourceBlobContainerMetadata, destinationBlobContainerMetadata)
+        BlobAccess.uploadBlob(
+            destinationValidationState.previousValid.name.replace(
+                previousValidBlobName,
+                previousPreviousValidBlobName
+            ),
+            "".toByteArray(), destinationBlobContainerMetadata
+        )
+        BlobAccess.uploadBlob(
+            destinationValidationState.valid.name.replace(
+                validBlobName,
+                previousValidBlobName
+            ),
+            "".toByteArray(), destinationBlobContainerMetadata
+        )
     }
 
     /**

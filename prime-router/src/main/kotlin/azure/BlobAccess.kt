@@ -250,7 +250,11 @@ class BlobAccess() : Logging {
         data class BlobItemAndPreviousVersions(
             val currentBlobItem: BlobItem,
             val previousBlobItemVersions: List<BlobItem>?,
-        )
+        ) {
+            val blobName: String by lazy {
+                currentBlobItem.name
+            }
+        }
 
         /**
          * Fetches all the blobs prefixed with [directory].  Azure stores blobs in a flat
@@ -356,6 +360,26 @@ class BlobAccess() : Logging {
             return toBlobUrl
         }
 
+        fun restorePreviousVersion(
+            blobItemAndPreviousVersions: BlobItemAndPreviousVersions,
+            blobConnInfo: BlobContainerMetadata,
+        ) {
+            val container = getBlobContainer(blobConnInfo)
+            val currentBlobClient = container.getBlobClient(blobItemAndPreviousVersions.currentBlobItem.name)
+            val previousVersionId = blobItemAndPreviousVersions.previousBlobItemVersions?.firstOrNull()?.versionId
+            if (previousVersionId != null) {
+                val previousVersionBlobClient = container.getBlobVersionClient(
+                    blobItemAndPreviousVersions.currentBlobItem.name,
+                    previousVersionId
+                )
+                currentBlobClient.copyFromUrl(previousVersionBlobClient.blobUrl)
+            } else {
+                logger.error(
+                    "${blobItemAndPreviousVersions.currentBlobItem.name} did not have any previous versions to restore"
+                )
+            }
+        }
+
         /**
          * Download all blobs located at [sourceBlobDirectoryPath] with container info [sourceBlobContainerInfo] to the
          * [destinationDirectoryPath].
@@ -385,6 +409,12 @@ class BlobAccess() : Logging {
             getBlobClient(blobUrl, blobConnInfo).delete()
         }
 
+        fun deleteBlob(blobItem: BlobItem, blobContainerMetadata: BlobContainerMetadata) {
+            val blobContainer = getBlobContainer(blobContainerMetadata)
+            val blobClient = blobContainer.getBlobClient(blobItem.name)
+            blobClient.delete()
+        }
+
         /**
          * Check the connection to the blob store
          */
@@ -397,7 +427,7 @@ class BlobAccess() : Logging {
          * If one exists for the container name and connection string, the existing one will be reused.
          * @return the blob container client
          */
-        private fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
+        internal fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
             return if (blobContainerClients.containsKey(blobConnInfo)) {
                 blobContainerClients[blobConnInfo]!!
             } else {
