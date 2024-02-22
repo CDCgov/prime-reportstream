@@ -44,7 +44,7 @@ class SettingsFacade(
         BAD_REQUEST,
     }
 
-    private val mapper = JacksonMapperUtilities.customSerializersMapper
+    private val mapper = JacksonMapperUtilities.mapperNoNilNoEmptyNoSecFraction
 
     override val organizations: Collection<Organization>
         get() = findSettings(OrganizationAPI::class.java)

@@ -64,6 +64,8 @@ object JacksonMapperUtilities {
     // json / yaml which do not contribute semantically and consume space,
     // now there is schemas defining the structure of the organizations etc.
     // no need to use full fields instance to manifest structure.
+    // note:
+    // use long name manifest characteristics of the mapper to prevent mis-use
     val yamlMapperNoNilNoEmpty: ObjectMapper = ObjectMapper(YAMLFactory())
         .registerModule(yamlModule)
         .registerModule(JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -73,8 +75,10 @@ object JacksonMapperUtilities {
     // only used by settings facade, the customSerializerModule disable time stamp long format,
     // for #12929, added
     // null / empty valued field trimming off
-    // note: choose per your needs
-    val customSerializersMapper: ObjectMapper = jsonMapper {
+    // time value does not have fraction of second
+    // note:
+    // use long name manifest characteristics of the mapper to prevent mis-use
+    val mapperNoNilNoEmptyNoSecFraction: ObjectMapper = jsonMapper {
         addModule(kotlinModule())
         addModule(JavaTimeModule())
         addModule(customSerializerModule)
