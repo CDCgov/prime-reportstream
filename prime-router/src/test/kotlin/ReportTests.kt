@@ -1138,7 +1138,7 @@ class ReportTests {
             true
         )
 
-        assertThat(Report.formExternalFilename(header)).isEqualTo(expectedFileName)
+        assertThat(Report.formExternalFilename(header, metadata)).isEqualTo(expectedFileName)
     }
 
     @Test
@@ -1169,7 +1169,7 @@ class ReportTests {
             true
         )
 
-        assertThat(Report.formExternalFilename(header)).isEqualTo(expectedFileName)
+        assertThat(Report.formExternalFilename(header, metadata)).isEqualTo(expectedFileName)
     }
 }
 
