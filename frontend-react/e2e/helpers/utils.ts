@@ -14,14 +14,14 @@ export async function scrollToTop(page: Page) {
 export async function waitForAPIResponse(
     page: Page,
     requestUrl: string,
-    expectedStatus = 200,
+    responseStatus = 200,
 ) {
     const response = await page.waitForResponse((response) =>
         response.url().includes(requestUrl),
     );
 
     // Assert the response status
-    expect(response.status()).toBe(expectedStatus);
+    expect(response.status()).toBe(responseStatus);
 }
 
 export async function selectTestOrg(page: Page) {

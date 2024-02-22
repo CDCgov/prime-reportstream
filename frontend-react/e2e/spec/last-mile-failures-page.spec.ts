@@ -1,21 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 import { waitForAPIResponse } from "../helpers/utils";
-import {
-    MOCK_GET_RESEND,
-    MOCK_GET_SEND_FAILURES,
-} from "../mocks/lastMilefailures";
-
-const URL_LAST_MILE = "/admin/lastmile";
-const API_GET_SEND_FAILURES = "/api/adm/getsendfailures?days_to_show=15";
-const API_GET_RESEND = "/api/adm/getresend?days_to_show=15";
+import * as lastMileFailures from "../pages/last-mile-failures";
 
 test.describe("Last Mile Failure page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
-            await page.goto(URL_LAST_MILE, {
-                waitUntil: "domcontentloaded",
-            });
+            await lastMileFailures.goto(page);
             await expect(page).toHaveURL("/login");
         });
     });
@@ -25,19 +16,9 @@ test.describe("Last Mile Failure page", () => {
 
         test.beforeEach(async ({ page }) => {
             // Mock the api call before navigating
-            await page.route(API_GET_SEND_FAILURES, async (route) => {
-                const json = MOCK_GET_SEND_FAILURES;
-                await route.fulfill({ json });
-            });
-
-            await page.route(API_GET_RESEND, async (route) => {
-                const json = MOCK_GET_RESEND;
-                await route.fulfill({ json });
-            });
-
-            await page.goto(URL_LAST_MILE, {
-                waitUntil: "domcontentloaded",
-            });
+            await lastMileFailures.mockGetSendFailuresResponse(page);
+            await lastMileFailures.mockGetResendResponse(page);
+            await lastMileFailures.goto(page);
         });
 
         test("has correct title", async ({ page }) => {
@@ -118,13 +99,8 @@ test.describe("Last Mile Failure page", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
         test.beforeEach(async ({ page }) => {
-            await page.route(API_GET_SEND_FAILURES, (route) =>
-                route.fulfill({ status: 500, body: "" }),
-            );
-
-            await page.goto(URL_LAST_MILE, {
-                waitUntil: "domcontentloaded",
-            });
+            await lastMileFailures.mockGetSendFailuresResponse(page, 500);
+            await lastMileFailures.goto(page);
         });
 
         test("has correct title", async ({ page }) => {
@@ -149,13 +125,15 @@ test.describe("Last Mile Failure page", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ page }) => {
-            await page.goto(URL_LAST_MILE, {
-                waitUntil: "domcontentloaded",
-            });
+            await lastMileFailures.goto(page);
         });
 
         test("response returns 401", async ({ page }) => {
-            await waitForAPIResponse(page, API_GET_SEND_FAILURES, 401);
+            await waitForAPIResponse(
+                page,
+                lastMileFailures.API_GET_SEND_FAILURES,
+                401,
+            );
         });
 
         test("has correct title", async ({ page }) => {
@@ -180,13 +158,15 @@ test.describe("Last Mile Failure page", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
-            await page.goto(URL_LAST_MILE, {
-                waitUntil: "domcontentloaded",
-            });
+            await lastMileFailures.goto(page);
         });
 
         test("response returns 401", async ({ page }) => {
-            await waitForAPIResponse(page, API_GET_SEND_FAILURES, 401);
+            await waitForAPIResponse(
+                page,
+                lastMileFailures.API_GET_SEND_FAILURES,
+                401,
+            );
         });
 
         test("has correct title", async ({ page }) => {
