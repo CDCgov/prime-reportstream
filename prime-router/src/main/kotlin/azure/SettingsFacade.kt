@@ -6,7 +6,18 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.ObservationPrunable
+import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.ReportStreamFilters
+import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.TranslatorConfiguration
+import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -358,26 +369,26 @@ class OrganizationAPI
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ReceiverAPI
 @JsonCreator constructor(
-        name: String,
-        organizationName: String,
-        topic: Topic,
-        customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-        translation: TranslatorConfiguration,
-        jurisdictionalFilter: ReportStreamFilter = emptyList(),
-        qualityFilter: ReportStreamFilter = emptyList(),
-        routingFilter: ReportStreamFilter = emptyList(),
-        processingModeFilter: ReportStreamFilter = emptyList(),
-        reverseTheQualityFilter: Boolean = false,
-        conditionalFilter: ReportStreamFilter = emptyList(),
-        mappedConditionalFilter: List<ObservationPrunable> = emptyList(),
-        deidentify: Boolean = false,
-        deidentifiedValue: String = "",
-        timing: Timing? = null,
-        description: String = "",
-        transport: TransportType? = null,
-        override var version: Int? = null,
-        override var createdBy: String? = null,
-        override var createdAt: OffsetDateTime? = null,
+    name: String,
+    organizationName: String,
+    topic: Topic,
+    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
+    translation: TranslatorConfiguration,
+    jurisdictionalFilter: ReportStreamFilter = emptyList(),
+    qualityFilter: ReportStreamFilter = emptyList(),
+    routingFilter: ReportStreamFilter = emptyList(),
+    processingModeFilter: ReportStreamFilter = emptyList(),
+    reverseTheQualityFilter: Boolean = false,
+    conditionalFilter: ReportStreamFilter = emptyList(),
+    mappedConditionalFilter: List<ObservationPrunable> = emptyList(),
+    deidentify: Boolean = false,
+    deidentifiedValue: String = "",
+    timing: Timing? = null,
+    description: String = "",
+    transport: TransportType? = null,
+    override var version: Int? = null,
+    override var createdBy: String? = null,
+    override var createdAt: OffsetDateTime? = null,
 ) : Receiver(
     name,
     organizationName,

@@ -16,9 +16,9 @@ import kotlin.test.Test
 class ReportStreamFilterTests {
     @Test
     fun `test fhir expression filter passing`() {
-        val goodFilter = FHIRExpressionBundleFilter("true")
-        val reversedFilter = FHIRExpressionBundleFilter("true", reverseFilter = true)
-        val badFilter = FHIRExpressionBundleFilter("false")
+        val goodFilter = FHIRExpressionFilter("true")
+        val reversedFilter = FHIRExpressionFilter("true", reverseFilter = true)
+        val badFilter = FHIRExpressionFilter("false")
         val bundle = Bundle()
         assertThat(goodFilter.pass(bundle)).isEqualTo(true)
         assertThat(reversedFilter.pass(bundle)).isEqualTo(false)
@@ -37,8 +37,8 @@ class ReportStreamObservationFilterTests {
 
     @Test
     fun `test condition code filter passing`() {
-        val goodFilter = BundleObservationFilter(ConditionCodeBundleObservationPruner("1234,4321"))
-        val badFilter = BundleObservationFilter(ConditionCodeBundleObservationPruner("5678,8765"))
+        val goodFilter = BundleObservationFilter(ConditionCodePruner("1234,4321"))
+        val badFilter = BundleObservationFilter(ConditionCodePruner("5678,8765"))
         val bundle = makeBundle(makeObservation("someCode", "4321"))
         assertThat(goodFilter.pass(bundle)).isEqualTo(true)
         assertThat(badFilter.pass(bundle)).isEqualTo(false)
@@ -62,7 +62,7 @@ class ReportStreamObservationPrunerTests {
 
     @Test
     fun `test condition code pruning`() {
-        val filter = ConditionCodeBundleObservationPruner("1234,4321")
+        val filter = ConditionCodePruner("1234,4321")
         val goodObservation = makeObservation("someCode", "4321")
         val badObservation = makeObservation("someCode", "5678")
         val bundle = makeBundle(listOf(goodObservation, badObservation))
@@ -78,7 +78,7 @@ class ReportStreamObservationPrunerTests {
 
     @Test
     fun `test fhir expression observation pruning`() {
-        val filter = FHIRExpressionBundleObservationPruner("%resource.code.coding.extension.exists()")
+        val filter = FHIRExpressionPruner("%resource.code.coding.extension.exists()")
         val goodObservation = makeObservation("someCode", "1234")
         val badObservation = makeObservation()
 
@@ -89,7 +89,7 @@ class ReportStreamObservationPrunerTests {
 
     @Test
     fun `test condition code observation evaluation`() {
-        val filter = ConditionCodeBundleObservationPruner("1234,4321")
+        val filter = ConditionCodePruner("1234,4321")
         val goodObservation = makeObservation("someCode", "4321")
         val badObservation = makeObservation("someCode", "5678")
 
@@ -100,7 +100,7 @@ class ReportStreamObservationPrunerTests {
 
     @Test
     fun `test condition keyword code resolution`() {
-        val filter = ConditionKeywordBundleObservationPruner("balamuthia,cadmium")
+        val filter = ConditionKeywordPruner("balamuthia,cadmium")
         assertThat(filter.codeList).isEqualTo(listOf("115635005", "3398004"))
     }
 }

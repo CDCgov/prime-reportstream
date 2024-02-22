@@ -42,7 +42,7 @@ internal class ReceiverTests {
             organizationName = "IGNORE",
             topic = Topic.COVID_19,
             customerStatus = CustomerStatus.INACTIVE,
-            observationFilter = listOf(ConditionCodeBundleObservationPruner("1234")),
+            observationFilter = listOf(ConditionCodePruner("1234")),
             translation = translatorConfig,
             externalName = "Ignore ELR"
         )
@@ -78,7 +78,7 @@ internal class ReceiverTests {
             organizationName = "IGNORE",
             topic = Topic.FULL_ELR,
             customerStatus = CustomerStatus.INACTIVE,
-            observationFilter = listOf(ConditionCodeBundleObservationPruner("123-0,600-7")),
+            observationFilter = listOf(ConditionCodePruner("123-0,600-7")),
             translation = translatorConfig,
             externalName = "Ignore ELR"
         )

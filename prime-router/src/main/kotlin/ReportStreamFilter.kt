@@ -11,6 +11,7 @@ import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
+import org.hl7.fhir.r4.model.Resource
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
@@ -24,7 +25,7 @@ typealias ReportStreamFilter = List<String>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(FHIRExpressionBundleFilter::class, name = "fhirExpression"),
+    JsonSubTypes.Type(FHIRExpressionFilter::class, name = "fhirExpression"),
 )
 interface BundleFilterable {
     /**
@@ -44,6 +45,8 @@ interface BundlePrunable<T> {
      */
     fun evaluateResource(bundle: Bundle, resource: T): Boolean
 
+    fun fetchResources(bundle: Bundle): List<T>
+
     /**
      * Check if a [bundle] passes this filter
      * @return whether the bundle passed
@@ -51,16 +54,31 @@ interface BundlePrunable<T> {
     fun prune(bundle: Bundle): List<T>
 }
 
-class BundleObservationFilter(val observationFilter: BundlePrunable<Observation>): BundleFilterable {
+open class BundleResourceFilter<T : Resource>(val resourceFilter: BundlePrunable<T>) : BundleFilterable {
+    override fun pass(bundle: Bundle): Boolean {
+        return resourceFilter.fetchResources(bundle).any {
+            resourceFilter.evaluateResource(bundle, it)
+        }
+    }
+}
+
+class BundleObservationFilter(
+    val observationFilter: BundlePrunable<Observation>,
+) : BundleResourceFilter<Observation>(observationFilter)
+
+class BundleConditionFilter(
+    val conditionFilter: BundlePrunable<Observation>,
+) : BundleResourceFilter<Observation>(conditionFilter) {
     override fun pass(bundle: Bundle): Boolean =
-        bundle.getObservations().filter { observation ->
-            // determine which observations pass
-            observationFilter.evaluateResource(bundle, observation)
+        conditionFilter.fetchResources(bundle).filter { observation ->
+            conditionFilter.evaluateResource(bundle, observation)
         }.let {
             // never pass a bundle with only AOE conditions
             val conditions = it.getMappedConditions()
-            it.isNotEmpty() && (conditions.isEmpty() ||
-                !conditions.all { it.equals("AOE", true) })
+            it.isNotEmpty() && (
+                conditions.isEmpty() ||
+                    !conditions.all { it.equals("AOE", true) }
+                )
         }
 }
 
@@ -72,9 +90,9 @@ class BundleObservationFilter(val observationFilter: BundlePrunable<Observation>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(ConditionCodeBundleObservationPruner::class, name = "conditionCode"),
-    JsonSubTypes.Type(ConditionKeywordBundleObservationPruner::class, name = "conditionKeyword"),
-    JsonSubTypes.Type(FHIRExpressionBundleObservationPruner::class, name = "fhirExpressionCondition"),
+    JsonSubTypes.Type(ConditionCodePruner::class, name = "conditionCode"),
+    JsonSubTypes.Type(ConditionKeywordPruner::class, name = "conditionKeyword"),
+    JsonSubTypes.Type(FHIRExpressionPruner::class, name = "fhirExpressionCondition"),
 )
 interface ObservationPrunable : BundlePrunable<Observation> {
     /**
@@ -82,6 +100,8 @@ interface ObservationPrunable : BundlePrunable<Observation> {
      * @return whether the observation passed
      */
     override fun evaluateResource(bundle: Bundle, resource: Observation): Boolean
+
+    override fun fetchResources(bundle: Bundle): List<Observation> = bundle.getObservations()
 
     /**
      * Evaluate this filter on a [bundle]'s observations and optionally [filter] them from the bundle
@@ -100,7 +120,7 @@ interface ObservationPrunable : BundlePrunable<Observation> {
  * @param value A comma-delimited list of condition codes
  * @property codeList A list of condition code strings
  */
-open class ConditionCodeBundleObservationPruner(val codes: String) : ObservationPrunable {
+open class ConditionCodePruner(val codes: String) : ObservationPrunable {
     open val codeList = codes.split(",").map { it.trim() }
 
     override fun evaluateResource(bundle: Bundle, resource: Observation): Boolean =
@@ -112,7 +132,7 @@ open class ConditionCodeBundleObservationPruner(val codes: String) : Observation
  * @param value A comma-delimited list of condition keywords
  * @property codeList A list of condition code strings looked up using condition keywords
  */
-class ConditionKeywordBundleObservationPruner(val keywords: String) : ConditionCodeBundleObservationPruner(keywords) {
+class ConditionKeywordPruner(val keywords: String) : ConditionCodePruner(keywords) {
     override val codeList = getConditionCodes(keywords)
 
     /**
@@ -145,7 +165,7 @@ class ConditionKeywordBundleObservationPruner(val keywords: String) : ConditionC
  * @param defaultResponse What the default response should be for empty filters (deprecated?)
  * @param reverseFilter Whether the filter result should be reversed
  */
-open class FHIRExpressionBundleFilter(
+open class FHIRExpressionFilter(
     val fhirExpression: String,
     val defaultResponse: Boolean = true,
     val reverseFilter: Boolean = false,
@@ -167,7 +187,7 @@ open class FHIRExpressionBundleFilter(
  * @param defaultResponse What the default response should be for empty filters (deprecated?)
  * @param reverseFilter Whether the filter result should be reversed
  */
-class FHIRExpressionBundleObservationPruner(
+class FHIRExpressionPruner(
     val fhirExpression: String,
     val defaultResponse: Boolean = true,
     val reverseFilter: Boolean = false,
