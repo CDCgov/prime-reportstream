@@ -8,11 +8,11 @@ import kotlin.test.Test
 
 class AzureEventUtilsTest {
 
-    private val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/routing/valid.fhir"
+    private val validFhirUrl = "src/test/resources/fhirengine/engine/routing/valid.fhir"
 
     @Test
     fun `get all conditions from bundle and map them correctly`() {
-        val fhirData = File(VALID_FHIR_URL).readText()
+        val fhirData = File(validFhirUrl).readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
         val expected = setOf(
