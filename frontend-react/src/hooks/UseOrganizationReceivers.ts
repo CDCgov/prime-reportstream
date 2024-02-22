@@ -26,20 +26,23 @@ export const useOrganizationReceivers = () => {
         }
         return null;
     }, [isAdmin, authorizedFetch, parsedName]);
-    const { data, isLoading } = useSuspenseQuery({
+    const useSuspenseQueryResult = useSuspenseQuery({
         queryKey: [receivers.queryKey, activeMembership],
         queryFn: memoizedDataFetch,
     });
+
+    const { data } = useSuspenseQueryResult;
     const allReceivers = (data ?? []).sort((a, b) =>
         a.name.localeCompare(b.name),
     );
     const activeReceivers = allReceivers.filter(
         (receiver) => receiver.customerStatus !== CustomerStatusType.INACTIVE,
     );
+
     return {
+        ...useSuspenseQueryResult,
         allReceivers: allReceivers,
         activeReceivers: activeReceivers,
-        isLoading: isLoading,
         isDisabled: isAdmin,
     };
 };
