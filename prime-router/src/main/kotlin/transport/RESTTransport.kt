@@ -90,7 +90,16 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         val receiver = header.receiver ?: error("No receiver defined for report $reportId")
         val reportContent: ByteArray = header.content ?: error("No content for report $reportId")
         // get the file name from blob url, or create one from the report metadata
-        val fileName = Report.formExternalFilename(header)
+        val fileName = if (header.receiver.topic.isSendOriginal) {
+            Report.formExternalFilename(header)
+        } else {
+            Report.formFilename(
+                header.reportFile.reportId,
+                header.reportFile.schemaName,
+                Report.Format.valueOf(receiver.translation.nameFormat),
+                header.reportFile.createdAt
+            )
+        }
 
         // get the username/password to authenticate with OAuth
         val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
