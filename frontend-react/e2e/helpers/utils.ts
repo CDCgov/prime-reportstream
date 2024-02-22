@@ -11,13 +11,17 @@ export async function scrollToTop(page: Page) {
     await page.evaluate(() => window.scrollTo(0, 0));
 }
 
-export async function waitForAPIResponse(page: Page, requestUrl: string) {
+export async function waitForAPIResponse(
+    page: Page,
+    requestUrl: string,
+    expectedStatus = 200,
+) {
     const response = await page.waitForResponse((response) =>
         response.url().includes(requestUrl),
     );
 
     // Assert the response status
-    expect(response.status()).toBe(200);
+    expect(response.status()).toBe(expectedStatus);
 }
 
 export async function selectTestOrg(page: Page) {

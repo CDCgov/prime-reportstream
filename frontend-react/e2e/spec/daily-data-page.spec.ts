@@ -2,10 +2,11 @@ import { expect, test } from "@playwright/test";
 
 import { selectTestOrg, waitForAPIResponse } from "../helpers/utils";
 
+const URL_DAILY_DATA = "/daily-data";
 test.describe("Daily Data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
-            await page.goto("/daily-data", {
+            await page.goto(URL_DAILY_DATA, {
                 waitUntil: "domcontentloaded",
             });
             await expect(page).toHaveURL("/login");
@@ -17,7 +18,7 @@ test.describe("Daily Data page", () => {
 
         test.describe("without org selected", () => {
             test.beforeEach(async ({ page }) => {
-                await page.goto("/daily-data", {
+                await page.goto(URL_DAILY_DATA, {
                     waitUntil: "domcontentloaded",
                 });
             });
@@ -37,7 +38,7 @@ test.describe("Daily Data page", () => {
             test.beforeEach(async ({ page }) => {
                 await selectTestOrg(page);
 
-                await page.goto("/daily-data", {
+                await page.goto(URL_DAILY_DATA, {
                     waitUntil: "domcontentloaded",
                 });
 
@@ -87,7 +88,7 @@ test.describe("Daily Data page", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ page }) => {
-            await page.goto("/daily-data", {
+            await page.goto(URL_DAILY_DATA, {
                 waitUntil: "domcontentloaded",
             });
 
@@ -126,7 +127,7 @@ test.describe("Daily Data page", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
-            await page.goto("/daily-data", {
+            await page.goto(URL_DAILY_DATA, {
                 waitUntil: "domcontentloaded",
             });
 
