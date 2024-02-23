@@ -71,7 +71,7 @@ class ValidateSchemasFunctionsTest {
         } returns mockedValidationState
         every {
             anyConstructed<TranslationSchemaManager>().handleValidationFailure(
-
+                TranslationSchemaManager.SchemaType.FHIR,
                 mockedValidationState,
                 mockedBlobContainerMetadata
             )
@@ -88,6 +88,7 @@ class ValidateSchemasFunctionsTest {
                 mockedBlobContainerMetadata
             )
             anyConstructed<TranslationSchemaManager>().handleValidationFailure(
+                TranslationSchemaManager.SchemaType.FHIR,
                 mockedValidationState,
                 mockedBlobContainerMetadata
             )
@@ -156,7 +157,7 @@ class ValidateSchemasFunctionsTest {
         } returns mockedValidationState
         every {
             anyConstructed<TranslationSchemaManager>().handleValidationFailure(
-
+                TranslationSchemaManager.SchemaType.HL7,
                 mockedValidationState,
                 mockedBlobContainerMetadata
             )
@@ -173,6 +174,7 @@ class ValidateSchemasFunctionsTest {
                 mockedBlobContainerMetadata
             )
             anyConstructed<TranslationSchemaManager>().handleValidationFailure(
+                TranslationSchemaManager.SchemaType.HL7,
                 mockedValidationState,
                 mockedBlobContainerMetadata
             )

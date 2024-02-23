@@ -69,7 +69,7 @@ class ValidateSchemasFunctions {
         if (results.all { it.passes }) {
             translationSchemaManager.handleValidationSuccess(schemaType, validationState, blobContainerMetadata)
         } else {
-            translationSchemaManager.handleValidationFailure(validationState, blobContainerMetadata)
+            translationSchemaManager.handleValidationFailure(schemaType, validationState, blobContainerMetadata)
         }
     }
 }

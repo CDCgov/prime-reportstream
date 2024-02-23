@@ -310,6 +310,89 @@ class TranslationSchemaManagerTests {
     }
 
     @Test
+    fun `handleValidationSuccess - previous-previous-valid and validating missing should not cause issues`() {
+        val mockBlobContainerMetadata = mockk<BlobAccess.BlobContainerMetadata>()
+        val validBlob = BlobItem()
+        validBlob.name = "valid-${Instant.now()}.txt"
+        val previousValidBlob = BlobItem()
+        previousValidBlob.name = "previous-valid-${Instant.now().minus(5, ChronoUnit.MINUTES)}"
+        val validationState = TranslationSchemaManager.Companion.ValidationState(
+            validBlob,
+            previousValidBlob,
+            null,
+            null,
+            emptyList()
+        )
+        mockkObject(BlobAccess)
+        every { BlobAccess.uploadBlob(any(), any(), mockBlobContainerMetadata) } returns ""
+        every { BlobAccess.deleteBlob(any<BlobItem>(), mockBlobContainerMetadata) } returns Unit
+
+        TranslationSchemaManager().handleValidationSuccess(
+            TranslationSchemaManager.SchemaType.FHIR,
+            validationState,
+            mockBlobContainerMetadata
+        )
+
+        verify(exactly = 1) {
+            BlobAccess.uploadBlob(
+                validBlob.name.replace("valid", "previous-valid"),
+                "".toByteArray(),
+                mockBlobContainerMetadata
+            )
+            BlobAccess.uploadBlob(match { it.contains("/valid-") }, "".toByteArray(), mockBlobContainerMetadata)
+            BlobAccess.deleteBlob(validBlob, mockBlobContainerMetadata)
+            BlobAccess.deleteBlob(previousValidBlob, mockBlobContainerMetadata)
+        }
+    }
+
+    @Test
+    fun `handleValidationFailure - previous-previous-valid and validating missing`() {
+        val mockBlobContainerMetadata = mockk<BlobAccess.BlobContainerMetadata>()
+        val validBlob = BlobItem()
+        validBlob.name = "valid-${Instant.now()}.txt"
+        val previousValidBlob = BlobItem()
+        previousValidBlob.name = "previous-valid-${Instant.now().minus(5, ChronoUnit.MINUTES)}"
+        val mockBlobItemAndPreviousVersion = mockk<BlobAccess.Companion.BlobItemAndPreviousVersions>()
+        val validationState = TranslationSchemaManager.Companion.ValidationState(
+            validBlob,
+            previousValidBlob,
+            null,
+            null,
+            listOf(mockBlobItemAndPreviousVersion)
+        )
+        mockkObject(BlobAccess)
+        every { BlobAccess.uploadBlob(any(), any(), mockBlobContainerMetadata) } returns ""
+        every { BlobAccess.deleteBlob(any<BlobItem>(), mockBlobContainerMetadata) } returns Unit
+        every {
+            BlobAccess.restorePreviousVersion(
+                mockBlobItemAndPreviousVersion,
+                mockBlobContainerMetadata
+            )
+        } returns Unit
+
+        TranslationSchemaManager().handleValidationFailure(
+            TranslationSchemaManager.SchemaType.FHIR,
+            validationState,
+            mockBlobContainerMetadata
+        )
+
+        verify(exactly = 1) {
+            BlobAccess.uploadBlob(
+                previousValidBlob.name.replace("previous-valid", "valid"),
+                "".toByteArray(),
+                mockBlobContainerMetadata
+            )
+            BlobAccess.deleteBlob(validBlob, mockBlobContainerMetadata)
+            BlobAccess.uploadBlob(
+                match { it.contains("/previous-valid-") },
+                "".toByteArray(),
+                mockBlobContainerMetadata
+            )
+            BlobAccess.deleteBlob(previousValidBlob, mockBlobContainerMetadata)
+        }
+    }
+
+    @Test
     fun `handleValidationFailure - all files present`() {
         val blobContainerMetadata = createBlobMetadata(azuriteContainer1)
         val (_, previousValidBlobName, previousPreviousValidBlobName) = setupValidatingState(
@@ -334,7 +417,11 @@ class TranslationSchemaManagerTests {
             blobContainerMetadata
         )
 
-        TranslationSchemaManager().handleValidationFailure(validationStateBeforeRollback, blobContainerMetadata)
+        TranslationSchemaManager().handleValidationFailure(
+            TranslationSchemaManager.SchemaType.FHIR,
+            validationStateBeforeRollback,
+            blobContainerMetadata
+        )
         val validationStateAfterRollback = TranslationSchemaManager().retrieveValidationState(
             TranslationSchemaManager.SchemaType.FHIR,
             blobContainerMetadata

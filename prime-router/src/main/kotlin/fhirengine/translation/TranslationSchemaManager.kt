@@ -188,6 +188,7 @@ class TranslationSchemaManager : Logging {
      * @param blobContainerMetadata the azure connection info
      */
     fun handleValidationFailure(
+        schemaType: SchemaType,
         validationState: ValidationState,
         blobContainerMetadata: BlobAccess.BlobContainerMetadata,
     ) {
@@ -207,7 +208,6 @@ class TranslationSchemaManager : Logging {
                 "".toByteArray(), blobContainerMetadata
             )
             BlobAccess.deleteBlob(validationState.previousPreviousValid, blobContainerMetadata)
-            BlobAccess.deleteBlob(validationState.previousValid, blobContainerMetadata)
         } else {
             logger.error(
                 """No previous-previous-valid file found while rolling back from a validation error. 
@@ -216,11 +216,12 @@ class TranslationSchemaManager : Logging {
 """.trimMargin()
             )
             BlobAccess.uploadBlob(
-                "$previousValidBlobName-${Instant.now().minus(15, ChronoUnit.MINUTES)}",
+                "${schemaType.directory}/$previousValidBlobName-${Instant.now().minus(15, ChronoUnit.MINUTES)}",
                 "".toByteArray(),
                 blobContainerMetadata
             )
         }
+        BlobAccess.deleteBlob(validationState.previousValid, blobContainerMetadata)
 
         if (validationState.validating != null) {
             BlobAccess.deleteBlob(validationState.validating, blobContainerMetadata)
