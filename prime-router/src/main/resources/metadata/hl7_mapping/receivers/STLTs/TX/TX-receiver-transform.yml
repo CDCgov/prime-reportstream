@@ -1,0 +1,15 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+elements:
+
+  # MSH 5
+  - name: tx-receiving-application
+    value: [ '"NEDSS"' ]
+    hl7Spec: [ MSH-5 ]
+
+  # MSH 6
+  - name: tx-receiving-facility
+    value: [ '"TX-ELR"' ]
+    hl7Spec: [ MSH-6 ]
+

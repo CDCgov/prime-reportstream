@@ -32,6 +32,12 @@ Sender Transforms are completely optional, but ReportStream has created a sender
 original pipeline (`prime-router/metadata/fhir_transforms/senders/original-pipeline-transforms.yml`). This is a good place 
 to start to understand what kind of transforms a Sender may want performed on their messages.
 
+### Managing Sender Transforms
+
+
+
+Things to keep in mind when managing sender transforms
+
 > See [FHIR-to-FHIR Transformations](../design/design/transformations.md#fhir-to-fhir-transformations) for more 
 > information regarding configuration of Sender Transforms.
 

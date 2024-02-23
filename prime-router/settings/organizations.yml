@@ -1103,3 +1103,183 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+
+- name: "tx-doh"
+  description: "Texas Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "TX"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+  - name: "elr"
+    organizationName: "tx-doh"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "NEDSS"
+      receivingApplicationOID: null
+      receivingFacilityName: "TX-ELR"
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB:
+        MSH-6:
+        - '*': "TX-ELR"
+        MSH-5:
+        - '*': "NEDSS"
+        MSH-3:
+        - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: true
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "TEXAS"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, TX, patient_state, TX)"
+    qualityFilter: []
+    routingFilter:
+    - "DoesNotMatch(test_performed_code, 85478-6,76080-1,92141-1,80383-3,82170-2,85477-8,76078-5,77026-3,77028-9,77027-1,92142-9,80382-5,82166-0,82167-8,82169-4,82168-6,92809-3,92808-5,95423-0)"
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    mappedConditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "01:35"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<SFTP>
+      host: "sftp"
+      port: "22"
+      filePath: "./upload"
+      credentialName: "DEFAULT-SFTP"
+      type: "SFTP"
+    externalName: null
+    enrichmentSchemaNames: []
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "full-elr"
+    organizationName: "tx-doh"
+    topic: "full-elr"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "metadata/hl7_mapping/receivers/STLTs/TX/TX-receiver-transform"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: { }
+      replaceValueAwithB:
+        MSH-6:
+          - '*': "TX-ELR"
+        MSH-5:
+          - '*': "NEDSS"
+        MSH-3:
+          - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: true
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: { }
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: { }
+      nameFormat: "TEXAS"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: [ ]
+        customLengthHl7Fields: { }
+    jurisdictionalFilter:
+      - "(%performerState.exists() and %performerState = 'TX') or (%patientState.exists() and %patientState = 'TX')"
+    qualityFilter: [ ]
+    routingFilter: []
+    processingModeFilter: [ ]
+    reverseTheQualityFilter: false
+    conditionFilter: [ ]
+    mappedConditionFilter: [ ]
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "01:35"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<SFTP>
+      host: "sftp"
+      port: "22"
+      filePath: "./upload"
+      credentialName: "DEFAULT-SFTP"
+      type: "SFTP"
+    externalName: null
+    enrichmentSchemaNames: [ ]
+    timeZone: null
+    dateTimeFormat: "OFFSET"

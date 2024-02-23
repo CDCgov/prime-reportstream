@@ -1,29 +1,22 @@
-# How to Onboard a New Organization to Receive Data
-Add subsections that mimic the linked resources: ([Brandon’s version](https://docs.google.com/document/d/1noB3lK2Nc_vbD4s5ZHgdTjgIjhCii63x_2bjBz7GM1I/edit#heading=h.be9yxi8thtdw), [Github version](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/how-to-onboard-a-sender.md))
+# How to Migrate an existing receiver to the UP
 
 ## Welcome
 
-Our goal is to onboard as many states and local jurisdictions as we can, to receive Hub data!
-This is our internal documentation for how we _currently_ do that onboarding work.
-
+The goal of this documentation is to provide a guide on how to migrate existing covid receivers to the Universal pipeline.
 
 The main goal of receiver onboarding is to establish a connection to send data from ReportStream to the STLT.  
-In order to do so there are multiple receiver configurations that need to be configured.  
-During pre-onboarding ideally we will be able to know/collect/obtain all the unknown variables in order to set up the receiver configurations.
+In order to do so there are multiple receiver configurations that need to be configured.
 
-## Pre-Onboarding
-* Identify how they want to receive data
-* Determine if we need to be whitelisted prior to connecting
-* Identify STLT Specific (HL7) values (e.g. MSH-5, MSH-6, etc)
-* Determine if they need/want specific data quality or condition filters
-* Determine if receivers need any specific transforms
-* Create Okta Accounts (probably once they are set up fully).
+## Pre-Migration
+* Identify if the STLTs transport is set-up in staging
+* Determine if we need to send to the existing endpoint during migration kick-off call
+* Determine if a new credentials are needed for existing endpoint
 
 ## Table of Contents
-1. Set up new organization
-2. Set up receiver schema
-3. Test and commit, and deploy to Test and maybe Prod
-4. Testing in your Docker container
+1. Fetch current receiver settings
+2. Send test message from SimpleReport to STLT
+3. Migrate receiver settings to the UP
+4. Compare Covid and UP messages
 5. Create access to the Download site
 6. Validation in Prod
 7. Set up transport 
