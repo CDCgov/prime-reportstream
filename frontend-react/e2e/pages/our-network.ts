@@ -1,7 +1,8 @@
 import { expect, Page } from "@playwright/test";
 
+const URL_OUR_NETWORK = "/about/our-network";
 export async function goto(page: Page) {
-    await page.goto("/about/our-network", {
+    await page.goto(URL_OUR_NETWORK, {
         waitUntil: "domcontentloaded",
     });
 }
@@ -12,5 +13,5 @@ export async function onLoad(page: Page) {
 
 export async function clickOnLiveMap(page: Page) {
     await page.getByTestId("map").click();
-    await expect(page).toHaveURL("/about/our-network");
+    await expect(page).toHaveURL(URL_OUR_NETWORK);
 }
