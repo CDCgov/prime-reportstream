@@ -43,7 +43,7 @@ jobs:
           title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
           sourceBranch: "${{ env.BRANCH_NAME }}"
           targetBranch: "production"
-          labels: devops,chore,deployment
+          labels: DevOps,chore,deployment
           body: |
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
             This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.
