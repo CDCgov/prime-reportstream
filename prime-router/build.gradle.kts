@@ -893,7 +893,9 @@ dependencies {
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.1")
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.poi:poi-ooxml:5.2.5")
-    implementation("commons-io:commons-io: 2.15.0")
+    // pin commons-compress to mitigate CVE-2024-25710 and CVE-2024-26308
+    implementation("org.apache.commons:commons-compress:1.26.0")
+    implementation("commons-io:commons-io:2.15.0")
     implementation("com.anyascii:anyascii:0.3.2")
     // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.16.2")
