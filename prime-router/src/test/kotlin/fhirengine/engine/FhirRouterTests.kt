@@ -1434,7 +1434,7 @@ class FhirRouterTests {
                     message.reportId,
                     message.topic,
                     "sendingOrg.sendingOrgClient",
-                    setOf(
+                    listOf(
                         ConditionSummary("6142004", "Influenza (disorder)"),
                         ConditionSummary("Some Condition Code", "Condition Name")
                     )
@@ -1445,7 +1445,7 @@ class FhirRouterTests {
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     orgWithMappedConditionFilter.receivers.first().fullName,
-                    setOf(
+                    listOf(
                         ConditionSummary("6142004", "Influenza (disorder)"),
                         ConditionSummary("Some Condition Code", "Condition Name")
                     )
@@ -1571,7 +1571,7 @@ class FhirRouterTests {
                 message.reportId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
-                setOf(
+                listOf(
                     ConditionSummary(
                         "840539006",
                         "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
@@ -1584,7 +1584,7 @@ class FhirRouterTests {
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 null,
-                setOf(
+                listOf(
                     ConditionSummary(
                         "840539006",
                         "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"

@@ -11,10 +11,9 @@ object AzureEventUtils {
     /**
      * Retrieves all mapped conditions from a [Bundle] and converts them to a [ConditionSummary]
      */
-    fun getConditions(bundle: Bundle): Set<ConditionSummary> {
+    fun getConditions(bundle: Bundle): List<ConditionSummary> {
         return bundle
             .getAllMappedConditions()
             .map(ConditionSummary::fromCoding)
-            .toSet()
     }
 }

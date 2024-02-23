@@ -15,7 +15,7 @@ class AzureEventUtilsTest {
         val fhirData = File(validFhirUrl).readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
-        val expected = setOf(
+        val expected = listOf(
             ConditionSummary(
                 "840539006",
                 "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
