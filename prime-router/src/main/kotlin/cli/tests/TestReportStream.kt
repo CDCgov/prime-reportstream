@@ -738,8 +738,11 @@ abstract class CoolTest {
                     actionsList.add(TaskAction.route)
                     actionsList.add(TaskAction.translate)
                 }
-                if (receiver.timing != null) actionsList.add(TaskAction.batch)
+                if (!receiver.topic.isSendOriginal && receiver.timing != null) {
+                    actionsList.add(TaskAction.batch)
+                }
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
+                echo("actions we are checking: $actionsList")
                 actionsList.forEach { action ->
                     val useRecevingServiceName = !(
                         (action == TaskAction.receive && asyncProcessMode) ||
@@ -873,13 +876,11 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $etorTISenderName for organization ${org1.name}")
         }
 
-        /* TODO: enable with PR: #13232
         const val elrElimsSenderName = "ignore-elr-elims"
         val elrElimsSender by lazy {
             settings.findSender("$org1Name.$elrElimsSenderName") as? UniversalPipelineSender
                 ?: error("Unable to find sender $elrElimsSenderName for organization ${org1.name}")
         }
-         */
 
         const val simpleReportSenderName = "ignore-simple-report"
         val simpleRepSender by lazy {
@@ -924,11 +925,7 @@ abstract class CoolTest {
             it.organizationName == org1Name && it.name == "FULL_ELR_FHIR"
         }[0]
         val etorReceiver = settings.receivers.first { it.topic == Topic.ETOR_TI }
-
-        // TODO: This breaks with the introduction of isSendOriginal, a topic property presently only set on ELR_ELIMS.
-        //  is isSendOriginal is true, a batch step will not get generated and so the test will fail. This will be fixed
-        //  as part of PR: #13232
-        // val elimsReceiver = settings.receivers.first { it.topic == Topic.ELR_ELIMS }
+        val elimsReceiver = settings.receivers.first { it.topic == Topic.ELR_ELIMS }
         val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7" }[0]
         val hl7BatchReceiver =
