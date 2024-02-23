@@ -50,4 +50,4 @@ jobs:
 
       - name: "Produce Pull Request URL"
         run: |
-          echo "PR URL: ${{ steps.pr.outputs.PR_URL }}"
+          echo "PR URL: ${{ steps.pr.outputs.PRURL }}"
