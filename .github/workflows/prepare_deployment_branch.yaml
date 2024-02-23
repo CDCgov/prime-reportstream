@@ -1,9 +1,6 @@
 name: "Prepare Deployment Branch"
 
 on:
-  push:
-    branches:
-      - dkrylov/fix/prep-deploy-branch
   workflow_dispatch:
   schedule:
     # 3:00am UTC Tuesdays and Thursdays // 10:00pm EST Mondays and Wednesdays // 7:00pm PST Mondays and Wednesdays (https://crontab.guru/#0_3_*_*_2,4)
@@ -23,7 +20,7 @@ jobs:
         run: |
           DEPLOYMENT_DATE=$(date +%Y-%m-%d)
           echo >> ${GITHUB_ENV} DEPLOYMENT_DATE=${DEPLOYMENT_DATE?}
-          echo >> ${GITHUB_ENV} BRANCH_NAME=testdeployment/${DEPLOYMENT_DATE?}
+          echo >> ${GITHUB_ENV} BRANCH_NAME=deployment/${DEPLOYMENT_DATE?}
 
       - name: Output Branch Name
         run: |
@@ -36,7 +33,7 @@ jobs:
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
         id: pr
-        uses: dkrylovsb/reliable-pull-request-action@main
+        uses: dkrylovsb/reliable-pull-request-action@143ef667bc1b9b77e282f5f5867770d7161a683e
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
