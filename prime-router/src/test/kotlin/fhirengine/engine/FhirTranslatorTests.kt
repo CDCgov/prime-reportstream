@@ -23,6 +23,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -32,12 +33,14 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
+import org.jooq.JSONB
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.io.File
+import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -68,7 +71,7 @@ class FhirTranslatorTests {
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 ORU_R01_SCHEMA,
-                format = Report.Format.HL7_BATCH,
+                format = Report.Format.HL7,
             )
         )
     )
@@ -124,8 +127,26 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { actionHistory.trackActionReceiverInfo(any(), any()) }
-            .returns(Unit)
+        every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
+        every { actionHistory.action }.returns(
+            Action(
+                1,
+                TaskAction.receive,
+                "",
+                "",
+                OffsetDateTime.now(),
+                JSONB.valueOf(""),
+                1,
+                1,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
+            )
+        )
 
         // act
         accessSpy.transact { txn ->
@@ -174,6 +195,25 @@ class FhirTranslatorTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { actionHistory.trackActionReceiverInfo(any(), any()) } returns Unit
+        every { actionHistory.action }.returns(
+            Action(
+                1,
+                TaskAction.receive,
+                "",
+                "",
+                OffsetDateTime.now(),
+                JSONB.valueOf(""),
+                1,
+                1,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
+            )
+        )
 
         // act
         accessSpy.transact { txn ->
@@ -444,6 +484,25 @@ class FhirTranslatorTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
+        every { actionHistory.action }.returns(
+            Action(
+                1,
+                TaskAction.receive,
+                "",
+                "",
+                OffsetDateTime.now(),
+                JSONB.valueOf(""),
+                1,
+                1,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
+            )
+        )
 
         val engine = spyk(makeFhirEngine(settings = settings))
 
