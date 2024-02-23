@@ -86,6 +86,7 @@ class SyncTranslationSchemaCommand :
                     echo("Source and destination are both in a valid state to sync schemas, beginning sync...")
                     translationSchemaManager.syncSchemas(
                         schemaType,
+                        sourceValidationState,
                         destinationValidationState,
                         sourceContainerMetadata,
                         destinationContainerMetadata

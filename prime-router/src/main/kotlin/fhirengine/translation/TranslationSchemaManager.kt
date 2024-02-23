@@ -274,6 +274,7 @@ class TranslationSchemaManager : Logging {
      */
     fun syncSchemas(
         schemaType: SchemaType,
+        sourceValidationState: ValidationState,
         destinationValidationState: ValidationState,
         sourceBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
         destinationBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
@@ -284,6 +285,10 @@ class TranslationSchemaManager : Logging {
             destinationBlobContainerMetadata
         )
         BlobAccess.copyDir(schemaType.directory, sourceBlobContainerMetadata, destinationBlobContainerMetadata)
+        val sourceSchemaBlobNames = sourceValidationState.schemaBlobs.map { it.blobName }.toSet()
+        val blobsToDelete =
+            destinationValidationState.schemaBlobs.filterNot { sourceSchemaBlobNames.contains(it.blobName) }
+        blobsToDelete.forEach { BlobAccess.deleteBlob(it.currentBlobItem, destinationBlobContainerMetadata) }
         BlobAccess.uploadBlob(
             destinationValidationState.previousValid.name.replace(
                 previousValidBlobName,

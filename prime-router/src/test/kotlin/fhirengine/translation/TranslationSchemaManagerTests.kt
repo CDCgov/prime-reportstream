@@ -70,15 +70,21 @@ class TranslationSchemaManagerTests {
             )
         }
 
-        private fun setupValidSchema(blobContainerMetadata: BlobAccess.BlobContainerMetadata) {
-            val inputFilePath = "${TranslationSchemaManager.SchemaType.FHIR.directory}/dev/bar/input.fhir"
-            val outputFilePath = "${TranslationSchemaManager.SchemaType.FHIR.directory}/dev/bar/output.fhir"
-            val transformFilePath = "${TranslationSchemaManager.SchemaType.FHIR.directory}/dev/bar/simple-transform.yml"
+        private fun setupSchemaInDir(
+            schemaType: TranslationSchemaManager.SchemaType,
+            dir: String,
+            blobContainerMetadata: BlobAccess.BlobContainerMetadata,
+            schemaResourceDir: String,
+        ) {
+            val inputFilePath = "${schemaType.directory}/$dir/input.${schemaType.outputExtension}"
+            val outputFilePath = "${schemaType.directory}/$dir/output.fhir"
+            val transformFilePath = "${schemaType.directory}/$dir/simple-transform.yml"
+
             BlobAccess.uploadBlob(
                 inputFilePath,
                 File(
                     Paths.get("").toAbsolutePath().toString() +
-                        "/src/test/resources/fhirengine/translation/FHIR_to_FHIR/input.fhir"
+                        "$schemaResourceDir/input.${schemaType.outputExtension}"
                 )
                     .inputStream().readAllBytes(),
                 blobContainerMetadata
@@ -88,7 +94,7 @@ class TranslationSchemaManagerTests {
                 outputFilePath,
                 File(
                     Paths.get("").toAbsolutePath().toString() +
-                        "/src/test/resources/fhirengine/translation/FHIR_to_FHIR/output.fhir"
+                        "$schemaResourceDir/output.fhir"
                 )
                     .inputStream().readAllBytes(),
                 blobContainerMetadata
@@ -98,10 +104,28 @@ class TranslationSchemaManagerTests {
                 transformFilePath,
                 File(
                     Paths.get("").toAbsolutePath().toString() +
-                        "/src/test/resources/fhirengine/translation/FHIR_to_FHIR/simple-transform.yml"
+                        "$schemaResourceDir/simple-transform.yml"
                 )
                     .inputStream().readAllBytes(),
                 blobContainerMetadata
+            )
+        }
+
+        private fun setupValidSchema(blobContainerMetadata: BlobAccess.BlobContainerMetadata) {
+            setupSchemaInDir(
+                TranslationSchemaManager.SchemaType.FHIR,
+                "dev/bar",
+                blobContainerMetadata,
+                "/src/test/resources/fhirengine/translation/FHIR_to_FHIR"
+            )
+        }
+
+        private fun setupAlternateValidSchema(blobContainerMetadata: BlobAccess.BlobContainerMetadata) {
+            setupSchemaInDir(
+                TranslationSchemaManager.SchemaType.FHIR,
+                "dev/foo",
+                blobContainerMetadata,
+                "/src/test/resources/fhirengine/translation/FHIR_to_FHIR/alternate"
             )
         }
 
@@ -159,7 +183,12 @@ class TranslationSchemaManagerTests {
             "".toByteArray(),
             sourceBlobContainerMetadata
         )
-        setupValidSchema(sourceBlobContainerMetadata)
+        setupSchemaInDir(
+            TranslationSchemaManager.SchemaType.FHIR,
+            "dev/bar",
+            sourceBlobContainerMetadata,
+            "/src/test/resources/fhirengine/translation/FHIR_to_FHIR"
+        )
 
         val destinationValidBlobName =
             "${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-${Instant.now()}.txt"
@@ -176,21 +205,44 @@ class TranslationSchemaManagerTests {
             "".toByteArray(),
             destinationBlobContainerMetadata
         )
-        setupValidSchema(destinationBlobContainerMetadata)
+        setupSchemaInDir(
+            TranslationSchemaManager.SchemaType.FHIR,
+            "dev/bar",
+            destinationBlobContainerMetadata,
+            "/src/test/resources/fhirengine/translation/FHIR_to_FHIR/alternate"
+        )
+        setupSchemaInDir(
+            TranslationSchemaManager.SchemaType.FHIR,
+            "dev/foo",
+            destinationBlobContainerMetadata,
+            "/src/test/resources/fhirengine/translation/FHIR_to_FHIR"
+        )
 
+        val sourceValidationState = TranslationSchemaManager().retrieveValidationState(
+            TranslationSchemaManager.SchemaType.FHIR,
+            sourceBlobContainerMetadata
+        )
         val destinationValidationStateBefore = TranslationSchemaManager().retrieveValidationState(
             TranslationSchemaManager.SchemaType.FHIR,
             destinationBlobContainerMetadata
         )
 
+        val transformBefore = BlobAccess.downloadBlobAsByteArray(
+            destinationValidationStateBefore
+                .schemaBlobs.first { it.blobName.contains("simple-transform.yml") }.currentBlobItem,
+            destinationBlobContainerMetadata,
+        ).toString(Charsets.UTF_8)
+
+        assertThat(transformBefore).contains("Blue")
         assertThat(destinationValidationStateBefore.validating).isNull()
         assertThat(destinationValidationStateBefore.previousPreviousValid).isNull()
         assertThat(destinationValidationStateBefore.previousValid).isNotNull()
         assertThat(destinationValidationStateBefore.valid).isNotNull()
-        assertThat(destinationValidationStateBefore.schemaBlobs).hasSize(3)
+        assertThat(destinationValidationStateBefore.schemaBlobs).hasSize(6)
 
         TranslationSchemaManager().syncSchemas(
             TranslationSchemaManager.SchemaType.FHIR,
+            sourceValidationState,
             destinationValidationStateBefore,
             sourceBlobContainerMetadata,
             destinationBlobContainerMetadata
@@ -205,8 +257,22 @@ class TranslationSchemaManagerTests {
         assertThat(destinationValidationStateAfter.previousPreviousValid).isNotNull()
         assertThat(destinationValidationStateAfter.previousValid).isNotNull()
         assertThat(destinationValidationStateAfter.valid).isNotNull()
-        // TODO better assertion that the file has been overwritten
         assertThat(destinationValidationStateAfter.schemaBlobs).hasSize(3)
+        assertThat(destinationValidationStateAfter.schemaBlobs.map { it.blobName }.toSet())
+            .isEqualTo(
+                setOf(
+                    "${TranslationSchemaManager.SchemaType.FHIR.directory}/dev/bar/simple-transform.yml",
+                    "${TranslationSchemaManager.SchemaType.FHIR.directory}/dev/bar/input.fhir",
+                    "${TranslationSchemaManager.SchemaType.FHIR.directory}/dev/bar/output.fhir"
+                )
+            )
+        val transformAfter = BlobAccess.downloadBlobAsByteArray(
+            destinationValidationStateAfter
+                .schemaBlobs.first { it.blobName.contains("simple-transform.yml") }.currentBlobItem,
+            destinationBlobContainerMetadata,
+        ).toString(Charsets.UTF_8)
+
+        assertThat(transformAfter).contains("Purple")
     }
 
     @Test
@@ -230,6 +296,10 @@ class TranslationSchemaManagerTests {
         )
         setupValidSchema(sourceBlobContainerMetadata)
 
+        val sourceValidationState = TranslationSchemaManager().retrieveValidationState(
+            TranslationSchemaManager.SchemaType.FHIR,
+            sourceBlobContainerMetadata
+        )
         val destinationValidBlobName =
             "${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-${Instant.now()}.txt"
         BlobAccess.uploadBlob(
@@ -259,6 +329,7 @@ class TranslationSchemaManagerTests {
 
         TranslationSchemaManager().syncSchemas(
             TranslationSchemaManager.SchemaType.FHIR,
+            sourceValidationState,
             destinationValidationStateBefore,
             sourceBlobContainerMetadata,
             destinationBlobContainerMetadata

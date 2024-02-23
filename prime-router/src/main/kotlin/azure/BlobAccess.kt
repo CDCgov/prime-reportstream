@@ -327,6 +327,15 @@ class BlobAccess() : Logging {
             return stream.toByteArray()
         }
 
+        fun downloadBlobAsByteArray(
+            blobItem: BlobItem,
+            blobConnInfo: BlobContainerMetadata,
+            retries: Int = blobDownloadRetryCount,
+        ): ByteArray {
+            val blobClient = getBlobContainer(blobConnInfo).getBlobClient(blobItem.name)
+            return downloadBlobAsByteArray(blobClient.blobUrl, blobConnInfo, retries)
+        }
+
         /**
          * Download the blob at the given [blobUrl] as BinaryData
          */

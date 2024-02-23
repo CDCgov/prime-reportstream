@@ -27,7 +27,7 @@ class SyncTranslationSchemaCommandTests {
                 any()
             )
         } returns listOf(TranslationSchemaManager.Companion.ValidationResult("foo/bar/transform.yml", true))
-        every { anyConstructed<TranslationSchemaManager>().syncSchemas(any(), any(), any(), any()) } returns Unit
+        every { anyConstructed<TranslationSchemaManager>().syncSchemas(any(), any(), any(), any(), any()) } returns Unit
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
@@ -75,7 +75,7 @@ class SyncTranslationSchemaCommandTests {
                 any()
             )
         } returns listOf(TranslationSchemaManager.Companion.ValidationResult("foo/bar/transform.yml", true))
-        every { anyConstructed<TranslationSchemaManager>().syncSchemas(any(), any(), any(), any()) } returns Unit
+        every { anyConstructed<TranslationSchemaManager>().syncSchemas(any(), any(), any(), any(), any()) } returns Unit
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
@@ -120,7 +120,7 @@ class SyncTranslationSchemaCommandTests {
                 any()
             )
         } returns listOf(TranslationSchemaManager.Companion.ValidationResult("foo/bar/transform.yml", true))
-        every { anyConstructed<TranslationSchemaManager>().syncSchemas(any(), any(), any(), any()) } returns Unit
+        every { anyConstructed<TranslationSchemaManager>().syncSchemas(any(), any(), any(), any(), any()) } returns Unit
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
@@ -165,7 +165,7 @@ class SyncTranslationSchemaCommandTests {
                 any()
             )
         } returns listOf(TranslationSchemaManager.Companion.ValidationResult("foo/bar/transform.yml", false))
-        every { anyConstructed<TranslationSchemaManager>().syncSchemas(any(), any(), any(), any()) } returns Unit
+        every { anyConstructed<TranslationSchemaManager>().syncSchemas(any(), any(), any(), any(), any()) } returns Unit
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
