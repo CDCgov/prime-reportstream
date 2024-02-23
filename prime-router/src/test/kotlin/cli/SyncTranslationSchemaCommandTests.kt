@@ -59,7 +59,7 @@ class SyncTranslationSchemaCommandTests {
         assertThat(result.output)
             .contains("Source and destination are both in a valid state to sync schemas, beginning sync...")
         assertThat(result.output)
-            .contains("Successfully synced source and destination, validation will now be kicked off")
+            .contains("Successfully synced source to destination, validation will now be triggered")
     }
 
     @Test

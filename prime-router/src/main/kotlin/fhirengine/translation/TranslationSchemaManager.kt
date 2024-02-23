@@ -26,17 +26,26 @@ class TranslationSchemaManager : Logging {
 
     companion object {
 
+        private val timestampRegex = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d+Z.txt\$"
         private val validatingBlobName = "validating"
         private val validBlobName = "valid"
         private val previousValidBlobName = "previous-valid"
         private val previousPreviousValidBlobName = "previous-previous-valid"
-        private val validBlobNameRegex = Regex("/$validBlobName-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d+Z.txt\$")
+        private val validBlobNameRegex = Regex("/$validBlobName-$timestampRegex")
         private val previousValidBlobNameRegex =
-            Regex("/$previousValidBlobName-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d+Z.txt\$")
+            Regex("/$previousValidBlobName-$timestampRegex")
         private val previousPreviousValidBlobNameRegex =
-            Regex("/$previousPreviousValidBlobName-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d+Z.txt\$")
+            Regex("/$previousPreviousValidBlobName-$timestampRegex")
         private val hL7Reader = HL7Reader(ActionLogger())
 
+        /**
+         * Container class that holds the current state for a schema type in a particular azure store.
+         * @param valid - a blob with the name "valid-{TIMESTAMP}.txt"
+         * @param previousValid a blob with the name "previous-valid-{TIMESTAMP}.txt"
+         * @param previousPreviousValid an optional blob with the name "previous-previous-valid-{TIMESTAMP}.txt", will only exist when the schemas are in the process of being validated
+         * @param validating an optional blob with the name "validating.txt", will only exist when the schemas are in the process of being validated
+         * @param schemaBlobs the list of all schemas, inputs and outputs
+         */
         data class ValidationState(
             val valid: BlobItem,
             val previousValid: BlobItem,
@@ -44,6 +53,9 @@ class TranslationSchemaManager : Logging {
             val validating: BlobItem?,
             val schemaBlobs: List<BlobAccess.Companion.BlobItemAndPreviousVersions>,
         ) {
+            /**
+             * Helper function that checks if the passed state has been synced more recently
+             */
             fun isOutOfDate(otherValidationState: ValidationState): Boolean {
                 return this.valid.name < otherValidationState.valid.name
             }
@@ -119,6 +131,15 @@ class TranslationSchemaManager : Logging {
         }
     }
 
+    /**
+     * Function that is invoked by [ValidateSchemasFunctions] when the schemas are valid. The success path
+     * will delete the previous-previous-valid-{TIMESTAMP}.txt and validating.txt file, create a new previous-valid-{TIMESTAMP}.txt
+     * where the timestamp is taken from the valid-{TIMESTAMP}.txt and finally will create a new valid-{TIMESTAMP}.txt with the current time
+     *
+     * @param schemaType the [SchemaType] being processed
+     * @param validationState the state of the [schemaType] in the [blobContainerMetadata] that needs to be updated
+     * @param blobContainerMetadata the azure blob store connection details
+     */
     fun handleValidationSuccess(
         schemaType: SchemaType,
         validationState: ValidationState,
@@ -157,6 +178,15 @@ class TranslationSchemaManager : Logging {
         }
     }
 
+    /**
+     * Function handles the case where validation of the schemas failed and need to get rolled back.  Handles
+     * resetting all schema blobs to their previous version and then rolling back replacing valid-{TIMESTAMP}.txt with
+     * the timestamp in previous-valid-{TIMESTAMP}.txt (the timestamp of the last valid sync).  Finally, the validating.txt
+     * blob is removed
+     *
+     * @param validationState the state to get updated as part of handling the failure
+     * @param blobContainerMetadata the azure connection info
+     */
     fun handleValidationFailure(
         validationState: ValidationState,
         blobContainerMetadata: BlobAccess.BlobContainerMetadata,
@@ -199,6 +229,13 @@ class TranslationSchemaManager : Logging {
         }
     }
 
+    /**
+     * Retrieves the validation state for a particular schema type.
+     *
+     * @param schemaType which schema to retrieve the state for
+     * @param blobContainerInfo the azure connection info to retrieve the state
+     * @return [ValidationState]
+     */
     fun retrieveValidationState(
         schemaType: SchemaType,
         blobContainerInfo: BlobAccess.BlobContainerMetadata,
@@ -225,6 +262,15 @@ class TranslationSchemaManager : Logging {
         )
     }
 
+    /**
+     * Copies the schemas for [schemaType] from [sourceBlobContainerMetadata] to [destinationBlobContainerMetadata] and then creates
+     * a validating.txt blob in [destinationBlobContainerMetadata] to trigger validation.
+     *
+     * @param schemaType the type of schemas to be synced
+     * @param destinationValidationState the validation state in the destination
+     * @param sourceBlobContainerMetadata the azure connection info for the source
+     * @param destinationBlobContainerMetadata  the azure connection info for the destination
+     */
     fun syncSchemas(
         schemaType: SchemaType,
         destinationValidationState: ValidationState,

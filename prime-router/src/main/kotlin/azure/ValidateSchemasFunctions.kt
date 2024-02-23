@@ -4,12 +4,17 @@ import com.microsoft.azure.functions.annotation.BlobTrigger
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.fhirengine.translation.TranslationSchemaManager
-import org.apache.logging.log4j.kotlin.Logging
 
-class ValidateSchemasFunctions : Logging {
+class ValidateSchemasFunctions {
 
     private val translationSchemaManager = TranslationSchemaManager()
 
+    /**
+     * Validates the FHIR -> FHIR schemas when validating.txt is added to the store
+     *
+     * @param validatingFile the trigger for the function being executed
+     * @param blobContainerMetadata the connection info for the blob store
+     */
     @FunctionName("validateFHIRToFHIRSchemas")
     @StorageAccount("AzureWebJobsStorage")
     fun validateFHIRToFHIRSchemas(
@@ -22,6 +27,12 @@ class ValidateSchemasFunctions : Logging {
         validateSchemaChanges(TranslationSchemaManager.SchemaType.FHIR, blobContainerMetadata)
     }
 
+    /**
+     * Validates the FHIR -> HL7 schemas when validating.txt is added to the store
+     *
+     * @param validatingFile the trigger for the function being executed
+     * @param blobContainerMetadata the connection info for the blob store
+     */
     @FunctionName("validateFHIRToHL7Schemas")
     @StorageAccount("AzureWebJobsStorage")
     fun validateFHIRToHL7Schemas(
@@ -34,6 +45,18 @@ class ValidateSchemasFunctions : Logging {
         validateSchemaChanges(TranslationSchemaManager.SchemaType.HL7, blobContainerMetadata)
     }
 
+    /**
+     * Function that validates the schemas for the passed schema.  If the validation passes, [TranslationSchemaManager.handleValidationSuccess]
+     * success is invoked to update the blob store state.  If the validation fails, [TranslationSchemaManager.handleValidationFailure] is invoked
+     * and the schema changes are rolled back.
+     *
+     * The most likely cause of a validation error is that there is code present in a lower environment or locally that
+     * has yet to be deployed
+     *
+     *
+     * @param schemaType which schema type to validate
+     * @param blobContainerMetadata the connection info where schemas will be pulled from
+     */
     private fun validateSchemaChanges(
         schemaType: TranslationSchemaManager.SchemaType,
         blobContainerMetadata: BlobAccess.BlobContainerMetadata,

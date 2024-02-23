@@ -360,6 +360,16 @@ class BlobAccess() : Logging {
             return toBlobUrl
         }
 
+        /**
+         * Accepts a [BlobItemAndPreviousVersions] and grabs the most recent previous version and updates
+         * the blob to it.
+         *
+         * If the list of previous versions are empty (meaning there is nothing to restore) and an error is logged
+         * and nothing occurs
+         *
+         * @param blobItemAndPreviousVersions - the blob to restore the most recent previous version
+         * @param blobConnInfo the azure blob connection info
+         */
         fun restorePreviousVersion(
             blobItemAndPreviousVersions: BlobItemAndPreviousVersions,
             blobConnInfo: BlobContainerMetadata,
@@ -409,6 +419,13 @@ class BlobAccess() : Logging {
             getBlobClient(blobUrl, blobConnInfo).delete()
         }
 
+        /**
+         * Accepts a [BlobItem] and attempts to delete from the passed blob container info
+         *
+         *
+         * @param blobItem the blob item to delete
+         * @param blobContainerMetadata the blob container connection info
+         */
         fun deleteBlob(blobItem: BlobItem, blobContainerMetadata: BlobContainerMetadata) {
             val blobContainer = getBlobContainer(blobContainerMetadata)
             val blobClient = blobContainer.getBlobClient(blobItem.name)

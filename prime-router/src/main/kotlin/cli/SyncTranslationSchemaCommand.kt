@@ -10,10 +10,10 @@ import org.apache.logging.log4j.kotlin.Logging
 
 class SyncTranslationSchemaCommand :
     CliktCommand(
-    name = "syncShcmeas",
-    help = """"
+        name = "syncShcmeas",
+        help = """"
     """.trimMargin()
-),
+    ),
     Logging {
 
     private val translationSchemaManager = TranslationSchemaManager()
@@ -51,6 +51,14 @@ class SyncTranslationSchemaCommand :
         help = "The container in azure where the schemas are stored"
     ).required()
 
+    /**
+     * CLI command that will attempt to sync schemas from a source blob store to a destination blob store.
+     *
+     * Schemas will only be synced if:
+     * - the source is up-to-date with the changes in destination
+     * - the schemas in the source are valid
+     * - the schemas in the destination are not currently being checked for validity
+     */
     override fun run() {
         val sourceContainerMetadata =
             BlobAccess.BlobContainerMetadata(sourceBlobStoreConnection, sourceBlobStoreContainer)
@@ -82,7 +90,7 @@ class SyncTranslationSchemaCommand :
                         sourceContainerMetadata,
                         destinationContainerMetadata
                     )
-                    echo("Successfully synced source and destination, validation will now be kicked off")
+                    echo("Successfully synced source to destination, validation will now be triggered")
                 }
             }
         }
