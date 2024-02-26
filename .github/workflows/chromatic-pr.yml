@@ -26,7 +26,7 @@ jobs:
 
       - name: Get changed files
         id: changed_files
-        uses: tj-actions/changed-files@90a06d6ba9543371ab4df8eeca0be07ca6054959
+        uses: tj-actions/changed-files@800a2825992141ddde1a8bca8ad394cec34d3188
 
       - name: List all changed files
         id: set_vars
@@ -89,7 +89,7 @@ jobs:
       - name: Publish to Chromatic
         id: chromatic_publish
         if: steps.set_vars.outputs.chromatic == 'true'
-        uses: chromaui/action@v10
+        uses: chromaui/action@v11
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
