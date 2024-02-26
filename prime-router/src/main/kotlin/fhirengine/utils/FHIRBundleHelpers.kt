@@ -107,14 +107,23 @@ fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
     }
 }
 
-fun Observation.getMappedConditions(): List<String> =
-    this.getCodeSourcesMap().mapNotNull {
-        it.value.flatMap { coding ->
-            coding.extension.mapNotNull { extension ->
-                if (extension.url == conditionCodeExtensionURL) extension.castToCoding(extension.value).code else null
-            }
-        }
-    }.flatten()
+/**
+ * Gets mapped conditions present on an [Observation]
+ */
+fun Observation.getMappedConditions(): List<Coding> {
+    return this.getCodeSourcesMap()
+        .flatMap { it.value }
+        .flatMap { it.extension }
+        .filter { it.url == conditionCodeExtensionURL }
+        .map { it.castToCoding(it.value) }
+}
+
+/**
+ * Gets mapped condition codes present on an [Observation]
+ */
+fun Observation.getMappedConditionCodes(): List<String> {
+    return this.getMappedConditions().map { it.code }
+}
 
 fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<Observation>()
 
@@ -124,9 +133,12 @@ fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<O
 fun List<Observation>.getMappedConditions() = this.flatMap { it.getMappedConditions() }.toSet()
 
 /**
- * This will return all mapped conditions in a bundle (no duplicates)
+ * Gets mapped conditions present on all [Observation]s in a Bundle
  */
-fun Bundle.getMappedConditions() = this.getObservations().getMappedConditions()
+fun Bundle.getAllMappedConditions(): List<Coding> {
+    return this.getObservations()
+        .flatMap { it.getMappedConditions() }
+}
 
 /**
  * Adds references to diagnostic reports within [fhirBundle] as provenance targets

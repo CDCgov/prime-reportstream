@@ -54,8 +54,18 @@ abstract class TransportIntegrationTests : Logging {
         null,
         "az-phd",
         "elr-test",
-        null, null, "standard.standard-covid-19", null, null, null, null, null,
+        null,
+        null,
+        "standard.standard-covid-19",
+        null,
+        null,
+        null,
+        "hl7",
+        null,
         4, // pretend we have 4 items to send.
-        null, OffsetDateTime.now(), null, null
+        null,
+        OffsetDateTime.now(),
+        null,
+        null
     )
 }

@@ -29,6 +29,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
@@ -36,7 +37,6 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
-import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
 import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -151,7 +151,7 @@ class FHIRRouter(
                 message.reportId,
                 message.topic,
                 sender,
-                bundle.getMappedConditions()
+                AzureEventUtils.getConditions(bundle)
             )
         )
 
@@ -234,7 +234,7 @@ class FHIRRouter(
                         message.topic,
                         sender,
                         receiver.fullName,
-                        receiverBundle.getMappedConditions()
+                        AzureEventUtils.getConditions(receiverBundle)
                     )
                 )
 
@@ -300,7 +300,7 @@ class FHIRRouter(
                     message.topic,
                     sender,
                     null,
-                    bundle.getMappedConditions()
+                    AzureEventUtils.getConditions(bundle)
                 )
             )
 
