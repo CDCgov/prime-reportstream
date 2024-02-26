@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import org.hl7.fhir.r4.model.Observation
+import org.hl7.fhir.r4.model.Resource
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -48,7 +50,7 @@ open class Receiver(
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val conditionFilter: ReportStreamFilter = emptyList(),
-    val observationFilter: List<ObservationPrunable> = emptyList(),
+    val observationFilter: List<BundleResourceFilter<Observation>> = emptyList(),
     val deidentify: Boolean = false,
     val deidentifiedValue: String = "",
     val timing: Timing? = null,
@@ -95,7 +97,7 @@ open class Receiver(
         routingFilter: ReportStreamFilter = emptyList(),
         processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
-        observationFilter: List<ObservationPrunable> = emptyList(),
+        observationFilter: List<BundleResourceFilter<Observation>> = emptyList(),
         reverseTheQualityFilter: Boolean = false,
         enrichmentSchemaNames: List<String> = emptyList(),
     ) : this(
@@ -153,6 +155,27 @@ open class Receiver(
 
     @get:JsonIgnore
     val useBatching: Boolean get() = translation.useBatching
+
+//    @get:JsonIgnore
+//    val pruners: List<BundlePrunable<Observation>> get() = observationFilter.map { it.resourceFilter }
+
+    @get:JsonIgnore
+    val pruners: List<BundlePrunable<Resource>> get() = filters.filterIsInstance<BundleResourceFilter<Resource>>().map {
+        it.resourceFilter
+    }
+
+    @get:JsonIgnore
+    val filters: List<BundleFilterable> get() = listOf(
+//        jurisdictionalFilter,
+//        qualityFilter,
+//        routingFilter,
+//        processingModeFilter,
+//        conditionFilter,
+        observationFilter
+    ).flatten()
+
+//    @get:JsonIgnore
+//    val prunerss: List<BundlePrunable<Observation>> get() =
 
     // adds a display name property that tries to show the external name, or the regular name if there isn't one
     @get:JsonIgnore

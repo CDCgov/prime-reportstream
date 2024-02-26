@@ -1088,8 +1088,10 @@
         - "true"
       processingModeFilter: [ "true" ]
       observationFilter: # this filter will only pass observations stamped with condition codes AOE or 840539006
-        - type: conditionCode
-          codes: 840539006,AOE
+        - type: bundleCondition
+          conditionFilter:
+            type: conditionCode
+            codes: 840539006,1234
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

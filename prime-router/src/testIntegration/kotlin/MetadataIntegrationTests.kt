@@ -31,21 +31,21 @@ class MetadataIntegrationTests {
     @Test
     fun `test loading condition code filter`() {
         assertThat(
-            receiver!!.observationFilter.filterIsInstance<ConditionCodePruner>().first().codeList
+            receiver!!.pruners.filterIsInstance<ConditionCodePruner>().first().codeList
         ).isEqualTo(listOf("840539006", "1234"))
     }
 
     @Test
     fun `test loading condition keyword filter`() {
         assertThat(
-            receiver!!.observationFilter.filterIsInstance<ConditionKeywordPruner>().first().codeList
+            receiver!!.pruners.filterIsInstance<ConditionKeywordPruner>().first().codeList
         ).isEqualTo(listOf("115635005", "3398004"))
     }
 
     @Test
     fun `test loading fhir expression condition filter`() {
         assertThat(
-            receiver!!.observationFilter.filterIsInstance<FHIRExpressionPruner>().first()
+            receiver!!.pruners.filterIsInstance<FHIRExpressionPruner>().first()
                 .fhirExpression
         ).isEqualTo("Bundle.identifier.value.empty().not()")
     }

@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import gov.cdc.prime.router.BundleResourceFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.ObservationPrunable
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
@@ -25,6 +25,7 @@ import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.JwkSet
 import org.apache.logging.log4j.kotlin.Logging
+import org.hl7.fhir.r4.model.Observation
 import org.jooq.JSONB
 import java.time.OffsetDateTime
 
@@ -380,7 +381,7 @@ class ReceiverAPI
     processingModeFilter: ReportStreamFilter = emptyList(),
     reverseTheQualityFilter: Boolean = false,
     conditionalFilter: ReportStreamFilter = emptyList(),
-    mappedConditionalFilter: List<ObservationPrunable> = emptyList(),
+    mappedConditionalFilter: List<BundleResourceFilter<Observation>> = emptyList(),
     deidentify: Boolean = false,
     deidentifiedValue: String = "",
     timing: Timing? = null,

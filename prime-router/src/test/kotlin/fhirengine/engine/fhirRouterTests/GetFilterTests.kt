@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.BundleConditionFilter
 import gov.cdc.prime.router.ConditionCodePruner
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -99,7 +100,7 @@ class GetFilterTests {
         routingFilter = listOf("testRouting"),
         processingModeFilter = listOf("testProcMode"),
         conditionFilter = listOf("testCondition"),
-        observationFilter = listOf(ConditionCodePruner("1234"))
+        observationFilter = listOf(BundleConditionFilter(ConditionCodePruner("1234")))
     )
 
     private val orgFilters = listOf(

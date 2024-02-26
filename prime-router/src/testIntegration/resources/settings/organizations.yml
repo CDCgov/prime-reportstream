@@ -145,14 +145,20 @@
         - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.value.getIdType() = 'CLIA'"
         - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.value.getIdType() = 'CLIA'"
       observationFilter:
-        - type: conditionCode
-          codes: 840539006,1234
-        - type: conditionKeyword
-          keywords: balamuthia,cadmium
-        - type: fhirExpressionCondition
-          fhirExpression: "Bundle.identifier.value.empty().not()"
-          defaultResponse: true # not required
-          reverseFilter: false # not required
+        - type: bundleCondition
+          conditionFilter:
+             type: conditionCode
+             codes: 840539006,1234
+        - type: bundleCondition
+          conditionFilter:
+            type: conditionKeyword
+            keywords: balamuthia,cadmium
+        - type: bundleCondition
+          conditionFilter:
+            type: fhirExpression
+            fhirExpression: "Bundle.identifier.value.empty().not()"
+            defaultResponse: true # not required
+            reverseFilter: false # not required
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

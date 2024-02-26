@@ -26,6 +26,9 @@ typealias ReportStreamFilter = List<String>
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
     JsonSubTypes.Type(FHIRExpressionFilter::class, name = "fhirExpression"),
+    JsonSubTypes.Type(BundleResourceFilter::class, name = "bundleResource"),
+    JsonSubTypes.Type(BundleObservationFilter::class, name = "bundleObservation"),
+    JsonSubTypes.Type(BundleConditionFilter::class, name = "bundleCondition"),
 )
 interface BundleFilterable {
     /**
@@ -38,6 +41,15 @@ interface BundleFilterable {
 /**
  * Interface for pruning T resources from a bundle
  */
+/**
+ * A bundle filter that uses resources as the basis for filtering
+ */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+    JsonSubTypes.Type(ConditionCodePruner::class, name = "conditionCode"),
+    JsonSubTypes.Type(ConditionKeywordPruner::class, name = "conditionKeyword"),
+    JsonSubTypes.Type(FHIRExpressionPruner::class, name = "fhirExpression"),
+)
 interface BundlePrunable<T> {
     /**
      * Check if a [resource] in a [bundle] passes this filter
@@ -85,15 +97,6 @@ class BundleConditionFilter(
 /**
  * Interface for pruning observations from a bundle
  */
-/**
- * A bundle filter that uses resources as the basis for filtering
- */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes(
-    JsonSubTypes.Type(ConditionCodePruner::class, name = "conditionCode"),
-    JsonSubTypes.Type(ConditionKeywordPruner::class, name = "conditionKeyword"),
-    JsonSubTypes.Type(FHIRExpressionPruner::class, name = "fhirExpressionCondition"),
-)
 interface ObservationPrunable : BundlePrunable<Observation> {
     /**
      * Check if an observation [resource] in a [bundle] passes this filter
@@ -242,7 +245,7 @@ data class ReportStreamFilters(
     val routingFilter: ReportStreamFilter?,
     val processingModeFilter: ReportStreamFilter?,
     val conditionFilter: ReportStreamFilter? = null,
-    val observationFilter: List<ObservationPrunable>? = null,
+    val observationFilter: List<BundleResourceFilter<Observation>>? = null,
 ) {
 
     companion object {
