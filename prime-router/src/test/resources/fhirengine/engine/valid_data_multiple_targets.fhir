@@ -423,14 +423,7 @@
               },
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
-                "valueCodeableConcept" : {
-                  "coding" : [
-                    {
-                      "system" : "http://terminology.hl7.org/CodeSystem/v2-0105",
-                      "code" : "O"
-                    }
-                  ]
-                }
+                "valueId" : "L"
               }
             ],
             "text" : "ciu1se"
