@@ -641,7 +641,6 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
     fun `test  transport postReport with valid file name for Natus`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientStringTokenOk()))
-
         // Given:
         //      lookupDefaultCredential returns mock UserPassCredential object to allow
         //      the getAuthTokenWithUserPass() to be called.
@@ -650,7 +649,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         val expectedFileName = "ignore-${header.reportFile.reportId}-" +
             "${formatter.format(header.reportFile.createdAt)}.hl7"
 
-            every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential(
                 "test-user",
                 "test-apikey"
@@ -660,8 +659,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // When:
         //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
-            natusRestTransportTypeLive, header, reportId, null,
-            context, actionHistory
+            natusRestTransportTypeLive, header, reportId, null, context, actionHistory
         )
 
         // Then:
