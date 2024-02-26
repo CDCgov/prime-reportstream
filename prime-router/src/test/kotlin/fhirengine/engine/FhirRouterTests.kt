@@ -1944,10 +1944,10 @@ class FhirRouterTests {
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         // This condition filter evaluates to true
         val condFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        val mappedCondFilter = emptyList<BundleResourceFilter<Observation>>()
+        val observationFilter = emptyList<BundleResourceFilter<Observation>>()
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         engine.setFiltersOnEngine(
-            jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, mappedCondFilter
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, observationFilter
         )
 
         // act
@@ -1977,10 +1977,10 @@ class FhirRouterTests {
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_10)
         // This condition filter evaluates to true
         val condFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
-        val mappedCondFilter = emptyList<BundleResourceFilter<Observation>>()
+        val observationFilter = emptyList<BundleResourceFilter<Observation>>()
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         engine.setFiltersOnEngine(
-            jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, mappedCondFilter
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, observationFilter
         )
 
         // act
@@ -2024,10 +2024,10 @@ class FhirRouterTests {
         val processingModeFilter = listOf(OBSERVATION_COUNT_GREATER_THAN_ZERO)
         // This condition filter evaluates to false
         val condFilter = emptyList<String>()
-        val mappedCondFilter = emptyList<BundleResourceFilter<Observation>>()
+        val observationFilter = emptyList<BundleResourceFilter<Observation>>()
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         engine.setFiltersOnEngine(
-            jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, mappedCondFilter
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, observationFilter
         )
 
         // act
@@ -2058,10 +2058,10 @@ class FhirRouterTests {
         val processingModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
         // This condition filter evaluates to false
         val condFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_10)
-        val mappedCondFilter = emptyList<BundleResourceFilter<Observation>>()
+        val observationFilter = emptyList<BundleResourceFilter<Observation>>()
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         engine.setFiltersOnEngine(
-            jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, mappedCondFilter
+            jurisFilter, qualFilter, routingFilter, processingModeFilter, condFilter, observationFilter
         )
 
         // act
