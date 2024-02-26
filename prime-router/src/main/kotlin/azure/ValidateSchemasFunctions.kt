@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import com.microsoft.azure.functions.annotation.BlobTrigger
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.TranslationSchemaManager
 
 class ValidateSchemasFunctions {
@@ -19,11 +20,13 @@ class ValidateSchemasFunctions {
     @StorageAccount("AzureWebJobsStorage")
     fun validateFHIRToFHIRSchemas(
         @BlobTrigger(
-            name = "validating.txt",
-            path = "metadata/fhir_transforms/{name}"
-        ) @Suppress("UNUSED_PARAMETER") validatingFile: Array<Byte>,
-        blobContainerMetadata: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
+            name = "fhirValidatingFile",
+            path = "metadata/fhir_transforms/validating.txt"
+        ) @Suppress("UNUSED_PARAMETER") content: Array<Byte>,
     ) {
+        val blobConnectionString = Environment.get().blobEnvVar
+        val blobContainerMetadata: BlobAccess.BlobContainerMetadata =
+            BlobAccess.BlobContainerMetadata.build("metadata", blobConnectionString)
         validateSchemaChanges(TranslationSchemaManager.SchemaType.FHIR, blobContainerMetadata)
     }
 
@@ -37,11 +40,13 @@ class ValidateSchemasFunctions {
     @StorageAccount("AzureWebJobsStorage")
     fun validateFHIRToHL7Schemas(
         @BlobTrigger(
-            name = "validating.txt",
-            path = "metadata/hl7_mappings/{name}"
+            name = "validatingFile",
+            path = "metadata/hl7_mappings/validating.txt"
         ) @Suppress("UNUSED_PARAMETER") validatingFile: Array<Byte>,
-        blobContainerMetadata: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
     ) {
+        val blobConnectionString = Environment.get().blobEnvVar
+        val blobContainerMetadata: BlobAccess.BlobContainerMetadata =
+            BlobAccess.BlobContainerMetadata.build("metadata", blobConnectionString)
         validateSchemaChanges(TranslationSchemaManager.SchemaType.HL7, blobContainerMetadata)
     }
 
@@ -57,7 +62,7 @@ class ValidateSchemasFunctions {
      * @param schemaType which schema type to validate
      * @param blobContainerMetadata the connection info where schemas will be pulled from
      */
-    private fun validateSchemaChanges(
+    internal fun validateSchemaChanges(
         schemaType: TranslationSchemaManager.SchemaType,
         blobContainerMetadata: BlobAccess.BlobContainerMetadata,
     ) {

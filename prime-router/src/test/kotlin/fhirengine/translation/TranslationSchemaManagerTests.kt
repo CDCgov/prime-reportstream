@@ -111,24 +111,6 @@ class TranslationSchemaManagerTests {
             )
         }
 
-        private fun setupValidSchema(blobContainerMetadata: BlobAccess.BlobContainerMetadata) {
-            setupSchemaInDir(
-                TranslationSchemaManager.SchemaType.FHIR,
-                "dev/bar",
-                blobContainerMetadata,
-                "/src/test/resources/fhirengine/translation/FHIR_to_FHIR"
-            )
-        }
-
-        private fun setupAlternateValidSchema(blobContainerMetadata: BlobAccess.BlobContainerMetadata) {
-            setupSchemaInDir(
-                TranslationSchemaManager.SchemaType.FHIR,
-                "dev/foo",
-                blobContainerMetadata,
-                "/src/test/resources/fhirengine/translation/FHIR_to_FHIR/alternate"
-            )
-        }
-
         private fun setupValidatingState(
             blobContainerMetadata: BlobAccess.BlobContainerMetadata,
         ): Triple<String, String, String> {
@@ -294,7 +276,12 @@ class TranslationSchemaManagerTests {
             "".toByteArray(),
             sourceBlobContainerMetadata
         )
-        setupValidSchema(sourceBlobContainerMetadata)
+        setupSchemaInDir(
+            TranslationSchemaManager.SchemaType.FHIR,
+            "dev/bar",
+            sourceBlobContainerMetadata,
+            "/src/test/resources/fhirengine/translation/FHIR_to_FHIR"
+        )
 
         val sourceValidationState = TranslationSchemaManager().retrieveValidationState(
             TranslationSchemaManager.SchemaType.FHIR,
@@ -355,8 +342,11 @@ class TranslationSchemaManagerTests {
         )
         val validBlobNameTimestamp =
             validBlobName.removePrefix("${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-")
-        setupValidSchema(
-            blobContainerMetadata
+        setupSchemaInDir(
+            TranslationSchemaManager.SchemaType.FHIR,
+            "dev/bar",
+            blobContainerMetadata,
+            "/src/test/resources/fhirengine/translation/FHIR_to_FHIR"
         )
         val validationStateBefore = TranslationSchemaManager().retrieveValidationState(
             TranslationSchemaManager.SchemaType.FHIR,
@@ -469,8 +459,11 @@ class TranslationSchemaManagerTests {
         val (_, previousValidBlobName, previousPreviousValidBlobName) = setupValidatingState(
             blobContainerMetadata
         )
-        setupValidSchema(
-            blobContainerMetadata
+        setupSchemaInDir(
+            TranslationSchemaManager.SchemaType.FHIR,
+            "dev/bar",
+            blobContainerMetadata,
+            "/src/test/resources/fhirengine/translation/FHIR_to_FHIR"
         )
         val previousValidTimestamp =
             previousValidBlobName.removePrefix("${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-valid-")
@@ -512,7 +505,31 @@ class TranslationSchemaManagerTests {
     }
 
     @Test
-    fun `retrieveValidationState - previous-valid blob missing`() {
+    fun `retreiveValidationState - multiple previous-previous-valid`() {
+        val blobContainerMetadata = createBlobMetadata(azuriteContainer1)
+        setupValidatingState(
+            blobContainerMetadata
+        )
+
+        BlobAccess.uploadBlob(
+            "${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-previous-valid-${
+                Instant.now().minus(15, ChronoUnit.MINUTES)
+            }.txt",
+            "".toByteArray(), blobContainerMetadata
+        )
+
+        val exception = assertThrows<TranslationSchemaManager.Companion.TranslationSyncException> {
+            TranslationSchemaManager().retrieveValidationState(
+                TranslationSchemaManager.SchemaType.FHIR,
+                blobContainerMetadata
+            )
+        }
+        assertThat(exception.message)
+            .isEqualTo("Validation state was invalid, there are multiple previous-previous-valid blobs")
+    }
+
+    @Test
+    fun `retrieveValidationState - misconfigured previous-valid blob`() {
         val blobContainerMetadata = createBlobMetadata(azuriteContainer1)
 
         val validBlobName = "${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-${Instant.now()}.txt"
@@ -522,27 +539,75 @@ class TranslationSchemaManagerTests {
             blobContainerMetadata
         )
 
-        val exception = assertThrows<TranslationSchemaManager.Companion.TranslationSyncException> {
+        val missingException = assertThrows<TranslationSchemaManager.Companion.TranslationSyncException> {
             TranslationSchemaManager().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
                 blobContainerMetadata
             )
         }
 
-        assertThat(exception.message).isEqualTo("Validation state was invalid, the previous-valid blob was missing")
+        assertThat(missingException.message)
+            .isEqualTo("Validation state was invalid, the previous-valid blob is misconfigured")
+
+        BlobAccess.uploadBlob(
+            "${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-valid-${
+                Instant.now().minus(15, ChronoUnit.MINUTES)
+            }.txt",
+            "".toByteArray(), blobContainerMetadata
+        )
+
+        BlobAccess.uploadBlob(
+            "${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-valid-${
+                Instant.now().minus(25, ChronoUnit.MINUTES)
+            }.txt",
+            "".toByteArray(), blobContainerMetadata
+        )
+
+        val tooManyException = assertThrows<TranslationSchemaManager.Companion.TranslationSyncException> {
+            TranslationSchemaManager().retrieveValidationState(
+                TranslationSchemaManager.SchemaType.FHIR,
+                blobContainerMetadata
+            )
+        }
+
+        assertThat(tooManyException.message)
+            .isEqualTo("Validation state was invalid, the previous-valid blob is misconfigured")
     }
 
     @Test
-    fun `retrieveValidationState - valid blob missing`() {
+    fun `retrieveValidationState - misconifgured valid blob`() {
         val blobContainerMetadata = createBlobMetadata(azuriteContainer1)
-        val exception = assertThrows<TranslationSchemaManager.Companion.TranslationSyncException> {
+        val missingException = assertThrows<TranslationSchemaManager.Companion.TranslationSyncException> {
             TranslationSchemaManager().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
                 blobContainerMetadata
             )
         }
 
-        assertThat(exception.message).isEqualTo("Validation state was invalid, the valid blob was missing")
+        assertThat(missingException.message).isEqualTo("Validation state was invalid, the valid blob is misconfigured")
+
+        BlobAccess.uploadBlob(
+            "${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-${
+                Instant.now().minus(15, ChronoUnit.MINUTES)
+            }.txt",
+            "".toByteArray(), blobContainerMetadata
+        )
+
+        BlobAccess.uploadBlob(
+            "${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-${
+                Instant.now().minus(25, ChronoUnit.MINUTES)
+            }.txt",
+            "".toByteArray(), blobContainerMetadata
+        )
+
+        val tooManyException = assertThrows<TranslationSchemaManager.Companion.TranslationSyncException> {
+            TranslationSchemaManager().retrieveValidationState(
+                TranslationSchemaManager.SchemaType.FHIR,
+                blobContainerMetadata
+            )
+        }
+
+        assertThat(tooManyException.message).isEqualTo("Validation state was invalid, the valid blob is misconfigured")
     }
 
     @Test
@@ -563,7 +628,12 @@ class TranslationSchemaManagerTests {
             "".toByteArray(),
             blobContainerMetadata
         )
-        setupValidSchema(blobContainerMetadata)
+        setupSchemaInDir(
+            TranslationSchemaManager.SchemaType.FHIR,
+            "dev/bar",
+            blobContainerMetadata,
+            "/src/test/resources/fhirengine/translation/FHIR_to_FHIR"
+        )
 
         val validationState = TranslationSchemaManager().retrieveValidationState(
             TranslationSchemaManager.SchemaType.FHIR,
@@ -585,7 +655,12 @@ class TranslationSchemaManagerTests {
         val (validBlobName, previousValidBlobName, previousPreviousValidBlobName) = setupValidatingState(
             blobContainerMetadata
         )
-        setupValidSchema(blobContainerMetadata)
+        setupSchemaInDir(
+            TranslationSchemaManager.SchemaType.FHIR,
+            "dev/bar",
+            blobContainerMetadata,
+            "/src/test/resources/fhirengine/translation/FHIR_to_FHIR"
+        )
 
         val validationState = TranslationSchemaManager().retrieveValidationState(
             TranslationSchemaManager.SchemaType.FHIR,

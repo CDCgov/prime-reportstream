@@ -155,14 +155,14 @@ class TranslationSchemaManager : Logging {
             )
         }
 
-        BlobAccess.uploadBlob(
-            validationState.valid.name.replace(validBlobName, previousValidBlobName),
-            "".toByteArray(),
-            blobContainerMetadata
-        )
         BlobAccess.deleteBlob(validationState.valid, blobContainerMetadata)
         BlobAccess.uploadBlob(
             "${schemaType.directory}/$validBlobName-${Instant.now()}.txt",
+            "".toByteArray(),
+            blobContainerMetadata
+        )
+        BlobAccess.uploadBlob(
+            validationState.valid.name.replace(validBlobName, previousValidBlobName),
             "".toByteArray(),
             blobContainerMetadata
         )
@@ -243,11 +243,21 @@ class TranslationSchemaManager : Logging {
     ): ValidationState {
         val allBlobs = BlobAccess.listBlobs(schemaType.directory, blobContainerInfo)
 
-        val valid = allBlobs.find { it.blobName.contains(validBlobNameRegex) }
-            ?: throw TranslationSyncException("Validation state was invalid, the valid blob was missing")
-        val previousValid = allBlobs.find { it.blobName.contains(previousValidBlobNameRegex) }
-            ?: throw TranslationSyncException("Validation state was invalid, the previous-valid blob was missing")
-        val previousPreviousValid = allBlobs.find { it.blobName.contains(previousPreviousValidBlobNameRegex) }
+        val valid = allBlobs.singleOrNull { it.blobName.contains(validBlobNameRegex) }
+            ?: throw TranslationSyncException("Validation state was invalid, the valid blob is misconfigured")
+        val previousValid = allBlobs.singleOrNull { it.blobName.contains(previousValidBlobNameRegex) }
+            ?: throw TranslationSyncException("Validation state was invalid, the previous-valid blob is misconfigured")
+        val previousPreviousValid = allBlobs.filter { it.blobName.contains(previousPreviousValidBlobNameRegex) }.let {
+            if (it.isEmpty()) {
+                null
+            } else if (it.size > 1) {
+                throw TranslationSyncException(
+                    "Validation state was invalid, there are multiple previous-previous-valid blobs"
+                )
+            } else {
+                it.first()
+            }
+        }
         val validating = allBlobs.find { it.blobName.contains(validatingBlobName) }
 
         return ValidationState(
@@ -279,12 +289,6 @@ class TranslationSchemaManager : Logging {
         sourceBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
         destinationBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
     ) {
-        BlobAccess.uploadBlob(
-            "${schemaType.directory}/validating.txt",
-            "".toByteArray(),
-            destinationBlobContainerMetadata
-        )
-        BlobAccess.copyDir(schemaType.directory, sourceBlobContainerMetadata, destinationBlobContainerMetadata)
         val sourceSchemaBlobNames = sourceValidationState.schemaBlobs.map { it.blobName }.toSet()
         val blobsToDelete =
             destinationValidationState.schemaBlobs.filterNot { sourceSchemaBlobNames.contains(it.blobName) }
@@ -296,12 +300,22 @@ class TranslationSchemaManager : Logging {
             ),
             "".toByteArray(), destinationBlobContainerMetadata
         )
+        BlobAccess.deleteBlob(destinationValidationState.previousValid, destinationBlobContainerMetadata)
+
         BlobAccess.uploadBlob(
             destinationValidationState.valid.name.replace(
                 validBlobName,
                 previousValidBlobName
             ),
             "".toByteArray(), destinationBlobContainerMetadata
+        )
+        BlobAccess.copyDir(schemaType.directory, sourceBlobContainerMetadata, destinationBlobContainerMetadata)
+        BlobAccess.deleteBlob(sourceValidationState.valid, destinationBlobContainerMetadata)
+        BlobAccess.deleteBlob(sourceValidationState.previousValid, destinationBlobContainerMetadata)
+        BlobAccess.uploadBlob(
+            "${schemaType.directory}/validating.txt",
+            "".toByteArray(),
+            destinationBlobContainerMetadata
         )
     }
 

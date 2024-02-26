@@ -31,7 +31,7 @@ class SyncTranslationSchemaCommandTests {
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
-                BlobAccess.BlobContainerMetadata("source", "container1")
+                BlobAccess.BlobContainerMetadata("container1", "source")
             )
         } returns TranslationSchemaManager.Companion.ValidationState(
             sourceValidBlob,
@@ -43,7 +43,7 @@ class SyncTranslationSchemaCommandTests {
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
-                BlobAccess.BlobContainerMetadata("destination", "container1")
+                BlobAccess.BlobContainerMetadata("container1", "destination")
             )
         } returns TranslationSchemaManager.Companion.ValidationState(
             destinationValidBlob,
@@ -79,7 +79,7 @@ class SyncTranslationSchemaCommandTests {
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
-                BlobAccess.BlobContainerMetadata("source", "container1")
+                BlobAccess.BlobContainerMetadata("container1", "source")
             )
         } returns TranslationSchemaManager.Companion.ValidationState(
             sourceValidBlob,
@@ -91,7 +91,7 @@ class SyncTranslationSchemaCommandTests {
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
-                BlobAccess.BlobContainerMetadata("destination", "container1")
+                BlobAccess.BlobContainerMetadata("container1", "destination")
             )
         } returns TranslationSchemaManager.Companion.ValidationState(
             destinationValidBlob,
@@ -124,7 +124,7 @@ class SyncTranslationSchemaCommandTests {
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
-                BlobAccess.BlobContainerMetadata("source", "container1")
+                BlobAccess.BlobContainerMetadata("container1", "source")
             )
         } returns TranslationSchemaManager.Companion.ValidationState(
             sourceValidBlob,
@@ -136,7 +136,7 @@ class SyncTranslationSchemaCommandTests {
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
-                BlobAccess.BlobContainerMetadata("destination", "container1")
+                BlobAccess.BlobContainerMetadata("container1", "destination")
             )
         } returns TranslationSchemaManager.Companion.ValidationState(
             destinationValidBlob,
@@ -169,7 +169,7 @@ class SyncTranslationSchemaCommandTests {
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
-                BlobAccess.BlobContainerMetadata("source", "container1")
+                BlobAccess.BlobContainerMetadata("container1", "source")
             )
         } returns TranslationSchemaManager.Companion.ValidationState(
             sourceValidBlob,
@@ -181,7 +181,7 @@ class SyncTranslationSchemaCommandTests {
         every {
             anyConstructed<TranslationSchemaManager>().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
-                BlobAccess.BlobContainerMetadata("destination", "container1")
+                BlobAccess.BlobContainerMetadata("container1", "destination")
             )
         } returns TranslationSchemaManager.Companion.ValidationState(
             destinationValidBlob,

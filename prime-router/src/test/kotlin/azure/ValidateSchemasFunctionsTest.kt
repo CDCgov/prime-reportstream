@@ -34,7 +34,10 @@ class ValidateSchemasFunctionsTest {
             )
         } returns Unit
 
-        ValidateSchemasFunctions().validateFHIRToFHIRSchemas(emptyArray(), mockedBlobContainerMetadata)
+        ValidateSchemasFunctions().validateSchemaChanges(
+            TranslationSchemaManager.SchemaType.FHIR,
+            mockedBlobContainerMetadata
+        )
         verify(exactly = 1) {
             anyConstructed<TranslationSchemaManager>().validateManagedSchemas(
                 TranslationSchemaManager.SchemaType.FHIR,
@@ -77,7 +80,10 @@ class ValidateSchemasFunctionsTest {
             )
         } returns Unit
 
-        ValidateSchemasFunctions().validateFHIRToFHIRSchemas(emptyArray(), mockedBlobContainerMetadata)
+        ValidateSchemasFunctions().validateSchemaChanges(
+            TranslationSchemaManager.SchemaType.FHIR,
+            mockedBlobContainerMetadata
+        )
         verify(exactly = 1) {
             anyConstructed<TranslationSchemaManager>().validateManagedSchemas(
                 TranslationSchemaManager.SchemaType.FHIR,
@@ -120,7 +126,10 @@ class ValidateSchemasFunctionsTest {
             )
         } returns Unit
 
-        ValidateSchemasFunctions().validateFHIRToHL7Schemas(emptyArray(), mockedBlobContainerMetadata)
+        ValidateSchemasFunctions().validateSchemaChanges(
+            TranslationSchemaManager.SchemaType.HL7,
+            mockedBlobContainerMetadata
+        )
         verify(exactly = 1) {
             anyConstructed<TranslationSchemaManager>().validateManagedSchemas(
                 TranslationSchemaManager.SchemaType.HL7,
@@ -163,7 +172,10 @@ class ValidateSchemasFunctionsTest {
             )
         } returns Unit
 
-        ValidateSchemasFunctions().validateFHIRToHL7Schemas(emptyArray(), mockedBlobContainerMetadata)
+        ValidateSchemasFunctions().validateSchemaChanges(
+            TranslationSchemaManager.SchemaType.HL7,
+            mockedBlobContainerMetadata
+        )
         verify(exactly = 1) {
             anyConstructed<TranslationSchemaManager>().validateManagedSchemas(
                 TranslationSchemaManager.SchemaType.HL7,

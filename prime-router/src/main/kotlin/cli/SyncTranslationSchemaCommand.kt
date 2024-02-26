@@ -61,9 +61,9 @@ class SyncTranslationSchemaCommand :
      */
     override fun run() {
         val sourceContainerMetadata =
-            BlobAccess.BlobContainerMetadata(sourceBlobStoreConnection, sourceBlobStoreContainer)
+            BlobAccess.BlobContainerMetadata(sourceBlobStoreContainer, sourceBlobStoreConnection)
         val destinationContainerMetadata =
-            BlobAccess.BlobContainerMetadata(destinationBlobStoreConnection, destinationBlobStoreContainer)
+            BlobAccess.BlobContainerMetadata(destinationBlobStoreContainer, destinationBlobStoreConnection)
 
         val sourceValidationResults =
             translationSchemaManager.validateManagedSchemas(schemaType, sourceContainerMetadata)
