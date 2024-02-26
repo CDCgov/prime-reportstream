@@ -156,9 +156,6 @@ open class Receiver(
     @get:JsonIgnore
     val useBatching: Boolean get() = translation.useBatching
 
-//    @get:JsonIgnore
-//    val pruners: List<BundlePrunable<Observation>> get() = observationFilter.map { it.resourceFilter }
-
     @get:JsonIgnore
     val pruners: List<BundlePrunable<Resource>> get() = filters.filterIsInstance<BundleResourceFilter<Resource>>().map {
         it.resourceFilter
@@ -173,9 +170,6 @@ open class Receiver(
 //        conditionFilter,
         observationFilter
     ).flatten()
-
-//    @get:JsonIgnore
-//    val prunerss: List<BundlePrunable<Observation>> get() =
 
     // adds a display name property that tries to show the external name, or the regular name if there isn't one
     @get:JsonIgnore

@@ -132,6 +132,8 @@ fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<O
  */
 fun List<Observation>.getMappedConditions() = this.flatMap { it.getMappedConditions() }.toSet()
 
+fun List<Observation>.getMappedConditionCodes() = this.flatMap { it.getMappedConditionCodes() }.toSet()
+
 /**
  * Gets mapped conditions present on all [Observation]s in a Bundle
  */

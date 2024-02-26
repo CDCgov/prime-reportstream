@@ -6,7 +6,7 @@ import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.deleteResource
-import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
+import gov.cdc.prime.router.fhirengine.utils.getMappedConditionCodes
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -84,10 +84,10 @@ class BundleConditionFilter(
     override fun pass(bundle: Bundle): Boolean =
         conditionFilter.fetchResources(bundle).filter { observation ->
             conditionFilter.evaluateResource(bundle, observation)
-        }.let {
+        }.let { observations ->
             // never pass a bundle with only AOE conditions
-            val conditions = it.getMappedConditions()
-            it.isNotEmpty() && (
+            val conditions = observations.getMappedConditionCodes()
+            observations.isNotEmpty() && (
                 conditions.isEmpty() ||
                     !conditions.all { it.equals("AOE", true) }
                 )
@@ -127,7 +127,7 @@ open class ConditionCodePruner(val codes: String) : ObservationPrunable {
     open val codeList = codes.split(",").map { it.trim() }
 
     override fun evaluateResource(bundle: Bundle, resource: Observation): Boolean =
-        resource.getMappedConditions().any(codeList::contains)
+        resource.getMappedConditionCodes().any(codeList::contains)
 }
 
 /**
