@@ -1,8 +1,8 @@
 import {
     Button,
-    ComboBox,
     DateRangePicker,
     Icon,
+    Select,
     TimePicker,
     Tooltip,
 } from "@trussworks/react-uswds";
@@ -17,6 +17,7 @@ import {
 } from "react";
 
 import styles from "./TableFilters.module.scss";
+import { RSReceiver } from "../../config/endpoints/settings";
 import {
     CursorActionType,
     CursorManager,
@@ -47,6 +48,7 @@ interface TableFilterProps {
     setService?: Dispatch<SetStateAction<string | undefined>>;
     showDateHints?: boolean;
     startDateLabel: string;
+    initialService: RSReceiver;
 }
 
 // using a regex to check for format because of different browsers' implementations of Date
@@ -77,6 +79,7 @@ function TableFilters({
     setService,
     showDateHints,
     startDateLabel,
+    initialService,
 }: TableFilterProps) {
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
@@ -85,9 +88,9 @@ function TableFilters({
     const formRef = useRef<HTMLFormElement>(null);
     const [startTime, setStartTime] = useState(DEFAULT_TIME);
     const [endTime, setEndTime] = useState(DEFAULT_TIME);
-    const [currentServiceSelect, setCurrentServiceSelect] = useState<
-        string | undefined
-    >(undefined);
+    const [currentServiceSelect, setCurrentServiceSelect] = useState<string>(
+        initialService?.name,
+    );
     const [reset, setReset] = useState(0);
 
     const updateRange = useCallback(
@@ -167,11 +170,11 @@ function TableFilters({
             setRangeTo(undefined);
             setStartTime(DEFAULT_TIME);
             setEndTime(DEFAULT_TIME);
-            setCurrentServiceSelect(undefined);
-            setService?.(undefined);
+            setCurrentServiceSelect(initialService.name);
+            setService?.(initialService.name);
             filterManager.resetAll();
         },
-        [filterManager, reset, setService],
+        [filterManager, initialService.name, reset, setService],
     );
 
     const submitHandler = useCallback(
@@ -227,15 +230,24 @@ function TableFilters({
                                 <Icon.Help />
                             </Tooltip>
                         </label>
-                        <ComboBox
+                        <Select
                             key={receivers.length}
                             id="receiver-dropdown"
                             name="receiver-dropdown"
-                            options={receivers}
-                            onChange={(selection) => {
-                                setCurrentServiceSelect(selection);
+                            onChange={(e) => {
+                                setCurrentServiceSelect(e.target.value);
                             }}
-                        />
+                            defaultValue={currentServiceSelect}
+                        >
+                            {receivers?.map((receiver) => (
+                                <option
+                                    key={receiver.value}
+                                    value={receiver.value}
+                                >
+                                    {receiver.value}
+                                </option>
+                            ))}
+                        </Select>
                     </div>
                     <div className="grid-col-auto filter-column__two">
                         <DateRangePicker
