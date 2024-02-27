@@ -199,7 +199,8 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         // map of HL7 message profiles: maps name of profile to configuration directory path
         val messageProfileMap: Map<MessageProfile, String> = emptyMap()
 
-        data class MessageProfile(val msh9: String, val msh21: String)
+        // data class to uniquely identify a message profile
+        data class MessageProfile(val typeID: String, val profileID: String)
 
         /**
          * Get the [message] timestamp from MSH-7.
@@ -226,16 +227,16 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         }
 
         /**
-         * Get the profile of the [message]
-         * @return the profile of message
+         * Get the profile of the [rawmessage]
+         * @return the message profile
          */
-        fun getMessageProfile(message: String): MessageProfile? {
-            val iterator = Hl7InputStreamMessageIterator(message.byteInputStream())
+        fun getMessageProfile(rawmessage: String): MessageProfile? {
+            val iterator = Hl7InputStreamMessageIterator(rawmessage.byteInputStream())
             if (!iterator.hasNext()) return null
             val hl7message = iterator.next()
             val msh9 = Terser(hl7message).get("MSH-9")
             val msh21 = Terser(hl7message).get("MSH-21")
-            return MessageProfile(msh9, msh21)
+            return MessageProfile(msh9 ?: "", msh21 ?: "")
         }
 
         /**

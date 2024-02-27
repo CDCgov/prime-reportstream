@@ -27,6 +27,7 @@ import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.LookupTable
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -268,6 +269,36 @@ class FhirConverterTests {
         verify(atLeast = 1) {
             actionLogger.error(any<ActionLogDetail>())
         }
+    }
+
+    @Test
+    fun `test getContentFromHL7 alternate profile`() {
+        val testProfile = HL7Reader.Companion.MessageProfile("ORU", "PHLabReport-NoAck")
+
+        mockkClass(HL7Reader::class)
+        mockkObject(HL7Reader.Companion)
+        every { HL7Reader.Companion.messageProfileMap.get(testProfile) } returns "./metadata/test_fhir_mapping"
+
+        val actionLogger = spyk(ActionLogger())
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val message = spyk(
+            FhirConvertQueueMessage(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR
+            )
+        )
+
+        every { message.downloadContent() }
+            .returns(validHl7)
+
+        val result = engine.getContentFromHL7(message, actionLogger)
+
+        // the test fhir mappings produce far fewer entries than the production ones
+        assertThat(result).isNotEmpty()
+        assertThat(result[0].entry.size).isEqualTo(5)
     }
 
     @Test
