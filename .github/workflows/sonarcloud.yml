@@ -31,7 +31,7 @@ jobs:
       - name: Increase swapfile
         run: |
           sudo swapoff -a
-          sudo fallocate -l 30G /mnt/swapfile
+          sudo fallocate -l 15G /mnt/swapfile
           sudo chmod 600 /mnt/swapfile
           sudo mkswap /mnt/swapfile
           sudo swapon /mnt/swapfile
@@ -56,22 +56,43 @@ jobs:
             backend:
               - 'prime-router/**'
 
+      - name: Set up JDK 17
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: actions/setup-java@v2
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "gradle"
+
+      - name: Gradle Validation
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: gradle/wrapper-validation-action@699bb18358f12c5b78b37bb0111d3a0e2276e0e2
+
+      - name: Spin up build containers
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        working-directory: prime-router
+        run: docker-compose -f docker-compose.postgres.yml up -d
+
       - name: Initialize CodeQL
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v2
         with:
           languages: ${{ matrix.language }}
 
-      - name: Build backend
-        uses: ./.github/actions/build-backend
+      - name: Build Prime Router Package
+        uses: ./.github/actions/retry
         with:
-          version: ${{ github.run_id }}
-          upload-build: false
-          run-integration-tests: true
+          timeout_minutes: 30
+          max_attempts: 2
+          retry_wait_seconds: 30
+          command: |
+            cd prime-router
+            ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar/gradlew package -x fatjar -Pshowtests
+          shell: bash
 
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v2
 
       - name: Use Node.js with yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
