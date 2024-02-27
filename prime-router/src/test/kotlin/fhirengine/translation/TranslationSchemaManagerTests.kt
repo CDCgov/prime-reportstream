@@ -53,13 +53,13 @@ class TranslationSchemaManagerTests {
     }
 
     companion object {
-        private fun createBlobMetadata(container: GenericContainer<*>): BlobAccess.BlobContainerMetadata {
+        internal fun createBlobMetadata(container: GenericContainer<*>): BlobAccess.BlobContainerMetadata {
             val blobEndpoint = "http://${container.host}:${
                 container.getMappedPort(
                     10000
                 )
             }/devstoreaccount1"
-            val containerName = "container1"
+            val containerName = "metadata"
             return BlobAccess.BlobContainerMetadata(
                 containerName,
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=$blobEndpoint;QueueEndpoint=http://${container.host}:${
@@ -70,7 +70,7 @@ class TranslationSchemaManagerTests {
             )
         }
 
-        private fun setupSchemaInDir(
+        internal fun setupSchemaInDir(
             schemaType: TranslationSchemaManager.SchemaType,
             dir: String,
             blobContainerMetadata: BlobAccess.BlobContainerMetadata,
@@ -143,6 +143,26 @@ class TranslationSchemaManagerTests {
                 blobContainerMetadata
             )
             return Triple(validBlobName, previousValidBlobName, previousPreviousValidBlobName)
+        }
+
+        internal fun setupValidState(
+            blobContainerMetadata: BlobAccess.BlobContainerMetadata,
+        ): Pair<String, String> {
+            val validBlobName = "${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-${Instant.now()}.txt"
+            BlobAccess.uploadBlob(
+                validBlobName,
+                "".toByteArray(),
+                blobContainerMetadata
+            )
+            val previousValidBlobName = "${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-valid-${
+                Instant.now().minus(5, ChronoUnit.MINUTES)
+            }.txt"
+            BlobAccess.uploadBlob(
+                previousValidBlobName,
+                "".toByteArray(),
+                blobContainerMetadata
+            )
+            return Pair(validBlobName, previousValidBlobName)
         }
     }
 

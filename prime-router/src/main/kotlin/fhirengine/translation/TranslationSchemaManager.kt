@@ -161,12 +161,12 @@ class TranslationSchemaManager : Logging {
             "".toByteArray(),
             blobContainerMetadata
         )
+        BlobAccess.deleteBlob(validationState.previousValid, blobContainerMetadata)
         BlobAccess.uploadBlob(
             validationState.valid.name.replace(validBlobName, previousValidBlobName),
             "".toByteArray(),
             blobContainerMetadata
         )
-        BlobAccess.deleteBlob(validationState.previousValid, blobContainerMetadata)
         if (validationState.validating != null) {
             BlobAccess.deleteBlob(validationState.validating, blobContainerMetadata)
         } else {
