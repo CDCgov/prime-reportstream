@@ -234,7 +234,12 @@ class ProcessFhirCommands : CliktCommand(
             val msh = message.get("MSH") as Segment
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
         }
-        return Pair(HL7toFhirTranslator().translate(message), message)
+        val hl7profile = HL7Reader.getMessageProfile(message.toString())
+        // search hl7 profile map and create translator with config path if found
+        return when (val configPath = HL7Reader.messageProfileMap[hl7profile]) {
+            null -> Pair(HL7toFhirTranslator().translate(message), message)
+            else -> Pair(HL7toFhirTranslator(configPath).translate(message), message)
+        }
     }
 
     /**
