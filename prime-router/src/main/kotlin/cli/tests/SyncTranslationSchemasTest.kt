@@ -142,11 +142,11 @@ class SyncTranslationSchemasTest : CoolTest() {
     }
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-//        val ci = System.getenv("CI")
-//        if (ci == null || ci != "CI") {
-//            echo("This test is only configured to run during CI to prevent deleting local work")
-//            return true
-//        }
+        val ci = System.getenv("CI")
+        if (ci == null || ci != "CI") {
+            echo("This test is only configured to run during CI to prevent deleting local work")
+            return true
+        }
         val containerName = "metadata"
         val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(containerName, sourceConnectionString)
         val destinationBlobContainerMetadata =

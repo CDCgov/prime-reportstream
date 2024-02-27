@@ -113,13 +113,7 @@ class TranslationSchemaManagerTests {
 
         private fun setupValidatingState(
             blobContainerMetadata: BlobAccess.BlobContainerMetadata,
-        ): Triple<String, String, String> {
-            val validBlobName = "${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-${Instant.now()}.txt"
-            BlobAccess.uploadBlob(
-                validBlobName,
-                "".toByteArray(),
-                blobContainerMetadata
-            )
+        ): Pair<String, String> {
             val previousValidBlobName = "${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-valid-${
                 Instant.now().minus(5, ChronoUnit.MINUTES)
             }.txt"
@@ -130,7 +124,7 @@ class TranslationSchemaManagerTests {
             )
             val previousPreviousValidBlobName =
                 "${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-previous-valid-${
-                    Instant.now().minus(5, ChronoUnit.MINUTES)
+                    Instant.now().minus(15, ChronoUnit.MINUTES)
                 }.txt"
             BlobAccess.uploadBlob(
                 previousPreviousValidBlobName,
@@ -142,7 +136,7 @@ class TranslationSchemaManagerTests {
                 "".toByteArray(),
                 blobContainerMetadata
             )
-            return Triple(validBlobName, previousValidBlobName, previousPreviousValidBlobName)
+            return Pair(previousValidBlobName, previousPreviousValidBlobName)
         }
 
         internal fun setupValidState(
@@ -258,7 +252,7 @@ class TranslationSchemaManagerTests {
         assertThat(destinationValidationStateAfter.validating).isNotNull()
         assertThat(destinationValidationStateAfter.previousPreviousValid).isNotNull()
         assertThat(destinationValidationStateAfter.previousValid).isNotNull()
-        assertThat(destinationValidationStateAfter.valid).isNotNull()
+        assertThat(destinationValidationStateAfter.valid).isNull()
         assertThat(destinationValidationStateAfter.schemaBlobs).hasSize(3)
         assertThat(destinationValidationStateAfter.schemaBlobs.map { it.blobName }.toSet())
             .isEqualTo(
@@ -350,18 +344,21 @@ class TranslationSchemaManagerTests {
         assertThat(destinationValidationStateAfter.validating).isNotNull()
         assertThat(destinationValidationStateAfter.previousPreviousValid).isNotNull()
         assertThat(destinationValidationStateAfter.previousValid).isNotNull()
-        assertThat(destinationValidationStateAfter.valid).isNotNull()
+        assertThat(destinationValidationStateAfter.valid).isNull()
         assertThat(destinationValidationStateAfter.schemaBlobs).hasSize(3)
     }
 
     @Test
     fun `handleValidationSuccess - all files present`() {
         val blobContainerMetadata = createBlobMetadata(azuriteContainer1)
-        val (validBlobName, _, _) = setupValidatingState(
+        val (previousValidBlobName, previousPreviousValidBlobName) = setupValidatingState(
             blobContainerMetadata
         )
-        val validBlobNameTimestamp =
-            validBlobName.removePrefix("${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-")
+        val previousValidBlobNameTimestamp =
+            previousValidBlobName.removePrefix("${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-valid-")
+        val previousPreviousValidBlobNameTimestamp =
+            previousPreviousValidBlobName
+                .removePrefix("${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-previous-valid-")
         setupSchemaInDir(
             TranslationSchemaManager.SchemaType.FHIR,
             "dev/bar",
@@ -385,9 +382,9 @@ class TranslationSchemaManagerTests {
         assertThat(validationStateAfter.previousPreviousValid).isNull()
         assertThat(validationStateAfter.validating).isNull()
         assertThat(validationStateAfter.valid).isNotNull().transform { it.name }
-            .doesNotContain(validBlobNameTimestamp)
+            .doesNotContain(previousValidBlobNameTimestamp)
         assertThat(validationStateAfter.previousValid).isNotNull().transform { it.name }
-            .contains(validBlobNameTimestamp)
+            .doesNotContain(previousPreviousValidBlobNameTimestamp)
     }
 
     @Test
@@ -415,14 +412,7 @@ class TranslationSchemaManagerTests {
         )
 
         verify(exactly = 1) {
-            BlobAccess.uploadBlob(
-                validBlob.name.replace("valid", "previous-valid"),
-                "".toByteArray(),
-                mockBlobContainerMetadata
-            )
             BlobAccess.uploadBlob(match { it.contains("/valid-") }, "".toByteArray(), mockBlobContainerMetadata)
-            BlobAccess.deleteBlob(validBlob, mockBlobContainerMetadata)
-            BlobAccess.deleteBlob(previousValidBlob, mockBlobContainerMetadata)
         }
     }
 
@@ -463,20 +453,18 @@ class TranslationSchemaManagerTests {
                 "".toByteArray(),
                 mockBlobContainerMetadata
             )
-            BlobAccess.deleteBlob(validBlob, mockBlobContainerMetadata)
             BlobAccess.uploadBlob(
                 match { it.contains("/previous-valid-") },
                 "".toByteArray(),
                 mockBlobContainerMetadata
             )
-            BlobAccess.deleteBlob(previousValidBlob, mockBlobContainerMetadata)
         }
     }
 
     @Test
     fun `handleValidationFailure - all files present`() {
         val blobContainerMetadata = createBlobMetadata(azuriteContainer1)
-        val (_, previousValidBlobName, previousPreviousValidBlobName) = setupValidatingState(
+        val (previousValidBlobName, previousPreviousValidBlobName) = setupValidatingState(
             blobContainerMetadata
         )
         setupSchemaInDir(
@@ -595,8 +583,25 @@ class TranslationSchemaManagerTests {
     }
 
     @Test
-    fun `retrieveValidationState - misconifgured valid blob`() {
+    fun `retrieveValidationState - misconfigured valid blob`() {
         val blobContainerMetadata = createBlobMetadata(azuriteContainer1)
+        val previousValidBlobName = "${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-valid-${
+            Instant.now().minus(5, ChronoUnit.MINUTES)
+        }.txt"
+        BlobAccess.uploadBlob(
+            previousValidBlobName,
+            "".toByteArray(),
+            blobContainerMetadata
+        )
+        val previousPreviousValidBlobName =
+            "${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-previous-valid-${
+                Instant.now().minus(15, ChronoUnit.MINUTES)
+            }.txt"
+        BlobAccess.uploadBlob(
+            previousPreviousValidBlobName,
+            "".toByteArray(),
+            blobContainerMetadata
+        )
         val missingException = assertThrows<TranslationSchemaManager.Companion.TranslationSyncException> {
             TranslationSchemaManager().retrieveValidationState(
                 TranslationSchemaManager.SchemaType.FHIR,
@@ -604,7 +609,12 @@ class TranslationSchemaManagerTests {
             )
         }
 
-        assertThat(missingException.message).isEqualTo("Validation state was invalid, the valid blob is misconfigured")
+        assertThat(missingException.message)
+            .isEqualTo(
+                """Validation state was invalid, the valid blob is misconfigured. 
+                    |It is either duplicated or not present when the state is not being validated
+""".trimMargin()
+            )
 
         BlobAccess.uploadBlob(
             "${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-${
@@ -627,11 +637,15 @@ class TranslationSchemaManagerTests {
             )
         }
 
-        assertThat(tooManyException.message).isEqualTo("Validation state was invalid, the valid blob is misconfigured")
+        assertThat(tooManyException.message).isEqualTo(
+            """Validation state was invalid, the valid blob is misconfigured. 
+                    |It is either duplicated or not present when the state is not being validated
+""".trimMargin()
+        )
     }
 
     @Test
-    fun `retrieveValidationState - validating and previous-previous missing`() {
+    fun `retrieveValidationState - not currently validting`() {
         val blobContainerMetadata = createBlobMetadata(azuriteContainer1)
 
         val validBlobName = "${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-${Instant.now()}.txt"
@@ -660,7 +674,7 @@ class TranslationSchemaManagerTests {
             blobContainerMetadata
         )
 
-        assertThat(validationState.valid).isNotNull().transform { validationState.valid.name }.contains(validBlobName)
+        assertThat(validationState.valid).isNotNull().transform { validationState.valid!!.name }.contains(validBlobName)
         assertThat(validationState.previousValid).isNotNull().transform { validationState.previousValid.name }
             .contains(previousValidBlobName)
         assertThat(validationState.previousPreviousValid).isNull()
@@ -669,10 +683,10 @@ class TranslationSchemaManagerTests {
     }
 
     @Test
-    fun `retrieveValidationState - all files present`() {
+    fun `retrieveValidationState - currently validating`() {
         val blobContainerMetadata = createBlobMetadata(azuriteContainer1)
 
-        val (validBlobName, previousValidBlobName, previousPreviousValidBlobName) = setupValidatingState(
+        val (previousValidBlobName, previousPreviousValidBlobName) = setupValidatingState(
             blobContainerMetadata
         )
         setupSchemaInDir(
@@ -687,7 +701,7 @@ class TranslationSchemaManagerTests {
             blobContainerMetadata
         )
 
-        assertThat(validationState.valid).isNotNull().transform { validationState.valid.name }.contains(validBlobName)
+        assertThat(validationState.valid).isNull()
         assertThat(validationState.previousValid).isNotNull().transform { validationState.previousValid.name }
             .contains(previousValidBlobName)
         assertThat(validationState.previousPreviousValid).isNotNull()

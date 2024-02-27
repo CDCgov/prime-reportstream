@@ -67,7 +67,7 @@ services:
     # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
     volumes:
       # map to Azurite data objects to the build directory
-      - ./build/azurite:/data
+      - ./build/azurite-stage:/data
     ports:
       - "11000:10000"
       - "11001:10001"

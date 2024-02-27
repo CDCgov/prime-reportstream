@@ -442,13 +442,6 @@ tasks.register("testS2S") {
     finalizedBy("primeCLI")
 }
 
-tasks.register("testSyncS") {
-    group = rootProject.description ?: ""
-    description = "Run sync test"
-    project.extra["cliArgs"] = listOf("test", "--run", "sync-translation-schemas")
-    finalizedBy("primeCLI")
-}
-
 tasks.register("generateDocs") {
     group = rootProject.description ?: ""
     description = "Generate the schema documentation in markup format"

@@ -47,7 +47,7 @@ class TranslationSchemaManager : Logging {
          * @param schemaBlobs the list of all schemas, inputs and outputs
          */
         data class ValidationState(
-            val valid: BlobItem,
+            val valid: BlobItem?,
             val previousValid: BlobItem,
             val previousPreviousValid: BlobItem?,
             val validating: BlobItem?,
@@ -57,6 +57,9 @@ class TranslationSchemaManager : Logging {
              * Helper function that checks if the passed state has been synced more recently
              */
             fun isOutOfDate(otherValidationState: ValidationState): Boolean {
+                if (this.valid == null || otherValidationState.valid == null) {
+                    throw TranslationSyncException("Cannot compare validation states while a validation is in progress")
+                }
                 return this.valid.name < otherValidationState.valid.name
             }
         }
@@ -145,6 +148,7 @@ class TranslationSchemaManager : Logging {
         validationState: ValidationState,
         blobContainerMetadata: BlobAccess.BlobContainerMetadata,
     ) {
+        // Delete the previous-previous-valid blob
         if (validationState.previousPreviousValid != null) {
             BlobAccess.deleteBlob(validationState.previousPreviousValid, blobContainerMetadata)
         } else {
@@ -155,22 +159,14 @@ class TranslationSchemaManager : Logging {
             )
         }
 
-        // Delete the old valid blob and upload a new one with the current time
-        BlobAccess.deleteBlob(validationState.valid, blobContainerMetadata)
+        // Upload a valid blob with the current timestamp
         BlobAccess.uploadBlob(
             "${schemaType.directory}/$validBlobName-${Instant.now()}.txt",
             "".toByteArray(),
             blobContainerMetadata
         )
 
-        // Delete the old previous-valid blob and upload a new one with the time taken from the old valid blob
-        BlobAccess.deleteBlob(validationState.previousValid, blobContainerMetadata)
-        BlobAccess.uploadBlob(
-            validationState.valid.name.replace(validBlobName, previousValidBlobName),
-            "".toByteArray(),
-            blobContainerMetadata
-        )
-
+        // Delete the validating blob
         if (validationState.validating != null) {
             BlobAccess.deleteBlob(validationState.validating, blobContainerMetadata)
         } else {
@@ -199,14 +195,15 @@ class TranslationSchemaManager : Logging {
         // Restore the most recent version of each schema, input and output
         validationState.schemaBlobs.forEach { BlobAccess.restorePreviousVersion(it, blobContainerMetadata) }
 
+        // Restore the valid blob using the current previous-valid blob
         BlobAccess.uploadBlob(
             validationState.previousValid.name.replace(previousValidBlobName, validBlobName),
             "".toByteArray(),
             blobContainerMetadata
         )
-        BlobAccess.deleteBlob(validationState.valid, blobContainerMetadata)
 
         // Rename previous-previous-valid blob to previous-valid blob and delete the previous-valid blob
+        BlobAccess.deleteBlob(validationState.previousValid, blobContainerMetadata)
         if (validationState.previousPreviousValid != null) {
             BlobAccess.uploadBlob(
                 validationState.previousPreviousValid.name.replace(
@@ -229,9 +226,8 @@ class TranslationSchemaManager : Logging {
                 blobContainerMetadata
             )
         }
-        BlobAccess.deleteBlob(validationState.previousValid, blobContainerMetadata)
 
-        // Delete the validating.txt file
+        // Delete the validating blob
         if (validationState.validating != null) {
             BlobAccess.deleteBlob(validationState.validating, blobContainerMetadata)
         } else {
@@ -253,7 +249,6 @@ class TranslationSchemaManager : Logging {
         val allBlobs = BlobAccess.listBlobs(schemaType.directory, blobContainerInfo)
 
         val valid = allBlobs.singleOrNull { it.blobName.contains(validBlobNameRegex) }
-            ?: throw TranslationSyncException("Validation state was invalid, the valid blob is misconfigured")
         val previousValid = allBlobs.singleOrNull { it.blobName.contains(previousValidBlobNameRegex) }
             ?: throw TranslationSyncException("Validation state was invalid, the previous-valid blob is misconfigured")
         val previousPreviousValid = allBlobs.filter { it.blobName.contains(previousPreviousValidBlobNameRegex) }.let {
@@ -269,8 +264,16 @@ class TranslationSchemaManager : Logging {
         }
         val validating = allBlobs.find { it.blobName.contains(validatingBlobName) }
 
+        if (validating == null && valid == null) {
+            throw TranslationSyncException(
+                """Validation state was invalid, the valid blob is misconfigured. 
+                    |It is either duplicated or not present when the state is not being validated
+""".trimMargin()
+            )
+        }
+
         return ValidationState(
-            valid.currentBlobItem,
+            valid?.currentBlobItem,
             previousValid.currentBlobItem,
             previousPreviousValid?.currentBlobItem,
             validating?.currentBlobItem,
@@ -298,7 +301,10 @@ class TranslationSchemaManager : Logging {
         sourceBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
         destinationBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
     ) {
-        // Upload a new previous-valid blob with time of the valid blbo and delete the old one
+        // Upload a new previous-valid blob with time of the valid blob and delete the old one
+        if (destinationValidationState.valid == null) {
+            throw TranslationSyncException("Valid blob is unexpectedly missing, aborting sync")
+        }
         BlobAccess.deleteBlob(destinationValidationState.previousValid, destinationBlobContainerMetadata)
         BlobAccess.uploadBlob(
             destinationValidationState.valid.name.replace(
@@ -307,6 +313,18 @@ class TranslationSchemaManager : Logging {
             ),
             "".toByteArray(), destinationBlobContainerMetadata
         )
+
+        // Create a previous-previous-valid blob with the timestamp from the previous-valid blob
+        BlobAccess.uploadBlob(
+            destinationValidationState.previousValid.name.replace(
+                previousValidBlobName,
+                previousPreviousValidBlobName
+            ),
+            "".toByteArray(), destinationBlobContainerMetadata
+        )
+
+        // Delete the valid blob
+        BlobAccess.deleteBlob(destinationValidationState.valid, destinationBlobContainerMetadata)
 
         // Copy all the files between the two azure stores
         BlobAccess.copyDir(
@@ -319,17 +337,6 @@ class TranslationSchemaManager : Logging {
         val blobsToDelete =
             destinationValidationState.schemaBlobs.filterNot { sourceSchemaBlobNames.contains(it.blobName) }
         blobsToDelete.forEach { BlobAccess.deleteBlob(it.currentBlobItem, destinationBlobContainerMetadata) }
-
-        // Create a previous-previous-valid blob with the timestamp from the previous-valid blob
-        BlobAccess.uploadBlob(
-            destinationValidationState.previousValid.name.replace(
-                previousValidBlobName,
-                previousPreviousValidBlobName
-            ),
-            "".toByteArray(), destinationBlobContainerMetadata
-        )
-//        BlobAccess.deleteBlob(sourceValidationState.valid, destinationBlobContainerMetadata)
-//        BlobAccess.deleteBlob(sourceValidationState.previousValid, destinationBlobContainerMetadata)
 
         // Upload the validating.txt to trigger the validation azure function for the schema type
         BlobAccess.uploadBlob(
