@@ -220,11 +220,16 @@ class BlobAccess() : Logging {
          * @param source - the source account to copy from
          * @param destination - the destination to copy to
          */
-        fun copyDir(directory: String, source: BlobContainerMetadata, destination: BlobContainerMetadata) {
+        fun copyDir(
+            directory: String,
+            source: BlobContainerMetadata,
+            destination: BlobContainerMetadata,
+            blobFilter: (blob: BlobItemAndPreviousVersions) -> Boolean = { _ -> true },
+        ) {
             val sourceContainer = getBlobContainer(source)
             val destinationContainer = getBlobContainer(destination)
             val blobsToCopy = listBlobs(directory, source)
-            blobsToCopy.forEach { blob ->
+            blobsToCopy.filter(blobFilter).forEach { blob ->
                 val sourceBlobClient = sourceContainer.getBlobClient(blob.currentBlobItem.name)
                 val destinationBlobClient = destinationContainer.getBlobClient(blob.currentBlobItem.name)
                 // Azurite does not support copying between instances of azurite
@@ -327,6 +332,14 @@ class BlobAccess() : Logging {
             return stream.toByteArray()
         }
 
+        /**
+         * Helper function that converts a [BlobItem] into a blob URL and downloads it
+         *
+         * @param blobItem the item to download
+         * @param blobConnInfo the azure blob store to download from
+         * @param retries number of download retries
+         * @return the byte array with contents of the blob
+         */
         fun downloadBlobAsByteArray(
             blobItem: BlobItem,
             blobConnInfo: BlobContainerMetadata,
@@ -373,7 +386,7 @@ class BlobAccess() : Logging {
          * Accepts a [BlobItemAndPreviousVersions] and grabs the most recent previous version and updates
          * the blob to it.
          *
-         * If the list of previous versions are empty (meaning there is nothing to restore) and an error is logged
+         * If the list of previous versions is empty (meaning there is nothing to restore), an error is logged
          * and nothing occurs
          *
          * @param blobItemAndPreviousVersions - the blob to restore the most recent previous version

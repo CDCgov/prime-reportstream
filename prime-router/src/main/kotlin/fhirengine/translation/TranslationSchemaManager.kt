@@ -150,30 +150,34 @@ class TranslationSchemaManager : Logging {
         } else {
             logger.warn(
                 """The previous-previous-valid file was not unexpectedly not present. 
-                |This indicates there might be a bug, but does not cause any issues
-""".trimMargin()
+                |This indicates there might be a bug, but does not cause any execution issues.
+                """.trimMargin()
             )
         }
 
+        // Delete the old valid blob and upload a new one with the current time
         BlobAccess.deleteBlob(validationState.valid, blobContainerMetadata)
         BlobAccess.uploadBlob(
             "${schemaType.directory}/$validBlobName-${Instant.now()}.txt",
             "".toByteArray(),
             blobContainerMetadata
         )
+
+        // Delete the old previous-valid blob and upload a new one with the time taken from the old valid blob
         BlobAccess.deleteBlob(validationState.previousValid, blobContainerMetadata)
         BlobAccess.uploadBlob(
             validationState.valid.name.replace(validBlobName, previousValidBlobName),
             "".toByteArray(),
             blobContainerMetadata
         )
+
         if (validationState.validating != null) {
             BlobAccess.deleteBlob(validationState.validating, blobContainerMetadata)
         } else {
             logger.warn(
                 """The validating.txt was found after successfully syncing and validating. 
-                |This indicates there might be a bug, but does not cause any issues
-""".trimMargin()
+                |This indicates there might be a bug, but does not cause any execution issues.
+                """.trimMargin()
             )
         }
     }
@@ -192,13 +196,17 @@ class TranslationSchemaManager : Logging {
         validationState: ValidationState,
         blobContainerMetadata: BlobAccess.BlobContainerMetadata,
     ) {
+        // Restore the most recent version of each schema, input and output
         validationState.schemaBlobs.forEach { BlobAccess.restorePreviousVersion(it, blobContainerMetadata) }
+
         BlobAccess.uploadBlob(
             validationState.previousValid.name.replace(previousValidBlobName, validBlobName),
             "".toByteArray(),
             blobContainerMetadata
         )
         BlobAccess.deleteBlob(validationState.valid, blobContainerMetadata)
+
+        // Rename previous-previous-valid blob to previous-valid blob and delete the previous-valid blob
         if (validationState.previousPreviousValid != null) {
             BlobAccess.uploadBlob(
                 validationState.previousPreviousValid.name.replace(
@@ -213,7 +221,7 @@ class TranslationSchemaManager : Logging {
                 """No previous-previous-valid file found while rolling back from a validation error. 
                 |Creating a new previous-valid from five minutes ago.  
                 |This likely indicates that there is a bug that needs to be resolved
-""".trimMargin()
+                """.trimMargin()
             )
             BlobAccess.uploadBlob(
                 "${schemaType.directory}/$previousValidBlobName-${Instant.now().minus(15, ChronoUnit.MINUTES)}",
@@ -223,6 +231,7 @@ class TranslationSchemaManager : Logging {
         }
         BlobAccess.deleteBlob(validationState.previousValid, blobContainerMetadata)
 
+        // Delete the validating.txt file
         if (validationState.validating != null) {
             BlobAccess.deleteBlob(validationState.validating, blobContainerMetadata)
         } else {
@@ -289,19 +298,8 @@ class TranslationSchemaManager : Logging {
         sourceBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
         destinationBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
     ) {
-        val sourceSchemaBlobNames = sourceValidationState.schemaBlobs.map { it.blobName }.toSet()
-        val blobsToDelete =
-            destinationValidationState.schemaBlobs.filterNot { sourceSchemaBlobNames.contains(it.blobName) }
-        blobsToDelete.forEach { BlobAccess.deleteBlob(it.currentBlobItem, destinationBlobContainerMetadata) }
-        BlobAccess.uploadBlob(
-            destinationValidationState.previousValid.name.replace(
-                previousValidBlobName,
-                previousPreviousValidBlobName
-            ),
-            "".toByteArray(), destinationBlobContainerMetadata
-        )
+        // Upload a new previous-valid blob with time of the valid blbo and delete the old one
         BlobAccess.deleteBlob(destinationValidationState.previousValid, destinationBlobContainerMetadata)
-
         BlobAccess.uploadBlob(
             destinationValidationState.valid.name.replace(
                 validBlobName,
@@ -309,9 +307,31 @@ class TranslationSchemaManager : Logging {
             ),
             "".toByteArray(), destinationBlobContainerMetadata
         )
-        BlobAccess.copyDir(schemaType.directory, sourceBlobContainerMetadata, destinationBlobContainerMetadata)
-        BlobAccess.deleteBlob(sourceValidationState.valid, destinationBlobContainerMetadata)
-        BlobAccess.deleteBlob(sourceValidationState.previousValid, destinationBlobContainerMetadata)
+
+        // Copy all the files between the two azure stores
+        BlobAccess.copyDir(
+            schemaType.directory,
+            sourceBlobContainerMetadata,
+            destinationBlobContainerMetadata
+        ) { blob -> !blob.blobName.endsWith(".txt") }
+        val sourceSchemaBlobNames = sourceValidationState.schemaBlobs.map { it.blobName }.toSet()
+        // Delete all the blobs present in the destination but no longer present in the soruce
+        val blobsToDelete =
+            destinationValidationState.schemaBlobs.filterNot { sourceSchemaBlobNames.contains(it.blobName) }
+        blobsToDelete.forEach { BlobAccess.deleteBlob(it.currentBlobItem, destinationBlobContainerMetadata) }
+
+        // Create a previous-previous-valid blob with the timestamp from the previous-valid blob
+        BlobAccess.uploadBlob(
+            destinationValidationState.previousValid.name.replace(
+                previousValidBlobName,
+                previousPreviousValidBlobName
+            ),
+            "".toByteArray(), destinationBlobContainerMetadata
+        )
+//        BlobAccess.deleteBlob(sourceValidationState.valid, destinationBlobContainerMetadata)
+//        BlobAccess.deleteBlob(sourceValidationState.previousValid, destinationBlobContainerMetadata)
+
+        // Upload the validating.txt to trigger the validation azure function for the schema type
         BlobAccess.uploadBlob(
             "${schemaType.directory}/validating.txt",
             "".toByteArray(),

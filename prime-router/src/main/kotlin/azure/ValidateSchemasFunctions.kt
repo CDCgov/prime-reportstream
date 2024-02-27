@@ -6,6 +6,11 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.TranslationSchemaManager
 
+/**
+ * Functions in this class are part of the workflow to sync translation schemas between azure blob stores.  There exists
+ * one for each kind of schema (FHIR->FHIR, FHIR->HL7) and each function is triggered when a validating.txt blob is
+ * added to the respective directory.
+ */
 class ValidateSchemasFunctions {
 
     private val translationSchemaManager = TranslationSchemaManager()
@@ -13,8 +18,7 @@ class ValidateSchemasFunctions {
     /**
      * Validates the FHIR -> FHIR schemas when validating.txt is added to the store
      *
-     * @param validatingFile the trigger for the function being executed
-     * @param blobContainerMetadata the connection info for the blob store
+     * @param content the trigger for the function being executed
      */
     @FunctionName("validateFHIRToFHIRSchemas")
     @StorageAccount("AzureWebJobsStorage")
@@ -33,8 +37,7 @@ class ValidateSchemasFunctions {
     /**
      * Validates the FHIR -> HL7 schemas when validating.txt is added to the store
      *
-     * @param validatingFile the trigger for the function being executed
-     * @param blobContainerMetadata the connection info for the blob store
+     * @param content the trigger for the function being executed
      */
     @FunctionName("validateFHIRToHL7Schemas")
     @StorageAccount("AzureWebJobsStorage")
@@ -42,7 +45,7 @@ class ValidateSchemasFunctions {
         @BlobTrigger(
             name = "validatingFile",
             path = "metadata/hl7_mappings/validating.txt"
-        ) @Suppress("UNUSED_PARAMETER") validatingFile: Array<Byte>,
+        ) @Suppress("UNUSED_PARAMETER") content: Array<Byte>,
     ) {
         val blobConnectionString = Environment.get().blobEnvVar
         val blobContainerMetadata: BlobAccess.BlobContainerMetadata =
