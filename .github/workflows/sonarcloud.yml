@@ -80,6 +80,7 @@ jobs:
           languages: ${{ matrix.language }}
 
       - name: Build Prime Router Package
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: ./.github/actions/retry
         with:
           timeout_minutes: 30
