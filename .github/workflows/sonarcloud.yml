@@ -87,7 +87,7 @@ jobs:
           retry_wait_seconds: 30
           command: |
             cd prime-router
-            ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar/gradlew package -x fatjar -Pshowtests
+            ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar
           shell: bash
 
       - name: Perform Java CodeQL Analysis
