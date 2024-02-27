@@ -59,6 +59,21 @@ services:
     networks:
       - prime-router_build
 
+  azurite-stage:
+    build:
+      context: ../.environment/docker/docker-compose/
+      dockerfile: Dockerfile.azurite
+    # uncomment the line below to skip x-ms-version checks
+    # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
+    volumes:
+      # map to Azurite data objects to the build directory
+      - ./build/azurite:/data
+    ports:
+      - "11000:10000"
+      - "11001:10001"
+    networks:
+      - prime-router_build
+
   # local SFTP server as a receive point
   sftp:
     image: atmoz/sftp
