@@ -55,6 +55,11 @@ export function AdminOrgNewPage() {
         <NetworkErrorBoundary fallbackComponent={fallbackPage}>
             <Helmet>
                 <title>New organization - Admin</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/open-graph-protocol/reportstream.png"
+                />
+                <meta property="og:image:alt" content="" />
             </Helmet>
             <section className="grid-container margin-bottom-5">
                 <Suspense

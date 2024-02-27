@@ -77,6 +77,11 @@ const ValueSetsIndexPage = () => {
         <>
             <Helmet>
                 <title>Value sets - Admin</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/open-graph-protocol/reportstream.png"
+                />
+                <meta property="og:image:alt" content="" />
             </Helmet>
             <section className="grid-container">
                 {withCatchAndSuspense(<ValueSetsTable />)}

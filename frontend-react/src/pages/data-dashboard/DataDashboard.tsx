@@ -20,6 +20,11 @@ function DataDashboardPage() {
                     name="description"
                     content="ReportStream's data dashboard shows what data you have received and allows you to dive into detail for each facility or report."
                 />
+                <meta
+                    property="og:image"
+                    content="/assets/img/open-graph-protocol/howwehelpyou-3.png"
+                />
+                <meta property="og:image:alt" content="" />
             </Helmet>
             <div className={styles.DataDashboard}>
                 <div className="bg-primary-darker text-white">

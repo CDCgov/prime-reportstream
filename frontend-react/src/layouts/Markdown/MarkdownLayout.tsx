@@ -87,8 +87,7 @@ function MarkdownLayout({
     mdx,
     frontmatter: {
         title,
-        metaTitle,
-        metaDescription,
+        metaData,
         breadcrumbs,
         subtitle,
         callToAction,
@@ -123,11 +122,26 @@ function MarkdownLayout({
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
-            {(metaTitle ?? metaDescription) && (
+            {metaData && (
                 <Helmet>
-                    {metaTitle && <title>{metaTitle}</title>}
-                    {metaDescription && (
-                        <meta name="description" content={metaDescription} />
+                    {metaData.metaTitle && <title>{metaData.metaTitle}</title>}
+                    {metaData.metaDescription && (
+                        <meta
+                            name="description"
+                            content={metaData.metaDescription}
+                        />
+                    )}
+                    {metaData.openGraphImage && (
+                        <>
+                            <meta
+                                property="og:image"
+                                content={metaData.openGraphImage.url}
+                            />
+                            <meta
+                                property="og:image:alt"
+                                content={metaData.openGraphImage.altText}
+                            />
+                        </>
                     )}
                 </Helmet>
             )}

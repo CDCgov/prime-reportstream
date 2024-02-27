@@ -163,6 +163,11 @@ export function ManagePublicKeyPage() {
                     name="description"
                     content="Send your public key to begin the REST API authentication process."
                 />
+                <meta
+                    property="og:image"
+                    content="/assets/img/open-graph-protocol/howwehelpyou-3.png"
+                />
+                <meta property="og:image:alt" content="" />
             </Helmet>
             <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
                 {!isUploading && (

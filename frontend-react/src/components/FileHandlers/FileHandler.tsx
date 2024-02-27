@@ -142,6 +142,11 @@ export default function FileHandler() {
                     name="description"
                     content="Check that public health entities can receive your data through ReportStream by validating your file format."
                 />
+                <meta
+                    property="og:image"
+                    content="/assets/img/open-graph-protocol/howwehelpyou-3.png"
+                />
+                <meta property="og:image:alt" content="" />
             </Helmet>
 
             <GridContainer>

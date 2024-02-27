@@ -20,6 +20,11 @@ function SubmissionHistoryContent() {
                         name="description"
                         content="The Submission History dashboard provides the status of data you sent through ReportStream."
                     />
+                    <meta
+                        property="og:image"
+                        content="/assets/img/open-graph-protocol/howwehelpyou-3.png"
+                    />
+                    <meta property="og:image:alt" content="" />
                 </Helmet>
                 <Title title="Submission History" preTitle={description} />
                 <SubmissionTable />

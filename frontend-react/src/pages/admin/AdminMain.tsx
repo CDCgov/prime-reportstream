@@ -18,6 +18,11 @@ export function AdminMainPage() {
                 <article>
                     <Helmet>
                         <title>Organizations - Admin</title>
+                        <meta
+                            property="og:image"
+                            content="/assets/img/open-graph-protocol/reportstream.png"
+                        />
+                        <meta property="og:image:alt" content="" />
                     </Helmet>
                     <NetworkErrorBoundary fallbackComponent={fallbackPage}>
                         <Suspense fallback={<Spinner />}>

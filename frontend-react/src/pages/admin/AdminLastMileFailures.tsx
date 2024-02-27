@@ -11,6 +11,11 @@ export function AdminLastMileFailuresPage() {
         <GridContainer>
             <Helmet>
                 <title>Last mile failures</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/open-graph-protocol/reportstream.png"
+                />
+                <meta property="og:image:alt" content="" />
             </Helmet>
             <article className="margin-bottom-5">
                 <h3 className="margin-bottom-0">

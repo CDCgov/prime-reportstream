@@ -13,6 +13,11 @@ export const TermsOfService = () => {
                     name="description"
                     content="The Terms of Service that ReportStream users agree to when they have a ReportStream account or send data through ReportStream."
                 />
+                <meta
+                    property="og:image"
+                    content="/assets/img/open-graph-protocol/reportstream.png"
+                />
+                <meta property="og:image:alt" content="" />
             </Helmet>
             <section
                 className="usa-site-alert usa-site-alert--info desktop:margin-top-0 margin-bottom-3 tablet:margin-bottom-6"

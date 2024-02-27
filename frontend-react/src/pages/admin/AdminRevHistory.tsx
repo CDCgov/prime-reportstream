@@ -184,6 +184,11 @@ const AdminRevHistoryPage = () => {
         <>
             <Helmet>
                 <title>Revision History</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/open-graph-protocol/reportstream.png"
+                />
+                <meta property="og:image:alt" content="" />
             </Helmet>
 
             <section className="grid-container margin-top-0">

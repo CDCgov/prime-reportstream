@@ -1,13 +1,21 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-plugin-svgr/client" />
 
+interface OpgImage {
+    url: string;
+    altText: string;
+}
+interface MetaData {
+    metaTitle?: string;
+    metaDescription?: string;
+    openGraphImage?: OpgImage;
+}
 interface Frontmatter {
     sidenav?: string;
     breadcrumbs?: { label: string; href: string }[];
     title?: string;
     subtitle?: string | string[];
-    metaTitle?: string;
-    metaDescription?: string;
+    metaData?: MetaData;
     callToAction?: {
         label: string;
         href: string;
