@@ -11,7 +11,7 @@ export function AdminReceiverDashPage() {
                 <title>Receiver status dashboard - Admin</title>
                 <meta
                     property="og:image"
-                    content="/assets/img/open-graph-protocol/reportstream.png"
+                    content="/assets/img/opengraph/reportstream.png"
                 />
                 <meta
                     property="og:image:alt"

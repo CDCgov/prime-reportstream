@@ -144,7 +144,7 @@ export default function FileHandler() {
                 />
                 <meta
                     property="og:image"
-                    content="/assets/img/open-graph-protocol/howwehelpyou-3.png"
+                    content="/assets/img/opengraph/howwehelpyou-3.png"
                 />
                 <meta
                     property="og:image:alt"

@@ -13,7 +13,7 @@ export function AdminLastMileFailuresPage() {
                 <title>Last mile failures</title>
                 <meta
                     property="og:image"
-                    content="/assets/img/open-graph-protocol/reportstream.png"
+                    content="/assets/img/opengraph/reportstream.png"
                 />
                 <meta
                     property="og:image:alt"
