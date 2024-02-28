@@ -25,6 +25,24 @@ jest.mock("../contexts/Session/index", () => {
     };
 });
 
+jest.mock("../contexts/Session/index", () => {
+    return {
+        __esModule: true,
+        useSessionContext: jest.fn().mockReturnValue({
+            config: {
+                META: {
+                    OPENGRAPH: {
+                        DEFAULT_IMAGE: {
+                            src: "",
+                            altText: "",
+                        },
+                    },
+                },
+            },
+        }),
+    };
+});
+
 describe("lazyRouteMarkdown", () => {
     test("works with react-router", async () => {
         const Component = lazy(
