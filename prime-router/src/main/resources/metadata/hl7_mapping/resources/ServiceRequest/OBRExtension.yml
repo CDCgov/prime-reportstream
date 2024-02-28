@@ -19,7 +19,8 @@ elements:
     resource: '%resource.extension.where(url = "OBR.10").value.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     constants:
-      hl7XCNField: '%{obrFieldPath}-10'
+      hl7XCNField: '%{obrFieldPath}-10(%{xcnIndex})'
+    resourceIndex: xcnIndex
 
   - name: specimen-action-code
     value: [ '%resource.extension.where(url = "OBR.11").value' ]
@@ -34,12 +35,6 @@ elements:
   - name: clinical-information
     value: [ '%resource.extension.where(url = "OBR.13").value' ]
     hl7Spec: [ '%{obrFieldPath}-13' ]
-
-  - name: ordering-provider-from-extension
-    resource: '%resource.extension.where(url = "OBR.16").value.resolve()'
-    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
-    constants:
-      hl7XCNField: '%{obrFieldPath}-16'
 
   - name: call-back-phone-number-obr-from-extension
     condition: '%context.requester.where(extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Field`).value[%telecomIndex] = "OBR.17").exists().not()'
@@ -85,7 +80,8 @@ elements:
     resource: '%resource.extension.where(url = "OBR.28").value.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     constants:
-      hl7XCNField: '%{obrFieldPath}-28'
+      hl7XCNField: '%{obrFieldPath}-28(%{xcnIndex})'
+    resourceIndex: xcnIndex
 
   - name: parent-order
     resource: '%resource.extension.where(url = "OBR.29").value'
@@ -96,7 +92,8 @@ elements:
   - name: result-interpreter
     resource: '%resource.extension.where(url = "OBR.33").value.resolve()'
     constants:
-      hl7NDLField: '%{obrFieldPath}-33'
+      hl7NDLField: '%{obrFieldPath}-33(%{ndlIndex})'
+    resourceIndex: ndlIndex
     schema: classpath:/metadata/hl7_mapping/resources/PractitionerRole/NDL.yml
 
   - name: scheduled-datetime
@@ -120,7 +117,8 @@ elements:
     resource: '%resource.extension.where(url = "obr-45-procedure-code-modifier").value'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CNE.yml
     constants:
-      cneFieldPath: '%{obrFieldPath}-45'
+      cneFieldPath: '%{obrFieldPath}-45(%{cweIndex})'
+    resourceIndex: cweIndex
 
 
   - name: medically-necessary-duplicate-procedure
@@ -145,4 +143,5 @@ elements:
     resource: '%resource.extension.where(url = "OBR.53").value'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
     constants:
-      cxField: '%{obrFieldPath}-53'
+      cxField: '%{obrFieldPath}-53(%{cxIndex})'
+    resourceIndex: cxIndex

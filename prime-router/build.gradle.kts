@@ -32,11 +32,11 @@ import java.util.Properties
 plugins {
     val kotlinVersion by System.getProperties()
     kotlin("jvm") version "$kotlinVersion"
-    id("org.flywaydb.flyway") version "10.2.0"
+    id("org.flywaydb.flyway") version "10.7.2"
     id("nu.studer.jooq") version "8.2.1"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.14.0"
-    id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.9.10"
@@ -63,7 +63,7 @@ val javaVersion = when (appJvmTarget) {
 }
 val ktorVersion = "2.3.6"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.15.3"
+val jacksonVersion = "2.16.1"
 jacoco.toolVersion = "0.8.10"
 
 // Local database information, first one wins:
@@ -568,7 +568,7 @@ dockerCompose {
 //    projectName = "prime-router" // docker-composer has this setter broken as of 0.16.4
     setProjectName("prime-router") // this is a workaround for the broken setter for projectName
     useComposeFiles.addAll("docker-compose.yml")
-    startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "vault", "azurite")
+    startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "vault", "azurite", "azurite-stage")
     stopContainers.set(false)
     waitForTcpPorts.set(false)
     // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
@@ -796,7 +796,7 @@ buildscript {
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.5.0")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
-        classpath("org.flywaydb:flyway-database-postgresql:10.2.0")
+        classpath("org.flywaydb:flyway-database-postgresql:10.7.2")
     }
 }
 
@@ -809,7 +809,7 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.6.0")
+    jooqGenerator("org.postgresql:postgresql:42.7.2")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
@@ -855,14 +855,14 @@ dependencies {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.10.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.10.4")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.10.0")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:6.10.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.10.4")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:6.10.4")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.25")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.30")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.1")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -872,7 +872,7 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20231013")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
-    implementation("com.hierynomus:sshj:0.37.0")
+    implementation("com.hierynomus:sshj:0.38.0")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.commons:commons-csv:1.10.0")
@@ -880,12 +880,12 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.11.0")
     implementation("commons-codec:commons-codec:1.16.0")
     implementation("commons-io:commons-io:2.15.0")
-    implementation("org.postgresql:postgresql:42.6.0")
+    implementation("org.postgresql:postgresql:42.7.2")
     implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("org.flywaydb:flyway-core:10.2.0")
-    implementation("org.flywaydb:flyway-database-postgresql:10.2.0")
+    implementation("org.flywaydb:flyway-core:10.7.2")
+    implementation("org.flywaydb:flyway-database-postgresql:10.7.2")
     implementation("org.commonmark:commonmark:0.21.0")
-    implementation("com.google.guava:guava:32.1.3-jre")
+    implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.helger.as2:as2-lib:5.1.1")
     implementation("org.bouncycastle:bcprov-jdk15to18:1.76")
     implementation("org.bouncycastle:bcprov-jdk18on:1.76")
@@ -909,9 +909,11 @@ dependencies {
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.1")
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.poi:poi-ooxml:5.2.5")
-    implementation("commons-io:commons-io: 2.15.0")
+    // pin commons-compress to mitigate CVE-2024-25710 and CVE-2024-26308
+    implementation("org.apache.commons:commons-compress:1.26.0")
+    implementation("commons-io:commons-io:2.15.0")
     implementation("com.anyascii:anyascii:0.3.2")
-// force jsoup since skrapeit-html-parser@1.2.1+ has not updated
+    // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.16.2")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
     implementation("io.swagger:swagger-annotations:1.6.12")
@@ -924,11 +926,11 @@ dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     // TODO: move this to a test dependency when CompareFhirData lives under src/test
-    implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.14")
+    implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.16")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     // pin com.squareup.okio:okio@3.4.0
-    runtimeOnly("com.squareup.okio:okio:3.4.0")
+    runtimeOnly("com.squareup.okio:okio:3.8.0")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
