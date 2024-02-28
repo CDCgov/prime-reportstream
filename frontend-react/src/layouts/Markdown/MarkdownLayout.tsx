@@ -122,7 +122,10 @@ function MarkdownLayout({
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
     const { isFullWidth } = handle;
-    const meta = createMeta(config, frontmatter);
+    const meta = useMemo(
+        () => createMeta(config, frontmatter),
+        [config, frontmatter],
+    );
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
