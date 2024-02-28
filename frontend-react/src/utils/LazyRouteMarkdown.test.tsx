@@ -3,19 +3,22 @@ import { lazy } from "react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 
 import { lazyRouteMarkdown } from "./LazyRouteMarkdown";
+import { AppConfig } from "../config";
 
 jest.mock("../contexts/Session/index", () => {
     return {
         __esModule: true,
         useSessionContext: jest.fn().mockReturnValue({
             config: {
-                META: {
-                    OPENGRAPH: {
-                        DEFAULT_IMAGE: {
-                            src: "",
-                            altText: "",
+                PAGE_META: {
+                    defaults: {
+                        openGraph: {
+                            image: {
+                                src: "",
+                                altText: "",
+                            },
                         },
-                    },
+                    } satisfies Partial<AppConfig["PAGE_META"]["defaults"]>,
                 },
             },
         }),

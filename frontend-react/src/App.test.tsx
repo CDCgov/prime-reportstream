@@ -106,7 +106,6 @@ const config = {
     IS_PREVIEW: false,
     OKTA_CLIENT_ID: "",
     OKTA_URL: "",
-    PAGE_DESCRIPTION: "",
     RS_API_URL: "",
     IDLE_TIMERS: {
         timeout: 1000 * 60 * 15,
@@ -114,11 +113,15 @@ const config = {
         onIdle: jest.fn(),
     },
     MODE: "test",
-    META: {
-        OPENGRAPH: {
-            DEFAULT_IMAGE: {
-                src: "",
-                altText: "",
+    PAGE_META: {
+        defaults: {
+            title: "test title",
+            description: "test description",
+            openGraph: {
+                image: {
+                    src: "",
+                    altText: "",
+                },
             },
         },
     },

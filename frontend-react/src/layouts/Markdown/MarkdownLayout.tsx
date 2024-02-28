@@ -10,6 +10,7 @@ import MarkdownLayoutContext from "./Context";
 import { LayoutBackToTop, LayoutMain, LayoutSidenav } from "./LayoutComponents";
 import styles from "./MarkdownLayout.module.scss";
 import { TableOfContents } from "./TableOfContents";
+import { createMeta } from "./utils";
 import { USNavLink, USSmartLink } from "../../components/USLink";
 import { useSessionContext } from "../../contexts/Session";
 import * as shared from "../../shared";
@@ -86,18 +87,18 @@ function MarkdownLayout({
     children,
     article,
     mdx,
-    frontmatter: {
+    frontmatter = {},
+    toc: tocEntries,
+}: MarkdownLayoutProps) {
+    const {
         title,
-        meta,
         breadcrumbs,
         subtitle,
         callToAction,
         lastUpdated,
         toc,
         backToTop,
-    } = {},
-    toc: tocEntries,
-}: MarkdownLayoutProps) {
+    } = frontmatter;
     const { config } = useSessionContext();
     const [sidenavContent, setSidenavContent] = useState<ReactNode>(undefined);
     const [mainContent, setMainContent] = useState<ReactNode>(undefined);
@@ -121,25 +122,17 @@ function MarkdownLayout({
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
     const { isFullWidth } = handle;
-    const openGraphImage =
-        meta?.openGraph?.image ?? config.META.OPENGRAPH.DEFAULT_IMAGE;
+    const meta = createMeta(config, frontmatter);
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
             <Helmet>
-                {meta?.title && <title>{meta.title}</title>}
-                {meta?.description ? (
-                    <meta name="description" content={meta.description} />
-                ) : (
-                    <meta
-                        name="description"
-                        content={config.PAGE_DESCRIPTION}
-                    />
-                )}
-                <meta property="og:image" content={openGraphImage.src} />
+                <title>{meta.title}</title>
+                <meta name="description" content={meta.description} />
+                <meta property="og:image" content={meta.openGraph.image.src} />
                 <meta
                     property="og:image:alt"
-                    content={openGraphImage.altText}
+                    content={meta.openGraph.image.altText}
                 />
             </Helmet>
             {sidenavContent ? (

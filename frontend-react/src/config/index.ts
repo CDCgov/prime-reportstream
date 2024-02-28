@@ -6,7 +6,6 @@ import type { ConsoleLevel } from "../utils/console";
 const envVars = {
     OKTA_URL: import.meta.env.VITE_OKTA_URL,
     OKTA_CLIENT_ID: import.meta.env.VITE_OKTA_CLIENTID,
-    PAGE_DESCRIPTION: import.meta.env.VITE_DESCRIPTION,
     RS_API_URL: import.meta.env.VITE_BACKEND_URL,
     MODE: import.meta.env.MODE,
 };
@@ -43,11 +42,16 @@ const config = {
         syncTimers: 200,
         leaderElection: true,
     } as IIdleTimerProps,
-    META: {
-        OPENGRAPH: {
-            DEFAULT_IMAGE: {
-                src: import.meta.env.VITE_OPENGRAPH_DEFAULT_IMAGE_SRC,
-                altText: import.meta.env.VITE_OPENGRAPH_DEFAULT_IMAGE_ALTTEXT,
+    PAGE_META: {
+        defaults: {
+            title: import.meta.env.VITE_TITLE,
+            description: import.meta.env.VITE_DESCRIPTION,
+            openGraph: {
+                image: {
+                    src: import.meta.env.VITE_OPENGRAPH_DEFAULT_IMAGE_SRC,
+                    altText: import.meta.env
+                        .VITE_OPENGRAPH_DEFAULT_IMAGE_ALTTEXT,
+                },
             },
         },
     },
