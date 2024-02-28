@@ -146,7 +146,10 @@ export default function FileHandler() {
                     property="og:image"
                     content="/assets/img/open-graph-protocol/howwehelpyou-3.png"
                 />
-                <meta property="og:image:alt" content="" />
+                <meta
+                    property="og:image:alt"
+                    content="An abstract illustration of screens and a document."
+                />
             </Helmet>
 
             <GridContainer>

@@ -23,7 +23,10 @@ function DeliveriesPage() {
                     property="og:image"
                     content="/assets/img/open-graph-protocol/howwehelpyou-3.png"
                 />
-                <meta property="og:image:alt" content="" />
+                <meta
+                    property="og:image:alt"
+                    content="An abstract illustration of screens and a document."
+                />
             </Helmet>
             <article className="padding-bottom-5 tablet:padding-top-6">
                 <Title preTitle={description} title={FeatureName.DAILY_DATA} />

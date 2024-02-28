@@ -14,7 +14,10 @@ export function AdminMessageTracker() {
                     property="og:image"
                     content="/assets/img/open-graph-protocol/reportstream.png"
                 />
-                <meta property="og:image:alt" content="" />
+                <meta
+                    property="og:image:alt"
+                    content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
+                />
             </Helmet>
             <article>
                 <MessageTracker />

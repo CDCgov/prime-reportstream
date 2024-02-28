@@ -24,7 +24,10 @@ function DataDashboardPage() {
                     property="og:image"
                     content="/assets/img/open-graph-protocol/howwehelpyou-3.png"
                 />
-                <meta property="og:image:alt" content="" />
+                <meta
+                    property="og:image:alt"
+                    content="An abstract illustration of screens and a document."
+                />
             </Helmet>
             <div className={styles.DataDashboard}>
                 <div className="bg-primary-darker text-white">
