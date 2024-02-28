@@ -1,11 +1,10 @@
 import { screen } from "@testing-library/react";
 
-import { orgServer } from "../__mocks__/OrganizationMockServer";
-import { makeOktaHook, renderWithSession } from "../utils/CustomRenderUtils";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
-import { MemberType } from "../hooks/UseOktaMemberships";
-
 import SenderModeBanner from "./SenderModeBanner";
+import { orgServer } from "../__mocks__/OrganizationMockServer";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { renderApp } from "../utils/CustomRenderUtils";
+import { MemberType } from "../utils/OrganizationUtils";
 
 describe("SenderModeBanner", () => {
     beforeAll(() => {
@@ -15,23 +14,24 @@ describe("SenderModeBanner", () => {
     afterAll(() => orgServer.close());
 
     test("renders when sender is testing", async () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
-                senderName: "testSender",
+                service: "testSender",
             },
-            dispatch: () => {},
-            initialized: true,
+
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: true,
+                isUserTransceiver: false,
+            } as any,
         });
-        renderWithSession(
-            <SenderModeBanner />,
-            makeOktaHook({
-                authState: {
-                    isAuthenticated: true,
-                },
-            })
-        );
+        renderApp(<SenderModeBanner />);
         const text = await screen.findByText("Learn more about onboarding.");
         expect(text).toBeInTheDocument();
     });

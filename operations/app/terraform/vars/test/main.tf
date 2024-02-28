@@ -84,6 +84,8 @@ module "database" {
   use_cdc_managed_vnet     = local.network.use_cdc_managed_vnet
   postgres_user            = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass            = data.azurerm_key_vault_secret.postgres_pass.value
+  postgres_readonly_user   = data.azurerm_key_vault_secret.postgres_readonly_user.value
+  postgres_readonly_pass   = data.azurerm_key_vault_secret.postgres_readonly_pass.value
   db_sku_name              = local.database.db_sku_name
   db_version               = local.database.db_version
   db_storage_mb            = local.database.db_storage_mb
@@ -95,6 +97,8 @@ module "database" {
   application_key_vault_id = module.key_vault.application_key_vault_id
   dns_vnet                 = local.network.dns_vnet
   dns_zones                = module.network.dns_zones
+  flex_sku_name            = local.database.flex_sku_name
+  flex_instances           = local.database.flex_instances
 }
 
 module "storage" {
@@ -129,9 +133,14 @@ module "function_app" {
   ai_connection_string              = module.application_insights.connection_string
   okta_base_url                     = local.init.okta_base_url
   okta_redirect_url                 = local.init.okta_redirect_url
+  OKTA_scope                        = local.init.OKTA_scope
+  RS_okta_base_url                  = local.init.RS_okta_base_url
+  RS_okta_redirect_url              = local.init.RS_okta_redirect_url
+  RS_OKTA_scope                     = local.init.RS_OKTA_scope
   terraform_caller_ip_address       = local.network.terraform_caller_ip_address
   use_cdc_managed_vnet              = local.network.use_cdc_managed_vnet
   primary_access_key                = module.storage.sa_primary_access_key
+  candidate_access_key              = module.storage.candidate_access_key
   container_registry_login_server   = module.container_registry.container_registry_login_server
   primary_connection_string         = module.storage.sa_primary_connection_string
   app_service_plan                  = module.app_service_plan.service_plan_id
@@ -148,9 +157,11 @@ module "function_app" {
   app_config_key_vault_id           = module.key_vault.app_config_key_vault_id
   dns_ip                            = local.network.dns_ip
   function_runtime_version          = local.app.function_runtime_version
-  function_app                      = module.function_app.function_app_name
-  service_plan                      = module.app_service_plan.service_plan_id
-  function_app_id                   = module.function_app.function_app_id
+  storage_account                   = module.storage.storage_account_id
+  OKTA_clientId                     = data.azurerm_key_vault_secret.OKTA_clientId.value
+  OKTA_authKey                      = data.azurerm_key_vault_secret.OKTA_authKey.value
+  RS_OKTA_clientId                  = data.azurerm_key_vault_secret.RS_OKTA_clientId.value
+  RS_OKTA_authKey                   = data.azurerm_key_vault_secret.RS_OKTA_authKey.value
 }
 
 module "front_door" {
@@ -161,10 +172,17 @@ module "front_door" {
   location                    = local.init.location
   https_cert_names            = local.security.https_cert_names
   is_metabase_env             = local.init.is_metabase_env
-  public_primary_web_endpoint = module.storage.sa_public_primary_web_endpoint
+  public_primary_web_endpoint = module.storage.storage_public.primary_web_endpoint
   application_key_vault_id    = module.key_vault.application_key_vault_id
 }
 
+module "azure_dashboard" {
+  source          = "../../modules/azure_dashboard"
+  environment     = local.init.environment
+  resource_group  = local.init.resource_group_name
+  resource_prefix = local.init.resource_prefix
+  location        = local.init.location
+}
 module "ssh" {
   source          = "../../modules/ssh"
   environment     = local.init.environment
@@ -201,7 +219,8 @@ module "sftp_container" {
   location              = local.init.location
   use_cdc_managed_vnet  = local.network.use_cdc_managed_vnet
   sa_primary_access_key = module.storage.sa_primary_access_key
-
+  dns_zones             = module.network.dns_zones
+  storage_account       = module.storage.storage_account
 }
 
 module "metabase" {
@@ -219,6 +238,7 @@ module "metabase" {
   postgres_server_name   = module.database.postgres_server_name
   postgres_user          = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass          = data.azurerm_key_vault_secret.postgres_pass.value
+  sendgrid_password      = data.azurerm_key_vault_secret.sendgrid_password.value
   subnets                = module.network.subnets
 }
 
@@ -227,42 +247,44 @@ module "metabase" {
 ##########
 
 module "log_analytics_workspace" {
-  source                        = "../../modules/log_analytics_workspace"
-  environment                   = local.init.environment
-  resource_group                = local.init.resource_group_name
-  resource_prefix               = local.init.resource_prefix
-  location                      = local.init.location
-  service_plan_id               = module.app_service_plan.service_plan_id
-  container_registry_id         = module.container_registry.container_registry_id
-  postgres_server_id            = module.database.postgres_server_id
-  application_key_vault_id      = module.key_vault.application_key_vault_id
-  app_config_key_vault_id       = module.key_vault.app_config_key_vault_id
-  client_config_key_vault_id    = module.key_vault.client_config_key_vault_id
-  function_app_id               = module.function_app.function_app_id
-  front_door_id                 = module.front_door.front_door_id
-  nat_gateway_id                = module.nat_gateway.nat_gateway_id
-  primary_vnet_id               = module.network.primary_vnet_id
-  replica_vnet_id               = module.network.replica_vnet_id
-  storage_account_id            = module.storage.storage_account_id
-  storage_public_id             = module.storage.storage_public_id
-  storage_partner_id            = module.storage.storage_partner_id
-  action_group_businesshours_id = module.application_insights.action_group_businesshours_id
-  data_factory_id               = module.data_factory.data_factory_id
-  sftp_instance_01_id           = module.sftp.sftp_instance_ids[0]
+  source                     = "../../modules/log_analytics_workspace"
+  environment                = local.init.environment
+  resource_group             = local.init.resource_group_name
+  resource_prefix            = local.init.resource_prefix
+  location                   = local.init.location
+  service_plan_id            = module.app_service_plan.service_plan_id
+  container_registry_id      = module.container_registry.container_registry_id
+  postgres_server_id         = module.database.postgres_server_id
+  application_key_vault_id   = module.key_vault.application_key_vault_id
+  app_config_key_vault_id    = module.key_vault.app_config_key_vault_id
+  client_config_key_vault_id = module.key_vault.client_config_key_vault_id
+  function_app_id            = module.function_app.function_app_id
+  front_door_id              = module.front_door.front_door_id
+  nat_gateway_id             = module.nat_gateway.nat_gateway_id
+  primary_vnet_id            = module.network.primary_vnet_id
+  replica_vnet_id            = module.network.replica_vnet_id
+  storage_account_id         = module.storage.storage_account_id
+  storage_public_id          = module.storage.storage_public.id
+  storage_partner_id         = module.storage.storage_partner_id
+  action_group_slack_id      = module.application_insights.action_group_slack_id
+  action_group_metabase_id   = module.application_insights.action_group_metabase_id
+  data_factory_id            = module.data_factory.data_factory_id
+  sftp_instance_01_id        = module.sftp.sftp_instance_ids[0]
+  law_retention_period       = local.log_analytics_workspace.law_retention_period
 }
 
 module "application_insights" {
-  source                      = "../../modules/application_insights"
-  environment                 = local.init.environment
-  resource_group              = local.init.resource_group_name
-  resource_prefix             = local.init.resource_prefix
-  location                    = local.init.location
-  is_metabase_env             = local.init.is_metabase_env
-  pagerduty_url               = data.azurerm_key_vault_secret.pagerduty_url.value
-  pagerduty_businesshours_url = data.azurerm_key_vault_secret.pagerduty_businesshours_url.value
-  postgres_server_id          = module.database.postgres_server_id
-  service_plan_id             = module.app_service_plan.service_plan_id
-  workspace_id                = module.log_analytics_workspace.law_id
+  source              = "../../modules/application_insights"
+  environment         = local.init.environment
+  resource_group      = local.init.resource_group_name
+  resource_prefix     = local.init.resource_prefix
+  location            = local.init.location
+  is_metabase_env     = local.init.is_metabase_env
+  pagerduty_url       = data.azurerm_key_vault_secret.pagerduty_url.value
+  slack_email_address = data.azurerm_key_vault_secret.slack_email_address.value
+  postgres_server_id  = module.database.postgres_server_id
+  service_plan_id     = module.app_service_plan.service_plan_id
+  workspace_id        = module.log_analytics_workspace.law_id
 }
 
 ##########

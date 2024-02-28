@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.tokens
 
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Organization
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -34,7 +34,8 @@ class Scope {
             Report("report"), // ability to submit a report
             Admin("admin"), // local org administrator role
             PrimeAdmin("primeadmin"), // overall administrator role
-            User("user"); // user role
+            User("user"), // user role
+            ;
 
             companion object {
                 /**
@@ -77,15 +78,15 @@ class Scope {
 
         /**
          * @return true if this [scope] string is well-formed and has a valid DetailedScope,
-         * and the org portion of it matches the org of the [expectedSender].
+         * and the org portion of it matches [expectedOrganization].
          * Also returns true if scope is [primeAdminScope].
          * Otherwise, false.
          */
-        fun isValidScope(scope: String, expectedSender: Sender): Boolean {
+        fun isValidScope(scope: String, expectedOrganization: Organization): Boolean {
             if (!isValidScope(scope)) return false
             val splits = scope.split(".")
-            if (splits[0] != expectedSender.organizationName && scope != primeAdminScope) {
-                logger.warn("Expected organization ${expectedSender.organizationName}. Instead got: ${splits[0]}")
+            if (splits[0] != expectedOrganization.name && scope != primeAdminScope) {
+                logger.warn("Expected organization ${expectedOrganization.name}. Instead got: ${splits[0]}")
                 return false
             }
             return true

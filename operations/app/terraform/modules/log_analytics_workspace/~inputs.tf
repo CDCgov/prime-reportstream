@@ -56,6 +56,7 @@ variable "function_app_id" {
 variable "front_door_id" {
   type        = string
   description = "Front Door resource id"
+  default     = ""
 }
 
 variable "nat_gateway_id" {
@@ -88,17 +89,30 @@ variable "storage_partner_id" {
   description = "Storage Partner resource id"
 }
 
-variable "action_group_businesshours_id" {
+variable "action_group_slack_id" {
   type        = string
-  description = "Businesshours action group resource id"
+  description = "Slack action group resource id"
+}
+
+variable "action_group_metabase_id" {
+  type        = string
+  description = "Metabase healthcheck action group resource id"
 }
 
 variable "data_factory_id" {
   type        = string
   description = "Data factory resource id"
+  default     = ""
 }
 
 variable "sftp_instance_01_id" {
   type        = string
   description = "SFTP instance 01 resource id"
+  default     = ""
+}
+
+variable "law_retention_period" {
+  type        = string
+  description = "How long to keep logs for in LAW"
+  default     = "30"
 }

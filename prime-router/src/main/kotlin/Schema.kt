@@ -36,7 +36,7 @@ import gov.cdc.prime.router.metadata.LIVDLookupMapper
  */
 data class Schema(
     val name: String,
-    val topic: String,
+    val topic: Topic,
     val elements: List<Element> = emptyList(),
     val trackingElement: String? = null, // the element to use for tracking this test
     val description: String? = null,
@@ -49,12 +49,12 @@ data class Schema(
     constructor(
         vararg varElements: Element,
         name: String,
-        topic: String,
+        topic: Topic,
         trackingElement: String? = null, // the element to use for tracking this test
         description: String? = null,
         referenceUrl: String? = null,
         extends: String? = null,
-        basedOn: String? = null
+        basedOn: String? = null,
     ) : this(
         name = name,
         topic = topic,
@@ -117,8 +117,10 @@ data class Schema(
                     var hasAllDependencies = true
                     valueNames?.forEach { valueName ->
                         // Look through all values names that are elements in the schema and not itself.
-                        if (valueName != element.name) findElement(valueName)?.let {
-                            if (!orderedElements.contains(it)) hasAllDependencies = false
+                        if (valueName != element.name) {
+                            findElement(valueName)?.let {
+                                if (!orderedElements.contains(it)) hasAllDependencies = false
+                            }
                         }
                     }
                     if (hasAllDependencies) {
@@ -170,7 +172,7 @@ data class Schema(
         defaultOverrides: Map<String, String> = emptyMap(),
         itemIndex: Int,
         sender: Sender? = null,
-        specialFailureValue: String? = null
+        specialFailureValue: String? = null,
     ) {
         orderElementsByMapperDependencies().forEach { element ->
             // Do not process any field that had an error

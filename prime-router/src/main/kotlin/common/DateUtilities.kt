@@ -14,6 +14,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import java.time.temporal.ChronoField
 import java.time.temporal.TemporalAccessor
 import java.util.Locale
 import kotlin.math.abs
@@ -26,14 +27,19 @@ import kotlin.math.floor
 object DateUtilities {
     /** the default date pattern yyyyMMdd */
     const val datePattern = "yyyyMMdd"
+
     /** an alternate date pattern MMddyyyy */
     const val alternateDatePattern = "[yyyy-MM-dd][yyyy-dd-MM][MMdduuuu][uuuuMMdd]"
+
     /** a local date time pattern to use when formatting in local date time instead */
     const val localDateTimePattern = "yyyyMMddHHmmss"
+
     /** our standard offset date time pattern */
     const val datetimePattern = "yyyyMMddHHmmssxx"
+
     /** includes seconds and milliseconds in the offset for higher precision  */
     const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSSxx"
+
     /** wraps around all the possible variations of a date for finding something that matches */
     const val variableDateTimePattern = "[yyyyMMdd]" +
         "[yyyyMMdd[HHmm][ss][.S][Z]]" +
@@ -50,6 +56,7 @@ object DateUtilities {
         "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]" +
         "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]" +
         "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
+
     /**
      * A list of accepted date formats to try and parse to, one by one. In some instances it is
      * better to try and parse a date with a single pattern instead of the large variable date time
@@ -61,6 +68,7 @@ object DateUtilities {
         "[uuuuMMddHHmmss[.SSS][Z]][uuuuMMddHHmm[.SSS][Z]]",
         "[uuuu-MM-dd'T'HH:mm[:ss]['Z'][xxx]]",
         "[uuuu-MM-dd'T'HH:mm[:ss][.S[S][S]]['Z']]",
+        "[uuuu-MM-dd'T'HH:mm[:ss][.nnn]['Z'][xxx]]",
         "[uuuu-MM-dd'T'HH:mm[:ss][.nnnn]['Z'][xxx]]",
         "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]",
         "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]",
@@ -72,15 +80,19 @@ object DateUtilities {
 
     /** A simple date formatter */
     val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
+
     /** A default formatter for date and time */
     val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
+
     /** a higher precision date time formatter that includes seconds, and can be used */
     val highPrecisionDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
         highPrecisionDateTimePattern,
         Locale.ENGLISH
     )
+
     /** A formatter for local date times */
     val localDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(localDateTimePattern, Locale.ENGLISH)
+
     /** The zone ID for UTC */
     val utcZone = ZoneId.of("UTC")
 
@@ -99,7 +111,7 @@ object DateUtilities {
         OFFSET(datetimePattern),
         LOCAL(localDateTimePattern),
         HIGH_PRECISION_OFFSET(highPrecisionDateTimePattern),
-        DATE_ONLY(datePattern)
+        DATE_ONLY(datePattern),
     }
 
     /**
@@ -107,7 +119,7 @@ object DateUtilities {
      */
     fun getFormatter(
         dateTimeFormat: DateTimeFormat? = null,
-        useHighPrecisionOffset: Boolean? = null
+        useHighPrecisionOffset: Boolean? = null,
     ): DateTimeFormatter {
         return when (dateTimeFormat) {
             DateTimeFormat.HIGH_PRECISION_OFFSET -> highPrecisionDateTimeFormatter
@@ -129,8 +141,9 @@ object DateUtilities {
      */
     fun parseDate(dateValue: String): TemporalAccessor {
         // check to see if the value has something in it
-        if (dateValue.trimToNull() == null)
+        if (dateValue.trimToNull() == null) {
             throw DateTimeException("Invalid value passed in for date value. Received $dateValue")
+        }
         // parse out the date
         return try {
             DateTimeFormatter.ofPattern(variableDateTimePattern)
@@ -147,8 +160,9 @@ object DateUtilities {
             // work, throw an error
             if (dateValue.indexOf('Z', ignoreCase = true) > -1) {
                 val isoDate = tryParseIsoDate(dateValue)
-                if (isoDate != null)
+                if (isoDate != null) {
                     return isoDate.toOffsetDateTime(utcZone)
+                }
             }
             allowedDateFormats.forEach { format ->
                 val parsedDate = parseDate(dateValue, format)
@@ -168,7 +182,7 @@ object DateUtilities {
                     ZonedDateTime::from,
                     LocalDateTime::from,
                     LocalDate::from,
-                    Instant::from,
+                    Instant::from
                 )
         } catch (_: Throwable) {
             null
@@ -193,7 +207,7 @@ object DateUtilities {
     fun getDateAsFormattedString(
         temporalAccessor: TemporalAccessor,
         outputFormat: String = datetimePattern,
-        convertPositiveOffsetToNegative: Boolean = false
+        convertPositiveOffsetToNegative: Boolean = false,
     ): String {
         val outputFormatter = DateTimeFormatter.ofPattern(outputFormat)
         val formattedDate = when (temporalAccessor) {
@@ -212,6 +226,14 @@ object DateUtilities {
         } else {
             formattedDate
         }
+    }
+
+    fun isTimeGreaterThanZero(temporalAccessor: TemporalAccessor): Boolean {
+        val hour = temporalAccessor.get(ChronoField.HOUR_OF_DAY)
+        val minute = temporalAccessor.get(ChronoField.MINUTE_OF_HOUR)
+        val second = temporalAccessor.get(ChronoField.SECOND_OF_MINUTE)
+
+        return hour > 0 || minute > 0 || second > 0
     }
 
     /**
@@ -270,7 +292,7 @@ object DateUtilities {
         timeZone: ZoneId,
         dateTimeFormat: DateTimeFormat,
         convertPositiveDateTimeOffsetToNegative: Boolean,
-        useHighPrecisionHeaderDateTimeFormat: Boolean
+        useHighPrecisionHeaderDateTimeFormat: Boolean,
     ): String {
         // get the formatter based on the high precision header date time format
         val formatter: DateTimeFormatter = getFormatter(
@@ -302,7 +324,7 @@ object DateUtilities {
         timeZone: ZoneId?,
         dateTimeFormat: DateTimeFormat?,
         convertPositiveDateTimeOffsetToNegative: Boolean? = false,
-        useHighPrecisionHeaderDateTimeFormat: Boolean? = false
+        useHighPrecisionHeaderDateTimeFormat: Boolean? = false,
     ): String {
         val tz = timeZone ?: utcZone
         // now format the date to what the receiver wants
@@ -475,7 +497,7 @@ object DateUtilities {
                 }
             }
             is OffsetDateTime, is Instant -> {
-                if (zoneId != null) {
+                if (zoneId != null && isTimeGreaterThanZero(this)) {
                     ZonedDateTime.from(this).withZoneSameInstant(zoneId)
                 } else {
                     ZonedDateTime.from(this)
@@ -498,6 +520,7 @@ object DateUtilities {
      **/
     fun TemporalAccessor.formatDateTimeForReceiver(report: Report? = null): String {
         val hl7Config = report?.destination?.translation as? Hl7Configuration
+
         return formatDateForReceiver(
             this,
             report?.getTimeZoneForReport() ?: ZoneId.of("UTC"),
@@ -525,7 +548,7 @@ object DateUtilities {
      **/
     fun TemporalAccessor.asFormattedString(
         dateTimeFormat: String? = null,
-        convertPositiveDateTimeOffsetToNegative: Boolean = false
+        convertPositiveDateTimeOffsetToNegative: Boolean = false,
     ): String {
         return getDateAsFormattedString(
             this,

@@ -1,10 +1,12 @@
 name: "Prepare Deployment Branch"
 
 on:
+  workflow_dispatch:
   schedule:
-    # At 23:00 on Monday and Wednesday (https://crontab.guru/#0_16_*_*_1,3)
+    # 3:00am UTC Tuesdays and Thursdays // 10:00pm EST Mondays and Wednesdays // 7:00pm PST Mondays and Wednesdays (https://crontab.guru/#0_3_*_*_2,4)
     # GitHub actions run in UTC (and EDT is UTC-4)
-    - cron: "0 23 * * 1,3"
+    # If this schedule changes, check any reminders that might be in slack with `/remind list`
+    - cron: "0 3 * * 2,4"
 
 jobs:
   prepare_branch:
@@ -12,13 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Set Environment Variables
-        # 86400: seconds in a 24h time-window
         run: |
-          let TOMORROWS_SECONDS_SINCE_EPOCH=$(date +%s)+86400
-          DEPLOYMENT_DATE=$(date --date=@${TOMORROWS_SECONDS_SINCE_EPOCH} +%Y-%m-%d)
+          DEPLOYMENT_DATE=$(date +%Y-%m-%d)
           echo >> ${GITHUB_ENV} DEPLOYMENT_DATE=${DEPLOYMENT_DATE?}
           echo >> ${GITHUB_ENV} BRANCH_NAME=deployment/${DEPLOYMENT_DATE?}
 
@@ -27,27 +27,24 @@ jobs:
           echo "Branch name: \"${BRANCH_NAME}\""
 
       - name: "Create branch '${{ env.BRANCH_NAME }}' to contain the changes for the deployment on ${{ env.DEPLOYMENT_DATE }}"
-        uses: peterjgrainger/action-create-branch@c2800a3a9edbba2218da6861fa46496cf8f3195a
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: JosiahSiegel/remote-branch-action@dbe7a2138eb064fbfdb980abee918091a7501fbe
         with:
           branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
-        uses: k3rnels-actions/pr-update@2c8df8a7aacba86aac079e5a6acd74305af07d9c
         id: pr
+        uses: JosiahSiegel/reliable-pull-request-action@ae8d0c88126329ee363a35392793d0bc94cb82e7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pr_title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
-          pr_source: "${{ env.BRANCH_NAME }}"
-          pr_target: "production"
-          pr_labels: devops,chore,deployment
-          pr_assignees: jimduff-usds,MauriceReeves-usds,CDCgov/prime-reportstream-devops
-          pr_body: |
+          title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
+          sourceBranch: "${{ env.BRANCH_NAME }}"
+          targetBranch: "production"
+          labels: DevOps,chore,deployment
+          body: |
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
             This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.
 
       - name: "Produce Pull Request URL"
         run: |
-          echo "PR URL: https://github.com/CDCgov/prime-reportstream/pull/${{ steps.pr.outputs.pr_nr }}"
-          echo "PR Id:  ${{ steps.pr.outputs.pr_nr }}"
+          echo "PR URL: ${{ steps.pr.outputs.PRURL }}"

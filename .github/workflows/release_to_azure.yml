@@ -1,3 +1,4 @@
+
 name: Release to Azure
 
 on:
@@ -6,6 +7,9 @@ on:
       - master
       - production
       - test
+      - demo1
+      - demo2
+      - demo3
 
 defaults:
   run:
@@ -20,15 +24,18 @@ jobs:
       version: ${{ steps.build_vars.outputs.version }}
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
       has_react_change: ${{ steps.build_vars.outputs.has_react_change }}
+      dns_ip: ${{ steps.build_vars.outputs.dns_ip }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
+        with:
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-  build_release:
+  build_router_release:
     name: "Release: Build Router"
     needs:
       - pre_job
@@ -36,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Build backend
         uses: ./.github/actions/build-backend
@@ -54,7 +61,7 @@ jobs:
         working-directory: frontend-react
     steps:
       - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend
@@ -63,23 +70,118 @@ jobs:
           appinsights-staging-key: ${{ secrets.APPINSIGHTS_STAGING_KEY }}
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.pre_job.outputs.version }}
+          test-admin-user: ${{ secrets.TEST_ADMIN_USERNAME }}
+          test-admin-password: ${{ secrets.TEST_ADMIN_PASSWORD }}
+          test-sender-user: ${{ secrets.TEST_SENDER_USERNAME }}
+          test-sender-password: ${{ secrets.TEST_SENDER_PASSWORD }}
+          test-receiver-user: ${{ secrets.TEST_RECEIVER_USERNAME }}
+          test-receiver-password: ${{ secrets.TEST_RECEIVER_PASSWORD }}
 
-  deploy_release:
-    name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
+  deploy_infrastructure:
+    name: "Deploy Infrastructure: ${{ needs.pre_job.outputs.env_name }}"
     needs:
       - pre_job
-      - build_release
+    if: |
+      needs.pre_job.outputs.env_name == 'demo1' ||
+      needs.pre_job.outputs.env_name == 'demo2' ||
+      needs.pre_job.outputs.env_name == 'demo3'
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    concurrency: demo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36
+        with:
+          terraform_version: 1.2.0
+          terraform_wrapper: false
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+
+      - name: Provision demo environment
+        uses: ./.github/actions/demo-env
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          github-token: ${{ secrets.DEMO_ENV }}
+          backup-age-limit: 7200
+          backup-from: staging
+
+  approve_router_release:
+    name: "Approve Router Release: ${{ needs.pre_job.outputs.env_name }}"
+    needs:
+      - pre_job
+      - build_router_release
+      - deploy_infrastructure
+    if: |
+      always() &&
+      !cancelled() &&
+      !failure() &&
+      needs.pre_job.outputs.has_router_change == 'true'
+    environment: ${{ needs.pre_job.outputs.env_name }}-router
+    concurrency: ${{ needs.pre_job.outputs.env_name }}-router
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Login to Azure
+        if: |
+          needs.pre_job.outputs.has_router_change == 'true' ||
+          needs.pre_job.outputs.has_react_change == 'true'
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Get function app checksum
+        env:
+          checksum_validation: ${{ vars.CHECKSUM_VALIDATION }}
+        if: needs.pre_job.outputs.has_router_change == 'true' && env.checksum_validation == 'true'
+        uses: JosiahSiegel/checksum-validate-action@ebdf8c12c00912d18de93c483b935d51582f9236
+        with:
+          key: backend
+          input: $(az functionapp config appsettings list -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -n pdh${{ needs.pre_job.outputs.env_name }}-functionapp -o tsv | sort)
+
+  approve_frontend_release:
+    name: "Approve Frontend Release: ${{ needs.pre_job.outputs.env_name }}"
+    needs:
+      - pre_job
       - build_frontend_react_release
     if: |
-      always() && 
-      (needs.pre_job.outputs.has_router_change == 'true' ||
-      needs.pre_job.outputs.has_react_change == 'true')
+      always() &&
+      !cancelled() &&
+      !failure() &&
+      needs.pre_job.outputs.has_react_change == 'true'
+    environment: ${{ needs.pre_job.outputs.env_name }}-frontend
+    concurrency: ${{ needs.pre_job.outputs.env_name }}-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+  deploy_router_release:
+    name: "Deploy Router Release: ${{ needs.pre_job.outputs.env_name }}"
+    needs:
+      - pre_job
+      - approve_router_release
+    if: |
+      always() &&
+      !cancelled() &&
+      !failure() &&
+      needs.pre_job.outputs.has_router_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
@@ -90,18 +192,48 @@ jobs:
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          dns-ip: ${{ needs.pre_job.outputs.dns_ip }}
 
       - name: Deploy backend
-        if: needs.pre_job.outputs.has_router_change == 'true'
+        env:
+          checksum_validation: ${{ vars.CHECKSUM_VALIDATION }}
         uses: ./.github/actions/deploy-backend
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
           dct-root-pass: ${{ secrets.DCT_ROOT_PASS }}
           dct-repo-pass: ${{ secrets.DCT_REPO_PASS }}
           version: ${{ needs.pre_job.outputs.version }}
+          checksum-validation: ${{ env.checksum_validation }}
+
+  deploy_frontend_release:
+    name: "Deploy Frontend Release: ${{ needs.pre_job.outputs.env_name }}"
+    needs:
+      - pre_job
+      - approve_frontend_release
+    if: |
+      always() &&
+      !cancelled() &&
+      !failure() &&
+      needs.pre_job.outputs.has_react_change == 'true'
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    concurrency: ${{ needs.pre_job.outputs.env_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          dns-ip: ${{ needs.pre_job.outputs.dns_ip }}
 
       - name: Deploy frontend
-        if: needs.pre_job.outputs.has_react_change == 'true'
         uses: ./.github/actions/deploy-frontend
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}

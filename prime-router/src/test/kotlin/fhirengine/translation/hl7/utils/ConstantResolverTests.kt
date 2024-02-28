@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasClass
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
@@ -12,18 +12,34 @@ import assertk.assertions.isNotSameAs
 import assertk.assertions.isNull
 import assertk.assertions.isSameAs
 import assertk.assertions.isTrue
+import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.every
+import io.mockk.mockkObject
 import org.hl7.fhir.exceptions.PathEngineException
+import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.IntegerType
-import org.hl7.fhir.r4.model.MessageHeader
-import org.hl7.fhir.r4.model.OidType
+import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Organization
 import org.hl7.fhir.r4.model.StringType
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 class ConstantResolverTests {
+
+    @Test
+    fun `test cannot add reserved constant name`() {
+        val context = CustomContext(Bundle(), Bundle())
+        val constantValue = "value1"
+        assertThrows<SchemaException> {
+            CustomContext.addConstants(mapOf("context" to constantValue), context)
+        }
+    }
+
     @Test
     fun `test custom context`() {
         val previousContext = CustomContext(Bundle(), Bundle())
@@ -55,61 +71,121 @@ class ConstantResolverTests {
     fun `test constant substitutortortortortortor - funny name`() {
         val constant = sortedMapOf("const1" to "value1")
         val context = CustomContext.addConstants(constant, CustomContext(Bundle(), Bundle()))
+        val resolver = ConstantSubstitutor()
 
         var inputString = "Lorem ipsum %{const1} sit amet, consectetur adipiscing"
         val expectedString = "Lorem ipsum value1 sit amet, consectetur adipiscing"
-        val result = ConstantSubstitutor.replace(inputString, context)
+        val result = resolver.replace(inputString, context)
         assertThat(result).isEqualTo(expectedString)
 
         inputString = "Lorem ipsum %{const2} sit amet, consectetur adipiscing"
-        assertThat { ConstantSubstitutor.replace(inputString, context) }.isFailure()
-        assertThat { ConstantSubstitutor.replace(inputString, null) }.isFailure()
+        assertFailure { resolver.replace(inputString, context) }
+        assertFailure { resolver.replace(inputString, null) }
     }
 
     @Test
     fun `test fhir path resolver`() {
-        assertThat { FhirPathCustomResolver().resolveConstant(null, null, false) }.isFailure()
-        assertThat { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
-            .isFailure().hasClass(PathEngineException::class.java)
-        assertThat { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
-            .isFailure().hasClass(PathEngineException::class.java)
+        mockkObject(FhirPathUtils)
+        assertFailure { FhirPathCustomResolver().resolveConstant(null, null, false) }
+        assertFailure { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
+            .hasClass(PathEngineException::class.java)
 
         val integerValue = 99
         val urlPrefix = "https://reportstream.cdc.gov/fhir/StructureDefinition/"
         val constants = sortedMapOf("const1" to "'value1'", "int1" to "'$integerValue'", "rsext" to "'$urlPrefix'")
         val context = CustomContext.addConstants(constants, CustomContext(Bundle(), Bundle()))
-        assertThat(FhirPathCustomResolver().resolveConstant(context, "const2", false)).isNull()
+        assertThat(FhirPathCustomResolver().resolveConstant(context, "const2", false)).isEmpty()
         assertThat(FhirPathCustomResolver().resolveConstant(context, "const1", false)).isNotNull()
         var result = FhirPathCustomResolver().resolveConstant(context, "int1", false)
         assertThat(result).isNotNull()
-        assertThat(result is IntegerType).isTrue()
-        assertThat((result as IntegerType).value).isEqualTo(integerValue)
+        assertThat(result).isNotEmpty()
+        assertThat(result[0] is IntegerType).isTrue()
+        assertThat((result[0] as IntegerType).value).isEqualTo(integerValue)
 
         // Now lets resolve a constant
         result = FhirPathCustomResolver().resolveConstant(context, "const1", false)
         assertThat(result).isNotNull()
-        assertThat(result!!.isPrimitive).isTrue()
-        assertThat(result).isInstanceOf(StringType::class.java)
-        assertThat((result as StringType).value).isEqualTo(
+        assertThat(result.isNotEmpty())
+        assertThat(result[0].isPrimitive).isTrue()
+        assertThat(result[0]).isInstanceOf(StringType::class.java)
+        assertThat((result[0] as StringType).value).isEqualTo(
             constants[constants.firstKey()]!!.replace("'", "")
         )
 
-        // Text the ability to resolve constants with suffix
+        // Test the ability to resolve constants with suffix
         val urlSuffix = "SomeSuffix"
         result = FhirPathCustomResolver().resolveConstant(context, "`rsext-$urlSuffix`", false)
         assertThat(result).isNotNull()
-        assertThat(result!!.isPrimitive).isTrue()
-        assertThat(result).isInstanceOf(StringType::class.java)
-        assertThat((result as StringType).value).isEqualTo("$urlPrefix$urlSuffix")
+        assertThat(result.isNotEmpty())
+        assertThat(result[0].isPrimitive).isTrue()
+        assertThat(result[0]).isInstanceOf(StringType::class.java)
+        assertThat((result[0] as StringType).value).isEqualTo("$urlPrefix$urlSuffix")
 
         result = FhirPathCustomResolver().resolveConstant(context, "`rsext`", false)
         assertThat(result).isNotNull()
-        assertThat(result!!.isPrimitive).isTrue()
-        assertThat(result).isInstanceOf(StringType::class.java)
-        assertThat((result as StringType).value).isEqualTo(urlPrefix)
+        assertThat(result.isNotEmpty())
+        assertThat(result[0].isPrimitive).isTrue()
+        assertThat(result[0]).isInstanceOf(StringType::class.java)
+        assertThat((result[0] as StringType).value).isEqualTo(urlPrefix)
 
         result = FhirPathCustomResolver().resolveConstant(context, "unknownconst", false)
-        assertThat(result).isNull()
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun `test fhir path resolver multiple values`() {
+        val integerValue = 99
+        val stringValue = "Ninety-Nine"
+        val giantStringValue = "9999999999999999999"
+
+        mockkObject(FhirPathUtils)
+        every { FhirPathUtils.evaluate(any(), any(), any(), any()) } returns
+            listOf<Base>(StringType(stringValue), StringType(integerValue.toString()), StringType(giantStringValue))
+
+        val constants = sortedMapOf("const1" to "'value1'") // this does not matter but context wants something
+        val context = CustomContext.addConstants(constants, CustomContext(Bundle(), Bundle()))
+        val result = FhirPathCustomResolver().resolveConstant(context, "const1", false)
+        assertThat(result).isNotNull()
+        assertThat(result.isNotEmpty())
+        assertThat(result.size == 3)
+        assertThat(result[0].isPrimitive).isTrue()
+        assertThat(result[0]).isInstanceOf(StringType::class.java)
+        assertThat((result[0] as StringType).value).isEqualTo(stringValue)
+        assertThat(result[1].isPrimitive).isTrue()
+        assertThat(result[1] is IntegerType).isTrue()
+        assertThat((result[1] as IntegerType).value).isEqualTo(integerValue)
+        assertThat(result[2].isPrimitive).isTrue()
+        assertThat(result[2]).isInstanceOf(StringType::class.java)
+        assertThat((result[2] as StringType).value).isEqualTo(giantStringValue)
+    }
+
+    @Test
+    fun `test execute additional FHIR functions`() {
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        val context = CustomContext(Bundle(), Bundle())
+        assertThat(
+            FhirPathCustomResolver(CustomFhirPathFunctions()).executeFunction(
+                context,
+                mutableListOf(Observation()),
+                "livdTableLookup",
+                null
+            )
+        )
+    }
+
+    @Test
+    fun `test execute additional FHIR functions unknown function`() {
+        val context = CustomContext(Bundle(), Bundle())
+        assertFailure {
+            FhirPathCustomResolver(CustomFhirPathFunctions()).executeFunction(
+                context,
+                mutableListOf(Observation()),
+                "unknown",
+                null
+            )
+        }
     }
 
     @Test
@@ -122,140 +198,16 @@ class ConstantResolverTests {
 
         val bundle = Bundle()
         val customContext = CustomContext(bundle, bundle)
-        assertThat(FhirPathCustomResolver().resolveReference(customContext, org2Url)).isNull()
+        assertThat(FhirPathCustomResolver().resolveReference(customContext, org2Url, null)).isNull()
 
         bundle.addEntry().resource = org1
         bundle.entry[0].fullUrl = "Organization/${org1.id}"
-        assertThat(FhirPathCustomResolver().resolveReference(customContext, org2Url)).isNull()
+        assertThat(FhirPathCustomResolver().resolveReference(customContext, org2Url, null)).isNull()
 
         bundle.addEntry().resource = org2
         bundle.entry[1].fullUrl = org2Url
-        val reference = FhirPathCustomResolver().resolveReference(customContext, org2Url)
+        val reference = FhirPathCustomResolver().resolveReference(customContext, org2Url, null)
         assertThat(reference).isNotNull()
         assertThat(reference).isEqualTo(org2)
-    }
-
-    @Test
-    fun `test get ID function`() {
-        assertThat(CustomFHIRFunctions.getId(mutableListOf())).isEmpty()
-        assertThat(CustomFHIRFunctions.getId(mutableListOf(MessageHeader()))).isEmpty()
-        assertThat(CustomFHIRFunctions.getId(mutableListOf(DateTimeType()))).isEmpty()
-        assertThat(CustomFHIRFunctions.getId(mutableListOf(OidType()))).isEmpty()
-
-        // OID tests
-        val goodOid = "1.2.3.4.5.6.7"
-        val oid = OidType()
-        oid.value = "AA" // Some non OID
-        var id = CustomFHIRFunctions.getId(mutableListOf(oid))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(oid.value)
-        oid.value = goodOid // Not a real OID as it needs to start with urn:oid:
-        id = CustomFHIRFunctions.getId(mutableListOf(oid))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(oid.value)
-        oid.value = "urn:oid:$goodOid"
-        id = CustomFHIRFunctions.getId(mutableListOf(oid))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(goodOid)
-
-        val oidInString = StringType()
-        oidInString.value = goodOid
-        id = CustomFHIRFunctions.getId(mutableListOf(oidInString))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(goodOid)
-
-        oidInString.value = "urn:oid:$goodOid"
-        id = CustomFHIRFunctions.getId(mutableListOf(oidInString))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(goodOid)
-
-        // Generic IDs
-        val someId = "someId"
-        val genId = StringType()
-        genId.value = "urn:id:$someId"
-        id = CustomFHIRFunctions.getId(mutableListOf(genId))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(someId)
-
-        genId.value = someId
-        id = CustomFHIRFunctions.getId(mutableListOf(genId))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(genId.value)
-
-        // CLIA IDs
-        val cliaId = StringType()
-        cliaId.value = "dummy"
-        id = CustomFHIRFunctions.getId(mutableListOf(cliaId))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(cliaId.value)
-
-        val realClia = "15D2112066"
-        cliaId.value = "urn:id:$realClia"
-        id = CustomFHIRFunctions.getId(mutableListOf(cliaId))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(realClia)
-
-        cliaId.value = realClia
-        id = CustomFHIRFunctions.getId(mutableListOf(cliaId))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(realClia)
-    }
-
-    @Test
-    fun `test get id type function`() {
-        val isoType = "ISO"
-        val cliaType = "CLIA"
-
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf())).isEmpty()
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(MessageHeader()))).isEmpty()
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(DateTimeType()))).isEmpty()
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(OidType()))).isEmpty()
-
-        // OID tests
-        val goodOid = "1.2.3.4.5.6.7"
-        val oid = OidType()
-        oid.value = "AA" // Some non OID
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(oid))).isEmpty()
-        oid.value = goodOid // Not a real OID as it needs to start with urn:oid:
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(oid))).isEmpty()
-        oid.value = "urn:oid:$goodOid"
-        var id = CustomFHIRFunctions.getIdType(mutableListOf(oid))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(isoType)
-
-        val oidInString = StringType()
-        oidInString.value = goodOid
-        id = CustomFHIRFunctions.getIdType(mutableListOf(oidInString))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(isoType)
-
-        oidInString.value = "urn:oid:$goodOid"
-        id = CustomFHIRFunctions.getIdType(mutableListOf(oidInString))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(isoType)
-
-        // Generic IDs don't have a type
-        val someId = "someId"
-        val genId = StringType()
-        genId.value = "urn:id:$someId"
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(genId))).isEmpty()
-        genId.value = someId
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(genId))).isEmpty()
-
-        // CLIA IDs
-        val cliaId = StringType()
-        cliaId.value = "dummy"
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(cliaId))).isEmpty()
-
-        val realClia = "15D2112066"
-        cliaId.value = "urn:id:$realClia"
-        id = CustomFHIRFunctions.getIdType(mutableListOf(cliaId))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(cliaType)
-
-        cliaId.value = realClia
-        id = CustomFHIRFunctions.getIdType(mutableListOf(cliaId))
-        assertThat(id.size).isEqualTo(1)
-        assertThat(id[0].primitiveValue()).isEqualTo(cliaType)
     }
 }

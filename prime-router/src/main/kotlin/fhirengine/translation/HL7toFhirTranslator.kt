@@ -1,21 +1,23 @@
 package gov.cdc.prime.router.fhirengine.translation
 
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v251.segment.MSH
+import ca.uhn.hl7v2.model.Segment
+import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.fhirengine.utils.addProvenanceReference
+import gov.cdc.prime.router.fhirengine.utils.enhanceBundleMetadata
+import gov.cdc.prime.router.fhirengine.utils.handleBirthTime
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
 import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Coding
 
 /**
  * Translate an HL7 message to FHIR.
  */
 class HL7toFhirTranslator internal constructor(
-    private val messageEngine: HL7MessageEngine = FhirTranscoder.getMessageEngine()
+    private val messageEngine: HL7MessageEngine = FhirTranscoder.getMessageEngine(),
 ) : Logging {
     companion object {
         init {
@@ -51,7 +53,7 @@ class HL7toFhirTranslator internal constructor(
      * @return the message model
      */
     internal fun getHL7MessageModel(
-        hl7Message: Message
+        hl7Message: Message,
     ): HL7MessageModel {
         val messageTemplateType = getMessageTemplateType(hl7Message)
         return defaultMessageTemplates[messageTemplateType]
@@ -77,7 +79,9 @@ class HL7toFhirTranslator internal constructor(
 
         val messageModel = getHL7MessageModel(hl7Message)
         val bundle = messageModel.convert(hl7Message, messageEngine)
-        enhanceBundleMetadata(bundle, hl7Message)
+        bundle.enhanceBundleMetadata(hl7Message)
+        bundle.addProvenanceReference()
+        bundle.handleBirthTime(hl7Message)
         return bundle
     }
 
@@ -86,25 +90,7 @@ class HL7toFhirTranslator internal constructor(
      * @return the message type
      */
     internal fun getMessageTemplateType(message: Message): String {
-        val header = message.get("MSH")
-        check(header is MSH)
-        return header.messageType.msg1_MessageCode.value +
-            "_" +
-            header.messageType.msg2_TriggerEvent.value
-    }
-
-    /**
-     * Enhance the [bundle] metadata with data from an [hl7Message].  This is not part of the library configuration.
-     */
-    private fun enhanceBundleMetadata(bundle: Bundle, hl7Message: Message) {
-        // For bundles of type MESSAGE the timestamp is the time the HL7 was generated.
-        bundle.timestamp = HL7Reader.getMessageTimestamp(hl7Message)
-
-        // The HL7 message ID
-        val mshSegment = hl7Message["MSH"] as MSH
-        bundle.identifier.value = mshSegment.messageControlID.value
-
-        if (!mshSegment.security.isEmpty) bundle.meta.security =
-            listOf(Coding("", mshSegment.security.value, mshSegment.security.value))
+        val header = message.get("MSH") as Segment
+        return Terser.get(header, 9, 0, 3, 1)
     }
 }

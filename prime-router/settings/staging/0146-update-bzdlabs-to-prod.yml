@@ -1,0 +1,12 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0146-update-bzdlabs-to-prod.yml
+---
+- name: bzdlabs
+  description: BZD labs
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: bzdlabs
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV

@@ -11,8 +11,3 @@ data "azurerm_subnet" "container_subnet" {
   virtual_network_name = "${var.resource_prefix}-East-vnet"
   resource_group_name  = var.resource_group
 }
-
-data "azurerm_private_dns_zone" "prime_local" {
-  name                = "prime.local"
-  resource_group_name = var.resource_group
-}

@@ -21,12 +21,12 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserJksCredential
+import org.apache.hc.core5.util.Timeout
 import org.apache.http.conn.ConnectTimeoutException
 import org.apache.logging.log4j.kotlin.Logging
 import java.net.ConnectException
 import java.util.Base64
-
-const val TIMEOUT = 10_000
+import java.util.concurrent.TimeUnit
 
 /**
  * The AS2 transport was built for communicating to the WA OneHealthNetwork. It is however a general transport protocol
@@ -74,7 +74,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
                 null,
                 as2Info.toString(),
                 msg,
-                header.reportFile.itemCount
+                header
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
@@ -107,7 +107,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
         credential: UserJksCredential,
         externalFileName: String,
         sentReportId: ReportId,
-        contents: ByteArray
+        contents: ByteArray,
     ) {
         val jks = Base64.getDecoder().decode(credential.jks)
         val settings = AS2ClientSettings()
@@ -115,8 +115,8 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
             .setSenderData(as2Info.senderId, as2Info.senderEmail, credential.privateAlias)
             .setReceiverData(as2Info.receiverId, credential.trustAlias, as2Info.receiverUrl)
             .setEncryptAndSign(ECryptoAlgorithmCrypt.CRYPT_3DES, ECryptoAlgorithmSign.DIGEST_SHA256)
-            .setConnectTimeoutMS(TIMEOUT)
-            .setReadTimeoutMS(2 * TIMEOUT)
+            .setConnectTimeout(Timeout.of(10_000, TimeUnit.MILLISECONDS))
+            .setResponseTimeout(Timeout.of(20_000, TimeUnit.MILLISECONDS))
             .setMDNRequested(true)
         settings.setPartnershipName("${settings.senderAS2ID}_${settings.receiverAS2ID}")
 
@@ -135,12 +135,15 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
         val response = AS2Client().sendSynchronous(settings, request)
 
         // Check the response
-        if (response.hasException())
+        if (response.hasException()) {
             throw response.exception!!
-        if (!response.hasMDN())
+        }
+        if (!response.hasMDN()) {
             error("AS2 upload for $externalFileName: No MDN in response")
-        if (response.mdnDisposition?.contains("processed") != true)
+        }
+        if (response.mdnDisposition?.contains("processed") != true) {
             error("AS2 Upload for $externalFileName: Bad MDN ${response.mdnDisposition} ")
+        }
     }
 
     /**

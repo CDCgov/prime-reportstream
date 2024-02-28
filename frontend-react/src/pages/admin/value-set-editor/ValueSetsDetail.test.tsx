@@ -1,15 +1,18 @@
-import { screen, act } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { AxiosResponse } from "axios";
+import { act, screen, waitFor } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
+import { AxiosError, AxiosResponse } from "axios";
 
-import { renderWithQueryProvider } from "../../../utils/CustomRenderUtils";
-import { RSNetworkError } from "../../../utils/RSNetworkError";
+import { ValueSetsDetailPage, ValueSetsDetailTable } from "./ValueSetsDetail";
 import {
-    ValueSetsMetaResponse,
-    ValueSetsTableResponse,
+    useValueSetActivation,
+    useValueSetsMeta,
+    UseValueSetsMetaResult,
+    useValueSetsTable,
+    UseValueSetsTableResult,
+    useValueSetUpdate,
 } from "../../../hooks/UseValueSets";
-
-import { ValueSetsDetail, ValueSetsDetailTable } from "./ValueSetsDetail";
+import { renderApp } from "../../../utils/CustomRenderUtils";
+import { RSNetworkError } from "../../../utils/RSNetworkError";
 
 const fakeRows = [
     {
@@ -35,46 +38,47 @@ const fakeMeta = {
     createdAt: "today",
     tableSha256Checksum: "sha",
 };
+const mockError = new RSNetworkError(new AxiosError("test-error"));
 
-let mockSaveData = jest.fn();
-let mockActivateTable = jest.fn();
-let mockUseValueSetsTable = jest.fn();
-let mockUseValueSetsMeta = jest.fn();
+jest.mock<typeof import("../../../hooks/UseValueSets")>(
+    "../../../hooks/UseValueSets",
+    () => ({
+        ...jest.requireActual("../../../hooks/UseValueSets"),
+        useValueSetsTable: jest.fn(),
+        useValueSetUpdate: jest.fn(),
+        useValueSetActivation: jest.fn(),
+        useValueSetsMeta: jest.fn(),
+    }),
+);
 
-jest.mock("../../../hooks/UseValueSets", () => {
-    return {
-        useValueSetsTable: (valueSetName: string) =>
-            mockUseValueSetsTable(valueSetName),
-        useValueSetUpdate: () => ({
-            saveData: mockSaveData,
-        }),
-        useValueSetActivation: () => ({
-            activateTable: mockActivateTable,
-        }),
-        useValueSetsMeta: () => mockUseValueSetsMeta(),
-    };
-});
+const mockSaveData = jest.mocked(useValueSetUpdate);
+const mockActivateTable = jest.mocked(useValueSetActivation);
+const mockUseValueSetsTable = jest.mocked(useValueSetsTable);
+const mockUseValueSetsMeta = jest.mocked(useValueSetsMeta);
 
-jest.mock("react-router-dom", () => ({
-    useParams: () => ({ valueSetName: "a-path" }),
+jest.mock<typeof import("react-router-dom")>("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
+    useParams: () => ({ valueSetName: "a-path" }) as any,
 }));
 
 describe("ValueSetsDetail", () => {
     test("Renders with no errors", () => {
-        mockUseValueSetsTable = jest.fn(
+        mockUseValueSetsTable.mockImplementation(
             () =>
                 ({
-                    valueSetArray: fakeRows,
-                } as ValueSetsTableResponse<any>)
+                    data: fakeRows,
+                }) as UseValueSetsTableResult,
         );
-        mockUseValueSetsMeta = jest.fn(
+        mockUseValueSetsMeta.mockImplementation(
             () =>
                 ({
-                    valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
+                    data: fakeMeta,
+                }) as any,
         );
+        mockSaveData.mockImplementation(() => ({}) as any);
+        mockActivateTable.mockImplementation(() => ({}) as any);
         // only render with query provider
-        renderWithQueryProvider(<ValueSetsDetail />);
+        renderApp(<ValueSetsDetailPage />);
         const headers = screen.getAllByRole("columnheader");
         const title = screen.getByText("ReportStream Core Values");
         const datasetActionButton = screen.getByText("Add item");
@@ -86,28 +90,33 @@ describe("ValueSetsDetail", () => {
         expect(rows.length).toBe(3); // +1 for header
     });
 
-    test("Rows are editable", () => {
-        mockUseValueSetsTable = jest.fn(
+    test("Rows are editable", async () => {
+        mockUseValueSetsTable.mockImplementation(
             () =>
                 ({
-                    valueSetArray: fakeRows,
-                } as ValueSetsTableResponse<any>)
+                    data: fakeRows,
+                }) as UseValueSetsTableResult,
         );
-        mockUseValueSetsMeta = jest.fn(
+        mockUseValueSetsMeta.mockImplementation(
             () =>
                 ({
-                    valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
+                    data: fakeMeta,
+                }) as UseValueSetsMetaResult,
         );
-        renderWithQueryProvider(<ValueSetsDetail />);
+        mockSaveData.mockImplementation(() => ({}) as any);
+        mockActivateTable.mockImplementation(() => ({}) as any);
+        renderApp(<ValueSetsDetailPage />);
         const editButtons = screen.getAllByText("Edit");
         const rows = screen.getAllByRole("row");
 
         // assert they are present on all rows but header
         expect(editButtons.length).toEqual(rows.length - 1);
 
-        // activate editing mode for first row
-        userEvent.click(editButtons[0]);
+        await waitFor(async () => {
+            // activate editing mode for first row
+            await userEvent.click(editButtons[0]);
+            await screen.findByText("Save");
+        });
 
         // assert input element is rendered in edit mode
         const input = screen.getAllByRole("textbox");
@@ -115,68 +124,107 @@ describe("ValueSetsDetail", () => {
     });
 
     test("Handles error with table fetch", () => {
-        mockUseValueSetsTable = jest.fn(() => {
-            throw new RSNetworkError("Test", { status: 404 } as AxiosResponse);
+        mockUseValueSetsTable.mockImplementation(() => {
+            throw new RSNetworkError(
+                new AxiosError("Test", "404", undefined, {}, {
+                    status: 404,
+                } as AxiosResponse),
+            );
         });
-        mockUseValueSetsMeta = jest.fn(
+        mockUseValueSetsMeta.mockImplementation(
             () =>
                 ({
-                    valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
+                    data: fakeMeta,
+                }) as UseValueSetsMetaResult,
         );
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
          * test them via the ErrorBoundary test? */
-        renderWithQueryProvider(<ValueSetsDetail />);
+        renderApp(<ValueSetsDetailPage />);
         expect(
             screen.getByText(
-                "Our apologies, there was an error loading this content."
-            )
+                "Our apologies, there was an error loading this content.",
+            ),
         ).toBeInTheDocument();
     });
 });
 
 describe("ValueSetsDetailTable", () => {
+    test("Handles fetch related errors", () => {
+        const mockSetAlert = jest.fn();
+        mockSaveData.mockImplementation(() => ({}) as any);
+        mockActivateTable.mockImplementation(() => ({}) as any);
+        renderApp(
+            <ValueSetsDetailTable
+                valueSetName={"error"}
+                setAlert={mockSetAlert}
+                valueSetData={[]}
+                error={mockError}
+            />,
+        );
+        expect(mockSetAlert).toHaveBeenCalled();
+        expect(mockSetAlert).toHaveBeenCalledWith({
+            type: "error",
+            message: "unknown-error: test-error",
+        });
+    });
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
-        mockSaveData = jest.fn(() => {
-            // to avoid unnecessary console error
-            return Promise.resolve({ tableVersion: 2 });
-        });
+        const mockSaveDataMutate = jest.fn();
+        const mockActivateTableMutate = jest.fn();
+        mockSaveData.mockImplementation(
+            () =>
+                ({
+                    mutateAsync: mockSaveDataMutate.mockImplementation(() =>
+                        Promise.resolve({ tableVersion: 2 }),
+                    ),
+                }) as any,
+        );
 
-        mockActivateTable = jest.fn(() => {
-            // to avoid unnecessary console error
-            return Promise.resolve({ tableVersion: 2 });
-        });
+        mockActivateTable.mockImplementation(
+            () =>
+                ({
+                    mutateAsync: mockActivateTableMutate.mockImplementation(
+                        () => Promise.resolve({ tableVersion: 2 }),
+                    ),
+                }) as any,
+        );
         const mockSetAlert = jest.fn();
         const fakeRowsCopy = [...fakeRows];
 
-        renderWithQueryProvider(
+        renderApp(
             <ValueSetsDetailTable
                 valueSetName={"a-path"}
                 setAlert={mockSetAlert}
                 valueSetData={fakeRows}
-            />
+            />,
         );
         const editButtons = screen.getAllByText("Edit");
         const editButton = editButtons[0];
         expect(editButton).toBeInTheDocument();
-        userEvent.click(editButton);
+        await waitFor(async () => {
+            await userEvent.click(editButton);
+            await screen.findByText("Save");
+        });
+        const saveButton = await screen.findByText("Save");
 
-        const inputs = screen.getAllByRole("textbox") as HTMLInputElement[];
+        const inputs = screen.getAllByRole<HTMLInputElement>("textbox");
+        expect(inputs.length).toBe(3);
         const firstInput = inputs[0];
         const initialValue = firstInput.value;
-        userEvent.click(firstInput);
-        userEvent.keyboard("~~fakeInputValue~~");
+        const newValue = "~~fakeInputValue~~";
+        await waitFor(async () => {
+            await userEvent.click(firstInput);
+            await userEvent.type(firstInput, newValue);
+            expect(firstInput).toHaveValue(initialValue + newValue);
+        });
 
-        const saveButton = screen.getByText("Save");
-        expect(saveButton).toBeInTheDocument();
         // eslint-disable-next-line testing-library/no-unnecessary-act
         await act(async () => {
-            userEvent.click(saveButton);
+            await userEvent.click(saveButton);
         });
         fakeRowsCopy.shift();
 
-        expect(mockSaveData).toHaveBeenCalled();
-        expect(mockSaveData).toHaveBeenCalledWith({
+        expect(mockSaveDataMutate).toHaveBeenCalled();
+        expect(mockSaveDataMutate).toHaveBeenCalledWith({
             data: [
                 {
                     ...fakeRows[0],
@@ -186,8 +234,8 @@ describe("ValueSetsDetailTable", () => {
             ],
             tableName: "a-path",
         });
-        expect(mockActivateTable).toHaveBeenCalled();
-        expect(mockActivateTable).toHaveBeenCalledWith({
+        expect(mockActivateTableMutate).toHaveBeenCalled();
+        expect(mockActivateTableMutate).toHaveBeenCalledWith({
             tableVersion: 2,
             tableName: "a-path",
         });

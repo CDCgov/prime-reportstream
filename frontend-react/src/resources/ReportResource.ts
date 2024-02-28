@@ -1,7 +1,6 @@
-import config from "../config";
-
 import ActionResource from "./ActionResource";
 import AuthResource from "./AuthResource";
+import config from "../config";
 
 const { RS_API_URL } = config;
 
@@ -29,14 +28,14 @@ export default class ReportResource extends AuthResource {
         sent?: number,
         expires?: number,
         total?: number,
-        fileType?: string
+        fileType?: string,
     ) {
         super();
-        this.reportId = reportId || "";
-        this.sent = sent || 0;
-        this.expires = expires || 0;
-        this.total = total || 0;
-        this.fileType = fileType || "";
+        this.reportId = reportId ?? "";
+        this.sent = sent ?? 0;
+        this.expires = expires ?? 0;
+        this.total = total ?? 0;
+        this.fileType = fileType ?? "";
     }
 
     pk() {

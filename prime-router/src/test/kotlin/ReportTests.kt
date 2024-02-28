@@ -1,17 +1,37 @@
 package gov.cdc.prime.router
 
+import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.endsWith
+import assertk.assertions.hasClass
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
+import org.junit.jupiter.api.AfterEach
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.utility.DockerImageName
 import java.io.ByteArrayInputStream
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -20,17 +40,75 @@ import kotlin.test.fail
 class ReportTests {
     private val metadata = UnitTestUtils.simpleMetadata
 
-    val rcvr = Receiver("name", "org", "topic", CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
+    val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
+
+    val azuriteContainer =
+        GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
+            .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
+            .withExposedPorts(10000, 10001, 10002)
+
+    /**
+     * Create table's header
+     */
+    val oneWithAge = Schema(
+        name = "one",
+        topic = Topic.TEST,
+        elements = listOf(
+            Element("message_id"),
+            Element("patient_age"),
+            Element("specimen_collection_date_time"),
+            Element("patient_dob")
+        )
+    )
+
+    /**
+     * Add Rows values to the table
+     */
+    val oneReport = Report(
+        schema = oneWithAge,
+        values = listOf(
+            listOf("0", "100", "202110300809", "30300102"), // Good age, ... don't care -> patient_age=100
+            // Bad age, good collect date, BAD DOB -> patient_age=null
+            listOf("1", ")@*", "202110300809-0501", "30300101"),
+            // Bad age, bad collect date, good dob -> patient_age=2
+            listOf("2", "_", "202110300809", "20190101"),
+            // Good age, bad collect date, bad dob -> patient_age=20
+            listOf("3", "20", "adfadf", "!@!*@(7"),
+            // Bad age, good collect date, good dob -> patient_age=2
+            listOf("4", "0", "202110300809-0500", "20190101"),
+            // Bad age, good collect data, good dob -> patient_age=10
+            listOf("5", "-5", "202110300809-0502", "20111029"),
+            // Good age, ... don't care -> patient_age = 40
+            listOf("6", "40", "asajh", "20190101"),
+            // Good age is blank, -> patient_age=null
+            listOf("7", "", "asajh", "20190101")
+        ),
+        TestSource,
+        metadata = metadata
+    )
+
+    init {
+        azuriteContainer.start()
+    }
+
+    @AfterEach
+    fun afterEach() {
+        clearAllMocks()
+    }
 
     @Test
     fun `test merge`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val report1 = Report(
-            one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource,
+            one,
+            listOf(listOf("1", "2"), listOf("3", "4")),
+            source = TestSource,
             metadata = metadata
         )
         val report2 = Report(
-            one, listOf(listOf("5", "6"), listOf("7", "8")), source = TestSource,
+            one,
+            listOf(listOf("5", "6"), listOf("7", "8")),
+            source = TestSource,
             metadata = metadata
         )
         val mergedReport = Report.merge(listOf(report1, report2))
@@ -43,7 +121,7 @@ class ReportTests {
 
     @Test
     fun `test filter`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
@@ -69,7 +147,7 @@ class ReportTests {
 
     @Test
     fun `test multiarg matches filter`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         // each sublist is a row.
@@ -128,7 +206,7 @@ class ReportTests {
 
     @Test
     fun `test isEmpty`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val emptyReport = Report(one, emptyList(), source = TestSource, metadata = metadata)
         assertThat(emptyReport.isEmpty()).isEqualTo(true)
         val report1 = Report(one, listOf(listOf("1", "2")), source = TestSource, metadata = metadata)
@@ -137,7 +215,7 @@ class ReportTests {
 
     @Test
     fun `test create with list`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val report1 = Report(one, listOf(listOf("1", "2")), TestSource, metadata = metadata)
         assertThat(report1.schema).isEqualTo(one)
         assertThat(report1.itemCount).isEqualTo(1)
@@ -146,13 +224,15 @@ class ReportTests {
 
     @Test
     fun `test applyMapping`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
+        val two = Schema(name = "two", topic = Topic.TEST, elements = listOf(Element("b")))
         val metadata = UnitTestUtils.simpleMetadata
         metadata.loadSchemas(one, two)
 
         val oneReport = Report(
-            schema = one, values = listOf(listOf("a1", "b1"), listOf("a2", "b2")), TestSource,
+            schema = one,
+            values = listOf(listOf("a1", "b1"), listOf("a2", "b2")),
+            TestSource,
             metadata = metadata
         )
         assertThat(oneReport.itemCount).isEqualTo(2)
@@ -168,15 +248,17 @@ class ReportTests {
     fun `test applyMapping with default`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(Element("a", default = "~"), Element("b"))
         )
-        val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
+        val two = Schema(name = "two", topic = Topic.TEST, elements = listOf(Element("b")))
         val metadata = UnitTestUtils.simpleMetadata
         metadata.loadSchemas(one, two)
 
         val twoReport = Report(
-            schema = two, values = listOf(listOf("b1"), listOf("b2")), source = TestSource,
+            schema = two,
+            values = listOf(listOf("b1"), listOf("b2")),
+            source = TestSource,
             metadata = metadata
         )
         assertThat(twoReport.itemCount).isEqualTo(2)
@@ -193,7 +275,7 @@ class ReportTests {
     fun `test patientZipentify`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(Element("a", pii = true), Element("b"), Element("patient_zip_code"))
         )
 
@@ -251,7 +333,7 @@ class ReportTests {
 
         val two = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(Element("a", pii = true), Element("b"))
         )
 
@@ -279,7 +361,7 @@ class ReportTests {
     fun `test patient age deidentification`() {
         val patientAgeSchema = Schema(
             name = "patientAgeSchema",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("patient_age", pii = true),
                 Element("patient_dob", pii = true),
@@ -332,7 +414,7 @@ class ReportTests {
     fun `test patient dob deidentification`() {
         val patientAgeSchema = Schema(
             name = "patientAgeSchema",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("patient_age", pii = true),
                 Element("patient_dob", pii = true),
@@ -347,7 +429,7 @@ class ReportTests {
                 // should be deidentified
                 listOf("", "1923-08-03", "2022-06-22 22:58:00"),
                 // collection date and dob
-                listOf("", "2000-12-01", "2022-06-22 22:58:00"),
+                listOf("", "2000-12-01", "2022-06-22 22:58:00")
             ),
             source = TestSource,
             metadata = metadata
@@ -360,43 +442,6 @@ class ReportTests {
 
     @Test
     fun `test patient age validation`() {
-        /**
-         * Create table's header
-         */
-        val oneWithAge = Schema(
-            name = "one", topic = "test",
-            elements = listOf(
-                Element("message_id"), Element("patient_age"),
-                Element("specimen_collection_date_time"), Element("patient_dob")
-            )
-        )
-
-        /**
-         * Add Rows values to the table
-         */
-        val oneReport = Report(
-            schema = oneWithAge,
-            values = listOf(
-                listOf("0", "100", "202110300809", "30300102"), // Good age, ... don't care -> patient_age=100
-                // Bad age, good collect date, BAD DOB -> patient_age=null
-                listOf("1", ")@*", "202110300809-0501", "30300101"),
-                // Bad age, bad collect date, good dob -> patient_age=2
-                listOf("2", "_", "202110300809", "20190101"),
-                // Good age, bad collect date, bad dob -> patient_age=20
-                listOf("3", "20", "adfadf", "!@!*@(7"),
-                // Bad age, good collect date, good dob -> patient_age=2
-                listOf("4", "0", "202110300809-0500", "20190101"),
-                // Bad age, good collect data, good dob -> patient_age=10
-                listOf("5", "-5", "202110300809-0502", "20111029"),
-                // Good age, ... don't care -> patient_age = 40
-                listOf("6", "40", "asajh", "20190101"),
-                // Good age is blank, -> patient_age=null
-                listOf("7", "", "asajh", "20190101"),
-            ),
-            TestSource,
-            metadata = metadata
-        )
-
         val covidResultMetadata = oneReport.getDeidentifiedResultMetaData()
         assertThat(covidResultMetadata).isNotNull()
         assertThat(covidResultMetadata[0].patientAge).isEqualTo("100")
@@ -412,9 +457,11 @@ class ReportTests {
          * Test table without patient_age
          */
         val twoWithoutAge = Schema(
-            name = "one", topic = "test",
+            name = "one",
+            topic = Topic.TEST,
             elements = listOf(
-                Element("message_id"), Element("specimen_collection_date_time"),
+                Element("message_id"),
+                Element("specimen_collection_date_time"),
                 Element("patient_dob")
             )
         )
@@ -442,36 +489,6 @@ class ReportTests {
 
     @Test
     fun `test covid metadata output`() {
-        /**
-         * Create table's header
-         */
-        val oneWithAge = Schema(
-            name = "one", topic = "test",
-            elements = listOf(
-                Element("message_id"), Element("patient_age"),
-                Element("specimen_collection_date_time"), Element("patient_dob")
-            )
-        )
-
-        /**
-         * Add Rows values to the table
-         */
-        val oneReport = Report(
-            schema = oneWithAge,
-            values = listOf(
-                listOf("0", "100", "202110300809", "30300102"),
-                listOf("1", ")@*", "202110300809-0501", "30300101"),
-                listOf("2", "_", "202110300809", "20190101"),
-                listOf("3", "20", "adfadf", "!@!*@(7"),
-                listOf("4", "0", "202110300809-0500", "20190101"),
-                listOf("5", "-5", "202110300809-0502", "20111029"),
-                listOf("6", "40", "asajh", "20190101"),
-                listOf("7", "", "asajh", "20190101"),
-            ),
-            TestSource,
-            metadata = metadata
-        )
-
         val covidResultMetadata = oneReport.getDeidentifiedResultMetaData()
         assertThat(covidResultMetadata).isNotNull()
         // there should never be a report index of 0 in covid result metadata, row indexing should start at 1
@@ -485,14 +502,18 @@ class ReportTests {
     // Tests for Item lineage
     @Test
     fun `test merge item lineage`() {
-        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val schema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
         val report1 = Report(
-            schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource,
+            schema,
+            listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")),
+            source = TestSource,
             metadata = metadata
         )
         val report2 = Report(
-            schema, listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")), source = TestSource,
+            schema,
+            listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")),
+            source = TestSource,
             metadata = metadata
         )
 
@@ -516,10 +537,12 @@ class ReportTests {
 
     @Test
     fun `test split item lineage`() {
-        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val schema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
         val report1 = Report(
-            schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource,
+            schema,
+            listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")),
+            source = TestSource,
             metadata = metadata
         )
 
@@ -546,12 +569,14 @@ class ReportTests {
 
     @Test
     fun `test item lineage after jurisdictional filter`() {
-        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val schema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")), trackingElement = "a")
         val metadata = Metadata(schema = schema)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         // each sublist is a row.
         val report1 = Report(
-            schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource,
+            schema,
+            listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")),
+            source = TestSource,
             metadata = metadata
         )
 
@@ -575,14 +600,18 @@ class ReportTests {
 
     @Test
     fun `test merge then split`() {
-        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val schema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
         val report1 = Report(
-            schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource,
+            schema,
+            listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")),
+            source = TestSource,
             metadata = metadata
         )
         val report2 = Report(
-            schema, listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")), source = TestSource,
+            schema,
+            listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")),
+            source = TestSource,
             metadata = metadata
         )
 
@@ -610,10 +639,12 @@ class ReportTests {
 
     @Test
     fun `test lineage insanity`() {
-        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val schema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
         val report1 = Report(
-            schema, listOf(listOf("bbb"), listOf("aaa"), listOf("aaa")), source = TestSource,
+            schema,
+            listOf(listOf("bbb"), listOf("aaa"), listOf("aaa")),
+            source = TestSource,
             metadata = metadata
         )
         val metadata = Metadata(schema = schema)
@@ -656,9 +687,10 @@ class ReportTests {
         // arrange
         val schema = Schema(
             name = "test",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
-                Element("last_name"), Element("first_name")
+                Element("last_name"),
+                Element("first_name")
             )
         )
         val report = Report(
@@ -684,9 +716,10 @@ class ReportTests {
         // arrange
         val schema = Schema(
             name = "test",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
-                Element("last_name"), Element("first_name")
+                Element("last_name"),
+                Element("first_name")
             )
         )
         val report = Report(
@@ -716,9 +749,11 @@ class ReportTests {
         // arrange
         val schema = Schema(
             name = "test",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
-                Element("last_name"), Element("first_name"), Element("ssn")
+                Element("last_name"),
+                Element("first_name"),
+                Element("ssn")
             )
         )
         val report = Report(
@@ -726,7 +761,7 @@ class ReportTests {
             values = listOf(
                 listOf("smith", "sarah", "000000000"),
                 listOf("jones", "mary", "000000000"),
-                listOf("white", "roberta", "000000000"),
+                listOf("white", "roberta", "000000000")
             ),
             source = TestSource,
             metadata = metadata
@@ -734,7 +769,7 @@ class ReportTests {
         val strategies = mapOf(
             "last_name" to Report.SynthesizeStrategy.PASSTHROUGH,
             "first_name" to Report.SynthesizeStrategy.PASSTHROUGH,
-            "ssn" to Report.SynthesizeStrategy.BLANK,
+            "ssn" to Report.SynthesizeStrategy.BLANK
         )
         // act
         val synthesizedReport = report.synthesizeData(strategies, metadata = metadata)
@@ -758,9 +793,10 @@ class ReportTests {
         // arrange
         val schema = Schema(
             name = "test",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
-                Element("last_name"), Element("first_name"),
+                Element("last_name"),
+                Element("first_name")
             )
         )
         val report = Report(
@@ -771,13 +807,13 @@ class ReportTests {
                 listOf("white", "roberta"),
                 listOf("stock", "julie"),
                 listOf("chang", "emily"),
-                listOf("rodriguez", "anna"),
+                listOf("rodriguez", "anna")
             ),
             source = TestSource
         )
         val strategies = mapOf(
             "last_name" to Report.SynthesizeStrategy.SHUFFLE,
-            "first_name" to Report.SynthesizeStrategy.SHUFFLE,
+            "first_name" to Report.SynthesizeStrategy.SHUFFLE
         )
         // act
         val synthesizedReport = report.synthesizeData(strategies, metadata = metadata)
@@ -795,7 +831,7 @@ class ReportTests {
         // arrange
         val schema = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("first_name"), // pii =  true
                 Element("test_time"), // type = DATETIME
@@ -831,6 +867,310 @@ class ReportTests {
         assertThat(specimenId).isEqualTo("")
         assertThat(observation).isEqualTo("null")
     }
+
+    @Test
+    fun `test format from extension`() {
+        var format = Report.Format.valueOfFromExt("csv")
+        assertThat(format).isEqualTo(Report.Format.CSV)
+
+        format = Report.Format.valueOfFromExt("fhir")
+        assertThat(format).isEqualTo(Report.Format.FHIR)
+
+        format = Report.Format.valueOfFromExt("hl7")
+        assertThat(format).isEqualTo(Report.Format.HL7)
+
+        try {
+            format = Report.Format.valueOfFromExt("txt")
+            fail("Expected IllegalArgumentException, instead got $format.")
+        } catch (e: IllegalArgumentException) {
+            assertThat(e).isNotNull()
+        }
+    }
+
+    @Test
+    fun `test generateReportAndUploadBlob errors`() {
+        val mockActionHistory = mockk<ActionHistory>()
+        val mockMetadata = mockk<Metadata>()
+
+        // No message body
+        assertFailure {
+            Report.generateReportAndUploadBlob(
+                Event.EventAction.BATCH,
+                "".toByteArray(),
+                listOf(UUID.randomUUID()),
+                rcvr,
+                mockMetadata,
+                mockActionHistory,
+                topic = Topic.FULL_ELR,
+            )
+        }.hasClass(java.lang.IllegalStateException::class.java)
+
+        // No report ID
+        assertFailure {
+            Report.generateReportAndUploadBlob(
+                Event.EventAction.BATCH,
+                UUID.randomUUID().toString().toByteArray(),
+                listOf(),
+                rcvr,
+                mockMetadata,
+                mockActionHistory,
+                topic = Topic.FULL_ELR,
+            )
+        }.hasClass(java.lang.IllegalStateException::class.java)
+
+        // Invalid receiver type
+        assertFailure {
+            Report.generateReportAndUploadBlob(
+                Event.EventAction.BATCH,
+                UUID.randomUUID().toString().toByteArray(),
+                listOf(UUID.randomUUID()),
+                rcvr,
+                mockMetadata,
+                mockActionHistory,
+                topic = Topic.FULL_ELR,
+            )
+        }.hasClass(java.lang.IllegalStateException::class.java)
+    }
+
+    @Test
+    fun `test generateReportAndUploadBlob for fhir`() {
+        val blobConnectionString =
+            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${
+                azuriteContainer.getMappedPort(
+                    10000
+                )
+            }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
+                azuriteContainer.getMappedPort(
+                    10001
+                )
+            }/devstoreaccount1;"""
+        val blobContainerMetadata = BlobAccess.BlobContainerMetadata(
+            "container1",
+            blobConnectionString
+        )
+
+        mockkObject(BlobAccess.BlobContainerMetadata.Companion)
+        every { BlobAccess.BlobContainerMetadata.Companion.build(any(), any()) } returns blobContainerMetadata
+        every { BlobAccess.BlobContainerMetadata.Companion.build(any()) } returns blobContainerMetadata
+
+        val mockMetadata = mockk<Metadata> {
+            every { fileNameTemplates } returns emptyMap()
+        }
+        val mockActionHistory = mockk<ActionHistory> {
+            every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
+        }
+        val fhirMockData = UUID.randomUUID().toString().toByteArray() // Just some data
+        val receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = FHIRConfiguration(receivingOrganization = null)
+        )
+
+        // Now test single report
+        var reportIds = listOf(ReportId.randomUUID())
+        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+            Event.EventAction.PROCESS, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR,
+        )
+
+        assertThat(report.bodyFormat).isEqualTo(Report.Format.FHIR)
+        assertThat(report.itemCount).isEqualTo(1)
+        assertThat(report.destination).isNotNull()
+        assertThat(report.destination!!.name).isEqualTo(receiver.name)
+        assertThat(report.itemLineages).isNotNull()
+        assertThat(report.itemLineages!!.size).isEqualTo(1)
+        assertThat(Regex("None-${report.id}-\\d*.fhir").matches(report.name)).isTrue()
+        assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
+        assertThat(blobInfo.blobUrl).endsWith("/devstoreaccount1/container1/process%2Forg.name%2F${report.name}")
+        assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
+            .isEqualTo(fhirMockData)
+
+        // Multiple reports
+        reportIds = listOf(ReportId.randomUUID(), ReportId.randomUUID(), ReportId.randomUUID())
+        val (report2, event2, _) = Report.generateReportAndUploadBlob(
+            Event.EventAction.SEND, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR,
+        )
+        assertThat(report2.bodyFormat).isEqualTo(Report.Format.FHIR)
+        assertThat(report2.itemCount).isEqualTo(3)
+        assertThat(report2.itemLineages).isNotNull()
+        assertThat(report2.itemLineages!!.size).isEqualTo(3)
+        assertThat(event2.eventAction).isEqualTo(Event.EventAction.SEND)
+    }
+
+    @Test
+    fun `test generateReportAndUploadBlob for hl7`() {
+        val blobConnectionString =
+            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${
+                azuriteContainer.getMappedPort(
+                    10000
+                )
+            }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
+                azuriteContainer.getMappedPort(
+                    10001
+                )
+            }/devstoreaccount1;"""
+        val blobContainerMetadata = BlobAccess.BlobContainerMetadata(
+            "container1",
+            blobConnectionString
+        )
+
+        mockkObject(BlobAccess.BlobContainerMetadata.Companion)
+        every { BlobAccess.BlobContainerMetadata.Companion.build(any(), any()) } returns blobContainerMetadata
+        every { BlobAccess.BlobContainerMetadata.Companion.build(any()) } returns blobContainerMetadata
+
+        val mockMetadata = mockk<Metadata> {
+            every { fileNameTemplates } returns emptyMap()
+        }
+        val mockActionHistory = mockk<ActionHistory> {
+            every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
+        }
+        val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
+        val receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = Hl7Configuration(
+                receivingApplicationName = null, receivingApplicationOID = null,
+                receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
+                messageProfileId = null
+            )
+        )
+
+        var reportIds = listOf(ReportId.randomUUID())
+        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+            Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR
+        )
+
+        assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
+        assertThat(report.itemCount).isEqualTo(1)
+        assertThat(report.destination).isNotNull()
+        assertThat(report.destination!!.name).isEqualTo(receiver.name)
+        assertThat(report.itemLineages).isNotNull()
+        assertThat(report.itemLineages!!.size).isEqualTo(1)
+        assertThat(Regex("None-${report.id}-\\d*.hl7").matches(report.name)).isTrue()
+        assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
+        assertThat(blobInfo.blobUrl).endsWith("/devstoreaccount1/container1/process%2Forg.name%2F${report.name}")
+        assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
+            .isEqualTo(hl7MockData)
+
+        // Multiple reports
+        reportIds = listOf(ReportId.randomUUID(), ReportId.randomUUID(), ReportId.randomUUID())
+        val (report2, event2, _) = Report.generateReportAndUploadBlob(
+            Event.EventAction.SEND, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR,
+        )
+        unmockkObject(BlobAccess)
+        assertThat(report2.bodyFormat).isEqualTo(Report.Format.HL7_BATCH)
+        assertThat(report2.itemCount).isEqualTo(3)
+        assertThat(report2.itemLineages).isNotNull()
+        assertThat(report2.itemLineages!!.size).isEqualTo(3)
+        assertThat(event2.eventAction).isEqualTo(Event.EventAction.SEND)
+    }
+
+    @Test
+    fun `test generateReportAndUploadBlob for hl7 externalName`() {
+        val blobConnectionString =
+            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${
+                azuriteContainer.getMappedPort(
+                    10000
+                )
+            }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
+                azuriteContainer.getMappedPort(
+                    10001
+                )
+            }/devstoreaccount1;"""
+        val blobContainerMetadata = BlobAccess.BlobContainerMetadata(
+            "container1",
+            blobConnectionString
+        )
+
+        mockkObject(BlobAccess.BlobContainerMetadata.Companion)
+        every { BlobAccess.BlobContainerMetadata.Companion.build(any(), any()) } returns blobContainerMetadata
+        every { BlobAccess.BlobContainerMetadata.Companion.build(any()) } returns blobContainerMetadata
+
+        val mockMetadata = mockk<Metadata> {
+            every { fileNameTemplates } returns emptyMap()
+        }
+        val mockActionHistory = mockk<ActionHistory> {
+            every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
+        }
+        val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
+        val receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = Hl7Configuration(
+                receivingApplicationName = null, receivingApplicationOID = null,
+                receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
+                messageProfileId = null
+            )
+        )
+
+        val reportIds = listOf(ReportId.randomUUID())
+        val externalReportName = "TestExternalName"
+        val (report, _, blobInfo) = Report.generateReportAndUploadBlob(
+            Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR, externalReportName
+        )
+
+        assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
+        assertThat(Regex("None-${report.id}-\\d*.hl7").matches(report.name)).isTrue()
+        assertThat(blobInfo.blobUrl).endsWith(
+            "/devstoreaccount1/container1/process%2Forg.name%2F$externalReportName-${report.name}"
+        )
+    }
+
+    @Test
+    fun `test formExternalFilename from header when body url is not null`() {
+        val expectedReportId = UUID.randomUUID()
+        val expectedFileName = "sampleFileName-someReportId.fhir"
+        val expectedBodyUrl = "https://this/is/an/example/blob/url/$expectedFileName"
+
+        val reportUnderTest = ReportFile()
+        reportUnderTest.reportId = expectedReportId
+        reportUnderTest.bodyUrl = expectedBodyUrl
+
+        val header = WorkflowEngine.Header(
+            Task(),
+            reportUnderTest,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true
+        )
+
+        assertThat(Report.formExternalFilename(header, metadata)).isEqualTo(expectedFileName)
+    }
+
+    @Test
+    fun `test formExternalFilename from header when body url is null`() {
+        val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+        val expectedReportId = UUID.randomUUID()
+        val expectedCreatedAtTime = OffsetDateTime.now()
+        val expectedSchemaName = "test-schema-name"
+        val expectedBodyFormat = "hl7"
+        val expectedFileName = "$expectedSchemaName-" +
+            "$expectedReportId-" +
+            "${dateFormatter.format(expectedCreatedAtTime)}." +
+            expectedBodyFormat
+        val reportUnderTest = ReportFile()
+        reportUnderTest.reportId = expectedReportId
+        reportUnderTest.schemaName = expectedSchemaName
+        reportUnderTest.bodyFormat = expectedBodyFormat
+        reportUnderTest.createdAt = expectedCreatedAtTime
+
+        val header = WorkflowEngine.Header(
+            Task(),
+            reportUnderTest,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true
+        )
+
+        assertThat(Report.formExternalFilename(header, metadata)).isEqualTo(expectedFileName)
+    }
 }
 
 class OptionTests {
@@ -846,7 +1186,7 @@ class OptionTests {
         assertThat(noneOption).equals(Options.None)
 
         val invalidOption = "INVALID OPTION"
-        assertFailsWith<Options.InvalidOptionException>() { Options.valueOfOrNone(invalidOption) }
+        assertFailsWith<Options.InvalidOptionException> { Options.valueOfOrNone(invalidOption) }
     }
 
     @Test

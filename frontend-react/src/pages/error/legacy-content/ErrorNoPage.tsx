@@ -1,14 +1,15 @@
-import { Helmet } from "react-helmet";
-import DOMPurify from "dompurify";
-import React from "react";
+import { Button } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 
 import site from "../../../content/site.json";
 
 export const ErrorNoPage = () => {
+    const navigate = useNavigate();
     return (
         <>
             <Helmet>
-                <title>Page Not Found | {process.env.REACT_APP_TITLE}</title>
+                <title>Page Not Found | {import.meta.env.VITE_TITLE}</title>
             </Helmet>
             <div
                 data-testid={"error-page-wrapper"}
@@ -19,7 +20,7 @@ export const ErrorNoPage = () => {
                         <div className="usa-prose">
                             <h1>Page not found</h1>
                             <p className="usa-intro">
-                                We’re sorry, we can’t find the page you're
+                                We’re sorry, we can’t find the page you&apos;re
                                 looking for. It might have been removed, changed
                                 names, or is otherwise unavailable.
                             </p>
@@ -40,22 +41,25 @@ export const ErrorNoPage = () => {
                             <div className="margin-y-5">
                                 <ul className="usa-button-group">
                                     <li className="usa-button-group__item">
-                                        <a href="./" className="usa-button">
+                                        <Button
+                                            type="button"
+                                            onClick={() => navigate("/")}
+                                        >
                                             Visit homepage
-                                        </a>
+                                        </Button>
                                     </li>
                                     <li className="usa-button-group__item">
-                                        <a
-                                            className="usa-button usa-button--outline"
-                                            href={
-                                                "mailto:" +
-                                                DOMPurify.sanitize(
-                                                    site.orgs.RS.email
+                                        <Button
+                                            type="button"
+                                            outline
+                                            onClick={() =>
+                                                window.open(
+                                                    `mailto:${site.orgs.RS.email}`,
                                                 )
                                             }
                                         >
                                             Contact us
-                                        </a>
+                                        </Button>
                                     </li>
                                 </ul>
                             </div>
@@ -66,3 +70,5 @@ export const ErrorNoPage = () => {
         </>
     );
 };
+
+export default ErrorNoPage;

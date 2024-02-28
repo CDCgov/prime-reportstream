@@ -1,4 +1,5 @@
 ---
+# deprecated
 name: az-covid-19-hl7
 description: AZ COVID-19
 referenceUrl: https://www.azdhs.gov/documents/preparedness/epidemiology-disease-control/meaningful-use/az-emr-implementation-guide.pdf

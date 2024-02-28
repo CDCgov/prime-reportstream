@@ -1,6 +1,5 @@
-import config from "../config";
-
 import AuthResource from "./AuthResource";
+import config from "../config";
 
 const { RS_API_URL } = config;
 
@@ -26,6 +25,7 @@ export interface FilteredReportItem {
 
 export interface ReportWarning {
     scope: string;
+    errorCode: string;
     type: string;
     message: string;
 }
@@ -53,13 +53,11 @@ export default class ActionDetailsResource extends AuthResource {
         return `${this.submissionId}-${this.sender}`;
     }
 
-    /* 
+    /*
        Since we won't be using urlRoot to build our urls we still need to tell rest hooks
        how to uniquely identify this Resource
     */
-    static get key() {
-        return "ActionDetailsResource";
-    }
+    static readonly key = "ActionDetailsResource";
 
     static url(searchParams: {
         actionId: string;

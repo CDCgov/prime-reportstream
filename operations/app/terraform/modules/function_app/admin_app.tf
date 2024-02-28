@@ -22,9 +22,13 @@ locals {
     WEBSITE_CONTENTOVERVNET            = 1
     SCM_DO_BUILD_DURING_DEPLOYMENT     = true
     WEBSITE_HTTPLOGGING_RETENTION_DAYS = 3
+    SFTP_HOST                          = "${var.resource_prefix}-sftp01.eastus.azurecontainer.io"
     POSTGRES_HOST                      = "${var.resource_prefix}-pgsql.postgres.database.azure.com"
     POSTGRES_USER                      = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-postgres-user)"
     POSTGRES_PASSWORD                  = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-postgres-pass)"
+    SLACK_WEBHOOK_URL                  = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-slack-webhook-url)"
+    OKTA_clientId                      = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-okta-clientid)"
+    OKTA_authKey                       = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-okta-authkey)"
   }
   # Set app configuration
   config = {
@@ -46,6 +50,7 @@ locals {
     { action = "Allow", name = "AllowVNetTraffic", priority = 100, virtual_network_subnet_id = var.subnets.public_subnets[2], service_tag = null, ip_address = null },
     { action = "Allow", name = "AllowVNetEastTraffic", priority = 100, virtual_network_subnet_id = var.subnets.public_subnets[0], service_tag = null, ip_address = null },
     { action = "Allow", name = "AllowFrontDoorTraffic", priority = 110, virtual_network_subnet_id = null, service_tag = "AzureFrontDoor.Backend", ip_address = null },
+    { action = "Allow", name = "AllowAppInsightsTraffic", priority = 110, virtual_network_subnet_id = null, service_tag = "ApplicationInsightsAvailability", ip_address = null },
     # Administrator access
     { action = "Allow", name = "admin01", priority = 200, virtual_network_subnet_id = null, service_tag = null, ip_address = "24.163.118.70/32" }
   ]
@@ -57,21 +62,21 @@ locals {
 #
 ########################################
 
-resource "azurerm_linux_function_app" "admin" {
+resource "azurerm_function_app" "admin" {
   name                       = local.interface.function_app_name
   location                   = local.interface.location
   resource_group_name        = local.interface.resource_group_name
-  service_plan_id            = local.interface.app_service_plan_id
+  app_service_plan_id        = local.interface.app_service_plan_id
   storage_account_name       = local.interface.storage_account_name
   storage_account_access_key = local.interface.storage_account_access_key
   https_only                 = true
-  #os_type                    = "linux"
-  #version                    = "~4"
-  #enable_builtin_logging     = false
+  os_type                    = "linux"
+  version                    = "~4"
+  enable_builtin_logging     = false
   site_config {
     ftps_state                = "Disabled"
-    #linux_fx_version          = local.config.linux_fx_version
-    #use_32_bit_worker_process = local.config.use_32_bit_worker_process
+    linux_fx_version          = local.config.linux_fx_version
+    use_32_bit_worker_process = local.config.use_32_bit_worker_process
     vnet_route_all_enabled    = local.config.vnet_route_all_enabled
     always_on                 = local.config.always_on
     dynamic "ip_restriction" {
@@ -96,6 +101,9 @@ resource "azurerm_linux_function_app" "admin" {
       site_config[0].ip_restriction
     ]
   }
+  depends_on = [
+    var.app_service_plan
+  ]
   tags = {
     environment = local.config.environment
     managed-by  = "terraform"
@@ -105,22 +113,20 @@ resource "azurerm_linux_function_app" "admin" {
 resource "time_sleep" "wait_admin_function_app" {
   create_duration = "2m"
 
-  depends_on = [azurerm_linux_function_app.admin]
+  depends_on = [azurerm_function_app.admin]
   triggers = {
-    function_app = azurerm_linux_function_app.admin.identity.0.principal_id
+    function_app = azurerm_function_app.admin.identity.0.principal_id
   }
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "admin_function_app_vnet_integration" {
-  app_service_id = azurerm_linux_function_app.admin.id
+  app_service_id = azurerm_function_app.admin.id
   subnet_id      = local.network.subnet_id
 }
 
 locals {
   admin_publish_command = <<EOF
-      az functionapp deployment source config-zip --resource-group ${local.interface.resource_group_name} \
-      --name ${azurerm_linux_function_app.admin.name} --src ${data.archive_file.admin_function_app.output_path} \
-      --build-remote false --timeout 600
+      az functionapp deployment source config-zip --resource-group ${local.interface.resource_group_name} --name ${azurerm_function_app.admin.name} --src ${data.archive_file.admin_function_app.output_path} --build-remote false --timeout 600
     EOF
 }
 
@@ -141,11 +147,11 @@ data "archive_file" "admin_function_app" {
 
 resource "null_resource" "admin_function_app_publish" {
   provisioner "local-exec" {
-    command = local.admin_publish_command
+    command = var.is_temp_env == true ? "echo 'admin app disabled'" : local.admin_publish_command
   }
   depends_on = [
     local.admin_publish_command,
-    azurerm_linux_function_app.admin,
+    azurerm_function_app.admin,
     time_sleep.wait_admin_function_app
   ]
   triggers = {

@@ -42,12 +42,12 @@ locals {
     "storage_partner" = {
       resource_id = var.storage_partner_id
     },
-    "data_factory" = {
-      resource_id = var.data_factory_id
-    }
-    "sftp_instance_01" = {
-      resource_id = var.sftp_instance_01_id
-    }
+    # "data_factory" = {
+    #   resource_id = var.data_factory_id
+    # }
+    # "sftp_instance_01" = {
+    #   resource_id = var.sftp_instance_01_id
+    # }
   }
 }
 

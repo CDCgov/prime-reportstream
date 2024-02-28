@@ -16,6 +16,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.Environment
@@ -66,7 +67,7 @@ class DataCompareTest : CoolTest() {
         val orgName: String,
         val receiverName: String,
         val expectedCount: Int,
-        var receiver: Receiver? = null
+        var receiver: Receiver? = null,
     )
 
     /**
@@ -101,7 +102,7 @@ class DataCompareTest : CoolTest() {
         /**
          * The number of expected reports in the output.  This is used to check the results in the lineage.
          */
-        EXPECTED_COUNT("Expected count")
+        EXPECTED_COUNT("Expected count"),
     }
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
@@ -158,15 +159,17 @@ class DataCompareTest : CoolTest() {
                         if (options.asyncProcessMode) {
                             // gets back the id of the internal report
                             val internalReportId = getSingleChildReportId(reportId)
+                                ?: return bad("***$name FAILED***: Internal report id null")
 
-                            pollForProcessResult(internalReportId)
+                            pollForStepResult(internalReportId, TaskAction.process)
 
-                            val processResults = pollForProcessResult(internalReportId)
+                            val processResults = pollForStepResult(internalReportId, TaskAction.process)
                             // verify each result is valid
                             for (result in processResults.values)
                                 passed = passed && examineProcessResponse(result)
-                            if (!passed)
-                                bad("***async end2end FAILED***: Process result invalid")
+                            if (!passed) {
+                                bad("***$name FAILED***: Process result invalid")
+                            }
                         }
 
                         // Look at the lineage results
@@ -248,7 +251,7 @@ class DataCompareTest : CoolTest() {
     private fun compareSentReports(
         reportId: ReportId,
         output: TestOutput,
-        sftpDir: String
+        sftpDir: String,
     ): Boolean {
         var passed = true
         db = WorkflowEngine().db
@@ -267,8 +270,10 @@ class DataCompareTest : CoolTest() {
                     echo("with actual data from $sftpDir/$outputFilename")
                     echo("using schema ${schema.name}...")
                     val result = CompareData().compare(
-                        expectedOutputStream, outputFile.inputStream(),
-                        output.receiver!!.format, schema
+                        expectedOutputStream,
+                        outputFile.inputStream(),
+                        output.receiver!!.format,
+                        schema
                     )
                     if (result.passed) {
                         good("Test passed: Data comparison")
@@ -298,7 +303,7 @@ class CompareData {
     data class Result(
         var passed: Boolean = true,
         val errors: ArrayList<String> = ArrayList(),
-        val warnings: ArrayList<String> = ArrayList()
+        val warnings: ArrayList<String> = ArrayList(),
     ) {
         /**
          * Merge results by adding [anotherResult] errors and warnings and setting the passed flag.
@@ -313,7 +318,7 @@ class CompareData {
             return """passed: $passed
 errors: ${errors.joinToString()}
 warnings: ${warnings.joinToString()}
-"""
+            """
         }
     }
 
@@ -325,7 +330,7 @@ warnings: ${warnings.joinToString()}
         expected: File,
         actual: File,
         format: Report.Format?,
-        schema: Schema
+        schema: Schema,
     ): Result {
         val result = Result()
         fun checkFile(file: File) {
@@ -339,8 +344,11 @@ warnings: ${warnings.joinToString()}
         checkFile(actual)
         if (result.passed) {
             compare(
-                expected.inputStream(), actual.inputStream(),
-                format, schema, result
+                expected.inputStream(),
+                actual.inputStream(),
+                format,
+                schema,
+                result
             )
         }
         return result
@@ -348,6 +356,7 @@ warnings: ${warnings.joinToString()}
 
     /**
      * Compares two input streams, an [actual] and [expected], of the same [schema] and [format].
+     * @param fieldsToIgnore is a list of fields that should be ignored when doing a comparison of field values.
      * @return the result for the comparison, with result.passed true if the comparison was successful
      */
     fun compare(
@@ -355,12 +364,13 @@ warnings: ${warnings.joinToString()}
         actual: InputStream,
         format: Report.Format?,
         schema: Schema?,
-        result: Result = Result()
+        result: Result = Result(),
+        fieldsToIgnore: List<String>? = null,
     ): Result {
         check((format == Report.Format.CSV && schema != null) || format != Report.Format.CSV) { "Schema is required" }
         val compareResult = when (format) {
             Report.Format.CSV, Report.Format.CSV_SINGLE, Report.Format.INTERNAL ->
-                CompareCsvData().compare(expected, actual, schema!!)
+                CompareCsvData().compare(expected, actual, schema!!, fieldsToIgnore)
             Report.Format.HL7, Report.Format.HL7_BATCH -> CompareHl7Data().compare(expected, actual)
             Report.Format.FHIR -> CompareFhirData().compare(expected, actual)
             else -> CompareFile().compare(expected, actual)
@@ -376,7 +386,7 @@ warnings: ${warnings.joinToString()}
  */
 class CompareHl7Data(
     val result: CompareData.Result = CompareData.Result(),
-    private val ignoredFields: List<String> = covidDynamicHl7Fields
+    private val ignoredFields: List<String> = covidDynamicHl7Fields,
 ) {
     companion object {
         /**
@@ -402,7 +412,7 @@ class CompareHl7Data(
     fun compare(
         expected: InputStream,
         actual: InputStream,
-        result: CompareData.Result = CompareData.Result()
+        result: CompareData.Result = CompareData.Result(),
     ): CompareData.Result {
         var passed = true
         val mcf = CanonicalModelClassFactory("2.5.1")
@@ -471,8 +481,12 @@ class CompareHl7Data(
                         val actualField = actualSegment.getField(fieldIndex)
                         val expectedField = expectedSegment.getField(fieldIndex)
                         passed = passed and compareField(
-                            recordNum, "$actualSegmentName-$fieldIndex",
-                            actualSegment.names[fieldIndex - 1], actualField, expectedField, result
+                            recordNum,
+                            "$actualSegmentName-$fieldIndex",
+                            actualSegment.names[fieldIndex - 1],
+                            actualField,
+                            expectedField,
+                            result
                         )
                     }
                 } catch (e: HL7Exception) {
@@ -498,24 +512,36 @@ class CompareHl7Data(
         fieldName: String,
         actualFieldContents: Array<Type>,
         expectedFieldContents: Array<Type>,
-        result: CompareData.Result
+        result: CompareData.Result,
     ): Boolean {
         var passed = true
-        val maxNumRepetitions = if (actualFieldContents.size > expectedFieldContents.size) actualFieldContents.size
-        else expectedFieldContents.size
+        val maxNumRepetitions = if (actualFieldContents.size > expectedFieldContents.size) {
+            actualFieldContents.size
+        } else {
+            expectedFieldContents.size
+        }
         if (maxNumRepetitions > 0) {
             // Loop through all the components in a field and compare their values.
             for (repetitionIndex in 0 until maxNumRepetitions) {
                 // If this is not a dynamic value then check it against the expected values
                 if (!ignoredFields.contains(fieldSpec)) {
-                    val expectedFieldValue = if (repetitionIndex < expectedFieldContents.size)
-                        expectedFieldContents[repetitionIndex].toString().trim() else ""
-                    val actualFieldValue = if (repetitionIndex < actualFieldContents.size)
-                        actualFieldContents[repetitionIndex].toString().trim() else ""
+                    val expectedFieldValue = if (repetitionIndex < expectedFieldContents.size) {
+                        expectedFieldContents[repetitionIndex].toString().trim()
+                    } else {
+                        ""
+                    }
+                    val actualFieldValue = if (repetitionIndex < actualFieldContents.size) {
+                        actualFieldContents[repetitionIndex].toString().trim()
+                    } else {
+                        ""
+                    }
                     passed = passed and compareComponent(
-                        actualFieldValue, expectedFieldValue, recordNum,
+                        actualFieldValue,
+                        expectedFieldValue,
+                        recordNum,
                         "$fieldSpec($repetitionIndex)",
-                        fieldName, result
+                        fieldName,
+                        result
                     )
                 }
                 // For dynamic values we expect them to be have something
@@ -542,7 +568,7 @@ class CompareHl7Data(
         recordNum: Int,
         fieldSpec: String,
         fieldName: String,
-        result: CompareData.Result
+        result: CompareData.Result,
     ): Boolean {
         var passed = true
         // Get the components.  HAPI can return a string with a type (e.g. HD[blah^blah]) or a string
@@ -560,13 +586,22 @@ class CompareHl7Data(
         }
 
         // Loop through all the components
-        val maxNumComponents = if (actualValueComponents.size > expectedValueComponents.size)
-            actualValueComponents.size else expectedValueComponents.size
+        val maxNumComponents = if (actualValueComponents.size > expectedValueComponents.size) {
+            actualValueComponents.size
+        } else {
+            expectedValueComponents.size
+        }
         for (componentIndex in 0 until maxNumComponents) {
-            val expectedComponentValue = if (componentIndex < expectedValueComponents.size)
-                expectedValueComponents[componentIndex].trim() else ""
-            val actualComponentValue = if (componentIndex < actualValueComponents.size)
-                actualValueComponents[componentIndex].trim() else ""
+            val expectedComponentValue = if (componentIndex < expectedValueComponents.size) {
+                expectedValueComponents[componentIndex].trim()
+            } else {
+                ""
+            }
+            val actualComponentValue = if (componentIndex < actualValueComponents.size) {
+                actualValueComponents[componentIndex].trim()
+            } else {
+                ""
+            }
 
             // If we have more than one component then show the component number is the messages
             val componentSpec = if (maxNumComponents > 1) "$fieldSpec-${componentIndex + 1}" else fieldSpec
@@ -600,7 +635,7 @@ class CompareCsvData {
      * Errors are generated when:
      *  1. The number of reports is different (number of rows)
      *  2. A column in the expected values does not exist in the actual values
-     *  3. A expected value does not match the actual value
+     *  3. An expected value does not match the actual value
      *  4. Cannot find the actual row in the expected records
      *
      * Warnings are generated when:
@@ -613,7 +648,8 @@ class CompareCsvData {
         expected: InputStream,
         actual: InputStream,
         schema: Schema,
-        result: CompareData.Result = CompareData.Result()
+        fieldsToIgnore: List<String>? = null,
+        result: CompareData.Result = CompareData.Result(),
     ): CompareData.Result {
         val expectedRows = csvReader().readAll(expected)
         val actualRows = csvReader().readAll(actual)
@@ -637,18 +673,30 @@ class CompareCsvData {
                 val rowIndex = i + 1
                 val actualRow = actualRows[i]
                 val actualMsgId = if (schemaMsgIdIndex != null) actualRow[schemaMsgIdIndex].trim() else null
-                val actualLastName = if (schemaPatLastNameIndex != null)
-                    actualRow[schemaPatLastNameIndex].trim() else null
-                val actualPatState = if (schemaPatStateIndex != null)
-                    actualRow[schemaPatStateIndex].trim() else null
+                val actualLastName = if (schemaPatLastNameIndex != null) {
+                    actualRow[schemaPatLastNameIndex].trim()
+                } else {
+                    null
+                }
+                val actualPatState = if (schemaPatStateIndex != null) {
+                    actualRow[schemaPatStateIndex].trim()
+                } else {
+                    null
+                }
 
                 // Find the expected row that matches the actual record
                 val matchingExpectedRow = expectedRows.filter {
                     val expectedMsgId = if (expectedMsgIdIndex >= 0) it[expectedMsgIdIndex].trim() else null
-                    val expectedLastName = if (expectedPatLastNameIndex >= 0)
-                        it[expectedPatLastNameIndex].trim() else null
-                    val expectedPatState = if (expectedPatStateIndex >= 0)
-                        it[expectedPatStateIndex].trim() else null
+                    val expectedLastName = if (expectedPatLastNameIndex >= 0) {
+                        it[expectedPatLastNameIndex].trim()
+                    } else {
+                        null
+                    }
+                    val expectedPatState = if (expectedPatStateIndex >= 0) {
+                        it[expectedPatStateIndex].trim()
+                    } else {
+                        null
+                    }
 
                     schemaMsgIdIndex != null && expectedMsgId == actualMsgId ||
                         (
@@ -658,7 +706,17 @@ class CompareCsvData {
                             )
                 }
                 if (matchingExpectedRow.size == 1) {
-                    if (!compareCsvRow(actualRow, matchingExpectedRow[0], expectedRows[0], schema, rowIndex, result)) {
+                    if (
+                        !compareCsvRow(
+                            actualRow,
+                            matchingExpectedRow[0],
+                            expectedRows[0],
+                            schema,
+                            rowIndex,
+                            fieldsToIgnore,
+                            result
+                        )
+                    ) {
                         result.errors.add("Comparison for row #$rowIndex FAILED")
                     }
                 } else {
@@ -686,7 +744,7 @@ class CompareCsvData {
      * Errors are generated when:
      *  1. The number of columns in the actual data is less than in the expected data
      *  2. A column in the expected values does not exist in the actual values
-     *  3. A expected value does not match the actual value
+     *  3. An expected value does not match the actual value
      *
      * Warnings are generated when:
      *  1. The number of columns in the actual data is more than in the expected data
@@ -700,7 +758,8 @@ class CompareCsvData {
         expectedHeaders: List<String>,
         schema: Schema,
         actualRowNum: Int,
-        result: CompareData.Result
+        fieldsToIgnore: List<String>?,
+        result: CompareData.Result,
     ): Boolean {
         var passed = true
         if (actualRow.isEmpty()) {
@@ -727,10 +786,19 @@ class CompareCsvData {
                 val actualValue = actualRow[j].trim()
                 val colName = schema.elements[j].name
 
+                // check to see if we should skip a specific field. some fields may contain some dynamic data
+                // that we don't want to check, like a date field for example, so we can pass that through
+                // as an option to skip
+                if (fieldsToIgnore?.contains(colName) == true) {
+                    continue
+                }
+
                 val expectedColIndex = getCsvColumnIndex(schema.elements[j], expectedHeaders)
-                val expectedValue = if (expectedColIndex >= 0)
+                val expectedValue = if (expectedColIndex >= 0) {
                     expectedRow[expectedColIndex].trim()
-                else ""
+                } else {
+                    ""
+                }
 
                 // If there is an expected value then compare it.
                 if (expectedValue.isNotBlank()) {
@@ -806,9 +874,11 @@ class CompareCsvData {
             }
             index
         }
-        return if (expectedColIndexByCsvIndex != null && expectedColIndexByCsvIndex >= 0)
+        return if (expectedColIndexByCsvIndex != null && expectedColIndexByCsvIndex >= 0) {
             expectedColIndexByCsvIndex
-        else expectedColIndexByElementIndex
+        } else {
+            expectedColIndexByElementIndex
+        }
     }
 }
 
@@ -817,7 +887,7 @@ class CompareCsvData {
  * @property result the result of the comparison
  */
 class CompareFile(
-    val result: CompareData.Result = CompareData.Result()
+    val result: CompareData.Result = CompareData.Result(),
 ) {
     /**
      * Compare the contents of a file [actual] vs [expected] and provide the [result].
@@ -825,7 +895,7 @@ class CompareFile(
     fun compare(
         expected: InputStream,
         actual: InputStream,
-        result: CompareData.Result = CompareData.Result()
+        result: CompareData.Result = CompareData.Result(),
     ): CompareData.Result {
         // Read the data
         val expectedData = expected.bufferedReader().readLines()

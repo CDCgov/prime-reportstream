@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.cli.tests
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
@@ -11,10 +10,12 @@ import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.FullELRSender
+import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -26,6 +27,7 @@ import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.common.SystemExitCodes
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
@@ -83,7 +85,7 @@ Examples:
  ./prime test --run ping,end2end --env staging --key xxxxxxx       Runs the ping and end2end tests in azure Staging
 ```
 
-""",
+    """,
 ) {
     val defaultWorkingDir = "./build/csv_test_files"
 
@@ -116,7 +118,7 @@ Examples:
         metavar = "test1,test2",
         help = """Specify names of tests to run.   Default is to run all smoke tests if not specified.
             Use --list to see a list of all the tests.
-       """
+        """
     )
     private val itemsDefault: Int = 5
     private val items by option(
@@ -143,6 +145,7 @@ Examples:
             "test" -> require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env test" }
             "staging" ->
                 require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env staging" }
+
             "prod" -> error("Sorry, prod is not implemented yet")
         }
     }
@@ -260,16 +263,21 @@ Examples:
             }
             test.outputAllMsgs()
             test.echo("********************************")
-            if (!passed)
+            if (!passed) {
                 failures.add(test)
+            }
         }
 
-        runBlocking {
-            tests.forEach { test ->
-                if (runSequential) {
-                    runTest(test)
-                } else {
+        if (runSequential) {
+            runBlocking {
+                tests.forEach { test ->
                     launch { runTest(test) }
+                }
+            }
+        } else {
+            tests.forEach { test ->
+                runBlocking {
+                    runTest(test)
                 }
             }
         }
@@ -277,7 +285,7 @@ Examples:
         if (failures.isNotEmpty()) {
             echo(
                 CoolTest
-                    .badMsgFormat("*** Tests FAILED:  ${failures.map { it.name }.joinToString(",")} ***")
+                    .badMsgFormat("*** Tests FAILED:  ${failures.joinToString(",") { it.name }} ***")
             )
             exitProcess(SystemExitCodes.FAILURE.exitCode)
         } else {
@@ -291,7 +299,6 @@ Examples:
         val coolTestList = listOf(
             Ping(),
             SftpcheckTest(),
-            End2End(),
             Merge(),
             Server2ServerAuthTests(),
             OktaAuthTests(),
@@ -321,6 +328,10 @@ Examples:
             DbConnectionsLoad(),
             LongLoad(),
             ABot(),
+            LivdApiTest(),
+            End2End(),
+            End2EndUniversalPipeline(),
+            SyncTranslationSchemasTest()
         )
     }
 }
@@ -336,7 +347,7 @@ data class CoolTestOptions(
     val sender: String? = null, // who is santa sending from?
     val targetStates: String? = null, // who is santa sending to?
     val runSequential: Boolean = false,
-    val asyncProcessMode: Boolean = false // if true, pass 'processing=async' on all tests
+    val asyncProcessMode: Boolean = false, // if true, pass 'processing=async' on all tests
 )
 
 abstract class CoolTest {
@@ -354,7 +365,7 @@ abstract class CoolTest {
         message: Any?,
         trailingNewline: Boolean,
         err: Boolean,
-        lineSeparator: String
+        lineSeparator: String,
     ) -> Unit = fun(
         /** [message] is what you want to write to the command line. it will have `toString` called on it */
         message: Any?,
@@ -363,7 +374,7 @@ abstract class CoolTest {
         /** Flag for whether or not to write to stderr instead of stdout */
         err: Boolean,
         /** The line separator, typically \n, though could be \r\n if you're on Windows */
-        lineSeparator: String
+        lineSeparator: String,
     ) {
         // munge the text
         val text = message?.toString()?.replace(Regex("\r?\n"), lineSeparator) ?: "null"
@@ -380,7 +391,7 @@ abstract class CoolTest {
 
     abstract suspend fun run(
         environment: Environment,
-        options: CoolTestOptions
+        options: CoolTestOptions,
     ): Boolean
 
     lateinit var db: DatabaseAccess
@@ -389,10 +400,11 @@ abstract class CoolTest {
      * Store a message [msg] string.
      */
     private fun storeMsg(msg: String) {
-        if (outputToConsole)
+        if (outputToConsole) {
             echoFn(msg, true, false, "\n")
-        else
+        } else {
             outputMsgs.add(msg)
+        }
     }
 
     /**
@@ -460,11 +472,12 @@ abstract class CoolTest {
     }
 
     /**
-     * Polls for the json result of the process action for [reportId]
+     * Polls for the json result of the [taskAction] action for [reportId]
      */
-    suspend fun pollForProcessResult(
+    suspend fun pollForStepResult(
         reportId: ReportId,
-        maxPollSecs: Int = 180,
+        taskAction: TaskAction,
+        maxPollSecs: Int = 840,
         pollSleepSecs: Int = 20,
     ): Map<UUID, DetailedSubmissionHistory?> {
         var timeElapsedSecs = 0
@@ -483,13 +496,13 @@ abstract class CoolTest {
                     delay(pollSleepSecs.toLong() * 1000)
                 }
                 timeElapsedSecs += pollSleepSecs
-                queryResult = queryForProcessResults(reportId)
-                @Suppress("SENSELESS_COMPARISON")
-                if (queryResult != null)
+                queryResult = queryForStepResults(reportId, taskAction)
+                if (queryResult.isNotEmpty()) {
                     break
+                }
             }
         }
-        echo("Polling for PROCESS records finished in ${actualTimeElapsedMillis / 1000 } seconds")
+        echo("Polling for PROCESS records finished in ${actualTimeElapsedMillis / 1000} seconds")
 
         return queryResult
     }
@@ -498,7 +511,7 @@ abstract class CoolTest {
      * Looks for at least one row in the covidResultMetadata table for [reportId]
      */
     fun queryForCovidResults(
-        reportId: ReportId
+        reportId: ReportId,
     ): Boolean {
         var passed = false
         db = WorkflowEngine().db
@@ -506,13 +519,15 @@ abstract class CoolTest {
             val ctx = DSL.using(txn)
             val sql = """select cr.covid_results_metadata_id
                 from covid_result_metadata as cr
-                where cr.report_id = ?"""
+                where cr.report_id = ?
+            """
             val ret = ctx.fetch(sql, reportId).into(Int::class.java)
             @Suppress("SENSELESS_COMPARISON")
             passed = ret != null && ret.size > 0
         }
-        if (passed)
+        if (passed) {
             good("Covid result metadata found.")
+        }
         return passed
     }
 
@@ -521,7 +536,7 @@ abstract class CoolTest {
      */
     fun getSingleChildReportId(
         reportId: ReportId,
-    ): ReportId {
+    ): ReportId? {
         var childReportId: ReportId? = null
         db = WorkflowEngine().db
         db.transact { txn ->
@@ -531,19 +546,38 @@ abstract class CoolTest {
                 .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
                 .fetchOne(REPORT_LINEAGE.CHILD_REPORT_ID)
         }
-        return childReportId!!
+        return childReportId
+    }
+
+    /**
+     * Gets all children of the passed in [reportId].
+     */
+    fun getAllChildrenReportId(
+        reportId: ReportId,
+    ): List<ReportId> {
+        var childReportId: List<ReportId> = listOf()
+        db = WorkflowEngine().db
+        db.transact { txn ->
+            val ctx = DSL.using(txn)
+            // get internally generated reportId
+            childReportId = ctx.selectFrom(REPORT_LINEAGE)
+                .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
+                .fetch(REPORT_LINEAGE.CHILD_REPORT_ID)
+        }
+        return childReportId
     }
 
     /**
      * Returns all children produced by the process step for the parent [reportId], along with json response for each
      */
-    private fun queryForProcessResults(
+    private fun queryForStepResults(
         reportId: ReportId,
+        taskAction: TaskAction,
     ): Map<UUID, DetailedSubmissionHistory?> {
         var queryResult = emptyMap<UUID, DetailedSubmissionHistory?>()
         db = WorkflowEngine().db
         db.transact { txn ->
-            queryResult = processActionResultQuery(txn, reportId)
+            queryResult = stepActionResultQuery(txn, reportId, taskAction)
         }
         return queryResult
     }
@@ -554,22 +588,65 @@ abstract class CoolTest {
      * @return true if there are no errors in the response, false otherwise
      */
     fun examineProcessResponse(history: DetailedSubmissionHistory?): Boolean {
-
         var passed = true
         try {
             // if there is no process response, this test fails
-            if (history == null)
+            if (history == null) {
                 return bad("Test Failed: No process response")
+            }
 
             val reportId = history.reportId
             echo("Id of submitted report: $reportId")
             val topic = history.topic
             val errorCount = history.errorCount
 
-            if (topic != null && topic.equals("covid-19", true)) {
+            if (topic != null && topic.equals(Topic.COVID_19)) {
                 good("'topic' is in response and correctly set to 'covid-19'")
-            } else {
+            } else if (topic == null) {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            } else {
+                passed = bad("***$name Test FAILED***: unexpected 'topic' $topic in response json")
+            }
+
+            if (errorCount == 0) {
+                good("No errors detected.")
+            } else {
+                passed = bad("***$name Test FAILED***: There were errors reported.")
+            }
+
+            if (reportId == null) {
+                passed = bad("***$name Test FAILED***: Report ID was empty.")
+            }
+        } catch (e: NullPointerException) {
+            passed = bad("***$name Test FAILED***: Unable to properly parse response json")
+        }
+        return passed
+    }
+
+    /**
+     * Examine the [history] from the convert action, make sure it successfully converted and there is a fhir bundle
+     * @return true if there are no errors in the response, false otherwise
+     */
+    fun examineStepResponse(history: DetailedSubmissionHistory?, step: String, senderTopic: Topic): Boolean {
+        var passed = true
+        try {
+            // if there is no response, this test fails
+            if (history == null) {
+                return bad("Test Failed: No $step response")
+            }
+
+            val reportId = history.reportId
+            echo("Id of submitted report: $reportId")
+            val topic = history.topic
+            val errorCount = history.errorCount
+
+            if (topic != null && topic == senderTopic) {
+                good("'topic' is in response and correctly set to $topic")
+            } else if (topic == null) {
+                passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            } else {
+                passed =
+                    bad("***$name Test FAILED***: expected 'topic' $senderTopic, but found $topic in response json")
             }
 
             if (errorCount == 0) {
@@ -593,9 +670,10 @@ abstract class CoolTest {
         totalItems: Int,
         filterOrgName: Boolean = false,
         silent: Boolean = false,
-        maxPollSecs: Int = 180,
-        pollSleepSecs: Int = 20, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
-        asyncProcessMode: Boolean = false
+        maxPollSecs: Int = 840,
+        pollSleepSecs: Int = 30, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
+        asyncProcessMode: Boolean = false,
+        isUniversalPipeline: Boolean = false,
     ): Boolean {
         var timeElapsedSecs = 0
         var queryResults = listOf<Pair<Boolean, String>>()
@@ -613,20 +691,30 @@ abstract class CoolTest {
                     delay(pollSleepSecs.toLong() * 1000)
                 }
                 timeElapsedSecs += pollSleepSecs
-                queryResults = queryForLineageResults(reportId, receivers, totalItems, filterOrgName, asyncProcessMode)
-                if (!queryResults.map { it.first }.contains(false)) break // everything passed!
+                queryResults = queryForLineageResults(
+                    reportId,
+                    receivers,
+                    totalItems,
+                    filterOrgName,
+                    asyncProcessMode,
+                    isUniversalPipeline
+                )
+                if (!queryResults.map { it.first }.contains(false)) {
+                    break // everything passed!
+                }
             }
         }
-        echo("Test $name finished in ${actualTimeElapsedMillis / 1000 } seconds")
+        echo("Test $name finished in ${actualTimeElapsedMillis / 1000} seconds")
         if (!silent) {
             queryResults.forEach {
-                if (it.first)
+                if (it.first) {
                     good(it.second)
-                else
+                } else {
                     bad(it.second)
+                }
             }
         }
-        return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
+        return !queryResults.map { it.first }.contains(false) // no falses == it passed!
     }
 
     private fun queryForLineageResults(
@@ -634,7 +722,8 @@ abstract class CoolTest {
         receivers: List<Receiver>,
         totalItems: Int,
         filterOrgName: Boolean = false,
-        asyncProcessMode: Boolean = false
+        asyncProcessMode: Boolean = false,
+        isUniversalPipeline: Boolean,
     ): List<Pair<Boolean, String>> {
         val queryResults = mutableListOf<Pair<Boolean, String>>()
         db = WorkflowEngine().db
@@ -643,29 +732,44 @@ abstract class CoolTest {
                 val actionsList = mutableListOf(TaskAction.receive)
                 // Bug:  this is looking at local cli data, but might be querying staging or prod.
                 // The hope is that the 'ignore' org is same in local, staging, prod.
-                if (asyncProcessMode) actionsList.add(TaskAction.process)
-                if (receiver.timing != null) actionsList.add(TaskAction.batch)
+                if (asyncProcessMode && receiver.topic == Topic.COVID_19) actionsList.add(TaskAction.process)
+                if (receiver.topic.isUniversalPipeline) {
+                    actionsList.add(TaskAction.convert)
+                    actionsList.add(TaskAction.route)
+                    actionsList.add(TaskAction.translate)
+                }
+                if (!receiver.topic.isSendOriginal && receiver.timing != null) {
+                    actionsList.add(TaskAction.batch)
+                }
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
+                echo("actions we are checking: $actionsList")
                 actionsList.forEach { action ->
+                    val useRecevingServiceName = !(
+                        (action == TaskAction.receive && asyncProcessMode) ||
+                            action == TaskAction.convert
+                        )
                     val count = itemLineageCountQuery(
                         txn = txn,
                         reportId = reportId,
                         // if we are processing asynchronously the receive step doesn't have any receivers yet
-                        receivingOrgSvc = if (action == TaskAction.receive && asyncProcessMode) null else receiver.name,
+                        receivingOrgSvc = if (useRecevingServiceName) receiver.name else null,
                         receivingOrg = if (filterOrgName) receiver.organizationName else null,
-                        action = action
+                        action = action,
+                        isUniversalPipeline = isUniversalPipeline
                     )
-                    val expected = if (action == TaskAction.receive && asyncProcessMode) {
+                    val expected = if (action == TaskAction.receive && asyncProcessMode && !isUniversalPipeline) {
                         totalItems
-                    } else totalItems / receivers.size
-                    if (count == null || expected != count) {
-                        queryResults += Pair(
+                    } else {
+                        totalItems / receivers.size
+                    }
+                    queryResults += if (count == null || expected != count) {
+                        Pair(
                             false,
                             "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
                                 " Expecting $expected item lineage records but got $count"
                         )
                     } else {
-                        queryResults += Pair(
+                        Pair(
                             true,
                             "Test passed: for ${receiver.fullName} action $action: " +
                                 " Expecting $expected item lineage records and got $count"
@@ -683,7 +787,7 @@ abstract class CoolTest {
      */
     fun getReportIdFromResponse(jsonResponse: String): ReportId? {
         var reportId: ReportId? = null
-        val tree = jacksonObjectMapper().readTree(jsonResponse)
+        val tree = jacksonObjectMapper.readTree(jsonResponse)
         if (!tree.isNull && !tree["reportId"].isNull) {
             reportId = ReportId.fromString(tree["reportId"].textValue())
         }
@@ -698,20 +802,30 @@ abstract class CoolTest {
      * @return true if there are no errors in the response, false otherwise
      */
     fun examinePostResponse(jsonResponse: String, shouldHaveDestination: Boolean): Boolean {
-
         var passed = true
         try {
-            val tree = jacksonObjectMapper().readTree(jsonResponse)
+            val tree = jacksonObjectMapper.readTree(jsonResponse)
             val reportId = getReportIdFromResponse(jsonResponse)
             echo("Id of submitted report: $reportId")
             val topic = tree["topic"]
             val errorCount = tree["errorCount"]
             val destCount = tree["destinationCount"]
 
-            if (topic != null && !topic.isNull && topic.textValue().equals("covid-19", true)) {
-                good("'topic' is in response and correctly set to 'covid-19'")
-            } else {
+            if (topic != null && !topic.isNull &&
+                (
+                    listOf(
+                        Topic.COVID_19.jsonVal,
+                        Topic.FULL_ELR.jsonVal,
+                        Topic.ETOR_TI.jsonVal,
+                        Topic.ELR_ELIMS.jsonVal
+                    ).contains(topic.textValue())
+                    )
+            ) {
+                good("'topic' is in response and correctly set")
+            } else if (topic == null) {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            } else {
+                passed = bad("***$name Test FAILED***: unexpected 'topic' $topic in response json")
             }
 
             if (errorCount != null && !errorCount.isNull && errorCount.intValue() == 0) {
@@ -720,12 +834,13 @@ abstract class CoolTest {
                 passed = bad("***$name Test FAILED***: There were errors reported.")
             }
 
-            if (shouldHaveDestination)
+            if (shouldHaveDestination) {
                 if (destCount != null && !destCount.isNull && destCount.intValue() > 0) {
                     good("Data going to be sent to one or more destinations.")
                 } else {
                     passed = bad("***$name Test FAILED***: There are no destinations set for sending the data.")
                 }
+            }
 
             if (reportId == null) {
                 passed = bad("***$name Test FAILED***: Report ID was empty.")
@@ -741,56 +856,86 @@ abstract class CoolTest {
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
 
         // Here is test setup of organization, senders, and receivers.   All static.
-        const val orgName = "ignore"
-        val org = settings.findOrganization(orgName)
-            ?: error("Unable to find org $orgName in metadata")
+        const val org1Name = "ignore"
+        val org1 = settings.findOrganization(org1Name)
+            ?: error("Unable to find org $org1Name in metadata")
+        const val org2Name = "waters"
+        val org2 = settings.findOrganization(org2Name)
+            ?: error("Unable to find org $org2Name in metadata")
         const val receivingStates = "IG"
 
         const val fullELRSenderName = "ignore-full-elr"
         val fullELRSender by lazy {
-            settings.findSender("$orgName.$fullELRSenderName") as? FullELRSender
-                ?: error("Unable to find sender $fullELRSenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$fullELRSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $fullELRSenderName for organization ${org1.name}")
+        }
+
+        const val etorTISenderName = "ignore-etor-ti"
+        val etorTISender by lazy {
+            settings.findSender("$org1Name.$etorTISenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $etorTISenderName for organization ${org1.name}")
+        }
+
+        const val elrElimsSenderName = "ignore-elr-elims"
+        val elrElimsSender by lazy {
+            settings.findSender("$org1Name.$elrElimsSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $elrElimsSenderName for organization ${org1.name}")
         }
 
         const val simpleReportSenderName = "ignore-simple-report"
         val simpleRepSender by lazy {
-            settings.findSender("$orgName.$simpleReportSenderName") as? CovidSender
-                ?: error("Unable to find sender $simpleReportSenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$simpleReportSenderName") as? LegacyPipelineSender
+                ?: error("Unable to find sender $simpleReportSenderName for organization ${org1.name}")
         }
 
         const val stracSenderName = "ignore-strac"
         val stracSender by lazy {
-            settings.findSender("$orgName.$stracSenderName") as? CovidSender
-                ?: error("Unable to find sender $stracSenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$stracSenderName") as? LegacyPipelineSender
+                ?: error("Unable to find sender $stracSenderName for organization ${org1.name}")
         }
 
         const val watersSenderName = "ignore-waters"
         val watersSender by lazy {
-            settings.findSender("$orgName.$watersSenderName") as? CovidSender
-                ?: error("Unable to find sender $watersSenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$watersSenderName") as? LegacyPipelineSender
+                ?: error("Unable to find sender $watersSenderName for organization ${org1.name}")
         }
 
         const val emptySenderName = "ignore-empty"
         val emptySender by lazy {
-            settings.findSender("$orgName.$emptySenderName") as? CovidSender
-                ?: error("Unable to find sender $emptySenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$emptySenderName") as? LegacyPipelineSender
+                ?: error("Unable to find sender $emptySenderName for organization ${org1.name}")
         }
 
         const val hl7SenderName = "ignore-hl7"
         val hl7Sender by lazy {
-            settings.findSender("$orgName.$hl7SenderName") as? CovidSender
-                ?: error("Unable to find sender $hl7SenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$hl7SenderName") as? LegacyPipelineSender
+                ?: error("Unable to find sender $hl7SenderName for organization ${org1.name}")
         }
 
-        val csvReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "CSV" }[0]
-        val hl7Receiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7" }[0]
-        val hl7BatchReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_BATCH" }[0]
-        val hl7NullReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_NULL" }[0]
+        const val hl7MonkeypoxSenderName = "ignore-monkeypox"
+        val hl7MonkeypoxSender by lazy {
+            settings.findSender("$org1Name.$hl7MonkeypoxSenderName") as? LegacyPipelineSender
+                ?: error("Unable to find sender $hl7MonkeypoxSenderName for organization ${org1.name}")
+        }
+
+        val universalPipelineReceiver1 = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR"
+        }[0]
+        val universalPipelineReceiver2 = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR_FHIR"
+        }[0]
+        val etorReceiver = settings.receivers.first { it.topic == Topic.ETOR_TI }
+        val elimsReceiver = settings.receivers.first { it.topic == Topic.ELR_ELIMS }
+        val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
+        val hl7Receiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7" }[0]
+        val hl7BatchReceiver =
+            settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7_BATCH" }[0]
+        val hl7NullReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7_NULL" }[0]
         val hl7PpkReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "HL7_BATCH_PPK"
+            it.organizationName == org1Name && it.name == "HL7_BATCH_PPK"
         }[0]
         val hl7PemReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "HL7_BATCH_PEM"
+            it.organizationName == org1Name && it.name == "HL7_BATCH_PEM"
         }[0]
 
         lateinit var allGoodReceivers: MutableList<Receiver>
@@ -801,35 +946,43 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $historyTestOrgName.default")
             ) as CovidSender
         val defaultIgnoreSender = (
-            settings.findSender("$orgName.default")
-                ?: error("Unable to find sender $orgName.default")
+            settings.findSender("$org1Name.default")
+                ?: error("Unable to find sender $org1Name.default")
             ) as CovidSender
 
-        fun initListOfGoodReceiversAndCounties() {
-            allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
+        fun initListOfGoodReceiversAndCountiesForTopicPipeline() {
+            allGoodReceivers = mutableListOf(
+                csvReceiver, hl7Receiver,
+                hl7BatchReceiver, hl7NullReceiver
+            )
+            allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
+        }
+
+        fun initListOfGoodReceiversAndCountiesForUniversalPipeline() {
+            allGoodReceivers = mutableListOf(universalPipelineReceiver1)
             allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
         }
 
         val blobstoreReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "BLOBSTORE"
+            it.organizationName == org1Name && it.name == "BLOBSTORE"
         }[0]
         val sftpFailReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "SFTP_FAIL"
+            it.organizationName == org1Name && it.name == "SFTP_FAIL"
         }[0]
         val qualityGoodReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "QUALITY_PASS"
+            it.organizationName == org1Name && it.name == "QUALITY_PASS"
         }[0]
         val qualityAllReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "QUALITY_ALL"
+            it.organizationName == org1Name && it.name == "QUALITY_ALL"
         }[0]
         val qualityFailReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "QUALITY_FAIL"
+            it.organizationName == org1Name && it.name == "QUALITY_FAIL"
         }[0]
         val qualityReversedReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "QUALITY_REVERSED"
+            it.organizationName == org1Name && it.name == "QUALITY_REVERSED"
         }[0]
         val settingsTestReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "SETTINGS_TEST"
+            it.organizationName == org1Name && it.name == "SETTINGS_TEST"
         }[0]
 
         const val ANSI_RESET = "\u001B[0m"
@@ -865,22 +1018,23 @@ abstract class CoolTest {
 
         /**
          * Queries the database and pulls back the action_response json for the requested [reportId]
-         * @return String representing the jsonb value of action_result for the process action for this report
+         * @return String representing the jsonb value of action_result for the [taskAction] action for this report
          */
-        fun processActionResultQuery(
+        fun stepActionResultQuery(
             txn: DataAccessTransaction,
-            reportId: UUID
+            reportId: UUID,
+            taskAction: TaskAction,
         ): Map<UUID, DetailedSubmissionHistory?> {
             val ctx = DSL.using(txn)
 
-            // get the reports generated by the 'process' step
-            val processingReportIds = ctx.selectFrom(REPORT_LINEAGE)
+            // get the child reports of the report passed in
+            val childReportIds = ctx.selectFrom(REPORT_LINEAGE)
                 .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
                 .fetch(REPORT_LINEAGE.CHILD_REPORT_ID)
             val actionResponses = mutableMapOf<UUID, DetailedSubmissionHistory?>()
-            for (processingReportId in processingReportIds) {
+            for (childReportId in childReportIds) {
                 val report = ctx.selectFrom(Tables.REPORT_FILE)
-                    .where(Tables.REPORT_FILE.REPORT_ID.eq(processingReportId))
+                    .where(Tables.REPORT_FILE.REPORT_ID.eq(childReportId))
                     .fetchOne()
                 if (report != null && report.actionId != null) {
                     val ret = ctx.select(
@@ -888,42 +1042,87 @@ abstract class CoolTest {
                     )
                         .from(ACTION)
                         .where(
-                            ACTION.ACTION_NAME.eq(TaskAction.process)
+                            ACTION.ACTION_NAME.eq(taskAction)
                                 .and(ACTION.ACTION_ID.eq(report.actionId))
                         )
                         .fetchOne()?.into(DetailedSubmissionHistory::class.java)
                     // Fill out the rest of the history data
                     if (ret != null) {
-                        ret.reportId = processingReportId.toString()
+                        ret.reportId = childReportId.toString()
                         ret.reportItemCount = report.itemCount
                         ret.externalName = report.externalName
                         ret.topic = report.schemaTopic
-                        if (!report.sendingOrg.isNullOrBlank() && !report.sendingOrgClient.isNullOrBlank())
+                        if (!report.sendingOrg.isNullOrBlank() && !report.sendingOrgClient.isNullOrBlank()) {
                             ret.sender = ClientSource(report.sendingOrg, report.sendingOrgClient).name
+                        }
 
                         // Get errors and warnings
                         ret.logs = ctx.selectFrom(ACTION_LOG).where(
                             ACTION_LOG.ACTION_ID.eq(report.actionId)
-                                .and(ACTION_LOG.REPORT_ID.eq(processingReportId))
+                                .and(ACTION_LOG.REPORT_ID.eq(childReportId))
                                 .and(ACTION_LOG.TYPE.eq(ActionLogType.warning))
                         ).fetchInto(DetailedActionLog::class.java)
                     }
-                    actionResponses[processingReportId] = ret
-                } else actionResponses[processingReportId] = null
+                    actionResponses[childReportId] = ret
+                } else {
+                    actionResponses[childReportId] = null
+                }
             }
 
             return actionResponses
         }
 
+        /**
+         * Returns the count of item lineages for the parent [reportId] passed in for the [action] specified.
+         * If a [receivingOrgSvc] or [receivingOrg] are specified, only the lineages that match those values will
+         * be counted. If this is looking for Universal Pipeline lineage count, use a different query due to how
+         * parent/child relationships work in lineage
+         * @return Count of matching records.
+         */
         fun itemLineageCountQuery(
             txn: DataAccessTransaction,
             reportId: ReportId,
             receivingOrgSvc: String? = null,
             receivingOrg: String? = null,
             action: TaskAction,
+            isUniversalPipeline: Boolean,
         ): Int? {
             val ctx = DSL.using(txn)
-            val sql = """select count(*)
+            return if (isUniversalPipeline) {
+                val sql = """
+                select count(*)
+                from (
+                    select *
+                    from (
+                        select il.item_lineage_id, a.action_name, rf.receiving_org, rf.receiving_org_svc
+                        from item_lineage il
+                        inner join report_file rf on il.child_report_id = rf.report_id
+                        inner join action a on a.action_id = rf.action_id
+                        where item_lineage_id in (select * from item_descendants(?))
+                        and a.action_name != 'receive'
+                        union
+                        select il.item_lineage_id, a.action_name, rf.receiving_org, rf.receiving_org_svc
+                        from item_lineage il
+                        inner join report_file rf on il.parent_report_id = rf.report_id
+                        inner join action a on a.action_id = rf.action_id
+                        where item_lineage_id in (select * from item_descendants(?))
+                        and a.action_name = 'receive'
+                    ) all_lineage
+                  where
+                  action_name = ? 
+                  ${if (receivingOrgSvc != null) "and receiving_org_svc = ?" else ""}
+                  ${if (receivingOrg != null) "and receiving_org = ?" else ""}
+              ) results
+                """
+                if (receivingOrg != null && receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, reportId, reportId, action, receivingOrgSvc, receivingOrg)?.into(Int::class.java)
+                } else if (receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, reportId, reportId, action, receivingOrgSvc)?.into(Int::class.java)
+                } else {
+                    ctx.fetchOne(sql, reportId, reportId, action)?.into(Int::class.java)
+                }
+            } else {
+                val sql = """select count(*)
               from item_lineage as IL
               join report_file as RF on IL.child_report_id = RF.report_id
               join action as A on A.action_id = RF.action_id
@@ -932,14 +1131,16 @@ abstract class CoolTest {
               ${if (receivingOrg != null) "RF.receiving_org = ? and" else ""}
               A.action_name = ?
               and IL.item_lineage_id in
-              (select item_descendants(?)) """
+              (select item_descendants(?)) 
+                """
 
-            return if (receivingOrg != null && receivingOrgSvc != null) {
-                ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
-            } else if (receivingOrgSvc != null) {
-                ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
-            } else {
-                ctx.fetchOne(sql, action, reportId)?.into(Int::class.java)
+                if (receivingOrg != null && receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+                } else if (receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+                } else {
+                    ctx.fetchOne(sql, action, reportId)?.into(Int::class.java)
+                }
             }
         }
 
@@ -950,14 +1151,15 @@ abstract class CoolTest {
         fun sftpFilenameQuery(
             txn: DataAccessTransaction,
             reportId: ReportId,
-            receivingOrgSvc: String
+            receivingOrgSvc: String,
         ): String? {
             val ctx = DSL.using(txn)
             val sql = """select RF.external_name
                 from report_file as RF
                 join action as A ON A.action_id = RF.action_id
                 where RF.report_id in (select find_sent_reports(?)) AND RF.receiving_org_svc = ?
-                order by A.action_id """
+                order by A.action_id 
+            """
             return ctx.fetchOne(sql, reportId, receivingOrgSvc)?.into(String::class.java)
         }
 

@@ -1,91 +1,34 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
-import { WatersResponse, OverallStatus } from "../network/api/WatersApi";
 import config from "../config";
+import { WatersUrls } from "../config/endpoints/waters";
 
 const { RS_API_URL } = config;
 
-const watersResponseSuccess: WatersResponse = {
-    id: "uuid-string",
-    submissionId: 650,
-    overallStatus: OverallStatus.WAITING_TO_DELIVER,
-    timestamp: "2022-06-14T18:57:36.941Z",
-    plannedCompletionAt: "2022-06-14T18:58:00.000Z",
-    actualCompletionAt: "",
-    sender: "test.default",
-    reportItemCount: 2,
-    errorCount: 0,
-    warningCount: 0,
-    httpStatus: 201,
-    destinations: [
-        {
-            filteredReportRows: [],
-            itemCount: 1,
-            organization: "New York Public Health Department",
-            organization_id: "ny-phd",
-            sending_at: "2022-06-14T18:58:00.000Z",
-            sentReports: [],
-            service: "elr",
-            filteredReportItems: [],
-            itemCountBeforeQualityFiltering: 0,
-        },
-    ],
-    errors: [],
-    warnings: [],
-    topic: "covid-19",
-    externalName: "test-file.hl7",
-    destinationCount: 1,
-    ok: true,
-};
-
-const watersResponseError = {
-    id: null,
-    submissionId: 651,
-    overallStatus: "Error",
-    timestamp: "2022-06-14T18:57:36.941Z",
-    plannedCompletionAt: null,
-    actualCompletionAt: "",
-    sender: null,
-    reportItemCount: null,
-    errorCount: 1,
-    warningCount: 0,
-    httpStatus: 400,
-    destinations: [],
-    errors: [
-        {
-            field: "",
-            indices: [1],
-            message:
-                "The GMT offset hour value of the TM datatype must be >=0 and <=23",
-            scope: "item",
-            trackingIds: ["message1"],
-        },
-    ],
-    warnings: [],
-    topic: null,
-    externalName: null,
-    destinationCount: null,
-};
+export enum WatersTestHeader {
+    CLIENT = "client",
+}
+export enum WatersTestHeaderValue {
+    TEST_BAD_CLIENT = "bad-client",
+    TEST_NAME = "test-endpoint-name",
+    FAIL = "test-fail",
+}
 
 const handlers = [
-    rest.post(`${RS_API_URL}/api/waters`, (req, res, ctx) => {
-        if (req.headers["_headers"]["client"] === "bad-client") {
-            return res(ctx.json(watersResponseError), ctx.status(400));
-        }
-
+    http.post(`${RS_API_URL}/api${WatersUrls.VALIDATE}`, ({ request }) => {
         if (
-            req.headers["_headers"]["client"] === "give me a very bad response"
+            request.headers.get(WatersTestHeader.CLIENT) ===
+            WatersTestHeaderValue.FAIL
+        )
+            return HttpResponse.json(null, { status: 400 });
+        if (
+            request.headers.get(WatersTestHeader.CLIENT) ===
+            WatersTestHeaderValue.TEST_NAME
         ) {
-            return res(
-                ctx.text(
-                    "This response will not parse and will cause an error"
-                ),
-                ctx.status(500)
-            );
+            return HttpResponse.json({ endpoint: "validate" }, { status: 201 });
         }
-
-        return res(ctx.json(watersResponseSuccess), ctx.status(201));
+        return HttpResponse.json(null, { status: 200 });
     }),
 ];
 

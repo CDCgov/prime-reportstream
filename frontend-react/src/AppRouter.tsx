@@ -1,111 +1,618 @@
-import { Route, Routes } from "react-router-dom";
-import { LoginCallback } from "@okta/okta-react";
-import React from "react";
+import { ComponentType, lazy, LazyExoticComponent } from "react";
+import { Outlet, redirect, RouteObject } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 
-import { TermsOfService } from "./pages/TermsOfService";
-import { About } from "./pages/About";
-import { Login } from "./pages/Login";
-import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
-import { Resources } from "./pages/resources/Resources";
-import { Product } from "./pages/product/ProductIndex";
-import { Support } from "./pages/support/Support";
-import { UploadWithAuth } from "./pages/Upload";
-import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
-import { ValidateWithAuth } from "./pages/Validate";
-import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
-import { SubmissionsWithAuth } from "./pages/submissions/Submissions";
-import { AdminMainWithAuth } from "./pages/admin/AdminMain";
-import { AdminOrgNewWithAuth } from "./pages/admin/AdminOrgNew";
-import { AdminOrgEditWithAuth } from "./pages/admin/AdminOrgEdit";
-import { EditSenderSettingsWithAuth } from "./components/Admin/EditSenderSettings";
-import { NewSettingWithAuth } from "./components/Admin/NewSetting";
-import { AdminLMFWithAuth } from "./pages/admin/AdminLastMileFailures";
-import { AdminMessageIdSearchWithAuth } from "./pages/admin/AdminMessageIdSearch";
-import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
-import { DetailsWithAuth } from "./pages/details/Details";
-import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
-import { ValueSetsIndexWithAuth } from "./pages/admin/value-set-editor/ValueSetsIndex";
-import { UploadToPipelineWithAuth } from "./pages/UploadToPipeline";
-import Home from "./pages/home/Home";
-import { DailyWithAuth } from "./pages/daily/Daily";
-import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
-import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
-import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
+import { RequireGate } from "./shared/RequireGate/RequireGate";
+import { SenderType } from "./utils/DataDashboardUtils";
+import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
+import { PERMISSIONS } from "./utils/UsefulTypes";
 
-export const AppRouter = () => {
-    return (
-        <Routes>
-            {/* Public Site */}
-            <Route path="/" element={<Home />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/login/callback" element={<LoginCallback />} />
-            <Route path="/sign-tos" element={<TermsOfServiceForm />} />
-            <Route path="/resources/*" element={<Resources />} />
-            <Route path="/product/*" element={<Product />} />
-            <Route path="/support/*" element={<Support />} />
-            {/* User pages */}
-            <Route path="/daily-data" element={<DailyWithAuth />} />
-            <Route path="/report-details" element={<DetailsWithAuth />} />
-            <Route path="/upload" element={<UploadWithAuth />} />
-            <Route path="/submissions" element={<SubmissionsWithAuth />} />
-            <Route
-                path="/submissions/:actionId"
-                element={<SubmissionDetailsWithAuth />}
-            />
-            {/* Admin pages */}
-            <Route path="/admin/settings" element={<AdminMainWithAuth />} />
-            <Route path="/admin/new/org" element={<AdminOrgNewWithAuth />} />
-            <Route
-                path="/admin/orgsettings/org/:orgname"
-                element={<AdminOrgEditWithAuth />}
-            />
-            <Route
-                path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
-                element={<EditReceiverSettingsWithAuth />}
-            />
-            <Route
-                path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
-                element={<EditSenderSettingsWithAuth />}
-            />
-            <Route
-                path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
-                element={<NewSettingWithAuth />}
-            />
-            <Route path="/admin/lastmile" element={<AdminLMFWithAuth />} />
-            <Route
-                path="/admin/send-dash"
-                element={<AdminReceiverDashWithAuth />}
-            />
-            <Route path="/admin/features" element={<FeatureFlagUIWithAuth />} />
-            <Route
-                path="/admin/message-id-search"
-                element={<AdminMessageIdSearchWithAuth />}
-            />
-            <Route
-                path={"/admin/value-sets/:valueSetName"}
-                element={<ValueSetsDetailWithAuth />}
-            />
-            <Route
-                path={"/admin/value-sets"}
-                element={<ValueSetsIndexWithAuth />}
-            />
-            <Route
-                path="/admin/revisionhistory/org/:org/settingtype/:settingType"
-                element={<AdminRevHistoryWithAuth />}
-            />
-            {/* Feature-flagged pages */}
-            <Route
-                path={"/file-handler/user-upload"}
-                element={<UploadToPipelineWithAuth />}
-            />
-            <Route
-                path="/file-handler/validate"
-                element={<ValidateWithAuth />}
-            />
-            {/* Handles any undefined route */}
-            <Route path={"*"} element={<ErrorNoPage />} />
-        </Routes>
-    );
-};
+/* Content Pages */
+const Home = lazy(lazyRouteMarkdown(() => import("./content/home/index.mdx")));
+const About = lazy(
+    lazyRouteMarkdown(() => import("./content/about/index.mdx")),
+);
+const OurNetwork = lazy(
+    lazyRouteMarkdown(() => import("./content/about/our-network.mdx")),
+);
+const News = lazy(lazyRouteMarkdown(() => import("./content/about/news.mdx")));
+const Security = lazy(
+    lazyRouteMarkdown(() => import("./content/about/security.mdx")),
+);
+const ReleaseNotes = lazy(
+    lazyRouteMarkdown(() => import("./content/about/release-notes.mdx")),
+);
+const CaseStudies = lazy(
+    lazyRouteMarkdown(() => import("./content/about/case-studies.mdx")),
+);
+const ReferHealthcareOrganizations = lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/managing-your-connection/refer-healthcare-organizations.mdx"
+            ),
+    ),
+);
+const GettingStartedIndex = lazy(
+    lazyRouteMarkdown(() => import("./content/getting-started/index.mdx")),
+);
+const GettingStartedSendingData = lazy(
+    lazyRouteMarkdown(
+        () => import("./content/getting-started/sending-data.mdx"),
+    ),
+);
+const GettingStartedReceivingData = lazy(
+    lazyRouteMarkdown(
+        () => import("./content/getting-started/receiving-data.mdx"),
+    ),
+);
+const ReportStreamApiIndex = lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/ReportStreamApi.mdx"
+            ),
+    ),
+);
+const DeveloperResourcesIndex = lazy(
+    lazyRouteMarkdown(
+        () => import("./content/developer-resources/index-page.mdx"),
+    ),
+);
+const ReportStreamApiGettingStarted = lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/getting-started/GettingStarted.mdx"
+            ),
+    ),
+);
+const ReportStreamApiDocumentation = lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/documentation/Documentation.mdx"
+            ),
+    ),
+);
+const ReportStreamApiDocumentationDataModel = lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/documentation/data-model/DataModel.mdx"
+            ),
+    ),
+);
+const ReportStreamApiDocumentationResponses = lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/documentation/ResponsesFromReportStream.mdx"
+            ),
+    ),
+);
+const ManagingYourConnectionIndex = lazy(
+    lazyRouteMarkdown(
+        () => import("./content/managing-your-connection/index.mdx"),
+    ),
+);
+const SupportIndex = lazy(
+    lazyRouteMarkdown(() => import("./content/support/index.mdx")),
+);
+const ReportStreamApiDocumentationPayloads = lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/documentation/SamplePayloadsAndOutput.mdx"
+            ),
+    ),
+);
+
+/* Public Pages */
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const LoginCallback = lazy(
+    () => import("./shared/LoginCallback/LoginCallback"),
+);
+const LogoutCallback = lazy(
+    () => import("./shared/LogoutCallback/LogoutCallback"),
+);
+const Login = lazy(() => import("./pages/Login"));
+const FileHandler = lazy(() => import("./components/FileHandlers/FileHandler"));
+const ErrorNoPage = lazy(
+    () => import("./pages/error/legacy-content/ErrorNoPage"),
+);
+
+/* Auth Pages */
+const FeatureFlagsPage = lazy(() => import("./pages/misc/FeatureFlags"));
+const SubmissionDetailsPage = lazy(
+    () => import("./pages/submissions/SubmissionDetails"),
+);
+const SubmissionsPage = lazy(() => import("./pages/submissions/Submissions"));
+const AdminMainPage = lazy(() => import("./pages/admin/AdminMain"));
+const AdminOrgNewPage = lazy(() => import("./pages/admin/AdminOrgNew"));
+const AdminOrgEditPage = lazy(() => import("./pages/admin/AdminOrgEdit"));
+const EditSenderSettingsPage = lazy(
+    () => import("./components/Admin/EditSenderSettings"),
+);
+const AdminLMFPage = lazy(() => import("./pages/admin/AdminLastMileFailures"));
+const AdminMessageTrackerPage = lazy(
+    () => import("./pages/admin/AdminMessageTracker"),
+);
+const AdminReceiverDashPage = lazy(
+    () => import("./pages/admin/AdminReceiverDashPage"),
+);
+const DeliveryDetailPage = lazy(
+    () => import("./pages/deliveries/details/DeliveryDetail"),
+);
+const ValueSetsDetailPage = lazy(
+    () => import("./pages/admin/value-set-editor/ValueSetsDetail"),
+);
+const ValueSetsIndexPage = lazy(
+    () => import("./pages/admin/value-set-editor/ValueSetsIndex"),
+);
+const DeliveriesPage = lazy(() => import("./pages/deliveries/Deliveries"));
+const EditReceiverSettingsPage = lazy(
+    () => import("./components/Admin/EditReceiverSettings"),
+);
+const AdminRevHistoryPage = lazy(() => import("./pages/admin/AdminRevHistory"));
+const MessageDetailsPage = lazy(
+    () => import("./components/MessageTracker/MessageDetails"),
+);
+const ManagePublicKeyPage = lazy(
+    () => import("./components/ManagePublicKey/ManagePublicKey"),
+);
+const DataDashboardPage = lazy(
+    () => import("./pages/data-dashboard/DataDashboard"),
+);
+const ReportDetailsPage = lazy(
+    () => import("./components/DataDashboard/ReportDetails/ReportDetails"),
+);
+const FacilitiesProvidersPage = lazy(
+    () =>
+        import(
+            "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders"
+        ),
+);
+const FacilityProviderSubmitterDetailsPage = lazy(
+    () =>
+        import(
+            "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails"
+        ),
+);
+const NewSettingPage = lazy(() => import("./components/Admin/NewSetting"));
+
+export const appRoutes: RouteObject[] = [
+    /* Public Site */
+    {
+        path: "/",
+        children: [
+            {
+                path: "",
+                index: true,
+                element: <Home />,
+                handle: {
+                    isContentPage: true,
+                    isFullWidth: true,
+                },
+            },
+            {
+                path: "terms-of-service",
+                element: <TermsOfService />,
+                handle: {
+                    isContentPage: true,
+                },
+            },
+            {
+                path: "about",
+                children: [
+                    {
+                        index: true,
+                        element: <About />,
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
+                    },
+                    {
+                        path: "our-network",
+                        element: <OurNetwork />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "news",
+                        element: <News />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "security",
+                        element: <Security />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "release-notes",
+                        element: <ReleaseNotes />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "case-studies",
+                        element: <CaseStudies />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                ],
+            },
+            {
+                path: "login",
+                children: [
+                    {
+                        element: <Login />,
+                        index: true,
+                        handle: {
+                            isLoginPage: true,
+                        },
+                    },
+                    {
+                        path: "callback",
+                        element: <LoginCallback />,
+                    },
+                ],
+            },
+            {
+                path: "logout/callback",
+                element: <LogoutCallback />,
+            },
+            {
+                path: "managing-your-connection",
+                children: [
+                    {
+                        path: "refer-healthcare-organizations",
+                        handle: {
+                            isContentPage: true,
+                        },
+                        element: <ReferHealthcareOrganizations />,
+                    },
+                ],
+            },
+            {
+                path: "getting-started",
+                children: [
+                    {
+                        index: true,
+                        element: <GettingStartedIndex />,
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
+                    },
+                    {
+                        path: "sending-data",
+                        element: <GettingStartedSendingData />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "receiving-data",
+                        handle: {
+                            isContentPage: true,
+                        },
+                        element: <GettingStartedReceivingData />,
+                    },
+                ],
+            },
+            {
+                path: "/developer-resources",
+                children: [
+                    {
+                        index: true,
+                        element: <DeveloperResourcesIndex />,
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
+                    },
+                    {
+                        path: "api",
+                        children: [
+                            {
+                                path: "",
+                                index: true,
+                                element: <ReportStreamApiIndex />,
+                                handle: {
+                                    isContentPage: true,
+                                },
+                            },
+                            {
+                                path: "getting-started",
+                                element: <ReportStreamApiGettingStarted />,
+                                handle: {
+                                    isContentPage: true,
+                                },
+                            },
+                            {
+                                path: "documentation",
+                                children: [
+                                    {
+                                        path: "",
+                                        element: (
+                                            <ReportStreamApiDocumentation />
+                                        ),
+                                        index: true,
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                    {
+                                        path: "data-model",
+                                        element: (
+                                            <ReportStreamApiDocumentationDataModel />
+                                        ),
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                    {
+                                        path: "responses-from-reportstream",
+                                        element: (
+                                            <ReportStreamApiDocumentationResponses />
+                                        ),
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                    {
+                                        path: "sample-payloads-and-output",
+                                        element: (
+                                            <ReportStreamApiDocumentationPayloads />
+                                        ),
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    {
+                        path: "programmers-guide",
+                        loader: () => {
+                            return redirect("/developer-resources/api");
+                        },
+                    },
+                ],
+            },
+            {
+                path: "managing-your-connection",
+                index: true,
+                element: <ManagingYourConnectionIndex />,
+                handle: {
+                    isContentPage: true,
+                    isFullWidth: true,
+                },
+            },
+            {
+                path: "support",
+                children: [
+                    {
+                        path: "",
+                        element: <SupportIndex />,
+                        index: true,
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
+                    },
+                ],
+            },
+            {
+                path: "/file-handler/validate",
+                element: <FileHandler />,
+            },
+            {
+                path: "daily-data",
+                element: (
+                    <RequireGate auth>
+                        <DeliveriesPage />
+                    </RequireGate>
+                ),
+            },
+            {
+                path: "manage-public-key",
+                element: (
+                    <RequireGate auth>
+                        <ManagePublicKeyPage />
+                    </RequireGate>
+                ),
+            },
+            {
+                path: "report-details",
+                element: (
+                    <RequireGate auth>
+                        <Outlet />
+                    </RequireGate>
+                ),
+                children: [
+                    {
+                        path: ":reportId",
+                        element: <DeliveryDetailPage />,
+                    },
+                ],
+            },
+            {
+                path: "submissions",
+                element: (
+                    <RequireGate auth>
+                        <Outlet />
+                    </RequireGate>
+                ),
+                children: [
+                    {
+                        path: "",
+                        index: true,
+                        element: <SubmissionsPage />,
+                    },
+                    {
+                        path: ":actionId",
+                        element: <SubmissionDetailsPage />,
+                    },
+                ],
+            },
+            /* Data Dashboard pages */
+            {
+                path: "data-dashboard",
+                element: (
+                    <RequireGate auth>
+                        <Outlet />
+                    </RequireGate>
+                ),
+                children: [
+                    {
+                        path: "",
+                        element: <DataDashboardPage />,
+                        index: true,
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
+                    },
+                    {
+                        path: "report-details/:reportId",
+                        element: <ReportDetailsPage />,
+                    },
+                    {
+                        path: "facilities-providers",
+                        element: <FacilitiesProvidersPage />,
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
+                    },
+                    {
+                        path: "facility/:senderId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsPage
+                                senderType={SenderType.FACILITY}
+                            />
+                        ),
+                    },
+                    {
+                        path: "provider/:senderId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsPage
+                                senderType={SenderType.PROVIDER}
+                            />
+                        ),
+                    },
+                    {
+                        path: "submitter/:senderId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsPage
+                                senderType={SenderType.SUBMITTER}
+                            />
+                        ),
+                    },
+                ],
+            },
+            /* Admin pages */
+            {
+                path: "admin",
+                element: (
+                    <RequireGate auth={PERMISSIONS.PRIME_ADMIN}>
+                        <Outlet />
+                    </RequireGate>
+                ),
+                children: [
+                    {
+                        path: "settings",
+                        element: <AdminMainPage />,
+                    },
+                    {
+                        path: "new/org",
+                        element: <AdminOrgNewPage />,
+                    },
+                    {
+                        path: "orgsettings/org/:orgname",
+                        element: <AdminOrgEditPage />,
+                    },
+                    {
+                        path: "orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
+                        element: <EditReceiverSettingsPage />,
+                    },
+                    {
+                        path: "orgsendersettings/org/:orgname/sender/:sendername/action/:action",
+                        element: <EditSenderSettingsPage />,
+                    },
+                    {
+                        path: "orgnewsetting/org/:orgname/settingtype/:settingtype",
+                        element: <NewSettingPage />,
+                    },
+                    {
+                        path: "lastmile",
+                        element: <AdminLMFPage />,
+                    },
+                    {
+                        path: "send-dash",
+                        element: <AdminReceiverDashPage />,
+                    },
+                    {
+                        path: "features",
+                        element: <FeatureFlagsPage />,
+                    },
+                    {
+                        path: "message-tracker",
+                        element: <AdminMessageTrackerPage />,
+                    },
+                    {
+                        path: "value-sets",
+                        children: [
+                            {
+                                path: "",
+                                index: true,
+                                element: <ValueSetsIndexPage />,
+                            },
+                            {
+                                path: ":valueSetName",
+                                element: <ValueSetsDetailPage />,
+                            },
+                        ],
+                    },
+                    {
+                        path: "revisionhistory/org/:org/settingtype/:settingType",
+                        element: <AdminRevHistoryPage />,
+                    },
+                ],
+            },
+            {
+                path: "/message-details/:id",
+                element: (
+                    <RequireGate auth>
+                        <MessageDetailsPage />
+                    </RequireGate>
+                ),
+            },
+            /* Handles any undefined route */
+            {
+                path: "*",
+                element: <ErrorNoPage />,
+                handle: {
+                    isContentPage: true,
+                },
+            },
+        ],
+    },
+] satisfies RsRouteObject[];
+
+export function createRouter(Component: LazyExoticComponent<ComponentType>) {
+    appRoutes[0].element = <Component />;
+    const router = createBrowserRouter(appRoutes);
+    return router;
+}

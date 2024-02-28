@@ -395,6 +395,12 @@ elements:
     hl7OutputFields: [ORC-12-13, OBR-16-13]
     documentation: Usually NPI
 
+  - name: ordering_provider_name_type_code
+    type: TEXT
+    mapper: ifNPI(ordering_provider_id, L, U)
+    hl7Field: ORC-12-10
+    hl7OutputFields: [ ORC-12-10, OBR-16-10 ]
+
   - name: ordering_provider_last_name
     type: PERSON_NAME
     pii: false   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
@@ -1042,6 +1048,116 @@ elements:
     default: N
     documentation: Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
+  - name: test_type
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Test Type
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: test_method
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Test Method
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: Screening
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Screening
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: serial_screening
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Serial Screening
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: direct_to_consumer
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Direct to Consumer (DTC)
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: nonprescription_testing
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Non-prescription Testing
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: home_collection
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Home Collection
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: prescription_home_testing
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Prescription Home Testing
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: over_the_counter_home_testing
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Over the Counter (OTC) Home Testing
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: collection_kit
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Collection Kit
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: telehealth_proctor_supervised
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Telehealth Proctor Supervised
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
   - name: test_correction_reason
     type: TEXT
     hl7Field: NTE-3
@@ -1266,6 +1382,11 @@ elements:
     hl7Field: OBX-23-1
     hl7OutputFields: [ ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1, PID-3-4-1, OBX-15-2 ]
     documentation: The name of the laboratory which performed the test, can be the same as the sending facility name
+
+  - name: testing_lab_name_type_code
+    type: TEXT
+    mapper: ifPresent(testing_lab_name, L)
+    hl7Field: OBX-23-2
 
   - name: testing_lab_specimen_id
     type: ID

@@ -4,9 +4,9 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - "prime-router/**"
-
+  push:
+    branches:
+      - master
 env:
   # These are for CI and not credentials of any system
   DB_USER: prime
@@ -20,7 +20,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -35,104 +35,30 @@ jobs:
         working-directory: prime-router
 
     steps:
+      - name: Add swapfile
+        working-directory: /
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 15G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          sudo swapon --show
+
       - name: "Check out changes"
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-      # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
-      # - name: Install docker-compose
-      #   run: apt-get update && apt-get --yes install docker-compose
-      - name: Set up JDK 11
-        uses: actions/setup-java@a18c333f3f14249953dab3e186e5e21bf3390f1d
+      - name: Build backend
+        uses: ./.github/actions/build-backend
         with:
-          java-version: '11'
-          distribution: 'adopt'
-          cache: 'gradle'
-
-      - uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
-
-      - name: Spin up build containers
-        run: docker-compose -f docker-compose.postgres.yml up -d
-
-      - name: Build Prime Router Package
-        run: ./gradlew package -Pshowtests
-        
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@2a60c5d47eb29cd5cc922f51bbea18e148f56203
-        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
-        if: >
-          always() &&
-          github.event.sender.login != 'dependabot[bot]' &&
-          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
-        with:
-          # This path is from the root of the repo as needed by the plugin
-          files: prime-router/build/test-results/test/**/*.xml
-
-      - name: Spin up vault
-        timeout-minutes: 1
-        run: |
-          mkdir .vault/env
-          touch .vault/env/.env.local
-          docker-compose -f docker-compose.yml up -d vault
-          while [ ! -s .vault/env/.env.local ]; do sleep 1; done
-          echo "loaded env vars"
-
-      - name: Spin up containers
-        id: spin_containers
-        run: |
-          docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
-          
-      - name: Give some time for the container to start
-        uses: juliangruber/sleep-action@61b118a54bde77a381ddb5190a0d13ee2d056410
-        with:
-          time: 30s
-      
-      - name: Load the configuration
-        run: |
-         ./gradlew reloadTables
-         ./gradlew reloadSettings
-        
-      # Integrations tests require the metadata catalog
-      - name: Run Integration Tests
-        run: ./gradlew testIntegration -Pshowtests
-
-      - name: Publish Integration Test Results
-        uses: EnricoMi/publish-unit-test-result-action@2a60c5d47eb29cd5cc922f51bbea18e148f56203
-        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
-        if: >
-          always() &&
-          github.event.sender.login != 'dependabot[bot]' &&
-          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
-        with:
-          # This path is from the root of the repo as needed by the plugin
-          files: prime-router/build/test-results/testIntegration/**/*.xml
-          check_name: "Integration Test Results"
-
-      - name: Correct sftp perms
-        run: docker-compose exec -T sftp chmod 777 /home/foo/upload
-
-      - name: Smoke tests
-        run: |
-          export $(xargs < .vault/env/.env.local)
-          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
-          ./gradlew testSmoke
-          
-      - name: Dump docker logs
-        if: always()
-        uses: jwalton/gh-docker-logs@a8cb5301950dd4d2b86619cd487b3b281526b178
-        with:
-          images: 'prime-router_prime_dev,vault'
-
-      - name: Cleanup Gradle Cache
-        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
-        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
-        run: |
-          rm -f .gradle/caches/modules-2/modules-2.lock
-          rm -f .gradle/caches/modules-2/gc.properties
+          version: ${{ github.run_id }}
+          upload-build: false
+          run-integration-tests: true
 
       - name: Generate New Schema Docs
         run: |
           # Clean the docs before regenerating
-          rm -rf docs/schema_documentation/*
+          rm -rf docs/docs_deprecated/schema_documentation/*
           ./gradlew generatedocs
 
       - name: Check for Uncommited Schema Docs
@@ -150,7 +76,7 @@ jobs:
             FILES_ESCAPED="${FILES_ESCAPED//'%'/'%25'}"
             FILES_ESCAPED="${FILES_ESCAPED//$'\n'/'%0A'}"
             FILES_ESCAPED="${FILES_ESCAPED//$'\r'/'%0D'}"
-            echo "::set-output name=files::$FILES_ESCAPED"
+            echo "files=$FILES_ESCAPED" >> $GITHUB_OUTPUT
 
             # End with an error
             false
@@ -158,7 +84,7 @@ jobs:
 
       - name: Add Schema doc diff as PR comment if there are changes
         if: ${{ steps.check_changes.outcome == 'failure' }}
-        uses: peter-evans/create-or-update-comment@c9fcb64660bc90ec1cc535646af190c992007c32
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.number }}
@@ -177,34 +103,3 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
-
-  docker_build_test:
-    name: Testing Docker Build
-    runs-on: ubuntu-latest
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
-    defaults:
-      run:
-        working-directory: prime-router
-
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@a18c333f3f14249953dab3e186e5e21bf3390f1d
-        with:
-          java-version: '11'
-          distribution: 'adopt'
-          cache: 'gradle'
-
-      - uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
-
-      - name: Spin up build containers
-        run: docker-compose -f docker-compose.postgres.yml up -d
-
-      - name: Build Prime Router Package
-        run: ./gradlew package -x fatjar -x test
-
-      - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest

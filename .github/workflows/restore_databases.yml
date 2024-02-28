@@ -18,6 +18,9 @@ on:
         options:
         - staging
         - test
+        - demo1
+        - demo2
+        - demo3
         default: 'test'
         type: choice
       backup_age_limit_mins:
@@ -57,7 +60,7 @@ jobs:
       sink_backup_storage: ${{ env.SINK_BACKUP_STORAGE }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Set env variables
         shell: bash
@@ -87,33 +90,43 @@ jobs:
           echo "SINK_BACKUP_STORAGE=pdh${{ env.SINK_ENV_NAME }}terraform" >> $GITHUB_ENV
 
       # Login to Azure
-      - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       # Restores will fail if sink server is not pre-expanded
       - name: Increase sink server size if necessary
-        shell: bash
-        run: |
-          source_size=$(az postgres server show --name ${{ env.SOURCE_DB_SERVER }} --resource-group ${{ env.SOURCE_RESOURCE_GROUP }} \
-            --query 'storageProfile.storageMb' -o tsv)
-          sink_size=$(az postgres server show --name ${{ env.SINK_DB_SERVER }}-replica --resource-group ${{ env.SINK_RESOURCE_GROUP }} \
-            --query 'storageProfile.storageMb' -o tsv)
-          if [[ ${source_size} -gt ${sink_size} ]]; then 
-            az postgres server update --name ${{ env.SINK_DB_SERVER }}-replica -g ${{ env.SINK_RESOURCE_GROUP }} --storage-size $source_size
-            az postgres server update --name ${{ env.SINK_DB_SERVER }} -g ${{ env.SINK_RESOURCE_GROUP }} --storage-size $source_size
-          fi
+        uses: ./.github/actions/retry
+        with:
+          timeout_minutes: 20
+          max_attempts: 4
+          retry_wait_seconds: 120
+          command: |
+            source_size=$(az postgres server show --name ${{ env.SOURCE_DB_SERVER }} --resource-group ${{ env.SOURCE_RESOURCE_GROUP }} \
+              --query 'storageProfile.storageMb' -o tsv)
+            sink_size=$(az postgres server show --name ${{ env.SINK_DB_SERVER }} --resource-group ${{ env.SINK_RESOURCE_GROUP }} \
+              --query 'storageProfile.storageMb' -o tsv)
+            replica_exists=$(az postgres server list -g ${{ env.SINK_RESOURCE_GROUP }} --query '[].name | join(`, `, @) | contains(@, `replica`)')
+            if [[ ${source_size} -gt ${sink_size} ]]; then
+              if [ ${replica_exists} = true ]; then
+                az postgres server update --name ${{ env.SINK_DB_SERVER }}-replica -g ${{ env.SINK_RESOURCE_GROUP }} \
+                --storage-size $source_size
+              fi
+              az postgres server update --name ${{ env.SINK_DB_SERVER }} -g ${{ env.SINK_RESOURCE_GROUP }} \
+              --storage-size $source_size
+            fi
+          shell: bash
 
   backup_source:
     name: "Backup source: ${{ needs.pre_job.outputs.env_name }} - ${{ matrix.db }}"
     needs:
       - pre_job
-    runs-on: ubuntu-latest
+    # 22.04 error: mount error: cifs filesystem not supported by the system
+    runs-on: ubuntu-20.04
     strategy:
       max-parallel: 1
       matrix:
         db: ${{ fromJson(needs.pre_job.outputs.databases) }}
-    concurrency: ${{ needs.pre_job.outputs.env_name }}
     environment: ${{ needs.pre_job.outputs.env_name }}
     env:
       env_name: ${{ needs.pre_job.outputs.env_name }}
@@ -124,17 +137,11 @@ jobs:
        backup_age_valid: ${{ env.BACKUP_AGE_VALID }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
+      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
         with:
-          env-name: ${{ env.env_name }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Get public ip
         shell: bash
@@ -144,12 +151,12 @@ jobs:
       - name: Confirm last backup age valid
         shell: bash
         run: |
-          backup_exists=$(az storage file exists --account-name ${{ env.sink_backup_storage }} --path ${{ env.env_name }}_${{ matrix.db }}.dump \
+          backup_exists=$(az storage directory exists --account-name ${{ env.sink_backup_storage }} --name ${{ env.env_name }}_${{ matrix.db }} \
             --share-name dbbackups --query 'exists' -o tsv --only-show-errors)
           if [ $backup_exists == "false" ]; then
               lastModified="1970-01-01"
           else 
-              lastModified=$(az storage file show --path ${{ env.env_name }}_${{ matrix.db }}.dump --share-name dbbackups \
+              lastModified=$(az storage directory show --name ${{ env.env_name }}_${{ matrix.db }} --share-name dbbackups \
                 --account-name ${{ env.sink_backup_storage }} --query 'properties.lastModified' --only-show-errors -o tsv)
           fi
           currentDate=$(date +%s)
@@ -164,6 +171,7 @@ jobs:
         shell: bash
         run: |
           az postgres server update -g ${{ env.source_resource_group }} -n ${{ env.source_db_server }} --public-network-access "Enabled"
+          sleep 10;
           az postgres server firewall-rule create -g ${{ env.source_resource_group }} -s ${{ env.source_db_server }} -n github_actions_runner \
             --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
 
@@ -186,8 +194,8 @@ jobs:
           port: 5432
           user: prime
           database: ${{ matrix.db }}
-          file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ env.env_name }}_${{ matrix.db }}.dump
-          options: -Fc --compress=1
+          file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ env.env_name }}_${{ matrix.db }}
+          options: -Z2 -j 16 -Fd
 
       # Remove runner db access
       - name: Remove db access
@@ -195,6 +203,7 @@ jobs:
         shell: bash
         run: |
           az postgres server firewall-rule delete -g ${{ env.source_resource_group }} -s ${{ env.source_db_server }} -n github_actions_runner --yes
+          sleep 10;
           az postgres server update -g ${{ env.source_resource_group }} -n ${{ env.source_db_server }} --public-network-access "Disabled"
 
   restore_sink:
@@ -204,14 +213,14 @@ jobs:
       - backup_source
     # Restore only if backup age is less than limit, backup age is ignored, and the restore destination is either staging or test
     if: |
-      (needs.pre_job.outputs.restore_ignore_backup_age == 'true' || needs.backup_source.outputs.backup_age_valid == 'true') &&
+      (needs.pre_job.outputs.restore_ignore_backup_age == 'true' || needs.backup_source.outputs.backup_age_valid != 'true') &&
       (needs.pre_job.outputs.sink_env_name != 'prod')
-    runs-on: ubuntu-latest
+    # 22.04 error: mount error: cifs filesystem not supported by the system
+    runs-on: ubuntu-20.04
     strategy:
       max-parallel: 1
       matrix:
         db: ${{ fromJson(needs.pre_job.outputs.databases) }}
-    concurrency: ${{ needs.pre_job.outputs.sink_env_name }}
     environment: ${{ needs.pre_job.outputs.sink_env_name }}
     env:
       sink_env_name: ${{ needs.pre_job.outputs.sink_env_name }}
@@ -219,17 +228,11 @@ jobs:
       sink_db_server: ${{ needs.pre_job.outputs.sink_db_server }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
+      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
         with:
-          env-name: ${{ env.sink_env_name }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Get public ip
         shell: bash
@@ -238,11 +241,18 @@ jobs:
       # Allow runner db access
       - name: Add db access
         id: add-db-access
-        shell: bash
-        run: |
-          az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Enabled"
-          az postgres server firewall-rule create -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner \
-            --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
+        uses: ./.github/actions/retry
+        with:
+          timeout_minutes: 120
+          max_attempts: 6
+          retry_wait_seconds: 30
+          command: |
+            az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Enabled"
+            sleep 30;
+            az postgres server firewall-rule create -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner \
+              --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
+            az postgres server firewall-rule show -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner
+          shell: bash
 
       # Mount Azure file share to retrieve backup file
       - name: Mount file share
@@ -261,9 +271,9 @@ jobs:
           port: 5432
           user: prime
           database: ${{ matrix.db }}
-          file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ needs.pre_job.outputs.env_name }}_${{ matrix.db }}.dump
+          file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ needs.pre_job.outputs.env_name }}_${{ matrix.db }}
           resource-group: ${{ env.sink_resource_group }}
-          options: -Fc -j 16
+          options: -j 32 -Fd -O
 
       - name: Clean sink db
         if: |
@@ -301,7 +311,7 @@ jobs:
         if: |
           needs.pre_job.outputs.sink_env_name != 'prod' &&
           (${{ matrix.db }} == 'prime_data_hub' || ${{ matrix.db }} == 'prime_data_hub_candidate')
-        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: clean_output_${{ matrix.db }}
           path: clean_output_${{ matrix.db }}.html
@@ -310,7 +320,10 @@ jobs:
       # Remove runner db access
       - name: Remove db access
         if: always() && steps.add-db-access.outcome == 'success'
+        continue-on-error: true
         shell: bash
         run: |
-          az postgres server firewall-rule delete -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner --yes
-          az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Disabled"
+          az postgres server firewall-rule delete -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner --yes;
+          sleep 10;
+          az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Disabled";
+          sleep 30;

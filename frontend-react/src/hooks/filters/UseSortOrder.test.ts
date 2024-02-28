@@ -1,6 +1,7 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act } from "@testing-library/react";
 
 import useSortOrder, { SortSettingsActionType } from "./UseSortOrder";
+import { renderHook } from "../../utils/CustomRenderUtils";
 
 describe("UseSortOrder", () => {
     test("renders with default values", () => {
@@ -21,7 +22,7 @@ describe("UseSortOrder", () => {
                 payload: {
                     column: "test",
                 },
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             column: "test",
@@ -36,7 +37,7 @@ describe("UseSortOrder", () => {
         act(() =>
             result.current.update({
                 type: SortSettingsActionType.SWAP_ORDER,
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             column: "",
@@ -54,7 +55,7 @@ describe("UseSortOrder", () => {
                 payload: {
                     locally: true,
                 },
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             column: "",
@@ -64,12 +65,12 @@ describe("UseSortOrder", () => {
         });
     });
 
-    test("dispatch swaps order (non-locally)", () => {
+    test("dispatch swaps order locally", () => {
         const { result } = renderHook(() => useSortOrder());
         act(() =>
             result.current.update({
                 type: SortSettingsActionType.SWAP_LOCAL_ORDER,
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             column: "",
@@ -87,12 +88,12 @@ describe("UseSortOrder", () => {
                 payload: {
                     column: "test",
                 },
-            })
+            }),
         );
         act(() =>
             result.current.update({
                 type: SortSettingsActionType.SWAP_ORDER,
-            })
+            }),
         );
         act(() =>
             result.current.update({
@@ -100,7 +101,7 @@ describe("UseSortOrder", () => {
                 payload: {
                     locally: true,
                 },
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             column: "test",
@@ -111,7 +112,7 @@ describe("UseSortOrder", () => {
         act(() =>
             result.current.update({
                 type: SortSettingsActionType.RESET,
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             column: "",
@@ -132,7 +133,7 @@ describe("UseSortOrder", () => {
                     locally: true,
                     localOrder: "ASC",
                 },
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             column: "test",

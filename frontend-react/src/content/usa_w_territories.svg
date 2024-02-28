@@ -12,7 +12,7 @@
     /* Individual states and territories can be colored as follows: */
     .ak, /* Alaska */
     .al, /* Alabama */
-    /* .ar, Arkansas */
+    .ar, /* Arkansas */
     /* .as, American Samoa */
     .az, /* Arizona */
     .ca, /* California */
@@ -29,15 +29,16 @@
     .id, /* Idaho */
     .il, /* Illinois */
     .in, /* Indiana */
-    /* .ks, Kansas */
+    .ks, /* Kansas */
     /* .ky, Kentucky */
     .la, /* Louisiana */
     .ma, /* Massachusetts */
     .md, /* Maryland */
     /* .me, Maine */
+    .mh, /* Marshall Islands */
     /* .mi, Michigan */
     .mn, /* Minnesota */
-    /* .mo, Missouri */
+    .mo, /* Missouri */
     .ms, /* Mississippi */
     .mt, /* Montana */
     /* .nc, North Carolina */
@@ -49,22 +50,22 @@
     .nv, /* Nevada */
     .ny, /* New York */
     .oh, /* Ohio */
-    /* .ok, Oklahoma */
+    .ok, /* Oklahoma */
     .or, /* Oregon */
     .pa, /* Pennsylvania */
-    /* .pr, Puerto Rico */
-    /* .ri, Rhode Island */
+    .pr, /* Puerto Rico */
+    .ri, /* Rhode Island */
     /* .sc, South Carolina */
-    /* .sd, South Dakota */
+    .sd, /* South Dakota */
     .tn, /* Tennessee */
     /* .tt, Trust Territories */
     .tx, /* Texas */
-    /* .ut, Utah */
+    .ut, /* Utah */
     /* .va, Virginia */
     /* .vi, Virgin Islands */
     .vt, /* Vermont */
     .wa, /* Washington */
-    /* .wi, Wisconsin */
+    .wi, /* Wisconsin */
     /* .wv, West Virginia */
     .wy /* Wyoming */
     /* NO COMMA AFTER LAST ITEM */

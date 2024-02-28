@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
 
 // Schemas used
 const val HL7_SCHEMA = "covid-19"
@@ -19,7 +20,13 @@ interface TranslatorProperties {
     val format: Report.Format
 
     /**
-     * [schemaName] is a the full name of the schema used in the translation
+     * [useBatching] tells whether to batch the results
+     */
+    val useBatching: Boolean
+
+    /**
+     * [schemaName] is the full name of the schema used in the convert step as well as the translate step when
+     * translating the internal FHIR bundle to a receiver's preferred format.
      */
     val schemaName: String
 
@@ -47,8 +54,9 @@ interface TranslatorProperties {
 )
 @JsonSubTypes(
     JsonSubTypes.Type(Hl7Configuration::class, name = "HL7"),
+    JsonSubTypes.Type(FHIRConfiguration::class, name = "FHIR"),
     JsonSubTypes.Type(GAENConfiguration::class, name = "GAEN"),
-    JsonSubTypes.Type(CustomConfiguration::class, name = "CUSTOM"),
+    JsonSubTypes.Type(CustomConfiguration::class, name = "CUSTOM")
 )
 abstract class TranslatorConfiguration(val type: String) : TranslatorProperties
 
@@ -133,7 +141,7 @@ data class Hl7Configuration
         /**
          * (area)local format in component 1. Backward compatibility to an earlier format.
          */
-        AREA_LOCAL_IN_COMPONENT_ONE
+        AREA_LOCAL_IN_COMPONENT_ONE,
     }
 
     /**
@@ -153,45 +161,83 @@ data class Hl7Configuration
         /**
          * Override with the organization_name field
          */
-        ORGANIZATION_NAME
+        ORGANIZATION_NAME,
     }
 
     @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
 
     @get:JsonIgnore
-    override val defaults: Map<String, String> get() {
-        val receivingApplication = when {
-            receivingApplicationName != null && receivingApplicationOID != null ->
-                "$receivingApplicationName^$receivingApplicationOID^ISO"
-            receivingApplicationName != null && receivingApplicationOID == null ->
-                receivingApplicationName
-            else -> ""
+    override val useBatching: Boolean get() = useBatchHeaders
+
+    @get:JsonIgnore
+    override val defaults: Map<String, String>
+        get() {
+            val receivingApplication = when {
+                receivingApplicationName != null && receivingApplicationOID != null ->
+                    "$receivingApplicationName^$receivingApplicationOID^ISO"
+                receivingApplicationName != null && receivingApplicationOID == null ->
+                    receivingApplicationName
+                else -> ""
+            }
+            val receivingFacility = when {
+                receivingFacilityName != null && receivingFacilityOID != null ->
+                    "$receivingFacilityName^$receivingFacilityOID^ISO"
+                receivingFacilityName != null && receivingFacilityOID == null ->
+                    receivingFacilityName
+                else -> ""
+            }
+            val reportingFacility = when {
+                reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType == null ->
+                    "$reportingFacilityName^$reportingFacilityId^CLIA"
+                reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType != null ->
+                    "$reportingFacilityName^$reportingFacilityId^$reportingFacilityIdType"
+                reportingFacilityName != null && reportingFacilityId == null ->
+                    reportingFacilityName
+                else -> ""
+            }
+            return mapOf(
+                "processing_mode_code" to (processingModeCode ?: "P"),
+                "receiving_application" to receivingApplication,
+                "receiving_facility" to receivingFacility,
+                "message_profile_id" to (messageProfileId ?: ""),
+                "reporting_facility" to reportingFacility
+            )
         }
-        val receivingFacility = when {
-            receivingFacilityName != null && receivingFacilityOID != null ->
-                "$receivingFacilityName^$receivingFacilityOID^ISO"
-            receivingFacilityName != null && receivingFacilityOID == null ->
-                receivingFacilityName
-            else -> ""
-        }
-        val reportingFacility = when {
-            reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType == null ->
-                "$reportingFacilityName^$reportingFacilityId^CLIA"
-            reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType != null ->
-                "$reportingFacilityName^$reportingFacilityId^$reportingFacilityIdType"
-            reportingFacilityName != null && reportingFacilityId == null ->
-                reportingFacilityName
-            else -> ""
-        }
-        return mapOf(
-            "processing_mode_code" to (processingModeCode ?: "P"),
-            "receiving_application" to receivingApplication,
-            "receiving_facility" to receivingFacility,
-            "message_profile_id" to (messageProfileId ?: ""),
-            "reporting_facility" to reportingFacility
-        )
-    }
+
+    /**
+     * Pull apart the comma-delimited HL7 fields and trim them.
+     *
+     * If the configuration is missing, this is an empty list
+     */
+    private val parsedTruncateHl7Fields: List<String> = truncateHl7Fields
+        ?.uppercase()
+        ?.split(",")
+        ?.map { it.trim() }
+        ?: emptyList()
+
+    // convenience TruncationConfig to be passed to UP when needed
+    val truncationConfig = TruncationConfig(
+        truncateHDNamespaceIds,
+        parsedTruncateHl7Fields
+    )
+}
+
+/**
+ * Standard FHIR report configuration
+ */
+data class FHIRConfiguration
+@JsonCreator constructor(
+    override val schemaName: String = "",
+    override val useBatching: Boolean = true,
+    override val nameFormat: String = "standard",
+    override val receivingOrganization: String?,
+) : TranslatorConfiguration("FHIR") {
+    @get:JsonIgnore
+    override val format: Report.Format get() = Report.Format.FHIR
+
+    @get:JsonIgnore
+    override val defaults: Map<String, String> = emptyMap()
 }
 
 /**
@@ -199,10 +245,13 @@ data class Hl7Configuration
  */
 data class GAENConfiguration
 @JsonCreator constructor(
-    val dummy: String? = null
+    val dummy: String? = null,
 ) : TranslatorConfiguration("GAEN") {
     @get:JsonIgnore
     override val format: Report.Format get() = Report.Format.CSV_SINGLE // Single item CSV
+
+    @get:JsonIgnore
+    override val useBatching: Boolean get() = false
 
     @get:JsonIgnore
     override val schemaName: String get() = GAEN_SCHEMA
@@ -224,6 +273,7 @@ data class CustomConfiguration
 @JsonCreator constructor(
     override val schemaName: String,
     override val format: Report.Format,
+    override val useBatching: Boolean = false,
     override val defaults: Map<String, String> = emptyMap(),
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,

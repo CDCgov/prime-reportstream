@@ -1,0 +1,63 @@
+name: Release ChatOps App
+
+on:
+  push:
+    branches:
+      - production
+    paths:
+      - "operations/slack-boltjs-app"
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "operations/slack-boltjs-app"
+
+jobs:
+  pre_job:
+    name: Set Build Environment
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.build_vars.outputs.env_name }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
+  build_chatops_app:
+    name: Build ChatOps App
+    needs:
+      - pre_job
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: operations/slack-boltjs-app
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          submodules: true
+
+      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "ACR_NAME=pdh${{ needs.pre_job.outputs.env_name }}containerregistry.azurecr.io" >> $GITHUB_ENV
+          echo "IMAGE_REPO=chatops" >> $GITHUB_ENV
+
+      - name: Build app
+        run: |
+          cp ../../.environment/chatops/help.txt .help
+          docker build -t slack_boltjs_app -f Dockerfile.example . \
+            --tag ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:latest
+
+      - name: ACR login
+        run: |
+          az acr login --name ${{ env.ACR_NAME }}
+          docker push ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:latest
+        shell: bash

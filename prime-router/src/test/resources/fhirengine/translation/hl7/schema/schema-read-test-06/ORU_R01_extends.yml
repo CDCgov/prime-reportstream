@@ -1,0 +1,11 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+extends: classpath:/fhirengine/translation/hl7/schema/schema-read-test-06/ORU_R01.yml
+constants:
+  lowLevelConstant: "lowLevelValue"
+  overriddenConstant: "overriddenValue"
+elements:
+  - name: patient-information
+    resource: Bundle.entry.resource.ofType(Patient)
+    condition: '%resource.count() = 1'
+    required: true
+    schema: classpath:/fhirengine/translation/hl7/schema/schema-read-test-06/ORU_R01/patient.yml

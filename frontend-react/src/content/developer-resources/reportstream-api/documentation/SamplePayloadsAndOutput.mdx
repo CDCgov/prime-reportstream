@@ -1,0 +1,87 @@
+---
+metaTitle: ReportStream API sample payloads and output
+metaDescription: Sample payloads and output for HL7 and CSV submissions to ReportStram's API
+---
+
+import Sidenav from "../Sidenav.mdx";
+
+import site from "../../../site.json";
+
+<LayoutSidenav><Sidenav /></LayoutSidenav>
+
+<LayoutMain>
+# Sample payloads and output
+<p className="text-base">Last updated: 1/4/24</p>
+
+***
+
+## Sample CSV payload and output
+
+Input
+
+<a href={site.assets.standardCsv.path} className="usa-button">Download a sample file <Icon name='FileDownload' /></a>
+
+Response
+
+```
+{
+  "id": "dbfbb65f-f6f0-4d85-a723-32b63283f068",
+  "submissionId": 2412,
+  "overallStatus": "Waiting to Deliver",
+  "timestamp": "2022-05-16T14:39:02.159Z",
+  "plannedCompletionAt": "2022-05-16T14:40:00.000Z",
+  "actualCompletionAt": null,
+  "sender": "csvuploadertest.default",
+  "reportItemCount": 5,
+  "errorCount": 0,
+  "warningCount": 0,
+  "httpStatus": 201,
+  "destinations": [ {
+    "organization": "Alabama Public Health Department",
+    "organization_id": "al-phd",
+    "service": "elr",
+    "itemCount": 5,
+    "itemCountBeforeQualityFiltering": 5,
+    "sending_at": "2022-05-16T14:40:00.000Z",
+    "filteredReportRows": [ ],
+    "filteredReportItems": [ ],
+    "sentReports": [ ],
+    "downloadedReports": [ ]
+  } ],
+  "errors": [ ],
+  "warnings": [ ],
+  "topic": "covid-19",
+  "externalName": null,
+  "destinationCount": 1
+}
+```
+
+## Sample HL7 2.5.1 payload and output
+
+Input
+
+<a href={site.assets.exampleHl7.path} download className="usa-button">Download a sample file <Icon name='FileDownload' /></a>
+
+Response
+
+```
+{
+  "id": "f08ccba0-c5ff-4ef5-924c-f72747603f02",
+  "timestamp": "2021-08-05T11:33:01.060209Z",
+  "topic": "covid-19",
+  "reportItemCount": 1,
+  "destinations": [ {
+    "organization": "California Department of Public Health",
+    "organization_id": "ca-dph",
+    "service": "elr",
+    "sending_at": "2021-08-05T07:34-04:00",
+    "itemCount": 1
+  } ],
+  "destinationCount": 1,
+  "warningCount": 0,
+  "errorCount": 0,
+  "errors": [ ],
+  "warnings": [ ]
+}
+```
+</LayoutMain>

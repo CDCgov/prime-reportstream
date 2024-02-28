@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.common
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import kotlin.test.Test
 
 class Hl7UtilitiesTests {
@@ -52,7 +52,7 @@ class Hl7UtilitiesTests {
             FTS|1
             """.trimIndent().replace('\n', '\r')
         )
-        assertThat { Hl7Utilities.cut(input, listOf(3)) }.isFailure()
+        assertFailure { Hl7Utilities.cut(input, listOf(3)) }
         assertThat(Hl7Utilities.cut("", listOf())).isEmpty()
     }
 
@@ -79,7 +79,7 @@ class Hl7UtilitiesTests {
             """.trimIndent().replace('\n', '\r')
         )
 
-        assertThat { Hl7Utilities.cut(input, listOf(1)) }.isFailure()
+        assertFailure { Hl7Utilities.cut(input, listOf(1)) }
         assertThat(Hl7Utilities.cut("", listOf())).isEmpty()
     }
 }

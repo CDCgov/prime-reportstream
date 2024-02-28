@@ -1,0 +1,19 @@
+constants:
+  hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/ORC
+elements:
+
+  - name: radx-mars-ordering-provider-id-assigner-oid
+    condition: '%service.requester.resolve().practitioner.exists()'
+    value: [ '"2.16.840.1.113883.4.6"' ]
+    hl7Spec: [ '%{hl7Order}-12-9-2' ]
+
+  - name: radx-mars-ordering-provider-id-assigner-type
+    condition: '%service.requester.resolve().practitioner.exists()'
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{hl7Order}-12-9-3' ]
+
+  - name: radx-mars-order-ordering-id-type
+    condition: '%service.requester.resolve().practitioner.exists()'
+    value: [ '"NPI"' ]
+    hl7Spec: [ '%{hl7Order}-12-13' ]
+

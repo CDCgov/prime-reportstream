@@ -1,31 +1,31 @@
-import { NetworkErrorBoundary, useResource } from "rest-hooks";
-import React, { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import {
     Button,
     DateRangePicker,
-    Dropdown,
     Grid,
     GridContainer,
     Label,
     Modal,
     ModalRef,
     ModalToggleButton,
+    Select,
     SiteAlert,
     TextInput,
     Tooltip,
 } from "@trussworks/react-uswds";
-import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import moment from "moment";
-import { Link } from "react-router-dom";
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
+import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
+import { ErrorPage } from "../../pages/error/ErrorPage";
 import {
-    AdmConnStatusResource,
     AdmConnStatusDataType,
+    AdmConnStatusResource,
 } from "../../resources/AdmConnStatusResource";
 import { formatDate } from "../../utils/misc";
-import { StyleClass } from "../Table/TableFilters";
 import Spinner from "../Spinner";
-import { ErrorPage } from "../../pages/error/ErrorPage";
+import { StyleClass, TableFilterDateLabel } from "../Table/TableFilters";
+import { USLink } from "../USLink";
 
 const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
 const SKIP_HOURS = 2; // hrs - should be factor of 24 (e.g. 12,6,4,3,2)
@@ -292,7 +292,7 @@ class TimeSlots implements IterateTimeSlots {
     private readonly end: Date;
     private readonly skipHours: number;
 
-    constructor(range: DatePair, skipHours: number = 2) {
+    constructor(range: DatePair, skipHours = 2) {
         this.current = range[0];
         this.end = range[1];
         this.skipHours = skipHours;
@@ -312,7 +312,7 @@ class TimeSlots implements IterateTimeSlots {
  * @param dataIn
  */
 const sortStatusData = (
-    dataIn: AdmConnStatusDataType[]
+    dataIn: AdmConnStatusDataType[],
 ): AdmConnStatusDataType[] => {
     // empty case
     if (dataIn.length === 0) {
@@ -359,16 +359,16 @@ function renderAllReceiverRows(props: {
         let currentEntry = props.data[offset];
         let currentDate = new Date(currentEntry.connectionCheckCompletedAt);
         let currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
-        let rowReceiver = currentReceiver; // used to know when we've run out of row data
+        const rowReceiver = currentReceiver; // used to know when we've run out of row data
 
         // loop over all days
         const daySlots = new TimeSlots([props.startDate, props.endDate], 24);
-        for (let [daySlotStart, daySlotEnd] of daySlots) {
+        for (const [daySlotStart, daySlotEnd] of daySlots) {
             const timeSlots = new TimeSlots(
                 [daySlotStart, daySlotEnd],
-                SKIP_HOURS
+                SKIP_HOURS,
             );
-            for (let [timeSlotStart, timeSlotEnd] of timeSlots) {
+            for (const [timeSlotStart, timeSlotEnd] of timeSlots) {
                 const successForSlice = new SuccessRateTracker();
 
                 let errorFilterMatchedSlice =
@@ -419,7 +419,7 @@ function renderAllReceiverRows(props: {
                     }
                     currentEntry = props.data[offset];
                     currentDate = new Date(
-                        currentEntry.connectionCheckCompletedAt
+                        currentEntry.connectionCheckCompletedAt,
                     );
                     currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
                 }
@@ -444,7 +444,7 @@ function renderAllReceiverRows(props: {
                 sliceElements.push(
                     <Grid
                         row
-                        key={`slice:${currentReceiver}|${timeSlotStart}`}
+                        key={`slice:${currentReceiver}|${timeSlotStart.toISOString()}`}
                         className={`slice ${sliceClassName} ${sliceFilterClassName}`}
                         data-offset={dataOffset}
                         data-offset-end={dataOffsetEnd}
@@ -457,10 +457,10 @@ function renderAllReceiverRows(props: {
                                       // get saved offset from "data-offset" attribute on this element
                                       const target = evt.currentTarget;
                                       const sliceStart = parseInt(
-                                          target?.dataset["offset"] || "-1"
+                                          target?.dataset.offset ?? "-1",
                                       );
                                       let sliceEnd = parseInt(
-                                          target?.dataset["offsetEnd"] || "-1"
+                                          target?.dataset.offsetEnd ?? "-1",
                                       );
                                       // sanity check it's within range (should never happen)
                                       if (
@@ -474,7 +474,7 @@ function renderAllReceiverRows(props: {
                                                   : sliceStart;
                                           const subsetData = props.data.slice(
                                               sliceStart,
-                                              sliceEnd
+                                              sliceEnd,
                                           );
                                           props.onClick(subsetData);
                                       }
@@ -482,7 +482,7 @@ function renderAllReceiverRows(props: {
                         }
                     >
                         {" "}
-                    </Grid>
+                    </Grid>,
                 );
                 // </editor-fold>
             } // per-day time slice loop
@@ -501,7 +501,7 @@ function renderAllReceiverRows(props: {
                     <Grid gap={1} row className={"slices-row slices-row-12"}>
                         {sliceElements}
                     </Grid>
-                </GridContainer>
+                </GridContainer>,
             );
             sliceElements = [];
             // </editor-fold>
@@ -514,7 +514,7 @@ function renderAllReceiverRows(props: {
         const combinedName = `${orgName} ${recvrName}`.toLowerCase();
         const successRate = Math.round(
             (100 * successForRow.countSuccess) /
-                (successForRow.countSuccess + successForRow.countFailed)
+                (successForRow.countSuccess + successForRow.countFailed),
         );
         const titleClassName =
             SUCCESS_RATE_CLASSNAME_MAP[successForRow.currentState];
@@ -539,21 +539,23 @@ function renderAllReceiverRows(props: {
             >
                 <Grid className={`title-column ${titleClassName}`}>
                     <div className={"title-text"}>
-                        <Link to={linkOrgSettings}>{orgName}</Link>
+                        <USLink href={linkOrgSettings}>{orgName}</USLink>
                         <br />
-                        <Link to={linkRecvSettings}>{recvrName}</Link>
+                        <USLink href={linkRecvSettings}>{recvrName}</USLink>
                         <br />
                         {successRate}%
                     </div>
                 </Grid>
                 <ScrollSyncPane enabled>
-                    <Grid row className={"horizontal-scroll"}>
-                        <Grid row className={"week-column"}>
-                            {perDayElements}
+                    <>
+                        <Grid row className={"horizontal-scroll"}>
+                            <Grid row className={"week-column"}>
+                                {perDayElements}
+                            </Grid>
                         </Grid>
-                    </Grid>
+                    </>
                 </ScrollSyncPane>
-            </Grid>
+            </Grid>,
         );
         perDayElements = [];
         visibleSliceCount = 0;
@@ -577,8 +579,8 @@ function FilterRenderedRows(props: {
     const renderedRows = props.renderedRows;
 
     const resultArray: JSX.Element[] = [];
-    for (let offset = 0; offset < renderedRows.length; offset++) {
-        const renderedRow = renderedRows[offset];
+    for (const element of renderedRows) {
+        const renderedRow = element;
         const rowStatus = renderedRow.props["data-rowstatus"] || "";
         const orgRecvName = renderedRow.props["data-orgrecvname"] || "";
         const allSlicesFilteredOut =
@@ -632,7 +634,7 @@ function MainRender(props: {
             props.onDetailsClick(dataItems);
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [props.onDetailsClick]
+        [props.onDetailsClick],
     );
     // Example: if we decide to filter data[1], then we filter renderedRows[1]
     // this prevents the expensive row renders when a filter happens
@@ -649,7 +651,7 @@ function MainRender(props: {
             }),
         // memo cannot track date changes correctly, leave them out of deps!
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [data, props.filterErrorText]
+        [data, props.filterErrorText],
     );
 
     if (renderedRows.length === 0) {
@@ -657,7 +659,6 @@ function MainRender(props: {
     }
 
     return (
-        //
         <ScrollSync horizontal enabled>
             <GridContainer className={"rs-admindash-component"}>
                 {FilterRenderedRows({
@@ -680,7 +681,7 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
     const duration = (dataItem: AdmConnStatusDataType) => {
         return durationFormatShort(
             new Date(dataItem.connectionCheckCompletedAt),
-            new Date(dataItem.connectionCheckStartedAt)
+            new Date(dataItem.connectionCheckStartedAt),
         );
     };
 
@@ -804,7 +805,7 @@ function DateRangePickingAtomic(props: {
                 <div>Select date range to show. (Max 10 days span)</div>
                 <DateRangePicker
                     className={`${StyleClass.DATE_CONTAINER} margin-bottom-5`}
-                    startDateLabel="From (Start Range):"
+                    startDateLabel={TableFilterDateLabel.START_DATE}
                     startDatePickerProps={{
                         id: "start-date",
                         name: "start-date-picker",
@@ -815,7 +816,7 @@ function DateRangePickingAtomic(props: {
                             }
                         },
                     }}
-                    endDateLabel="Until (End Range):"
+                    endDateLabel={TableFilterDateLabel.END_DATE}
                     endDatePickerProps={{
                         id: "end-date",
                         name: "end-date-picker",
@@ -849,10 +850,10 @@ function DateRangePickingAtomic(props: {
 
 export function AdminReceiverDashboard() {
     const [startDate, setStartDate] = useState<string>(
-        startOfDayIso(initialStartDate())
+        startOfDayIso(initialStartDate()),
     );
     const [endDate, setEndDate] = useState<string>(
-        initialEndDate().toISOString()
+        initialEndDate().toISOString(),
     );
     // this is the text input box filter
     const [filterReceivers, setFilterReceivers] = useState("");
@@ -874,7 +875,7 @@ export function AdminReceiverDashboard() {
     }, []);
 
     return (
-        <section className="grid-container">
+        <article>
             <h4>Receiver Status Dashboard</h4>
             <section>
                 CRON job results that check if receivers are working.
@@ -898,9 +899,9 @@ export function AdminReceiverDashboard() {
                     <DateRangePickingAtomic
                         defaultStartDate={startOfDayIso(initialStartDate())}
                         defaultEndDate={initialEndDate().toISOString()}
-                        onChange={(props) => {
-                            setStartDate(props.startDate);
-                            setEndDate(props.endDate);
+                        onChange={(params) => {
+                            setStartDate(params.startDate);
+                            setEndDate(params.endDate);
                         }}
                     />
                 </div>
@@ -921,7 +922,6 @@ export function AdminReceiverDashboard() {
                             type="text"
                             autoComplete="off"
                             aria-autocomplete="none"
-                            autoFocus
                             onChange={(evt) =>
                                 setFilterReceivers(evt.target.value)
                             }
@@ -946,7 +946,6 @@ export function AdminReceiverDashboard() {
                             type="text"
                             autoComplete="off"
                             aria-autocomplete="none"
-                            autoFocus
                             onChange={(evt) =>
                                 setFilterErrorResults(evt.target.value)
                             }
@@ -965,13 +964,13 @@ export function AdminReceiverDashboard() {
                         className="fixed-tooltip"
                         label="Show only rows in one of these states."
                     >
-                        <Dropdown
+                        <Select
                             id="successrate-dropdown"
                             name="successrate-dropdown"
                             onChange={(evt) =>
                                 setFilterRowSuccessState(
                                     (evt?.target?.value as SuccessRate) ||
-                                        SuccessRate.UNDEFINED
+                                        SuccessRate.UNDEFINED,
                                 )
                             }
                         >
@@ -984,7 +983,7 @@ export function AdminReceiverDashboard() {
                             <option value={SuccessRate.MIXED_SUCCESS}>
                                 Mixed success
                             </option>
-                        </Dropdown>
+                        </Select>
                     </Tooltip>
                 </div>
             </form>
@@ -1016,7 +1015,7 @@ export function AdminReceiverDashboard() {
             >
                 <ModalInfoRender subData={currentDataForModal} />
             </Modal>
-        </section>
+        </article>
     );
 }
 

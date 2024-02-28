@@ -1,47 +1,28 @@
-import React, { Suspense } from "react";
-import { useParams } from "react-router-dom";
+import { GridContainer } from "@trussworks/react-uswds";
+import { Suspense } from "react";
+import { useLocation, useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
-import { getStoredOrg } from "../../utils/SessionStorageTools";
+import Crumbs, { CrumbConfig } from "../../components/Crumbs";
+import { DetailItem } from "../../components/DetailItem/DetailItem";
 import Spinner from "../../components/Spinner";
 import Title from "../../components/Title";
+import { useSessionContext } from "../../contexts/Session";
 import ActionDetailsResource, {
     Destination,
 } from "../../resources/ActionDetailsResource";
 import { generateDateTitles } from "../../utils/DateTimeUtils";
+import { FeatureName } from "../../utils/FeatureName";
 import { ErrorPage } from "../error/ErrorPage";
-import Crumbs, { CrumbConfig } from "../../components/Crumbs";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../components/AuthElement";
 
 /* Custom types */
-type DetailItemProps = {
-    item: string;
-    content: any;
-};
-
-type DestinationItemProps = {
+interface DestinationItemProps {
     destinationObj: Destination;
-};
+}
 
-type SubmissionDetailsProps = {
+interface SubmissionDetailsProps {
     actionId: string | undefined;
-};
-
-/*
-    A component displaying a soft gray title and content in
-    standard black text.
-
-    @param item - the title of a property; e.g. Report ID
-    @param content - the content of a property; e.g. 000000-0000-0000-000000
-*/
-export function DetailItem({ item, content }: DetailItemProps) {
-    return (
-        <div className="display-flex flex-column margin-bottom-4">
-            <span className="text-base">{item}</span>
-            <span>{content}</span>
-        </div>
-    );
+    [k: string]: string | undefined;
 }
 
 /*
@@ -62,9 +43,7 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
                 item={"Transmission Date"}
                 content={
                     destinationObj.itemCount > 0
-                        ? submissionDate
-                            ? submissionDate.dateString
-                            : "Parsing error"
+                        ? submissionDate?.dateString ?? "Parsing error"
                         : "Not transmitting - all data filtered"
                 }
             />
@@ -72,9 +51,7 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
                 item={"Transmission Time"}
                 content={
                     destinationObj.itemCount > 0
-                        ? submissionDate
-                            ? submissionDate.timeString
-                            : "Parsing error"
+                        ? submissionDate?.timeString ?? "Parsing error"
                         : "Not transmitting - all data filtered"
                 }
             />
@@ -91,18 +68,19 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
     the information to display. Used to call the API.
 */
 function SubmissionDetailsContent() {
-    const organization = getStoredOrg();
+    const { activeMembership } = useSessionContext();
+    const organization = activeMembership?.parsedName;
     const { actionId } = useParams<SubmissionDetailsProps>();
     const actionDetails: ActionDetailsResource = useResource(
         ActionDetailsResource.detail(),
-        { actionId, organization }
+        { actionId, organization },
     );
     const submissionDate = generateDateTitles(actionDetails.timestamp);
 
     /* Conditional title strings */
     const preTitle = `${
         actionDetails.sender
-    } ${actionDetails.topic.toUpperCase()} Submissions`;
+    } ${actionDetails.topic.toUpperCase()} ${FeatureName.SUBMISSIONS}`;
     const titleString: string = submissionDate
         ? `${submissionDate.dateString} ${submissionDate.timeString}`
         : "Date and Time parsing error";
@@ -117,16 +95,11 @@ function SubmissionDetailsContent() {
         return <ErrorPage type="page" />;
     } else {
         return (
-            <div
-                className="grid-container margin-bottom-10"
-                data-testid="container"
-            >
+            <div className="margin-bottom-10" data-testid="container">
                 <div className="grid-col-12">
                     <Title
                         preTitle={preTitle}
-                        title={
-                            titleWithFilename ? titleWithFilename : titleString
-                        }
+                        title={titleWithFilename ?? titleString}
                     />
                     <DetailItem item={"Report ID"} content={actionDetails.id} />
                     {actionDetails.destinations.map((dst) => (
@@ -141,35 +114,32 @@ function SubmissionDetailsContent() {
     }
 }
 
+const fallbackPage = () => <ErrorPage type="page" />;
+
 /*
     For a component to use the Suspense and NEB fallbacks, it must be nested within
     the according tags, hence this wrapper.
 */
-function SubmissionDetails() {
+function SubmissionDetailsPage() {
     const { actionId } = useParams<SubmissionDetailsProps>();
     const crumbs: CrumbConfig[] = [
         { label: "Submissions", path: "/submissions" },
         { label: `Details: ${actionId}` },
     ];
+    const location = useLocation();
     return (
-        <>
-            <Crumbs crumbList={crumbs} />
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="page" />}
-            >
+        <GridContainer>
+            <Crumbs
+                crumbList={crumbs}
+                previousPage={location.state?.previousPage}
+            />
+            <NetworkErrorBoundary fallbackComponent={fallbackPage}>
                 <Suspense fallback={<Spinner size="fullpage" />}>
                     <SubmissionDetailsContent />
                 </Suspense>
             </NetworkErrorBoundary>
-        </>
+        </GridContainer>
     );
 }
 
-export default SubmissionDetails;
-
-export const SubmissionDetailsWithAuth = () => (
-    <AuthElement
-        element={<SubmissionDetails />}
-        requiredUserType={MemberType.SENDER}
-    />
-);
+export default SubmissionDetailsPage;

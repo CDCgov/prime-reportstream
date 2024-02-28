@@ -1,4 +1,5 @@
 ---
+# deprecated
 name: inbios-covid-19
 description: InBios
 topic: covid-19
@@ -12,3 +13,4 @@ elements:
 
   - name: processing_mode_code
     default: T
+

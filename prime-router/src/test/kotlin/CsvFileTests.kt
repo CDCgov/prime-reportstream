@@ -3,12 +3,10 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.exists
 import assertk.assertions.hasSize
-import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
-import assertk.assertions.support.expected
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -108,7 +106,7 @@ class CsvFileTests {
         assertThat(settings.receivers).hasSize(2)
         assertThat(
             settings.findReceiver("federal-test.receiver")?.jurisdictionalFilter
-        ).isNotNull().hasSize(2)
+        ).isNotNull().hasSize(1)
     }
 
     private fun loadTestSchemas(metadata: Metadata) {

@@ -3,7 +3,9 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.mockkClass
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -13,15 +15,91 @@ internal class ReceiverTests {
     private val translatorConfig = mockkClass(TranslatorConfiguration::class)
 
     @Test
+    fun `test condition filter on non full-elr pipeline`() {
+        val receiver = Receiver(
+            name = "elr",
+            organizationName = "IGNORE",
+            topic = Topic.COVID_19,
+            customerStatus = CustomerStatus.INACTIVE,
+            conditionFilter = listOf("blah"),
+            translation = translatorConfig,
+            externalName = "Ignore ELR"
+        )
+
+        assertThat(
+            receiver.consistencyErrorMessage(
+                UnitTestUtils.simpleMetadata
+            )
+        ).isEqualTo(
+            "Condition filter(s) not allowed for receivers with topic 'covid-19'"
+        )
+    }
+
+    @Test
+    fun `test mapped condition filter on non full-elr pipeline`() {
+        val receiver = Receiver(
+            name = "elr",
+            organizationName = "IGNORE",
+            topic = Topic.COVID_19,
+            customerStatus = CustomerStatus.INACTIVE,
+            mappedConditionFilter = listOf(CodeStringConditionFilter("1234")),
+            translation = translatorConfig,
+            externalName = "Ignore ELR"
+        )
+
+        assertThat(
+            receiver.consistencyErrorMessage(
+                UnitTestUtils.simpleMetadata
+            )
+        ).isEqualTo(
+            "Condition filter(s) not allowed for receivers with topic 'covid-19'"
+        )
+    }
+
+    @Test
+    fun `test condition filter on full-elr pipeline`() {
+        val receiver = Receiver(
+            name = "elr",
+            organizationName = "IGNORE",
+            topic = Topic.FULL_ELR,
+            customerStatus = CustomerStatus.INACTIVE,
+            conditionFilter = listOf("%testPerformedCodes.intersect('123-0'|'600-7').exists()"),
+            translation = translatorConfig,
+            externalName = "Ignore ELR"
+        )
+
+        assertThat(receiver.consistencyErrorMessage(UnitTestUtils.simpleMetadata)).isNull()
+    }
+
+    @Test
+    fun `test mapped condition filter on full-elr pipeline`() {
+        val receiver = Receiver(
+            name = "elr",
+            organizationName = "IGNORE",
+            topic = Topic.FULL_ELR,
+            customerStatus = CustomerStatus.INACTIVE,
+            mappedConditionFilter = listOf(CodeStringConditionFilter("123-0,600-7")),
+            translation = translatorConfig,
+            externalName = "Ignore ELR"
+        )
+
+        assertThat(receiver.consistencyErrorMessage(UnitTestUtils.simpleMetadata)).isNull()
+    }
+
+    @Test
     fun `test receiver full name`() {
-        val receiver = Receiver("elr", "IGNORE", "covid-19", CustomerStatus.INACTIVE, translatorConfig)
+        val receiver = Receiver("elr", "IGNORE", Topic.COVID_19, CustomerStatus.INACTIVE, translatorConfig)
         assertThat(receiver.fullName).isEqualTo("IGNORE.elr")
     }
 
     @Test
     fun `test receiver external name when present`() {
         val receiver = Receiver(
-            "elr", "IGNORE", "covid-19", CustomerStatus.INACTIVE, translatorConfig,
+            "elr",
+            "IGNORE",
+            Topic.COVID_19,
+            CustomerStatus.INACTIVE,
+            translatorConfig,
             externalName = "Ignore ELR"
         )
         assertThat(receiver.displayName).isEqualTo("Ignore ELR")
@@ -30,7 +108,11 @@ internal class ReceiverTests {
     @Test
     fun `test receiver external name when not present`() {
         val receiver = Receiver(
-            "elr", "IGNORE", "covid-19", CustomerStatus.INACTIVE, translatorConfig,
+            "elr",
+            "IGNORE",
+            Topic.COVID_19,
+            CustomerStatus.INACTIVE,
+            translatorConfig,
             externalName = null
         )
         assertThat(receiver.displayName).isEqualTo("elr")
@@ -168,5 +250,21 @@ internal class ReceiverTests {
             ZonedDateTime.of(2020, 10, 2, 2, 50, 1, 0, ZoneId.of(USTimeZone.PACIFIC.zoneId)).toOffsetDateTime()
         val actual5 = timing.batchInPrevious60Seconds(noWork1)
         assertThat(actual5).isFalse()
+    }
+
+    @Test
+    fun `test receiver schema fields`() {
+        val receiver = Receiver(
+            "elr",
+            "co-phd",
+            Topic.TEST,
+            CustomerStatus.INACTIVE,
+            "CO",
+            Report.Format.CSV,
+            null,
+            null,
+            null
+        )
+        assertThat(receiver.schemaName).isEqualTo("CO")
     }
 }

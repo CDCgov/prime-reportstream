@@ -18,7 +18,7 @@ val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
  */
 enum class AuthenticationType {
     Okta,
-    Server2Server;
+    Server2Server,
 }
 
 /**
@@ -69,13 +69,16 @@ class AuthenticatedClaims : Logging {
                     jwtClaims[oktaMembershipClaim] as? Collection<String> ?: error("No memberships in claims")
                 this.scopes = Scope.mapOktaGroupsToScopes(memberships)
             }
+
             AuthenticationType.Server2Server -> {
                 // todo this assumes a single scope.  Need to add support for multiple scopes.
                 val claimsScope = _jwtClaims["scope"] as String
-                if (claimsScope.isEmpty())
+                if (claimsScope.isEmpty()) {
                     error("For $userName, server2server token had no scope defined. Not authenticated")
-                if (!Scope.isValidScope(claimsScope))
+                }
+                if (!Scope.isValidScope(claimsScope)) {
                     error("For $userName, server2server scope $claimsScope: invalid format")
+                }
                 this.scopes = setOf(claimsScope)
             }
             // else -> error("$authenticationType authentication is not implemented")
@@ -92,7 +95,7 @@ class AuthenticatedClaims : Logging {
      */
     fun authorizedForSendOrReceive(
         requiredSender: Sender,
-        request: HttpRequestMessage<String?>
+        request: HttpRequestMessage<String?>,
     ): Boolean {
         return authorizedForSendOrReceive(requiredSender.organizationName, requiredSender.name, request)
     }
@@ -108,7 +111,7 @@ class AuthenticatedClaims : Logging {
     fun authorizedForSendOrReceive(
         requiredOrganization: String? = null,
         requiredSenderOrReceiver: String? = null,
-        request: HttpRequestMessage<String?>
+        request: HttpRequestMessage<String?>,
     ): Boolean {
         val requiredScopes = mutableSetOf(Scope.primeAdminScope)
         // Remember that authorized(...), called below, does an exact string match, char for char, only.
@@ -133,7 +136,7 @@ class AuthenticatedClaims : Logging {
         return if (authorized(requiredScopes)) {
             logger.info(
                 "Authorized request by user with claims ${this.scopes}" +
-                    " for submission-related resources. client= $requiredOrganization."
+                    " for org-related resources. client= $requiredOrganization."
             )
             true
         } else {
@@ -169,6 +172,7 @@ class AuthenticatedClaims : Logging {
                     logger.info("Running locally, but will do authentication")
                     false
                 }
+
                 else -> true
             }
         }
@@ -200,11 +204,12 @@ class AuthenticatedClaims : Logging {
             if (isLocal(accessToken)) {
                 logger.info("Granted test auth request for ${request.httpMethod}:${request.uri.path}")
                 val client = request.headers["client"]
-                val sender = if (client == null)
+                val sender = if (client == null) {
                     null
-                else
+                } else {
                     WorkflowEngine().settings.findSender(client)
-                return AuthenticatedClaims.generateTestClaims(sender)
+                }
+                return generateTestClaims(sender)
             }
 
             if (accessToken.isNullOrEmpty()) {
@@ -217,7 +222,7 @@ class AuthenticatedClaims : Logging {
             var authenticatedClaims = OktaAuthentication.authenticate(accessToken, request.httpMethod, request.uri.path)
             if (authenticatedClaims == null) {
                 logger.info("Okta: Unauthorized.  Now trying server2server auth for request to ${request.uri}.")
-                authenticatedClaims = Server2ServerAuthentication().authenticate(accessToken)
+                authenticatedClaims = Server2ServerAuthentication(WorkflowEngine()).authenticate(accessToken)
                 if (authenticatedClaims == null) {
                     logger.info("Server2Server: Also Unauthorized, for request to ${request.uri}. Giving up.")
                     return null
@@ -229,6 +234,23 @@ class AuthenticatedClaims : Logging {
                     " using ${authenticatedClaims.authenticationType.name} auth."
             )
             return authenticatedClaims
+        }
+
+        /**
+         * Run authentication then filters out non-admin claims
+         * @param request Http request to authenticate
+         * @return Authenticated claims if primeadmin is authorized, else null
+         */
+        fun authenticateAdmin(
+            request: HttpRequestMessage<String?>,
+        ): AuthenticatedClaims? {
+            val claims = authenticate(request)
+            return if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
+                logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+                null
+            } else {
+                claims
+            }
         }
 
         /**

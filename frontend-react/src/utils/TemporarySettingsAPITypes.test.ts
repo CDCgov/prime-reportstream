@@ -14,10 +14,10 @@ describe("Settings API Types", () => {
     test("SampleObject methods", () => {
         const obj = new TestSampleObject();
         expect(obj.stringify()).toEqual(
-            JSON.stringify({ title: "test" }, null, 6)
+            JSON.stringify({ title: "test" }, null, 6),
         );
         expect(obj.getAllEnums()).toEqual(
-            new Map([["format", ["CSV", "HL7"]]])
+            new Map([["format", ["CSV", "HL7", "FHIR"]]]),
         );
         expect(obj.description()).toEqual("A test sample object");
     });

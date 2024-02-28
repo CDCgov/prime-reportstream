@@ -1,26 +1,23 @@
-import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
-import React, { Suspense, useCallback, useEffect } from "react";
+import { FC, useCallback } from "react";
+import { useController } from "rest-hooks";
 
+import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
+import DataDashboardTableFilters from "../../components/DataDashboard/DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import Spinner from "../../components/Spinner";
-import { ErrorPage } from "../error/ErrorPage";
-import usePagination from "../../hooks/UsePagination";
-import { RangeField } from "../../hooks/filters/UseDateRange";
+import { PaginationProps } from "../../components/Table/Pagination";
+import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
+import { TableFilterDateLabel } from "../../components/Table/TableFilters";
+import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
 import useFilterManager, {
-    cursorOrRange,
     FilterManager,
     FilterManagerDefaults,
 } from "../../hooks/filters/UseFilterManager";
-import useCursorManager, {
-    CursorActionType,
-    CursorManager,
-} from "../../hooks/filters/UseCursorManager";
-import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
-import TableFilters from "../../components/Table/TableFilters";
-import { PaginationProps } from "../../components/Table/Pagination";
-import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
+import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
+import usePagination from "../../hooks/UsePagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
-import { useSessionContext } from "../../contexts/SessionContext";
-import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
+import { FeatureName } from "../../utils/FeatureName";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
@@ -32,23 +29,23 @@ const filterManagerDefaults: FilterManagerDefaults = {
 };
 
 interface SubmissionTableContentProps {
-    cursorManager?: CursorManager;
     filterManager: FilterManager;
     paginationProps?: PaginationProps;
     submissions: SubmissionsResource[];
 }
 
-const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
-    cursorManager,
+function transformDate(s: string) {
+    return new Date(s).toLocaleString();
+}
+
+const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
     filterManager,
     paginationProps,
     submissions,
 }) => {
-    const transformDate = (s: string) => {
-        return new Date(s).toLocaleString();
-    };
-
-    const columns: Array<ColumnConfig> = [
+    const { appInsights } = useAppInsightsContext();
+    const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
+    const columns: ColumnConfig[] = [
         {
             dataAttr: "id",
             columnHeader: "Report ID",
@@ -79,80 +76,32 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
 
     return (
         <>
-            <TableFilters
+            <DataDashboardTableFilters
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
+                showDateHints={true}
                 filterManager={filterManager}
-                cursorManager={cursorManager}
+                onFilterClick={({ from, to }: { from: string; to: string }) =>
+                    appInsights?.trackEvent({
+                        name: analyticsEventName,
+                        properties: {
+                            tableFilter: { startRange: from, endRange: to },
+                        },
+                    })
+                }
             />
             <Table
                 config={submissionsConfig}
                 filterManager={filterManager}
-                cursorManager={cursorManager}
                 paginationProps={paginationProps}
             />
         </>
     );
 };
 
-/** @deprecated Replace with new numbered pagination version */
-function SubmissionTableWithCursorManager() {
-    const { activeMembership } = useSessionContext();
-    const filterManager = useFilterManager(filterManagerDefaults);
-    const cursorManager = useCursorManager(filterManager.rangeSettings.to);
-
-    /* Our API call! Updates when any of the given state variables update.
-     * The logical swap of cursors and range value is to account for which end of the
-     * range needs to update when paginating with a specific sort order.
-     *
-     * DESC -> Start [ -> ] End (Start uses cursor to increment towards end)
-     * ASC -> Start [ <- ] End (End uses cursor to increment towards start)
-     */
-    const submissions: SubmissionsResource[] = useResource(
-        SubmissionsResource.list(),
-        {
-            organization: activeMembership?.parsedName,
-            cursor: cursorOrRange(
-                filterManager.sortSettings.order,
-                RangeField.TO,
-                cursorManager.cursors.current,
-                filterManager.rangeSettings.to
-            ),
-            endCursor: cursorOrRange(
-                filterManager.sortSettings.order,
-                RangeField.FROM,
-                cursorManager.cursors.current,
-                filterManager.rangeSettings.from
-            ),
-            pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
-            sort: filterManager.sortSettings.order,
-            showFailed: false, // No plans for this to be set to true
-        }
-    );
-
-    /* Effect to add next cursor whenever submissions returns a new array */
-    const updateCursor = cursorManager.update;
-    useEffect(() => {
-        const nextCursor =
-            submissions[filterManager.pageSettings.size]?.timestamp ||
-            undefined;
-        if (nextCursor) {
-            updateCursor({
-                type: CursorActionType.ADD_NEXT,
-                payload: nextCursor,
-            });
-        }
-    }, [submissions, filterManager.pageSettings.size, updateCursor]);
-
-    return (
-        <SubmissionTableContent
-            cursorManager={cursorManager}
-            filterManager={filterManager}
-            submissions={submissions}
-        />
-    );
-}
-
 function SubmissionTableWithNumberedPagination() {
     const { activeMembership } = useSessionContext();
+    const isAdmin = activeMembership?.parsedName === Organizations.PRIMEADMINS;
 
     const filterManager = useFilterManager(filterManagerDefaults);
     const pageSize = filterManager.pageSettings.size;
@@ -162,22 +111,25 @@ function SubmissionTableWithNumberedPagination() {
 
     const { fetch: controllerFetch } = useController();
     const fetchResults = useCallback(
-        (currentCursor: string, numResults: number) => {
-            // The `cursor` and `endCursor` parameters are always the high and
-            // low values of the range, respectively. When the results are in
-            // descending order we move the high value and keep the low value
-            // constant; in ascending order we keep the high value constant and
-            // move the low value.
-            const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
-            const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
-            return controllerFetch(SubmissionsResource.list(), {
-                organization: activeMembership?.parsedName,
-                cursor,
-                endCursor,
-                pageSize: numResults,
-                sort: sortOrder,
-                showFailed: false,
-            }) as unknown as Promise<SubmissionsResource[]>;
+        async (currentCursor: string, numResults: number) => {
+            // HACK: return empty results if requesting as an admin
+            if (isAdmin) {
+                return await Promise.resolve<SubmissionsResource[]>([]);
+            }
+
+            try {
+                return (await controllerFetch(SubmissionsResource.list(), {
+                    organization: activeMembership?.parsedName,
+                    cursor: currentCursor,
+                    since: rangeFrom,
+                    until: rangeTo,
+                    pageSize: numResults,
+                    sortdir: sortOrder,
+                    showFailed: false,
+                })) as unknown as SubmissionsResource[];
+            } catch (e: any) {
+                return [] as SubmissionsResource[];
+            }
         },
         [
             activeMembership?.parsedName,
@@ -185,7 +137,8 @@ function SubmissionTableWithNumberedPagination() {
             controllerFetch,
             rangeFrom,
             rangeTo,
-        ]
+            isAdmin,
+        ],
     );
 
     // The start cursor is the high value when results are in descending order
@@ -199,9 +152,10 @@ function SubmissionTableWithNumberedPagination() {
     // inclusive: the request will return results whose cursor values are >= the
     // cursor.
     // When we move the `cursor` value in descending requests, the cursor is
-    // exclusive: the requst will return results whose cursor values are < the
+    // exclusive: the request will return results whose cursor values are < the
     // cursor.
     const isCursorInclusive = sortOrder === "ASC";
+    const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_PAGINATION}`;
 
     const {
         currentPageResults: submissions,
@@ -213,7 +167,16 @@ function SubmissionTableWithNumberedPagination() {
         pageSize,
         fetchResults,
         extractCursor,
+        analyticsEventName,
     });
+
+    if (isAdmin) {
+        return (
+            <div className="grid-container">
+                <AdminFetchAlert />
+            </div>
+        );
+    }
 
     if (isLoading) {
         return <Spinner />;
@@ -232,25 +195,7 @@ function SubmissionTableWithNumberedPagination() {
     );
 }
 
-function SubmissionTable() {
-    const { checkFlag } = useFeatureFlags();
-    const isNumberedPaginationOn = checkFlag(
-        FeatureFlagName.NUMBERED_PAGINATION
-    );
-    return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="message" />}
-        >
-            <Suspense fallback={<Spinner />}>
-                {isNumberedPaginationOn && (
-                    <SubmissionTableWithNumberedPagination />
-                )}
-                {!isNumberedPaginationOn && (
-                    <SubmissionTableWithCursorManager />
-                )}
-            </Suspense>
-        </NetworkErrorBoundary>
-    );
-}
+const SubmissionTable = () =>
+    withCatchAndSuspense(<SubmissionTableWithNumberedPagination />);
 
 export default SubmissionTable;

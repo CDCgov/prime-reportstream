@@ -1,12 +1,16 @@
 import { useEffect, useMemo } from "react";
 
+import Table, { ColumnConfig, TableConfig } from "./Table";
+import TableFilters, { TableFilterDateLabel } from "./TableFilters";
+import { DatasetAction } from "./TableInfo";
+import { receiverServicesGenerator } from "../../__mocks__/DataDashboardMockServer";
 import useCursorManager, {
     CursorActionType,
 } from "../../hooks/filters/UseCursorManager";
 import useFilterManager from "../../hooks/filters/UseFilterManager";
 
-import Table, { ColumnConfig, DatasetAction, TableConfig } from "./Table";
-import TableFilters from "./TableFilters";
+const mockReceiverServices = receiverServicesGenerator(5);
+const mockActiveReceiver = mockReceiverServices[0];
 
 const testDataRowOne = {
     one: "value one",
@@ -24,9 +28,7 @@ const dummyRowTwo = {
 };
 
 // Exported for test purposes
-export const sampleCallback = () => {
-    console.log("Callback works!");
-};
+export const sampleCallback = () => void 0;
 
 /* This component is specifically configured to help test the
  * Table component. Any  */
@@ -76,7 +78,7 @@ export const TestTable = ({
     };
 
     /* Configuration objects to pass to <Table> */
-    const fakeColumns: Array<ColumnConfig> = [
+    const fakeColumns: ColumnConfig[] = [
         {
             dataAttr: "two",
             columnHeader: "Column Two",
@@ -136,13 +138,20 @@ export const TestTable = ({
         <>
             <StateTestRendering />
             <TableFilters
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
                 filterManager={filterManager}
+                receivers={[
+                    { value: "Receiver One", label: "Receiver One" },
+                    { value: "Receiver Two", label: "Receiver Two" },
+                ]}
                 cursorManager={{
                     cursors,
                     hasNext,
                     hasPrev,
                     update: updateCursors,
                 }}
+                initialService={mockActiveReceiver}
             />
             <Table
                 title={"Test Table Title"}
@@ -150,12 +159,6 @@ export const TestTable = ({
                 datasetAction={datasetAction}
                 config={config}
                 filterManager={filterManager}
-                cursorManager={{
-                    cursors,
-                    hasNext,
-                    hasPrev,
-                    update: updateCursors,
-                }}
             />
         </>
     );

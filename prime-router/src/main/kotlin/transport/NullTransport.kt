@@ -17,7 +17,7 @@ class NullTransport : ITransport {
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ): RetryItems? {
         if (header.content == null) error("No content for report ${header.reportFile.reportId}")
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
@@ -30,7 +30,7 @@ class NullTransport : ITransport {
             fileName,
             transportType.toString(),
             msg,
-            header.reportFile.itemCount
+            header
         )
         actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
         return null

@@ -1,12 +1,12 @@
 package gov.cdc.prime.router.cli
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.io.IOException
@@ -34,8 +34,9 @@ class CommandUtilities {
             var retryCount = 0
             while (!isEndpointAvailable(url, accessToken)) {
                 retryCount++
-                if (retryCount > retries)
+                if (retryCount > retries) {
                     throw IOException("Unable to connect to the API at $url")
+                }
                 runBlocking {
                     delay(pollIntervalSecs * 1000)
                 }
@@ -67,7 +68,7 @@ class CommandUtilities {
             }
         }
 
-        private val jsonMapper = jacksonObjectMapper()
+        private val jsonMapper = jacksonObjectMapper
 
         data class DiffRow(val name: String, val baseValue: String, val toValue: String)
 
@@ -75,7 +76,6 @@ class CommandUtilities {
          * Create a list of differences between two JSON strings.
          */
         fun diffJson(base: String, compareTo: String): List<DiffRow> {
-
             /**
              * Given the [node] call [visitor] all descendant value nodes
              */
@@ -137,7 +137,7 @@ class CommandUtilities {
          * Nice way to abort a command
          */
         fun abort(message: String): Nothing {
-            throw PrintMessage(message, error = true)
+            throw PrintMessage(message, printError = true)
         }
     }
 }

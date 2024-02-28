@@ -1,0 +1,46 @@
+HL7 v2,,,,,,Condition (IF True),,,HL7 FHIR,,,,,,,,,Comments
+Sort Order,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute,,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,"Vocabulary Mapping
+(IS, ID, CE, CNE, CWE)",Assignment,,
+1,MSH-1,Field Separator,ST,1,1,,,,,,,,,,,,,Field separators are not used in FHIR. Either XML or JSON or ....
+2,MSH-2,Encoding Characters,ST,1,1,,,,,,,,,,,,,Encoding characters are not used in FHIR.
+3,MSH-3,Sending Application,HD,0,1,,,,source[1],,string,1,1,HD[MessageHeader.source],,,,
+3,MSH-3,Sending Application,HD,0,1,IF MSH-24 NOT VALUED,,,source[1].endpoint,,uri,1,1,HD[MessageHeader.source.endpoint],,,,"We believe that if MSH-24 is vaued, although it is rarely valued, it contains better information for the MessageHeader.source.endpoint.  However, one may either still want to use MSH-3 in total or a combination of content from MSH-3 and MSH-24.  That is a local implementation decision to adjust the mapping accordingly.
+
+Example: MSH|^~\%|LAB^2.16.840.1.113883.3.987.1^ISO|...
+Example: MSH|^~\%|LAB|…
+
+If both MSH-3 and MSH-24 are not valued, which is valid, then the implementer needs to resolve whether to assign this a known value since they know the context, or add the data absent reason extension to provide a reason and satisfies the mandatory FHIR attribute rules.  Note that the use of the data-absent-reason extension may result  in a FHIR resource that is not usable by the recipient."
+4,MSH-4,Sending Facility,HD,0,1,,,,sender(Organization),,Reference(Organization),0,1,HD[Organization],,,,
+5,MSH-5,Receiving Application,HD,0,1,,,,destination[1].target(Device),,Reference(Device),0,1,HD[MessageHeader.source.endpoint],,,,Example: MSH...|RH^2.16.840.1.113883.632.3^ISO|...
+5,MSH-5,Receiving Application,HD,0,1,IF MSH-25 VALUED,,,destination[1].name,,,,,HD[MessageHeader.destination.name],,,,
+5,MSH-5,Receiving Application,HD,0,1,IF MSH-25 NOT VALUED,,,destination[1].endpoint,,,,,HD[MessageHeader.destination.endpoint],,,,
+6,MSH-6,Receiving Facility,HD,0,-1,IF MSH-23 NOT VALUED,,,destination[1].receiver(Organization),,Reference(Organization),0,1,HD[Organization],,,,
+7,MSH-7,Date/Time of Message,DTM,1,1,,,,,,,,,,,,,"If a message is always conveyed in a Bundle, then Bundle.timestamp could work. However, Bundle.timestamp may be better used to reflect the conversion.
+
+See https://chat.fhir.org/#narrow/stream/179188-v2-to.20FHIR/topic/MessageHeader.2Etimestamp for a discussion on this topic."
+7,MSH-7,Date/Time of Message,DTM,1,1,,,,,,,,,,,,,
+8,MSH-8,Security,ST,0,1,,,,meta.security,,string,0,-1,,,,,
+9,MSH-9,Message Type,MSG,1,1,,,,eventCoding,,Coding,0,1,MSG[Coding],,,,
+10,MSH-10,Message Control ID,ST,1,1,,,,,,,,,,,,,"Need a gForge to request a MessageHeader.identifier (https://gforge.hl7.org/gf/project/fhir/tracker/?action=TrackerItemEdit&tracker_item_id=20704&start=0)
+Note that if a message is part of a batch, then the MSH goes to a ""sub-bundle""..
+Note that as messages switch from V2 to FHIR and the response back from FHIR to V2, the ""mapping engine"" needs to track the actual MSH.10.00.00 value and Bundle.identifier value to connect responses correctly."
+11,MSH-11,Processing ID,PT,1,1,,,,meta,,meta,0,-1,PT[Meta],,,,
+12,MSH-12,Version ID,VID,1,1,,,,,,,,,,,,,"We agreed that the version of the v2 message that was used to transform into FHIR is addressed through Provenance.  Either the Provenance instance representing the original message can include in Provenance.entity.what a binary of the total original message, or the proposed MessageHeader.identifier containing MSH-10 provides the link to the original message."
+13,MSH-13,Sequence Number,NM,0,1,,,,,,,,,,,,,
+14,MSH-14,Continuation Pointer,ST,0,1,,,,,,,,,,,,,"There is no continuation pointer concept in FHIR.  When a continuation is used, the mapper needs to continue to obtain the additional data that is defined in the mappings."
+15,MSH-15,Accept Acknowledgment Type,ID,0,1,,,,,,,,,,,,,This field is not mapped as there is no continuation of a system level acknowledgement request beyond the mapping engine.  Any subsequent acknowledgement methods would be performed in the applicable subsequent transport methods.
+16,MSH-16,Application Acknowledgment Type,ID,0,1,,,,,,,,,,,,,"Interacting with the recipient on what type/level or validation is asked to be reported and it is not yet clear what the appropriate mechanism is, e.g., using interactions using Task (as it is more application level interactions) and/or HTTP header  and/or other  mechanisms. Note that the MSH-16 values are typically pre-determined through an implementation guide.  Until then we encourage implementers to share feedback on how they are planning to address this that we can consider for inclusion"
+17,MSH-17,Country Code,ID,0,1,,,,sender(Organization.address.country),,string,0,1,,Countries,,,
+18,MSH-18,Character Set,ID,0,-1,,,,,extension??-characterSet,,,,,,,,
+19,MSH-19,Principal Language Of Message,CWE,0,1,,,,language,,code,0,1,CWE[Code],Language,,,"This does only cover the MessageHeader resource. Need to have clarity that if other resources that are part of the message that do not have Resource.meta.language valued, then it is assumed to follow MessageHeader.meta.language?? Doesn't seem RESTful, so what is the default for Resource.meta.language?"
+20,MSH-20,Alternate Character Set Handling Scheme,ID,0,1,,,,,,,,,,,,,
+21,MSH-21,Message Profile Identifier,EI,0,-1,,,,,extension??-v2ProfileID.uri,uri,0,1,,,,,"Need to support multiple profiles. Also, comment on implicitRules is highly idealistic."
+21,MSH-21,Message Profile Identifier,EI,0,-1,,,,,extension??-v2ProfileID.valueString,string,1,1,,,,,
+22,MSH-22,Sending Responsible Organization,XON,0,1,,,,responsible(Organization),,Reference(Organization),0,1,XON[Organization],,,,
+23,MSH-23,Receiving Responsible Organization,XON,0,1,,,,destination[1].receiver(Organization),,Reference(Organization),0,-1,XON[Organization],,,,This is an alternate representation of MSH-6.  The local implementation needs to determine whech components of HD vs. XON to be used and whether it may even yield a separate Organization reference.
+24,MSH-24,Sending Network Address,HD,0,1,,,,source.endpoint,,string,0,1,HD[MessageHeader.source.endpoint],,,,"We believe that if MSH-24 is vaued, although it is rarely valued, it contains better information for the MessageHeader.source.endpoint.  However, one may either still want to use MSH-3 in total or a combination of content from MSH-3 and MSH-24.  That is a local implementation decision to adjust the mapping accordingly."
+24,MSH-24,Sending Network Address,HD,0,1,IF MSH-24 NOT VALUED AND MSH-3 NOT VALUED,,,source.endpoint.extension.url,,uri,0,1,,,"""http://hl7.org/fhir/R4/extension-data-absent-reason.html""",,
+24,MSH-24,Sending Network Address,HD,0,1,IF MSH-24 NOT VALUED AND MSH-3 NOT VALUED,,,source.endpoint.extension.valueCode,,code,0,1,,,"""unknown""",,"If both MSH-3 and MSH-24 are not valued, which is valid, then the implementer needs to resolve whether to assign this a known value since they know the context, or add the data absent reason extension to provide a reason and satisfies the mandatory FHIR attribute rules.  Note that the use of the data-absent-reason extension may result  in a FHIR resource that is not usable by the recipient."
+25,MSH-25,Receiving Network Address,HD,0,1,,,,destination[1],,uri,0,-1,HD[MessageHeader.destination.endpoint],,,,"We believe that if MSH-25 is vaued, although it is rarely valued, it contains better information for the MessageHeader.source.endpoint.  However, one may either still want to use MSH-5 in total or a combination of content from MSH-5 and MSH-25.  That is a local implementation decision to adjust the mapping accordingly."
+25,MSH-25,Receiving Network Address,HD,0,1,IF MSH-25 NOT VALUED AND MSH-5 NOT VALUED,,,destination[1].endpoint.extension.url,,uri,0,-1,,,"""http://hl7.org/fhir/R4/extension-data-absent-reason.html""",,
+25,MSH-25,Receiving Network Address,HD,0,1,IF MSH-25 NOT VALUED AND MSH-5 NOT VALUED,,,destination[1].endpoint.extension.valueCode,,code,0,-1,,,"""unknown""",,

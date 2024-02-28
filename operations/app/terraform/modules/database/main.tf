@@ -2,6 +2,8 @@
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_postgresql_server" "postgres_server" {
+  #checkov:skip=CKV_AZURE_68: "Ensure that PostgreSQL server disables public network access"
+  #checkov:skip=CKV2_AZURE_42: "Ensure Azure PostgreSQL server is configured with private endpoint"
   name                         = "${var.resource_prefix}-pgsql"
   location                     = var.location
   resource_group_name          = var.resource_group
@@ -14,13 +16,13 @@ resource "azurerm_postgresql_server" "postgres_server" {
 
   auto_grow_enabled = var.db_auto_grow
 
-  public_network_access_enabled    = false
+  public_network_access_enabled    = (var.environment != "prod" && var.environment != "staging") ? true : false
   ssl_enforcement_enabled          = true
   ssl_minimal_tls_version_enforced = "TLS1_2"
 
   threat_detection_policy {
     enabled              = var.db_threat_detection
-    email_account_admins = true
+    email_account_admins = var.db_threat_detection
   }
 
   # Required for customer-managed encryption
@@ -62,6 +64,7 @@ module "postgres_private_endpoint" {
 # Replicate Server
 
 resource "azurerm_postgresql_server" "postgres_server_replica" {
+  #checkov:skip=CKV2_AZURE_42: "Ensure Azure PostgreSQL server is configured with private endpoint"
   count                        = var.db_replica ? 1 : 0
   name                         = "${azurerm_postgresql_server.postgres_server.name}-replica"
   location                     = "westus"
@@ -103,6 +106,11 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 
   tags = {
     environment = var.environment
+  }
+
+  timeouts {
+    create = "3h"
+    delete = "2h"
   }
 }
 

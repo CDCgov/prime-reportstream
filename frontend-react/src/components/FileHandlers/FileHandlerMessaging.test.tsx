@@ -1,160 +1,28 @@
-import { screen, render, within } from "@testing-library/react";
-
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
-import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
-import { Destination } from "../../resources/ActionDetailsResource";
+import { screen, within } from "@testing-library/react";
 
 import {
-    FileSuccessDisplay,
-    FileErrorDisplay,
-    FileWarningsDisplay,
     FileQualityFilterDisplay,
+    getSafeFileName,
+    RequestedChangesDisplay,
+    RequestLevel,
+    ValidationErrorMessage,
+    ValidationErrorMessageProps,
 } from "./FileHandlerMessaging";
+import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
+import { Destination } from "../../resources/ActionDetailsResource";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
-// Note: following a pattern of finding elements by text (often text passed as props)
-// then asserting className. This is not ideal, and seems kinda backwards, but I couldn't
-// think of a better way to do it. Is there a better pattern for this? - DWS
-describe("FileSuccessDisplay", () => {
+describe("RequestedChangesDisplay", () => {
     test("renders expected content", async () => {
-        renderWithRouter(
-            <FileSuccessDisplay
+        renderApp(
+            <RequestedChangesDisplay
+                title={RequestLevel.WARNING}
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
-                showExtendedMetadata={true}
-                extendedMetadata={{
-                    destinations: "1, 2",
-                    reportId: "IDIDID",
-                    timestamp: new Date(0).toString(),
-                }}
-            />
-        );
-
-        const alert = await screen.findByRole("alert");
-        expect(alert).toHaveClass("usa-alert--success");
-
-        const message = await screen.findByText("Broken Glass, Everywhere");
-        expect(message).toHaveClass("usa-alert__text");
-
-        const heading = await screen.findByText("THE HEADING");
-        expect(heading).toHaveClass("usa-alert__heading");
-
-        const destinations = await screen.findByText("1, 2");
-        expect(destinations).toHaveClass("margin-top-05");
-
-        const reportLink = await screen.findByRole("link");
-        expect(reportLink).toHaveTextContent("IDIDID");
-        expect(reportLink).toHaveAttribute("href", "/submissions/IDIDID");
-
-        const timestampDate = await screen.findByText(
-            formattedDateFromTimestamp(new Date(0).toString(), "DD MMMM YYYY")
-        );
-        expect(timestampDate).toHaveClass("margin-top-05");
-
-        // // this may break if run outside of us east - commenting out until we confirm, or figure out a better way
-        // const timestampTime = await screen.findByText("7:00 America/New_York");
-        // expect(timestampTime).toHaveClass("margin-top-05");
-    });
-});
-
-describe("FileErrorDisplay", () => {
-    test("renders expected content (no error table)", async () => {
-        render(
-            <FileErrorDisplay
-                fileName={"file.file"}
-                heading={"THE HEADING"}
-                message={"Broken Glass, Everywhere"}
-                errors={[]}
-                handlerType={""}
-            />
-        );
-
-        const alert = await screen.findByRole("alert");
-        expect(alert).toHaveClass("usa-alert--error");
-
-        const fileName = await screen.findByText("file.file");
-        expect(fileName).toHaveClass("margin-top-05");
-
-        const message = await screen.findByText("Broken Glass, Everywhere");
-        expect(message).toHaveClass("usa-alert__text"); // imperfect, just want to make sure it's there
-
-        const heading = await screen.findByText("THE HEADING");
-        expect(heading).toHaveClass("usa-alert__heading"); // imperfect, just want to make sure it's there
-
-        const table = screen.queryByRole("table");
-        expect(table).not.toBeInTheDocument();
-    });
-
-    test("renders expected content (with error table)", async () => {
-        // implicitly testing message truncation functionality here as well
-        const errors = [
-            {
-                message: "Exception: first error\ntruncated",
-                indices: [1],
-                field: "first field",
-                trackingIds: ["first_id"],
-                scope: "unclear",
-                details: "none",
-            },
-            {
-                message: "Exception: second error\ntruncated",
-                indices: [2],
-                field: "second field",
-                trackingIds: ["second_id"],
-                scope: "unclear",
-                details: "none",
-            },
-        ];
-        render(
-            <FileErrorDisplay
-                fileName={"file.file"}
-                heading={"THE HEADING"}
-                message={"Broken Glass, Everywhere"}
-                errors={errors}
-                handlerType={""}
-            />
-        );
-
-        const table = screen.queryByRole("table");
-        expect(table).toBeInTheDocument();
-
-        const rows = await screen.findAllByRole("row");
-        expect(rows).toHaveLength(3); // 2 errors + header
-
-        const firstCells = await within(rows[1]).findAllByRole("cell");
-        expect(firstCells).toHaveLength(4);
-        expect(firstCells[0]).toHaveTextContent("Exception: first error");
-        expect(firstCells[1]).toHaveTextContent("Row(s): 1");
-        expect(firstCells[2]).toHaveTextContent("first field");
-        expect(firstCells[3]).toHaveTextContent("first_id");
-    });
-});
-
-describe("FileWarningsDisplay", () => {
-    test("renders expected content", async () => {
-        const warnings = [
-            {
-                message: "first warning",
-                indices: [1],
-                field: "first field",
-                trackingIds: ["first_id"],
-                scope: "unclear",
-                details: "none",
-            },
-            {
-                message: "second warning",
-                indices: [2],
-                field: "second field",
-                trackingIds: ["second_id"],
-                scope: "unclear",
-                details: "none",
-            },
-        ];
-        render(
-            <FileWarningsDisplay
-                heading={"THE HEADING"}
-                message={"Broken Glass, Everywhere"}
-                warnings={warnings}
-            />
+                data={[]}
+                schemaColumnHeader={FileType.CSV}
+            />,
         );
 
         const alert = await screen.findByRole("alert");
@@ -167,17 +35,78 @@ describe("FileWarningsDisplay", () => {
         expect(heading).toHaveClass("usa-alert__heading"); // imperfect, just want to make sure it's there
 
         const table = screen.queryByRole("table");
+        expect(table).not.toBeInTheDocument();
+    });
+
+    test("renders table when data is given", async () => {
+        // implicitly testing message truncation functionality here as well
+        const fakeError1: ResponseError = {
+            message: "first field error",
+            indices: [1, 10, 100],
+            field: "first field",
+            trackingIds: ["first_id"],
+            scope: "unclear",
+            errorCode: ErrorCode.UNKNOWN,
+            details: "none",
+        };
+        const fakeError2: ResponseError = {
+            message: "second field error",
+            indices: [2],
+            field: "second field",
+            trackingIds: ["second_id"],
+            scope: "unclear",
+            errorCode: ErrorCode.UNKNOWN,
+            details: "none",
+        };
+        const fakeError3: ResponseError = {
+            message: "third field error",
+            indices: [3],
+            field: "third field",
+            trackingIds: ["third_id"],
+            scope: "unclear",
+            errorCode: ErrorCode.UNKNOWN,
+            details: "none",
+        };
+        const fakeError4: ResponseError = {
+            message: "fourth field error",
+            indices: [4],
+            field: "fourth field",
+            trackingIds: ["fourth_id"],
+            scope: "unclear",
+            errorCode: ErrorCode.UNKNOWN,
+            details: "none",
+        };
+
+        const errors = [fakeError1, fakeError2, fakeError3, fakeError4];
+        renderApp(
+            <RequestedChangesDisplay
+                title={RequestLevel.ERROR}
+                heading={"THE HEADING"}
+                message={"Broken Glass, Everywhere"}
+                data={errors}
+                schemaColumnHeader={FileType.CSV}
+            />,
+        );
+
+        const table = screen.queryByRole("table");
         expect(table).toBeInTheDocument();
 
         const rows = await screen.findAllByRole("row");
-        expect(rows).toHaveLength(3); // 2 warnings + header
+        expect(rows).toHaveLength(5); // 3 errors + header
 
         const firstCells = await within(rows[1]).findAllByRole("cell");
-        expect(firstCells).toHaveLength(4);
-        expect(firstCells[0]).toHaveTextContent("first warning");
-        expect(firstCells[1]).toHaveTextContent("Row(s): 1");
-        expect(firstCells[2]).toHaveTextContent("first field");
-        expect(firstCells[3]).toHaveTextContent("first_id");
+        expect(firstCells).toHaveLength(2);
+        expect(firstCells[0]).toHaveTextContent("first field error");
+        expect(firstCells[1]).toHaveTextContent("1 + 10 + 100");
+
+        const secondCells = await within(rows[2]).findAllByRole("cell");
+        expect(secondCells[0]).toHaveTextContent("second field error");
+
+        const thirdCells = await within(rows[3]).findAllByRole("cell");
+        expect(thirdCells[0]).toHaveTextContent("third field error");
+
+        const fourthCells = await within(rows[4]).findAllByRole("cell");
+        expect(fourthCells[0]).toHaveTextContent("fourth field error");
     });
 });
 
@@ -245,21 +174,21 @@ describe("FileQualityFilterDisplay", () => {
                 sending_at: "",
             },
         ];
-        render(
+        renderApp(
             <FileQualityFilterDisplay
                 destinations={qualityFilterMessages}
                 heading={""}
                 message={
                     "The following records were filtered out while processing/validating your file."
                 }
-            />
+            />,
         );
 
         const alert = await screen.findByRole("alert");
-        expect(alert).toHaveClass("usa-alert--error");
+        expect(alert).toHaveClass("usa-alert--warning");
 
         const message = await screen.findByText(
-            "The following records were filtered out while processing/validating your file."
+            "The following records were filtered out while processing/validating your file.",
         );
         expect(message).toHaveClass("usa-alert__text"); // imperfect, just want to make sure it's there
 
@@ -270,17 +199,221 @@ describe("FileQualityFilterDisplay", () => {
         expect(rows).toHaveLength(6);
 
         expect(
-            screen.queryByText(/Maryland Public Health Department/)
+            screen.queryByText(/Maryland Public Health Department/),
         ).not.toBeInTheDocument();
         expect(
-            screen.getByText(/Alaska Public Health Department/)
+            screen.getByText(/Alaska Public Health Department/),
         ).toBeInTheDocument();
         const row1 = await within(rows[1]).findAllByRole("cell");
         expect(row1[0]).toHaveTextContent("Filtered out item Alaska1");
         expect(
-            screen.getByText(/Hawaii Public Health Department/)
+            screen.getByText(/Hawaii Public Health Department/),
         ).toBeInTheDocument();
         const row3 = await within(rows[3]).findAllByRole("cell");
         expect(row3[0]).toHaveTextContent("Filtered out item Hawaii6");
+    });
+});
+
+describe("ValidationErrorMessage", () => {
+    const DEFAULT_PROPS: ValidationErrorMessageProps = {
+        errorCode: ErrorCode.UNKNOWN,
+        field: "validation_field",
+        message: "default validation message",
+    };
+
+    let errorMessageNode: HTMLElement;
+
+    function renderComponent(props: Partial<ValidationErrorMessageProps>) {
+        const view = renderApp(
+            <ValidationErrorMessage {...DEFAULT_PROPS} {...props} />,
+        );
+
+        errorMessageNode = screen.getByTestId("ValidationErrorMessage");
+
+        return view;
+    }
+
+    describe("when the error code is INVALID_MSG_PARSE_BLANK", () => {
+        test("renders an error about a blank message", () => {
+            renderComponent({ errorCode: ErrorCode.INVALID_MSG_PARSE_BLANK });
+            expect(errorMessageNode).toHaveTextContent(
+                "Blank message(s) found within file. Blank messages cannot be processed.",
+            );
+        });
+    });
+
+    describe("when the error code is INVALID_HL7_MSG_TYPE_MISSING", () => {
+        test("renders an error about a missing message type field", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_TYPE_MISSING,
+            });
+            expect(errorMessageNode).toHaveTextContent(
+                "Missing required HL7 message type field MSH-9. Fill in the blank field before resubmitting.",
+            );
+        });
+    });
+
+    describe("when the error code is INVALID_HL7_MSG_TYPE_UNSUPPORTED", () => {
+        test("renders an error about an unsupported type", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED,
+            });
+            expect(errorMessageNode).toHaveTextContent(
+                "We found an unsupported HL7 message type. Please reformat to ORU-RO1. Refer to HL7 specification for more details.",
+            );
+        });
+
+        test("renders a link to the HL7 product matrix", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED,
+            });
+            expect(screen.getByRole("link")).toHaveAttribute(
+                "href",
+                "https://www.hl7.org/implement/standards/product_brief.cfm",
+            );
+        });
+    });
+
+    describe("when the error is INVALID_HL7_MSG_FORMAT_INVALID", () => {
+        test("renders an error about an invalid format", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID,
+            });
+            expect(errorMessageNode).toHaveTextContent(
+                "Invalid HL7 message format. Check your formatting by referring to HL7 specification.",
+            );
+        });
+
+        test("renders a link to the HL7 product matrix", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID,
+            });
+            expect(screen.getByRole("link")).toHaveAttribute(
+                "href",
+                "https://www.hl7.org/implement/standards/product_brief.cfm",
+            );
+        });
+    });
+
+    describe("when the error is INVALID_MSG_PARSE_DATETIME", () => {
+        test("renders an error about an invalid datetime", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_MSG_PARSE_DATETIME,
+            });
+            expect(errorMessageNode).toHaveTextContent(
+                "Reformat validation_field as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ.",
+            );
+        });
+    });
+
+    describe("when the error is INVALID_MSG_PARSE_TELEPHONE", () => {
+        test("renders an error about an invalid phone number", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_MSG_PARSE_TELEPHONE,
+            });
+            expect(errorMessageNode).toHaveTextContent(
+                "Reformat phone number to a 10-digit phone number (e.g. (555) 555-5555).",
+            );
+        });
+    });
+
+    describe("when the error is INVALID_HL7_MSG_VALIDATION", () => {
+        test("renders an error about an invalid field", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
+            });
+            expect(errorMessageNode).toHaveTextContent(
+                "Reformat validation_field to HL7 specification.",
+            );
+        });
+
+        test("renders a link to the HL7 product matrix", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
+            });
+            expect(screen.getByRole("link")).toHaveAttribute(
+                "href",
+                "https://www.hl7.org/implement/standards/product_brief.cfm",
+            );
+        });
+    });
+
+    describe("when the error is INVALID_MSG_MISSING_FIELD", () => {
+        test("renders an error about a missing field", () => {
+            renderComponent({ errorCode: ErrorCode.INVALID_MSG_MISSING_FIELD });
+            expect(errorMessageNode).toHaveTextContent(
+                "Fill in the required field validation_field.",
+            );
+        });
+    });
+
+    describe("when the error is INVALID_MSG_EQUIPMENT_MAPPING", () => {
+        test("renders an error about LIVD table LOINC mapping", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING,
+            });
+            expect(errorMessageNode).toHaveTextContent(
+                "Reformat field validation_field. Refer to CDC LIVD table LOINC mapping spreadsheet for acceptable values.",
+            );
+        });
+
+        test("renders a link to the CDC LIVD table LOINC mapping spreadsheet", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING,
+            });
+            expect(screen.getByRole("link")).toHaveAttribute(
+                "href",
+                "https://www.cdc.gov/csels/dls/livd-codes.html",
+            );
+        });
+    });
+
+    describe("when the error is UNKNOWN", () => {
+        describe("when the message is provided", () => {
+            test("renders the message", () => {
+                renderComponent({
+                    errorCode: ErrorCode.UNKNOWN,
+                    message: "this is wrong please fix it kthxbai",
+                });
+                expect(errorMessageNode).toHaveTextContent(
+                    "this is wrong please fix it kthxbai",
+                );
+            });
+        });
+
+        describe("when the message is not provided", () => {
+            // TODO: check with Audrey if there should be a fallback message
+            test("renders an empty string", () => {
+                renderComponent({
+                    errorCode: ErrorCode.UNKNOWN,
+                    message: undefined,
+                });
+                expect(errorMessageNode).toHaveTextContent("");
+            });
+        });
+    });
+});
+
+describe("getSafeFileName", () => {
+    test("returns a safe file name, replacing non-alphanumeric characters with hyphens", () => {
+        expect(getSafeFileName("aaa", RequestLevel.WARNING)).toEqual(
+            "aaa-warnings",
+        );
+        expect(getSafeFileName("aaa-!@#.csv", RequestLevel.WARNING)).toEqual(
+            "aaa-----csv-warnings",
+        );
+        expect(
+            getSafeFileName("Hello I Am A File", RequestLevel.WARNING),
+        ).toEqual("hello-i-am-a-file-warnings");
+
+        expect(getSafeFileName("aaa", RequestLevel.ERROR)).toEqual(
+            "aaa-errors",
+        );
+        expect(getSafeFileName("aaa!@#.csv", RequestLevel.ERROR)).toEqual(
+            "aaa----csv-errors",
+        );
+        expect(
+            getSafeFileName("Hello I Am A File", RequestLevel.ERROR),
+        ).toEqual("hello-i-am-a-file-errors");
     });
 });

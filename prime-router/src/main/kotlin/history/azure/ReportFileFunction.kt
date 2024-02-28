@@ -33,12 +33,12 @@ abstract class ReportFileFunction(
     private var currentAction: Action? = null
 
     /**
-     * Get the correct name for an organization based on the name.
+     * Verify the correct name for an organization based on the name
      *
-     * @param organization Name of organization and service
+     * @param organization Name of organization and optionally a service in the format {orgName}.{service}
      * @return Name for the organization
      */
-    abstract fun getOrgName(organization: String): String?
+    abstract fun validateOrgSvcName(organization: String): String?
 
     /**
      * Get history entries as a list
@@ -83,11 +83,14 @@ abstract class ReportFileFunction(
             val claims = AuthenticatedClaims.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-            val userOrgName = this.getOrgName(organization)
-                ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream user")
+            val userOrgName = this.validateOrgSvcName(organization)
+                ?: return HttpUtilities.notFoundResponse(
+                    request,
+                    "$organization: invalid organization or service identifier"
+                )
 
             // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
-            if (!reportFileFacade.checkAccessAuthorization(claims, userOrgName, null, request)) {
+            if (!reportFileFacade.checkAccessAuthorizationForOrg(claims, userOrgName, null, request)) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}." +
@@ -96,8 +99,14 @@ abstract class ReportFileFunction(
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
             logger.info(
-                "Authorized request by org ${claims.scopes} to getList on organization $userOrgName."
+                "Authorized request by org ${claims.scopes} to getListByOrg on organization $userOrgName."
             )
+
+            if (HistoryApiParameters(request.queryParameters).reportId != null &&
+                HistoryApiParameters(request.queryParameters).fileName != null
+            ) {
+                return HttpUtilities.badRequestResponse(request, "Either reportId or fileName can be provided")
+            }
 
             return HttpUtilities.okResponse(request, this.historyAsJson(request.queryParameters, userOrgName))
         } catch (e: IllegalArgumentException) {
@@ -120,16 +129,17 @@ abstract class ReportFileFunction(
             // Do authentication
             val authResult = this.authSingleBlocks(request, id)
 
-            return if (authResult != null)
+            return if (authResult != null) {
                 authResult
-            else {
+            } else {
                 val action = this.actionFromId(id)
                 val history = this.singleDetailedHistory(request.queryParameters, action)
 
-                if (history != null)
+                if (history != null) {
                     HttpUtilities.okJSONResponse(request, history)
-                else
+                } else {
                     HttpUtilities.notFoundResponse(request, "History entry ${action.actionId} was not found.")
+                }
             }
         } catch (e: DataAccessException) {
             logger.error("Unable to fetch history for ID $id", e)
@@ -160,10 +170,11 @@ abstract class ReportFileFunction(
 
         val action: Action = this.actionFromId(id)
 
-        return if (!this.actionIsValid(action))
+        return if (!this.actionIsValid(action)) {
             HttpUtilities.notFoundResponse(request, "$id is not a valid report")
+        }
         // todo bug:  we need to find the report_file id's receiving_org, and send it here.
-        else if (!reportFileFacade.checkAccessAuthorization(claims, action.sendingOrg, null, request)) {
+        else if (!reportFileFacade.checkAccessAuthorizationForAction(claims, action, request)) {
             logger.warn(
                 "Invalid Authorization for user ${claims.userName}:" +
                     " ${request.httpMethod}:${request.uri.path}"
@@ -189,9 +200,9 @@ abstract class ReportFileFunction(
     private fun actionFromId(id: String): Action {
         // Figure out whether we're dealing with an action_id or a report_id.
         val actionId = id.toLongOrNull()
-        return if (currentAction != null && currentAction!!.actionId == actionId)
+        return if (currentAction != null && currentAction!!.actionId == actionId) {
             currentAction!!
-        else if (actionId == null) {
+        } else if (actionId == null) {
             val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
             reportFileFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
         } else {
@@ -209,6 +220,8 @@ abstract class ReportFileFunction(
      * @property until is the OffsetDateTime that dictates how recently returned results date.
      * @property pageSize is an Integer used for setting the number of results per page.
      * @property showFailed whether to include actions that failed to be sent.
+     * @property reportId is the reportId to get results for.
+     * @property fileName is the fileName to get results for.
      */
     data class HistoryApiParameters(
         val sortDir: HistoryDatabaseAccess.SortDir,
@@ -217,16 +230,20 @@ abstract class ReportFileFunction(
         val since: OffsetDateTime?,
         val until: OffsetDateTime?,
         val pageSize: Int,
-        val showFailed: Boolean
+        val showFailed: Boolean,
+        val reportId: String?,
+        val fileName: String?,
     ) {
-        constructor(query: Map<String, String>) : this (
+        constructor(query: Map<String, String>) : this(
             sortDir = extractSortDir(query),
             sortColumn = extractSortCol(query),
             cursor = extractDateTime(query, "cursor"),
             since = extractDateTime(query, "since"),
             until = extractDateTime(query, "until"),
             pageSize = extractPageSize(query),
-            showFailed = extractShowFailed(query)
+            showFailed = extractShowFailed(query),
+            reportId = query["reportId"],
+            fileName = query["fileName"],
         )
 
         companion object {
@@ -237,10 +254,11 @@ abstract class ReportFileFunction(
              */
             fun extractSortDir(query: Map<String, String>): HistoryDatabaseAccess.SortDir {
                 val sort = query["sortdir"]
-                return if (sort == null)
+                return if (sort == null) {
                     HistoryDatabaseAccess.SortDir.DESC
-                else
+                } else {
                     HistoryDatabaseAccess.SortDir.valueOf(sort)
+                }
             }
 
             /**
@@ -251,10 +269,11 @@ abstract class ReportFileFunction(
             fun extractSortCol(query: Map<String, String>): HistoryDatabaseAccess.SortColumn {
                 val col = query["sortcol"]
                 // check if col matches one of the values in HistoryDatabaseAccess.SortColumn
-                return if (col != null && HistoryDatabaseAccess.SortColumn.values().any { it.name == col })
+                return if (col != null && HistoryDatabaseAccess.SortColumn.values().any { it.name == col }) {
                     HistoryDatabaseAccess.SortColumn.valueOf(col)
-                else
+                } else {
                     HistoryDatabaseAccess.SortColumn.CREATED_AT
+                }
             }
 
             /**
@@ -270,7 +289,9 @@ abstract class ReportFileFunction(
                     } catch (e: DateTimeParseException) {
                         throw IllegalArgumentException("\"$name\" must be a valid datetime")
                     }
-                } else null
+                } else {
+                    null
+                }
             }
 
             /**
@@ -279,7 +300,7 @@ abstract class ReportFileFunction(
              * @return converted params
              */
             fun extractPageSize(query: Map<String, String>): Int {
-                val size = query.getOrDefault("pagesize", "50").toInt()
+                val size = query.getOrDefault("pageSize", "50").toInt()
                 require(size > 0) { "Page size must be a positive integer" }
                 return size
             }

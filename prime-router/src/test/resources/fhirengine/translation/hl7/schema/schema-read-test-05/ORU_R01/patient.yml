@@ -1,5 +1,5 @@
 elements:
-  - name: patient-segment-set-ID
+  - name: patient-segment-set-id
     value:
       - '1'
     hl7Spec:
@@ -8,4 +8,4 @@ elements:
   - name: PID-segment
     condition: '%resource is Patient and %resource.exists()'
     required: true
-    schema: patient-identification
+    schema: classpath:/fhirengine/translation/hl7/schema/schema-read-test-05/ORU_R01/patient-identification.yml

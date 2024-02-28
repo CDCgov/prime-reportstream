@@ -5,8 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.FullELRSender
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Organization
 import kotlin.test.Test
 
 class ScopeTests {
@@ -52,7 +51,8 @@ class ScopeTests {
         assertThat(
             Scope.isWellFormedScope(
                 """a.b.c
-             c"""
+             c
+                """
             )
         ).isFalse()
         assertThat(Scope.isWellFormedScope("a.b.c")).isTrue()
@@ -75,18 +75,27 @@ class ScopeTests {
 
     @Test
     fun `test isValidScope with expectedSender`() {
-        val sender1 = FullELRSender(name = "mySender", organizationName = "myOrg", Sender.Format.CSV)
-        assertThat(Scope.isValidScope("", sender1)).isFalse()
-        assertThat(Scope.isValidScope("myOrg..", sender1)).isFalse()
-        assertThat(Scope.isValidScope("NotMyOrg.mySender.admin", sender1)).isFalse()
-        assertThat(Scope.isValidScope("myOrg.mySender.NotValid", sender1)).isFalse()
-        assertThat(Scope.isValidScope("myOrg..admin", sender1)).isFalse()
-        assertThat(Scope.isValidScope(".mySender.admin", sender1)).isFalse()
-        assertThat(Scope.isValidScope("myOrg.mySender.admin", sender1)).isTrue()
-        assertThat(Scope.isValidScope("myOrg.mySender.user", sender1)).isTrue()
-        assertThat(Scope.isValidScope("myOrg.mySender.report", sender1)).isTrue()
+        val organization1 = Organization(
+            name = "myOrg",
+            description = "myOrgDescription",
+            Organization.Jurisdiction.STATE,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        assertThat(Scope.isValidScope("", organization1)).isFalse()
+        assertThat(Scope.isValidScope("myOrg..", organization1)).isFalse()
+        assertThat(Scope.isValidScope("NotMyOrg.mySender.admin", organization1)).isFalse()
+        assertThat(Scope.isValidScope("myOrg.mySender.NotValid", organization1)).isFalse()
+        assertThat(Scope.isValidScope("myOrg..admin", organization1)).isFalse()
+        assertThat(Scope.isValidScope(".mySender.admin", organization1)).isFalse()
+        assertThat(Scope.isValidScope("myOrg.mySender.admin", organization1)).isTrue()
+        assertThat(Scope.isValidScope("myOrg.mySender.user", organization1)).isTrue()
+        assertThat(Scope.isValidScope("myOrg.mySender.report", organization1)).isTrue()
         // A match on sender name is not required.
-        assertThat(Scope.isValidScope("myOrg.notMySender.admin", sender1)).isTrue()
+        assertThat(Scope.isValidScope("myOrg.notMySender.admin", organization1)).isTrue()
     }
 
     @Test

@@ -443,3 +443,21 @@ title = "PRIME ReportStream Gitleaks Configuration"
         "key",
         "twilio",
     ]
+
+[[rules]]
+    id = "githubAccessToken"
+    description = "GitHub Personal Access Token"
+    regex = '''(?i)ghp_(?:[a-zA-Z\d]{40})'''
+    tags = [
+        "key",
+        "github",
+    ]
+
+[[rules]]
+    id = "googleApiKey"
+    description = "Google API Key"
+    regex = '''(?i)AIza[0-9A-Za-z-_]{35}'''
+    tags = [
+        "key",
+        "google",
+    ]

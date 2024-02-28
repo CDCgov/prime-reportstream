@@ -218,12 +218,9 @@ class SenderFilesCommand : CliktCommand(
     private fun echo(message: String) {
         // clikt moved the echo command into the CliktCommand class, which means this needs to call
         // into the parent class, but Kotlin doesn't allow calls to super with default parameters
-        if (!silent) super.echo(
-            message,
-            trailingNewline = true,
-            err = false,
-            currentContext.console.lineSeparator
-        )
+        if (!silent) {
+            super.echo(message, trailingNewline = true, err = false)
+        }
     }
 
     /**
@@ -232,18 +229,15 @@ class SenderFilesCommand : CliktCommand(
     private fun verbose(message: String) {
         // clikt moved the echo command into the CliktCommand class, which means this needs to call
         // into the parent class, but Kotlin doesn't allow calls to super with default parameters
-        if (verbose) super.echo(
-            message,
-            trailingNewline = true,
-            err = false,
-            currentContext.console.lineSeparator
-        )
+        if (verbose) {
+            super.echo(message, trailingNewline = true, err = false)
+        }
     }
 
     /**
      * Abort the program with the message
      */
     private fun abort(message: String): Nothing {
-        throw PrintMessage(message, error = true)
+        throw PrintMessage(message, printError = true)
     }
 }

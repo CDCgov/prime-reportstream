@@ -12,7 +12,7 @@ on:
       - master
       - test
   schedule:
-    - cron: "0 * * * *"
+    - cron: "36 3 * * *"
 
 jobs:
   pre_job:
@@ -22,7 +22,7 @@ jobs:
       env_name: ${{ env.VALIDATE_ENV }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Build vars
         id: build_vars
@@ -38,8 +38,8 @@ jobs:
           fi
 
   validate_dns:
-    name: Check resources for ${{ needs.pre_job.outputs.env_name }}
-    if: needs.pre_job.outputs.env_name
+    name: Check infrastructure resources
+    if: ${{ needs.pre_job.outputs.env_name && (github.actor != 'dependabot[bot]') }}
     needs:
       - pre_job
     environment: ${{ needs.pre_job.outputs.env_name }}
@@ -47,7 +47,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -57,8 +58,9 @@ jobs:
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
       - name: Restart DNS if failure
-        uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+        uses: ./.github/actions/retry
         with:
           timeout_seconds: 60
           max_attempts: 3
@@ -66,11 +68,14 @@ jobs:
           command: dig google.com @10.0.2.4
           shell: bash
           on_retry_command: >-
-            az container restart --name pdh${{ needs.pre_job.outputs.env_name }}-dns 
-            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+            az container stop --name pdh${{ needs.pre_job.outputs.env_name }}-dns
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
+            az container start --name pdh${{ needs.pre_job.outputs.env_name }}-dns
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
+
       - name: Restart legacy SFTP if wrong ip
         if: needs.pre_job.outputs.env_name != 'prod'
-        uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+        uses: ./.github/actions/retry
         with:
           timeout_seconds: 60
           max_attempts: 3
@@ -82,5 +87,36 @@ jobs:
             if [[ $last_octet -ne 20 ]]; then exit 1; fi
           shell: bash
           on_retry_command: >-
-            az container restart --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver 
-            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+            az container stop --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
+            az container start --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
+
+  optimize_demo_dbs:
+    name: Optimize demo databases
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env_name: [ demo1, demo2, demo3 ]
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Reduce database replica sizes
+        uses: ./.github/actions/retry
+        with:
+          timeout_minutes: 180
+          max_attempts: 3
+          retry_wait_seconds: 1800
+          command: |
+            REPLICA_COUNT=$(az postgres server list -g prime-data-hub-${{ matrix.env_name }} --query '[*].name' | \
+            jq '[.[] | select(contains("pgsql-replica"))] | length')
+            if [[ ${REPLICA_COUNT} -gt 0 ]]; then
+              az postgres server update -g prime-data-hub-${{ matrix.env_name }} -n pdh${{ matrix.env_name }}-pgsql-replica --sku-name GP_Gen5_4
+            fi
+          shell: bash

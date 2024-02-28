@@ -9,7 +9,7 @@ likely be fetched from our API, and generating the UI based on the config.
 
 ## Column config
 
-Everything is configurable through the `ColumnConfig` interface. This, too, can be easily 
+Everything is configurable through the `ColumnConfig` interface. This, too, can be easily
 extended and utilized as needed to cover more use cases. You will create an array of these
 configuration interfaces to pass into your table.
 
@@ -64,7 +64,7 @@ if (hasFeature("color")) return <Text color={column.feature.color}>{row[dataAttr
 
 We have two uses for sorting tables; on one hand, we'll want a server-side sort (see `SubmissionsTable`)
 and on the other we might want to sort locally, just merely changing the order of the elements already
-fetched. For this, we have the `sortable` and `localSort` options. 
+fetched. For this, we have the `sortable` and `localSort` options.
 
 The main flag is `sortable`. This ensures you're able to link into the filter manager and update the sort
 settings when clicking a sortable column's header. `SortSettings` has a `local` flag that, when a column
@@ -83,13 +83,13 @@ user-friendly values, you can provide a map to do so. For instance, let's say yo
 ```typescript
 const statusCodes = new Map<number, string>([
     [200, "Success"],
-    [404, "Not found"]
-])
+    [404, "Not found"],
+]);
 
 const config: ColumnConfig = {
     ...config,
-    valueMap: statusCodes
-}
+    valueMap: statusCodes,
+};
 ```
 
 ### `transform (optional)`
@@ -105,8 +105,8 @@ const makeLocaleString = (s: string) => {
 
 const config: ColumnConfig = {
     ...config,
-    transform: makeLocaleString
-}
+    transform: makeLocaleString,
+};
 ```
 
 ### `editable (optional)`
@@ -144,7 +144,7 @@ handle the rendering for you.
 
 In some cases, additional information or action is required alongside your table. For intance, if we have a table
 containing values in a set, and wish to add one to it, we need a `DatasetAction` to handle it for us. Or, if we are
-presenting this table to a user, perhaps a legend and title would help communicate the information better. We can 
+presenting this table to a user, perhaps a legend and title would help communicate the information better. We can
 configure all of this through the `TableConfig` interface.
 
 #### Title
@@ -159,7 +159,7 @@ add one, just add the `title` prop to your Table creation!
 #### Legend
 
 Because a legend's design need might be entirely unique table to table, we leave it to the parent to pass in
-a unique `<Legend>`. This prop is typed as a `ReactNode` so any UI element type _should_ work. 
+a unique `<Legend>`. This prop is typed as a `ReactNode` so any UI element type _should_ work.
 
 ```typescript jsx
 const Legend = () => {
@@ -172,10 +172,10 @@ const Legend = () => {
     )
 }
 
-<Table 
-    title="Submissions History" 
+<Table
+    title="Submissions History"
     legend={<Legend />}
-    config={submissionsConfig} 
+    config={submissionsConfig}
 />
 ```
 
@@ -192,22 +192,22 @@ const addItem = () => submissions.push({
     attr2: "value"
 });
 
-<Table 
-    title="Submissions History" 
+<Table
+    title="Submissions History"
     legend={<Legend />}
     datasetAction={{
         label: "Add item",
         method: addItem
     }}
-    config={submissionsConfig} 
+    config={submissionsConfig}
 />
 ```
 
 Here, you'll see an inline action object, but the `DatasetAction` interface takes a string label and a function as
-a method. 
+a method.
 
 > It's important to note: right now, there's no way to pass parameters into this function when it's called
-from the table.
+> from the table.
 
 # Add-ons
 
@@ -219,9 +219,10 @@ from the table.
 You'll notice that the `SubmissionTable` example uses a filter manager as well.
 What is that? A filter manager is a hook that manages filter state. It currently
 supports:
-- Date range
-- Sort order and column
-- Page size
+
+-   Date range
+-   Sort order and column
+-   Page size
 
 To utilize these filters, you'll need to first set up a filter manager in your
 parent component using the `useFilterManager` hook, then pass it into both
@@ -283,13 +284,13 @@ like this to start:
 const submissions: SubmissionsResource[] = useResource(
     SubmissionsResource.list(),
     {
-        organization: getStoredOrg(),
+        organization: activeMembership.parsedName,
         cursor: filterManager.rangeSettings.start,
         endCursor: filterManager.rangeSettings.end,
         pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
         sort: filterManager.sortSettings.order,
         showFailed: false, // No plans for this to be set to true
-    }
+    },
 );
 ```
 
@@ -298,8 +299,8 @@ helper function that'll process the ranges and cursor properly. All you need to 
 pass in the values required, and it spits the right one out:
 
 ```typescript
-import {RangeField} from "./UseDateRange";
-import {cursorOrRange} from "./UseFilterManager";
+import { RangeField } from "./UseDateRange";
+import { cursorOrRange } from "./UseFilterManager";
 
 const submissions: SubmissionsResource[] = useResource(
     SubmissionsResource.list(),
@@ -309,17 +310,15 @@ const submissions: SubmissionsResource[] = useResource(
             filterManager.sortSettings.order,
             RangeField.START,
             cursors.current,
-            filterManager.rangeSettings.start
+            filterManager.rangeSettings.start,
         ),
         endCursor: cursorOrRange(
             filterManager.sortSettings.order,
             RangeField.END,
             cursors.current,
-            filterManager.rangeSettings.end
+            filterManager.rangeSettings.end,
         ),
         // ...
-    }
+    },
 );
 ```
-
-

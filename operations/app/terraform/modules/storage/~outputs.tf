@@ -2,20 +2,24 @@ output "sa_primary_access_key" {
   value = azurerm_storage_account.storage_account.primary_access_key
 }
 
-output "sa_primary_connection_string" {
-  value = azurerm_storage_account.storage_account.primary_connection_string
+output "candidate_access_key" {
+  value = azurerm_storage_account.storage_account_candidate.primary_access_key
 }
 
-output "sa_public_primary_web_endpoint" {
-  value = azurerm_storage_account.storage_public.primary_web_endpoint
+output "sa_primary_connection_string" {
+  value = azurerm_storage_account.storage_account.primary_connection_string
 }
 
 output "storage_account_id" {
   value = azurerm_storage_account.storage_account.id
 }
 
-output "storage_public_id" {
-  value = azurerm_storage_account.storage_public.id
+output "storage_account" {
+  value = azurerm_storage_account.storage_account
+}
+
+output "storage_public" {
+  value = azurerm_storage_account.storage_public
 }
 
 output "storage_partner_id" {

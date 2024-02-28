@@ -1,0 +1,29 @@
+name: AZFunction-stop
+description: stop Azure function on Friday in Test environment
+inputs:
+  resourceGroupName:
+    required: true
+  functionAppName:
+    required: true
+  functionName:
+    required: true
+  Subscription:
+    required: true
+  creds: 
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Stop function app
+      id: StopAzFunction
+      shell: pwsh
+      run: |
+        $FnDetails = az functionapp show --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}
+        $Json = $FnDetails | ConvertFrom-JSON
+        $State       = $Json.state
+        Write-Host $State
+        if ($State -contains "run"){
+          az functionapp stop --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}
+          }
+       

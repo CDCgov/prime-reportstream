@@ -2,24 +2,32 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
+import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetCollection
 import java.util.SortedMap
 
 /**
- * A schema.
+ * A [ConfigSchema] contains a list of [ConfigSchemaElement]s and can be applied to an input to produce a transformed
+ * output.  Supports the concept of [extends] which specifies a schema whose element should be included in this schema
+ *
+ * @property Original The type that this schema expects as input
+ * @property Converted The type that this schema will produce as output
+ * @property Self Reference to this schema's type
+ * @property SchemaElement The type of the schema elements that make up the schema
  * @property name the schema name
- * @property hl7Type the HL7 message type for the output.  Only allowed at the top level schema
- * @property hl7Version the HL7 message version for the output.  Only allowed at the top level schema
  * @property elements the elements for the schema
  * @property constants schema level constants
+ * @property extends the name of a schema that this schema extends
  */
 @JsonIgnoreProperties
-data class ConfigSchema(
-    var hl7Type: String? = null,
-    var hl7Version: String? = null,
-    var elements: MutableList<ConfigSchemaElement> = mutableListOf(),
+abstract class ConfigSchema<
+    Original,
+    Converted,
+    Self : ConfigSchema<Original, Converted, Self, SchemaElement>,
+    SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Self>,
+    >(
+    var elements: MutableList<SchemaElement> = mutableListOf(),
     var constants: SortedMap<String, String> = sortedMapOf(),
-    var extends: String? = null
+    var extends: String? = null,
 ) {
     /**
      * Name used to identify this schema.
@@ -45,6 +53,18 @@ data class ConfigSchema(
         private set
 
     /**
+     * Private property used to build list of validation errors
+     */
+    private var validationErrors: MutableSet<String> = mutableSetOf()
+
+    /**
+     * Add an error [msg] to the list of errors.
+     */
+    protected fun addError(msg: String) {
+        validationErrors.add("Schema $name: $msg")
+    }
+
+    /**
      * Test if the schema and its elements (including other schema) is valid.  See [errors] property for validation
      * error messages.
      * @return true if the schema is valid, false otherwise
@@ -58,50 +78,10 @@ data class ConfigSchema(
 
     /**
      * Validate the top level schema if [isChildSchema] is false, or a child schema if [isChildSchema] is true.
+     * [validationErrors] can optionally be specified to start with a list of errors, but defaults to an empty list.
      * @return a list of validation errors, or an empty list if no errors
      */
-    internal fun validate(isChildSchema: Boolean = false): List<String> {
-        val validationErrors = mutableListOf<String>()
-
-        /**
-         * Add an error [msg] to the list of errors.
-         */
-        fun addError(msg: String) {
-            validationErrors.add("Schema $name: $msg")
-        }
-
-        // hl7Type or hl7Version is only allowed at the top level.
-        if (isChildSchema) {
-            if (!hl7Type.isNullOrBlank()) {
-                addError("Schema hl7Type can only be specified in top level schema")
-            }
-            if (!hl7Version.isNullOrBlank()) {
-                addError("Schema hl7Version can only be specified in top level schema")
-            }
-        } else {
-            if (hl7Type.isNullOrBlank()) {
-                addError("Schema hl7Type cannot be blank")
-            }
-            if (hl7Version.isNullOrBlank()) {
-                addError("Schema hl7Version cannot be blank")
-            }
-
-            // Do we support the provided HL7 type and version?
-            if (hl7Version != null && hl7Type != null) {
-                if (!HL7Utils.SupportedMessages.supports(hl7Type!!, hl7Version!!)) {
-                    addError(
-                        "Schema unsupported hl7 type and version. Must be one of: " +
-                            HL7Utils.SupportedMessages.getSupportedListAsString()
-                    )
-                }
-            }
-        }
-
-        // Check that all constants have a string
-        constants.filterValues { it.isNullOrBlank() }.forEach { (key, _) ->
-            addError("Constant '$key' does not have a value")
-        }
-
+    internal open fun validate(isChildSchema: Boolean = false): List<String> {
         // Validate the schema elements.
         if (elements.isEmpty()) {
             addError("Schema elements cannot be empty")
@@ -115,34 +95,41 @@ data class ConfigSchema(
     }
 
     /**
-     * Merge a [childSchema] into this one.
+     * This function enables overriding elements in this config schema with the passed overrides
+     *
+     * It works by iterating over the elements of the override schema and finding all the
+     * [ConfigSchemaElement] in [this] with the same [name] and calling merge on the schema elements
+     * @param overrideSchema the schema to override with
      * @return the reference to the schema
      */
-    fun merge(childSchema: ConfigSchema) = apply {
-        childSchema.hl7Version?.let { this.hl7Version = childSchema.hl7Version }
-        childSchema.hl7Type?.let { this.hl7Type = childSchema.hl7Type }
-        childSchema.elements.forEach { childElement ->
+    open fun override(overrideSchema: Self) {
+        overrideSchema.elements.forEach { childElement ->
             // If we find the element in the schema then replace it, otherwise add it.
             if (childElement.name.isNullOrBlank()) {
-                throw SchemaException("Child schema ${childSchema.name} found with element with no name.")
+                throw SchemaException("Child schema ${overrideSchema.name} found with element with no name.")
             }
-            val elementInSchema = findElement(childElement.name!!)
-            if (elementInSchema != null) {
-                elementInSchema.merge(childElement)
+            val elementInSchemas = findElements(childElement.name!!)
+            if (elementInSchemas.isNotEmpty()) {
+                elementInSchemas.forEach { it.merge(childElement) }
             } else {
                 this.elements.add(childElement)
             }
         }
+        this.constants.putAll(overrideSchema.constants)
+        this.name = overrideSchema.name
     }
 
     /**
-     * Find an [elementName] in this schema. This function recursively traverses the entire schema tree to find the
-     * element.
-     * @return the element found or null if not found
+     * Find an [elementName] in this schema. This function recursively traverses the entire schema tree to find all
+     * instances of the element.
+     * @return list of the found elements
      */
-    internal fun findElement(elementName: String): ConfigSchemaElement? {
+    internal fun findElements(
+        elementName: String,
+    ): List<ConfigSchemaElement<Original, Converted, SchemaElement, Self>> {
         // First try to find the element at this level in the schema.
-        var elementsInSchema = elements.filter { elementName == it.name }
+        var elementsInSchema: List<ConfigSchemaElement<Original, Converted, SchemaElement, Self>> =
+            elements.filter { elementName == it.name }
 
         // If the element was not found in this schema level, then traverse any elements that reference a schema
         if (elementsInSchema.isEmpty()) {
@@ -151,17 +138,19 @@ data class ConfigSchema(
             // Why the distinct? A schema can make references to the same schema multiple times, so you could get
             // a list of elements that are identical, so we make sure to get only those that at different.
             elementsInSchema = elements.filter { it.schemaRef != null }.mapNotNull {
-                it.schemaRef?.findElement(elementName)
-            }.distinct()
+                it.schemaRef?.findElements(elementName)
+            }.flatten().distinct()
         }
-        // Sanity check
-        check(elementsInSchema.size <= 1)
-        return if (elementsInSchema.isEmpty()) null else elementsInSchema[0]
+        return elementsInSchema
     }
 }
 
 /**
  * An element within a Schema.
+ * @property Original The type that this schema expects as input
+ * @property Converted The type that this schema will produce as output
+ * @property Schema Reference to this schema's type
+ * @property Self The type of the schema elements that make up the schema
  * @property name the name of the element
  * @property condition a FHIR path condition to evaluate. If false then the element is ignored.
  * @property required true if the element must have a value
@@ -169,82 +158,114 @@ data class ConfigSchema(
  * @property schemaRef the reference to the loaded child schema
  * @property resource a FHIR path that points to a FHIR resource
  * @property value a list of FHIR paths each pointing to a FHIR primitive value
- * @property hl7Spec a list of hl7Specs that denote the field to place a value into
  * @property resourceIndex the variable name to store a FHIR collection's index number
  * @property constants element level constants
+ * @property valueSet a collection of key-value pairs used to convert the value property
+ * @property debug log debug information for the element
  */
 @JsonIgnoreProperties
-data class ConfigSchemaElement(
+abstract class ConfigSchemaElement<
+    Original,
+    Converted,
+    Self : ConfigSchemaElement<Original, Converted, Self, Schema>,
+    Schema : ConfigSchema<Original, Converted, Schema, Self>,
+    >(
     var name: String? = null,
     var condition: String? = null,
     var required: Boolean? = null,
     var schema: String? = null,
-    var schemaRef: ConfigSchema? = null,
+    var schemaRef: Schema? = null,
     var resource: String? = null,
-    var value: List<String> = emptyList(),
-    var hl7Spec: List<String> = emptyList(),
+    var value: List<String>? = null,
     var resourceIndex: String? = null,
-    var constants: SortedMap<String, String> = sortedMapOf()
+    var constants: SortedMap<String, String> = sortedMapOf(),
+    var valueSet: ValueSetCollection? = null,
+    var debug: Boolean = false,
 ) {
+    private var validationErrors: MutableSet<String> = mutableSetOf()
+
+    override fun toString(): String {
+        return "$name"
+    }
+
     /**
-     * Validate the element.
+     * Add an error [msg] to the list of errors.
+     */
+    protected fun addError(msg: String) {
+        validationErrors.add("[$name]: $msg")
+    }
+
+    /**
+     * Validate the element. If specified [validationErrors] will be a starting list of errors.
      * @return a list of validation errors, or an empty list if no errors
      */
-    internal fun validate(): List<String> {
-        val validationErrors = mutableListOf<String>()
-
-        /**
-         * Add an error [msg] to the list of errors.
-         */
-        fun addError(msg: String) {
-            validationErrors.add("[$name]: $msg")
+    internal open fun validate(): List<String> {
+        if (!resourceIndex.isNullOrBlank()) {
+            when {
+                resource.isNullOrBlank()
+                -> addError("Resource property is required to use the resourceIndex property")
+                schema.isNullOrBlank()
+                -> addError("Schema property is required to use the resourceIndex property")
+            }
         }
 
         when {
-            resource.isNullOrBlank() && !resourceIndex.isNullOrBlank() ->
-                addError("Resource property is required to use the resourceIndex property")
-            schema.isNullOrBlank() && !resourceIndex.isNullOrBlank() ->
-                addError("Schema property is required to use the resourceIndex property")
+            !schema.isNullOrBlank() && !value.isNullOrEmpty()
+            -> addError("Schema property cannot be used with the value property")
+            !schema.isNullOrBlank() && (valueSet != null)
+            -> addError("Schema property cannot be used with the valueSet property")
+            schema.isNullOrBlank() && value.isNullOrEmpty()
+            -> addError("Value property is required when not using a schema")
         }
 
-        // Hl7spec and value cannot be used with schema.
-        when {
-            !schema.isNullOrBlank() && (hl7Spec.isNotEmpty() || value.isNotEmpty()) ->
-                addError("Schema property cannot be used with hl7Spec or value properties")
-            schema.isNullOrBlank() && hl7Spec.isEmpty() ->
-                addError("Hl7Spec property is required when not using a schema")
-            schema.isNullOrBlank() && value.isEmpty() ->
-                addError("Value property is required when not using a schema")
+        // value sets need a value to be...set
+        if (valueSet != null && value.isNullOrEmpty()) {
+            addError("Value property is required when using a value set")
+        }
+
+        // value set keys and values cannot be null
+        if (valueSet?.toSortedMap()?.keys?.any {
+                it == null
+            } == true || valueSet?.toSortedMap()?.values?.any { it == null } == true
+        ) {
+            addError("Value sets cannot contain null values")
         }
 
         if (!schema.isNullOrBlank() && schemaRef == null) {
             addError("Missing schema reference for '$schema'")
         }
 
-        // Check that all constants have a string
-        constants.filterValues { it.isNullOrBlank() }.forEach { (key, _) ->
-            addError("Constant '$key' does not have a value")
-        }
-
         schemaRef?.let {
             validationErrors.addAll(it.validate(true))
         }
-        return validationErrors
+        return validationErrors.toList()
     }
 
     /**
      * Merge an [overwritingElement] into this element, overwriting only those properties that have values.
      * @return the reference to the element
      */
-    fun merge(overwritingElement: ConfigSchemaElement) = apply {
+    open fun merge(overwritingElement: Self) = apply {
         overwritingElement.condition?.let { this.condition = overwritingElement.condition }
         overwritingElement.required?.let { this.required = overwritingElement.required }
         overwritingElement.schema?.let { this.schema = overwritingElement.schema }
         overwritingElement.schemaRef?.let { this.schemaRef = overwritingElement.schemaRef }
         overwritingElement.resource?.let { this.resource = overwritingElement.resource }
         overwritingElement.resourceIndex?.let { this.resourceIndex = overwritingElement.resourceIndex }
-        if (overwritingElement.value.isNotEmpty()) this.value = overwritingElement.value
+        overwritingElement.value?.let { this.value = overwritingElement.value }
+        overwritingElement.valueSet?.let { this.valueSet = overwritingElement.valueSet }
+        if (overwritingElement.debug) this.debug = overwritingElement.debug
         if (overwritingElement.constants.isNotEmpty()) this.constants = overwritingElement.constants
-        if (overwritingElement.hl7Spec.isNotEmpty()) this.hl7Spec = overwritingElement.hl7Spec
     }
+}
+
+class ConfigSchemaElementProcessingException(
+    val schema: ConfigSchema<*, *, *, *>,
+    val element: ConfigSchemaElement<*, *, *, *>,
+    override val cause: Throwable?,
+) : RuntimeException(cause) {
+
+    override val message: String = """Error encountered while applying: $element in ${schema.name} to FHIR bundle. 
+            |Error was: ${cause?.message}
+        """.trimMargin()
 }

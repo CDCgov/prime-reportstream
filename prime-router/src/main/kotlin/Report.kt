@@ -1,6 +1,10 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.ReportEvent
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
@@ -62,8 +66,11 @@ enum class Options {
     CheckConnections,
     SkipSend,
     SendImmediately,
+
     @OptionDeprecated
-    SkipInvalidItems;
+    SkipInvalidItems,
+
+    ;
 
     class InvalidOptionException(message: String) : Exception(message)
 
@@ -72,7 +79,7 @@ enum class Options {
      * If the annotation is present, the constant is no longer in use.
      */
 
-    val isDeprecated = this.declaringClass.getField(this.name)
+    val isDeprecated = this.declaringJavaClass.getField(this.name)
         .getAnnotation(OptionDeprecated::class.java) != null
 
     companion object {
@@ -81,6 +88,7 @@ enum class Options {
          */
 
         val activeValues = mutableListOf<Options>()
+
         init {
             Options.values().forEach {
                 if (!it.isDeprecated) activeValues.add(it)
@@ -103,6 +111,7 @@ enum class Options {
 }
 
 annotation class OptionDeprecated()
+
 /**
  * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter
  * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
@@ -124,9 +133,11 @@ data class ReportStreamFilterResult(
     val filterName: String,
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
-    val filterType: ReportStreamFilterType?
+    val filterType: ReportStreamFilterType?,
 ) : ActionLogDetail {
     override val scope = ActionLogScope.translation
+    override val errorCode = ErrorCode.UNKNOWN
+
     companion object {
         // Use this value in logs and user-facing messages if the trackingElement is missing.
         const val DEFAULT_TRACKING_VALUE = "MissingID"
@@ -157,7 +168,8 @@ class Report : Logging {
         CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
         HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        FHIR("fhir", "tbd"); // TODO determine a mime type when/if we receive FHIR
+        FHIR("fhir", "application/fhir+ndjson"),
+        ;
 
         companion object {
             // Default to CSV if weird or unknown
@@ -166,6 +178,18 @@ class Report : Logging {
                     valueOf(formatStr ?: "CSV")
                 } catch (e: IllegalArgumentException) {
                     CSV
+                }
+            }
+
+            /**
+             * Returns a Format based on the [ext] provided, ignoring case.
+             */
+            fun valueOfFromExt(ext: String): Format {
+                return when (ext.lowercase()) {
+                    HL7.ext.lowercase() -> HL7
+                    FHIR.ext.lowercase() -> FHIR
+                    CSV.ext.lowercase() -> CSV
+                    else -> throw IllegalArgumentException("Unexpected extension $ext.")
                 }
             }
         }
@@ -239,14 +263,15 @@ class Report : Logging {
     /**
      * A standard name for this report that take schema, id, and destination into account
      */
-    val name: String get() = formFilename(
-        id,
-        schema.baseName,
-        bodyFormat,
-        createdDateTime,
-        translationConfig = destination?.translation,
-        metadata = this.metadata
-    )
+    val name: String
+        get() = formFilename(
+            id,
+            schema.baseName,
+            bodyFormat,
+            createdDateTime,
+            translationConfig = if (destination?.topic?.isSendOriginal == true) null else destination?.translation,
+            metadata = this.metadata
+        )
 
     /**
      * A format for the body or use the destination format
@@ -281,7 +306,7 @@ class Report : Logging {
         BLANK,
         SHUFFLE,
         PASSTHROUGH,
-        FAKE
+        FAKE,
     }
 
     // Generic
@@ -370,11 +395,13 @@ class Report : Logging {
         numberOfMessages: Int,
         metadata: Metadata? = null,
         itemLineage: List<ItemLineage>? = null,
-        destination: Receiver? = null
+        destination: Receiver? = null,
+        nextAction: TaskAction = TaskAction.process,
+        topic: Topic,
     ) {
         this.id = UUID.randomUUID()
-        // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
-        this.schema = Schema("None", Topic.FULL_ELR.json_val)
+        // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
+        this.schema = Schema("None", topic)
         this.sources = sources
         this.bodyFormat = bodyFormat
         this.destination = destination
@@ -385,7 +412,7 @@ class Report : Logging {
         this.itemCount = numberOfMessages
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = numberOfMessages
-        this.nextAction = TaskAction.process
+        this.nextAction = nextAction
     }
 
     private constructor(
@@ -447,7 +474,7 @@ class Report : Logging {
             destination ?: this.destination,
             bodyFormat ?: this.bodyFormat,
             metadata = this.metadata,
-            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter,
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
         )
         copy.itemLineages = createOneToOneItemLineages(this, copy)
         copy.filteringResults.addAll(this.filteringResults)
@@ -519,7 +546,7 @@ class Report : Logging {
         doLogging: Boolean,
         trackingElement: String?,
         reverseTheFilter: Boolean = false,
-        reportStreamFilterType: ReportStreamFilterType
+        reportStreamFilterType: ReportStreamFilterType,
     ): Report {
         val filteredRows = mutableListOf<ReportStreamFilterResult>()
         val combinedSelection = Selection.withRange(0, table.rowCount())
@@ -531,7 +558,9 @@ class Report : Logging {
                 val before = Selection.withRange(0, table.rowCount())
                 val filteredRowList = before.andNot(filterFnSelection).toList()
                 val rowsFiltered = getValuesInRows(
-                    trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
+                    trackingElement,
+                    filteredRowList,
+                    ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
                 )
                 rowsFiltered.forEach { trackingId ->
                     filteredRows.add(
@@ -548,10 +577,11 @@ class Report : Logging {
             }
             combinedSelection.and(filterFnSelection)
         }
-        val finalCombinedSelection = if (reverseTheFilter)
+        val finalCombinedSelection = if (reverseTheFilter) {
             Selection.withRange(0, table.rowCount()).andNot(combinedSelection)
-        else
+        } else {
             combinedSelection
+        }
         val filteredTable = table.where(finalCombinedSelection)
         val filteredReport = Report(
             this.schema,
@@ -562,8 +592,9 @@ class Report : Logging {
             itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
         )
         // Write same info to our logs that goes in the json response obj
-        if (doLogging)
+        if (doLogging) {
             filteredRows.forEach { filterResult -> logger.info(filterResult.toString()) }
+        }
         filteredReport.filteringResults.addAll(this.filteringResults) // copy ReportStreamFilterResults from prev
         filteredReport.filteringResults.addAll(filteredRows) // and add any new ReportStreamFilterResults just created.
         filteredReport.itemLineages = createItemLineages(finalCombinedSelection, this, filteredReport)
@@ -583,10 +614,11 @@ class Report : Logging {
         val columnIndex = this.table.columnIndex(columnName)
         return rows.mapNotNull { row ->
             val value = this.table.getString(row, columnIndex)
-            if (value.isNullOrEmpty())
+            if (value.isNullOrEmpty()) {
                 default // might be null
-            else
+            } else {
                 value
+            }
         }
     }
 
@@ -609,6 +641,7 @@ class Report : Logging {
                             replacementValue
                         )
                 }
+
                 else -> table.column(it.name).copy()
             }
         }
@@ -618,7 +651,7 @@ class Report : Logging {
             fromThisReport("deidentify"),
             itemLineage = this.itemLineages,
             metadata = this.metadata,
-            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter,
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
         )
     }
 
@@ -642,9 +675,11 @@ class Report : Logging {
         metadata: Metadata,
     ): Report {
         fun safeSetStringInRow(row: Row, columnName: String, value: String) {
-            if (row.columnNames().contains(columnName))
+            if (row.columnNames().contains(columnName)) {
                 row.setString(columnName, value)
+            }
         }
+
         val columns = schema.elements.map {
             val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
                 // we want to guard against the possibility that there are too few records
@@ -692,10 +727,12 @@ class Report : Logging {
                         }
                         StringColumn.create(it.name, shuffledValues)
                     }
+
                     SynthesizeStrategy.FAKE -> {
                         // generate random faked data for the column passed in
                         buildFakedColumn(it.name, it, targetState, targetCounty, metadata)
                     }
+
                     SynthesizeStrategy.BLANK -> buildEmptyColumn(it.name)
                     SynthesizeStrategy.PASSTHROUGH -> table.column(it.name).copy()
                 }
@@ -753,8 +790,12 @@ class Report : Logging {
         val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
         val newTable = Table.create(pass2Columns)
         return Report(
-            mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages,
-            metadata = this.metadata, itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
+            mapping.toSchema,
+            newTable,
+            fromThisReport("mapping"),
+            itemLineage = itemLineages,
+            metadata = this.metadata,
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
         )
     }
 
@@ -786,7 +827,7 @@ class Report : Logging {
 
                     it.orderingProviderName =
                         row.getStringOrNull("ordering_provider_first_name") +
-                        " " + row.getStringOrNull("ordering_provider_last_name")
+                            " " + row.getStringOrNull("ordering_provider_last_name")
                     it.orderingProviderId = row.getStringOrNull("ordering_provider_id")
                     it.orderingProviderCity = row.getStringOrNull("ordering_provider_city")
                     it.orderingProviderState = row.getStringOrNull("ordering_provider_state")
@@ -811,7 +852,7 @@ class Report : Logging {
                     it.patientCountry = row.getStringOrNull("patient_country")
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
                     it.patientEthnicity = if (it.patientEthnicityCode != null) {
-                        metadata.findValueSet("hl70189") ?.toDisplayFromCode(it.patientEthnicityCode)
+                        metadata.findValueSet("hl70189")?.toDisplayFromCode(it.patientEthnicityCode)
                     } else {
                         null
                     }
@@ -928,13 +969,13 @@ class Report : Logging {
 
     fun getDeidentifiedCovidResults(): List<CovidResultMetadata> {
         return try {
-            table.mapIndexed() { idx, row ->
+            table.mapIndexed { idx, row ->
                 CovidResultMetadata().also {
                     it.messageId = row.getStringOrNull("message_id")
                     it.previousMessageId = row.getStringOrNull("previous_message_id")
                     it.orderingProviderName =
                         row.getStringOrNull("ordering_provider_first_name") +
-                        " " + row.getStringOrNull("ordering_provider_last_name")
+                            " " + row.getStringOrNull("ordering_provider_last_name")
                     it.orderingProviderId = row.getStringOrNull("ordering_provider_id")
                     it.orderingProviderState = row.getStringOrNull("ordering_provider_state")
                     it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code")
@@ -954,7 +995,7 @@ class Report : Logging {
                     it.patientCountry = row.getStringOrNull("patient_country")
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
                     it.patientEthnicity = if (it.patientEthnicityCode != null) {
-                        metadata.findValueSet("hl70189") ?.toDisplayFromCode(it.patientEthnicityCode)
+                        metadata.findValueSet("hl70189")?.toDisplayFromCode(it.patientEthnicityCode)
                     } else {
                         null
                     }
@@ -1067,14 +1108,17 @@ class Report : Logging {
             in mapping.useDirectly -> {
                 table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)
             }
+
             in mapping.useMapper -> {
                 null
             }
+
             in mapping.useDefault -> {
                 val defaultValue = mapping.useDefault[toElement.name]
                 val defaultValues = Array(table.rowCount()) { defaultValue }
                 StringColumn.create(toElement.name, defaultValues.asList())
             }
+
             else -> {
                 buildEmptyColumn(toElement.name)
             }
@@ -1090,7 +1134,7 @@ class Report : Logging {
     private fun buildColumnPass2(
         mapping: Translator.Mapping,
         toElement: Element,
-        pass1Columns: List<StringColumn?>
+        pass1Columns: List<StringColumn?>,
     ): StringColumn {
         val toSchema = mapping.toSchema
         val fromSchema = mapping.fromSchema
@@ -1203,7 +1247,7 @@ class Report : Logging {
      * @returns a [StringColumn] of the deidentified values
      */
     private fun buildDeidentifiedPatientDobColumn(nullValuePlaceholder: String = ""): StringColumn {
-        table.forEachIndexed() { idx, row ->
+        table.forEachIndexed { idx, row ->
             val patientDob = row.getStringOrNull(patient_dob_column_name)
             if (patientDob == null) {
                 setString(idx, patient_dob_column_name, nullValuePlaceholder)
@@ -1268,14 +1312,18 @@ class Report : Logging {
         private const val SAFE_HARBOR_AGE_CUTOFF = 89
 
         fun merge(inputs: List<Report>): Report {
-            if (inputs.isEmpty())
+            if (inputs.isEmpty()) {
                 error("Cannot merge an empty report list")
-            if (inputs.size == 1)
+            }
+            if (inputs.size == 1) {
                 return inputs[0]
-            if (!inputs.all { it.destination == inputs[0].destination })
+            }
+            if (!inputs.all { it.destination == inputs[0].destination }) {
                 error("Cannot merge reports with different destinations")
-            if (!inputs.all { it.bodyFormat == inputs[0].bodyFormat })
+            }
+            if (!inputs.all { it.bodyFormat == inputs[0].bodyFormat }) {
                 error("Cannot merge reports with different bodyFormats")
+            }
 
             val head = inputs[0]
             val tail = inputs.subList(1, inputs.size)
@@ -1294,7 +1342,11 @@ class Report : Logging {
             val sources = inputs.map { ReportSource(it.id, "merge") }
             val mergedReport =
                 Report(
-                    schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat,
+                    schema,
+                    newTable,
+                    sources,
+                    destination = head.destination,
+                    bodyFormat = head.bodyFormat,
                     metadata = head.metadata
                 )
             mergedReport.itemLineages = createItemLineages(inputs, mergedReport)
@@ -1324,8 +1376,9 @@ class Report : Logging {
         }
 
         fun createOneToOneItemLineages(parentReport: Report, childReport: Report): List<ItemLineage> {
-            if (parentReport.itemCount != childReport.itemCount)
+            if (parentReport.itemCount != childReport.itemCount) {
                 error("Reports must have same number of items: ${parentReport.id}, ${childReport.id}")
+            }
             if (parentReport.itemLineages != null && parentReport.itemLineages!!.size != parentReport.itemCount) {
                 // good place for a simple sanity check.  OK to have no itemLineage, but if you do have it,
                 // it must be complete.
@@ -1346,15 +1399,16 @@ class Report : Logging {
             parentReport: Report,
             parentRowNum: Int,
             childReport: Report,
-            childRowNum: Int
+            childRowNum: Int,
         ): ItemLineage {
             // get the item hash to store for deduplication purposes. If a hash has already been generated
             //  for a row, use that hash to represent the row itself, since translations will result in different
             //  hash values
-            val itemHash = if (parentReport.itemLineages != null && parentReport.itemLineages!!.isNotEmpty())
+            val itemHash = if (parentReport.itemLineages != null && parentReport.itemLineages!!.isNotEmpty()) {
                 parentReport.itemLineages!![parentRowNum].itemHash
-            else
+            } else {
                 parentReport.getItemHashForRow(parentRowNum)
+            }
 
             // Row numbers start at 0, but index need to start at 1
             val childIndex = childRowNum + 1
@@ -1403,7 +1457,7 @@ class Report : Logging {
          */
         fun createItemLineagesFromDb(
             prevHeader: WorkflowEngine.Header,
-            newChildReportId: ReportId
+            newChildReportId: ReportId,
         ): List<ItemLineage>? {
             if (prevHeader.itemLineages == null) return null
             val newLineages = mutableMapOf<Int, ItemLineage>()
@@ -1455,7 +1509,7 @@ class Report : Logging {
             fileFormat: Format?,
             createdDateTime: OffsetDateTime,
             translationConfig: TranslatorConfiguration? = null,
-            metadata: Metadata
+            metadata: Metadata? = null,
         ): String {
             return formFilename(
                 id,
@@ -1475,7 +1529,7 @@ class Report : Logging {
             createdDateTime: OffsetDateTime,
             nameFormat: String = "standard",
             translationConfig: TranslatorConfiguration? = null,
-            metadata: Metadata
+            metadata: Metadata? = null,
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
@@ -1483,7 +1537,7 @@ class Report : Logging {
                 // This file-naming format is used for all INTERNAL files, and whenever there is no custom format.
                 "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
             } else {
-                metadata.fileNameTemplates[nameFormat.lowercase()].run {
+                metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
                     this?.getFileName(translationConfig, id)
                         ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 }
@@ -1498,20 +1552,15 @@ class Report : Logging {
          */
         fun formExternalFilename(
             header: WorkflowEngine.Header,
-            metadata: Metadata? = null
+            metadata: Metadata? = null,
         ): String {
-            // extract the filename from the blob url.
-            val filename = if (header.reportFile.bodyUrl != null)
+            return if (header.reportFile.bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl)
-            else ""
-            return if (filename.isNotEmpty())
-                filename
-            else {
-                // todo: extend this to use the APHL naming convention
+            } else {
                 formFilename(
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
+                    Format.valueOfFromExt(header.reportFile.bodyFormat),
                     header.reportFile.createdAt,
                     metadata = metadata ?: Metadata.getInstance()
                 )
@@ -1528,14 +1577,11 @@ class Report : Logging {
             schemaName: String,
             format: Format,
             createdAt: OffsetDateTime,
-            metadata: Metadata? = null
+            metadata: Metadata? = null,
         ): String {
-            // extract the filename from the blob url.
-            val filename = if (bodyUrl != null)
+            return if (bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
-            else ""
-            return filename.ifEmpty {
-                // todo: extend this to use the APHL naming convention
+            } else {
                 formFilename(
                     reportId,
                     schemaName,
@@ -1567,6 +1613,113 @@ class Report : Logging {
             // depend on the value being trimmed, potentially down to null, and removing
             // it would potentially change behavior for things like writes to the DB
             return this.getStringOrDefault(columnName, null).trimToNull()
+        }
+
+        /**
+         * Gets a file format of a blob located at a [blobURL]
+         *
+         * @return a Report.Format representing the appropriate format
+         */
+        fun getFormatFromBlobURL(blobURL: String): Format {
+            val extension = BlobAccess.BlobInfo.getBlobFileExtension(blobURL)
+            return Format.valueOfFromExt(extension)
+        }
+
+        /**
+         * Takes [nextAction] and an [messageBody], convert it into a Report for the [receiver] specified with
+         * any passed in [metadata]. Uploads to blob storage. Adds lineage showing the newly generated report
+         * came from [sourceReportIds]. Tracks the generated report with the [actionHistory] provided.
+         * @return the newly generated Report, nextAction event, and blobInfo
+         */
+        fun generateReportAndUploadBlob(
+            nextAction: Event.EventAction,
+            messageBody: ByteArray,
+            sourceReportIds: List<ReportId>,
+            receiver: Receiver,
+            metadata: Metadata,
+            actionHistory: ActionHistory,
+            topic: Topic,
+            externalName: String? = null,
+            format: Format? = null,
+        ): Triple<Report, Event, BlobAccess.BlobInfo> {
+            check(messageBody.isNotEmpty())
+            check(sourceReportIds.isNotEmpty())
+
+            // create report object
+            val sources = emptyList<Source>()
+            // determine format based off the receiver's specified format if format is not specified
+            val reportFormat = format ?: when (receiver.format) {
+                Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                    if (sourceReportIds.size > 1) {
+                        Report.Format.HL7_BATCH
+                    } else {
+                        Report.Format.HL7
+                    }
+                }
+                Report.Format.FHIR -> Report.Format.FHIR
+                else -> throw IllegalStateException("Unsupported receiver format ${receiver.format}")
+            }
+            val report = Report(
+                reportFormat,
+                sources,
+                sourceReportIds.size,
+                metadata = metadata,
+                destination = receiver,
+                topic = topic
+            )
+
+            // create item lineage
+            report.itemLineages = sourceReportIds.mapIndexed { sourceIndex, sourceReportId ->
+                ItemLineage(
+                    null,
+                    sourceReportId,
+                    1,
+                    report.id,
+                    sourceIndex + 1, // item indexes starts at 1
+                    null,
+                    null,
+                    null,
+                    "0" // Hash is only used for deduplication when receiving
+                )
+            }
+
+            // create batch event
+            // if timing is null, a batch event will be created, but it will never be picked up
+            val time = receiver.timing?.nextTime()
+            // this is hacky and needs to be fixed, but that would have to happen as part of a refactor
+            val event: Event =
+                if (nextAction == Event.EventAction.SEND) {
+                    ReportEvent(
+                        nextAction,
+                        report.id,
+                        false
+                    )
+                } else {
+                    ProcessEvent(
+                        nextAction,
+                        report.id,
+                        Options.None,
+                        emptyMap(),
+                        emptyList(),
+                        at = time
+                    )
+                }
+
+            // upload the translated copy to blobstore
+            val blobInfo = BlobAccess.uploadBody(
+                reportFormat,
+                messageBody,
+                if (!externalName.isNullOrEmpty()) "$externalName-${report.name}" else report.name,
+                receiver.fullName,
+                event.eventAction
+            )
+            report.bodyURL = blobInfo.blobUrl
+            report.nextAction = event.eventAction.toTaskAction()
+
+            // track generated reports, one per receiver
+            actionHistory.trackCreatedReport(event, report, blobInfo = blobInfo)
+
+            return Triple(report, event, blobInfo)
         }
     }
 }

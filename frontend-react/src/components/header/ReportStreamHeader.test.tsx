@@ -1,132 +1,81 @@
-import * as OktaReact from "@okta/okta-react";
-import { screen } from "@testing-library/react";
-import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
+import { screen, waitFor } from "@testing-library/react";
 
-import { renderWithSession } from "../../utils/CustomRenderUtils";
+import ReportStreamHeader from "./ReportStreamHeader";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import { ISessionContext } from "../../contexts/SessionContext";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { AccessTokenWithRSClaims } from "../../utils/OrganizationUtils";
+import { RSSessionContext } from "../../contexts/Session";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
-import { ReportStreamHeader } from "./ReportStreamHeader";
+describe("SignInOrUser", () => {
+    // Every set of users should have access to the following Navbar items
+    function testNav() {
+        expect(screen.getByText("Getting started")).toBeVisible();
+        expect(screen.getByText("Developers")).toBeVisible();
+        expect(screen.getByText("Your connection")).toBeVisible();
+        expect(screen.getByText("Support")).toBeVisible();
+        expect(screen.getByText("About")).toBeVisible();
+    }
 
-const mockAuth = jest.spyOn(OktaReact, "useOktaAuth");
-const mockGetUser = jest.fn();
-
-/* Ran into test runner errors that wanted me to wrap "anything
- * altering state" in the `act()` function, but then complained
- * when I wrapped the ting in the act() function... so I made it
- * disappear. */
-jest.mock("./SignInOrUser", () => ({
-    SignInOrUser: () => {
-        return null;
-    },
-}));
-
-describe("ReportStreamHeader", () => {
-    test("renders without errors", () => {
-        mockAuth.mockReturnValue({} as IOktaContext);
-        mockSessionContext.mockReturnValue({} as ISessionContext);
-        renderWithSession(<ReportStreamHeader />);
+    test("renders Sender permissioned ReportStreamNavbar", async () => {
+        mockSessionContext.mockReturnValue({
+            config: {
+                IS_PREVIEW: false,
+            },
+            user: { isUserSender: true },
+        } as RSSessionContext);
+        renderApp(<ReportStreamHeader />);
+        await waitFor(() =>
+            expect(screen.getByText("Submissions")).toBeVisible(),
+        );
+        expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
+        expect(screen.queryByText("Admin")).not.toBeInTheDocument();
+        testNav();
     });
 
-    test("admins see all", async () => {
-        mockAuth.mockReturnValue({
-            //@ts-ignore
-            oktaAuth: {
-                getUser: mockGetUser.mockResolvedValue({
-                    email: "test@test.org",
-                }),
-            },
-            authState: {
-                isAuthenticated: true,
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: ["DHPrimeAdmins"],
-                    },
-                } as AccessTokenWithRSClaims,
-            },
-        });
+    test("renders Receiver permissioned ReportStreamNavbar", async () => {
         mockSessionContext.mockReturnValue({
-            //@ts-ignore
-            activeMembership: {
-                memberType: MemberType.PRIME_ADMIN,
-                parsedName: "PrimeAdmins",
+            config: {
+                IS_PREVIEW: false,
             },
-            dispatch: () => {},
-            initialized: true,
-        });
-        renderWithSession(<ReportStreamHeader />);
-        expect(screen.getByText("Admin")).toBeInTheDocument();
-        expect(screen.getByText("Daily data")).toBeInTheDocument();
-        expect(screen.getByText("Upload")).toBeInTheDocument();
-        expect(screen.getByText("Submissions")).toBeInTheDocument();
-    });
-
-    test("senders see sender items and not receiver items", async () => {
-        mockAuth.mockReturnValue({
-            //@ts-ignore
-            oktaAuth: {
-                getUser: mockGetUser.mockResolvedValue({
-                    email: "test@test.org",
-                }),
-            },
-            authState: {
-                isAuthenticated: true,
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: ["DHSender_ignore"],
-                    },
-                } as AccessTokenWithRSClaims,
-            },
-        });
-        mockSessionContext.mockReturnValue({
-            //@ts-ignore
-            activeMembership: {
-                memberType: MemberType.SENDER,
-                parsedName: "ignore",
-            },
-            dispatch: () => {},
-            initialized: true,
-        });
-        renderWithSession(<ReportStreamHeader />);
-        expect(screen.queryByText("Daily data")).not.toBeInTheDocument();
-        expect(screen.getByText("Upload")).toBeInTheDocument();
-        expect(screen.getByText("Submissions")).toBeInTheDocument();
-    });
-
-    test("receivers see receiver items and not sender items", async () => {
-        mockAuth.mockReturnValue({
-            //@ts-ignore
-            oktaAuth: {
-                getUser: mockGetUser.mockResolvedValue({
-                    email: "test@test.org",
-                }),
-            },
-            authState: {
-                isAuthenticated: true,
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: ["DHignore"],
-                    },
-                } as AccessTokenWithRSClaims,
-            },
-        });
-        mockSessionContext.mockReturnValue({
-            //@ts-ignore
-            activeMembership: {
-                memberType: MemberType.RECEIVER,
-                parsedName: "ignore",
-            },
-            dispatch: () => {},
-            initialized: true,
-        });
-        renderWithSession(<ReportStreamHeader />);
-        expect(screen.getByText("Daily data")).toBeInTheDocument();
-        expect(screen.queryByText("Upload")).not.toBeInTheDocument();
+            user: { isUserReceiver: true },
+        } as RSSessionContext);
+        renderApp(<ReportStreamHeader />);
+        await waitFor(() =>
+            expect(screen.getByText("Dashboard")).toBeVisible(),
+        );
         expect(screen.queryByText("Submissions")).not.toBeInTheDocument();
+        expect(screen.queryByText("Admin")).not.toBeInTheDocument();
+        testNav();
+    });
+
+    test("renders Receiver AND Sender (Transceiver) permissioned ReportStreamNavbar", async () => {
+        mockSessionContext.mockReturnValue({
+            config: {
+                IS_PREVIEW: false,
+            },
+            user: { isUserTransceiver: true },
+        } as RSSessionContext);
+        renderApp(<ReportStreamHeader />);
+        await waitFor(() =>
+            expect(screen.getByText("Dashboard")).toBeVisible(),
+        );
+        expect(screen.getByText("Submissions")).toBeVisible();
+        expect(screen.queryByText("Admin")).not.toBeInTheDocument();
+        testNav();
+    });
+
+    test("renders Admin permissioned ReportStreamNavbar", async () => {
+        mockSessionContext.mockReturnValue({
+            config: {
+                IS_PREVIEW: false,
+            },
+            user: { isUserAdmin: true, isAdminStrictCheck: true },
+        } as RSSessionContext);
+        renderApp(<ReportStreamHeader />);
+        await waitFor(() =>
+            expect(screen.getByText("Submissions")).toBeVisible(),
+        );
+        expect(screen.getByText("Dashboard")).toBeVisible();
+        expect(screen.getByText("Admin")).toBeVisible();
+        testNav();
     });
 });

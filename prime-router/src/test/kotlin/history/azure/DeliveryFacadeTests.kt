@@ -1,15 +1,22 @@
 package gov.cdc.prime.router.history.azure
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
+import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
-import assertk.assertions.isSuccess
+import assertk.assertions.isTrue
+import com.google.common.net.HttpHeaders
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.MockHttpRequestMessage
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.AuthenticationType
 import io.mockk.every
 import io.mockk.mockk
 import java.time.OffsetDateTime
@@ -27,7 +34,7 @@ class DeliveryFacadeTests {
             OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
             null,
             "c3c8e304-8eff-4882-9000-3645054a30b7",
-            "covid-19",
+            Topic.COVID_19,
             1,
             "ca-dph",
             null,
@@ -41,7 +48,7 @@ class DeliveryFacadeTests {
             OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
             null,
             "b9f63105-bbed-4b41-b1ad-002a90f07e62",
-            "covid-19",
+            Topic.COVID_19,
             14,
             "ca-dph",
             "elr-secondary",
@@ -63,7 +70,9 @@ class DeliveryFacadeTests {
                 any(),
                 any(),
                 any(),
-                DeliveryHistory::class.java
+                DeliveryHistory::class.java,
+                any(),
+                any()
             )
         } returns goodReturn
 
@@ -75,14 +84,16 @@ class DeliveryFacadeTests {
             null,
             null,
             null,
-            10
+            10,
+            null,
+            null
         )
 
         assertThat(deliveries.first().reportId).isEqualTo(delivery1.reportId)
         assertThat(deliveries.last().reportId).isEqualTo(delivery2.reportId)
 
         // Unhappy path: "Invalid organization."
-        assertThat {
+        assertFailure {
             facade.findDeliveries(
                 "",
                 "elr",
@@ -91,12 +102,14 @@ class DeliveryFacadeTests {
                 null,
                 null,
                 null,
-                10
+                10,
+                null,
+                null
             )
-        }.isFailure().hasMessage("Invalid organization.")
+        }.hasMessage("Invalid organization.")
 
         // Unhappy path: "pageSize must be a positive integer."
-        assertThat {
+        assertFailure {
             facade.findDeliveries(
                 "ca-dph",
                 "elr",
@@ -105,12 +118,14 @@ class DeliveryFacadeTests {
                 null,
                 null,
                 null,
-                -10
+                -10,
+                null,
+                null
             )
-        }.isFailure().hasMessage("pageSize must be a positive integer.")
+        }.hasMessage("pageSize must be a positive integer.")
 
         // Unhappy path: "End date must be after start date."
-        assertThat {
+        assertFailure {
             facade.findDeliveries(
                 "ca-dph",
                 "elr",
@@ -119,12 +134,14 @@ class DeliveryFacadeTests {
                 null,
                 OffsetDateTime.now(),
                 OffsetDateTime.now().minusDays(1),
-                10
+                10,
+                null,
+                null
             )
-        }.isFailure().hasMessage("End date must be after start date.")
+        }.hasMessage("End date must be after start date.")
 
         // Happy Path: date window coverage for since
-        assertThat {
+        assertThat(
             facade.findDeliveries(
                 "ca-dph",
                 "elr",
@@ -133,12 +150,14 @@ class DeliveryFacadeTests {
                 null,
                 OffsetDateTime.now(),
                 null,
-                10
+                10,
+                null,
+                null
             )
-        }.isSuccess()
+        )
 
         // Happy Path: date window coverage for until
-        assertThat {
+        assertThat(
             facade.findDeliveries(
                 "ca-dph",
                 null,
@@ -147,12 +166,14 @@ class DeliveryFacadeTests {
                 null,
                 OffsetDateTime.now(),
                 null,
-                10
+                10,
+                null,
+                null
             )
-        }.isSuccess()
+        )
 
         // Happy Path: date window coverage for both
-        assertThat {
+        assertThat(
             facade.findDeliveries(
                 "ca-dph",
                 "elr",
@@ -161,9 +182,27 @@ class DeliveryFacadeTests {
                 null,
                 OffsetDateTime.now().minusDays(1),
                 OffsetDateTime.now(),
-                10
+                10,
+                null,
+                null
             )
-        }.isSuccess()
+        )
+
+        // Happy Path: reportId is valid
+        assertThat(
+            facade.findDeliveries(
+                "ca-dph",
+                "elr",
+                HistoryDatabaseAccess.SortDir.ASC,
+                HistoryDatabaseAccess.SortColumn.CREATED_AT,
+                null,
+                null,
+                null,
+                10,
+                "b9f63105-bbed-4b41-b1ad-002a90f07e62",
+                null
+            )
+        )
     }
 
     @Test
@@ -177,7 +216,7 @@ class DeliveryFacadeTests {
             OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
             null,
             "c3c8e304-8eff-4882-9000-3645054a30b7",
-            "covid-19",
+            Topic.COVID_19,
             1,
             "ca-dph",
             "elr-secondary",
@@ -253,6 +292,100 @@ class DeliveryFacadeTests {
 
         assertThat(facilities.first().testingLabName).isEqualTo(result.first().testingLabName)
         assertThat(facilities.first().location).isEqualTo(result.first().location)
+    }
+
+    @Test
+    fun `test checkAccessAuthorizationForOrg`() {
+        val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess)
+        val mockRequest = MockHttpRequestMessage()
+
+        // Regular user Happy path test.
+        val userClaims: Map<String, Any> = mapOf(
+            "organization" to listOf("DHmyReceivingOrg"),
+            "sub" to "bob@bob.com"
+        )
+        var claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
+//        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        val org1 = "myReceivingOrg"
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, org1, null, mockRequest)).isTrue()
+        // User has right to see any sender channel within that org.
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, org1, "quux", mockRequest)).isTrue()
+
+        // PrimeAdmin happy path:   PrimeAdmin user ok to be in a different org.
+        val adminClaims: Map<String, Any> = mapOf(
+            "organization" to listOf("DHfoobar", "DHPrimeAdmins"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(adminClaims, AuthenticationType.Okta)
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, org1, null, mockRequest)).isTrue()
+        // PrimeAdmin has right to see any sender channel within that org.
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, org1, "quux", mockRequest)).isTrue()
+
+        // Error: Regular user and Orgs don't match
+        claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
+        val badOrg = "UnhappyOrg" // mismatch sendingOrg
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, badOrg, null, mockRequest)).isFalse()
+        // This auth also denied, regardless of the sender channel.
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, badOrg, "quux", mockRequest)).isFalse()
+    }
+
+    @Test
+    fun `test checkAccessAuthorizationForAction`() {
+        val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess)
+        val mockRequest = MockHttpRequestMessage()
+
+        val action = Action()
+        action.actionId = 123
+        action.sendingOrg = "mySendingOrg"
+        action.sendingOrgClient = "mySendingOrgClient"
+        action.receivingOrg = "myReceivingOrg"
+        action.receivingOrgSvc = "myReceivingOrgSvc"
+
+        // Regular user Happy path test.
+        val userClaims: Map<String, Any> = mapOf(
+            "organization" to listOf("DHmyReceivingOrg"),
+            "sub" to "bob@bob.com"
+        )
+        var claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
+
+        // PrimeAdmin happy path:   PrimeAdmin user ok to be in a different org.
+        val adminClaims: Map<String, Any> = mapOf(
+            "organization" to listOf("DHfoobar", "DHPrimeAdmins"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(adminClaims, AuthenticationType.Okta)
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
+
+        // Error: Regular user and Orgs don't match
+        val mismatchedClaims: Map<String, Any> = mapOf(
+            "organization" to listOf("DHfoobar"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(mismatchedClaims, AuthenticationType.Okta)
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isFalse()
+
+        // This is a delivery query.  So, we sure better not be looking up the sendingOrg.
+        val mismatchedClaims2: Map<String, Any> = mapOf(
+            "organization" to listOf("DHSender_mySendingOrg"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(mismatchedClaims2, AuthenticationType.Okta)
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isFalse()
+
+        // This is a delivery query.  So, we sure better not be looking up the sendingOrg, even without the
+        // annoying "Sender" string in the claims, which is actually not needed any more.
+        val mismatchedClaims3: Map<String, Any> = mapOf(
+            "organization" to listOf("DHmySendingOrg"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(mismatchedClaims3, AuthenticationType.Okta)
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isFalse()
     }
 
     @Test

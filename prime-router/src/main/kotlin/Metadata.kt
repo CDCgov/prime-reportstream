@@ -95,6 +95,7 @@ class Metadata : Logging {
         AllowNone(),
         IsValidCLIA(),
         InDateInterval(),
+        FilterOutNegativeAntigenTestType()
     )
     private var valueSets = mapOf<String, ValueSet>()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(
@@ -125,7 +126,7 @@ class Metadata : Logging {
      */
     internal constructor(
         metadataPath: String,
-        tableDbAccess: DatabaseLookupTableAccess? = null
+        tableDbAccess: DatabaseLookupTableAccess? = null,
     ) {
         this.tableDbAccess = tableDbAccess ?: DatabaseLookupTableAccess()
         val metadataDir = File(metadataPath)
@@ -147,7 +148,7 @@ class Metadata : Logging {
         valueSet: ValueSet? = null,
         tableName: String? = null,
         table: LookupTable? = null,
-        tableDbAccess: DatabaseLookupTableAccess? = null
+        tableDbAccess: DatabaseLookupTableAccess? = null,
     ) {
         this.tableDbAccess = tableDbAccess ?: DatabaseLookupTableAccess()
         valueSet?.let { loadValueSets(it) }
@@ -261,25 +262,26 @@ class Metadata : Logging {
         val valueSet = element.valueSet ?: baseElement?.valueSet
         val valueSetRef = valueSet?.let {
             val ref = findValueSet(it)
-                ?: error("Schema Error: '$valueSet' is missing in element '{$element.name}'")
+                ?: error("Schema Error: '$valueSet' is missing in element '${element.name}'")
             ref.mergeAltValues(element.altValues)
         }
         val table = element.table ?: baseElement?.table
         val tableRef = table?.let {
             findLookupTable(it)
-                ?: error("Schema Error: '$table' is missing in element '{$element.name}'")
+                ?: error("Schema Error: '$table' is missing in element '${element.name}'")
         }
         val mapper = element.mapper ?: baseElement?.mapper
         val refAndArgs: Pair<Mapper, List<String>>? = mapper?.let {
             val (name, args) = Mappers.parseMapperField(it)
             val ref: Mapper = findMapper(name)
-                ?: error("Schema Error: Could not find mapper '$name' in element '{$element.name}'")
+                ?: error("Schema Error: Could not find mapper '$name' in element '${element.name}'")
             Pair(ref, args)
         }
         val fullElement = if (baseElement != null) element.inheritFrom(baseElement) else element
 
-        if (fullElement.maxLength != null && fullElement.maxLength < 0)
+        if (fullElement.maxLength != null && fullElement.maxLength < 0) {
             error("Schema Error: maxLength ${fullElement.maxLength} for ${fullElement.name} must be >= 0")
+        }
 
         return fullElement.copy(
             valueSetRef = valueSetRef,
@@ -298,8 +300,8 @@ class Metadata : Logging {
     }
 
     /*
-    * ReportStreamFilterDefinitions
-    */
+     * ReportStreamFilterDefinitions
+     */
 
     fun findReportStreamFilterDefinitions(name: String): ReportStreamFilterDefinition? {
         return reportStreamFilterDefinitions.find { it.name.equals(name, ignoreCase = true) }
@@ -372,8 +374,9 @@ class Metadata : Logging {
     @Synchronized
     fun checkForDatabaseLookupTableUpdates() {
         // Check for tables at intervals
-        if (tablelastCheckedAt.plusSeconds(tablePollInternalSecs).isAfter(Instant.now()))
+        if (tablelastCheckedAt.plusSeconds(tablePollInternalSecs).isAfter(Instant.now())) {
             return
+        }
         loadDatabaseLookupTables()
         tablelastCheckedAt = Instant.now()
     }
@@ -389,8 +392,9 @@ class Metadata : Logging {
         try {
             val activeTables = tableDbAccess.fetchTableList()
             // Let's be paranoid and check if the API is not returning what we need.
-            if (activeTables.any { it.isActive == false })
+            if (activeTables.any { it.isActive == false }) {
                 error("Database lookup table list returned an inactive table.")
+            }
 
             // Process existing tables
             databaseTables.forEach { dbTable ->
@@ -428,7 +432,7 @@ class Metadata : Logging {
 
     /*
         file name templates
-    */
+     */
     val fileNameTemplates get() = fileNameTemplatesStore
 
     fun findFileNameTemplate(name: String): FileNameTemplate? {
@@ -465,11 +469,12 @@ class Metadata : Logging {
     internal fun validateSchemas() {
         val validationErrors = mutableListOf<String>()
         schemaStore.values.forEach { validationErrors.addAll(it.validate()) }
-        if (validationErrors.isNotEmpty())
+        if (validationErrors.isNotEmpty()) {
             error(
                 "There were errors validating the schemas." + System.lineSeparator() +
                     validationErrors.joinToString(System.lineSeparator())
             )
+        }
     }
 
     companion object {

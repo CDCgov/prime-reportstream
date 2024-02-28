@@ -21,7 +21,7 @@ import org.jooq.JSONB
  * Functions to manage lookup tables.
  */
 class LookupTableFunctions(
-    private val lookupTableAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()
+    private val lookupTableAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess(),
 ) : Logging {
     /**
      * Mapper to convert objects to JSON.
@@ -39,7 +39,7 @@ class LookupTableFunctions(
             methods = [HttpMethod.GET, HttpMethod.HEAD],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "lookuptables/list"
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         // Do authentication
         val claims = AuthenticatedClaims.authenticate(request)
@@ -80,7 +80,7 @@ class LookupTableFunctions(
             route = "lookuptables/{tableName}/{tableVersion}/content"
         ) request: HttpRequestMessage<String?>,
         @BindingName("tableName") tableName: String,
-        @BindingName("tableVersion") tableVersion: Int
+        @BindingName("tableVersion") tableVersion: Int,
     ): HttpResponseMessage {
         // Do authentication
         val claims = AuthenticatedClaims.authenticate(request)
@@ -89,12 +89,12 @@ class LookupTableFunctions(
         logger.info("User ${claims.userName} is authorized for endpoint ${request.uri}")
 
         return try {
-            if (!lookupTableAccess.doesTableExist(tableName, tableVersion))
+            if (!lookupTableAccess.doesTableExist(tableName, tableVersion)) {
                 HttpUtilities.notFoundResponse(
                     request,
                     "Table $tableName with version $tableVersion does not exist."
                 )
-            else {
+            } else {
                 val rows = lookupTableAccess.fetchTable(tableName, tableVersion)
                 HttpUtilities.okResponse(request, convertTableDataToJsonString(rows))
             }
@@ -152,7 +152,7 @@ class LookupTableFunctions(
             route = "lookuptables/{tableName}/{tableVersion}/info"
         ) request: HttpRequestMessage<String?>,
         @BindingName("tableName") tableName: String,
-        @BindingName("tableVersion") tableVersion: Int
+        @BindingName("tableVersion") tableVersion: Int,
     ): HttpResponseMessage {
         // Do authentication
         val claims = AuthenticatedClaims.authenticate(request)
@@ -162,13 +162,14 @@ class LookupTableFunctions(
 
         return try {
             val tableInfo = lookupTableAccess.fetchVersionInfo(tableName, tableVersion)
-            if (tableInfo == null)
+            if (tableInfo == null) {
                 HttpUtilities.notFoundResponse(
                     request,
                     "Table $tableName with version $tableVersion does not exist."
                 )
-            else
+            } else {
                 HttpUtilities.okResponse(request, mapper.writeValueAsString(tableInfo))
+            }
         } catch (e: Exception) {
             logger.error("Unable to fetch lookup table with version $tableVersion", e)
             HttpUtilities.internalErrorResponse(request)
@@ -186,7 +187,7 @@ class LookupTableFunctions(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "lookuptables/{tableName}"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("tableName") tableName: String
+        @BindingName("tableName") tableName: String,
     ): HttpResponseMessage {
         // Do authentication
         val claims = AuthenticatedClaims.authenticate(request)
@@ -200,27 +201,27 @@ class LookupTableFunctions(
         return try {
             val forceTableToLoad = request.queryParameters[forceQueryParameter].toBoolean()
             val inputData: List<Map<String, String>> = mapper.readValue(request.body!!.toString())
-            if (inputData.isEmpty())
+            if (inputData.isEmpty()) {
                 HttpUtilities.badRequestResponse(
                     request,
                     HttpUtilities.errorJson("Request body cannot be empty.")
                 )
-            else {
+            } else {
                 val colNames = inputData[0].keys
                 // Test all the rows to make sure they all have the same columns and that we do not have extra
                 // columns.
                 if (inputData.any { row ->
-                    row.keys.size != colNames.size ||
-                        colNames.any { colName ->
-                            !row.containsKey(colName)
-                        }
-                }
-                )
+                        row.keys.size != colNames.size ||
+                            colNames.any { colName ->
+                                !row.containsKey(colName)
+                            }
+                    }
+                ) {
                     HttpUtilities.badRequestResponse(
                         request,
                         HttpUtilities.errorJson("All rows in the provided array must contain the same column names")
                     )
-                else {
+                } else {
                     // Ok, now we are good to go with the data.
                     val tableRows = inputData.map { row ->
                         JSONB.jsonb(mapper.writeValueAsString(row))
@@ -267,7 +268,7 @@ class LookupTableFunctions(
             route = "lookuptables/{tableName}/{tableVersion}/activate"
         ) request: HttpRequestMessage<String?>,
         @BindingName("tableName") tableName: String,
-        @BindingName("tableVersion") tableVersion: Int
+        @BindingName("tableVersion") tableVersion: Int,
     ): HttpResponseMessage {
         // Do authentication
         val claims = AuthenticatedClaims.authenticate(request)
@@ -279,12 +280,12 @@ class LookupTableFunctions(
         logger.info("User ${claims.userName} is authorized for endpoint ${request.uri}")
 
         return try {
-            if (!lookupTableAccess.doesTableExist(tableName, tableVersion))
+            if (!lookupTableAccess.doesTableExist(tableName, tableVersion)) {
                 HttpUtilities.notFoundResponse(
                     request,
                     "Table $tableName with version $tableVersion does not exist."
                 )
-            else {
+            } else {
                 lookupTableAccess.activateTable(tableName, tableVersion)
                 val json = mapper
                     .writeValueAsString(lookupTableAccess.fetchVersionInfo(tableName, tableVersion))

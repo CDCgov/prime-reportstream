@@ -5,17 +5,17 @@ import useDateRange, {
     RangeSettings,
     RangeSettingsActionType,
 } from "./UseDateRange";
+import usePages, {
+    PageSettings,
+    PageSettingsAction,
+    PageSettingsActionType,
+} from "./UsePages";
 import useSortOrder, {
     SortOrder,
     SortSettings,
     SortSettingsAction,
     SortSettingsActionType,
 } from "./UseSortOrder";
-import usePages, {
-    PageSettings,
-    PageSettingsAction,
-    PageSettingsActionType,
-} from "./UsePages";
 
 export interface FilterManager {
     rangeSettings: RangeSettings;
@@ -26,6 +26,14 @@ export interface FilterManager {
     updatePage: Dispatch<PageSettingsAction>;
     resetAll: () => void;
 }
+/** Keeps dispatch functions out of the filter shape at the network call level */
+export type Filters = RangeSettings & SortSettings & PageSettings;
+/** Pass in a {@link FilterManager} and receive only its filters back, no dispatch functions */
+export const extractFiltersFromManager = (fm: FilterManager): Filters => ({
+    ...fm.rangeSettings,
+    ...fm.pageSettings,
+    ...fm.sortSettings,
+});
 
 interface FilterManagerDefaults {
     sortDefaults?: Partial<SortSettings>;
@@ -41,7 +49,7 @@ const cursorOrRange = (
     order: SortOrder,
     field: RangeField,
     cursor: string,
-    range: string
+    range: string,
 ): string => {
     if (
         (order === "ASC" && field === RangeField.FROM) ||
@@ -62,10 +70,10 @@ const cursorOrRange = (
 const useFilterManager = (defaults?: FilterManagerDefaults): FilterManager => {
     const { settings: rangeSettings, update: updateRange } = useDateRange();
     const { settings: sortSettings, update: updateSort } = useSortOrder(
-        defaults?.sortDefaults
+        defaults?.sortDefaults,
     );
     const { settings: pageSettings, update: updatePage } = usePages(
-        defaults?.pageDefaults
+        defaults?.pageDefaults,
     );
 
     const resetAll = useCallback(() => {

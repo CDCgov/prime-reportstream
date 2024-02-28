@@ -26,7 +26,7 @@ class BlobStoreTransport() : ITransport {
             val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
             val bodyUrl = header.reportFile.bodyUrl ?: error("Report ${header.reportFile.reportId} has no blob to copy")
             context.logger.info("About to copy $bodyUrl to $envVar:$storageName")
-            var newUrl = BlobAccess.copyBlob(bodyUrl, envVar, storageName)
+            val newUrl = BlobAccess.copyBlob(bodyUrl, BlobAccess.BlobContainerMetadata.build(transportType))
             val msg = "Successfully copied $bodyUrl to $newUrl"
             context.logger.info(msg)
             actionHistory.trackActionResult(msg)
@@ -36,7 +36,7 @@ class BlobStoreTransport() : ITransport {
                 newUrl,
                 blobTransportType.toString(),
                 msg,
-                header.reportFile.itemCount
+                header
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null

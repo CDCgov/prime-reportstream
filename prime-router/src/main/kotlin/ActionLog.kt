@@ -1,4 +1,5 @@
 package gov.cdc.prime.router
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -9,14 +10,21 @@ import java.util.UUID
  * The scope of an action log.
  */
 enum class ActionLogScope {
-    parameter, report, item, translation
+    parameter,
+    report,
+    item,
+    translation,
+    internal,
 }
 
 /**
  * The log level of an action log.
  */
 enum class ActionLogLevel {
-    info, warning, error, filter
+    info,
+    warning,
+    error,
+    filter,
 }
 
 /**
@@ -89,6 +97,11 @@ interface ActionLogDetail {
      * The log message.
      */
     val message: String
+
+    /**
+     * The error code used to translate the error in the UI.
+     */
+    val errorCode: ErrorCode
 }
 
 /**
@@ -104,6 +117,7 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
         this.itemIndex = itemIndex
         this.trackingId = trackingId
     }
+
     /**
      * The current item index being tracked, or null if no index is tracked.
      */
@@ -147,6 +161,14 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
     }
 
     /**
+     * Check if the logger has logged any warnings.
+     * @return true if there are warnings logged, false otherwise
+     */
+    fun hasWarnings(): Boolean {
+        return logs.any { it.type == ActionLogLevel.warning }
+    }
+
+    /**
      * Check if any logs have been logged.
      * @return true if any log has been logged, false otherwise.
      */
@@ -159,12 +181,28 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
      */
     private fun log(
         actionDetail: ActionLogDetail,
-        level: ActionLogLevel
+        level: ActionLogLevel,
     ) {
-        if (actionDetail.scope == ActionLogScope.item) check(itemIndex != null) {
-            "Index is required for item logs.  Use the item action logger"
+        if (actionDetail.scope == ActionLogScope.item) {
+            check(itemIndex != null) {
+                "Index is required for item logs.  Use the item action logger"
+            }
         }
         logs.add(ActionLog(actionDetail, trackingId, itemIndex, reportId, type = level))
+    }
+
+    /**
+     * Log an [actionDetail] as an info log.
+     */
+    fun info(actionDetail: ActionLogDetail) {
+        log(actionDetail, ActionLogLevel.info)
+    }
+
+    /**
+     * Log a list of [actionDetails] as info logs.
+     */
+    fun info(actionDetails: List<ActionLogDetail>) {
+        actionDetails.forEach { info(it) }
     }
 
     /**

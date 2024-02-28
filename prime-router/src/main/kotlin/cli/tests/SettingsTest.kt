@@ -25,7 +25,6 @@ import java.net.HttpURLConnection
  *      bad("Test GRUD of Setting API: $output" - Where $output is the specific error message from CRUD API
  *
  */
-
 class SettingsTest : CoolTest() {
     override val name = "settings"
     override val description = "Test CRUD of the Setting API"
@@ -39,10 +38,10 @@ class SettingsTest : CoolTest() {
     private val settingErrorMessage = "Test GRUD of Setting API: "
 
     /**
-     * Define the new dummy organization to be use for test of setting/create the new
+     * Define the new dummy organization to be used for test of setting/create the new
      * dummy organization.
      */
-    val newDummyOrganization = """
+    private val newDummyOrganization = """
         {
             "name": "dummy",
             "description": "NEWDUMMYORG",
@@ -58,10 +57,10 @@ class SettingsTest : CoolTest() {
     """
 
     /**
-     * Define the update dummy organization to be use for test of updating the
+     * Define the update dummy organization to be used for test of updating the
      * dummy organization.
      */
-    val updateDummyOrganization = """
+    private val updateDummyOrganization = """
         {
             "name": "dummy",
             "description": "UPDATEDUMMYORG",
@@ -114,21 +113,23 @@ class SettingsTest : CoolTest() {
         val (_, responseCreateNewDummy, _) = output
         when (responseCreateNewDummy.statusCode) {
             HttpStatus.SC_CREATED -> Unit
-            else -> return bad(settingErrorMessage + "Failed on create new dummy organization.")
+            else -> {
+                return bad(settingErrorMessage + "Failed on create new dummy organization.")
+            }
         }
 
         /**
          * VERIFY the created dummy organization
          */
         echo("VERITY the new dummy organization was created...")
-        var (_, responseNewDummy, resultNewDummy) = SettingsUtilities.get(path, dummyAccessToken)
-        var (payloadNewDummy, errorNewDummy) = resultNewDummy
+        val (_, responseNewDummy, resultNewDummy) = SettingsUtilities.get(path, dummyAccessToken)
+        val (payloadNewDummy, errorNewDummy) = resultNewDummy
         if (errorNewDummy?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
             return bad(settingErrorMessage + responseNewDummy.responseMessage)
         }
 
         /**
-         * The payload must contains the known "NEWDUMMYORG" defined
+         * The payload must contain the known "NEWDUMMYORG" defined
          * in the newDummyOrganization resource above.
          */
         if (!payloadNewDummy?.contains("NEWDUMMYORG")!!) {
@@ -142,7 +143,8 @@ class SettingsTest : CoolTest() {
         val (_, responseCreateUpdateDummy, _) = output
         when (responseCreateUpdateDummy.statusCode) {
             HttpStatus.SC_OK -> Unit
-            else -> return bad(settingErrorMessage + "Failed on can't create update dummy organization.")
+            else ->
+                return bad(settingErrorMessage + "Failed on can't create update dummy organization.")
         }
 
         /**
@@ -156,7 +158,7 @@ class SettingsTest : CoolTest() {
         }
 
         /**
-         * The payload must contains the known "UPDATEDUMMYORG" defined
+         * The payload must contain the known "UPDATEDUMMYORG" defined
          * in the updateDummyOrganization resource above.
          */
         if (!payload?.contains("UPDATEDUMMYORG")!!) {
@@ -203,7 +205,7 @@ class SenderSettings : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            emptySender,
+            emptySender.schemaName,
             options.items,
             receivingStates,
             settingsTestReceiver.name,

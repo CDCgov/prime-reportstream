@@ -44,7 +44,7 @@ class QuickSchemaTranslationTests {
         val outputNameFormat: String,
         val outputRecvOrg: String,
         val expectedOutputFilePattern: String,
-        val extraArgs: String
+        val extraArgs: String,
     )
 
     /**

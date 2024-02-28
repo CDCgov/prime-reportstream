@@ -1,0 +1,24 @@
+# adding both genabio and color to production
+
+---
+- name: color-labs
+  description: Color Labs
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: color-labs
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
+- name: genabio
+  description: Genabio
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: genabio
+      topic: covid-19
+      customerStatus: testing
+      schemaName: direct/genabio-covid-19
+      format: CSV

@@ -1,0 +1,139 @@
+// AutoUpdateFileChromatic
+@use "../../global-modules.scss" as *;
+
+.Table {
+    :global {
+        // Since these are USWDS overrides, we use the :global property so we can
+        // locally scope everything within the CSS Module underneath .reportstreamTable
+        // without having to create new SCSS classes, and simply made overrides.
+        .column-header {
+            &--clickable {
+                padding: 0;
+            }
+
+            &--sortable {
+              display: flex;
+              align-items: center;
+    
+              .column-header-text {
+                margin-right: 2px;
+                white-space: nowrap;
+              }
+    
+              svg {
+                flex: none;
+                margin-left: 2px;
+              }
+            }
+
+
+            .column-header-button {
+                background-color: color("gray-5");
+                width: 100%;
+                height: 100%;
+                padding: 0.5rem 1rem;
+                cursor: pointer;
+                border: none;
+
+                .column-header-text {
+                    margin-right: 2px;
+                    white-space: nowrap;
+                }
+
+                svg {
+                    flex: none;
+                    margin-left: 2px;
+                }
+            }
+
+            .column-data {
+                font-size: 14px;
+
+                &--active {
+                    background-color: color("blue-10");
+                }
+            }
+
+            .column-header-text {
+                font-size: 14px;
+                margin: 0;
+            }
+        }
+
+        .column-header-button {
+            background-color: color("gray-5");
+            width: 100%;
+            height: 100%;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border: none;
+
+            &--active {
+                background-color: color("blue-30");
+            }
+        }
+
+        .column-data {
+            font-size: 14px;
+            vertical-align: top;
+
+            &--active {
+                background-color: color("blue-10");
+            }
+        }
+
+        .column-header-text {
+            font-size: 14px;
+            margin: 0;
+        }
+    }
+
+    &__StickyHeader {
+        max-height: 80vh;
+        overflow-y: auto !important; // temporary override until we decide if we're overriding USWDS scrollable CSS
+        overflow-x: auto;
+
+        :global {
+            .column-data {
+                white-space: normal;
+            }
+
+            .column-header {
+                &--sticky {
+                    background-color: #fff;
+                    border-bottom: none;
+                    border-top: none;
+                    position: sticky;
+                    top: 0;
+                    z-index: 10;
+
+                    &::before {
+                        content: "";
+                        position: absolute;
+                        left: 0;
+                        width: 100%;
+                        top: 0;
+                        border-top: 1px solid;
+                        border-color: color("gray-90");
+                    }
+
+                    &::after {
+                        content: "";
+                        position: absolute;
+                        left: 0;
+                        width: 100%;
+                        bottom: 0;
+                        border-bottom: 1px solid;
+                        border-color: color("gray-90");
+                    }
+                }
+            }
+
+            .usa-table tbody tr:first-child {
+                .column-data {
+                    border-top: none;
+                }
+            }
+        }
+    }
+}

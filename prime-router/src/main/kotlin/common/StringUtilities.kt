@@ -30,4 +30,17 @@ object StringUtilities {
     fun String?.toIntOrDefault(default: Int = 0): Int {
         return this?.toIntOrNull() ?: default
     }
+
+    /**
+     * Trim and truncate the string to the [maxLength] preserving as much of the non-whitespace as possible
+     */
+    fun String.trimAndTruncate(maxLength: Int?): String {
+        val startTrimmed = this.trimStart()
+        val truncated = if (maxLength != null && startTrimmed.length > maxLength) {
+            startTrimmed.take(maxLength)
+        } else {
+            startTrimmed
+        }
+        return truncated.trimEnd()
+    }
 }

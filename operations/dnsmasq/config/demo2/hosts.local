@@ -2,9 +2,9 @@
 # Key Vaults #
 ##############
 
-10.0.5.6 pdhdemo2-appconfigd4s.vaultcore.azure.net pdhdemo2-appconfigd4s.privatelink.vaultcore.azure.net
-10.0.5.5 pdhdemo2-clientconfigd4s.vaultcore.azure.net pdhdemo2-clientconfigd4s.privatelink.vaultcore.azure.net
-10.0.5.4 pdhdemo2-keyvaultd4s.vaultcore.azure.net pdhdemo2-keyvaultd4s.privatelink.vaultcore.azure.net
+10.0.5.6 pdhdemo2-appconfig1wu.vaultcore.azure.net pdhdemo2-appconfig1wu.privatelink.vaultcore.azure.net
+10.0.5.5 pdhdemo2-clientconfig1wu.vaultcore.azure.net pdhdemo2-clientconfig1wu.privatelink.vaultcore.azure.net
+10.0.5.4 pdhdemo2-keyvault1wu.vaultcore.azure.net pdhdemo2-keyvault1wu.privatelink.vaultcore.azure.net
 
 
 #############
@@ -12,7 +12,6 @@
 #############
 
 10.0.5.7  pdhdemo2-pgsql.postgres.database.azure.com pdhdemo2-pgsql.privatelink.postgres.database.azure.com
-10.1.5.4  pdhdemo2-pgsql-replica.postgres.database.azure.com pdhdemo2-pgsql-replica.privatelink.postgres.database.azure.com
 
 
 ####################

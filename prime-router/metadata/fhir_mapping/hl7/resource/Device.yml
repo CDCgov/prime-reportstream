@@ -7,16 +7,93 @@ id:
 # The FHIR Device resource doesn't have any required fields.
 # However we do not want empty Device resources.
 # Thefore wherever Device is referenced make sure to verify the value is NOT_NULL.
-identifier:
+identifier_1:
   valueOf: datatype/Identifier_var
   generateList: true
   expressionType: resource
   specs: EI
   vars:
-    valueIn: EI.1
-    systemCX:  EI.2
+    valueIn: EI.1 | HD.1
+    systemCX: EI.2
+
+identifier_2:
+  condition: $idStr NOT_NULL && $code EQUALS ISO
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  vars:
+    valueIn: $urlPrefix + HD.2
+    idStr: String, HD.2
+    code: String, HD.3
+  constants:
+    system: v2-0301
+    urlPrefix: "urn:oid:"
+
+identifier_3:
+  condition: $idStr NOT_NULL && $code EQUALS UUID
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  vars:
+    valueIn: $urlPrefix + HD.2
+    idStr: String, HD.2
+    code: String, HD.3
+  constants:
+    system: v2-0301
+    urlPrefix: "urn:uuid:"
+
+identifier_4:
+  condition: $idStr NOT_NULL && $code EQUALS DNS
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  vars:
+    valueIn: $urlPrefix + HD.2
+    idStr: String, HD.2
+    code: String, HD.3
+  constants:
+    system: v2-0301
+    urlPrefix: "urn:dns:"
+
+identifier_5:
+  condition: $idStr NOT_NULL && $code EQUALS URI
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  vars:
+    valueIn: $urlPrefix + HD.2
+    idStr: String, HD.2
+    code: String, HD.3
+  constants:
+    system: v2-0301
+    urlPrefix: "urn:uri:"
+
+identifier_6:
+  condition: $idStr NOT_NULL && $code EQUALS CLIA
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  vars:
+    valueIn: $urlPrefix + HD.2
+    idStr: String, HD.2
+    code: String, HD.3
+  constants:
+    system: v2-0301
+    urlPrefix: "urn:clia:"
+
+identifier_7:
+  condition: $idStr NOT_NULL && $code NOT_EQUALS ISO && $code NOT_EQUALS UUID && $code NOT_EQUALS DNS && $code NOT_EQUALS URI && $code NOT_EQUALS CLIA
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  vars:
+    valueIn: $urlPrefix + HD.2
+    idStr: String, HD.2
+    code: String, HD.3
+    urlPrefix: "urn:id:"
 
 deviceName:
+  condition: $deviceName NOT_NULL
   expressionType: nested
   generateList: true
   expressionsMap:

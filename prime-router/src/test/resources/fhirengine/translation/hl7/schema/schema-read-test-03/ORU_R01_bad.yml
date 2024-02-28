@@ -1,5 +1,4 @@
-hl7Type: ORU_R01
-hl7Version 2.5.1
+hl7Class ca.uhn.hl7v2.model.v251.message.ORU_R01
 elements:
   - name message-headers
 condition: >

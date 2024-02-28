@@ -1,21 +1,24 @@
 package gov.cdc.prime.router.tokens
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
+import io.mockk.unmockkConstructor
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,6 +27,8 @@ class AuthenticatedClaimsTests {
     @BeforeEach
     fun reset() {
         clearAllMocks()
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     @Test
@@ -31,15 +36,15 @@ class AuthenticatedClaimsTests {
         // First test Okta auth
         // failure cases
         var jwt: Map<String, Any> = mapOf() // empty
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Okta) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Okta) }
         jwt = mapOf("foo" to "bar") // bad
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Okta) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Okta) }
         jwt = mapOf("organization" to "xyz", "sub" to "c@rlos.com") // bad 'organization'
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Okta) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Okta) }
         jwt = mapOf("organization" to listOf("DHSender_xyz")) // missing sub
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Okta) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Okta) }
         jwt = mapOf("sub" to "c@rlos.com") // missing organization
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Okta) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Okta) }
 
         // success cases
         jwt = mapOf("organization" to listOf("DHxyz"), "sub" to "c@rlos.com")
@@ -87,7 +92,7 @@ class AuthenticatedClaimsTests {
 
         // server2server auth with badly formed scope.
         jwt = mapOf("scope" to "a.b.c", "sub" to "c@rlos.com")
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
 
         // Now test server2server auth with properly formed slcoe
         jwt = mapOf("scope" to "*.*.primeadmin", "sub" to "c@rlos.com")
@@ -107,15 +112,15 @@ class AuthenticatedClaimsTests {
 
         // server2server Failure cases
         jwt = mapOf() // empty
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
         jwt = mapOf("sub" to "c@rlos.com") // missing scope
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
         jwt = mapOf("organization" to "xyz", "sub" to "c@rlos.com") // missing scope
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
         jwt = mapOf("scope" to "blarg", "sub" to "c@rlos.com") // malformed scope
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
         jwt = mapOf("foo" to "bar") // general badness
-        assertThat { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(jwt, AuthenticationType.Server2Server) }
     }
 
     @Test
@@ -133,7 +138,6 @@ class AuthenticatedClaimsTests {
             Sender.Format.CSV,
             CustomerStatus.INACTIVE,
             "mySchema",
-            keys = null
         )
         claims = AuthenticatedClaims.generateTestClaims(sender)
         assertThat(claims.isPrimeAdmin).isTrue()
@@ -179,10 +183,10 @@ class AuthenticatedClaimsTests {
         assertThat(claims4.authorizedForSendOrReceive(emptySender, req)).isFalse()
 
         val rawClaims5: Map<String, Any> = mapOf("sub" to "b@b.com") // missing scope
-        assertThat { AuthenticatedClaims(rawClaims5, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(rawClaims5, AuthenticationType.Server2Server) }
 
         val rawClaims6: Map<String, Any> = mapOf("scope" to "", "sub" to "b@b.com") // empty scope
-        assertThat { AuthenticatedClaims(rawClaims6, AuthenticationType.Server2Server) }.isFailure()
+        assertFailure { AuthenticatedClaims(rawClaims6, AuthenticationType.Server2Server) }
     }
 
     @Test
@@ -199,6 +203,10 @@ class AuthenticatedClaimsTests {
         assertThat(claims1.authorizedForSendOrReceive("WRONG", "foo", req)).isFalse()
         assertThat(claims1.authorizedForSendOrReceive("", "", req)).isFalse()
         assertThat(claims1.authorizedForSendOrReceive(" ", "", req)).isFalse()
+        // null/missing sender or receiver tests
+        assertThat(claims1.authorizedForSendOrReceive(null, "quux", req)).isFalse()
+        assertThat(claims1.authorizedForSendOrReceive(null, null, req)).isFalse()
+        assertThat(claims1.authorizedForSendOrReceive(null, "foo", req)).isFalse()
 
         // broadest possible claim:
         val rawClaims2: Map<String, Any> = mapOf("scope" to Scope.primeAdminScope, "sub" to "b@b.com")
@@ -210,6 +218,10 @@ class AuthenticatedClaimsTests {
         assertThat(claims2.authorizedForSendOrReceive("WRONG", "foo", req)).isTrue()
         assertThat(claims2.authorizedForSendOrReceive("", "", req)).isTrue()
         assertThat(claims2.authorizedForSendOrReceive(" ", "", req)).isTrue()
+        // PrimeAdmins are even allowed to see internal reports with no associated sender or receiver
+        assertThat(claims2.authorizedForSendOrReceive(null, "quux", req)).isTrue()
+        assertThat(claims2.authorizedForSendOrReceive(null, null, req)).isTrue()
+        assertThat(claims2.authorizedForSendOrReceive(null, "foo", req)).isTrue()
 
         val rawClaims3: Map<String, Any> = mapOf("scope" to "oh-doh.*.admin", "sub" to "b@b.com")
         val claims3 = AuthenticatedClaims(rawClaims3, AuthenticationType.Server2Server)
@@ -220,6 +232,10 @@ class AuthenticatedClaimsTests {
         assertThat(claims3.authorizedForSendOrReceive("WRONG", "foo", req)).isFalse()
         assertThat(claims3.authorizedForSendOrReceive("", "", req)).isFalse()
         assertThat(claims3.authorizedForSendOrReceive(" ", "", req)).isFalse()
+        // null/missing sender or receiver tests
+        assertThat(claims3.authorizedForSendOrReceive(null, "quux", req)).isFalse()
+        assertThat(claims3.authorizedForSendOrReceive(null, null, req)).isFalse()
+        assertThat(claims3.authorizedForSendOrReceive(null, "foo", req)).isFalse()
 
         // A typical server2server sender scope:
         val rawClaims4: Map<String, Any> = mapOf("scope" to "sender-org.*.report", "sub" to "b@b.com")
@@ -232,6 +248,10 @@ class AuthenticatedClaimsTests {
         assertThat(claims4.authorizedForSendOrReceive("WRONG", null, req)).isFalse()
         assertThat(claims4.authorizedForSendOrReceive("", "", req)).isFalse()
         assertThat(claims4.authorizedForSendOrReceive(" ", "", req)).isFalse()
+        // null/missing sender or receiver tests
+        assertThat(claims4.authorizedForSendOrReceive(null, "quux", req)).isFalse()
+        assertThat(claims4.authorizedForSendOrReceive(null, null, req)).isFalse()
+        assertThat(claims4.authorizedForSendOrReceive(null, "foo", req)).isFalse()
 
         // Server2server senders should be given a scope of the form sender-org.*.report, but
         // we are grandfathering-in the older sender-org.default.report form, as identical to sender-org.*.report
@@ -349,6 +369,7 @@ class AuthenticatedClaimsTests {
         assertThat(claims2?.scopes?.size).isEqualTo(1)
         assertThat(claims2?.scopes?.contains("foo.bar.report")).isEqualTo(true)
         assertThat(claims2?.isPrimeAdmin).isEqualTo(false)
+        unmockkConstructor(Server2ServerAuthentication::class)
     }
 
     @Test
@@ -412,6 +433,7 @@ class AuthenticatedClaimsTests {
         tok = AuthenticatedClaims.getAccessToken(req)
         assertThat(tok).isNull()
     }
+
     @Test
     fun `test authorizeForSubmission with claims run through authenticate`() {
         val req = MockHttpRequestMessage("test")

@@ -1,12 +1,12 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.base.Preconditions
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import org.jooq.JSONB
 import org.jooq.impl.DSL
 import java.lang.IllegalArgumentException
@@ -163,10 +163,11 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
         // Check for duplicate tables.  If it is up-to-date and force=true,
         // we force to update the table regardless.
         val versionConflict = isTableUpToDate(tableName, newTableChecksum)
-        if (versionConflict != null && !force)
+        if (versionConflict != null && !force) {
             throw DuplicateTableException(
                 "Table is identical to existing table version $versionConflict."
             )
+        }
 
         db.transact { txn ->
             val newVersion = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_VERSION)
@@ -191,8 +192,9 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                         newRow.lookupTableVersionId = versionId
                         newRow
                     }
-                    if (DSL.using(txn).batchInsert(newRecords).execute().any { it < 0 })
+                    if (DSL.using(txn).batchInsert(newRecords).execute().any { it < 0 }) {
                         error("Error batch creating rows for table $tableName version $version")
+                    }
                     batchNumber++
                 }
             } while (dataBatch != null)
@@ -252,7 +254,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
          */
         internal fun extractTableHeadersFromJson(row: JSONB): List<String> {
             try {
-                val rows = jacksonObjectMapper().readValue<Map<String, String>>(row.data())
+                val rows = jacksonObjectMapper.readValue<Map<String, String>>(row.data())
                 Preconditions.checkArgument(rows.isNotEmpty())
                 return rows.keys.toList()
             } catch (e: MismatchedInputException) {
@@ -268,8 +270,9 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
             Preconditions.checkArgument(batchNumber > 0)
             Preconditions.checkArgument(batchSize > 0)
             val start = (batchNumber - 1) * batchSize
-            return if (start > inputData.size || inputData.isEmpty()) null
-            else {
+            return if (start > inputData.size || inputData.isEmpty()) {
+                null
+            } else {
                 val end = if ((start + batchSize) < inputData.size) start + batchSize else inputData.size
                 inputData.subList(start, end)
             }

@@ -1,4 +1,3 @@
-import React, { useRef, useCallback } from "react";
 import {
     Alert,
     Button,
@@ -7,42 +6,32 @@ import {
     Label,
     TextInput,
 } from "@trussworks/react-uswds";
+import { useCallback, useRef } from "react";
+import { Helmet } from "react-helmet-async";
 
-import { showAlertNotification } from "../../components/AlertNotifications";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../components/AuthElement";
-import { BasicHelmet } from "../../components/header/BasicHelmet";
+import config from "../../config";
 import {
     FeatureFlagActionType,
     useFeatureFlags,
-} from "../../contexts/FeatureFlagContext";
-import config from "../../config";
+} from "../../contexts/FeatureFlag";
+import { showToast } from "../../contexts/Toast";
 
 const { DEFAULT_FEATURE_FLAGS } = config;
 
 export enum FeatureFlagName {
     FOR_TEST = "for-tests-only",
-    NUMBERED_PAGINATION = "numbered-pagination",
-    VALUE_SETS_ADMIN = "value-sets",
-    BUILT_FOR_YOU = "built-for-you",
-    VALIDATION_SERVICE = "validation-service",
-    NEW_IA = "new-ia",
-    USER_UPLOAD = "user-upload",
 }
 
-export function FeatureFlagUIComponent() {
+export function FeatureFlagsPage() {
     const newFlagInputText = useRef<HTMLInputElement>(null);
 
-    const { featureFlags, checkFlag, dispatch } = useFeatureFlags();
+    const { featureFlags, checkFlags, dispatch } = useFeatureFlags();
 
     const addFlagClick = useCallback(() => {
-        const newFlag = newFlagInputText.current?.value || "";
-        if (checkFlag(newFlag)) {
+        const newFlag = newFlagInputText.current?.value ?? "";
+        if (checkFlags(newFlag)) {
             // already added.
-            showAlertNotification(
-                "info",
-                `Item '${newFlag}' is already a feature flag.`
-            );
+            showToast(`Item '${newFlag}' is already a feature flag.`, "info");
             return;
         }
         dispatch({
@@ -53,11 +42,11 @@ export function FeatureFlagUIComponent() {
         if (newFlagInputText.current?.value) {
             newFlagInputText.current.value = "";
         }
-        showAlertNotification(
+        showToast(
+            `Feature flag '${newFlag}' added. You will now see UI related to this feature.`,
             "success",
-            `Feature flag '${newFlag}' added. You will now see UI related to this feature.`
         );
-    }, [newFlagInputText, checkFlag, dispatch]);
+    }, [newFlagInputText, checkFlags, dispatch]);
     const deleteFlagClick = useCallback(
         (flagname: string) => {
             dispatch({
@@ -65,12 +54,14 @@ export function FeatureFlagUIComponent() {
                 payload: flagname,
             });
         },
-        [dispatch]
+        [dispatch],
     );
 
     return (
         <>
-            <BasicHelmet pageTitle="Feature Flags" />
+            <Helmet>
+                <title>Feature flags - Admin</title>
+            </Helmet>
             <section className="grid-container margin-top-0">
                 <h3>List of feature flags</h3>
                 <GridContainer containerSize="desktop">
@@ -91,7 +82,6 @@ export function FeatureFlagUIComponent() {
                             key="add-feature-flag"
                             type="button"
                             outline
-                            size="small"
                             className="padding-bottom-1 padding-top-1"
                             onClick={() => addFlagClick()}
                         >
@@ -99,20 +89,25 @@ export function FeatureFlagUIComponent() {
                         </Button>
                     </Grid>
 
-                    {featureFlags.map((flagname, i) => {
+                    {featureFlags.map((flagname) => {
                         return (
                             <Grid
                                 gap="lg"
                                 className="margin-top-3"
-                                key={`feature-flag-${i}`}
+                                key={`feature-flag-${flagname}`}
                             >
-                                <Alert type="success" slim noIcon className="">
+                                <Alert
+                                    headingLevel="h4"
+                                    type="success"
+                                    slim
+                                    noIcon
+                                    className=""
+                                >
                                     <b>{flagname}</b>
                                     {DEFAULT_FEATURE_FLAGS.indexOf(flagname) ===
                                         -1 && (
                                         <Button
                                             key={flagname}
-                                            size="small"
                                             className="padding-bottom-1 padding-top-1 float-right"
                                             type="button"
                                             outline
@@ -133,11 +128,4 @@ export function FeatureFlagUIComponent() {
     );
 }
 
-export function FeatureFlagUIWithAuth() {
-    return (
-        <AuthElement
-            element={<FeatureFlagUIComponent />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
+export default FeatureFlagsPage;

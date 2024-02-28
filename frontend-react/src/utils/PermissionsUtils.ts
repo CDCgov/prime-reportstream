@@ -1,14 +1,7 @@
 import { AccessToken } from "@okta/okta-auth-js";
 
-import { getOktaGroups, RSOrgType } from "./OrganizationUtils";
-
-enum PERMISSIONS {
-    /* Non-Okta pseudo groups */
-    SENDER = "DHSender",
-    RECEIVER = "DHReceiver",
-    /* Okta groups */
-    PRIME_ADMIN = "DHPrimeAdmins",
-}
+import { getOktaGroups, RSOrgType, RSUserClaims } from "./OrganizationUtils";
+import { PERMISSIONS } from "./UsefulTypes";
 
 const isSender = (s: string) => s.toLowerCase().includes(RSOrgType.SENDER);
 const isAdmin = (s: string) => s.toLowerCase().includes(RSOrgType.ADMIN);
@@ -21,7 +14,7 @@ const isReceiver = (s: string) => !isSender(s) && !isAdmin(s);
  * admitted to both sender and receiver features. */
 const permissionCheck = (
     level: PERMISSIONS,
-    token: AccessToken | undefined
+    token: AccessToken | undefined,
 ): boolean => {
     if (!token) return false;
     const oktaGroups = getOktaGroups(token);
@@ -35,4 +28,31 @@ const permissionCheck = (
     }
 };
 
-export { PERMISSIONS, isSender, isReceiver, isAdmin, permissionCheck };
+export interface RSUserPermissions {
+    isUserAdmin: boolean;
+    isUserSender: boolean;
+    isUserReceiver: boolean;
+    isUserTransceiver: boolean;
+}
+
+export function getUserPermissions(user?: RSUserClaims): RSUserPermissions {
+    let isUserAdmin = false,
+        isUserReceiver = false,
+        isUserSender = false,
+        isUserTransceiver = false;
+    for (const org of user?.organization ?? []) {
+        if (isAdmin(org)) isUserAdmin = true;
+        if (isReceiver(org)) isUserReceiver = true;
+        if (isSender(org)) isUserSender = true;
+        if (isReceiver(org) && isSender(org)) isUserTransceiver = true;
+    }
+
+    return {
+        isUserAdmin,
+        isUserReceiver,
+        isUserSender,
+        isUserTransceiver,
+    };
+}
+
+export { isSender, isReceiver, isAdmin, permissionCheck };

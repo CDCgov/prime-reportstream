@@ -18,7 +18,7 @@ data class ValueSet(
     val reference: String? = null,
     val referenceUrl: String? = null,
     val values: List<Value> = emptyList(),
-    val version: String? = null
+    val version: String? = null,
 ) {
     enum class SetSystem {
         HL7,
@@ -29,7 +29,7 @@ data class ValueSet(
         UCUM,
         NULLFL,
         ISO,
-        CDCREC
+        CDCREC,
     }
 
     @get:JsonIgnore

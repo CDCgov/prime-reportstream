@@ -1,9 +1,12 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v251.message.ORU_R01
+import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
+import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -18,74 +21,127 @@ object HL7Utils : Logging {
     /**
      * The default HL7 encoding characters.  Note that depending on the message version this will be 4 or 5 characters.
      */
-    private const val defaultHl7EncodingChars = "^~\\&#"
+    const val defaultHl7EncodingFourChars = "^~\\&"
+    const val defaultHl7EncodingFiveChars = "^~\\&#"
 
     /**
-     * The supported HL7 output messages.
+     * Gets a new object for the given [hl7Class].
+     * @return a message object
      */
-    enum class SupportedMessages(val type: Class<*>) {
-        ORU_R01_2_5_1(ORU_R01::class.java);
-
-        /**
-         * Get an instance of a message.
-         * @return an instance of a supported message
-         */
-        fun getMessageInstance(): Message {
-            val message = type.getDeclaredConstructor().newInstance()
-            if (message !is Message)
-                throw IllegalArgumentException("Type ${type.name} is not of type ca.uhn.hl7v2.model.Message.")
-
-            // Add some default fields.  Note these could still be overridden in the schema
-            try {
-                val typeParts = type.simpleName.split("_")
-                check(typeParts.size == 2)
-                val terser = Terser(message)
-                val msh2Length = terser.getSegment("MSH").getLength(2)
-                terser.set("MSH-1", defaultHl7Delimiter)
-                terser.set("MSH-2", defaultHl7EncodingChars.take(msh2Length))
-                terser.set("MSH-9-1", typeParts[0])
-                terser.set("MSH-9-2", typeParts[1])
-                terser.set("MSH-9-3", type.simpleName)
-                terser.set("MSH-12", message.version)
-            } catch (e: HL7Exception) {
-                logger.error("Could not set MSH delimiters.", e)
-                throw e
+    internal fun getMessage(hl7Class: String): Message {
+        return try {
+            val messageClass = Class.forName(hl7Class)
+            if (AbstractMessage::class.java.isAssignableFrom(messageClass)) {
+                // We verify above that we have a valid subclass of Message as required for parsing
+                // but the compiler does not know that, so we have to cast
+                @Suppress("UNCHECKED_CAST")
+                val context =
+                    DefaultHapiContext(CanonicalModelClassFactory(messageClass as Class<out Message>))
+                context.validationContext = ValidationContextFactory.noValidation()
+                val message = context.newMessage(messageClass)
+                message
+            } else {
+                throw IllegalArgumentException("$hl7Class is not a subclass of ca.uhn.hl7v2.model.Message.")
             }
+        } catch (e: Exception) {
+            throw IllegalArgumentException("$hl7Class is not a class to use for the conversion.")
+        }
+    }
 
-            // Sanity check: Check to make sure a mistake was not made when adding types.
-            return message
+    /**
+     * Gets the type string for the given [message].
+     * @return a list with the message code and trigger event, or an empty list if the type could not be determined
+     */
+    internal fun getMessageTypeString(message: Message): List<String> {
+        val typeParts = message.javaClass.simpleName.split("_")
+        return if (typeParts.size != 2) {
+            throw IllegalArgumentException("${message.javaClass.simpleName} is not a class to use for the conversion.")
+        } else {
+            typeParts
+        }
+    }
+
+    /**
+     * Checks if a specific HL7 message [hl7Class] is supported.
+     * @return true if the HL7 message is supported, false otherwise
+     */
+    fun supports(hl7Class: String): Boolean {
+        return try {
+            getMessage(hl7Class)
+            true
+        } catch (e: java.lang.IllegalArgumentException) {
+            false
+        }
+    }
+
+    /**
+     * Get an instance of a message.
+     * @return an instance of a supported message
+     */
+    fun getMessageInstance(hl7Class: String): Message {
+        val message = getMessage(hl7Class)
+
+        // Add some default fields.  Note these could still be overridden in the schema
+        try {
+            val terser = Terser(message)
+            terser.getSegment("MSH").let {
+                val msh2Length = it.getLength(2)
+                terser.set("MSH-1", defaultHl7Delimiter)
+                terser.set("MSH-2", defaultHl7EncodingFourChars.take(msh2Length))
+                terser.set("MSH-12", message.version)
+            }
+        } catch (e: HL7Exception) {
+            logger.error("Could not set MSH delimiters.", e)
+            throw e
         }
 
-        companion object {
-            /**
-             * Get an instance of a message for the given HL7 message [type] and [version].
-             * @return an instance of a supported message
-             */
-            fun getMessageInstance(type: String, version: String): Message? {
-                val messageType = SupportedMessages.values().firstOrNull {
-                    it.getMessageInstance().version == version && it.type.simpleName == type
-                }
-                return messageType?.getMessageInstance()
-            }
+        // Sanity check: Check to make sure a mistake was not made when adding types.
+        return message
+    }
 
-            /**
-             * Checks is a specific HL7 message [type] and [version] is supported.
-             * @return true if the HL7 message is supported, false otherwise
-             */
-            fun supports(type: String, version: String): Boolean {
-                return SupportedMessages.values()
-                    .any { it.getMessageInstance().version == version && it.type.simpleName == type }
-            }
+    /**
+     * Only call from COVID pipeline!
+     *
+     * This is not generic enough for the UP
+     */
+    fun formPathSpec(spec: String, rep: Int? = null): String {
+        val segment = spec.substring(0, 3)
+        val components = spec.substring(3)
+        val segmentSpec = formSegSpec(segment, rep)
+        return "$segmentSpec$components"
+    }
 
-            /**
-             * Gets a list of comma separated HL7 message types and versions.  Useful for log messages.
-             * @return a comma separated list of supported HL7 types and versions (e.g. ORU_R01(2.5.1))
-             */
-            fun getSupportedListAsString(): String {
-                return SupportedMessages.values().joinToString(", ") {
-                    "${it.type.simpleName}(${it.getMessageInstance().version})"
-                }
-            }
+    /**
+     * Only call from COVID pipeline!
+     *
+     * This is not generic enough for the UP
+     */
+    fun formSegSpec(segment: String, rep: Int? = null): String {
+        val repSpec = rep?.let { "($rep)" } ?: ""
+        return when (segment) {
+            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR"
+            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
+            "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
+            "PID" -> "/PATIENT_RESULT/PATIENT/PID"
+            "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
+            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$repSpec"
+            else -> segment
+        }
+    }
+
+    /**
+     * removes the index from an HL7 field if one is present
+     *
+     * ex: "ORC-12(0)-1" -> "ORC-12-1"
+     */
+    fun removeIndexFromHL7Field(field: String): String {
+        val start = field.indexOf("(")
+        val end = field.indexOf(")")
+
+        return if (start != -1 && end != -1) {
+            field.replaceRange(start, end + 1, "")
+        } else {
+            field
         }
     }
 }

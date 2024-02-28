@@ -1,4 +1,5 @@
 ---
+# deprecated
 # Background: This schema was created for a one-time John Hopkins - IHS tribal upload
 #  - The file followed the AZ loading guide https://www.azdhs.gov/documents/preparedness/emergency-preparedness/guidance-facilities-point-of-care.pdf
 #  - NA was used extensively and was replaced by blanks with a global search and replace
@@ -66,3 +67,13 @@ elements:
   - name: equipment_model_name
     type: TEXT
     default: BinaxNOW COVID-19 Ag Card
+
+  - name: test_type
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Test Type
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:

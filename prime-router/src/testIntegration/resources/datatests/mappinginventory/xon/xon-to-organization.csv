@@ -1,0 +1,14 @@
+HL7 v2,,,,,,Condition (IF True),,,HL7 FHIR,,,,,,,,,Comments
+Sort Order,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute/ Data Type,,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,"Vocabulary Mapping
+(IS, ID, CE, CNE, CWE)",Assignment,,
+1,XON.1,Organization Name,ST,0,1,,,,name,,string,0,1,,,,,
+2,XON.2,Organization Name Type Code,CWE,0,1,,,,,extension??-nameType,coding,0,1,CWE[Coding],OrganizationalNameType,,,
+3,XON.3,ID Number,NM,0,1,IF XON-10 NOT VALUED,,,identifier.value,,identifier,0,-1,,,,,
+4,XON.4,Identifier Check Digit,NM,0,1,,,,,identifier.extension??-checkDigit,string,0,-1,,,,,
+5,XON.5,Check Digit Scheme,NM,0,1,,,,,identifier.extension??-checkDigitScheme,code,0,-1,,,,,
+6,XON.6,Assigning Authority,HD,0,1,,,,,identifier.extension??-assigningAuthority,,0,-1,HD[extension-AssigningAuthority],,,,
+7,XON.7,Identifier Type Code,ID,0,1,,,,identifier.type.coding.code,,code,0,-1,,IDType,,,
+7,XON.7,Identifier Type Code,ID,0,1,,,,identifier.type.coding.system,,uri,0,-1,,,"""http://terminology.hl7.org/CodeSystem/v2-0203""",,
+8,XON.8,Assigning Facility,HD,0,1,,,,,identifier.extension??-location,Reference(Location),0,-1,HD[Location],,,,
+9,XON.9,Name Representation Code,ID,0,1,,,,,,,,,,,,,
+10,XON.10,Organization Identifier,ST,0,1,,,,identifier.value,,string,0,-1,,,,,

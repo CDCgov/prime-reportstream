@@ -1,11 +1,20 @@
 type:
+  condition: $containerTypeCWE NOT_NULL
   valueOf: datatype/CodeableConcept
   generateList: true
   expressionType: resource
   specs: $containerTypeCWE
 
 specimenQuantity:
+  condition: $specimenQuantity NOT_NULL
   valueOf: datatype/Quantity
   expressionType: resource
   vars:
     value: String, $specimenQuantity
+
+additiveCodeableConcept:
+  condition: $specimenAdditive NOT_NULL
+  generateList: true
+  valueOf: datatype/CodeableConcept
+  expressionType: resource
+  specs: $specimenAdditive

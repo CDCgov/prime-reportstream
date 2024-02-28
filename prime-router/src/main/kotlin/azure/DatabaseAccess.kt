@@ -9,6 +9,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Routines
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
@@ -18,6 +19,7 @@ import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
+import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
@@ -37,18 +39,25 @@ import gov.cdc.prime.router.azure.db.tables.records.ElrResultMetadataRecord
 import gov.cdc.prime.router.azure.db.tables.records.ItemLineageRecord
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.history.DetailedActionLog
+import gov.cdc.prime.router.messageTracker.MessageActionLog
+import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
+import org.flywaydb.database.postgresql.PostgreSQLConfigurationExtension
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.Field
 import org.jooq.JSON
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
+import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.inline
 import org.postgresql.Driver
 import java.sql.Connection
 import java.sql.DriverManager
+import java.time.Duration
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
@@ -60,6 +69,7 @@ const val passwordVariable = "POSTGRES_PASSWORD"
 // general max length of free from metadata strings since jooq/postgres
 // does not truncate values when persisting to the database
 const val METADATA_MAX_LENGTH = 512
+
 // max number of records that should be returned by any query to prevent
 // memory pressure. It's mostly to limit abuse. Used in `.top(MAX_RECORDS_TO_RETURN)`
 // listreceiversconnstatus is just a ton of data
@@ -76,10 +86,11 @@ typealias DataAccessTransaction = Configuration
  *
  * The companion object does the connection pooling and settings.
  */
-class DatabaseAccess(private val create: DSLContext) : Logging {
+class DatabaseAccess(val create: DSLContext) : Logging {
     constructor(
-        dataSource: DataSource = commonDataSource
+        dataSource: DataSource = commonDataSource,
     ) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
+
     constructor(connection: Connection) : this(DSL.using(connection, SQLDialect.POSTGRES))
 
     fun checkConnection() {
@@ -128,7 +139,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         receiverFullName: String,
         limit: Int,
         backstopTime: OffsetDateTime?,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): List<Task> {
         val cond =
             if (at == null) {
@@ -159,7 +170,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     fun isDuplicateItem(
         itemHash: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): Boolean {
         val ctx = if (txn != null) DSL.using(txn) else create
         val weekAgo = OffsetDateTime.now().minusDays(7)
@@ -177,7 +188,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     fun fetchNumReportsNeedingBatch(
         receiverFullName: String,
         backstopTime: OffsetDateTime,
-        txn: DataAccessTransaction?
+        txn: DataAccessTransaction?,
     ): Int {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -197,7 +208,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         receiverOrg: String,
         receiverSvc: String,
         checkTime: OffsetDateTime,
-        txn: DataAccessTransaction?
+        txn: DataAccessTransaction?,
     ): Boolean {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -217,9 +228,23 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     internal fun insertAction(txn: Configuration, action: Action): Long {
         val actionRecord = DSL.using(txn).newRecord(ACTION, action)
-        actionRecord.store()
+        try {
+            actionRecord.store()
+        } catch (e: Exception) {
+            logger.error(
+                "FAILED to insert row into ACTION: action_name=${action.actionName}" +
+                    // The action_params value is huge and low value for receive actions, so skip it.
+                    (if (action.actionName != TaskAction.receive) ", params= " + action.actionParams else "")
+            )
+            throw e
+        }
         val actionId = actionRecord.actionId
-        logger.debug("Saved to ACTION: ${action.actionName}, id=$actionId")
+        logger.info(
+            "Inserted row into ACTION: action_name=${action.actionName}" +
+                // The action_params value is huge and low value for receive actions, so skip it.
+                (if (action.actionName != TaskAction.receive) ", params= " + action.actionParams else "") +
+                ", action_id=$actionId"
+        )
         return actionId
     }
 
@@ -257,7 +282,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         nextActionAt: OffsetDateTime?,
         retryToken: String?,
         finishedField: Field<OffsetDateTime>,
-        txn: DataAccessTransaction?
+        txn: DataAccessTransaction?,
     ) {
         val ctx = if (txn != null) DSL.using(txn) else create
         ctx.update(TASK)
@@ -276,11 +301,17 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     fun insertReportFile(reportFile: ReportFile, txn: Configuration, action: Action) {
         DSL.using(txn).newRecord(Tables.REPORT_FILE, reportFile).store()
         val fromInfo =
-            if (!reportFile.sendingOrg.isNullOrEmpty())
-                "${reportFile.sendingOrg}.${reportFile.sendingOrgClient} --> " else ""
+            if (!reportFile.sendingOrg.isNullOrEmpty()) {
+                "${reportFile.sendingOrg}.${reportFile.sendingOrgClient} --> "
+            } else {
+                ""
+            }
         val toInfo =
-            if (!reportFile.receivingOrg.isNullOrEmpty())
-                " --> ${reportFile.receivingOrg}.${reportFile.receivingOrgSvc}" else ""
+            if (!reportFile.receivingOrg.isNullOrEmpty()) {
+                " --> ${reportFile.receivingOrg}.${reportFile.receivingOrgSvc}"
+            } else {
+                ""
+            }
         logger.debug(
             "Saved to REPORT_FILE: ${reportFile.reportId} (${fromInfo}action ${action.actionName}$toInfo)"
         )
@@ -290,7 +321,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     fun fetchReportFile(
         reportId: ReportId,
         org: Organization? = null,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): ReportFile {
         val ctx = if (txn != null) DSL.using(txn) else create
         val cond =
@@ -310,7 +341,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 "Could not find $reportId in REPORT_FILE" +
                     if (org != null) {
                         " associated with organization ${org.name}"
-                    } else ""
+                    } else {
+                        ""
+                    }
             )
     }
 
@@ -319,7 +352,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     fun fetchReportFileByBlobURL(
         fileName: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): ReportFile? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.selectFrom(Tables.REPORT_FILE)
@@ -332,7 +365,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     fun fetchReportFileByIds(
         reportIds: List<ReportId>,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ReportFile> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.selectFrom(Tables.REPORT_FILE)
@@ -342,7 +375,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
     fun fetchAllInternalReports(
         createdDateTime: OffsetDateTime? = null,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ReportFile> {
         val createdDt = createdDateTime ?: OffsetDateTime.now().minusDays(30)
         val ctx = if (txn != null) DSL.using(txn) else create
@@ -361,7 +394,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         receiverReportId: ReportId,
         receiverReportIndex: Int,
         limit: Int,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<SenderItems> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -371,7 +404,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
     fun fetchSingleMetadata(
         messageID: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): CovidResultMetadata? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.selectFrom(Tables.COVID_RESULT_METADATA)
@@ -380,18 +413,91 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.into(CovidResultMetadata::class.java)
     }
 
+    fun fetchSingleMetadataById(
+        id: Long,
+        txn: DataAccessTransaction? = null,
+    ): CovidResultMetadata? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .select(
+                COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID,
+                COVID_RESULT_METADATA.MESSAGE_ID,
+                COVID_RESULT_METADATA.SENDER_ID,
+                COVID_RESULT_METADATA.CREATED_AT,
+                COVID_RESULT_METADATA.REPORT_ID
+            )
+            .from(COVID_RESULT_METADATA)
+            .where(COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.eq(id))
+            .fetchOne()
+            ?.into(CovidResultMetadata::class.java)
+    }
+
+    /**
+     * Fetch CovidResultMetadatas by a message/tracking id.
+     * @param messageId an exact message/tracking id
+     * @param txn an optional database transaction
+     * @return a list of CovidResultMetadatas.
+     */
+    fun fetchCovidResultMetadatasByMessageId(
+        messageId: String,
+        txn: DataAccessTransaction? = null,
+    ): List<CovidResultMetadata> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .select(
+                COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID,
+                COVID_RESULT_METADATA.MESSAGE_ID,
+                COVID_RESULT_METADATA.SENDER_ID,
+                COVID_RESULT_METADATA.CREATED_AT,
+                COVID_RESULT_METADATA.REPORT_ID
+            )
+            .from(COVID_RESULT_METADATA)
+            .where(
+                COVID_RESULT_METADATA.MESSAGE_ID.eq(messageId)
+            )
+            .limit(100)
+            .fetch()
+            .into(CovidResultMetadata::class.java)
+    }
+
+    /**
+     * Fetch ActionLogs by a report id, tracking id, and type.
+     * @param reportId an exact report id
+     * @param trackingId an exact tracking/message id
+     * @param type the type of action log to find (i.e. ActionLogType.warning)
+     * @param txn an optional database transaction
+     * @return a list of DetailedActionLogs.
+     */
+    fun fetchActionLogsByReportIdAndTrackingIdAndType(
+        reportId: ReportId,
+        trackingId: String,
+        type: ActionLogType,
+        txn: DataAccessTransaction? = null,
+    ): List<DetailedActionLog> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .selectFrom(Tables.ACTION_LOG)
+            .where(
+                Tables.ACTION_LOG.REPORT_ID.eq(reportId)
+                    .and(Tables.ACTION_LOG.TRACKING_ID.eq(trackingId))
+                    .and(Tables.ACTION_LOG.TYPE.eq(type))
+            )
+            .limit(100)
+            .fetchInto(DetailedActionLog::class.java)
+    }
+
     /** Returns null if report has no item-level lineage info tracked. */
     fun fetchItemLineagesForReport(
         reportId: ReportId,
         itemCount: Int,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ItemLineage>? {
         val ctx = if (txn != null) DSL.using(txn) else create
         val itemLineages =
-            ctx.selectFrom(Tables.ITEM_LINEAGE)
-                .where(Tables.ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId))
+            ctx.selectFrom(ITEM_LINEAGE)
+                .where(ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId))
                 .orderBy(
-                    Tables.ITEM_LINEAGE.CHILD_INDEX
+                    ITEM_LINEAGE.CHILD_INDEX
                 ) // todo Don't know if this will be too slow?  Use a map in mem?
                 .fetch()
                 .into(ItemLineage::class.java)
@@ -402,17 +508,68 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         if (itemLineages.isEmpty()) {
             return null
         } else {
-            if (itemLineages.size < itemCount)
+            if (itemLineages.size < itemCount) {
                 error(
                     "For $reportId, must have at least $itemCount item lineages. There were ${itemLineages.size}"
                 )
+            }
             val uniqueIndexCount = itemLineages.map { it.childIndex }.toSet().size
-            if (uniqueIndexCount != itemCount)
+            if (uniqueIndexCount != itemCount) {
                 error(
                     "For report $reportId, expected $itemCount unique indexes; there were $uniqueIndexCount"
                 )
+            }
         }
         return itemLineages
+    }
+
+    /**
+     * Fetch descendants of a report by a "parent" report id
+     * @param parentReportId an exact report id
+     * @param txn an optional database transaction
+     * @return a list of ReportFiles.
+     */
+    fun fetchReportDescendantsFromReportId(
+        parentReportId: ReportId,
+        txn: DataAccessTransaction? = null,
+    ): List<ReportFile> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val sql = """select * FROM 
+                report_file where report_id in (
+                select * from report_descendants(?)
+                limit(100)
+                )
+        """
+        return ctx.fetch(sql, parentReportId, parentReportId)
+            .into(ReportFile::class.java)
+            .toList()
+    }
+
+    /**
+     * used by the Message Tracker feature: Fetch ActionLogs by a report id and a filter type
+     * @param reportId an exact report id
+     * @param trackingId an exact tracking/message id
+     * @param filterType a filter type, i.e. "QUALITY_FILTER"
+     * @param txn an optional database transaction
+     * @return a list of MessageActionLog.
+     */
+    fun fetchActionLogsByReportIdAndFilterType(
+        reportId: ReportId,
+        trackingId: String,
+        filterType: String,
+        txn: DataAccessTransaction? = null,
+    ): List<MessageActionLog> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val detailField: Field<String> = field("detail ->> 'filterType'", String::class.java)
+        return ctx.selectFrom(ACTION_LOG)
+            .where(ACTION_LOG.REPORT_ID.eq(reportId))
+            .and(ACTION_LOG.TYPE.eq(ActionLogType.filter))
+            .and(detailField.eq(filterType))
+            .and(ACTION_LOG.TRACKING_ID.eq(trackingId))
+            .limit(100)
+            .fetch()
+            .into(MessageActionLog::class.java)
+            .toList()
     }
 
     /**
@@ -423,7 +580,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     fun fetchActionForReportId(
         reportId: UUID,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): Action? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.select(ACTION.asterisk())
@@ -445,7 +602,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     fun fetchReportForActionId(
         actionId: Long,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): ReportFile? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.select(REPORT_FILE.asterisk())
@@ -464,7 +621,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     fun fetchAction(
         actionId: Long,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): Action? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.selectFrom(ACTION)
@@ -500,6 +657,22 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .toList()
     }
 
+    /**
+     * Uses the report lineage table to find the parent report for the passed in UUID
+     *
+     *
+     * @param childReportId the id of the child to fetch the parent
+     * @return the parent report
+     */
+    fun fetchParentReport(childReportId: UUID): ReportFile? {
+        return create
+            .select(REPORT_FILE.asterisk()).from(REPORT_FILE)
+            .join(REPORT_LINEAGE)
+            .on(REPORT_LINEAGE.PARENT_REPORT_ID.eq(REPORT_FILE.REPORT_ID))
+            .where(REPORT_LINEAGE.CHILD_REPORT_ID.eq(childReportId))
+            .fetchOneInto(ReportFile::class.java)
+    }
+
     fun fetchChildReports(
         parentReportId: UUID,
         txn: DataAccessTransaction? = null,
@@ -518,7 +691,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         type: SettingType,
         name: String,
         parentId: Int?,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): Setting? {
         return DSL.using(txn)
             .selectFrom(SETTING)
@@ -526,8 +699,11 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 SETTING.IS_ACTIVE.isTrue,
                 SETTING.TYPE.eq(type),
                 SETTING.NAME.eq(name),
-                if (parentId != null) SETTING.ORGANIZATION_ID.eq(parentId)
-                else SETTING.ORGANIZATION_ID.isNull
+                if (parentId != null) {
+                    SETTING.ORGANIZATION_ID.eq(parentId)
+                } else {
+                    SETTING.ORGANIZATION_ID.isNull
+                }
             )
             .fetchOne()
             ?.into(Setting::class.java)
@@ -537,7 +713,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         type: SettingType,
         name: String,
         organizationName: String,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): Setting? {
         val org = SETTING.`as`("org")
         val item = SETTING.`as`("item")
@@ -553,7 +729,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 org.IS_ACTIVE.isTrue,
                 org.TYPE.eq(SettingType.ORGANIZATION),
                 org.ORGANIZATION_ID.isNull,
-                org.NAME.eq(organizationName),
+                org.NAME.eq(organizationName)
             )
             .fetchOne()
             ?.into(Setting::class.java)
@@ -566,7 +742,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         type: SettingType,
         name: String,
         organizationName: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): Pair<Setting, Setting>? {
         val org = SETTING.`as`("org")
         val item = SETTING.`as`("item")
@@ -583,7 +759,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     org.IS_ACTIVE.isTrue,
                     org.TYPE.eq(SettingType.ORGANIZATION),
                     org.ORGANIZATION_ID.isNull,
-                    org.NAME.eq(organizationName),
+                    org.NAME.eq(organizationName)
                 )
                 .fetchOne()
                 ?: return null
@@ -629,7 +805,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     fun fetchSettings(
         type: SettingType,
         organizationId: Int,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): List<Setting> {
         return DSL.using(txn)
             .select()
@@ -687,7 +863,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     fun fetchSettingRevisionHistory(
         organizationName: String,
         settingType: SettingType,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): List<SettingsHistoryData> {
         val org = SETTING.`as`("org")
         val settings = SETTING.`as`("settings")
@@ -755,7 +931,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     fun updateOrganizationId(
         currentOrganizationId: Int,
         newOrganizationId: Int,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ) {
         DSL.using(txn)
             .update(SETTING)
@@ -769,7 +945,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         settingId: Int,
         createdBy: String,
         createdAt: OffsetDateTime,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ) {
         DSL.using(txn)
             .insertInto(
@@ -834,7 +1010,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         type: SettingType,
         name: String,
         organizationId: Int?,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): Int {
         return DSL.using(txn)
             .select(DSL.max(SETTING.VERSION))
@@ -842,8 +1018,11 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(
                 SETTING.TYPE.eq(type),
                 SETTING.NAME.eq(name),
-                if (organizationId == null) SETTING.ORGANIZATION_ID.isNull
-                else SETTING.ORGANIZATION_ID.eq(organizationId)
+                if (organizationId == null) {
+                    SETTING.ORGANIZATION_ID.isNull
+                } else {
+                    SETTING.ORGANIZATION_ID.eq(organizationId)
+                }
             )
             .fetchOne()
             ?.getValue(DSL.max(SETTING.VERSION))
@@ -874,7 +1053,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
     /** EmailSchedule queries */
     fun fetchEmailSchedules(txn: DataAccessTransaction? = null): List<String> {
-
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.select(EMAIL_SCHEDULE.VALUES)
             .from(EMAIL_SCHEDULE)
@@ -910,7 +1088,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
     fun getFacilitiesForDownloadableReport(
         reportId: ReportId,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<Facility> {
         val ctx = if (txn != null) DSL.using(txn) else create
         val result =
@@ -933,12 +1111,13 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 positive = it.get(REPORT_FACILITIES.POSITIVE),
                 location =
                 if (it.get(COVID_RESULT_METADATA.TESTING_LAB_CITY)
-                    .isNullOrBlank()
-                )
+                        .isNullOrBlank()
+                ) {
                     it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)
-                else
+                } else {
                     "${it.get(COVID_RESULT_METADATA.TESTING_LAB_CITY)}, " +
                         it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)
+                }
             )
                 .build()
         }
@@ -976,7 +1155,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     fun saveRemoteConnectionCheck(
         txn: DataAccessTransaction? = null,
-        connectionCheck: CheckFunction.RemoteConnectionCheck
+        connectionCheck: CheckFunction.RemoteConnectionCheck,
     ) {
         val ctx = if (txn != null) DSL.using(txn) else create
         val initiatedOn = connectionCheck.initiatedOn.atOffset(Environment.rsTimeZone)
@@ -1025,7 +1204,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     fun fetchReceiverConnectionCheckResults(
         startDateTime: OffsetDateTime,
         endDateTime: OffsetDateTime? = null,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ReceiverConnectionCheckResultJoined> {
         val orgInnerTable = SETTING.`as`("org")
         val recvrInnerTable = SETTING.`as`("recvr")
@@ -1034,7 +1213,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             RECEIVER_CONNECTION_CHECK_RESULTS.asterisk(),
             // two joins on same table, so need different field names.
             orgInnerTable.NAME.`as`("organization_name"),
-            recvrInnerTable.NAME.`as`("receiver_name"),
+            recvrInnerTable.NAME.`as`("receiver_name")
         )
             .from(RECEIVER_CONNECTION_CHECK_RESULTS)
             // org name join
@@ -1075,7 +1254,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     fun fetchSendFailures(
         daysBackSpan: Int = 30,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ListSendFailures> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -1122,6 +1301,21 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         actionHistory.actionLogs.forEach {
             this.insertActionLog(it, txn)
         }
+
+        // log for app insights
+        val actionEndTime = LocalDateTime.now()
+        val contextMap = mapOf(
+            "action_id" to actionHistory.action.actionId.toString(),
+            "action_name" to actionHistory.action.actionName.name,
+            "username" to actionHistory.action.username,
+            "sending_organization" to actionHistory.action.sendingOrg,
+            "start_time" to actionHistory.startTime.toString(),
+            "end_time" to actionEndTime.toString(),
+            "duration" to Duration.between(actionHistory.startTime, actionEndTime).toMillis().toString()
+        )
+        withLoggingContext(contextMap) {
+            logger.info("Action history for action '${actionHistory.action.actionName}' has been recorded")
+        }
     }
 
     /**
@@ -1142,7 +1336,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     /**
      * Inserts the provided [lineage] using [txn] as the data context
      */
-    private fun insertReportLineage(lineage: ReportLineage, txn: Configuration) {
+    fun insertReportLineage(lineage: ReportLineage, txn: Configuration) {
         DSL.using(txn).newRecord(REPORT_LINEAGE, lineage).store()
         logger.debug(
             "Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}"
@@ -1189,7 +1383,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     fun fetchResends(
         since: OffsetDateTime,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<Action> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -1218,16 +1412,17 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
          * Azure functions are actually deployed in a web server. That is functions amortize startup
          * costs by reusing an existing process for a function invocation. Hence, a connection pool
          * is a win in latency after the first initialization.
+         *
+         * @param jdcUrl the URL for the database
+         * @param username the username
+         * @param password the password
+         * @return a data source that can be used to make DB connections
          */
-        private val hikariDataSource: HikariDataSource by lazy {
+        fun getDataSource(jdcUrl: String, username: String, password: String): HikariDataSource {
             DriverManager.registerDriver(Driver())
-
-            val password = System.getenv(passwordVariable)
-            val user = System.getenv(userVariable)
-            val databaseUrl = System.getenv(databaseVariable)
             val config = HikariConfig()
-            config.jdbcUrl = databaseUrl
-            config.username = user
+            config.jdbcUrl = jdcUrl
+            config.username = username
             config.password = password
             config.addDataSourceProperty(
                 "dataSourceClassName",
@@ -1253,12 +1448,29 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             config.maxLifetime = 180000
             val dataSource = HikariDataSource(config)
 
-            val flyway = Flyway.configure().dataSource(dataSource).load()
+            val flywayConfig = Flyway.configure()
+            val pgConfig = flywayConfig.pluginRegister.getPlugin(PostgreSQLConfigurationExtension::class.java)
+            // This setting makes flyway fall back to session locks as concurrent index creation cannot be done
+            // within a transaction. This setting is needed as of flyway 9.19.4.
+            pgConfig.setTransactionalLock(false)
+            val flyway = flywayConfig.dataSource(dataSource).load()
             if (isFlywayMigrationOK) {
+                // TODO https://github.com/CDCgov/prime-reportstream/issues/10526
+                // Investigate why this is required
                 flyway.migrate()
             }
 
-            dataSource
+            return dataSource
+        }
+
+        private val hikariDataSource: HikariDataSource by lazy {
+            // TODO: https://github.com/CDCgov/prime-reportstream/issues/10527
+            // Long term this should be moved to using a system.properties file that easier to override
+            getDataSource(
+                System.getenv(databaseVariable),
+                System.getenv(userVariable),
+                System.getenv(passwordVariable)
+            )
         }
 
         val commonDataSource: DataSource

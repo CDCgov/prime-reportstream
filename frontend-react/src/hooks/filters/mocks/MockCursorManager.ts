@@ -8,5 +8,6 @@ export const mockCursorManager: CursorManager = {
     },
     hasPrev: false,
     hasNext: false,
-    update: () => console.log(""),
+    // eslint-disable-next-line no-console
+    update: () => void 0,
 };

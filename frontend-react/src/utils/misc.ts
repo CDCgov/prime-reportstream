@@ -1,3 +1,5 @@
+import { convert } from "html-to-text";
+
 /**
  * splitOn('foo', 1);
  * // ["f", "oo"]
@@ -20,7 +22,7 @@ export const splitOn: {
  *  valid=true, offset: -1, errorMsg: "" - this is to keep typechecking simple for the caller. offset is always a number
  */
 export const checkJson = (
-    jsonTextValue: string
+    jsonTextValue: string,
 ): { valid: boolean; offset: number; errorMsg: string } => {
     try {
         JSON.parse(jsonTextValue);
@@ -46,15 +48,17 @@ export const checkJson = (
     }
 };
 
+export function isValidServiceName(text: string): boolean {
+    return /^[a-z\d-_]+$/i.test(text);
+}
+
 /**
  * returns the error detail usually found in the "error" field of the JSON returned
  * otherwise, just return the general exception detail
  */
 export async function getErrorDetailFromResponse(e: any) {
-    let errorResponse = await e?.response?.json();
-    return errorResponse && errorResponse.error
-        ? errorResponse.error
-        : e.toString();
+    const errorResponse = await e?.response?.json();
+    return errorResponse?.error ? errorResponse.error : e.toString();
 }
 
 export enum VersionWarningType {
@@ -69,7 +73,7 @@ export enum VersionWarningType {
  */
 export function getVersionWarning(
     warningType: VersionWarningType,
-    settings: any = null
+    settings: any = null,
 ): string {
     switch (warningType) {
         case VersionWarningType.POPUP:
@@ -84,44 +88,39 @@ export function getVersionWarning(
 }
 
 export function formatDate(date: string): string {
-    try {
-        // 'Thu, 3/31/2022, 4:50 AM'
-        // Note that this returns Epoch when receiving a null date string
-        return new Intl.DateTimeFormat("en-US", {
-            weekday: "short",
-            year: "numeric",
-            month: "numeric",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-        }).format(new Date(date));
-    } catch (err: any) {
-        console.error(err);
-        return date;
-    }
+    // 'Thu, 3/31/2022, 4:50 AM'
+    // Note that this returns Epoch when receiving a null date string
+    return new Intl.DateTimeFormat("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+    }).format(new Date(date));
 }
 
 /*
-  for strings in machine readable form:
+  for strings in machine-readable form:
     * camel cased
     * inconsistent caps
-    * whitespace deliminted by - or _
+    * whitespace delimited by - or _
 
-  translate into normal human readable strings with all words capitalized
+  translate into normal human-readable strings with all words capitalized
 */
 export const toHumanReadable = (machineString: string): string => {
     const delimitersToSpaces = machineString.replace(/[_-]/g, " ");
     const camelcaseToSpaces = delimitersToSpaces.replace(/([A-Z])/g, " $1");
     const fixCaps = camelcaseToSpaces.replace(
         /(?:\s|^)(\w)/g,
-        (_match: string, capture: string) => ` ${capture.toUpperCase()}`
+        (_match: string, capture: string) => ` ${capture.toUpperCase()}`,
     );
     return fixCaps.trim();
 };
 
 // ... capitalizes the first letter in a string
 export const capitalizeFirst = (uncapped: string): string => {
-    if (!uncapped || !uncapped.length) {
+    if (!uncapped?.length) {
         return uncapped;
     }
     const newFirst = uncapped[0].toUpperCase();
@@ -136,9 +135,45 @@ export const capitalizeFirst = (uncapped: string): string => {
  */
 export const groupBy = <T>(
     array: T[],
-    predicate: (value: T, index: number, array: T[]) => string
+    predicate: (value: T, index: number, array: T[]) => string,
 ) =>
-    array.reduce((acc, value, index, array) => {
-        (acc[predicate(value, index, array)] ||= []).push(value);
-        return acc;
-    }, {} as { [key: string]: T[] });
+    array.reduce(
+        (acc, value, index, array) => {
+            (acc[predicate(value, index, array)] ||= []).push(value);
+            return acc;
+        },
+        {} as Record<string, T[]>,
+    );
+
+/* Takes a url that contains the 'report/' location and returns
+    the folder location, sending org, and filename
+*/
+export const parseFileLocation = (
+    urlFileLocation: string,
+): {
+    folderLocation: string;
+    sendingOrg: string;
+    fileName: string;
+} => {
+    const fileReportsLocation = urlFileLocation.split("/").pop() ?? "";
+    const [folderLocation, sendingOrg, fileName] =
+        fileReportsLocation.split("%2F");
+
+    if (!(folderLocation && sendingOrg && fileName)) {
+        return {
+            folderLocation: "",
+            sendingOrg: "",
+            fileName: "",
+        };
+    }
+
+    return {
+        folderLocation,
+        sendingOrg,
+        fileName,
+    };
+};
+
+export const removeHTMLFromString = (input: string, options = {}) => {
+    return convert(input, options);
+};

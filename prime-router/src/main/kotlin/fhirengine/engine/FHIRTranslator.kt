@@ -1,21 +1,38 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import ca.uhn.fhir.context.FhirContext
+import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.Segment
+import ca.uhn.hl7v2.util.Terser
+import fhirengine.engine.CustomFhirPathFunctions
+import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
-import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.observability.context.MDCUtils
+import gov.cdc.prime.router.azure.observability.context.withLoggingContext
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.report.ReportService
+import org.hl7.fhir.r4.model.Bundle
+import org.jooq.Field
+import java.time.OffsetDateTime
 
 /**
  * Translate a full-ELR FHIR message into the formats needed by any receivers from the route step
@@ -30,117 +47,215 @@ class FHIRTranslator(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess,
-) : FHIREngine(metadata, settings, db, blob, queue) {
-
+    azureEventService: AzureEventService = AzureEventServiceImpl(),
+    reportService: ReportService = ReportService(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
     /**
-     * Accepts a FHIR [message], parses it, and generates translated output files for each item in the destinations
-     *  element.
-     * [actionHistory] and [actionLogger] ensure all activities are logged.
-     * [metadata] will usually be null; mocked metadata can be passed in for unit tests
+     * Accepts a [FhirTranslateQueueMessage] [message] and, based on its parameters, sends a report to the next pipeline
+     * step containing either the first ancestor's blob or a new blob that has been translated per
+     * the receiver's settings, pending the passed topic's (found in [message]) isSendOriginal property
+     * [actionHistory] and [actionLogger] ensure all activities are recorded to the database and logged
      */
-    override fun doWork(
-        message: RawSubmission,
+    override fun <T : QueueMessage> doWork(
+        message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-        metadata: Metadata?
-    ) {
-        logger.trace("Translating FHIR file for receivers.")
-        try {
-            // pull fhir document and parse FHIR document
-            val bundle = FhirTranscoder.decode(message.downloadContent())
-
-            // track input report
+    ): List<FHIREngineRunResult> {
+        message as ReportPipelineMessage
+        val contextMap = mapOf(
+            MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
+            MDCUtils.MDCProperty.REPORT_ID to message.reportId,
+            MDCUtils.MDCProperty.TOPIC to message.topic,
+            MDCUtils.MDCProperty.BLOB_URL to message.blobURL
+        )
+        withLoggingContext(contextMap) {
+            logger.trace("Starting translate work")
             actionHistory.trackExistingInputReport(message.reportId)
-
-            // todo: iterate over each receiver, translating on a per-receiver basis - for phase 1, hard coded to CO
-            val receivers = listOf("ignore.FULL_ELR")
-
-            receivers.forEach { receiver ->
-                // todo: get schema for receiver - for Phase 1 this is solely going to convert to HL7 and not do any
-                //  receiver-specific transforms
-                val converter = FhirToHl7Converter(
-                    "ORU_R01-base",
-                    "metadata/hl7_mapping/ORU_R01"
-                )
-                val hl7Message = converter.convert(bundle)
-
-                // create report object
-                val sources = emptyList<Source>()
-                val report = Report(
-                    Report.Format.HL7,
-                    sources,
-                    1,
-                    metadata = metadata,
-                    // todo: when we actually want to send HL7 data to a receiver, we will need to ensure the
-                    //  destination property of the report is set
-                    // destination = settings.findReceiver(it)
-                )
-
-                // create item lineage
-                report.itemLineages = listOf(
-                    ItemLineage(
-                        null,
-                        message.reportId,
-                        1,
-                        report.id,
-                        1,
-                        null,
-                        null,
-                        null,
-                        report.getItemHashForRow(1)
+            when (message) {
+                is FhirTranslateQueueMessage -> {
+                    val receiver = settings.findReceiver(message.receiverFullName)
+                        ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
+                    actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
+                    return if (message.topic.isSendOriginal) {
+                        listOf(sendOriginal(message, receiver, actionHistory))
+                    } else {
+                        listOf(sendTranslated(message, receiver, actionHistory))
+                    }
+                }
+                else -> {
+                    throw RuntimeException(
+                        "Message was not a FhirTranslateQueueMessage and cannot be " +
+                            "processed by FHIRTranslator: $message"
                     )
-                )
-
-                // create batch event
-                val batchEvent = ProcessEvent(
-                    Event.EventAction.BATCH,
-                    report.id,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
-
-                // upload the translated copy to blobstore
-                val bodyBytes = hl7Message.encode().toByteArray()
-                val blobInfo = BlobAccess.uploadBody(
-                    Report.Format.HL7,
-                    bodyBytes,
-                    report.name,
-                    receiver,
-                    batchEvent.eventAction
-                )
-
-                // track generated reports, one per receiver
-                actionHistory.trackCreatedReport(batchEvent, report, blobInfo)
-
-                // insert batch task into Task table
-                this.insertBatchTask(
-                    report,
-                    report.bodyFormat.toString(),
-                    blobInfo.blobUrl,
-                    batchEvent
-                )
+                }
             }
-        } catch (e: IllegalArgumentException) {
-            logger.error(e)
-            actionLogger.error(InvalidReportMessage(e.message ?: ""))
         }
     }
 
     /**
-     * Inserts a 'batch' task into the task table for the [report] in question. This is just a pass-through function
-     * but is present here for proper separation of layers and testing. This may need to be modified in the future.
-     * The task will track the [report] in the [format] specified and knows it is located at [reportUrl].
-     * [nextAction] specifies what is going to happen next for this report
-     *
+     * Get the greatest ancestor of the report and send the blob associated with it to the receiver. This is the
+     * "original message pass through" feature, documented here:
+     *  prime-router/docs/design/proposals/0024-original-message-passthrough.md
+     * [message] defines reportId and topic
+     * [receiver] the receiver to send the original message to
+     * [actionHistory] ensures all activities are recorded to the database
      */
-    private fun insertBatchTask(
-        report: Report,
-        reportFormat: String,
-        reportUrl: String,
-        nextAction: Event
-    ) {
-        db.insertTask(report, reportFormat, reportUrl, nextAction, null)
+    internal fun sendOriginal(
+        message: FhirTranslateQueueMessage,
+        receiver: Receiver,
+        actionHistory: ActionHistory,
+    ): FHIREngineRunResult {
+        logger.trace("Preparing to send original message")
+        val originalReport = reportService.getRootReport(message.reportId)
+        val bodyBytes = BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
+
+        // get a Report from the message
+        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+            Event.EventAction.SEND,
+            bodyBytes,
+            listOf(message.reportId),
+            receiver,
+            this.metadata,
+            actionHistory,
+            topic = message.topic,
+            originalReport.externalName,
+            Report.Format.valueOfFromExt(originalReport.bodyFormat)
+        )
+
+        return FHIREngineRunResult(
+            event,
+            report,
+            blobInfo.blobUrl,
+            ReportEventQueueMessage(Event.EventAction.SEND, false, report.id, OffsetDateTime.now().toString())
+        )
     }
+
+    /**
+     * Translate the FHIR bundle associated with the report ID to the format the receiver specified and let the
+     *  batch step pick it up.
+     * [message] defines reportId, topic, and the FHIR bundle to translate
+     * [receiver] the receiver to send the translated message to
+     * [actionHistory] ensures all activities are recorded to the database
+     */
+    internal fun sendTranslated(
+        message: FhirTranslateQueueMessage,
+        receiver: Receiver,
+        actionHistory: ActionHistory,
+    ): FHIREngineRunResult {
+        logger.trace("Preparing to send translated message")
+        val bodyBytes = getByteArrayFromBundle(receiver, FhirTranscoder.decode(message.downloadContent()))
+
+        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+            Event.EventAction.BATCH,
+            bodyBytes,
+            listOf(message.reportId),
+            receiver,
+            this.metadata,
+            actionHistory,
+            topic = message.topic
+        )
+
+        return FHIREngineRunResult(
+            event,
+            report,
+            blobInfo.blobUrl,
+            null
+        )
+    }
+
+    override val finishedField: Field<OffsetDateTime> = Tables.TASK.TRANSLATED_AT
+    override val engineType: String = "Translate"
+
+    /**
+     * Returns a byteArray representation of the [bundle] in a format [receiver] expects, or throws an exception if the
+     * expected format isn't supported.
+     */
+    internal fun getByteArrayFromBundle(
+        receiver: Receiver,
+        bundle: Bundle,
+    ): ByteArray {
+        if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+            receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
+                logger.info("Applying enrichment schema $enrichmentSchemaName")
+                val transformer = FhirTransformer(
+                    convertRelativeSchemaPathToUri(enrichmentSchemaName),
+                    ""
+                )
+                transformer.process(bundle)
+            }
+        }
+        when (receiver.format) {
+            Report.Format.FHIR -> {
+                if (receiver.schemaName.isNotEmpty()) {
+                    val transformer = FhirTransformer(
+                        convertRelativeSchemaPathToUri(receiver.schemaName),
+                        ""
+                    )
+                    transformer.process(bundle)
+                }
+                return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
+            }
+
+            Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                val hl7Message = getHL7MessageFromBundle(bundle, receiver)
+                return hl7Message.encodePreserveEncodingChars().toByteArray()
+            }
+
+            else -> {
+                error("Receiver format ${receiver.format} not supported.")
+            }
+        }
+    }
+
+    /**
+     * Turn a fhir [bundle] into a hl7 message formatter for the [receiver] specified.
+     * @return HL7 Message in the format required by the receiver
+     */
+    internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): Message {
+        val config = (receiver.translation as? Hl7Configuration)?.let {
+            HL7TranslationConfig(
+                it,
+                receiver
+            )
+        }
+        // TODO: #10510
+        val converter = FhirToHl7Converter(
+            convertRelativeSchemaPathToUri(receiver.schemaName),
+            "",
+            context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
+        )
+        val hl7Message = converter.process(bundle)
+
+        // if receiver is 'testing' or useTestProcessingMode is true, set to 'T', otherwise leave it as is
+        if (receiver.customerStatus == CustomerStatus.TESTING ||
+            (
+                (receiver.translation is Hl7Configuration) &&
+                    receiver.translation.useTestProcessingMode
+                )
+        ) {
+            Terser(hl7Message).set("MSH-11-1", "T")
+        }
+
+        return hl7Message
+    }
+}
+
+/**
+ * Encodes a message while avoiding an error when MSH-2 is five characters long
+ *
+ * @return the encoded message as a string
+ */
+fun Message.encodePreserveEncodingChars(): String {
+    // get encoding characters ...
+    val msh = this.get("MSH") as Segment
+    val encCharString = Terser.get(msh, 2, 0, 1, 1)
+    val hasFiveEncodingChars = encCharString == defaultHl7EncodingFiveChars
+    if (hasFiveEncodingChars) Terser.set(msh, 2, 0, 1, 1, defaultHl7EncodingFourChars)
+    var encodedMsg = encode()
+    if (hasFiveEncodingChars) {
+        encodedMsg = encodedMsg.replace(defaultHl7EncodingFourChars, defaultHl7EncodingFiveChars)
+        // Set MSH-2 back in the in-memory message to preserve original value
+        Terser.set(msh, 2, 0, 1, 1, defaultHl7EncodingFiveChars)
+    }
+    return encodedMsg
 }

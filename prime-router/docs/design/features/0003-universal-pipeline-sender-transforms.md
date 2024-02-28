@@ -1,0 +1,114 @@
+## Introduction
+
+Sender transforms are used after validation of incoming sender data to manipulate and fix
+issues with the data. Issues may include missing fields we can derive from other fields (e.g.
+LIVD data), and detecting and fixing incorrect or badly formatted fields.
+
+## COVID Pipeline Sender Transforms
+
+The COVID pipeline uses the sender schemas to perform sender transforms. Transforms are
+performed on the internal representation of a report which is analogous to a CSV formatted file.
+The values in this internal report are referenced by the schema by their element names which
+are the column names in the internal CSV report. Note that any HL7 spec references in the
+COVID schemas are only used for the HL7 v2 to CSV conversion and are not used for the
+sender transform process.
+The COVID sender transforms are used to:
+
+1. Set an element value to a literal value, replacing any existing value
+2. Set an element value to the value of another element, replacing any existing value
+3. Set an element value to the output value of a mapper (a Java-based function with
+   complicated logic) that may take one or more element values, replacing any existing
+   value including setting the value to empty
+
+Note that the validation of data is done AFTER the sender transformation as some mappers are
+used to perform validation of the data (e.g. LIVD lookup).
+
+## Universal Pipeline Sender Transforms
+
+The current use cases for sender transforms in the Universal Pipeline (UP) are:
+
+- Set the value of an existing or new FHIR property with a literal constant
+- Set the value of an existing or new FHIR property with another FHIR value
+- Set the value of an existing or new FHIR property with a manipulated FHIR value (e.g.
+  split a string)
+- Set the value of an existing or new FHIR property with the value from a complex
+  operation (e.g. a mapper like LIVD lookup)
+
+Additionally, support might be needed in the future for the following use case:
+
+- Set the value of an existing or new FHIR property with the value from an HL7 field (this
+  could happen with bad data that the HL7 to FHIR conversion could not handle)
+
+Sender transforms are performed AFTER the data has been validated and converted
+into FHIR. This allows the transforms to utilize FHIR Path in a similar manner
+to the FHIR to HL7 conversion library, which will reduce the learning curve and make
+the configuration for the UP more consistent. In the future, sender transforms may need access to the raw HL7
+v2 data to allow for transforms where the HL7 v2 data was not converted correctly to allow for
+the correction of bad data.
+
+### Schema Design
+
+Here's an example of a sender transform:
+
+```
+extends: sender-transform-base
+constants:
+    patientPath: "Bundle.entry.resource.ofType(Patient)"
+elements:
+    - name: patient-country
+      constants:
+          elementConstant: '"USA"'
+      resource: ‘%patientPath’
+      condition: ‘%resource.address.country.exists().not()’
+      bundleProperty: ‘%resource.address.country’
+      value: [‘%elementConstant’]
+      valueSet:
+          values:
+              Canada: CAN
+              United States: USA
+    - name: patient-name
+      resource: ‘Bundle.entry.resource.ofType(Patient)’
+      resourceIndex: patientIndex
+      schema: patient-name-schema
+```
+
+Where `patient-name-schema.yml` looks like:
+
+```
+elements:
+    - name: patient-name
+      resource: ‘%resource’
+      bundleProperty: ‘%resource.name.text’
+      value: [‘"First name, last name"’]
+```
+
+Element properties (in order of execution):
+
+- `name` - the name of an element.
+- `constants` - constants passed in to FHIR Path evaluations. They are resolved at the time
+  an element uses it. These can be specified at the schema level or at the element level. Elements will inherit
+  constants defined at their schema level and will overwrite any that have the same name.
+- `resource` - the FHIR resource used as focus on all other FHIR Path expressions. Must
+  be used with child schema to set the collection to iterate with.
+- `condition` - FHIR Path boolean expression that must evaluate to true for the element to
+  be evaluated. Conditions can be used to check the value of a bundle property that
+  another element may have populated, so it could be used to check the result of a
+  previous element (elements must be kept in the correct order for this to work).
+- `bundleProperty` - a FHIR Path expression that denotes where to store the value. If the property does not yet exist,
+  ReportStream will attempt to create it, though there are restrictions around which types of resources/properties can
+  be dynamically created.
+- `value` - a list of FHIR Path expressions that evaluates to the proper FHIR Type to be
+  assigned to the property specified in the `bundleProperty` element property. The first expression to
+  have a value wins. This allows you to set defaults at the end of the list. Cannot be used with `schema`.
+- `valueSet` - a list of key value pairs used to convert the value generated by the value property (the key)
+  to another value that matches the key. If a `valueSet` is defined and a match is not found, the element in 
+  `bundleProperty` will not be transformed. Can only be used with `value`. The property name within `valueSet`
+  determines the data source; an interface is provided to be able to define additional classes that return the key
+  value pairs programmatically. Only one data source can be specified per element.
+  The following data sources are available within the Universal Pipeline:
+  - `values` - Key value pairs are listed directly in a configuration schema.
+  - `lookupTable` - provide `tableName`, `keyColumn`, `valueColumn` to retrieve key value pairs from a lookup table.
+- `schema` - the name of a child schema to process. This points to another sender transform schema which will be used
+  with this schema's resource as the focus resource. Cannot be used with `bundleProperty`, `value`, or `valueSet`.
+- `resourceIndex` - the name of a constant with the index of a resource collection. Useful to
+  iterate over multiple resources. Can only be used with `schema`.

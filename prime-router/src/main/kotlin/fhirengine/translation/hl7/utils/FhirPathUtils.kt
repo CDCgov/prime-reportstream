@@ -1,12 +1,14 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DT
-import ca.uhn.hl7v2.model.v251.datatype.DTM
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import org.apache.logging.log4j.kotlin.Logging
-import org.hl7.fhir.r4.context.SimpleWorkerContext
+import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
@@ -16,6 +18,7 @@ import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.ExpressionNode
 import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.TimeType
+import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import java.time.DateTimeException
 import java.time.LocalTime
@@ -26,10 +29,13 @@ import java.time.format.DateTimeParseException
  * Utilities to handle FHIR Path parsing.
  */
 object FhirPathUtils : Logging {
+
+    private val fhirContext = FhirContext.forR4()
+
     /**
      * The FHIR path engine.
      */
-    val pathEngine = FHIRPathEngine(SimpleWorkerContext())
+    val pathEngine = FHIRPathEngine(HapiWorkerContext(fhirContext, fhirContext.validationSupport))
 
     /**
      * The HL7 time format. We are converting from a FHIR TimeType which does not include a time zone.
@@ -47,8 +53,11 @@ object FhirPathUtils : Logging {
      * @throws Exception if the path is invalid
      */
     fun parsePath(fhirPath: String?): ExpressionNode? {
-        return if (fhirPath.isNullOrBlank()) null
-        else pathEngine.parse(fhirPath)
+        return if (fhirPath.isNullOrBlank()) {
+            null
+        } else {
+            pathEngine.parse(fhirPath)
+        }
     }
 
     /**
@@ -60,12 +69,16 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expression: String
+        expression: String,
     ): List<Base> {
         val retVal = try {
+            pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
-            if (expressionNode == null) emptyList()
-            else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+            if (expressionNode == null) {
+                emptyList()
+            } else {
+                pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+            }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
             logger.error(
@@ -80,35 +93,50 @@ object FhirPathUtils : Logging {
     }
 
     /**
-     * Gets a boolean result from the given [expression] using [bundle] and starting from a specific [focusResource].
-     * [focusResource] can be the same as [bundle] when starting from the root.
+     * Gets a boolean result from the given [expression] using [rootResource], [contextResource] (which in most cases is
+     * the resource the schema is being evaluated against) and starting from a specific [focusResource].
+     * [focusResource] can be the same as [rootResource] when starting from the root.
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
      * Note that if the [expression] does not evaluate to a boolean then the result is false.
      * @return true if the expression evaluates to true, otherwise false
-     * @throws SchemaException if the FHIR path does not evaluate to a boolean type
+     * @throws SchemaException if the FHIR path does not evaluate to a boolean type or fails to evaluate
      */
     fun evaluateCondition(
         appContext: CustomContext?,
         focusResource: Base,
-        bundle: Bundle,
-        expression: String
+        contextResource: Base,
+        rootResource: Bundle,
+        expression: String,
     ): Boolean {
         val retVal = try {
+            pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
-            val value = if (expressionNode == null) emptyList()
-            else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
-            if (value.size == 1 && value[0].isBooleanPrimitive) (value[0] as BooleanType).value
-            else {
-                throw SchemaException("Condition did not evaluate to a boolean type")
+            val value = if (expressionNode == null) {
+                emptyList()
+            } else {
+                pathEngine.evaluate(appContext, focusResource, rootResource, contextResource, expressionNode)
+            }
+            if (value.size == 1 && value[0].isBooleanPrimitive) {
+                (value[0] as BooleanType).value
+            } else if (value.isEmpty()) {
+                // The FHIR utilities that test for booleans only return one if the resource exists
+                // if the resource does not exist, they return []
+                // for the purposes of the evaluating a schema condition that is the same as being false
+                false
+            } else {
+                throw SchemaException("FHIR Path expression did not evaluate to a boolean type: $expression")
             }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
-            logger.error(
-                "Unknown error while evaluating FHIR expression $expression for condition. " +
-                    "Setting value of condition to false.",
-                e
-            )
-            false
+            val msg = when (e) {
+                is FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
+                is SchemaException -> throw e
+                else ->
+                    "Unknown error while evaluating FHIR Path expression $expression for condition. " +
+                        "Setting value of condition to false."
+            }
+            logger.error(msg, e)
+            throw SchemaException(msg, e)
         }
         logger.trace("Evaluated condition '$expression' to '$retVal'")
         return retVal
@@ -126,11 +154,17 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expression: String
+        expression: String,
+        element: ConverterSchemaElement? = null,
+        constantSubstitutor: ConstantSubstitutor? = null,
     ): String {
+        pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
         val expressionNode = parsePath(expression)
-        val evaluated = if (expressionNode == null) emptyList()
-        else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+        val evaluated = if (expressionNode == null) {
+            emptyList()
+        } else {
+            pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+        }
         return when {
             // If we couldn't evaluate the path we should return an empty string
             evaluated.isEmpty() -> ""
@@ -147,67 +181,35 @@ object FhirPathUtils : Logging {
                 logger.error(msg)
                 throw SchemaException(msg)
             }
+
             // InstantType and DateTimeType are both subclasses of BaseDateTime and can use the same helper
             evaluated[0] is InstantType || evaluated[0] is DateTimeType -> {
-                convertDateTimeToHL7(evaluated[0] as BaseDateTimeType)
+                // There are two translation functions to handle datetime formatting.
+                // If there is a custom translation function, we will call to the function.
+                // Otherwise, we use our old HL7TranslationFunctions to handle the dataTime formatting.
+                if (appContext?.config is HL7TranslationConfig && appContext.translationFunctions != null) {
+                    appContext.translationFunctions.convertDateTimeToHL7(
+                        evaluated[0] as BaseDateTimeType,
+                        appContext,
+                        element,
+                        constantSubstitutor
+                    )
+                } else {
+                    Hl7TranslationFunctions().convertDateTimeToHL7(
+                        evaluated[0] as BaseDateTimeType,
+                        appContext,
+                        element,
+                        constantSubstitutor
+                    )
+                }
             }
+
             evaluated[0] is DateType -> convertDateToHL7(evaluated[0] as DateType)
 
             evaluated[0] is TimeType -> convertTimeToHL7(evaluated[0] as TimeType)
 
             // Use the string representation of the value for any other types.
             else -> pathEngine.convertToString(evaluated[0])
-        }
-    }
-
-    /**
-     * Convert a FHIR [dateTime] to the format required by HL7
-     * @return the converted HL7 DTM
-     */
-    fun convertDateTimeToHL7(dateTime: BaseDateTimeType): String {
-        /**
-         * Set the timezone for an [hl7DateTime] if a timezone was specified.
-         * @return the updated [hl7DateTime] object
-         */
-        fun setTimezone(hl7DateTime: DTM): DTM {
-            dateTime.timeZone?.let {
-                // This is strange way to set the timezone offset, but it is an integer with the leftmost two digits as the hour
-                // and the rightmost two digits as minutes (e.g. -0400)
-                val hour = dateTime.timeZone.rawOffset / 1000 / 60 / 60
-                val min = dateTime.timeZone.rawOffset / 1000 / 60 % 60
-                hl7DateTime.setOffset(hour * 100 + min)
-            }
-            return hl7DateTime
-        }
-
-        val hl7DateTime = DTM(null)
-
-        return when (dateTime.precision) {
-            TemporalPrecisionEnum.YEAR -> "%d".format(dateTime.year)
-
-            TemporalPrecisionEnum.MONTH -> "%d%02d".format(dateTime.year, dateTime.month + 1)
-
-            TemporalPrecisionEnum.DAY -> "%d%02d%02d".format(dateTime.year, dateTime.month + 1, dateTime.day)
-
-            // Note hour precision is not supported by the FHIR data type
-
-            TemporalPrecisionEnum.MINUTE -> {
-                hl7DateTime.setDateMinutePrecision(
-                    dateTime.year, dateTime.month + 1, dateTime.day,
-                    dateTime.hour, dateTime.minute
-                )
-                setTimezone(hl7DateTime).toString()
-            }
-
-            else -> {
-                var secs = dateTime.second.toFloat()
-                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
-                hl7DateTime.setDateSecondPrecision(
-                    dateTime.year, dateTime.month + 1, dateTime.day, dateTime.hour, dateTime.minute,
-                    secs
-                )
-                setTimezone(hl7DateTime).toString()
-            }
         }
     }
 

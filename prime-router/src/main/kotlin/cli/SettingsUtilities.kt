@@ -38,7 +38,7 @@ class SettingsUtilities {
         fun put(
             path: String,
             accessToken: String,
-            payload: String
+            payload: String,
         ): ResponseResultOf<FuelJson> {
             return Fuel
                 .put(path)

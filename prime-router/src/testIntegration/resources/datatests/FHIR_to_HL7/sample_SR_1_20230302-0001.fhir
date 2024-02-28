@@ -1,0 +1,648 @@
+{
+    "resourceType": "Bundle",
+    "identifier": {
+        "value": "1519ae86-98f4-40d8-9780-d5211186e5b5"
+    },
+    "type": "message",
+    "timestamp": "2023-03-30T12:32:36.643+00:00",
+    "entry": [
+        {
+            "fullUrl": "MessageHeader/17414a00-f195-45ad-9e31-0eded0eec160",
+            "resource": {
+                "resourceType": "MessageHeader",
+                "id": "17414a00-f195-45ad-9e31-0eded0eec160",
+                "meta": {
+                    "tag": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+                            "code": "P",
+                            "display": "Production"
+                        }
+                    ]
+                },
+                "eventCoding": {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
+                    "code": "R01",
+                    "display": "ORU/ACK - Unsolicited transmission of an observation message"
+                },
+                "destination": [
+                    {
+                        "name": "PRIME ReportStream",
+                        "endpoint": "https://prime.cdc.gov/api/reports?option=SkipInvalidItems"
+                    }
+                ],
+                "sender": {
+                    "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
+                },
+                "source": {
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id",
+                            "valueString": "2c5a603"
+                        },
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date",
+                            "valueInstant": "2023-03-29T19:24:41Z"
+                        },
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
+                            "valueReference": {
+                                "reference": "Organization/07640c5d-87cd-488b-9343-a226c5166539"
+                            }
+                        }
+                    ],
+                    "software": "PRIME SimpleReport",
+                    "version": "2c5a603",
+                    "endpoint": "https://simplereport.gov"
+                },
+                "focus": [
+                    {
+                        "reference": "Provenance/890ab464-19ad-46b3-b748-b4df5692ca4e"
+                    },
+                    {
+                        "reference": "DiagnosticReport/1519ae86-98f4-40d8-9780-d5211186e5b5"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "Provenance/890ab464-19ad-46b3-b748-b4df5692ca4e",
+            "resource": {
+                "resourceType": "Provenance",
+                "id": "890ab464-19ad-46b3-b748-b4df5692ca4e",
+                "recorded": "2023-03-30T12:32:36.643+00:00",
+                "activity": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
+                            "code": "R01",
+                            "display": "ORU/ACK - Unsolicited transmission of an observation message"
+                        }
+                    ]
+                },
+                "agent": [
+                    {
+                        "who": {
+                            "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "DiagnosticReport/1519ae86-98f4-40d8-9780-d5211186e5b5",
+            "resource": {
+                "resourceType": "DiagnosticReport",
+                "id": "1519ae86-98f4-40d8-9780-d5211186e5b5",
+                "identifier": [
+                    {
+                        "value": "1519ae86-98f4-40d8-9780-d5211186e5b5"
+                    }
+                ],
+                "basedOn": [
+                    {
+                        "reference": "ServiceRequest/833c444e-1561-4405-a110-910b5971a4b1"
+                    }
+                ],
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "97099-6"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
+                },
+                "effectiveDateTime": "2023-03-30T12:32:36+00:00",
+                "issued": "2023-03-28T12:32:36.616+00:00",
+                "specimen": [
+                    {
+                        "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"
+                    }
+                ],
+                "result": [
+                    {
+                        "reference": "Observation/e9fe98d9-0d40-469a-ab2b-e2232cb2ba1f"
+                    },
+                    {
+                        "reference": "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09"
+                    },
+                    {
+                        "reference": "Observation/f50f5a2f-a107-4447-b4a7-00c9d917dea8"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912",
+            "resource": {
+                "resourceType": "Patient",
+                "id": "9473889b-b2b9-45ac-a8d8-191f27132912",
+                "extension": [
+                    {
+                        "url": "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
+                        "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v3-Race",
+                                    "code": "2054-5"
+                                }
+                            ],
+                            "text": "black"
+                        }
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
+                        "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0189",
+                                    "code": "N",
+                                    "display": "Not Hispanic or Latino"
+                                }
+                            ],
+                            "text": "Not Hispanic or Latino"
+                        }
+                    }
+                ],
+                "identifier": [
+                    {
+                        "value": "9473889b-b2b9-45ac-a8d8-191f27132912"
+                    }
+                ],
+                "name": [
+                    {
+                        "family": "Haiti",
+                        "given": [
+                            "Lula",
+                            "Mendez"
+                        ]
+                    }
+                ],
+                "telecom": [
+                    {
+                        "system": "phone",
+                        "value": "(410) 895 2894",
+                        "use": "mobile"
+                    },
+                    {
+                        "system": "email",
+                        "value": "Garth.Gutmann@gmail.com",
+                        "use": "home"
+                    }
+                ],
+                "gender": "female",
+                "birthDate": "1966-10-12",
+                "address": [
+                    {
+                        "line": [
+                            "480 S Main St"
+                        ],
+                        "city": "Orange",
+                        "state": "CA",
+                        "postalCode": "92868",
+                        "country": "USA"
+                    }
+                ],
+                "managingOrganization": {
+                    "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
+                }
+            }
+        },
+        {
+            "fullUrl": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d",
+            "resource": {
+                "resourceType": "Organization",
+                "id": "1a0139b9-fc23-450b-9b6c-cd081e5cea9d",
+                "identifier": [
+                    {
+                        "use": "official",
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0301",
+                                    "code": "CLIA"
+                                }
+                            ]
+                        },
+                        "value": "11D1111111"
+                    }
+                ],
+                "name": "CSV uploads",
+                "telecom": [
+                    {
+                        "system": "phone",
+                        "value": "(832) 456 7890",
+                        "use": "work"
+                    }
+                ],
+                "address": [
+                    {
+                        "line": [
+                            "123 Main St"
+                        ],
+                        "state": "CA",
+                        "postalCode": "94553",
+                        "country": "USA"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "Practitioner/bd340f31-5935-4fed-9aa8-34fccbae9acc",
+            "resource": {
+                "resourceType": "Practitioner",
+                "id": "bd340f31-5935-4fed-9aa8-34fccbae9acc",
+                "name": [
+                    {
+                        "family": "Roberts",
+                        "given": [
+                            "Robert",
+                            "M"
+                        ]
+                    }
+                ],
+                "telecom": [
+                    {
+                        "system": "phone",
+                        "value": "(832) 888 8888",
+                        "use": "work"
+                    }
+                ],
+                "address": [
+                    {
+                        "country": "USA"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d",
+            "resource": {
+                "resourceType": "Specimen",
+                "id": "52a582e4-d389-42d0-b738-bee51cf5244d",
+                "identifier": [
+                    {
+                        "value": "52a582e4-d389-42d0-b738-bee51cf5244d"
+                    }
+                ],
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "697989009"
+                        }
+                    ],
+                    "text": "Anterior Nasal Swab"
+                },
+                "subject": {
+                    "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
+                }
+            }
+        },
+        {
+            "fullUrl": "ServiceRequest/833c444e-1561-4405-a110-910b5971a4b1",
+            "resource": {
+                "resourceType": "ServiceRequest",
+                "id": "833c444e-1561-4405-a110-910b5971a4b1",
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
+                        "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0119",
+                                    "code": "RE"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "status": "completed",
+                "intent": "order",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "97099-6"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
+                },
+                "requester": {
+                    "reference": "PractitionerRole/61ffc3c7-98d4-4c7f-83d0-c077171a26c2"
+                },
+                "performer": [
+                    {
+                        "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
+                    }
+                ],
+                "supportingInfo": [
+                    {
+                        "reference": "Observation/db0ca2db-7b54-3189-85f8-04fdfb69569b"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "Device/78dc4d98-2958-43a3-a445-76ceef8c0698",
+            "resource": {
+                "resourceType": "Device",
+                "id": "78dc4d98-2958-43a3-a445-76ceef8c0698",
+                "manufacturer": "Becton, Dickinson and Company (BD)",
+                "deviceName": [
+                    {
+                        "name": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*",
+                        "type": "model-name"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "PractitionerRole/61ffc3c7-98d4-4c7f-83d0-c077171a26c2",
+            "resource": {
+                "resourceType": "PractitionerRole",
+                "id": "61ffc3c7-98d4-4c7f-83d0-c077171a26c2",
+                "practitioner": {
+                    "reference": "Practitioner/bd340f31-5935-4fed-9aa8-34fccbae9acc"
+                },
+                "organization": {
+                    "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
+                }
+            }
+        },
+        {
+            "fullUrl": "Organization/07640c5d-87cd-488b-9343-a226c5166539",
+            "resource": {
+                "resourceType": "Organization",
+                "id": "07640c5d-87cd-488b-9343-a226c5166539",
+                "name": "SimpleReport"
+            }
+        },
+        {
+            "fullUrl": "Observation/e9fe98d9-0d40-469a-ab2b-e2232cb2ba1f",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "e9fe98d9-0d40-469a-ab2b-e2232cb2ba1f",
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "80383-3"
+                        }
+                    ],
+                    "text": "Flu B"
+                },
+                "subject": {
+                    "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
+                },
+                "performer": [
+                    {
+                        "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
+                    }
+                ],
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "260415000",
+                            "display": "Not detected"
+                        }
+                    ]
+                },
+                "interpretation": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                "code": "N",
+                                "display": "Normal"
+                            }
+                        ]
+                    }
+                ],
+                "method": {
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
+                            "valueCoding": {
+                                "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+                            }
+                        },
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid",
+                            "valueCoding": {
+                                "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+                            }
+                        }
+                    ],
+                    "coding": [
+                        {
+                            "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"
+                        }
+                    ]
+                },
+                "specimen": {
+                    "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"
+                },
+                "device": {
+                    "reference": "Device/78dc4d98-2958-43a3-a445-76ceef8c0698"
+                }
+            }
+        },
+        {
+            "fullUrl": "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "d683b42a-bf50-45e8-9fce-6c0531994f09",
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "80382-5"
+                        }
+                    ],
+                    "text": "Flu A"
+                },
+                "subject": {
+                    "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
+                },
+                "performer": [
+                    {
+                        "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
+                    }
+                ],
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "260373001",
+                            "display": "Detected"
+                        }
+                    ]
+                },
+                "interpretation": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                "code": "A",
+                                "display": "Abnormal"
+                            }
+                        ]
+                    }
+                ],
+                "method": {
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
+                            "valueCoding": {
+                                "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+                            }
+                        },
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid",
+                            "valueCoding": {
+                                "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+                            }
+                        }
+                    ],
+                    "coding": [
+                        {
+                            "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"
+                        }
+                    ]
+                },
+                "specimen": {
+                    "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"
+                },
+                "device": {
+                    "reference": "Device/78dc4d98-2958-43a3-a445-76ceef8c0698"
+                }
+            }
+        },
+        {
+            "fullUrl": "Observation/f50f5a2f-a107-4447-b4a7-00c9d917dea8",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "f50f5a2f-a107-4447-b4a7-00c9d917dea8",
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "97099-6"
+                        }
+                    ],
+                    "text": "COVID-19"
+                },
+                "subject": {
+                    "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
+                },
+                "performer": [
+                    {
+                        "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
+                    }
+                ],
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "260415000",
+                            "display": "Not detected"
+                        }
+                    ]
+                },
+                "interpretation": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                "code": "N",
+                                "display": "Normal"
+                            }
+                        ]
+                    }
+                ],
+                "method": {
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
+                            "valueCoding": {
+                                "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+                            }
+                        },
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid",
+                            "valueCoding": {
+                                "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+                            }
+                        }
+                    ],
+                    "coding": [
+                        {
+                            "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"
+                        }
+                    ]
+                },
+                "specimen": {
+                    "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"
+                },
+                "device": {
+                    "reference": "Device/78dc4d98-2958-43a3-a445-76ceef8c0698"
+                }
+            }
+        },
+        {
+            "fullUrl": "Observation/db0ca2db-7b54-3189-85f8-04fdfb69569b",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "db0ca2db-7b54-3189-85f8-04fdfb69569b",
+                "identifier": [
+                    {
+                        "use": "official",
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "81959-9",
+                                    "display": "Public health laboratory ask at order entry panel"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "95419-8",
+                            "display": "Has symptoms related to condition of interest"
+                        }
+                    ],
+                    "text": "Has symptoms related to condition of interest"
+                },
+                "subject": {
+                    "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
+                },
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/ValueSet/v2-0136",
+                            "code": "N",
+                            "display": "No"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

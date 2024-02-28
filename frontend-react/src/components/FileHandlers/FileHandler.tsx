@@ -1,342 +1,233 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { GridContainer } from "@trussworks/react-uswds";
+import { Suspense, useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 
-import { showError } from "../AlertNotifications";
-import { useSessionContext } from "../../contexts/SessionContext";
-import { useSenderResource } from "../../hooks/UseSenderResource";
-import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
-import { WatersPost } from "../../network/api/WatersApiFunctions";
-import { OverallStatus } from "../../network/api/WatersApi";
-import Spinner from "../Spinner"; // TODO: refactor to use suspense
+import FileHandlerErrorsWarningsStep from "./FileHandlerErrorsWarningsStep";
+import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
+import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
+import FileHandlerSuccessStep from "./FileHandlerSuccessStep";
+import { WatersResponse } from "../../config/endpoints/waters";
+import site from "../../content/site.json";
+import { showToast } from "../../contexts/Toast";
 import useFileHandler, {
     FileHandlerActionType,
-    ErrorType,
-    FileType,
+    FileHandlerState,
 } from "../../hooks/UseFileHandler";
-import { parseCsvForError } from "../../utils/FileUtils";
+import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
+import Alert from "../../shared/Alert/Alert";
+import Spinner from "../Spinner";
+import { USExtLink, USLink } from "../USLink";
 
-import {
-    FileErrorDisplay,
-    FileSuccessDisplay,
-    FileWarningsDisplay,
-    FileWarningBanner,
-    NoSenderBanner,
-    FileQualityFilterDisplay,
-} from "./FileHandlerMessaging";
-import { FileHandlerForm } from "./FileHandlerForm";
-
-const FileHandlerSpinner = ({ message }: { message: string }) => (
-    <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
-        <div className="grid-row">
-            <Spinner />
-        </div>
-        <div className="grid-row">{message}</div>
-    </div>
-);
-
-const SERVER_ERROR_MESSAGING = {
-    heading: OverallStatus.ERROR,
-    message: "There was a server error. Your file has not been accepted.",
-};
-
-const errorMessagingMap = {
-    validation: {
-        server: SERVER_ERROR_MESSAGING,
-        file: {
-            heading: "Your file has not passed validation",
-            message: "Please review the errors below.",
-        },
-    },
-    upload: {
-        server: SERVER_ERROR_MESSAGING,
-        file: {
-            heading: "We found errors in your file",
-            message:
-                "Please resolve the errors below and upload your edited file. Your file has not been accepted.",
-        },
-    },
-};
-
-export enum FileHandlerType {
-    UPLOAD = "upload",
-    VALIDATION = "validation",
+export interface FileHandlerStepProps extends FileHandlerState {
+    isValid?: boolean;
+    shouldSkip?: boolean;
+    onPrevStepClick: () => void;
+    onNextStepClick: () => void;
 }
 
-interface FileHandlerProps {
-    headingText: string;
-    handlerType: FileHandlerType;
-    fetcher: WatersPost;
-    successMessage: string;
-    resetText: string;
-    submitText: string;
-    showSuccessMetadata: boolean;
-    showWarningBanner: boolean;
-    warningText?: string;
-    endpointName: string;
+function mapStateToOrderedSteps(state: FileHandlerState) {
+    const { selectedSchemaOption, file, errors, warnings, overallStatus } =
+        state;
+
+    return [
+        {
+            Component: FileHandlerSchemaSelectionStep,
+            isValid: Boolean(selectedSchemaOption.value),
+        },
+        {
+            Component: FileHandlerFileUploadStep,
+            isValid: Boolean(file),
+        },
+        {
+            Component: FileHandlerErrorsWarningsStep,
+            isValid: false,
+            shouldSkip: Boolean(
+                overallStatus && errors.length === 0 && warnings.length === 0,
+            ),
+        },
+        {
+            Component: FileHandlerSuccessStep,
+            isValid: true,
+        },
+    ];
 }
 
-const FileHandler = ({
-    headingText,
-    handlerType,
-    fetcher,
-    successMessage,
-    resetText,
-    submitText,
-    showSuccessMetadata,
-    showWarningBanner,
-    warningText,
-    endpointName,
-}: FileHandlerProps) => {
+export default function FileHandler() {
     const { state, dispatch } = useFileHandler();
-    const [fileContent, setFileContent] = useState("");
-
+    const { fileName, localError } = state;
+    const orderedSteps = mapStateToOrderedSteps(state).filter(
+        (step) => !step.shouldSkip,
+    );
+    const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const {
-        isSubmitting,
-        fileInputResetValue,
-        contentType,
-        fileType,
-        fileName,
-        errors,
-        destinations,
-        reportId,
-        successTimestamp,
-        cancellable,
-        errorType,
-        warnings,
-        localError,
-        overallStatus,
-        reportItems,
-    } = state;
+        Component: StepComponent,
+        isValid,
+        shouldSkip,
+    } = orderedSteps[currentStepIndex];
 
     useEffect(() => {
         if (localError) {
-            showError(localError);
+            showToast(localError, "error");
         }
     }, [localError]);
 
-    const { activeMembership, oktaToken } = useSessionContext();
-    const { organization, loading: organizationLoading } =
-        useOrganizationResource();
-    // need to fetch sender from API to grab cvs vs hl7 format info
-    const { sender, loading: senderLoading } = useSenderResource();
+    const { data: organization } = useOrganizationSettings();
 
-    const accessToken = oktaToken?.accessToken;
-    const parsedName = activeMembership?.parsedName;
-    const senderName = activeMembership?.senderName;
-    const client = `${parsedName}.${senderName}`;
-
-    const handleFileChange = async (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        if (!event?.target?.files?.length) {
-            // no files selected
+    function decrementStepIndex() {
+        if (currentStepIndex === 0) {
             return;
         }
-        const file = event.target.files.item(0);
-        if (!file) {
-            // shouldn't happen but keeps linter happy
+
+        setCurrentStepIndex((idx) => idx - 1);
+    }
+
+    function incrementStepIndex() {
+        if (currentStepIndex >= orderedSteps.length - 1) {
             return;
         }
-        // unfortunate that we have to do this a bit early in order to keep
-        // async code out of the reducer, but oh well - DWS
-        const content = await file.text();
 
-        if (file.type === "csv" || file.type === "text/csv") {
-            const localCsvError = parseCsvForError(file.name, content);
-            if (localCsvError) {
-                showError(localCsvError);
-                return;
-            }
-        }
+        setCurrentStepIndex((idx) => idx + 1);
+    }
 
-        setFileContent(content);
+    function handleSchemaChange(schemaOption: SchemaOption) {
+        dispatch({
+            type: FileHandlerActionType.SCHEMA_SELECTED,
+            payload: schemaOption,
+        });
+    }
 
+    function handleFileChange(file: File, fileContent: string) {
         dispatch({
             type: FileHandlerActionType.FILE_SELECTED,
-            payload: { file },
+            payload: { file, fileContent },
         });
-    };
-
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        if (fileContent.length === 0) {
-            showError(`No File Contents To ${submitText}`);
-            return;
-        }
-
-        // initializes necessary state and sets `isSubmitting`
-        dispatch({ type: FileHandlerActionType.PREPARE_FOR_REQUEST });
-
-        try {
-            const response = await fetcher(
-                client,
-                fileName,
-                contentType as string,
-                fileContent,
-                parsedName || "",
-                accessToken || "",
-                endpointName
-            );
-            // handles error and success cases via reducer
-            dispatch({
-                type: FileHandlerActionType.REQUEST_COMPLETE,
-                payload: { response },
-            });
-        } catch (error) {
-            // Noop.  Errors are collected below
-            console.error("Unexpected error in file handler", error);
-        }
-    };
-
-    const resetState = () => {
-        setFileContent("");
-        dispatch({ type: FileHandlerActionType.RESET });
-    };
-
-    const submitted = useMemo(
-        () => !!(reportId || errors.length || overallStatus),
-        [reportId, errors.length, overallStatus]
-    );
-
-    const successDescription = useMemo(() => {
-        let suffix = "";
-        if (handlerType === FileHandlerType.UPLOAD) {
-            suffix = " and will be transmitted";
-        }
-        const schemaDescription =
-            fileType === FileType.HL7
-                ? "ReportStream standard HL7 v2.5.1"
-                : "standard CSV";
-        return `The file meets the ${schemaDescription} schema${suffix}.`;
-    }, [fileType, handlerType]);
-
-    const warningDescription = useMemo(() => {
-        return handlerType === FileHandlerType.UPLOAD
-            ? "Your file has been transmitted, but these warning areas can be addressed to enhance clarity."
-            : "The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity.";
-    }, [handlerType]);
-
-    // default to FILE messaging here, partly to simplify typecheck
-    const errorMessaging = useMemo(
-        () => errorMessagingMap[handlerType][errorType || ErrorType.FILE],
-        [errorType, handlerType]
-    );
-
-    const formLabel = useMemo(() => {
-        if (!sender) {
-            return "";
-        }
-        const fileTypeDescription =
-            sender.format === "CSV" ? "a CSV" : "an HL7 v2.5.1";
-        return `Select ${fileTypeDescription} formatted file to ${submitText.toLowerCase()}. Make sure that your file has a .${sender.format.toLowerCase()} extension.`;
-    }, [sender, submitText]);
-
-    // Array containing only qualityFilterMessages that have filteredReportItems.
-    const qualityFilterMessages = useMemo(
-        () => reportItems?.filter((d) => d.filteredReportItems.length > 0),
-        [reportItems]
-    );
-
-    const hasQualityFilterMessages =
-        destinations.length > 0 &&
-        qualityFilterMessages &&
-        qualityFilterMessages.length > 0;
-
-    const isFileSuccess =
-        (reportId || overallStatus === OverallStatus.VALID) &&
-        !hasQualityFilterMessages;
-
-    if (senderLoading || organizationLoading) {
-        return <FileHandlerSpinner message="Loading..." />;
     }
 
-    if (!sender) {
-        return (
-            <div className="grid-container usa-section margin-bottom-10">
-                <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
-                <h2 className="font-sans-lg">{organization?.description}</h2>
-                <NoSenderBanner
-                    action={handlerType}
-                    organization={
-                        organization?.description || "your organization"
-                    }
-                />
-            </div>
+    function handleResetToFileSelection() {
+        dispatch({
+            type: FileHandlerActionType.RESET,
+            payload: {
+                selectedSchemaOption: state.selectedSchemaOption,
+            },
+        });
+
+        const fileSelectionStepIndex = orderedSteps.findIndex(
+            ({ Component }) => Component === FileHandlerFileUploadStep,
         );
+        setCurrentStepIndex(fileSelectionStepIndex);
+        window.scrollTo(0, 0);
     }
+
+    function handleFileSubmitSuccess(response: WatersResponse) {
+        dispatch({
+            type: FileHandlerActionType.REQUEST_COMPLETE,
+            payload: { response },
+        });
+    }
+
+    const commonStepProps = {
+        ...state,
+        isValid: isValid,
+        shouldSkip: shouldSkip,
+        onPrevStepClick: decrementStepIndex,
+        onNextStepClick: incrementStepIndex,
+    };
 
     return (
-        <div className="grid-container usa-section margin-bottom-10">
-            <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
-            <h2 className="font-sans-lg">{organization?.description}</h2>
-            {isFileSuccess && (
-                <>
-                    <p
-                        id="validatedFilename"
-                        className="text-normal text-base margin-bottom-0"
-                    >
-                        File name
-                    </p>
-                    <p className="margin-top-05">{fileName}</p>
-                </>
-            )}
-            {showWarningBanner && (
-                <FileWarningBanner message={warningText || ""} />
-            )}
-            {warnings.length > 0 && (
-                <FileWarningsDisplay
-                    warnings={warnings}
-                    heading=""
-                    message={warningDescription}
+        <>
+            <Helmet>
+                <title>ReportStream file validator</title>
+                <meta
+                    name="description"
+                    content="Check that public health entities can receive your data through ReportStream by validating your file format."
                 />
-            )}
-            {isFileSuccess && (
-                <FileSuccessDisplay
-                    extendedMetadata={{
-                        destinations,
-                        timestamp: successTimestamp,
-                        reportId,
-                    }}
-                    heading={successMessage}
-                    message={successDescription}
-                    showExtendedMetadata={showSuccessMetadata}
-                />
-            )}
-            {errors.length > 0 && (
-                <FileErrorDisplay
-                    fileName={fileName}
-                    handlerType={handlerType}
-                    errors={errors}
-                    heading={errorMessaging.heading}
-                    message={errorMessaging.message}
-                />
-            )}
-            {hasQualityFilterMessages && (
-                <FileQualityFilterDisplay
-                    destinations={qualityFilterMessages}
-                    heading=""
-                    message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
-                />
-            )}
-            {isSubmitting && (
-                <FileHandlerSpinner message="Processing file..." />
-            )}
-            {!isSubmitting && (
-                <FileHandlerForm
-                    handleSubmit={handleSubmit}
-                    handleFileChange={handleFileChange}
-                    resetState={resetState}
-                    fileInputResetValue={fileInputResetValue}
-                    submitted={submitted}
-                    cancellable={cancellable}
-                    fileName={fileName}
-                    formLabel={formLabel}
-                    resetText={resetText}
-                    submitText={submitText}
-                />
-            )}
-        </div>
-    );
-};
+            </Helmet>
 
-export default FileHandler;
+            <GridContainer>
+                <article>
+                    <h1 className="margin-y-4">ReportStream File Validator</h1>
+
+                    {organization?.description && (
+                        <h2 className="font-sans-lg">
+                            {organization.description}
+                        </h2>
+                    )}
+
+                    {fileName && (
+                        <div className="margin-bottom-3">
+                            <p className="margin-bottom-1 text-normal text-base">
+                                File name
+                            </p>
+                            <p className="margin-top-0">{fileName}</p>
+                        </div>
+                    )}
+
+                    <div className="margin-bottom-4">
+                        {(() => {
+                            // The File Validate tool now has 4 discrete steps,
+                            // Schema Select, File Select, [optional]Show Errors, Success Page
+                            // The stages can be seen here: https://figma.fun/fGCeo4
+                            //
+                            // TODO: generalize the reducer state so we can just render <StepComponent>
+                            switch (StepComponent) {
+                                case FileHandlerSchemaSelectionStep:
+                                    return (
+                                        <FileHandlerSchemaSelectionStep
+                                            {...commonStepProps}
+                                            onSchemaChange={handleSchemaChange}
+                                        />
+                                    );
+                                case FileHandlerFileUploadStep:
+                                    return (
+                                        <Suspense fallback={<Spinner />}>
+                                            <FileHandlerFileUploadStep
+                                                {...commonStepProps}
+                                                onFileChange={handleFileChange}
+                                                onFileSubmitError={
+                                                    handleResetToFileSelection
+                                                }
+                                                onFileSubmitSuccess={
+                                                    handleFileSubmitSuccess
+                                                }
+                                            />
+                                        </Suspense>
+                                    );
+                                case FileHandlerErrorsWarningsStep:
+                                    return (
+                                        <FileHandlerErrorsWarningsStep
+                                            {...commonStepProps}
+                                            onTestAnotherFileClick={
+                                                handleResetToFileSelection
+                                            }
+                                        />
+                                    );
+                                case FileHandlerSuccessStep:
+                                    return <FileHandlerSuccessStep />;
+                                default:
+                                    return null;
+                            }
+                        })()}
+                    </div>
+                    {StepComponent !== FileHandlerSuccessStep && (
+                        <Alert headingLevel="h3" type="tip">
+                            Reference{" "}
+                            <USLink href="/developer-resources/api/documentation/data-model">
+                                the data model
+                            </USLink>{" "}
+                            for the information needed to validate your file
+                            successfully. Pay special attention to which fields
+                            are required and common mistakes.
+                        </Alert>
+                    )}
+                    <p className="text-base-darker margin-top-10">
+                        Questions or feedback? Please email{" "}
+                        <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
+                            {site.orgs.RS.email}
+                        </USExtLink>
+                    </p>
+                </article>
+            </GridContainer>
+        </>
+    );
+}

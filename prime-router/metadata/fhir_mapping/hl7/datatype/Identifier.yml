@@ -1,11 +1,11 @@
 # added condition to filter out if empty
 type:
-   valueOf: datatype/CodeableConcept
-   condition: $valueIn NOT_NULL
-   expressionType: resource
-   specs: CX.5 | $type
-   vars:
-     valueIn: CX.5 | $code | $alternateCode | $type
+  valueOf: datatype/CodeableConcept
+  condition: $valueIn NOT_NULL
+  expressionType: resource
+  specs: CX.5 | $type
+  vars:
+    valueIn: CX.5 | $code | $alternateCode | $type
 
 system_1:
   type: STRING
@@ -14,21 +14,21 @@ system_1:
 
 system_2:
   type: SYSTEM_URL
-  valueOf: CX.4 | CWE.4 |EI.2 | $system
+  valueOf: CX.4 | CWE.4 | EI.2 | $system
   expressionType: HL7Spec
 
 value:
-     type: STRING
-     valueOf: CX.1 | CWE.1 |EI.1 | $value
-     expressionType: HL7Spec
-     required: true
+  type: STRING
+  valueOf: CX.1 | CWE.1 | EI.1 | $value
+  expressionType: HL7Spec
+  required: true
 
 period:
-    valueOf: datatype/Period
-    expressionType: resource
-    vars:
-       start: CX.7 | CWE.7
-       end: CX.8 | CWE.8
+  valueOf: datatype/Period
+  expressionType: resource
+  vars:
+    start: CX.7 | CWE.7
+    end: CX.8 | CWE.8
 
 extension_1:
   generateList: true

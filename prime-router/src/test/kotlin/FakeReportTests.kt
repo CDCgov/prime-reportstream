@@ -20,7 +20,7 @@ class FakeReportTests {
         valueSet = ValueSet("fake", ValueSet.SetSystem.LOCAL, values = listOf(ValueSet.Value(code = "AZ"))),
     ).loadSchemas(
         Schema(
-            schemaName, "topic",
+            schemaName, Topic.TEST,
             listOf(
                 Element("name_of_testing_lab", type = Element.Type.TEXT),
                 Element("facility_name", type = Element.Type.TEXT),
@@ -201,7 +201,6 @@ class FakeReportTests {
 
     @Test
     fun `testBuildOrderFacilityNameAndSiteOfCareColumnIncludeNCESFacilityFlag`() {
-
         // Setup to return expected mock data
         val mockMetadata = mockkClass(Metadata::class)
         every { mockMetadata.findLookupTable(fipsCounty) } returns null
@@ -235,7 +234,6 @@ class FakeReportTests {
 
     @Test
     fun `testFaileBuildOrderFacilityNameAndSiteOfCareColumnIncludeNCESFacilityFlag`() {
-
         // Setup to return expected mock data
         val mockMetadata = mockkClass(Metadata::class)
         every { mockMetadata.findLookupTable(fipsCounty) } returns null

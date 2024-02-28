@@ -1,11 +1,11 @@
 package gov.cdc.prime.router
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
@@ -424,21 +424,21 @@ internal class ElementTests {
         // Test wrong date = 50
         try {
             one.toNormalized("12502021")
-        } catch (e: IllegalStateException) {
+        } catch (e: ElementNormalizeException) {
             assertThat(e.message)
                 .isEqualTo("Invalid date time: '12502021' for format 'null' for element datetime (a)")
         }
         // Test wrong month = 13
         try {
             one.toNormalized("13/2/2021")
-        } catch (e: IllegalStateException) {
+        } catch (e: ElementNormalizeException) {
             assertThat(e.message)
                 .isEqualTo("Invalid date time: '13/2/2021' for format 'null' for element datetime (a)")
         }
         // Test wrong year = abcd
         try {
             one.toNormalized("abcd/12/3")
-        } catch (e: IllegalStateException) {
+        } catch (e: ElementNormalizeException) {
             assertThat(e.message)
                 .isEqualTo("Invalid date time: 'abcd/12/3' for format 'null' for element datetime (a)")
         }
@@ -856,7 +856,8 @@ internal class ElementTests {
         ).run {
             assertThat(this.truncateIfNeeded("abcde")).isEqualTo("abcde")
         }
-        Element( // zilch is an ok valuer = Element(  // maxLength is null, don't truncate.
+        Element(
+            // zilch is an ok valuer = Element(  // maxLength is null, don't truncate.
             name = "cuatro",
             type = Element.Type.TEXT,
         ).run {
@@ -929,7 +930,7 @@ internal class ElementTests {
             Element("i", Element.Type.TEXT, default = "someDefault", defaultOverridesValue = true), // 8
             Element("j", Element.Type.TEXT, defaultOverridesValue = true), // 9   (null default)
         )
-        val schema = Schema("one", "covid-19", elements)
+        val schema = Schema("one", Topic.COVID_19, elements)
         val currentDate = LocalDate.now().format(DateUtilities.dateFormatter)
         val mappedValues = mutableMapOf(
             elements[0].name to "TEST",
@@ -1089,7 +1090,7 @@ internal class ElementTests {
         val elementD = Element("d", mapperRef = NullMapper(), default = "default")
         val elementE = Element("e", mapperRef = TrimBlanksMapper(), mapperArgs = listOf("a"))
         val schema = Schema(
-            "name", "topic",
+            "name", Topic.TEST,
             elements = listOf(elementA, elementB, elementC, elementD, elementE)
         )
 
@@ -1137,22 +1138,26 @@ internal class ElementTests {
                 element: Element,
                 args: List<String>,
                 values: List<ElementAndValue>,
-                sender: Sender?
+                sender: Sender?,
             ): ElementResult {
-                return if (args.isEmpty()) ElementResult(null)
-                else when (args[0]) {
-                    "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
-                    "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
-                        .warning(InvalidEquipmentMessage(element.fieldMapping))
-                    "1error" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
-                    "2errors" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
-                        .error(InvalidEquipmentMessage(element.fieldMapping))
-                    "mixed" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
-                        .warning(InvalidEquipmentMessage(element.fieldMapping))
-                    else -> throw UnsupportedOperationException()
+                return if (args.isEmpty()) {
+                    ElementResult(null)
+                } else {
+                    when (args[0]) {
+                        "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
+                        "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
+                            .warning(InvalidEquipmentMessage(element.fieldMapping))
+                        "1error" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                        "2errors" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                            .error(InvalidEquipmentMessage(element.fieldMapping))
+                        "mixed" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                            .warning(InvalidEquipmentMessage(element.fieldMapping))
+                        else -> throw UnsupportedOperationException()
+                    }
                 }
             }
         }
+
         val elementA = Element("a", mapperRef = SomeCoolMapper())
         val elementB = Element(
             "a", mapperRef = SomeCoolMapper(), mapperArgs = listOf("1warning"),
@@ -1188,7 +1193,7 @@ internal class ElementTests {
         )
         val elementJ = Element("a", mapperRef = SomeCoolMapper(), cardinality = Element.Cardinality.ONE)
         val schema = Schema(
-            "name", "topic",
+            "name", Topic.TEST,
             elements = listOf(
                 elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH, elementI,
                 elementJ
@@ -1239,8 +1244,7 @@ internal class ElementTests {
         assertThat(result.warnings).isEmpty()
 
         // Test an incorrect index
-        assertThat { elementJ.processValue(emptyMap(), schema, itemIndex = 0) }
-            .isFailure()
+        assertFailure { elementJ.processValue(emptyMap(), schema, itemIndex = 0) }
     }
 
     @Test

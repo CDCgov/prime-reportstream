@@ -1,100 +1,59 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { waitFor } from "@testing-library/react";
 
-import { useSenderResource } from "./UseSenderResource";
-
-const fakeSender = {
-    allowDuplicates: false,
-    customerStatus: "active",
-    format: "CSV",
-    name: "senderName",
-    organizationName: "orgName",
-    processingType: "sync",
-    schemaName: "senderSchema",
-    topic: "covid-19",
-};
-
-const mockUseRequestConfig = jest.fn();
-const mockUseSessionContext = jest.fn();
-
-jest.mock("../contexts/SessionContext", () => ({
-    useSessionContext: () => mockUseSessionContext(),
-}));
-
-jest.mock("./network/UseRequestConfig", () => ({
-    default: () => mockUseRequestConfig(),
-    __esModule: true,
-}));
+import useSenderResource from "./UseSenderResource";
+import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
+import { MembershipSettings, MemberType } from "../utils/OrganizationUtils";
 
 describe("useSenderResource", () => {
-    test("returns null while loading", () => {
-        mockUseRequestConfig.mockReturnValue({
-            data: fakeSender,
-            loading: true,
-        });
-        mockUseSessionContext.mockReturnValue({
-            activeMembership: {
-                senderName: "senderName",
-            },
-            dispatch: () => {},
-        });
-
-        const {
-            result: {
-                current: { sender },
-            },
-        } = renderHook(() => useSenderResource());
-        expect(sender).toEqual(null);
+    beforeAll(() => {
+        orgServer.listen();
     });
-    test("returns null if no sender available on membership", () => {
-        mockUseRequestConfig.mockReturnValue({
-            data: fakeSender,
-        });
-        mockUseSessionContext.mockReturnValue({
-            activeMembership: {},
-            dispatch: () => {},
-        });
-
-        const {
-            result: {
-                current: { sender },
-            },
-        } = renderHook(() => useSenderResource());
-        expect(sender).toEqual(null);
-    });
-    test("returns null if no sender returned from API", () => {
-        mockUseRequestConfig.mockReturnValue({
-            data: undefined,
-        });
-        mockUseSessionContext.mockReturnValue({
+    afterEach(() => orgServer.resetHandlers());
+    afterAll(() => orgServer.close());
+    test("returns null if no sender available on membership", async () => {
+        mockSessionContentReturnValue({
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
-                senderName: "a different name",
-            },
-            dispatch: () => {},
-        });
+                memberType: MemberType.NON_STAND,
+                service: undefined,
+            } as MembershipSettings,
 
-        const {
-            result: {
-                current: { sender },
-            },
-        } = renderHook(() => useSenderResource());
-        expect(sender).toEqual(null);
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: true,
+                isUserTransceiver: false,
+            } as any,
+        });
+        const { result } = renderHook(() => useSenderResource());
+        await waitFor(() => expect(result.current.data).toBeNull());
     });
-    test("returns correct sender match", () => {
-        mockUseRequestConfig.mockReturnValue({
-            data: fakeSender,
-        });
-        mockUseSessionContext.mockReturnValue({
+    test("returns correct sender match", async () => {
+        mockSessionContentReturnValue({
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
-                senderName: "senderName",
+                memberType: MemberType.SENDER,
+                parsedName: "testOrg",
+                service: "testSender",
             },
-            dispatch: () => {},
-        });
 
-        const {
-            result: {
-                current: { sender },
-            },
-        } = renderHook(() => useSenderResource());
-        expect(sender).toEqual(fakeSender);
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: true,
+                isUserTransceiver: false,
+            } as any,
+        });
+        const { result } = renderHook(() => useSenderResource(), {
+            wrapper: AppWrapper(),
+        });
+        await waitFor(() => expect(result.current.data).toEqual(dummySender));
+        expect(result.current.isLoading).toEqual(false);
     });
 });

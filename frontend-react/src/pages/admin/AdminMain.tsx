@@ -1,43 +1,34 @@
+import { GridContainer } from "@trussworks/react-uswds";
 import { Suspense } from "react";
+import { Helmet } from "react-helmet-async";
 import { NetworkErrorBoundary } from "rest-hooks";
 
+import { OrgsTable } from "../../components/Admin/OrgsTable";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
-import { OrgsTable } from "../../components/Admin/OrgsTable";
-import { AuthElement } from "../../components/AuthElement";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { BasicHelmet } from "../../components/header/BasicHelmet";
 
-export function AdminMain() {
+const fallbackPage = () => <ErrorPage type="page" />;
+const fallbackMessage = () => <ErrorPage type="message" />;
+
+export function AdminMainPage() {
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
-            <BasicHelmet pageTitle="Admin" />
-            <section className="grid-container margin-bottom-5">
-                <h3 className="margin-bottom-0">
-                    <Suspense fallback={<Spinner />} />
-                </h3>
-            </section>
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
-            >
-                <Suspense fallback={<Spinner />}>
-                    <section className="grid-container margin-top-0" />
-                    <OrgsTable />
-                </Suspense>
-            </NetworkErrorBoundary>
-            <HipaaNotice />
+        <NetworkErrorBoundary fallbackComponent={fallbackMessage}>
+            <GridContainer>
+                <article>
+                    <Helmet>
+                        <title>Organizations - Admin</title>
+                    </Helmet>
+                    <NetworkErrorBoundary fallbackComponent={fallbackPage}>
+                        <Suspense fallback={<Spinner />}>
+                            <OrgsTable />
+                        </Suspense>
+                    </NetworkErrorBoundary>
+                    <HipaaNotice />
+                </article>
+            </GridContainer>
         </NetworkErrorBoundary>
     );
 }
 
-export function AdminMainWithAuth() {
-    return (
-        <AuthElement
-            element={<AdminMain />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
+export default AdminMainPage;

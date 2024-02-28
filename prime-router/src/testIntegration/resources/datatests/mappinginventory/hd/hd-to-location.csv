@@ -1,0 +1,8 @@
+HL7 v2,,,,,,Condition (IF True),,,HL7 FHIR,,,,,,,,,Comments
+Sort Order,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute/ Data Type,,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,"Vocabulary Mapping
+(IS, ID, CE, CNE, CWE)",Assignment,,
+1,HD.1,Namespace ID,IS,0,1,,,,name,,string,0,1,,,,,
+2,HD.2,Universal ID,ST,0,1,"IF HD.3 IN (""ISO"", ""UUID"")",,,identifier.value,,string,0,1,,,,,
+2,HD.2,Universal ID,ST,0,1,,,,physicalType.coding.code,,code,0,1,,,"""si""",,
+2,HD.2,Universal ID,ST,0,1,,,,physicalType.coding.system,,uri,0,1,,,"""http://terminology.hl7.org/CodeSystem/location-physical-type""",,
+3,HD.3,Universal ID Type,ID,0,1,,,,,,,,,,,,,

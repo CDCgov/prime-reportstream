@@ -10,10 +10,12 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
@@ -21,6 +23,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.JwkSet
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
 import java.time.OffsetDateTime
@@ -31,13 +34,13 @@ import java.time.OffsetDateTime
  */
 class SettingsFacade(
     private val metadata: Metadata,
-    private val db: DatabaseAccess = DatabaseAccess()
+    private val db: DatabaseAccess = DatabaseAccess(),
 ) : SettingsProvider, Logging {
     enum class AccessResult {
         SUCCESS,
         CREATED,
         NOT_FOUND,
-        BAD_REQUEST
+        BAD_REQUEST,
     }
 
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
@@ -101,14 +104,18 @@ class SettingsFacade(
     private fun <T : SettingAPI> findSetting(
         name: String,
         clazz: Class<T>,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): T? {
         val setting = db.transactReturning { txn ->
             val settingType = settingTypeFromClass(clazz.name)
-            if (organizationName != null)
+            // When getting the organization setting (settingType == Organization), organizationName has to be null
+            // and name has to be the organizationName, due to how the database and query is structured. An Organization
+            // cannot have a parent, whereas Senders and Receivers do have a parent (their org)
+            if (organizationName != null && settingType != SettingType.ORGANIZATION) {
                 db.fetchSetting(settingType, name, organizationName, txn)
-            else
+            } else {
                 db.fetchSetting(settingType, name, parentId = null, txn)
+            }
         } ?: return null
         val result = mapper.readValue(setting.values.data(), clazz)
         // Add the metadata
@@ -185,7 +192,7 @@ class SettingsFacade(
         json: String,
         claims: AuthenticatedClaims,
         clazz: Class<T>,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): Pair<AccessResult, String> {
         return db.transactReturning { txn ->
             // Check that the orgName is valid (or null)
@@ -196,8 +203,9 @@ class SettingsFacade(
             }
             // Check the payload
             val (valid, error, normalizedJson) = validateAndNormalize(json, clazz, name, organizationName)
-            if (!valid)
+            if (!valid) {
                 return@transactReturning Pair(AccessResult.BAD_REQUEST, errorJson(error ?: "validation error"))
+            }
             if (normalizedJson == null) error("Internal Error: validation error")
 
             // Find the current setting to see if this is a create or an update operation
@@ -228,8 +236,9 @@ class SettingsFacade(
                     db.deactivateSetting(current.settingId, txn)
                     val newId = db.insertSetting(setting, txn)
                     // If inserting an org, update all children settings to point to the new org
-                    if (settingType == SettingType.ORGANIZATION)
+                    if (settingType == SettingType.ORGANIZATION) {
                         db.updateOrganizationId(current.settingId, newId, txn)
+                    }
                     AccessResult.SUCCESS
                 }
             }
@@ -258,13 +267,15 @@ class SettingsFacade(
         val input = try {
             mapper.readValue(json, clazz)
         } catch (ex: Exception) {
-            null
-        } ?: return Triple(false, "Could not parse JSON payload", null)
-        if (input.name != name)
+            return Triple(false, "Could not parse JSON payload", null)
+        }
+        if (input.name != name) {
             return Triple(false, "Payload and path name do not match", null)
-        if (input.organizationName != organizationName)
+        }
+        if (input.organizationName != organizationName) {
             return Triple(false, "Payload and path organization name do not match", null)
-        input.consistencyErrorMessage(metadata) ?.let { return Triple(false, it, null) }
+        }
+        input.consistencyErrorMessage(metadata)?.let { return Triple(false, it, null) }
         val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
         return Triple(true, null, normalizedJson)
     }
@@ -273,20 +284,21 @@ class SettingsFacade(
         name: String,
         claims: AuthenticatedClaims,
         clazz: Class<T>,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): Pair<AccessResult, String> {
         return db.transactReturning { txn ->
             val settingType = settingTypeFromClass(clazz.name)
-            val current = if (organizationName != null)
+            val current = if (organizationName != null) {
                 db.fetchSetting(settingType, name, organizationName, txn)
-            else
+            } else {
                 db.fetchSetting(settingType, name, parentId = null, txn)
+            }
             if (current == null) return@transactReturning Pair(AccessResult.NOT_FOUND, errorJson("Item not found"))
 
             db.insertDeletedSettingAndChildren(current.settingId, claims.userName, OffsetDateTime.now(), txn)
             db.deactivateSettingAndChildren(current.settingId, txn)
-
-            Pair(AccessResult.SUCCESS, "")
+            // returned content-type is json/application, so return empty json not empty string
+            Pair(AccessResult.SUCCESS, "{}")
         }
     }
 
@@ -330,15 +342,28 @@ class OrganizationAPI
     stateCode: String?,
     countyName: String?,
     filters: List<ReportStreamFilters>?,
+    featureFlags: List<String>?,
+    keys: List<JwkSet>?,
     override var version: Int? = null,
     override var createdBy: String? = null,
     override var createdAt: OffsetDateTime? = null,
-) : Organization(name, description, jurisdiction, stateCode.trimToNull(), countyName.trimToNull(), filters),
+) : Organization(
+    name,
+    description,
+    jurisdiction,
+    stateCode.trimToNull(),
+    countyName.trimToNull(),
+    filters,
+    featureFlags,
+    keys
+),
 
     SettingAPI {
     @get:JsonIgnore
     override val organizationName: String? = null
-    override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
+    override fun consistencyErrorMessage(metadata: Metadata): String? {
+        return this.consistencyErrorMessage()
+    }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -346,7 +371,7 @@ class ReceiverAPI
 @JsonCreator constructor(
     name: String,
     organizationName: String,
-    topic: String,
+    topic: Topic,
     customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     translation: TranslatorConfiguration,
     jurisdictionalFilter: ReportStreamFilter = emptyList(),
@@ -354,6 +379,8 @@ class ReceiverAPI
     routingFilter: ReportStreamFilter = emptyList(),
     processingModeFilter: ReportStreamFilter = emptyList(),
     reverseTheQualityFilter: Boolean = false,
+    conditionalFilter: ReportStreamFilter = emptyList(),
+    mappedConditionalFilter: ReportStreamConditionFilter = emptyList(),
     deidentify: Boolean = false,
     deidentifiedValue: String = "",
     timing: Timing? = null,
@@ -373,6 +400,8 @@ class ReceiverAPI
     routingFilter,
     processingModeFilter,
     reverseTheQualityFilter,
+    conditionalFilter,
+    mappedConditionalFilter,
     deidentify,
     deidentifiedValue,
     timing,

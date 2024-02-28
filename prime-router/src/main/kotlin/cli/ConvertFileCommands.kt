@@ -16,7 +16,7 @@ import kotlin.io.path.nameWithoutExtension
  * Converts a file into a different output format
  */
 class ConvertFileCommands(
-    private val metadataInstance: Metadata? = null
+    private val metadataInstance: Metadata? = null,
 ) : CliktCommand(
     name = "convert-file",
     help = """

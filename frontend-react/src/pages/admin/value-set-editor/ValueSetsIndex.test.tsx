@@ -1,15 +1,14 @@
 import { screen, within } from "@testing-library/react";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
-import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
+import ValueSetsIndexPage from "./ValueSetsIndex";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
-import { RSNetworkError } from "../../../utils/RSNetworkError";
 import {
-    ValueSetsMetaResponse,
-    ValueSetsTableResponse,
+    UseValueSetsMetaResult,
+    UseValueSetsTableResult,
 } from "../../../hooks/UseValueSets";
-
-import ValueSetsIndex from "./ValueSetsIndex";
+import { renderApp } from "../../../utils/CustomRenderUtils";
+import { RSNetworkError } from "../../../utils/RSNetworkError";
 
 const fakeRows = [
     {
@@ -42,17 +41,17 @@ describe("ValueSetsIndex tests", () => {
         mockUseValueSetsTable = jest.fn(
             () =>
                 ({
-                    valueSetArray: [] as ValueSet[],
-                } as ValueSetsTableResponse<any>)
+                    data: [] as ValueSet[],
+                }) as UseValueSetsTableResult,
         );
 
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
-                    valueSetMeta: {},
-                } as ValueSetsMetaResponse)
+                    data: {},
+                }) as UseValueSetsMetaResult,
         );
-        renderWithFullAppContext(<ValueSetsIndex />);
+        renderApp(<ValueSetsIndexPage />);
         const headers = screen.getAllByRole("columnheader");
         const title = screen.getByText("ReportStream Value Sets");
         const rows = screen.getAllByRole("row");
@@ -66,30 +65,30 @@ describe("ValueSetsIndex tests", () => {
         mockUseValueSetsTable = jest.fn(
             () =>
                 ({
-                    valueSetArray: fakeRows,
-                } as ValueSetsTableResponse<any>)
+                    data: fakeRows,
+                }) as UseValueSetsTableResult,
         );
 
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
-                    valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
+                    data: fakeMeta,
+                }) as UseValueSetsMetaResult,
         );
 
-        renderWithFullAppContext(<ValueSetsIndex />);
+        renderApp(<ValueSetsIndexPage />);
         const rows = screen.getAllByRole("row");
         expect(rows.length).toBe(3); // +1 for header
 
         const firstContentRow = rows[1];
         expect(
-            within(firstContentRow).getByText("any name")
+            within(firstContentRow).getByText("any name"),
         ).toBeInTheDocument();
         expect(
-            within(firstContentRow).getByText("your very own system")
+            within(firstContentRow).getByText("your very own system"),
         ).toBeInTheDocument();
         expect(
-            within(firstContentRow).getByText("Tuesday")
+            within(firstContentRow).getByText("Tuesday"),
         ).toBeInTheDocument();
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
@@ -97,19 +96,23 @@ describe("ValueSetsIndex tests", () => {
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
-                    valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
+                    data: fakeMeta,
+                }) as UseValueSetsMetaResult,
         );
         mockUseValueSetsTable = jest.fn(() => {
-            throw new RSNetworkError("Test", { status: 404 } as AxiosResponse);
+            throw new RSNetworkError(
+                new AxiosError("Test", "404", undefined, {}, {
+                    status: 404,
+                } as AxiosResponse),
+            );
         });
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
          * test them via the ErrorBoundary test? */
-        renderWithFullAppContext(<ValueSetsIndex />);
+        renderApp(<ValueSetsIndexPage />);
         expect(
             screen.getByText(
-                "Our apologies, there was an error loading this content."
-            )
+                "Our apologies, there was an error loading this content.",
+            ),
         ).toBeInTheDocument();
     });
 });

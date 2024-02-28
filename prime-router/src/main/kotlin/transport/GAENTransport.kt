@@ -132,7 +132,7 @@ class GAENTransport : ITransport, Logging {
             null,
             params.gaenTransportInfo.toString(),
             msg,
-            params.itemCount
+            params.header
         )
         history.trackItemLineages(Report.createItemLineagesFromDb(params.header, params.sentReportId))
     }
@@ -166,7 +166,7 @@ class GAENTransport : ITransport, Logging {
         actionHistory: ActionHistory,
         receiverFullName: String,
         reportId: ReportId,
-        gaenTransportInfo: GAENTransportType
+        gaenTransportInfo: GAENTransportType,
     ) {
         val msg = "FAILED GAEN notification of inputReportId $reportId to $gaenTransportInfo " +
             "(receiver = $receiverFullName);" +
@@ -186,7 +186,7 @@ class GAENTransport : ITransport, Logging {
         table: List<Map<String, String>>,
         reportId: ReportId, /* = java.util.UUID */
         uuidFormat: GAENUUIDFormat?,
-        uuidIV: String?
+        uuidIV: String?,
     ) {
         val symptomDate: String
         val testDate: String
@@ -200,7 +200,7 @@ class GAENTransport : ITransport, Logging {
             if (table.size != 1) error("Internal Error: Expected a single item GAEN report")
             testDate = table[0]["date_result_released"] ?: ""
             // As a backup for missing symptomDate, use the testDate per conversation with WA-PHD
-            symptomDate = table[0][ "illness_onset_date"] ?: testDate
+            symptomDate = table[0]["illness_onset_date"] ?: testDate
             phone = table[0]["patient_phone_number"] ?: ""
             padding = RandomStringUtils.randomAlphanumeric(16)
             uuid = formatUUID(uuidFormat, reportId, phone, testDate, uuidIV)
@@ -240,16 +240,21 @@ class GAENTransport : ITransport, Logging {
         } else {
             // The follow error table is based on ENCV server docs.
             val postResult = when (response.statusCode) {
-                400 -> PostResult.FAIL // Bad parameters
-                409 -> PostResult.SUCCESS // UUID already present (consider this a success)
-                412 -> PostResult.FAIL // Unsupported test type
+                // Note: GAEN errors (Bad parameters, Unsupported test type, and UUID already present)
+                // can not be rectified by resubmission via the Last Mile Failures page. We have decided
+                // to ignore the 400 error code for GAEN messages as we are not taking action on
+                // these errors. This does not affect ELR messages sent to STLTs.
+                // STLTs will handle the content error and request for resubmission.
+                // Then, the new GAEN message from regenerate and resend accordingly.
+                400, 409, 412 -> PostResult.SUCCESS // Bad parameters, Unsupported test type, and UUID already present
+                // can not be rectified by re (consider this a success)
                 429 -> PostResult.RETRY // Maintenance mode or quota limit
                 in 500..599 -> PostResult.RETRY // Server error
                 else -> PostResult.FAIL // Unexpected error code
             }
             if (postResult != PostResult.SUCCESS) {
                 val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
-                    " ${response.statusCode} ${response.responseMessage}"
+                    " ${response.statusCode} ${response.responseMessage}, \n${String(response.data)}"
                 params.context.logger.warning(warning)
                 params.actionHistory.trackActionResult(warning)
             }
@@ -288,7 +293,7 @@ class GAENTransport : ITransport, Logging {
             reportId: ReportId,
             phone: String,
             testDate: String,
-            uuidIV: String?
+            uuidIV: String?,
         ): String {
             if (uuidFormat == null || uuidIV == null) return "$reportId"
             val hmacGenerator = HmacUtils(HmacAlgorithms.HMAC_MD5, uuidIV)

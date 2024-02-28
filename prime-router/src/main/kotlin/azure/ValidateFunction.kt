@@ -23,10 +23,8 @@ import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.ReportStreamFilterResultForResponse
-import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.authenticationFailure
-import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
+import java.security.InvalidParameterException
 import java.time.OffsetDateTime
 
 /**
@@ -35,7 +33,7 @@ import java.time.OffsetDateTime
  */
 class ValidateFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
+    private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
 ) : Logging, RequestFunction(workflowEngine) {
 
     /**
@@ -44,30 +42,30 @@ class ValidateFunction(
      */
     @FunctionName("validate")
     @StorageAccount("AzureWebJobsStorage")
-    fun run(
+    fun validate(
         @HttpTrigger(
             name = "validate",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
-        val senderName = extractClient(request)
-        if (senderName.isBlank()) {
-            return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
-        }
         return try {
-            val claims = AuthenticatedClaims.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
-            // Sender should eventually be obtained directly from who is authenticated
-            val sender = workflowEngine.settings.findSender(senderName)
-                ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
-
-            if (!claims.authorizedForSendOrReceive(sender, request)) {
-                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            val sender: Sender?
+            val senderName = extractClient(request)
+            sender = if (senderName.isNotBlank()) {
+                workflowEngine.settings.findSender(senderName)
+                    ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
+            } else {
+                try {
+                    getDummySender(
+                        request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null),
+                        request.queryParameters.getOrDefault(FORMAT_PARAMETER, null)
+                    )
+                } catch (e: InvalidParameterException) {
+                    return HttpUtilities.bad(request, e.message.toString())
+                }
             }
             actionHistory.trackActionParams(request)
-
             processRequest(request, sender)
         } catch (ex: Exception) {
             if (ex.message != null) {
@@ -80,14 +78,14 @@ class ValidateFunction(
     }
 
     /**
-     * Handles an incoming validation request after it has been authenticated via the /validate endpoint.
+     * Handles an incoming validation request from the /validate endpoint.
      * @param request The incoming request
      * @param sender The sender record, pulled from the database based on sender name on the request
      * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
      */
     internal fun processRequest(
         request: HttpRequestMessage<String?>,
-        sender: Sender
+        sender: Sender,
     ): HttpResponseMessage {
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
@@ -96,10 +94,10 @@ class ValidateFunction(
             try {
                 val validatedRequest = validateRequest(request)
 
-                // if the override parameter is populated, use that, otherwise use the sender value
-                val allowDuplicates = if
-                (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
-                else {
+                // if the override parameter is populated, use that, otherwise use the sender value. Default to false.
+                val allowDuplicates = if (!allowDuplicatesParam.isNullOrEmpty()) {
+                    allowDuplicatesParam == "true"
+                } else {
                     sender.allowDuplicates
                 }
 
@@ -111,12 +109,10 @@ class ValidateFunction(
                     validatedRequest.routeTo,
                     allowDuplicates,
                 )
-
-                // return OK status, report validation was successful
                 HttpStatus.OK
             } catch (e: ActionError) {
                 actionHistory.trackLogs(e.details)
-                HttpStatus.BAD_REQUEST
+                HttpStatus.OK
             } catch (e: IllegalArgumentException) {
                 actionHistory.trackLogs(
                     ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
@@ -156,8 +152,9 @@ class ValidateFunction(
                     itemCount = it.report.itemCount,
                     sentReports = mutableListOf(),
                     downloadedReports = mutableListOf(),
-                    filteredReportItems = it.report.filteringResults.map { ReportStreamFilterResultForResponse(it) },
-                    filteredReportRows = it.report.filteringResults.map { it.message },
+                    filteredReportItems = it.report.filteringResults.map { ReportStreamFilterResultForResponse(it) }
+                        .toMutableList(),
+                    filteredReportRows = it.report.filteringResults.map { it.message }.toMutableList(),
                     itemCountBeforeQualFilter = it.report.itemCountBeforeQualFilter,
                     sendingAt = null
                 )
@@ -165,10 +162,11 @@ class ValidateFunction(
         }
 
         // set status for validation response
-        submission.overallStatus = if (httpStatus == HttpStatus.BAD_REQUEST)
+        submission.overallStatus = if (httpStatus == HttpStatus.BAD_REQUEST || submission.errorCount > 0) {
             DetailedSubmissionHistory.Status.ERROR
-        else
+        } else {
             DetailedSubmissionHistory.Status.VALID
+        }
 
         return request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")

@@ -1,6 +1,6 @@
 ---
 name: phd2-sample
-topic: sample
+topic: test
 trackingElement: specimen_id
 elements:
   - name: lab

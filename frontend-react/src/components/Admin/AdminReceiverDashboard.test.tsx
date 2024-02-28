@@ -1,14 +1,12 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
+import { Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
-import React, { Suspense } from "react";
-import { MemoryRouter } from "react-router-dom";
-
-import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
-import { ErrorPage } from "../../pages/error/ErrorPage";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
+import { ErrorPage } from "../../pages/error/ErrorPage";
+import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
-// <editor-fold defaultstate="collapsed" desc="mockData: AdmConnStatusDataType[]">
 const mockData: AdmConnStatusDataType[] = [
     {
         receiverConnectionCheckResultId: 2397,
@@ -78,9 +76,9 @@ const mockData: AdmConnStatusDataType[] = [
         receiverName: "elr-secondary",
     },
 ];
-// </editor-fold>
 
 jest.mock("rest-hooks", () => ({
+    ...jest.requireActual("rest-hooks"),
     useResource: () => {
         return mockData;
     },
@@ -101,7 +99,7 @@ describe("AdminReceiverDashboard tests", () => {
         expect(_exportForTesting.startOfDayIso(now)).toContain("T");
         expect(_exportForTesting.endOfDayIso(now)).toContain("T");
         expect(_exportForTesting.initialStartDate().toISOString()).toContain(
-            "T"
+            "T",
         );
         expect(_exportForTesting.initialEndDate().toISOString()).toContain("T");
         expect(_exportForTesting.strcmp("A", "a")).toBe(-1);
@@ -112,19 +110,19 @@ describe("AdminReceiverDashboard tests", () => {
             _exportForTesting.dateIsInRange(new Date("1/2/2020"), [
                 new Date("1/1/2020"),
                 new Date("1/3/2020"),
-            ])
+            ]),
         ).toBe(true);
         expect(
             _exportForTesting.dateIsInRange(new Date("1/2/2020"), [
                 new Date("1/1/2020"),
                 new Date("1/1/2020"),
-            ])
+            ]),
         ).toBe(false);
         expect(
             _exportForTesting.dateIsInRange(new Date("1/1/2020"), [
                 new Date("1/1/2020"),
                 new Date("1/2/2020"),
-            ])
+            ]),
         ).toBe(true);
     });
 
@@ -135,30 +133,30 @@ describe("AdminReceiverDashboard tests", () => {
                 new Date("2022-07-11T00:00:00.000Z"),
                 new Date("2022-07-13T00:00:00.000Z"),
             ],
-            8
+            8,
         );
 
         const resultStart: string[] = [];
         const resultEnd: string[] = [];
-        for (let timeslot of timeslots) {
+        for (const timeslot of timeslots) {
             resultStart.push(timeslot[0].toISOString());
             resultEnd.push(timeslot[1].toISOString());
         }
         expect(JSON.stringify(resultStart)).toBe(
             `["2022-07-11T00:00:00.000Z","2022-07-11T08:00:00.000Z","2022-07-11T16:00:00.000Z",` +
-                `"2022-07-12T00:00:00.000Z","2022-07-12T08:00:00.000Z","2022-07-12T16:00:00.000Z"]`
+                `"2022-07-12T00:00:00.000Z","2022-07-12T08:00:00.000Z","2022-07-12T16:00:00.000Z"]`,
         );
         expect(JSON.stringify(resultEnd)).toBe(
             `["2022-07-11T08:00:00.000Z","2022-07-11T16:00:00.000Z","2022-07-12T00:00:00.000Z",` +
-                `"2022-07-12T08:00:00.000Z","2022-07-12T16:00:00.000Z","2022-07-13T00:00:00.000Z"]`
+                `"2022-07-12T08:00:00.000Z","2022-07-12T16:00:00.000Z","2022-07-13T00:00:00.000Z"]`,
         );
     });
 
     test("dateShortFormat", () => {
         expect(
             _exportForTesting.dateShortFormat(
-                new Date("2022-07-11T08:09:22.748Z")
-            )
+                new Date("2022-07-11T08:09:22.748Z"),
+            ),
         ).toBe("Mon, 7/11/2022");
     });
 
@@ -170,32 +168,32 @@ describe("AdminReceiverDashboard tests", () => {
         for (let ii = 0; ii < 2; ii++) {
             // run twice to make sure reset works
             expect(testSuccess.currentState).toBe(
-                _exportForTesting.SuccessRate.UNDEFINED
+                _exportForTesting.SuccessRate.UNDEFINED,
             );
             expect(testFailure.currentState).toBe(
-                _exportForTesting.SuccessRate.UNDEFINED
+                _exportForTesting.SuccessRate.UNDEFINED,
             );
 
             expect(testSuccess.updateState(true)).toBe(
-                _exportForTesting.SuccessRate.ALL_SUCCESSFUL
+                _exportForTesting.SuccessRate.ALL_SUCCESSFUL,
             );
             expect(testFailure.updateState(false)).toBe(
-                _exportForTesting.SuccessRate.ALL_FAILURE
+                _exportForTesting.SuccessRate.ALL_FAILURE,
             );
 
             expect(testSuccess.updateState(true)).toBe(
-                _exportForTesting.SuccessRate.ALL_SUCCESSFUL
+                _exportForTesting.SuccessRate.ALL_SUCCESSFUL,
             );
             expect(testFailure.updateState(false)).toBe(
-                _exportForTesting.SuccessRate.ALL_FAILURE
+                _exportForTesting.SuccessRate.ALL_FAILURE,
             );
 
             // Flip it so we make results mixed.
             expect(testSuccess.updateState(false)).toBe(
-                _exportForTesting.SuccessRate.MIXED_SUCCESS
+                _exportForTesting.SuccessRate.MIXED_SUCCESS,
             );
             expect(testFailure.updateState(true)).toBe(
-                _exportForTesting.SuccessRate.MIXED_SUCCESS
+                _exportForTesting.SuccessRate.MIXED_SUCCESS,
             );
 
             // test reset
@@ -210,7 +208,7 @@ describe("AdminReceiverDashboard tests", () => {
         before.setHours(
             before.getHours() - 1,
             before.getMinutes() - 2,
-            before.getSeconds() - 3
+            before.getSeconds() - 3,
         );
 
         const result1 = _exportForTesting.durationFormatShort(now, before);
@@ -228,7 +226,7 @@ describe("AdminReceiverDashboard tests", () => {
         expect(result4).toBe("");
     });
 
-    test("sortStatusData", async () => {
+    test("sortStatusData", () => {
         const data = _exportForTesting.sortStatusData(mockData); // sorts
         expect(data.length).toBe(6);
         // make sure sortStatusData sorted correctly.
@@ -236,30 +234,28 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("sortStatusData and MainRender tests", async () => {
-        const { baseElement } = render(
-            <MemoryRouter>
+        const { baseElement } = renderApp(
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="message" />}
+            >
                 <Suspense fallback={<></>}>
-                    <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="message" />}
-                    >
-                        {/*eslint-disable-next-line react/jsx-pascal-case*/}
-                        <_exportForTesting.MainRender
-                            datesRange={[
-                                new Date("2022-07-11"),
-                                new Date("2022-07-14"),
-                            ]}
-                            filterRowStatus={
-                                _exportForTesting.SuccessRate.ALL_SUCCESSFUL
-                            }
-                            filterErrorText={" "}
-                            filterRowReceiver={"-"}
-                            onDetailsClick={(
-                                _subdata: AdmConnStatusDataType[]
-                            ) => {}}
-                        />
-                    </NetworkErrorBoundary>
+                    {/*eslint-disable-next-line react/jsx-pascal-case*/}
+                    <_exportForTesting.MainRender
+                        datesRange={[
+                            new Date("2022-07-11"),
+                            new Date("2022-07-14"),
+                        ]}
+                        filterRowStatus={
+                            _exportForTesting.SuccessRate.ALL_SUCCESSFUL
+                        }
+                        filterErrorText={" "}
+                        filterRowReceiver={"-"}
+                        onDetailsClick={(_subdata: AdmConnStatusDataType[]) =>
+                            void 0
+                        }
+                    />
                 </Suspense>
-            </MemoryRouter>
+            </NetworkErrorBoundary>,
         );
 
         const days = screen.getAllByText(/Mon/);
@@ -284,7 +280,7 @@ describe("AdminReceiverDashboard tests", () => {
         // We can't access "aria-disabled" for the button with jest's virtual DOM.
         // ONLY solution is to j
         const clickableSlices = baseElement.querySelectorAll(
-            `[role="button"][aria-disabled="false"]`
+            `[role="button"][aria-disabled="false"]`,
         );
 
         expect(clickableSlices.length).toBe(3); // based on Data and slices
@@ -297,35 +293,35 @@ describe("AdminReceiverDashboard tests", () => {
         // ).toBeInTheDocument();
     });
 
-    test("ModalInfoRender", async () => {
+    test("ModalInfoRender", () => {
         const data = _exportForTesting.sortStatusData(mockData); // sorts
         const subData = data[0];
-        render(
+        renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
-            <_exportForTesting.ModalInfoRender subData={[subData]} />
+            <_exportForTesting.ModalInfoRender subData={[subData]} />,
         );
         const matches = screen.queryAllByText(
-            "connectionCheckResult dummy result 2397"
+            "connectionCheckResult dummy result 2397",
         );
         expect(matches.length).toBe(1);
     });
 
-    test("ModalInfoRender empty", async () => {
-        render(
+    test("ModalInfoRender empty", () => {
+        renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
-            <_exportForTesting.ModalInfoRender subData={[]} />
+            <_exportForTesting.ModalInfoRender subData={[]} />,
         );
         expect(screen.getByText(/No Data Found/)).toBeInTheDocument();
     });
 
-    test("DateRangePickingAtomic", async () => {
-        render(
+    test("DateRangePickingAtomic", () => {
+        renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.DateRangePickingAtomic
                 defaultStartDate="2022-07-11T00:00:00.000Z"
                 defaultEndDate="2022-07-13T00:00:00.000Z"
-                onChange={(_props) => {}}
-            />
+                onChange={(_props) => void 0}
+            />,
         );
         expect(screen.getByText(/7\/11\/2022/)).toBeInTheDocument();
     });

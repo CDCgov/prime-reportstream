@@ -1,18 +1,20 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import { DisplayMeta } from "./DisplayMeta";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("DisplayMeta rendering object", () => {
-    beforeEach(() => {
+    function setup() {
         const metaobj = {
             version: 2,
             createdBy: "McTest@example.com",
             createdAt: "1/1/2000 00:00",
         };
-        render(<DisplayMeta metaObj={metaobj} />);
-    });
+        renderApp(<DisplayMeta metaObj={metaobj} />);
+    }
 
     test("Check data as object rendered", () => {
+        setup();
         expect(screen.getByText(/v2/i)).toBeInTheDocument();
         expect(screen.getByText(/McTest@example.com/i)).toBeInTheDocument();
         // 1/1/2000 was a Saturday.

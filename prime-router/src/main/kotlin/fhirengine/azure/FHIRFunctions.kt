@@ -6,23 +6,30 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.DataAccessTransaction
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.Message
-import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
+import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
+import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 
 class FHIRFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val actionHistory: ActionHistory = ActionHistory(TaskAction.process),
-    private val actionLogger: ActionLogger = ActionLogger()
+    private val actionLogger: ActionLogger = ActionLogger(),
+    private val databaseAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    private val queueAccess: QueueAccess = QueueAccess,
 ) : Logging {
 
     /**
@@ -34,7 +41,7 @@ class FHIRFunctions(
         @QueueTrigger(name = "message", queueName = elrConvertQueueName)
         message: String,
         // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1
+        @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
         doConvert(message, dequeueCount, FHIRConverter())
     }
@@ -43,16 +50,21 @@ class FHIRFunctions(
      * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
      * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
      * the [dequeueCount] is tracked as part of the log.
+     * [actionHistory] is an optional parameter for use in testing
      */
-    internal fun doConvert(message: String, dequeueCount: Int, fhirEngine: FHIREngine) {
-        val messageContent = readMessage("Convert", message, dequeueCount)
-
-        try {
-            fhirEngine.doWork(messageContent, actionLogger, actionHistory)
-        } catch (e: Exception) {
-            logger.error("Unknown error.", e)
+    internal fun doConvert(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIREngine,
+        actionHistory: ActionHistory = ActionHistory(TaskAction.convert),
+    ) {
+        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        messagesToDispatch.forEach {
+            queueAccess.sendMessage(
+                elrRoutingQueueName,
+                it.serialize()
+            )
         }
-        recordResults(message)
     }
 
     /**
@@ -64,7 +76,7 @@ class FHIRFunctions(
         @QueueTrigger(name = "message", queueName = elrRoutingQueueName)
         message: String,
         // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1
+        @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
         doRoute(message, dequeueCount, FHIRRouter())
     }
@@ -73,16 +85,21 @@ class FHIRFunctions(
      * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
      * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
      * the [dequeueCount] is tracked as part of the log.
+     * [actionHistory] is an optional parameter for use in testing
      */
-    internal fun doRoute(message: String, dequeueCount: Int, fhirEngine: FHIRRouter) {
-        val messageContent = readMessage("Route", message, dequeueCount)
-
-        try {
-            fhirEngine.doWork(messageContent, actionLogger, actionHistory)
-        } catch (e: Exception) {
-            logger.error("Unknown error.", e)
+    internal fun doRoute(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIRRouter,
+        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
+    ) {
+        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        messagesToDispatch.forEach {
+            queueAccess.sendMessage(
+                elrTranslationQueueName,
+                it.serialize()
+            )
         }
-        recordResults(message)
     }
 
     /**
@@ -94,7 +111,7 @@ class FHIRFunctions(
         @QueueTrigger(name = "message", queueName = elrTranslationQueueName)
         message: String,
         // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1
+        @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
         doTranslate(message, dequeueCount, FHIRTranslator())
     }
@@ -103,38 +120,68 @@ class FHIRFunctions(
      * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
      * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
      * the [dequeueCount] is tracked as part of the log.
+     * [actionHistory] is an optional parameter for use in testing
      */
-    fun doTranslate(message: String, dequeueCount: Int, fhirEngine: FHIRTranslator) {
-        val messageContent = readMessage("Translate", message, dequeueCount)
-
-        try {
-            fhirEngine.doWork(messageContent, actionLogger, actionHistory)
-        } catch (e: Exception) {
-            logger.error("Unknown error.", e)
+    fun doTranslate(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIRTranslator,
+        actionHistory: ActionHistory = ActionHistory(TaskAction.translate),
+    ) {
+        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        // Only dispatches event if Topic.isSendOriginal was true
+        messagesToDispatch.forEach {
+            queueAccess.sendMessage(
+                elrSendQueueName,
+                it.serialize()
+            )
         }
-        recordResults(message)
     }
 
     /**
-     * Deserializes the [message] into a RawSubmission, verifies it is of the correct type.
+     * Deserializes the message, create the DB transaction and then runs the FHIR engine
+     *
+     * @param message the fhir convert/route/translate message to process
+     * @param dequeueCount the number of times the messages has been processed
+     * @param fhirEngine the engine that will do the work
+     * @param actionHistory the history to record results to
+     * @return any messages that need to be dispatched
+     */
+    private fun runFhirEngine(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIREngine,
+        actionHistory: ActionHistory,
+    ): List<QueueMessage> {
+        val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
+
+        val newMessages = databaseAccess.transactReturning { txn ->
+            val results = fhirEngine.run(messageContent, actionLogger, actionHistory, txn)
+            recordResults(message, actionHistory, txn)
+            results
+        }
+
+        return newMessages
+    }
+
+    /**
+     * Deserializes the [message] into a Fhir Convert/Route/Translate Message, verifies it is of the correct type.
      * Logs the [engineType] and [dequeueCount]
      */
-    private fun readMessage(engineType: String, message: String, dequeueCount: Int): RawSubmission {
-        logger.debug("${engineType}ing message: $message for the $dequeueCount time")
-        val messageContent = Message.deserialize(message)
-        check(messageContent is RawSubmission) {
-            "An unknown message was received by the FHIR $engineType Function " +
-                "${messageContent.javaClass.kotlin.qualifiedName}"
-        }
-        return messageContent
+    private fun readMessage(engineType: String, message: String, dequeueCount: Int): ReportPipelineMessage {
+        logger.debug(
+            "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
+        )
+
+        return QueueMessage.deserialize(message) as ReportPipelineMessage
     }
 
     /**
      * Tracks any action params that are part of the [message] and records the logs and actions to the database
      */
-    private fun recordResults(message: String) {
+    private fun recordResults(message: String, actionHistory: ActionHistory, txn: DataAccessTransaction) {
         actionHistory.trackActionParams(message)
         actionHistory.trackLogs(actionLogger.logs)
-        workflowEngine.recordAction(actionHistory)
+        workflowEngine.recordAction(actionHistory, txn)
     }
 }

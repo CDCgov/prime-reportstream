@@ -1,67 +1,145 @@
-import { Method } from "axios";
-import { useMemo } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback, useMemo, useState } from "react";
 
 import {
-    DeliveryApi,
-    DeliveryDetailParams,
-    DeliveryListParams,
+    deliveriesEndpoints,
     RSDelivery,
-    RSReportInterface,
-} from "../../../network/api/History/Reports";
+    RSFacility,
+} from "../../../config/endpoints/deliveries";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
+import { useSessionContext } from "../../../contexts/Session";
+import useFilterManager, {
+    FilterManagerDefaults,
+} from "../../filters/UseFilterManager";
 import {
-    useAdminSafeOrgName,
-    useMemoizedConfig,
-    useMemoizedConfigParams,
-} from "../UseMemoizedConfig";
-import { BasicAPIResponse } from "../../../network/api/NewApi";
-import useRequestConfig from "../UseRequestConfig";
+    Organizations,
+    useAdminSafeOrganizationName,
+} from "../../UseAdminSafeOrganizationName";
+
+const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
+    deliveriesEndpoints;
+
+export enum DeliveriesDataAttr {
+    REPORT_ID = "reportId",
+    BATCH_READY = "batchReadyAt",
+    EXPIRES = "expires",
+    ITEM_COUNT = "reportItemCount",
+    FILE_NAME = "fileName",
+    RECEIVER = "receiver",
+}
+
+const filterManagerDefaults: FilterManagerDefaults = {
+    sortDefaults: {
+        column: DeliveriesDataAttr.BATCH_READY,
+        locally: true,
+    },
+    pageDefaults: {
+        size: 10,
+    },
+};
 
 /** Hook consumes the ReportsApi "list" endpoint and delivers the response
  *
- * @param org {string} the `parsedName` of user's active membership
  * @param service {string} the chosen receiver service (e.x. `elr-secondary`)
- * @returns {BasicAPIResponse<RSReportInterface[]>}
  * */
-const useReportsList = (org?: string, service?: string) => {
-    const adminSafeOrgName = useAdminSafeOrgName(org);
+const useOrgDeliveries = (initialService?: string) => {
+    const [service, setService] = useState(initialService);
+    const { activeMembership } = useSessionContext();
+    const authorizedFetch = useAuthorizedFetch();
+
+    const adminSafeOrgName = useAdminSafeOrganizationName(
+        activeMembership?.parsedName,
+    ); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
-        () => `${adminSafeOrgName}.${service}`,
-        [adminSafeOrgName, service]
+        () =>
+            service ? `${adminSafeOrgName}.${service}` : `${adminSafeOrgName}`,
+        [adminSafeOrgName, service],
     );
-    const configParams = useMemoizedConfigParams<DeliveryListParams>(
-        {
-            api: DeliveryApi,
-            endpointKey: "list",
-            method: "GET" as Method,
-            parameters: { orgAndService },
-            advancedConfig: { requireTrigger: true },
+
+    // Pagination and filter props
+    const filterManager = useFilterManager(filterManagerDefaults);
+    const sortOrder = filterManager.sortSettings.order;
+    const rangeTo = filterManager.rangeSettings.to;
+    const rangeFrom = filterManager.rangeSettings.from;
+
+    const fetchResults = useCallback(
+        (currentCursor: string, numResults: number) => {
+            // HACK: return empty results if requesting as an admin
+            if (activeMembership?.parsedName === Organizations.PRIMEADMINS) {
+                return Promise.resolve<RSDelivery[]>([]);
+            }
+
+            return authorizedFetch(getOrgDeliveries, {
+                segments: {
+                    orgAndService,
+                },
+                params: {
+                    sortdir: sortOrder,
+                    cursor: currentCursor,
+                    since: rangeFrom,
+                    until: rangeTo,
+                    pageSize: numResults,
+                },
+            }) as unknown as Promise<RSDelivery[]>;
         },
-        [orgAndService]
+        [
+            activeMembership?.parsedName,
+            authorizedFetch,
+            orgAndService,
+            sortOrder,
+            rangeFrom,
+            rangeTo,
+        ],
     );
-    const config = useMemoizedConfig(configParams);
-    return useRequestConfig(config) as BasicAPIResponse<
-        RSDelivery[] | RSReportInterface[]
-    >;
+
+    return { fetchResults, filterManager, setService };
 };
 
 /** Hook consumes the ReportsApi "detail" endpoint and delivers the response
  *
- * @param id {string | number} Pass in the reportId OR deliveryId to query a single delivery
- * @returns {BasicAPIResponse<RSReportInterface>}
+ * @param id {string} Pass in the reportId to query a single delivery
  * */
-const useReportsDetail = (id: string | number) => {
-    const memoizedId = useMemo(() => `${id}`, [id]); // Stringify & memoize
-    const configParams = useMemoizedConfigParams<DeliveryDetailParams>(
-        {
-            api: DeliveryApi,
-            endpointKey: "detail",
-            method: "GET" as Method,
-            parameters: { id: memoizedId },
-        },
-        [memoizedId]
+const useReportsDetail = (id: string) => {
+    const authorizedFetch = useAuthorizedFetch<RSDelivery>();
+    const memoizedDataFetch = useCallback(
+        () =>
+            authorizedFetch(getDeliveryDetails, {
+                segments: {
+                    id: id,
+                },
+            }),
+        [authorizedFetch, id],
     );
-    const config = useMemoizedConfig(configParams);
-    return useRequestConfig(config) as BasicAPIResponse<RSDelivery>;
+    return useSuspenseQuery({
+        // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
+        // during use
+        queryKey: [getDeliveryDetails.queryKey, id],
+        queryFn: memoizedDataFetch,
+    });
 };
 
-export { useReportsList, useReportsDetail };
+/** Hook consumes the ReportsApi "detail" endpoint and delivers the response
+ *
+ * @param id {string} Pass in the reportId to query for facilities on a report
+ * */
+const useReportsFacilities = (id: string) => {
+    const authorizedFetch = useAuthorizedFetch<RSFacility[]>();
+    const memoizedDataFetch = useCallback(() => {
+        if (id) {
+            return authorizedFetch(getDeliveryFacilities, {
+                segments: {
+                    id: id,
+                },
+            });
+        }
+        return null;
+    }, [authorizedFetch, id]);
+    return useSuspenseQuery({
+        // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
+        // during use
+        queryKey: [getDeliveryFacilities.queryKey, id],
+        queryFn: memoizedDataFetch,
+    });
+};
+
+export { useOrgDeliveries, useReportsDetail, useReportsFacilities };

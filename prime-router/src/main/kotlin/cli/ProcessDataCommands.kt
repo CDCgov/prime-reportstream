@@ -16,13 +16,14 @@ import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.TopicSender
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -50,7 +51,7 @@ sealed class InputClientInfo {
  */
 class ProcessData(
     private val metadataInstance: Metadata? = null,
-    private val fileSettingsInstance: FileSettings? = null
+    private val fileSettingsInstance: FileSettings? = null,
 ) : CliktCommand(
     name = "data",
     help = """
@@ -233,7 +234,7 @@ class ProcessData(
         schema: Schema?,
         sender: Sender?,
         settings: SettingsProvider,
-        listOfFiles: String
+        listOfFiles: String,
     ): Report {
         if (listOfFiles.isEmpty()) error("No files to merge.")
         val files = listOfFiles.split(",", " ").filter { it.isNotBlank() }
@@ -261,7 +262,7 @@ class ProcessData(
         schema: Schema?,
         sender: Sender?,
         settings: SettingsProvider,
-        fileName: String
+        fileName: String,
     ): Report {
         val schemaName = schema?.name as String
         val file = File(fileName)
@@ -303,7 +304,7 @@ class ProcessData(
     private fun writeReportsToFile(
         reports: List<Pair<Report, Report.Format>>,
         metadata: Metadata,
-        writeBlock: (report: Report, format: Report.Format, outputStream: OutputStream) -> Unit
+        writeBlock: (report: Report, format: Report.Format, outputStream: OutputStream) -> Unit,
     ) {
         if (outputDir == null && outputFileName == null) return
 
@@ -392,7 +393,7 @@ class ProcessData(
             is InputClientInfo.InputClient -> {
                 val clientName = (inputClientInfo as InputClientInfo.InputClient).clientName
                 val sender = fileSettings.findSender(clientName) ?: error("Sender $clientName was not found")
-                if (sender is TopicSender) {
+                if (sender is LegacyPipelineSender) {
                     Pair(
                         sender.let {
                             metadata.findSchema(it.schemaName) ?: error("Schema ${it.schemaName} was not found")
@@ -412,7 +413,7 @@ class ProcessData(
                 metadata.findSchema(schName) ?: error("Schema $inputSchema was not found")
                 // Get a random sender name that uses the provided schema, or null if no sender is found.
                 val sender = fileSettings.senders.filter {
-                    it is TopicSender && it.schemaName == schName
+                    it is LegacyPipelineSender && it.schemaName == schName
                 }.randomOrNull()
                 Pair(metadata.findSchema(schName), sender)
             }
@@ -473,12 +474,14 @@ class ProcessData(
 
         if (!validate) TODO("validation cannot currently be disabled")
         if (send) TODO("--send is not implemented")
-        if (synthesize) inputReport = inputReport.synthesizeData(
-            synthesizeStrategies,
-            targetStates,
-            targetCounties,
-            metadata
-        )
+        if (synthesize) {
+            inputReport = inputReport.synthesizeData(
+                synthesizeStrategies,
+                targetStates,
+                targetCounties,
+                metadata
+            )
+        }
 
         // Transform reports
         val translator = Translator(metadata, fileSettings)
@@ -497,10 +500,11 @@ class ProcessData(
                     toReceiver = routeTo!!,
                     defaultValues = getDefaultValues()
                 )
-                if (pair != null)
+                if (pair != null) {
                     listOf(pair.first to getOutputFormat(pair.second.format))
-                else
+                } else {
                     emptyList()
+                }
             }
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
@@ -554,7 +558,7 @@ class ProcessData(
                         val destination = Receiver(
                             "emptyReceiver",
                             "emptyOrganization",
-                            "covid-19",
+                            Topic.COVID_19,
                             CustomerStatus.INACTIVE,
                             hl7Configuration
                         )

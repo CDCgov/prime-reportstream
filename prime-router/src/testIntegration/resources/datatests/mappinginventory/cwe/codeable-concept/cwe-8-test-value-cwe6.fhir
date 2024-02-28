@@ -1,0 +1,208 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1707325130030232000.7ea656a2-be29-43a8-836c-cd6eaa8a537f",
+  "meta" : {
+    "lastUpdated" : "2024-02-07T11:58:50.037-05:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "12345"
+  },
+  "type" : "message",
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
+  "entry" : [
+    {
+      "fullUrl" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b",
+      "resource" : {
+        "resourceType" : "MessageHeader",
+        "id" : "827ccb0e-ea8a-306c-8c34-a16891f84e7b",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+            "valueString" : "^~\\&#"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
+            "valueString" : "UNICODE UTF-8"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+            "extension" : [
+              {
+                "url" : "MSH.7",
+                "valueString" : "20230501102531-0400"
+              }
+            ]
+          }
+        ],
+        "eventCoding" : {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code" : "R01",
+          "display" : "ORU^R01^ORU_R01"
+        },
+        "sender" : {
+          "reference" : "Organization/1707325130085228000.0e7dd1fb-73b2-479a-9e5c-034731fb3b33"
+        },
+        "source" : {
+          "_endpoint" : {
+            "extension" : [
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode" : "unknown"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fullUrl" : "Organization/1707325130085228000.0e7dd1fb-73b2-479a-9e5c-034731fb3b33",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1707325130085228000.0e7dd1fb-73b2-479a-9e5c-034731fb3b33",
+        "address" : [
+          {
+            "country" : "USA"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1707325130446644000.938c2cb1-04ff-4b4a-907f-200cd08b97e9",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1707325130446644000.938c2cb1-04ff-4b4a-907f-200cd08b97e9",
+        "target" : [
+          {
+            "reference" : "MessageHeader/827ccb0e-ea8a-306c-8c34-a16891f84e7b"
+          }
+        ],
+        "recorded" : "2023-05-01T10:25:31-04:00",
+        "activity" : {
+          "coding" : [
+            {
+              "display" : "ORU^R01^ORU_R01"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1707325130459026000.d1815484-aa1c-49be-b31e-ae2b45751704",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1707325130459026000.d1815484-aa1c-49be-b31e-ae2b45751704",
+        "recorded" : "2024-02-07T11:58:50Z",
+        "policy" : [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
+        "activity" : {
+          "coding" : [
+            {
+              "code" : "v2-FHIR transformation"
+            }
+          ]
+        },
+        "agent" : [
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code" : "assembler"
+                }
+              ]
+            },
+            "who" : {
+              "reference" : "Organization/1707325130458372000.a82577c9-dbd0-476e-98cf-c569ffdd8fdd"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Organization/1707325130458372000.a82577c9-dbd0-476e-98cf-c569ffdd8fdd",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1707325130458372000.a82577c9-dbd0-476e-98cf-c569ffdd8fdd",
+        "identifier" : [
+          {
+            "value" : "CDC PRIME - Atlanta"
+          },
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system" : "urn:ietf:rfc:3986",
+            "value" : "2.16.840.1.114222.4.1.237821"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Patient/1707325130475736000.21d93e7c-deb0-438c-88ed-27d874cd7a89",
+      "resource" : {
+        "resourceType" : "Patient",
+        "id" : "1707325130475736000.21d93e7c-deb0-438c-88ed-27d874cd7a89",
+        "extension" : [
+          {
+            "url" : "http://hl7.org/fhir/StructureDefinition/patient-citizenship",
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code",
+                "valueCodeableConcept" : {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                      "valueString" : "PID.39"
+                    }
+                  ],
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "alt-coding"
+                        },
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString" : "L"
+                        }
+                      ],
+                      "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1707325130476565000.e1edbb2d-b4cd-42e1-802e-56730bc79753",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1707325130476565000.e1edbb2d-b4cd-42e1-802e-56730bc79753",
+        "target" : [
+          {
+            "reference" : "Patient/1707325130475736000.21d93e7c-deb0-438c-88ed-27d874cd7a89"
+          }
+        ],
+        "recorded" : "2024-02-07T11:58:50Z",
+        "activity" : {
+          "coding" : [
+            {
+              "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+              "code" : "UPDATE"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

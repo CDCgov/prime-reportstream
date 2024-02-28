@@ -1,4 +1,4 @@
-import { IconHelp, Tooltip } from "@trussworks/react-uswds";
+import { Icon, Tooltip } from "@trussworks/react-uswds";
 
 import {
     SampleFilterObject,
@@ -18,11 +18,10 @@ interface ObjectTooltipProps {
 }
 
 interface EnumTooltipProps {
-    vals: Array<string>;
+    vals: string[];
 }
 
-const copyToClipboard = (text: string) =>
-    navigator.clipboard.writeText(text).then(() => console.log("Copied"));
+const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
 const ObjectTooltip = ({ obj }: ObjectTooltipProps) => {
     return (
@@ -30,27 +29,24 @@ const ObjectTooltip = ({ obj }: ObjectTooltipProps) => {
             className="fixed-tooltip"
             position="right"
             label={`${obj.stringify()}\n\n\n${obj.description()}`}
-            onClick={() => copyToClipboard(obj.stringify())}
+            onClick={() => void copyToClipboard(obj.stringify())}
         >
-            <IconHelp />
+            <Icon.Help />
         </Tooltip>
     );
 };
 
 const EnumTooltip = ({ vals }: EnumTooltipProps) => {
-    const formattedVals = `${vals.map((val) => `\t${val}\n`)}`;
+    const formattedVals = `${vals.map((val) => `\t${val}`).join("\n")}`;
     const label = `Available values:\n${formattedVals}`;
-    const clipboard = `${vals.map((val) => {
-        return ` ${val}`; // added whitespace
-    })}`;
+    const clipboard = `${vals.join(" ")}`;
     return (
         <Tooltip
-            className="fixed-tooltip"
-            position="right"
+            position="bottom"
             label={label}
-            onClick={() => copyToClipboard(clipboard)}
+            onClick={() => void copyToClipboard(clipboard)}
         >
-            <IconHelp />
+            <Icon.Help />
         </Tooltip>
     );
 };

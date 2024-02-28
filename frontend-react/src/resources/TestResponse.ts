@@ -1,6 +1,6 @@
 import ActionDetailsResource from "./ActionDetailsResource";
-import OrgSenderSettingsResource from "./OrgSenderSettingsResource";
 import OrganizationResource from "./OrganizationResource";
+import OrgSenderSettingsResource from "./OrgSenderSettingsResource";
 
 export enum ResponseType {
     ACTION_DETAIL = "actionDetail",
@@ -59,6 +59,7 @@ export class TestResponse {
         errors: [
             {
                 scope: "",
+                errorCode: "",
                 type: "",
                 message: "",
                 index: 0,
@@ -68,6 +69,7 @@ export class TestResponse {
         warnings: [
             {
                 scope: "",
+                errorCode: "",
                 type: "",
                 message: "",
             },
@@ -109,11 +111,12 @@ export class TestResponse {
         schemaName: "direct/hca-covid-19",
         customerStatus: "active",
         processingType: "sync",
+        allowDuplicates: false,
         organizationName: "hca",
         pk: function (): string {
             throw new Error("Function not implemented.");
         },
-        name: "",
+        name: "testSender",
         version: 0,
         createdBy: "mctest@example.com",
         createdAt: "1/1/2000 00:00:00",

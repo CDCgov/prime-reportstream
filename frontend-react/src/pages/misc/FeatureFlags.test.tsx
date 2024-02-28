@@ -1,13 +1,16 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 
-import { FeatureFlagActionType } from "../../contexts/FeatureFlagContext";
+import { FeatureFlagsPage } from "./FeatureFlags";
 import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
-
-import { FeatureFlagUIComponent } from "./FeatureFlags";
+import { FeatureFlagActionType } from "../../contexts/FeatureFlag";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 jest.mock("../../config", () => {
+    const originalModule = jest.requireActual("../../config");
     return {
+        ...originalModule,
         default: {
+            ...originalModule.default,
             DEFAULT_FEATURE_FLAGS: "flag-3",
         },
         __esModule: true,
@@ -17,31 +20,31 @@ jest.mock("../../config", () => {
 describe("FeatureFlags", () => {
     test("displays a list of current feature flags", () => {
         mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            checkFlag: jest.fn(),
+            dispatch: () => void 0,
+            checkFlags: jest.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
         });
-        render(<FeatureFlagUIComponent />);
+        renderApp(<FeatureFlagsPage />);
 
         const featureFlagAlerts = screen.getAllByTestId("alert");
         expect(featureFlagAlerts).toHaveLength(3);
         expect(screen.getAllByTestId("alert")[0]).toContainHTML(
-            "<b>flag-1</b>"
+            "<b>flag-1</b>",
         );
         expect(screen.getAllByTestId("alert")[1]).toContainHTML(
-            "<b>flag-2</b>"
+            "<b>flag-2</b>",
         );
         expect(screen.getAllByTestId("alert")[2]).toContainHTML(
-            "<b>flag-3</b>"
+            "<b>flag-3</b>",
         );
     });
     test("displays a remove button for feature flags not set at env level", () => {
         mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            checkFlag: jest.fn(),
+            dispatch: () => void 0,
+            checkFlags: jest.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
         });
-        render(<FeatureFlagUIComponent />);
+        renderApp(<FeatureFlagsPage />);
 
         const featureFlagDeleteButtons = screen.getAllByRole("button");
         expect(featureFlagDeleteButtons).toHaveLength(3); // 1 add button + 2 delete buttons
@@ -56,10 +59,10 @@ describe("FeatureFlags", () => {
         const mockDispatch = jest.fn();
         mockFeatureFlagContext.mockReturnValue({
             dispatch: mockDispatch,
-            checkFlag: jest.fn(),
+            checkFlags: jest.fn(),
             featureFlags: ["flag-1"],
         });
-        render(<FeatureFlagUIComponent />);
+        renderApp(<FeatureFlagsPage />);
 
         const addButton = screen.getAllByRole("button")[0];
         const textInput = screen.getByRole("textbox");
@@ -75,10 +78,10 @@ describe("FeatureFlags", () => {
         const mockDispatch = jest.fn();
         mockFeatureFlagContext.mockReturnValue({
             dispatch: mockDispatch,
-            checkFlag: jest.fn(() => true),
+            checkFlags: jest.fn(() => true),
             featureFlags: ["flag-1"],
         });
-        render(<FeatureFlagUIComponent />);
+        renderApp(<FeatureFlagsPage />);
 
         const addButton = screen.getAllByRole("button")[0];
         const textInput = screen.getByRole("textbox");

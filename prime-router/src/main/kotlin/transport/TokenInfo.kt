@@ -17,17 +17,17 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TokenInfo(
     @SerialName("access_token") val accessToken: String,
-    @SerialName("expires_in") val expiresIn: Int,
+    @SerialName("expires_in") val expiresIn: Int? = null,
     @SerialName("refresh_token") val refreshToken: String? = null,
     val scope: String? = null,
-    @SerialName("token_type") val tokenType: String? = null
+    @SerialName("token_type") val tokenType: String? = null,
 )
 
 /**
  * IdToken models the authentication token used by OK
  * https:/labupload.health.ok.gov/api/auth/token
  *
- * @param email username used to login to the app
+ * @param email username used to log in to the app
  * @param idToken id-token used in Authorization header
  * @param expiresIn seconds until token expires
  * @param refreshToken get new access tokens without having to log in again
@@ -36,6 +36,6 @@ data class TokenInfo(
 data class IdToken(
     val email: String,
     val idToken: String,
-    val expiresIn: Int,
-    val refreshToken: String
+    val expiresIn: Int? = null,
+    val refreshToken: String? = null,
 )

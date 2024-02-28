@@ -3,7 +3,7 @@ import { jsonSortReplacer } from "./JsonSortReplacer";
 test("JsonSortReplacer to sort basic json data correctly", () => {
     const result = JSON.stringify(
         { c: 1, a: { d: 0, c: 1, e: { a: 0, 1: 4 } } },
-        jsonSortReplacer
+        jsonSortReplacer,
     );
     expect(result).toBe(`{"a":{"c":1,"d":0,"e":{"1":4,"a":0}},"c":1}`);
 });
@@ -12,7 +12,7 @@ test("JsonSortReplacer to sort array json data correctly", () => {
     // now try arrays with nested arrays
     const result = JSON.stringify(
         { c: 1, a: [["c", "b", "a"], 1, 3, ["cc", "bb", "aa"]] },
-        jsonSortReplacer
+        jsonSortReplacer,
     );
     expect(result).toBe(`{"a":[1,3,["a","b","c"],["aa","bb","cc"]],"c":1}`);
 });

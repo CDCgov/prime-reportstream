@@ -1,9 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import React, { useState } from "react";
-
-import { ProcessingType } from "../../utils/TemporarySettingsAPITypes";
+import { fireEvent, screen } from "@testing-library/react";
+import { useState } from "react";
 
 import { DropdownComponent, DropdownProps } from "./AdminFormEdit";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { ProcessingType } from "../../utils/TemporarySettingsAPITypes";
 
 const DropdownComponentHelper = () => {
     const [state, setState] = useState("");
@@ -26,11 +26,12 @@ const DropdownComponentHelper = () => {
 };
 
 describe("Render DropdownComponent", () => {
-    beforeEach(() => {
-        render(<DropdownComponentHelper />);
-    });
+    function setup() {
+        renderApp(<DropdownComponentHelper />);
+    }
 
     test("Check data as object rendered", () => {
+        setup();
         expect(screen.getByLabelText(/Processing Type/)).toBeInTheDocument();
         expect(screen.getByText(ProcessingType.SYNC)).toBeInTheDocument();
         expect(screen.getByText(ProcessingType.ASYNC)).toBeInTheDocument();
@@ -38,10 +39,13 @@ describe("Render DropdownComponent", () => {
         expect(screen.getByText("tooltip")).toBeInTheDocument();
     });
 
-    test("test savefunc", () => {
+    test("savefunc", () => {
+        setup();
         fireEvent.change(screen.getByRole("combobox"), {
             target: { value: ProcessingType.SYNC },
         });
-        expect(screen.getByText(`${ProcessingType.SYNC} value saved`));
+        expect(
+            screen.getByText(`${ProcessingType.SYNC} value saved`),
+        ).toBeInTheDocument();
     });
 });

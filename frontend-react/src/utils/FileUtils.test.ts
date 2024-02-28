@@ -1,7 +1,7 @@
 import {
     parseCsvForError,
-    REPORT_MAX_ITEMS,
     REPORT_MAX_ITEM_COLUMNS,
+    REPORT_MAX_ITEMS,
 } from "./FileUtils";
 
 describe("parseCsvForError", () => {
@@ -11,7 +11,7 @@ describe("parseCsvForError", () => {
             .join();
 
         expect(parseCsvForError("fakeFile", fakeFileContent)).toEqual(
-            `The file 'fakeFile' has too many rows. The maximum number of rows allowed is ${REPORT_MAX_ITEMS}.`
+            `The file 'fakeFile' has too many rows. The maximum number of rows allowed is ${REPORT_MAX_ITEMS}.`,
         );
     });
 
@@ -19,18 +19,18 @@ describe("parseCsvForError", () => {
         const fakeFileContent = "";
 
         expect(parseCsvForError("fakeFile", fakeFileContent)).toEqual(
-            "The file 'fakeFile' doesn't contain any valid data. File should have a header line and at least one line of data."
+            "The file 'fakeFile' doesn't contain any valid data. File should have a header line and at least one line of data.",
         );
     });
 
-    test("returns expected error string if max number of lines is exceeded", () => {
+    test("returns expected error string if max number of columns is exceeded", () => {
         const fakeFileContent = Array(REPORT_MAX_ITEM_COLUMNS + 1)
             .fill(",")
             .concat("\n")
             .join();
 
         expect(parseCsvForError("fakeFile", fakeFileContent)).toEqual(
-            `The file 'fakeFile' has too many columns. The maximum number of allowed columns is ${REPORT_MAX_ITEM_COLUMNS}.`
+            `The file 'fakeFile' has too many columns. The maximum number of allowed columns is ${REPORT_MAX_ITEM_COLUMNS}.`,
         );
     });
 });

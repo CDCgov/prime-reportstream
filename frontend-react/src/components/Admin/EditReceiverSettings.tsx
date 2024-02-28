@@ -1,36 +1,8 @@
-import React, { useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
-import { useController, useResource } from "rest-hooks";
+import { FC, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useController, useResource } from "rest-hooks";
 
-import Title from "../../components/Title";
-import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import { showAlertNotification, showError } from "../AlertNotifications";
-import {
-    getStoredOktaToken,
-    getStoredOrg,
-} from "../../utils/SessionStorageTools";
-import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import {
-    getErrorDetailFromResponse,
-    getVersionWarning,
-    VersionWarningType,
-} from "../../utils/misc";
-import { EnumTooltip, ObjectTooltip } from "../tooltips/ObjectTooltip";
-import {
-    getListOfEnumValues,
-    SampleTimingObj,
-    SampleTranslationObj,
-    SampleTransportObject,
-} from "../../utils/TemporarySettingsAPITypes";
-import { AuthElement } from "../AuthElement";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import config from "../../config";
-
-import {
-    ConfirmSaveSettingModal,
-    ConfirmSaveSettingModalRef,
-} from "./CompareJsonModal";
 import {
     CheckboxComponent,
     DropdownComponent,
@@ -38,27 +10,53 @@ import {
     TextInputComponent,
 } from "./AdminFormEdit";
 import { AdminFormWrapper } from "./AdminFormWrapper";
+import {
+    ConfirmSaveSettingModal,
+    ConfirmSaveSettingModalRef,
+} from "./CompareJsonModal";
+import Title from "../../components/Title";
+import config from "../../config";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
+import { showToast } from "../../contexts/Toast";
+import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
+import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
+import {
+    getListOfEnumValues,
+    SampleTimingObj,
+    SampleTranslationObj,
+    SampleTransportObject,
+} from "../../utils/TemporarySettingsAPITypes";
+import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
+import { EnumTooltip, ObjectTooltip } from "../tooltips/ObjectTooltip";
 
 const { RS_API_URL } = config;
 
-type EditReceiverSettingsFormProps = {
+interface EditReceiverSettingsFormProps {
     orgname: string;
     receivername: string;
-    action: string;
-};
+    action: "edit" | "clone";
+}
 
-const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
+const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
     orgname,
     receivername,
     action,
 }) => {
+    const { fetchHeaders } = useAppInsightsContext();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { activeMembership, authState } = useSessionContext();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const orgReceiverSettings: OrgReceiverSettingsResource = useResource(
         OrgReceiverSettingsResource.detail(),
-        { orgname, receivername, action }
+        { orgname, receivername, action },
     );
 
     const { fetch: fetchController } = useController();
@@ -68,18 +66,50 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
         useState("");
     const { invalidate } = useController();
 
+    const modalRef = useRef<ModalConfirmRef>(null);
+    const ShowDeleteConfirm = (deleteItemId: string) => {
+        modalRef?.current?.showModal({
+            title: "Confirm Delete",
+            message:
+                "Deleting a setting will only mark it deleted. It can be accessed via the revision history",
+            okButtonText: "Delete",
+            itemId: deleteItemId,
+        });
+    };
+    const doDelete = async (deleteItemId: string) => {
+        try {
+            await fetchController(OrgReceiverSettingsResource.deleteSetting(), {
+                orgname: orgname,
+                receivername: deleteItemId,
+            });
+
+            showToast(`Item '${deleteItemId}' has been deleted`, "success");
+
+            // navigate back to list since this item was just deleted
+            navigate(-1);
+            return true;
+        } catch (e: any) {
+            showToast(
+                `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
+                "error",
+            );
+            return false;
+        }
+    };
+
     async function getLatestReceiverResponse() {
-        const accessToken = getStoredOktaToken();
-        const organization = getStoredOrg();
+        const accessToken = authState.accessToken?.accessToken;
+        const organization = activeMembership?.parsedName;
 
         const response = await fetch(
             `${RS_API_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
             {
                 headers: {
+                    ...fetchHeaders(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
-            }
+            },
         );
 
         return await response.json();
@@ -91,15 +121,18 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             setLoading(true);
             const latestResponse = await getLatestReceiverResponse();
             setOrgReceiverSettingsOldJson(
-                JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                JSON.stringify(latestResponse, jsonSortReplacer, 2),
             );
             setOrgReceiverSettingsNewJson(
-                JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
+                JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2),
             );
-            if (latestResponse?.version !== orgReceiverSettings?.version) {
-                showError(getVersionWarning(VersionWarningType.POPUP));
+            if (
+                action === "edit" &&
+                latestResponse?.version !== orgReceiverSettings?.version
+            ) {
+                showToast(getVersionWarning(VersionWarningType.POPUP), "error");
                 confirmModalRef?.current?.setWarning(
-                    getVersionWarning(VersionWarningType.FULL, latestResponse)
+                    getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
                 confirmModalRef?.current?.disableSave();
             }
@@ -108,10 +141,10 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             setLoading(false);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(
-                `Reloading receiver '${receivername}' failed with: ${errorDetail}`
+            const errorDetail = await getErrorDetailFromResponse(e);
+            showToast(
+                `Reloading receiver '${receivername}' failed with: ${errorDetail}`,
+                "error",
             );
             return false;
         }
@@ -134,11 +167,11 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             if (latestResponse.version !== orgReceiverSettings?.version) {
                 // refresh left-side panel in compare modal to make it obvious what has changed
                 setOrgReceiverSettingsOldJson(
-                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2),
                 );
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showToast(getVersionWarning(VersionWarningType.POPUP), "error");
                 confirmModalRef?.current?.setWarning(
-                    getVersionWarning(VersionWarningType.FULL, latestResponse)
+                    getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
                 confirmModalRef?.current?.disableSave();
                 return false;
@@ -152,23 +185,20 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             await fetchController(
                 OrgReceiverSettingsResource.update(),
                 { orgname, receivername: receivernamelocal },
-                data
+                data,
             );
 
             await resetReceiverList();
-            showAlertNotification(
-                "success",
-                `Item '${receivername}' has been updated`
-            );
+            showToast(`Item '${receivername}' has been updated`, "success");
             setLoading(false);
             confirmModalRef?.current?.hideModal();
             navigate(-1);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(
-                `Updating receiver '${receivername}' failed with: ${errorDetail}`
+            const errorDetail = await getErrorDetailFromResponse(e);
+            showToast(
+                `Updating receiver '${receivername}' failed with: ${errorDetail}`,
+                "error",
             );
             return false;
         }
@@ -201,6 +231,20 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     savefunc={(v) => (orgReceiverSettings.customerStatus = v)}
                     valuesFrom={"customerStatus"}
                 />
+                <DropdownComponent
+                    fieldname={"timeZone"}
+                    label={"Time Zone"}
+                    defaultvalue={orgReceiverSettings.timeZone}
+                    savefunc={(v) => (orgReceiverSettings.timeZone = v)}
+                    valuesFrom={"timeZone"}
+                />
+                <DropdownComponent
+                    fieldname={"dateTimeFormat"}
+                    label={"Date Time Format"}
+                    defaultvalue={orgReceiverSettings.dateTimeFormat}
+                    savefunc={(v) => (orgReceiverSettings.dateTimeFormat = v)}
+                    valuesFrom={"dateTimeFormat"}
+                />
                 <TextInputComponent
                     fieldname={"description"}
                     label={"Description"}
@@ -221,7 +265,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     toolTip={
                         <EnumTooltip
                             vals={getListOfEnumValues(
-                                "reportStreamFilterDefinition"
+                                "reportStreamFilterDefinition",
                             )}
                         />
                     }
@@ -237,7 +281,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     toolTip={
                         <EnumTooltip
                             vals={getListOfEnumValues(
-                                "reportStreamFilterDefinition"
+                                "reportStreamFilterDefinition",
                             )}
                         />
                     }
@@ -259,7 +303,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     toolTip={
                         <EnumTooltip
                             vals={getListOfEnumValues(
-                                "reportStreamFilterDefinition"
+                                "reportStreamFilterDefinition",
                             )}
                         />
                     }
@@ -273,7 +317,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     toolTip={
                         <EnumTooltip
                             vals={getListOfEnumValues(
-                                "reportStreamFilterDefinition"
+                                "reportStreamFilterDefinition",
                             )}
                         />
                     }
@@ -314,23 +358,40 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     savefunc={(v) => (orgReceiverSettings.externalName = v)}
                 />
                 <Grid row className="margin-top-2">
-                    <Button
-                        type="button"
-                        onClick={async () =>
-                            (await resetReceiverList()) && navigate(-1)
-                        }
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        form="edit-setting"
-                        type="submit"
-                        data-testid="submit"
-                        disabled={loading}
-                        onClick={showCompareConfirm}
-                    >
-                        Preview...
-                    </Button>
+                    <Grid col={6}>
+                        {action === "edit" ? (
+                            <Button
+                                type={"button"}
+                                secondary={true}
+                                data-testid={"receiverSettingDeleteButton"}
+                                onClick={() => ShowDeleteConfirm(receivername)}
+                            >
+                                Delete...
+                            </Button>
+                        ) : null}
+                    </Grid>
+                    <Grid col={6} className={"text-right"}>
+                        <Button
+                            type="button"
+                            outline={true}
+                            onClick={() =>
+                                void resetReceiverList().then(() =>
+                                    navigate(-1),
+                                )
+                            }
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            form="edit-setting"
+                            type="submit"
+                            data-testid="submit"
+                            disabled={loading}
+                            onClick={() => void showCompareConfirm()}
+                        >
+                            Edit json and save...
+                        </Button>
+                    </Grid>
                 </Grid>
                 <ConfirmSaveSettingModal
                     uniquid={
@@ -339,24 +400,29 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                             : orgReceiverSettings.name
                     }
                     ref={confirmModalRef}
-                    onConfirm={saveReceiverData}
+                    onConfirm={() => void saveReceiverData()}
                     oldjson={orgReceiverSettingsOldJson}
                     newjson={orgReceiverSettingsNewJson}
                 />
             </GridContainer>
+            <ModalConfirmDialog
+                id={"deleteConfirm"}
+                onConfirm={(id) => void doDelete(id)}
+                ref={modalRef}
+            ></ModalConfirmDialog>
         </section>
     );
 };
 
-type EditReceiverSettingsProps = {
+interface EditReceiverSettingsParams extends Record<string, string> {
     orgname: string;
     receivername: string;
     action: "edit" | "clone";
-};
+}
 
-export function EditReceiverSettings() {
+export function EditReceiverSettingsPage() {
     const { orgname, receivername, action } =
-        useParams<EditReceiverSettingsProps>();
+        useParams<EditReceiverSettingsParams>();
 
     return (
         <AdminFormWrapper
@@ -368,19 +434,12 @@ export function EditReceiverSettings() {
             }
         >
             <EditReceiverSettingsForm
-                orgname={orgname || ""}
-                receivername={receivername || ""}
-                action={action || ""}
+                orgname={orgname ?? ""}
+                receivername={receivername ?? ""}
+                action={action ?? "edit"}
             />
         </AdminFormWrapper>
     );
 }
 
-export function EditReceiverSettingsWithAuth() {
-    return (
-        <AuthElement
-            element={<EditReceiverSettings />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
+export default EditReceiverSettingsPage;

@@ -1,31 +1,40 @@
-import React, { useState, Dispatch, SetStateAction, useMemo } from "react";
-import { Helmet } from "react-helmet";
+import {
+    Dispatch,
+    ReactNode,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
+import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
-import { ReactNode } from "react-markdown/lib/react-markdown";
 
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import Spinner from "../../../components/Spinner";
+import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import Table, {
     ColumnConfig,
-    DatasetAction,
     TableConfig,
-    TableRow,
 } from "../../../components/Table/Table";
+import { DatasetAction } from "../../../components/Table/TableInfo";
+import { TableRowData } from "../../../components/Table/TableRows";
+import {
+    LookupTable,
+    ValueSetRow,
+} from "../../../config/endpoints/lookupTables";
+import { useSessionContext } from "../../../contexts/Session";
 import {
     useValueSetActivation,
     useValueSetsMeta,
     useValueSetsTable,
     useValueSetUpdate,
 } from "../../../hooks/UseValueSets";
-import { toHumanReadable } from "../../../utils/misc";
 import {
-    LookupTable,
-    ValueSetRow,
-} from "../../../config/endpoints/lookupTables";
-import { StaticAlert } from "../../../components/StaticAlert";
-import { ReportStreamAlert } from "../../../utils/ErrorUtils";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../../components/AuthElement";
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
-import Spinner from "../../../components/Spinner";
+    handleErrorWithAlert,
+    ReportStreamAlert,
+} from "../../../utils/ErrorUtils";
+import { toHumanReadable } from "../../../utils/misc";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -75,9 +84,9 @@ const ValueSetsDetailHeader = ({
 // splices the new row in the list of all rows,
 // since we can't save one row at a time
 const prepareRowsForSave = (
-    row: TableRow | null,
+    row: TableRowData | null,
     allRows: SenderAutomationDataRow[],
-    valueSetName: string
+    valueSetName: string,
 ): ValueSetRow[] => {
     if (row === null) {
         throw new Error("A null row was encountered in saveData");
@@ -103,7 +112,7 @@ const prepareRowsForSave = (
             display: set.display,
             code: set.code,
             version: set.version,
-        })
+        }),
     );
 
     return strippedArray;
@@ -122,19 +131,33 @@ export const ValueSetsDetailTable = ({
     valueSetName,
     setAlert,
     valueSetData,
+    error,
     Legend,
 }: {
     valueSetName: string;
     setAlert: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
     valueSetData: ValueSetRow[];
+    error?: Error;
     Legend?: ReactNode; //  not using this yet, but may want to some day
 }) => {
-    const { saveData, isSaving } = useValueSetUpdate();
-    const { activateTable, isActivating } = useValueSetActivation();
+    const { mutateAsync: saveData, isPending: isSaving } = useValueSetUpdate();
+    const { mutateAsync: activateTable, isPending: isActivating } =
+        useValueSetActivation();
+    const { rsConsole } = useSessionContext();
+    useEffect(() => {
+        if (error) {
+            handleErrorWithAlert({
+                logMessage: "Error occurred fetching value set",
+                error,
+                setAlert,
+                rsConsole,
+            });
+        }
+    }, [error, rsConsole, setAlert]);
 
     const valueSetsWithIds = useMemo(
         () => addIdsToRows(valueSetData),
-        [valueSetData]
+        [valueSetData],
     );
 
     const tableConfig: TableConfig = useMemo(
@@ -142,12 +165,50 @@ export const ValueSetsDetailTable = ({
             columns: valueSetDetailColumnConfig,
             rows: valueSetsWithIds,
         }),
-        [valueSetsWithIds]
+        [valueSetsWithIds],
     );
 
     const datasetActionItem: DatasetAction = {
         label: "Add item",
     };
+
+    const editCallback = useCallback(
+        async (row: any) => {
+            try {
+                const dataToSave = prepareRowsForSave(
+                    row,
+                    valueSetsWithIds,
+                    valueSetName,
+                );
+                const saveResponse = await saveData({
+                    data: dataToSave,
+                    tableName: valueSetName,
+                });
+                await activateTable({
+                    tableVersion: saveResponse.tableVersion,
+                    tableName: valueSetName,
+                });
+            } catch (e: any) {
+                handleErrorWithAlert({
+                    logMessage: "Error occurred saving value set",
+                    error: e,
+                    setAlert,
+                    rsConsole,
+                });
+                return;
+            }
+            setAlert({ type: "success", message: "Value Saved" });
+        },
+        [
+            activateTable,
+            rsConsole,
+            saveData,
+            setAlert,
+            valueSetName,
+            valueSetsWithIds,
+        ],
+    );
+
     /* Mutations do not support Suspense */
     if (isSaving || isActivating) return <Spinner />;
     return (
@@ -159,37 +220,24 @@ export const ValueSetsDetailTable = ({
             datasetAction={datasetActionItem}
             config={tableConfig}
             enableEditableRows
-            editableCallback={async (row) => {
-                const dataToSave = prepareRowsForSave(
-                    row,
-                    valueSetsWithIds,
-                    valueSetName
-                );
-                const saveResponse = await saveData({
-                    data: dataToSave,
-                    tableName: valueSetName,
-                });
-                await activateTable({
-                    tableVersion: saveResponse.tableVersion,
-                    tableName: valueSetName,
-                });
-                setAlert({ type: "success", message: "Value Saved" });
-            }}
+            editableCallback={editCallback}
         />
     );
 };
 
 const ValueSetsDetailContent = () => {
     const { valueSetName } = useParams<{ valueSetName: string }>();
+    if (!valueSetName) throw new Error("Value set name missing");
     // TODO: when to unset?
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
 
-    const { valueSetArray } = useValueSetsTable<ValueSetRow[]>(valueSetName!!);
-    const { valueSetMeta } = useValueSetsMeta(valueSetName);
+    const { data: valueSetArray } =
+        useValueSetsTable<ValueSetRow[]>(valueSetName);
+    const { data: valueSetMeta } = useValueSetsMeta(valueSetName);
 
     const readableName = useMemo(
-        () => toHumanReadable(valueSetName!!),
-        [valueSetName]
+        () => toHumanReadable(valueSetName),
+        [valueSetName],
     );
 
     return (
@@ -200,30 +248,26 @@ const ValueSetsDetailContent = () => {
             <section className="grid-container">
                 <ValueSetsDetailHeader
                     name={readableName}
-                    meta={valueSetMeta}
+                    meta={valueSetMeta!}
                 />
                 {/* ONLY handles success messaging now */}
                 {alert && (
                     <StaticAlert
-                        type={alert.type}
+                        type={alert.type as StaticAlertType}
                         heading={alert.type.toUpperCase()}
                         message={alert.message}
                     />
                 )}
                 <ValueSetsDetailTable
-                    valueSetName={valueSetName!!}
+                    valueSetName={valueSetName}
                     setAlert={setAlert}
-                    valueSetData={valueSetArray || []}
+                    valueSetData={valueSetArray ?? []}
                 />
             </section>
         </>
     );
 };
-export const ValueSetsDetail = () =>
+export const ValueSetsDetailPage = () =>
     withCatchAndSuspense(<ValueSetsDetailContent />);
-export const ValueSetsDetailWithAuth = () => (
-    <AuthElement
-        element={<ValueSetsDetail />}
-        requiredUserType={MemberType.PRIME_ADMIN}
-    />
-);
+
+export default ValueSetsDetailPage;

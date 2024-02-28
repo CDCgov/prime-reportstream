@@ -4,7 +4,9 @@ services:
   builder:
     depends_on:
       - postgresql
-    image: ghcr.io/cdcgov/prime-router_builder:jdk11afct3grdl7.1
+    build:
+      context: .
+      dockerfile: Dockerfile.build
     environment:
       DB_PASSWORD: "changeIT!"
       DB_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
@@ -29,7 +31,9 @@ services:
   # build docker-compose as we do not want to dictate that.
   # You can connect using psql, or pgAdmin, or ... just point at 5432 on your local host
   postgresql:
-    image: postgres:11
+    build:
+      context: ../.environment/docker/docker-compose/
+      dockerfile: Dockerfile.postgres
     restart: always
     environment:
       POSTGRES_DB: "prime_data_hub"

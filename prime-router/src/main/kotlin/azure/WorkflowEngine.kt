@@ -5,6 +5,7 @@ import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
@@ -14,7 +15,6 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -33,10 +33,15 @@ import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.transport.SoapTransport
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
+import java.time.Duration
 import java.time.OffsetDateTime
+import java.util.UUID
 
 /**
  * A top-level object that contains all the helpers and accessors to power the workflow.
@@ -52,14 +57,14 @@ class WorkflowEngine(
     val hl7Serializer: Hl7Serializer = hl7SerializerSingleton,
     val csvSerializer: CsvSerializer = csvSerializerSingleton,
     val db: DatabaseAccess = databaseAccessSingleton,
-    val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer),
+    val blob: BlobAccess = BlobAccess(),
     queue: QueueAccess = QueueAccess,
     val translator: Translator = Translator(metadata, settings),
     val sftpTransport: SftpTransport = SftpTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
     val soapTransport: SoapTransport = SoapTransport(),
     val gaenTransport: GAENTransport = GAENTransport(),
-    val restTransport: RESTTransport = RESTTransport()
+    val restTransport: RESTTransport = RESTTransport(),
 ) : BaseEngine(queue) {
 
     /**
@@ -72,7 +77,7 @@ class WorkflowEngine(
         var blobAccess: BlobAccess? = null,
         var queueAccess: QueueAccess? = null,
         var hl7Serializer: Hl7Serializer? = null,
-        var csvSerializer: CsvSerializer? = null
+        var csvSerializer: CsvSerializer? = null,
     ) {
         /**
          * Set the metadata instance.
@@ -137,7 +142,7 @@ class WorkflowEngine(
                 hl7Serializer!!,
                 csvSerializer!!,
                 databaseAccess ?: databaseAccessSingleton,
-                blobAccess ?: BlobAccess(csvSerializer!!, hl7Serializer!!),
+                blobAccess ?: BlobAccess(),
                 queueAccess ?: QueueAccess
             )
         }
@@ -172,11 +177,20 @@ class WorkflowEngine(
         payloadName: String? = null,
     ): BlobAccess.BlobInfo {
         // Save a copy of the original report
-        val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
-        val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
+        val reportFormat =
+            if (sender.topic.isUniversalPipeline) {
+                report.bodyFormat
+            } else {
+                Report.Format.safeValueOf(sender.format.toString())
+            }
+
+        val blobFilename = report.name.replace(report.bodyFormat.ext, reportFormat.ext)
         val blobInfo = BlobAccess.uploadBody(
-            senderReportFormat, rawBody,
-            blobFilename, sender.fullName, Event.EventAction.RECEIVE
+            reportFormat,
+            rawBody,
+            blobFilename,
+            sender.fullName,
+            Event.EventAction.RECEIVE
         )
 
         actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
@@ -187,7 +201,7 @@ class WorkflowEngine(
         report: Report,
         reportFormat: String,
         reportUrl: String,
-        nextAction: Event
+        nextAction: Event,
     ) {
         db.insertTask(report, reportFormat, reportUrl, nextAction, null)
     }
@@ -201,7 +215,7 @@ class WorkflowEngine(
         actionHistory: ActionHistory,
         receiver: Receiver,
         txn: Configuration? = null,
-        isEmptyReport: Boolean = false
+        isEmptyReport: Boolean = false,
     ) {
         val receiverName = "${receiver.organizationName}.${receiver.name}"
 
@@ -209,23 +223,25 @@ class WorkflowEngine(
         //  in the generateBodyAndUploadReport function these values are only used if it is an HL7 batch
         // todo when generateBodyAndUploadReport is refactored, this can be changed
         val sendingApp: String? = if (isEmptyReport) "CDC PRIME - Atlanta" else null
-        val receivingApp: String? = if (isEmptyReport && receiver.translation is Hl7Configuration)
+        val receivingApp: String? = if (isEmptyReport && receiver.translation is Hl7Configuration) {
             receiver.translation.receivingApplicationName
-        else null
-        val receivingFacility: String? = if (isEmptyReport && receiver.translation is Hl7Configuration)
+        } else {
+            null
+        }
+        val receivingFacility: String? = if (isEmptyReport && receiver.translation is Hl7Configuration) {
             receiver.translation.receivingFacilityName
-        else null
+        } else {
+            null
+        }
 
         val blobInfo = try {
-            // formatting errors can occur down in here.
-            blob.generateBodyAndUploadReport(
+            val bodyBytes = ReportWriter.getBodyBytes(
                 report,
-                receiverName,
-                nextAction.eventAction,
                 sendingApp,
                 receivingApp,
                 receivingFacility
             )
+            blob.uploadReport(report, bodyBytes, receiverName, nextAction.eventAction)
         } catch (ex: Exception) {
             logger.error(
                 "Got exception while dispatching to schema ${report.schema.name}" +
@@ -240,10 +256,11 @@ class WorkflowEngine(
             report.bodyURL = blobInfo.blobUrl
 
             // if this is a newly generated empty report, track it as a 'new report'
-            if (isEmptyReport)
+            if (isEmptyReport) {
                 actionHistory.trackGeneratedEmptyReport(nextAction, report, receiver, blobInfo)
-            else
-                actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
+            } else {
+                actionHistory.trackCreatedReport(nextAction, report, receiver = receiver, blobInfo = blobInfo)
+            }
         } catch (e: Exception) {
             // Clean up
             BlobAccess.deleteBlob(blobInfo.blobUrl)
@@ -351,7 +368,7 @@ class WorkflowEngine(
                         Event.EventAction.RESEND,
                         nextEvent.eventAction,
                         nextEvent.at,
-                        RetryToken(1, retryItems).toJSON(),
+                        RetryToken(0, retryItems).toJSON(), // retryCount=0 will start at [1]
                         txn
                     )
                     msgs.add("$reportId has been queued to resend immediately to ${receiver.fullName}\n")
@@ -440,7 +457,7 @@ class WorkflowEngine(
             .filterAndTranslateByReceiver(
                 report,
                 defaults,
-                routeTo,
+                routeTo
             )
 
         val (emptyReports, preparedReports) = routedReports.partition { (report, _) -> report.isEmpty() }
@@ -455,7 +472,7 @@ class WorkflowEngine(
         receiver: Receiver,
         options: Options,
         actionHistory: ActionHistory,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ) {
         val loggerMsg: String
         when {
@@ -465,6 +482,7 @@ class WorkflowEngine(
                 this.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
+
             receiver.timing != null && options != Options.SendImmediately -> {
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
@@ -473,6 +491,7 @@ class WorkflowEngine(
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
+
             receiver.format.isSingleItemFormat -> {
                 report.filteringResults.forEach {
                     val emptyReport = Report(
@@ -495,6 +514,7 @@ class WorkflowEngine(
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
+
             else -> {
                 val event = ReportEvent(Event.EventAction.SEND, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn)
@@ -512,7 +532,7 @@ class WorkflowEngine(
     fun handleProcessFailure(
         numAttempts: Int,
         actionHistory: ActionHistory,
-        message: String
+        message: String,
     ) {
         // if there are already four process_warning records in the database for this reportId, this is the last try
         if (numAttempts >= 5) {
@@ -542,13 +562,27 @@ class WorkflowEngine(
      */
     fun handleProcessEvent(
         messageEvent: ProcessEvent,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ) {
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
 
-            val blobContent = BlobAccess.downloadBlob(task.bodyUrl)
             val currentAction = Event.EventAction.parseQueueMessage(task.nextAction.literal)
+            if (currentAction != Event.EventAction.PROCESS) {
+                // As of this writing we are not sure why this bug occurs.  However, this at least prevents it from
+                // causing trouble.
+                logger.error(
+                    "ProcessQueueFailure: The 'process' queue wants to " +
+                        "process report ${messageEvent.reportId}, " +
+                        "but the TASK table shows its next_action is $currentAction. " +
+                        "Its likely this report was processed earlier, but not removed from the 'process' queue."
+                )
+                // don't throw an exception, as that'll just make this erroneous process action run again.
+                // Also, no reason to update the TASK table:  its already marked as done.
+                return@transact
+            }
+
+            val blobContent = BlobAccess.downloadBlobAsByteArray(task.bodyUrl)
 
             val report = csvSerializer.readInternal(
                 task.schemaName,
@@ -585,6 +619,62 @@ class WorkflowEngine(
                 txn
             )
         }
+    }
+
+    /**
+     * Creates Header objects for all Tasks passed in with content downloaded.
+     * TODO: rename function or handle other nullable attributes if Header survives refactor (see #11636)
+     *
+     * @param tasks list of tasks to process
+     * @param map of reportfiles keyed by reportID
+     * @param organization associated with these tasks
+     * @param receiver associated with these tasks
+     */
+    fun createDeepHeaders(
+        tasks: List<Task>,
+        reportFiles: Map<UUID, ReportFile>,
+        organization: Organization,
+        receiver: Receiver,
+    ): List<Header> {
+        val startTime = OffsetDateTime.now()
+        val headers = runBlocking {
+            tasks.mapNotNull {
+                async {
+                    if (reportFiles[it.reportId] == null) {
+                        logger.error(
+                            "Failed reportFile lookup on ReportId: ${it.reportId}"
+                        )
+                        null
+                    } else if (reportFiles[it.reportId]!!.bodyUrl == null) {
+                        logger.error(
+                            "Missing bodyURL on ReportId: ${it.reportId}"
+                        )
+                        null
+                    } else {
+                        val header = createHeader(
+                            it,
+                            reportFiles[it.reportId]!!,
+                            null,
+                            organization,
+                            receiver,
+                            true
+                        )
+                        if (header.content!!.isEmpty()) {
+                            logger.error(
+                                "Failure to download ${it.bodyUrl} from blobstore. " +
+                                    "ReportId: ${it.reportId}"
+                            )
+                            null
+                        } else {
+                            header
+                        }
+                    }
+                }
+            }.awaitAll()
+        }.filterNotNull()
+        val duration = Duration.between(startTime, OffsetDateTime.now())
+        logger.info("BatchFunction Downloading blobs and creating rich headers took $duration")
+        return headers
     }
 
     /**
@@ -625,13 +715,8 @@ class WorkflowEngine(
             val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
             // This check is needed as long as TASK does not FK to REPORT_FILE.  @todo FK TASK to REPORT_FILE
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-            val headers = tasks.mapNotNull {
-                if (reportFiles[it.reportId] != null) {
-                    createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
-                } else {
-                    null
-                }
-            }
+
+            val headers = createDeepHeaders(tasks, reportFiles, organization, receiver)
 
             updateBlock(headers, txn)
             // Here we iterate through the original tasks, rather than headers.
@@ -655,16 +740,12 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun createReport(header: Header): Report {
-        // todo All of this info is already populated in the Header obj.
-        val schema = metadata.findSchema(header.task.schemaName)
-            ?: error("Invalid schema in queue: ${header.task.schemaName}")
-        val bytes = BlobAccess.downloadBlob(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV", "CSV_SINGLE" -> {
                 val result = csvSerializer.readExternal(
-                    schema.name,
-                    ByteArrayInputStream(bytes),
+                    header.task.schemaName,
+                    ByteArrayInputStream(header.content!!),
                     emptyList(),
                     header.receiver
                 )
@@ -673,15 +754,17 @@ class WorkflowEngine(
                 }
                 result.report
             }
+
             "INTERNAL" -> {
                 csvSerializer.readInternal(
-                    schema.name,
-                    ByteArrayInputStream(bytes),
+                    header.task.schemaName,
+                    ByteArrayInputStream(header.content!!),
                     emptyList(),
                     header.receiver,
                     header.reportFile.reportId
                 )
             }
+
             else -> error("Unsupported read format")
         }
     }
@@ -690,7 +773,7 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun readBody(header: Header): ByteArray {
-        return BlobAccess.downloadBlob(header.task.bodyUrl)
+        return BlobAccess.downloadBlobAsByteArray(header.task.bodyUrl)
     }
 
     fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
@@ -703,7 +786,7 @@ class WorkflowEngine(
 
     private fun findOrganizationAndReceiver(
         fullName: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): Pair<Organization, Receiver> {
         return if (settings is SettingsFacade) {
             val (organization, receiver) = (settings).findOrganizationAndReceiver(fullName, txn)
@@ -737,7 +820,7 @@ class WorkflowEngine(
         // todo: until this can be refactored, we need a way for the calling functions to know
         //  if this header is expecting to have content to detect errors on download (IE, file does not exist
         //  see #3505
-        val expectingContent: Boolean
+        val expectingContent: Boolean,
     )
 
     private fun createHeader(
@@ -746,23 +829,27 @@ class WorkflowEngine(
         itemLineages: List<ItemLineage>?,
         organization: Organization?,
         receiver: Receiver?,
-        fetchBlobBody: Boolean = true
+        fetchBlobBody: Boolean = true,
     ): Header {
-        val schema = if (reportFile.schemaName != null)
+        val schema = if (reportFile.schemaName != null) {
             metadata.findSchema(reportFile.schemaName)
-        else null
+        } else {
+            null
+        }
 
         val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
         val content = if (downloadContent && BlobAccess.exists(reportFile.bodyUrl)) {
-            BlobAccess.downloadBlob(reportFile.bodyUrl)
-        } else null
+            BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl)
+        } else {
+            null
+        }
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }
 
     fun fetchHeader(
         reportId: ReportId,
         organization: Organization,
-        fetchBlobBody: Boolean = true
+        fetchBlobBody: Boolean = true,
     ): Header {
         val reportFile = db.fetchReportFile(reportId, organization)
         val task = db.fetchTask(reportId)
@@ -791,6 +878,9 @@ class WorkflowEngine(
             return when (currentEventAction) {
                 Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.PROCESS -> Tables.TASK.PROCESSED_AT
+                // we don't really use these  *_AT columns for anything at this point, and 'convert' is another name
+                //  for 'process' ... but 'process' is just too vague
+                Event.EventAction.CONVERT -> Tables.TASK.PROCESSED_AT
                 Event.EventAction.ROUTE -> Tables.TASK.ROUTED_AT
                 Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date
@@ -803,13 +893,20 @@ class WorkflowEngine(
                 Event.EventAction.SEND_ERROR,
                 Event.EventAction.PROCESS_ERROR,
                 Event.EventAction.PROCESS_WARNING,
-                Event.EventAction.WIPE_ERROR -> Tables.TASK.ERRORED_AT
+                Event.EventAction.WIPE_ERROR,
+                -> Tables.TASK.ERRORED_AT
 
                 Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
+                Event.EventAction.OTHER -> error("Internal Error: OTHER currentAction")
             }
         }
         db.updateTask(
-            reportId, nextEventAction.toTaskAction(), nextActionAt, retryToken, finishedField(currentEventAction), txn
+            reportId,
+            nextEventAction.toTaskAction(),
+            nextActionAt,
+            retryToken,
+            finishedField(currentEventAction),
+            txn
         )
     }
 
@@ -824,9 +921,9 @@ class WorkflowEngine(
      * @return Returns a generated report object, or null
      */
     fun parseTopicReport(
-        sender: TopicSender,
+        sender: LegacyPipelineSender,
         content: String,
-        defaults: Map<String, String>
+        defaults: Map<String, String>,
     ): ReadResult {
         return when (sender.format) {
             Sender.Format.CSV -> {
@@ -850,7 +947,8 @@ class WorkflowEngine(
                     )
                 }
             }
-            Sender.Format.HL7 -> {
+
+            Sender.Format.HL7, Sender.Format.HL7_BATCH -> {
                 try {
                     this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,
@@ -870,6 +968,8 @@ class WorkflowEngine(
                     )
                 }
             }
+
+            else -> throw IllegalStateException("Sender format ${sender.format} is not supported")
         }
     }
 }

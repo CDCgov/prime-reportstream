@@ -18,11 +18,11 @@ import org.apache.logging.log4j.kotlin.Logging
  *  included in this file at this time to limit scope
  */
 abstract class BaseEngine(
-    val queue: QueueAccess = QueueAccess
+    val queue: QueueAccess = QueueAccess,
 ) : Logging {
     companion object {
         /**
-         * These are all potentially heavy weight objects that
+         * These are all potentially heavyweight objects that
          * should only be created once.
          */
         val databaseAccessSingleton: DatabaseAccess by lazy {
@@ -58,7 +58,7 @@ abstract class BaseEngine(
 
         /**
          * Always find tasks at least this old.  This covers for  extended downtime due to a crash,
-         * as well as for 25 hour days etc.
+         * as well as for 25-hour days etc.
          */
         const val BATCH_LOOKBACK_PADDING_MINS: Long = 180 // 3 hours
 
@@ -74,11 +74,24 @@ abstract class BaseEngine(
          * Calculation is done in minutes.
          */
         internal fun getBatchLookbackMins(numberBatchesPerDay: Int, minNumRetries: Int): Long {
-            val frequencyMins = if (numberBatchesPerDay > 0)
+            val frequencyMins = if (numberBatchesPerDay > 0) {
                 1440 / numberBatchesPerDay
-            else
+            } else {
                 1440
+            }
             return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS)
+        }
+
+        // TODO: #10510
+        fun convertRelativeSchemaPathToUri(schemaPath: String): String {
+            if (schemaPath.isEmpty()) {
+                return ""
+            }
+            if (schemaPath.startsWith("classpath:/")) {
+                return schemaPath
+            } else {
+                return "classpath:/$schemaPath.yml"
+            }
         }
     }
 }

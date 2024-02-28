@@ -8,9 +8,10 @@ import org.jooq.Condition
 import org.jooq.SortField
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
+import java.util.UUID
 
 abstract class HistoryDatabaseAccess(
-    internal val db: DatabaseAccess = BaseEngine.databaseAccessSingleton
+    internal val db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
 ) {
     /**
      * Values that results can be sorted by.
@@ -26,7 +27,7 @@ abstract class HistoryDatabaseAccess(
      * wish to sort by is indexed.
      */
     enum class SortColumn {
-        CREATED_AT
+        CREATED_AT,
     }
 
     /**
@@ -54,6 +55,8 @@ abstract class HistoryDatabaseAccess(
      * @param pageSize is an Integer used for setting the number of results per page.
      * @param showFailed whether to include actions that failed to be sent.
      * @param klass the class that the found data will be converted to.
+     * @param reportId is the reportId to get results for.
+     * @param fileName is the fileName to get results for.
      * @return a list of results matching the SQL Query.
      */
     fun <T> fetchActions(
@@ -66,10 +69,12 @@ abstract class HistoryDatabaseAccess(
         until: OffsetDateTime?,
         pageSize: Int,
         showFailed: Boolean,
-        klass: Class<T>
+        klass: Class<T>,
+        reportId: UUID? = null,
+        fileName: String? = null,
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
-        val whereClause = createWhereCondition(organization, orgService, since, until, showFailed)
+        val whereClause = createWhereCondition(organization, orgService, reportId, fileName, since, until, showFailed)
 
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
@@ -106,7 +111,7 @@ abstract class HistoryDatabaseAccess(
      */
     private fun createColumnSort(
         sortColumn: SortColumn,
-        sortDir: SortDir
+        sortDir: SortDir,
     ): SortField<OffsetDateTime> {
         val column = when (sortColumn) {
             /* Decides sort column by enum */
@@ -135,11 +140,21 @@ abstract class HistoryDatabaseAccess(
     private fun createWhereCondition(
         organization: String,
         orgService: String?,
+        reportId: UUID?,
+        fileName: String?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
-        showFailed: Boolean
+        showFailed: Boolean,
     ): Condition {
         var filter = this.organizationFilter(organization, orgService)
+
+        if (reportId != null) {
+            filter = filter.and(REPORT_FILE.REPORT_ID.eq(reportId))
+        }
+
+        if (fileName != null) {
+            filter = filter.and(REPORT_FILE.BODY_URL.likeIgnoreCase("%$fileName"))
+        }
 
         if (since != null) {
             filter = filter.and(ACTION.CREATED_AT.ge(since))
@@ -167,19 +182,19 @@ abstract class HistoryDatabaseAccess(
     abstract fun <T> fetchAction(
         actionId: Long,
         orgName: String? = null,
-        klass: Class<T>
+        klass: Class<T>,
     ): T?
 
     /**
      * Fetch the details of an action's relations (descendants).
      * This is done through a recursive query on the report_lineage table.
      *
-     * @param actionId the action id attached to the action to find relations for.
+     * @param reportId the report id attached to the action to find relations for.
      * @param klass the class that the found data will be converted to.
      * @return a list of descendants for the given action id.
      */
     abstract fun <T> fetchRelatedActions(
-        actionId: Long,
-        klass: Class<T>
+        reportId: UUID,
+        klass: Class<T>,
     ): List<T>
 }

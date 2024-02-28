@@ -16,15 +16,15 @@ import kotlin.test.Test
 class SchemaTests {
     @Test
     fun `create schema`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         assertThat(one).isNotNull()
     }
 
     @Test
     fun `compare schemas`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val oneAgain = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
+        val oneAgain = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
+        val two = Schema(name = "two", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         assertThat(one)
             .isEqualTo(oneAgain)
         assertThat(one)
@@ -33,7 +33,7 @@ class SchemaTests {
 
     @Test
     fun `find element`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         assertThat(one.findElement("a")).isEqualTo(Element("a"))
         assertThat(one.findElement("c")).isNull()
     }
@@ -53,7 +53,7 @@ class SchemaTests {
         val livdElementB = Element(ElementNames.TEST_KIT_NAME_ID.elementName, mapperRef = LIVDLookupMapper())
 
         val schema1 = Schema(
-            name = "one", topic = "test",
+            name = "one", topic = Topic.TEST,
             elements = listOf(
                 elementA, elementB, elementC, elementD, elementE, elementF, elementG, livdElementA,
                 livdElementB
@@ -71,7 +71,7 @@ class SchemaTests {
         assertThat(orderedElements[8]).isEqualTo(elementG)
 
         val schema2 = Schema(
-            name = "one", topic = "test",
+            name = "one", topic = Topic.TEST,
             elements = listOf(
                 livdElementB, livdElementA, elementG, elementF, elementE, elementD, elementC, elementB,
                 elementA
@@ -89,7 +89,7 @@ class SchemaTests {
         assertThat(orderedElements[8]).isEqualTo(elementF)
 
         val schema3 = Schema(
-            name = "one", topic = "test",
+            name = "one", topic = Topic.TEST,
             elements = listOf(
                 elementD, elementC, elementF, livdElementB, livdElementA, elementG, elementE, elementB,
                 elementA
@@ -119,7 +119,7 @@ class SchemaTests {
         )
         val elementF = Element("f", mapperRef = ConcatenateMapper(), mapperArgs = listOf("a", "d", "e"))
         val schema1 = Schema(
-            name = "one", topic = "test",
+            name = "one", topic = Topic.TEST,
             elements = listOf(elementA, elementB, elementC, elementD, elementE, elementF)
         )
 

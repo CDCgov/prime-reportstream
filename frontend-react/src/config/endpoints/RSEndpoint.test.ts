@@ -1,3 +1,5 @@
+import config from "..";
+
 import { RSEndpoint } from ".";
 
 const testEndpoint = new RSEndpoint({
@@ -9,6 +11,7 @@ const testEndpoint = new RSEndpoint({
 const dynamicEndpoint = new RSEndpoint({
     path: "/:something/:anything",
     method: "GET",
+    queryKey: "anything",
 });
 
 describe("RSEndpoint", () => {
@@ -19,7 +22,7 @@ describe("RSEndpoint", () => {
     });
 
     test("has a getter for url that works", () => {
-        expect(testEndpoint.url).toEqual("https://test.prime.cdc.gov/api/path");
+        expect(testEndpoint.url).toEqual(`${config.API_ROOT}/path`);
     });
 
     describe("toDynamicUrl", () => {
@@ -29,13 +32,13 @@ describe("RSEndpoint", () => {
 
         test("returns url if no dynamic segments are present and no values are passed", () => {
             expect(testEndpoint.toDynamicUrl()).toEqual(
-                "https://test.prime.cdc.gov/api/path"
+                `${config.API_ROOT}/path`,
             );
         });
 
         test("throws if not all dynamic segments are provided with values", () => {
             expect(() =>
-                dynamicEndpoint.toDynamicUrl({ something: "else" })
+                dynamicEndpoint.toDynamicUrl({ something: "else" }),
             ).toThrow();
         });
 
@@ -44,15 +47,15 @@ describe("RSEndpoint", () => {
                 dynamicEndpoint.toDynamicUrl({
                     something: "else",
                     anything: "more",
-                })
-            ).toEqual("https://test.prime.cdc.gov/api/else/more");
+                }),
+            ).toEqual(`${config.API_ROOT}/else/more`);
         });
     });
 
     describe("toAxiosConfig", () => {
         test("passes along key params from class", () => {
             expect(testEndpoint.toAxiosConfig({})).toEqual({
-                url: "https://test.prime.cdc.gov/api/path",
+                url: `${config.API_ROOT}/path`,
                 method: "GET",
             });
         });
@@ -60,9 +63,9 @@ describe("RSEndpoint", () => {
             expect(
                 testEndpoint.toAxiosConfig({
                     headers: { "x-fake-header": "anyway" },
-                })
+                }),
             ).toEqual({
-                url: "https://test.prime.cdc.gov/api/path",
+                url: `${config.API_ROOT}/path`,
                 method: "GET",
                 headers: {
                     "x-fake-header": "anyway",
@@ -75,9 +78,9 @@ describe("RSEndpoint", () => {
                     headers: { "x-fake-header": "anyway" },
                     url: "do not use",
                     method: "POST",
-                })
+                }),
             ).toEqual({
-                url: "https://test.prime.cdc.gov/api/path",
+                url: `${config.API_ROOT}/path`,
                 method: "GET",
                 headers: {
                     "x-fake-header": "anyway",
@@ -92,9 +95,9 @@ describe("RSEndpoint", () => {
                         something: "else",
                         anything: "more",
                     },
-                })
+                }),
             ).toEqual({
-                url: "https://test.prime.cdc.gov/api/else/more",
+                url: `${config.API_ROOT}/else/more`,
                 method: "GET",
                 headers: {
                     "x-fake-header": "anyway",

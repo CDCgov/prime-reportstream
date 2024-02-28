@@ -1,29 +1,21 @@
-import { Helmet } from "react-helmet";
-import React from "react";
+import { GridContainer } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
 
-import HipaaNotice from "../../components/HipaaNotice";
 import { AdminReceiverDashboard } from "../../components/Admin/AdminReceiverDashboard";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../components/AuthElement";
+import HipaaNotice from "../../components/HipaaNotice";
 
 export function AdminReceiverDashPage() {
     return (
-        <>
+        <GridContainer>
             <Helmet>
-                <title>Admin Destination Dashboard</title>
+                <title>Receiver status dashboard - Admin</title>
             </Helmet>
-            <section className="grid-container margin-top-0" />
-            <AdminReceiverDashboard />
-            <HipaaNotice />
-        </>
+            <article>
+                <AdminReceiverDashboard />
+                <HipaaNotice />
+            </article>
+        </GridContainer>
     );
 }
 
-export function AdminReceiverDashWithAuth() {
-    return (
-        <AuthElement
-            element={<AdminReceiverDashPage />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
+export default AdminReceiverDashPage;

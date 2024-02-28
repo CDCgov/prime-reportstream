@@ -1,6 +1,10 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act } from "@testing-library/react";
 
-import useDateRange, { RangeSettingsActionType } from "./UseDateRange";
+import useDateRange, {
+    getEndOfDay,
+    RangeSettingsActionType,
+} from "./UseDateRange";
+import { renderHook } from "../../utils/CustomRenderUtils";
 
 describe("UseDateRange", () => {
     test("renders with default values", () => {
@@ -19,7 +23,7 @@ describe("UseDateRange", () => {
                 payload: {
                     from: new Date("2022-12-31").toISOString(),
                 },
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             to: "3000-01-01T00:00:00.000Z",
@@ -35,7 +39,7 @@ describe("UseDateRange", () => {
                 payload: {
                     to: new Date("2022-01-01").toISOString(),
                 },
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             to: "2022-01-01T00:00:00.000Z",
@@ -51,12 +55,12 @@ describe("UseDateRange", () => {
                 payload: {
                     to: new Date("2022-01-01").toISOString(),
                 },
-            })
+            }),
         );
         act(() =>
             result.current.update({
                 type: RangeSettingsActionType.RESET,
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             to: "3000-01-01T00:00:00.000Z",
@@ -73,11 +77,24 @@ describe("UseDateRange", () => {
                     from: new Date("2022-12-31").toISOString(),
                     to: new Date("2022-01-01").toISOString(),
                 },
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             from: "2022-12-31T00:00:00.000Z",
             to: "2022-01-01T00:00:00.000Z",
         });
+    });
+});
+
+describe("getEndOfDay", () => {
+    const date = new Date("2023-02-17T00:00:00.000Z");
+
+    test("returns the end of the day in UTC", () => {
+        expect(getEndOfDay(date)).toEqual(new Date("2023-02-17T23:59:59.999Z"));
+    });
+
+    test("does not modify the original Date instance", () => {
+        getEndOfDay(date);
+        expect(date.toISOString()).toEqual("2023-02-17T00:00:00.000Z");
     });
 });

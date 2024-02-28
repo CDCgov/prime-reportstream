@@ -233,3 +233,4 @@ elements:
 
   - name: reporting_facility_clia
     csvFields: [ { name: reporting_facility_clia } ]
+

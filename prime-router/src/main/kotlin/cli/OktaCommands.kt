@@ -26,16 +26,16 @@ import java.time.LocalDateTime
 import kotlin.random.Random
 
 /**
- * Implements a PKCE OAUTH2 authorization workflow with the HHS-PRIME Okta account. A browser is launched
+ * Implements a PKCE OAUTH2 authorization workflow with the ReportStream Okta account. A browser is launched
  * for the user to enter credentials. A local server is setup to handle the Oauth2 redirect and to capture
  * the authorization code.
  *
  * Based on Okta article https://developer.okta.com/blog/2018/12/13/oauth-2-for-native-and-mobile-apps
  */
-private const val oktaProdBaseUrl = "https://hhs-prime.okta.com"
-const val oktaPreviewBaseUrl = "https://hhs-prime.oktapreview.com"
-private const val oktaProdClientId = "0oa6kt4j3tOFz5SH84h6"
-private const val oktaPreviewClientId = "0oa2fs6vp3W5MTzjh1d7"
+private const val oktaProdBaseUrl = "https://reportstream.okta.com"
+const val oktaPreviewBaseUrl = "https://reportstream.oktapreview.com"
+private const val oktaProdClientId = "0oa376pah9o4G2HVJ4h7"
+private const val oktaPreviewClientId = "0oa8uvan2i07YXJLk1d7"
 private const val oktaAuthorizePath = "/oauth2/default/v1/authorize" // Default authorization server
 private const val oktaTokenPath = "/oauth2/default/v1/token"
 private const val oktaUserInfoPath = "/oauth2/default/v1/userinfo"
@@ -51,12 +51,12 @@ private const val localTokenFileName = "accessToken.json"
  */
 class LoginCommand : OktaCommand(
     name = "login",
-    help = "Login to the HHS-PRIME authorization service"
+    help = "Login to the ReportStream authorization service"
 ) {
     private var redirectResult: String? = null
     private var server: HttpServer? = null
 
-    private val env by option(
+    val env by option(
         "--env", help = "Connect to <name> environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
     )
         .choice("local", "test", "staging", "prod")
@@ -64,7 +64,7 @@ class LoginCommand : OktaCommand(
 
     override fun run() {
         val oktaApp = Environment.get(env).oktaApp ?: abort("No need to login in this environment")
-        val accessTokenFile = readAccessTokenFile()
+        val accessTokenFile = readAccessTokenFile(oktaApp)
         if (accessTokenFile != null && isValidToken(oktaApp, accessTokenFile)) {
             echo("Has a valid token until ${accessTokenFile.expiresAt}")
         } else {
@@ -136,7 +136,7 @@ class LoginCommand : OktaCommand(
         code: String,
         codeVerifier: String,
         clientId: String,
-        oktaBaseUrl: String
+        oktaBaseUrl: String,
     ): JSONObject {
         val body = "grant_type=authorization_code&" +
             "redirect_uri=$redirectHost:$redirectPort$redirectPath&" +
@@ -174,10 +174,14 @@ class LoginCommand : OktaCommand(
  */
 class LogoutCommand : OktaCommand(
     name = "logout",
-    help = "Logout of the HHS-PRIME authorization service"
+    help = "Logout of the ReportStream authorization service"
 ) {
+    val env by option(
+        "--env", help = "Disconnect from <name> environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
+    ).choice("local", "test", "staging", "prod").default("local", "local")
     override fun run() {
-        deleteAccessTokenFile()
+        val oktaApp = Environment.get(env).oktaApp ?: abort("No need to logout from this environment")
+        deleteAccessTokenFile(oktaApp)
         echo("Logged out")
     }
 }
@@ -191,7 +195,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
     data class AccessTokenFile(val token: String, val clientId: String, val expiresAt: LocalDateTime)
 
     fun abort(message: String): Nothing {
-        throw PrintMessage(message, error = true)
+        throw PrintMessage(message, printError = true)
     }
 
     companion object {
@@ -220,17 +224,20 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
          * @return the Okta access token, a dummy token if [app] is null. or null if there is no valid token
          */
         fun fetchAccessToken(app: OktaApp?): String? {
-            return if (app == null) dummyOktaAccessToken
-            else {
-                val accessTokenFile = readAccessTokenFile()
-                if (accessTokenFile != null && isValidToken(app, accessTokenFile))
+            return if (app == null) {
+                dummyOktaAccessToken
+            } else {
+                val accessTokenFile = readAccessTokenFile(app)
+                if (accessTokenFile != null && isValidToken(app, accessTokenFile)) {
                     accessTokenFile.token
-                else null
+                } else {
+                    null
+                }
             }
         }
 
-        fun readAccessTokenFile(): AccessTokenFile? {
-            val filePath = primeAccessFilePath()
+        fun readAccessTokenFile(app: OktaApp): AccessTokenFile? {
+            val filePath = primeAccessFilePath(app)
             if (!Files.exists(filePath)) return null
             val file = filePath.toFile()
             return try {
@@ -265,17 +272,17 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             val clientId = clientIds.getValue(oktaApp)
             val accessTokenFile = AccessTokenFile(token, clientId, expiresAt)
 
-            val directoryPath = primeFolderPath()
+            val directoryPath = primeFolderPath(oktaApp)
             if (Files.notExists(directoryPath)) Files.createDirectory(directoryPath)
-            val file = primeAccessFilePath().toFile()
+            val file = primeAccessFilePath(oktaApp).toFile()
             if (file.exists()) file.delete()
             file.createNewFile()
             jsonMapper.writeValue(file, accessTokenFile)
             return accessTokenFile
         }
 
-        fun deleteAccessTokenFile() {
-            val file = primeAccessFilePath().toFile()
+        fun deleteAccessTokenFile(app: OktaApp) {
+            val file = primeAccessFilePath(app).toFile()
             if (file.exists()) {
                 file.delete()
             }
@@ -285,12 +292,12 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             return oktaBaseUrls.getValue(oktaApp)
         }
 
-        private fun primeFolderPath(): Path {
-            return Path.of(System.getProperty("user.home"), localPrimeFolder)
+        private fun primeFolderPath(app: OktaApp): Path {
+            return Path.of(System.getProperty("user.home"), localPrimeFolder, app.name)
         }
 
-        private fun primeAccessFilePath(): Path {
-            return Path.of(System.getProperty("user.home"), localPrimeFolder, localTokenFileName)
+        private fun primeAccessFilePath(app: OktaApp): Path {
+            return Path.of(System.getProperty("user.home"), localPrimeFolder, app.name, localTokenFileName)
         }
     }
 }

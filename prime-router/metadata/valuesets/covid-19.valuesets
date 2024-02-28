@@ -60,6 +60,20 @@
       display: Nasopharyngeal and oropharyngeal swab
     - code: 309171007
       display: Lower respiratory fluid sample
+    - code: 433871000124101
+      display: Nasal washings
+    - code: 441620008
+      display: Sputum specimen obtained by sputum induction
+    - code: 441903006
+      display: Coughed sputum specimen
+    - code: 119336008
+      display: Specimen from trachea obtained by aspiration
+    - code: 258610001
+      display: Oral fluid specimen
+    - code: 119335007
+      display: Specimen obtained by bronchial aspiration
+    - code: 445447003
+      display: Exhaled air specimen
 
 - name: covid-19/test_result
   system: SNOMED_CT
@@ -265,6 +279,15 @@
       version: 2020-09-01
     - code: 955009
       display: Bronchial structure (body structure)
+      version: 2020-09-01
+    - code: 1797002
+      display: Structure of anterior nares (body structure)
+      version: 2002-01-31
+    - code: 87100004
+      display: Topography unknown (body structure)
+      version: 2020-09-01
+    - code: 442083009
+      display: Anatomical or acquired body structure (body structure)
       version: 2020-09-01
 
 - name: covid-19/yesno

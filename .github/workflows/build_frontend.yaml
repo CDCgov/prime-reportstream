@@ -14,22 +14,15 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_react_change: ${{ steps.skip_check.outputs.frontend_react }}
+      has_react_change: ${{ steps.build_vars.outputs.has_react_change }}
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
-      - uses: dorny/paths-filter@b2feaf19c27470162a626bd6fa8438ae5b263721
-        id: skip_check
-        with:
-          list-files: csv
-          filters: |
-            frontend_react:
-              - 'frontend-react/**'
 
   build_frontend_react:
     name: Build Frontend React
@@ -43,7 +36,7 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend
@@ -53,4 +46,9 @@ jobs:
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.pre_job.outputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          test-admin-user: ${{ secrets.TEST_ADMIN_USERNAME }}
+          test-admin-password: ${{ secrets.TEST_ADMIN_PASSWORD }}
+          test-sender-user: ${{ secrets.TEST_SENDER_USERNAME }}
+          test-sender-password: ${{ secrets.TEST_SENDER_PASSWORD }}
+          test-receiver-user: ${{ secrets.TEST_RECEIVER_USERNAME }}
+          test-receiver-password: ${{ secrets.TEST_RECEIVER_PASSWORD }}

@@ -1,18 +1,28 @@
 system:
-     type: SYSTEM_URL
-     valueOf: $system
-    
-value: 
-     type: STRING
-     valueOf: $id
-     required: true
+  type: SYSTEM_URL
+  valueOf: $system
 
-period:  
-    valueOf: datatype/Period
-    expressionType: resource
-    vars: 
-       start: $start
-       end: $end
+value:
+  type: STRING
+  valueOf: $val
+  required: true
+  vars:
+    val: XON.10 | $id
+
+type:
+  valueOf: datatype/CodeableConcept_var
+  condition: $code NOT_NULL
+  expressionType: resource
+  vars:
+    code: XON.6 | $typeCode
+    system: $typeCodeSystem
+
+period:
+  valueOf: datatype/Period
+  expressionType: resource
+  vars:
+    start: $start
+    end: $end
 
 extension_1:
   # If the system is not a URL then add it as a code

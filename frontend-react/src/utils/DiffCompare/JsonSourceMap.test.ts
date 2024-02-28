@@ -56,8 +56,6 @@ const realData = {
 // </editor-fold>
 
 describe("JsonSourceMap suite", () => {
-    jest.spyOn(global.console, "error");
-
     test("Basic no quotes", () => {
         const data = { a: 1, b: 2 };
         const result = jsonSourceMap(data, 2);
@@ -146,7 +144,7 @@ describe("JsonSourceMap suite", () => {
         expect(checkStrOriginal).toEqual(checkStrResult);
 
         expect(jsonSourceMap(realData, 4).json).toEqual(
-            JSON.stringify(realData, null, 4)
+            JSON.stringify(realData, null, 4),
         );
     });
 
@@ -741,8 +739,8 @@ describe("JsonSourceMap suite", () => {
                     ["key1", "value1"],
                     ["key2", "value2"],
                 ]),
-                2
-            )
+                2,
+            ),
         ).toThrow();
     });
 
@@ -761,7 +759,7 @@ describe("JsonSourceMap suite", () => {
         // this is the core of the test. Does it match JSON.stringify()'s parsing
         expect(result.json).toEqual(JSON.stringify(data, null, 2));
         expect(
-            result.pointers[`/special\\characters/0/quote-start-only`]
+            result.pointers[`/special\\characters/0/quote-start-only`],
         ).not.toBeUndefined();
     });
 });

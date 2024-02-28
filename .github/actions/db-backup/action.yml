@@ -21,6 +21,8 @@ runs:
   using: 'composite'
   steps:
     - run: |
+        sudo rm -rf ${{ inputs.file-path }}
+        sleep 5;
         sudo PGPASSWORD=${{ inputs.pass }} \
         PGSSLMODE=require \
         pg_dump ${{ inputs.options }} --host=${{ inputs.host }} --username=${{ inputs.user }}@${{ inputs.host }} --dbname=${{ inputs.database }} -f ${{ inputs.file-path }}

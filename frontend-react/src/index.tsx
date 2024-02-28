@@ -1,17 +1,37 @@
-import ReactDOM from "react-dom";
-import { CacheProvider } from "rest-hooks";
-// need to include browser here for now so that app can have easy access to history
-import { BrowserRouter as Router } from "react-router-dom";
+import { lazy } from "react";
+import { createRoot } from "react-dom/client";
+import { RouterProvider } from "react-router";
 
-import App from "./App";
-// compiled css so the resources process for the static site by the compiler
-import "./content/generated/global.out.css";
+import { createRouter } from "./AppRouter";
+import config from "./config";
+import AppInsightsContextProvider from "./contexts/AppInsights";
+import { OKTA_AUTH } from "./oktaConfig";
+import { aiConfig, createTelemetryService } from "./TelemetryService";
 
-ReactDOM.render(
-    <CacheProvider>
-        <Router>
-            <App />
-        </Router>
-    </CacheProvider>,
-    document.getElementById("root")
+import "./global.scss";
+
+const appInsights = createTelemetryService(aiConfig);
+const router = createRouter(
+    lazy(async () => {
+        const MainLayout = lazy(() => import("./layouts/Main/MainLayout"));
+        const App = (await import("./App")).default;
+        return {
+            default: () => (
+                <App Layout={MainLayout} config={config} oktaAuth={OKTA_AUTH} />
+            ),
+        };
+    }),
+);
+const root = createRoot(document.getElementById("root")!);
+
+/**
+ * Initialize appinsights as soon as possible. Do user agent check
+ * before trying to render router (prevent as much code as possible
+ * from running that could be unsupported). Anything below vite's
+ * minimums fail.
+ */
+root.render(
+    <AppInsightsContextProvider value={appInsights}>
+        <RouterProvider router={router} />
+    </AppInsightsContextProvider>,
 );

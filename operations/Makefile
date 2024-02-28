@@ -117,7 +117,7 @@ endif
 
 # Internal target: check if the passed-in wildcard is a known environment name. Hard-coding them because let's be real here.
 .az-valid-env:
-	@case $(TF_ENV) in rheft|test|staging|prod) ;; *) echo "$* is not a valid environment"; exit 1;; esac
+	@case $(TF_ENV) in demo1|demo2|demo3|rheft|test|staging|prod) ;; *) echo "$* is not a valid environment"; exit 1;; esac
 
 zdd-promote-slot: .az-logged-in .az-valid-env ## Promote the function app through a ZDD slot swap
 	az functionapp deployment slot swap -g $(AZ_RESOURCE_GROUP) -n $(AZ_RESOURCE_PREFIX)-functionapp --slot $(ZDD_SOURCE_SLOT) --target-slot $(ZDD_TARGET_SLOT)

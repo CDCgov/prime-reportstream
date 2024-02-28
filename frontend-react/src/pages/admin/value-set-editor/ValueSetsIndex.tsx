@@ -1,23 +1,20 @@
-import React from "react";
+import { Helmet } from "react-helmet-async";
 
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import Table, {
     ColumnConfig,
     LegendItem,
     TableConfig,
 } from "../../../components/Table/Table";
 import {
-    useValueSetsMeta,
-    useValueSetsTable,
-} from "../../../hooks/UseValueSets";
-import {
     LookupTable,
     LookupTables,
     ValueSet,
 } from "../../../config/endpoints/lookupTables";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../../components/AuthElement";
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import {
+    useValueSetsMeta,
+    useValueSetsTable,
+} from "../../../hooks/UseValueSets";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -58,31 +55,29 @@ const valueSetColumnConfig: ColumnConfig[] = [
 ];
 
 const toValueSetWithMeta = (
+    valueSetMeta: LookupTable,
     valueSetArray: ValueSet[] = [],
-    valueSetMeta: LookupTable
 ) => valueSetArray.map((valueSet) => ({ ...valueSet, ...valueSetMeta }));
 
 const ValueSetsTable = () => {
-    const { valueSetMeta } = useValueSetsMeta();
-    const { valueSetArray } = useValueSetsTable<ValueSet[]>(
-        LookupTables.VALUE_SET
+    const { data: valueSetMeta } = useValueSetsMeta();
+    const { data: valueSetArray } = useValueSetsTable<ValueSet[]>(
+        LookupTables.VALUE_SET,
     );
 
     const tableConfig: TableConfig = {
         columns: valueSetColumnConfig,
-        rows: toValueSetWithMeta(valueSetArray, valueSetMeta),
+        rows: toValueSetWithMeta(valueSetMeta!, valueSetArray),
     };
 
-    return (
-        <>
-            <Table title="ReportStream Value Sets" config={tableConfig} />
-        </>
-    );
+    return <Table title="ReportStream Value Sets" config={tableConfig} />;
 };
-const ValueSetsIndex = () => {
+const ValueSetsIndexPage = () => {
     return (
         <>
-            <BasicHelmet pageTitle="Value Sets | Admin" />
+            <Helmet>
+                <title>Value sets - Admin</title>
+            </Helmet>
             <section className="grid-container">
                 {withCatchAndSuspense(<ValueSetsTable />)}
             </section>
@@ -90,11 +85,4 @@ const ValueSetsIndex = () => {
     );
 };
 
-export default ValueSetsIndex;
-
-export const ValueSetsIndexWithAuth = () => (
-    <AuthElement
-        element={<ValueSetsIndex />}
-        requiredUserType={MemberType.PRIME_ADMIN}
-    />
-);
+export default ValueSetsIndexPage;

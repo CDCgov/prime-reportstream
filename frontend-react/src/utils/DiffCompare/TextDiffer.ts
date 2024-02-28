@@ -2,10 +2,9 @@
  *  Moved code from the EditableCompare into a common file. It mirrors the calls to JsonDiffer
  */
 
-import { splitOn } from "../misc";
-
-import { Diff, SES_TYPE } from "./diff";
 import { DifferMarkupResult } from "./AbstractDiffer";
+import { Diff, SES_TYPE } from "./diff";
+import { splitOn } from "../misc";
 
 /**
  * TODO: this approach to inserting marks is NOT as robust as insertMarks() in JsonDiffer. Refactor.
@@ -18,7 +17,7 @@ import { DifferMarkupResult } from "./AbstractDiffer";
 export const insertHighlight = (
     text: string,
     offset: number,
-    length: number
+    length: number,
 ): string => {
     if (
         text.length === 0 ||
@@ -33,8 +32,7 @@ export const insertHighlight = (
     // we want to insert a <mark></mark> around text.
     const threeParts = splitOn(text, offset, offset + length);
     if (threeParts.length !== 3) {
-        console.error("split failed");
-        return text;
+        throw new Error("split failed");
     }
 
     return `${threeParts[0]}<mark>${threeParts[1]}</mark>${threeParts[2]}`;
@@ -50,7 +48,7 @@ export const insertHighlight = (
  */
 export const textDifferMarkup = (
     leftText: string,
-    rightText: string
+    rightText: string,
 ): DifferMarkupResult => {
     const differ = Diff(leftText, rightText);
     differ.compose();
@@ -65,7 +63,7 @@ export const textDifferMarkup = (
             eachDiff.sestype !== SES_TYPE.DELETE
                 ? acc
                 : insertHighlight(acc, eachDiff.index - 1, eachDiff.len),
-        leftText
+        leftText,
     );
 
     // Right items are "Added" in the Sess world
@@ -74,7 +72,7 @@ export const textDifferMarkup = (
             eachDiff.sestype !== SES_TYPE.ADD
                 ? acc
                 : insertHighlight(acc, eachDiff.index - 1, eachDiff.len),
-        rightText
+        rightText,
     );
 
     /** we're given the opportunity to normalize the text*/

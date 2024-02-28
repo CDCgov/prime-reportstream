@@ -35,6 +35,11 @@ variable "okta_redirect_url" {
   description = "Okta Redirect URL"
 }
 
+variable "RS_okta_redirect_url" {
+  type        = string
+  description = "Okta Redirect URL"
+}
+
 variable "terraform_caller_ip_address" {
   type        = list(string)
   description = "The IP address of the Terraform script caller. This IP will have already been whitelisted; it's inclusion is to prevent its removal during terraform apply calls."
@@ -48,7 +53,11 @@ variable "use_cdc_managed_vnet" {
 
 variable "pagerduty_url" {}
 variable "app_service_plan" {}
+variable "storage_account" {}
 variable "primary_access_key" {
+  sensitive = true
+}
+variable "candidate_access_key" {
   sensitive = true
 }
 variable "container_registry_login_server" {}
@@ -75,11 +84,22 @@ variable "function_app_id" {}
 variable "service_plan" {}
 variable "dns_ip" {}
 variable "okta_base_url" {}
+variable "OKTA_authKey" {}
+variable "OKTA_clientId" {}
+variable "OKTA_scope" {}
+variable "RS_okta_base_url" {}
+variable "RS_OKTA_authKey" {}
+variable "RS_OKTA_clientId" {}
+variable "RS_OKTA_scope" {}
 
 variable "subnets" {
   description = "A set of all available subnet combinations"
 }
 
+variable "is_temp_env" {
+  default     = false
+  description = "Is a temporary environment. true or false"
+}
 variable "function_runtime_version" {
   type        = string
   description = "function app runtime version"

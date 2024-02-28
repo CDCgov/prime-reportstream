@@ -9,29 +9,29 @@ info:
 paths:
   /api/token:
     post:
-      description: generate a new token for the requested scope
+      description: Generate and return a new token for the requested scope
       security:
         - OAuth2: [ user ]
-      parameters:
-        - name: client_assertion
-          in: path
-          description: signed JWT for the sender
-          required: true
-          schema:
-            type: string
-            format: verylong.signed.jwtstring
-        - name: scope
-          in: path
-          description: permissions for the auth token
-          required: true
-          schema:
-            type: string
-            format: org.sender.endpoint
-            example: strac.default.reports
       requestBody:
-        description: empty body needed on post calls
+        description: Parameters should be sent in the request body.
+        required: true
         content:
-          application/json: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                scope:
+                  type: string
+                  description: Permission being requested. Format is orgName.senderName.desiredPermission. Example "strac.default.report"
+                grant_type:
+                  type: string
+                  description: The value should always be "client_credentials"
+                client_assertion_type:
+                  type: string
+                  description:   The value should always be "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+                client_assertion:
+                  type: string
+                  description: signed JWT from the sender. See https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/playbooks/how-to-use-token-auth.md
       responses:
         '200':
           description: the token was created and returned

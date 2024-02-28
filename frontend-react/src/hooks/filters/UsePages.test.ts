@@ -1,6 +1,7 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act } from "@testing-library/react";
 
 import usePages, { PageSettingsActionType } from "./UsePages";
+import { renderHook } from "../../utils/CustomRenderUtils";
 
 describe("UsePages", () => {
     test("defaults to page number 1", () => {
@@ -19,11 +20,11 @@ describe("UsePages", () => {
         });
         expect(result.current.settings.currentPage).toEqual(3);
         act(() =>
-            result.current.update({ type: PageSettingsActionType.DEC_PAGE })
+            result.current.update({ type: PageSettingsActionType.DEC_PAGE }),
         );
         expect(result.current.settings.currentPage).toEqual(2);
         act(() =>
-            result.current.update({ type: PageSettingsActionType.RESET })
+            result.current.update({ type: PageSettingsActionType.RESET }),
         );
         expect(result.current.settings.currentPage).toEqual(1);
     });
@@ -35,7 +36,7 @@ describe("UsePages", () => {
                 payload: {
                     size: 25,
                 },
-            })
+            }),
         );
         expect(result.current.settings.size).toEqual(25);
     });

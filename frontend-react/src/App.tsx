@@ -1,102 +1,199 @@
-import { GovBanner } from "@trussworks/react-uswds";
-import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
-import { useOktaAuth } from "@okta/okta-react";
-import { isIE } from "react-device-detect";
-import { useIdleTimer } from "react-idle-timer";
-import React, { Suspense } from "react";
-import { NetworkErrorBoundary } from "rest-hooks";
-import { ToastContainer } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import type { OktaAuth } from "@okta/okta-auth-js";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ComponentType, Suspense, useCallback, useEffect, useRef } from "react";
+import { HelmetProvider } from "react-helmet-async";
+import { IIdleTimerProps, useIdleTimer } from "react-idle-timer";
+import { useLocation, useNavigate } from "react-router-dom";
+import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
 
-import { ReportStreamFooter } from "./components/ReportStreamFooter";
-import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
-import { oktaAuthConfig } from "./oktaConfig";
-import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
-import { logout } from "./utils/UserUtils";
-import Spinner from "./components/Spinner";
-import "react-toastify/dist/ReactToastify.css";
-import SenderModeBanner from "./components/SenderModeBanner";
-import { DAPHeader } from "./components/header/DAPHeader";
-import { AppRouter } from "./AppRouter";
-import { AppWrapper } from "./components/AppWrapper";
-import { ErrorUnsupportedBrowser } from "./pages/error/legacy-content/ErrorUnsupportedBrowser";
+import ScrollRestoration from "./components/ScrollRestoration";
+import { AppConfig } from "./config";
+import { EventName, useAppInsightsContext } from "./contexts/AppInsights";
+import AuthorizedFetchProvider from "./contexts/AuthorizedFetch";
+import FeatureFlagProvider from "./contexts/FeatureFlag";
+import SessionProvider, { useSessionContext } from "./contexts/Session";
+import ToastProvider from "./contexts/Toast";
+import { useScrollToTop } from "./hooks/UseScrollToTop";
+import { appQueryClient } from "./network/QueryClients";
 import { ErrorPage } from "./pages/error/ErrorPage";
-import config from "./config";
+import DAPScript from "./shared/DAPScript/DAPScript";
+import { isUseragentPreferred } from "./utils/BrowserUtils";
+import { permissionCheck } from "./utils/PermissionsUtils";
+import { PERMISSIONS } from "./utils/UsefulTypes";
 
-const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
+import "react-toastify/dist/ReactToastify.css";
 
-const { APP_ENV } = config;
+export interface AppProps {
+    Layout: ComponentType;
+    config: AppConfig;
+    oktaAuth: OktaAuth;
+}
 
-const App = () => {
+/**
+ * App entrypoint that bootstraps all needed systems. Expects a `Layout` component
+ * prop that handles rendering content.
+ */
+function App({ oktaAuth, config, ...props }: AppProps) {
     const navigate = useNavigate();
-    const handleIdle = (): void => {
-        logout(OKTA_AUTH);
+    const restoreOriginalUri = useCallback(
+        /**
+         * If their destination is the home page, send them to their most relevant
+         * group-type page. Otherwise, send them to their original destination.
+         */
+        (oktaAuth: OktaAuth, originalUri: string) => {
+            const authState = oktaAuth.authStateManager.getAuthState();
+            let url = originalUri;
+            if (originalUri === "/") {
+                /* PERMISSIONS REFACTOR: Redirect URL should be determined by active membership type */
+                if (
+                    authState?.accessToken &&
+                    permissionCheck(
+                        PERMISSIONS.PRIME_ADMIN,
+                        authState.accessToken,
+                    )
+                ) {
+                    url = "/admin/settings";
+                }
+                if (
+                    authState?.accessToken &&
+                    permissionCheck(PERMISSIONS.SENDER, authState.accessToken)
+                ) {
+                    url = "/submissions";
+                }
+            }
+            navigate(url);
+        },
+        [navigate],
+    );
+
+    return (
+        <QueryClientProvider client={appQueryClient}>
+            <SessionProvider
+                oktaAuth={oktaAuth}
+                restoreOriginalUri={restoreOriginalUri}
+                config={config}
+            >
+                <AppBase {...props} />
+            </SessionProvider>
+        </QueryClientProvider>
+    );
+}
+
+export type AppBaseProps = Omit<AppProps, "oktaAuth" | "config">;
+
+const AppBase = ({ Layout }: AppBaseProps) => {
+    const location = useLocation();
+    const { appInsights, setTelemetryCustomProperty } = useAppInsightsContext();
+    const { oktaAuth, authState, logout, activeMembership, config } =
+        useSessionContext();
+    const { email } = authState.idToken?.claims ?? {};
+    const sessionStartTime = useRef<number>(new Date().getTime());
+    const sessionTimeAggregate = useRef<number>(0);
+    const calculateAggregateTime = () => {
+        return (
+            new Date().getTime() -
+            sessionStartTime.current +
+            sessionTimeAggregate.current
+        );
     };
-    const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
-        // check if the user would have any data to receive via their organizations from the okta claim
-        // direct them to the /upload page if they do not have an organization that receives data
-        const authState = OKTA_AUTH.authStateManager._authState;
-        /* PERMISSIONS REFACTOR: Redirect URL should be determined by active membership type */
-        if (
-            authState?.accessToken &&
-            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
-        ) {
-            navigate(
-                toRelativeUrl(
-                    `${window.location.origin}/admin/settings`,
-                    window.location.origin
-                )
+    const Fallback = useCallback(() => <ErrorPage type="page" />, []);
+
+    // do best-attempt window tracking
+    useEffect(() => {
+        const onUnload = () => {
+            appInsights?.trackEvent({
+                name: EventName.SESSION_DURATION,
+                properties: {
+                    sessionLength: calculateAggregateTime() / 1000,
+                },
+            });
+        };
+        const onVisibilityChange = () => {
+            if (document.visibilityState === "hidden") {
+                sessionTimeAggregate.current = calculateAggregateTime();
+            } else if (document.visibilityState === "visible") {
+                sessionStartTime.current = new Date().getTime();
+            }
+        };
+        window.addEventListener("beforeunload", onUnload);
+        window.addEventListener("visibilitychange", onVisibilityChange);
+
+        return () => {
+            window.removeEventListener("beforeunload", onUnload);
+            window.removeEventListener("visibilitychange", onVisibilityChange);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Add any custom properties needed to telemetry
+    useEffect(() => {
+        setTelemetryCustomProperty("activeMembership", activeMembership);
+    }, [activeMembership, setTelemetryCustomProperty]);
+
+    // keep auth user up-to-date
+    useEffect(() => {
+        if (email && !appInsights?.sdk.context.user.authenticatedId) {
+            appInsights?.sdk.setAuthenticatedUserContext(
+                email,
+                undefined,
+                true,
             );
-            return;
+        } else if (!email && appInsights?.sdk.context.user.authenticatedId) {
+            appInsights.sdk.clearAuthenticatedUserContext();
         }
-        if (
-            authState?.accessToken &&
-            permissionCheck(PERMISSIONS.SENDER, authState.accessToken)
-        ) {
-            navigate(
-                toRelativeUrl(
-                    `${window.location.origin}/upload`,
-                    window.location.origin
-                )
-            );
-            return;
-        }
-        navigate(toRelativeUrl(originalUri, window.location.origin));
-    };
+    }, [email, appInsights]);
+
+    // Mark that user agent is outdated on telemetry for filtering
+    useEffect(() => {
+        if (!isUseragentPreferred(window.navigator.userAgent))
+            setTelemetryCustomProperty("isUserAgentOutdated", true);
+        else setTelemetryCustomProperty("isUserAgentOutdated", undefined);
+    }, [setTelemetryCustomProperty]);
+
+    const handleIdle = useCallback<
+        Exclude<IIdleTimerProps["onIdle"], undefined>
+    >(
+        async (_event, _timer) => {
+            if (await oktaAuth.isAuthenticated()) {
+                appInsights?.trackEvent({
+                    name: EventName.SESSION_DURATION,
+                    properties: {
+                        sessionLength: sessionTimeAggregate.current / 1000,
+                    },
+                });
+                logout();
+            }
+        },
+        [appInsights, logout, oktaAuth],
+    );
 
     useIdleTimer({
-        timeout: 1000 * 60 * 15,
-        onIdle: handleIdle,
-        debounce: 500,
+        onIdle: () => void handleIdle(),
+        ...config.IDLE_TIMERS,
     });
 
-    if (isIE) return <ErrorUnsupportedBrowser />;
+    useScrollToTop();
+
     return (
-        <AppWrapper
-            oktaAuth={OKTA_AUTH}
-            restoreOriginalUri={restoreOriginalUri}
-            oktaHook={useOktaAuth}
-        >
-            <Suspense fallback={<Spinner size={"fullpage"} />}>
-                <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorPage type="page" />}
-                >
-                    <DAPHeader env={APP_ENV?.toString()} />
-                    <GovBanner aria-label="Official government website" />
-                    <SenderModeBanner />
-                    <ReportStreamHeader />
-                    {/* Changed from main to div to fix weird padding issue at the top
-                            caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
-                    <main id="main-content">
-                        <AppRouter />
-                    </main>
-                    <ToastContainer limit={4} />
-                    <footer className="usa-identifier footer">
-                        <ReportStreamFooter />
-                    </footer>
-                </NetworkErrorBoundary>
-            </Suspense>
-        </AppWrapper>
+        <HelmetProvider>
+            <AuthorizedFetchProvider>
+                <FeatureFlagProvider>
+                    <NetworkErrorBoundary fallbackComponent={Fallback}>
+                        <CacheProvider>
+                            <ToastProvider>
+                                <ScrollRestoration />
+                                <DAPScript pathname={location.pathname} />
+                                <Suspense>
+                                    <Layout />
+                                </Suspense>
+                                <ReactQueryDevtools initialIsOpen={false} />
+                            </ToastProvider>
+                        </CacheProvider>
+                    </NetworkErrorBoundary>
+                </FeatureFlagProvider>
+            </AuthorizedFetchProvider>
+        </HelmetProvider>
     );
 };
 

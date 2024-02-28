@@ -8,26 +8,47 @@ id:
 # However, we do not want empty practitioner resources.
 # Therefore, wherever Practitioner is referenced make sure to verify the value is NOT_NULL.
 identifier_1:
-    valueOf: datatype/Identifier_SystemID 
-    generateList: true
-    expressionType: resource
-    specs: XCN | CNN| NDL | PPN
-    vars:
-      systemID: XCN.9 | CNN.9 | NDL.9 | PPN.9
-      value: XCN.1 | CNN.1 | NDL.1 | PPN.1
-      typeSegment: XCN.13
+  valueOf: datatype/Identifier_SystemID
+  generateList: true
+  expressionType: resource
+  specs: XCN | CNN| NDL | PPN
+  vars:
+    systemID: XCN.9 | CNN.9 | NDL.9 | PPN.9
+    value: XCN.1 | CNN.1 | NDL.1 | PPN.1
+    typeSegment: XCN.13
 
-name: 
-    specs: XCN | XCN | CNN | NDL | PPN
-    valueOf: datatype/HumanName
-    generateList: true
-    expressionType: resource
+name:
+  specs: XCN | CNN | NDL | PPN
+  valueOf: datatype/HumanName
+  generateList: true
+  expressionType: resource
 
 address:
   valueOf: datatype/Address
   expressionType: resource
   generateList: true
   specs: $addressSpec
+
+# useObrOrcCallbackNumber is used to work around an issue where variables with repeating HL7 fields do not
+# support the repetitions, so we directly reference the field here in the SPECS property.  Also, extensions
+# do not support repetitions in this library.
+telecom_1:
+  condition: $useObrOrcCallbackNumber NOT_NULL && $obr17 NULL
+  valueOf: datatype/ContactPoint
+  expressionType: resource
+  generateList: true
+  specs: ORC.14
+  vars:
+    obr17: OBR.17
+
+telecom_2:
+  condition: $useObrOrcCallbackNumber NOT_NULL && $obr17 NOT_NULL
+  valueOf: datatype/ContactPoint
+  expressionType: resource
+  generateList: true
+  specs: OBR.17
+  vars:
+    obr17: OBR.17
 
 extension_1:
   generateList: true
@@ -46,19 +67,6 @@ extension_1:
         name: String, XCN.14.1
 
 extension_2:
-  condition: $contactSpec NOT_NULL
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: "callback-number"
-    valueContactPoint:
-      valueOf: datatype/ContactPoint
-      expressionType: resource
-      specs: $contactSpec
-
-extension_4:
   generateList: true
   expressionType: nested
   expressionsMap:

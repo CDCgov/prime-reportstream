@@ -1,28 +1,32 @@
 import {
-    Grid,
     Checkbox,
+    Grid,
     Label,
+    Select,
     Textarea,
     TextInput,
-    Dropdown,
 } from "@trussworks/react-uswds";
 import { useRef } from "react";
 
+import { showToast } from "../../contexts/Toast";
 import { checkJson } from "../../utils/misc";
 import {
     getListOfEnumValues,
     ReportStreamSettingsEnum,
 } from "../../utils/TemporarySettingsAPITypes";
-import { showError } from "../AlertNotifications";
 
-export const TextInputComponent = (params: {
+export interface TextInputComponentProps {
     fieldname: string;
     label: string;
     defaultvalue: string | null;
     savefunc: (val: string) => void;
     disabled?: boolean;
     toolTip?: JSX.Element;
-}): JSX.Element => {
+}
+
+export const TextInputComponent = (
+    params: TextInputComponentProps,
+): JSX.Element => {
     const key = params.fieldname;
     return (
         <Grid row>
@@ -35,7 +39,7 @@ export const TextInputComponent = (params: {
                     id={key}
                     name={key}
                     type="text"
-                    defaultValue={params.defaultvalue || ""}
+                    defaultValue={params.defaultvalue ?? ""}
                     data-testid={key}
                     maxLength={255}
                     className="rs-input"
@@ -85,15 +89,15 @@ export const TextAreaComponent = (params: {
                     data-testid={key}
                     className="rs-input"
                     onBlur={(e) => {
-                        const text =
-                            e?.target?.value || (defaultnullvalue as string);
+                        const text = e?.target?.value || defaultnullvalue!;
                         const { valid, errorMsg } = checkJson(text);
                         if (valid) {
                             // checkJson made sure the following JSON.parse won't throw.
                             params.savefunc(JSON.parse(text));
                         } else {
-                            showError(
-                                `JSON data generated an error "${errorMsg}"`
+                            showToast(
+                                `JSON data generated an error "${errorMsg}"`,
+                                "error",
                             );
                         }
                     }}
@@ -116,7 +120,7 @@ export const CheckboxComponent = (params: {
             <Grid col={3}>
                 <Label htmlFor={params.fieldname}>{params.label}:</Label>
             </Grid>
-            <Grid col={9}>
+            <Grid col={9} className={"padding-top-1"}>
                 <Checkbox
                     id={key}
                     name={key}
@@ -149,7 +153,7 @@ export const DropdownComponent = (params: DropdownProps): JSX.Element => {
                 {params.toolTip ? params.toolTip : null}
             </Grid>
             <Grid col={9}>
-                <Dropdown
+                <Select
                     id={key}
                     data-testid={key}
                     name={key}
@@ -163,7 +167,7 @@ export const DropdownComponent = (params: DropdownProps): JSX.Element => {
                             {v}
                         </option>
                     ))}
-                </Dropdown>
+                </Select>
             </Grid>
         </Grid>
     );

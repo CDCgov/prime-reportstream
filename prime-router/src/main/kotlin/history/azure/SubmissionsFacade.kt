@@ -10,6 +10,7 @@ import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import java.time.OffsetDateTime
+import java.util.UUID
 
 /**
  * Submissions / history API
@@ -17,7 +18,7 @@ import java.time.OffsetDateTime
  */
 class SubmissionsFacade(
     private val dbSubmissionAccess: HistoryDatabaseAccess = DatabaseSubmissionsAccess(),
-    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton
+    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
 ) : ReportFileFacade(
     dbAccess,
 ) {
@@ -48,7 +49,7 @@ class SubmissionsFacade(
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         pageSize: Int,
-        showFailed: Boolean
+        showFailed: Boolean,
     ): String {
         val result = findSubmissions(
             organization,
@@ -88,7 +89,7 @@ class SubmissionsFacade(
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         pageSize: Int,
-        showFailed: Boolean
+        showFailed: Boolean,
     ): List<SubmissionHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."
@@ -111,11 +112,11 @@ class SubmissionsFacade(
     /**
      * Get expanded details for a single report
      *
-     * @param submissionId id for the submission being used
+     * @param action the action being used
      * @return Report details
      */
     fun findDetailedSubmissionHistory(
-        action: Action
+        action: Action,
     ): DetailedSubmissionHistory? {
         // This assumes that ReportFileFunction.authSingleBlocks has already run, and has checked that the
         // sendingOrg is good.  If that assumption is incorrect, die here.
@@ -125,13 +126,15 @@ class SubmissionsFacade(
             action.sendingOrg,
             DetailedSubmissionHistory::class.java
         )
+        submission?.actionsPerformed?.add(action.actionName)
 
-        submission?.let {
+        // Submissions with a report ID (means had no errors) can have a lineage
+        submission?.reportId?.let {
             val relatedSubmissions = dbSubmissionAccess.fetchRelatedActions(
-                submission.actionId,
+                UUID.fromString(it),
                 DetailedSubmissionHistory::class.java
             )
-            it.enrichWithDescendants(relatedSubmissions)
+            submission.enrichWithDescendants(relatedSubmissions)
         }
 
         submission?.enrichWithSummary()
@@ -140,24 +143,17 @@ class SubmissionsFacade(
     }
 
     /**
-     * Check whether these [claims] allow access to this [orgName].
-     * @return true if [claims] authorizes access to this [orgName].  Return
-     * false if the [orgName] is empty or if the claim does not give access.
+     * Check whether these [claims] from this [request]
+     * allow access to the sender associated with this [action].
+     * @return true if authorized, false otherwise.
+     * Because this is a Submission request, this checks the [Action.sendingOrg]
      */
-    override fun checkAccessAuthorization(
+    override fun checkAccessAuthorizationForAction(
         claims: AuthenticatedClaims,
-        orgName: String?,
-        senderOrReceiver: String?,
+        action: Action,
         request: HttpRequestMessage<String?>,
     ): Boolean {
-        if (orgName.isNullOrEmpty()) {
-            logger.warn(
-                "Unauthorized.  Action had no sending-organization name. " +
-                    " For user ${claims.userName}: ${request.httpMethod}:${request.uri.path}."
-            )
-            return false
-        }
-        return claims.authorizedForSendOrReceive(orgName, senderOrReceiver, request)
+        return claims.authorizedForSendOrReceive(action.sendingOrg, null, request)
     }
 
     companion object {

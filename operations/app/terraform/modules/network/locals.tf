@@ -32,6 +32,7 @@ locals {
   private_subnet_ids   = [for k, v in data.azurerm_subnet.private_subnet : v.id]
   endpoint_subnet_ids  = [for k, v in data.azurerm_subnet.endpoint_subnet : v.id]
   gateway_subnet_ids   = [for k, v in data.azurerm_subnet.gateway_subnet : v.id]
+  postgres_subnet_ids  = [for k, v in data.azurerm_subnet.postgres_subnet : v.id]
   west_vnet_subnets = values({
     for id, details in data.azurerm_subnet.west_vnet :
     id => ({ "id" = details.id })
@@ -60,6 +61,7 @@ locals {
   vnet_endpoint_subnet    = setintersection(local.vnet_subnets, local.endpoint_subnet_ids)
   vnet_public_subnet      = setintersection(local.vnet_subnets, local.public_subnet_ids)
   vnet_container_subnet   = setintersection(local.vnet_subnets, local.container_subnet_ids)
+  postgres_subnet         = local.postgres_subnet_ids
 }
 
 locals {
@@ -84,6 +86,7 @@ locals {
     primary_public_endpoint_subnets        = local.primary_public_endpoint_subnets
     vnet_endpoint_subnets                  = local.vnet_endpoint_subnet
     vnet_public_container_endpoint_subnets = local.vnet_public_container_endpoint_subnets
+    postgres_subnets                       = local.postgres_subnet
   }
 }
 ##########

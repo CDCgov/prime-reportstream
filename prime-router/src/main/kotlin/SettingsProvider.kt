@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
 import gov.cdc.prime.router.CustomerStatus.ACTIVE
 import gov.cdc.prime.router.CustomerStatus.INACTIVE
 import gov.cdc.prime.router.CustomerStatus.TESTING
@@ -37,20 +38,22 @@ enum class CustomerStatus {
     TESTING,
 
     @JsonProperty("active")
-    ACTIVE
+    ACTIVE,
 }
 
 /**
  * A submission with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions
  * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
  */
-enum class Topic(val json_val: String) {
-    @JsonProperty("full-elr")
-    FULL_ELR("full-elr"),
-
-    @JsonProperty("covid-19")
-    COVID_19("covid-19"),
-
-    @JsonProperty("monkeypox")
-    MONKEYPOX("monkeypox")
+enum class Topic(
+    @JsonValue val jsonVal: String,
+    val isUniversalPipeline: Boolean = true,
+    val isSendOriginal: Boolean = false,
+) {
+    FULL_ELR("full-elr", true, false),
+    ETOR_TI("etor-ti", true, false),
+    ELR_ELIMS("elr-elims", true, true),
+    COVID_19("covid-19", false, false),
+    MONKEYPOX("monkeypox", false, false),
+    TEST("test", false, false),
 }

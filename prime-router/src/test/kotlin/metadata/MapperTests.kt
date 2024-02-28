@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.metadata
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNull
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -11,6 +11,7 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.NPIUtilities
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
@@ -37,7 +38,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "covid-19",
+            "test", topic = Topic.COVID_19,
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
                 Element("c", type = Element.Type.TABLE, table = "test", tableColumn = "c")
@@ -63,7 +64,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "covid-19",
+            "test", topic = Topic.COVID_19,
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
                 Element("b", type = Element.Type.TABLE, table = "test", tableColumn = "b"),
@@ -107,7 +108,7 @@ class MapperTests {
         var args = mutableListOf<String>()
         // test for zero to ten args passed - each should fail (skip testing 5)
         while (args.count() < 11) {
-            if (args.count() != 5) assertThat { mapper.valueNames(element, args) }.isFailure()
+            if (args.count() != 5) assertFailure { mapper.valueNames(element, args) }
             args.add("arg")
         }
         // test normal call  mapper: ifThenElse(<=, otc_flag comparisonValue, patient_state, ordering_provider_state)
@@ -132,7 +133,7 @@ class MapperTests {
 
         // bad legal args
         args = mutableListOf(">>", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
-        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+        assertFailure { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }
 
         // test inequality operator
         args = mutableListOf("!=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
@@ -244,17 +245,17 @@ class MapperTests {
         // int AND string
         args = listOf("==", "otc_flag", "2", "patient_state", "ordering_provider_state")
         eAVotc = ElementAndValue(Element(args[1]), "Butterfly") // this should error, to save hours of debugging
-        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+        assertFailure { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }
 
         // string AND int
         args = listOf("==", "otc_flag", "Zebra", "patient_state", "ordering_provider_state")
         eAVotc = ElementAndValue(Element(args[1]), "2") // this should error, to save hours of debugging
-        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+        assertFailure { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }
 
         // bad legal args
         args = listOf(">>", "otc_flag", "2", "patient_state", "ordering_provider_state")
         eAVotc = ElementAndValue(Element(args[1]), "2.0") // element otc_flag has .value "2.0"
-        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+        assertFailure { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }
 
         // operator as a value of an element
         args = listOf("op_elm", "otc_flag", "2", "patient_state", "ordering_provider_state")
@@ -307,7 +308,6 @@ class MapperTests {
             format = Sender.Format.CSV,
             CustomerStatus.ACTIVE,
             "mySchemaName",
-            keys = null,
             processingType = Sender.ProcessingType.async
         )
         val elementA = Element("a")
@@ -415,7 +415,7 @@ class MapperTests {
             )
         }
         val schema = Schema(
-            tableName, topic = "Testing NPI lookup mapper",
+            tableName, topic = Topic.TEST,
             elements = elements
         )
         val metadata = Metadata(schema = schema, table = table, tableName = tableName)
@@ -669,7 +669,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "covid-19",
+            "test", topic = Topic.COVID_19,
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
             )
@@ -696,7 +696,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "covid-19",
+            "test", topic = Topic.COVID_19,
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "state_abbr"),
             )
@@ -880,7 +880,7 @@ class MapperTests {
             .read("./src/test/resources/metadata/tables/test_result.csv")
         val genderSchema = Schema(
             "test-gender",
-            topic = "covid-19",
+            topic = Topic.COVID_19,
             elements = listOf(
                 Element(
                     "patient_gender",
@@ -893,7 +893,7 @@ class MapperTests {
         )
         val testResultSchema = Schema(
             "test",
-            topic = "covid-19",
+            topic = Topic.COVID_19,
             elements = listOf(
                 Element(
                     "test_result_element",

@@ -1,55 +1,51 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import { AxiosError } from "axios";
 
+import RSErrorBoundary from "./RSErrorBoundary";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { mockRsconsole } from "../utils/console/__mocks__/rsconsole";
+import { renderApp } from "../utils/CustomRenderUtils";
 import { RSNetworkError } from "../utils/RSNetworkError";
 
-import { withCatch } from "./RSErrorBoundary";
+const rsError = new RSNetworkError(new AxiosError("rsnetwork error test"));
 
 // Dummy components for testing
-const ThrowsRSError = ({ error = true }: { error: boolean }): JSX.Element => {
-    if (error) throw new RSNetworkError("");
-    return <></>;
+const ThrowsRSError = (): JSX.Element => {
+    throw rsError;
 };
-const ThrowsGenericError = ({
-    error = true,
-}: {
-    error: boolean;
-}): JSX.Element => {
-    if (error) throw Error("");
-    return <></>;
-};
-const ThrowsNoError = (): JSX.Element => <div>Success!</div>;
-
-// Wrap them with error boundary
-const ThrowsRSErrorWrapped = () => withCatch(<ThrowsRSError error={true} />);
-const ThrowsGenericErrorWrapped = () =>
-    withCatch(<ThrowsGenericError error={true} />);
-const ThrowsNoErrorWrapped = () => withCatch(<ThrowsNoError />);
-
-// Silences console.error and console.log of error stack
-jest.spyOn(global.console, "error");
-jest.spyOn(global.console, "log");
 
 describe("RSErrorBoundary", () => {
-    test("Catches RSError", () => {
-        render(<ThrowsRSErrorWrapped />);
-        expect(
-            screen.getByText(
-                "Our apologies, there was an error loading this content."
-            )
-        ).toBeInTheDocument();
+    beforeAll(() => {
+        // shut up react's auto console.error
+        mockRsconsole.error.mockImplementation(() => void 0);
+        mockSessionContentReturnValue({
+            config: {
+                AI_CONSOLE_SEVERITY_LEVELS: { error: 0 },
+            } as any,
+        });
     });
-
-    test("Catches legacy errors", () => {
-        render(<ThrowsGenericErrorWrapped />);
+    afterAll(() => {
+        mockRsconsole.error.mockRestore();
+    });
+    test("Catches error", () => {
+        renderApp(
+            <RSErrorBoundary>
+                <ThrowsRSError />
+            </RSErrorBoundary>,
+        );
         expect(
             screen.getByText(
-                "Our apologies, there was an error loading this content."
-            )
+                "Our apologies, there was an error loading this content.",
+            ),
         ).toBeInTheDocument();
+        expect(mockRsconsole._error).toHaveBeenCalledTimes(1);
+        expect(mockRsconsole._error.mock.lastCall[0].args[0]).toStrictEqual(
+            rsError,
+        );
     });
 
     test("Renders component when no error", () => {
-        render(<ThrowsNoErrorWrapped />);
+        renderApp(<RSErrorBoundary>Success!</RSErrorBoundary>);
         expect(screen.getByText("Success!")).toBeInTheDocument();
     });
 });

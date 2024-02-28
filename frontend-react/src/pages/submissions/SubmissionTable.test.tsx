@@ -1,49 +1,28 @@
-import { Fixture, MockResolver } from "@rest-hooks/test";
+import { Fixture } from "@rest-hooks/test";
 import { screen, within } from "@testing-library/react";
-import { ReactElement } from "react";
-import { CacheProvider } from "rest-hooks";
-
-import SubmissionsResource from "../../resources/SubmissionsResource";
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
-import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 
 import SubmissionTable from "./SubmissionTable";
-
-// const { addFeatureFlag, removeFeatureFlag } = _exportForTesting;
-
-// TODO: Move this to CustomRenderUtils.tsx once we stop mocking rest-hooks.
-// MockResolver is the preferred method for testing components that use
-// rest-hooks (see https://resthooks.io/docs/guides/unit-testing-components) but
-// since it conflicts with our current approach to use jest.mock, this helper
-// can't be in a shared location util we update existing tests.
-// See https://github.com/CDCgov/prime-reportstream/issues/5623
-const renderWithResolver = (ui: ReactElement, fixtures: Fixture[]) =>
-    renderWithRouter(
-        <CacheProvider>
-            <MockResolver fixtures={fixtures}>{ui}</MockResolver>
-        </CacheProvider>
-    );
-
-let mockCheckFlag = jest.fn();
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
+import SubmissionsResource from "../../resources/SubmissionsResource";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { MemberType } from "../../utils/OrganizationUtils";
 
 describe("SubmissionTable", () => {
-    test("renders a table with the returned resources", async () => {
-        mockCheckFlag.mockReturnValue(false);
-        mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            featureFlags: [],
-            checkFlag: mockCheckFlag,
-        });
-        mockSessionContext.mockReturnValue({
+    test("renders a placeholder", async () => {
+        mockSessionContentReturnValue({
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
-                senderName: "testSender",
+                service: "testSender",
             },
-            dispatch: () => {},
-            initialized: true,
+
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: true,
+                isUserTransceiver: false,
+            } as any,
         });
         const fixtures: Fixture[] = [
             {
@@ -52,9 +31,10 @@ describe("SubmissionTable", () => {
                     {
                         organization: "testOrg",
                         cursor: "3000-01-01T00:00:00.000Z",
-                        endCursor: "2000-01-01T00:00:00.000Z",
-                        pageSize: 11,
-                        sort: "DESC",
+                        since: "2000-01-01T00:00:00.000Z",
+                        until: "3000-01-01T00:00:00.000Z",
+                        pageSize: 61,
+                        sortdir: "DESC",
                         showFailed: false,
                     },
                 ],
@@ -65,7 +45,12 @@ describe("SubmissionTable", () => {
                 ] as SubmissionsResource[],
             },
         ];
-        renderWithResolver(<SubmissionTable />, fixtures);
+        renderApp(<SubmissionTable />, { restHookFixtures: fixtures });
+
+        const pagination = await screen.findByLabelText(
+            /submissions pagination/i,
+        );
+        expect(pagination).toBeInTheDocument();
 
         const filter = await screen.findByTestId("filter-container");
         expect(filter).toBeInTheDocument();
@@ -77,58 +62,35 @@ describe("SubmissionTable", () => {
         expect(rows).toHaveLength(2);
     });
 
-    describe("when the numbered pagination feature flag is on", () => {
-        test("renders a placeholder", async () => {
-            mockCheckFlag.mockReturnValue(true);
-            mockFeatureFlagContext.mockReturnValue({
-                dispatch: () => {},
-                featureFlags: [],
-                checkFlag: mockCheckFlag,
-            });
-            mockSessionContext.mockReturnValue({
+    describe("when rendering as an admin", () => {
+        function setup() {
+            mockSessionContentReturnValue({
                 activeMembership: {
-                    memberType: MemberType.SENDER,
-                    parsedName: "testOrg",
-                    senderName: "testSender",
+                    memberType: MemberType.PRIME_ADMIN,
+                    parsedName: Organizations.PRIMEADMINS,
+                    service: "",
                 },
-                dispatch: () => {},
-                initialized: true,
+                user: {
+                    isUserAdmin: true,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
-            const fixtures: Fixture[] = [
-                {
-                    endpoint: SubmissionsResource.list(),
-                    args: [
-                        {
-                            organization: "testOrg",
-                            cursor: "3000-01-01T00:00:00.000Z",
-                            endCursor: "2000-01-01T00:00:00.000Z",
-                            pageSize: 61,
-                            sort: "DESC",
-                            showFailed: false,
-                        },
-                    ],
-                    error: false,
-                    response: [
-                        { submissionId: 0 },
-                        { submissionId: 1 },
-                    ] as SubmissionsResource[],
-                },
-            ];
-            renderWithResolver(<SubmissionTable />, fixtures);
 
-            const pagination = await screen.findByLabelText(
-                /submissions pagination/i
-            );
-            expect(pagination).toBeInTheDocument();
+            renderApp(<SubmissionTable />, { restHookFixtures: [] });
+        }
 
-            const filter = await screen.findByTestId("filter-container");
-            expect(filter).toBeInTheDocument();
-
-            const rowGroups = screen.getAllByRole("rowgroup");
-            expect(rowGroups).toHaveLength(2);
-            const tBody = rowGroups[1];
-            const rows = within(tBody).getAllByRole("row");
-            expect(rows).toHaveLength(2);
+        test("renders a warning about not being able to request submission history", async () => {
+            setup();
+            expect(
+                await screen.findByText(
+                    "Cannot fetch Organization data as admin",
+                ),
+            ).toBeVisible();
+            expect(
+                await screen.findByText("Please try again as an Organization"),
+            ).toBeVisible();
         });
     });
 });

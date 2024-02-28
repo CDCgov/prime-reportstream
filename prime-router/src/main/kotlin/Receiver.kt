@@ -2,6 +2,8 @@ package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -19,9 +21,10 @@ import java.time.ZoneId
  * @param jurisdictionalFilter defines the geographic region filters for this receiver
  * @param qualityFilter defines the filters that remove data, based on quality criteria
  * @param routingFilter The original use case was for filters that remove data the
- * receiver does not want, based on who sent it.  However, its available for any general purpose use.
+ * receiver does not want, based on who sent it.  However, it's available for any general purpose use.
  * @param processingModeFilter defines the filters that is normally set to remove test and debug data.
  * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
+ * @param conditionFilter defines the filters that select the conditions that a STLT wants to receive
  * @param deidentify transform
  * @param deidentifiedValue is the replacement value for PII fields
  * @param timing defines how to delay reports to the org. If null, then send immediately
@@ -30,11 +33,13 @@ import java.time.ZoneId
  * @param externalName an external display name for the receiver. useful for display in the website
  * @param timeZone the timezone the receiver operates under
  * @param dateTimeFormat the format to use for date and datetime values, either Offset or Local
+ * @param enrichmentSchemaNames the paths to schema(s) used to enrich the bundle before translating it to its final
+ *  format
  */
 open class Receiver(
     val name: String,
     val organizationName: String,
-    val topic: String,
+    val topic: Topic,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val translation: TranslatorConfiguration,
     val jurisdictionalFilter: ReportStreamFilter = emptyList(),
@@ -42,12 +47,15 @@ open class Receiver(
     val routingFilter: ReportStreamFilter = emptyList(),
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
+    val conditionFilter: ReportStreamFilter = emptyList(),
+    val mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
     val deidentify: Boolean = false,
     val deidentifiedValue: String = "",
     val timing: Timing? = null,
     val description: String = "",
     val transport: TransportType? = null,
     val externalName: String? = null,
+    val enrichmentSchemaNames: List<String> = emptyList(),
     /**
      * The timezone for the receiver. This is different from the timezone in Timing, which controls the calculation of
      * when and how often to send reports to the receiver. They are distinct ideas. The timeZone for the receiver is
@@ -68,19 +76,45 @@ open class Receiver(
     constructor(
         name: String,
         organizationName: String,
-        topic: String,
+        topic: Topic,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
         format: Report.Format = Report.Format.CSV,
         timing: Timing? = null,
         timeZone: USTimeZone? = null,
         dateTimeFormat: DateUtilities.DateTimeFormat? = null,
+        translation: TranslatorConfiguration = CustomConfiguration(
+            schemaName = schemaName,
+            format = format,
+            defaults = emptyMap(),
+            nameFormat = "standard",
+            receivingOrganization = null
+        ),
+        jurisdictionalFilter: ReportStreamFilter = emptyList(),
+        qualityFilter: ReportStreamFilter = emptyList(),
+        routingFilter: ReportStreamFilter = emptyList(),
+        processingModeFilter: ReportStreamFilter = emptyList(),
+        conditionFilter: ReportStreamFilter = emptyList(),
+        mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
+        reverseTheQualityFilter: Boolean = false,
+        enrichmentSchemaNames: List<String> = emptyList(),
     ) : this(
-        name, organizationName, topic, customerStatus,
-        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null),
+        name,
+        organizationName,
+        topic,
+        customerStatus,
+        translation,
+        jurisdictionalFilter = jurisdictionalFilter,
+        qualityFilter = qualityFilter,
+        routingFilter = routingFilter,
+        processingModeFilter = processingModeFilter,
+        conditionFilter = conditionFilter,
+        mappedConditionFilter = mappedConditionFilter,
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
+        reverseTheQualityFilter = reverseTheQualityFilter,
+        enrichmentSchemaNames = enrichmentSchemaNames
     )
 
     /** A copy constructor for the receiver */
@@ -95,22 +129,31 @@ open class Receiver(
         copy.routingFilter,
         copy.processingModeFilter,
         copy.reverseTheQualityFilter,
+        copy.conditionFilter,
+        copy.mappedConditionFilter,
         copy.deidentify,
         copy.deidentifiedValue,
         copy.timing,
         copy.description,
         copy.transport,
         copy.externalName,
+        copy.enrichmentSchemaNames,
         copy.timeZone,
-        copy.dateTimeFormat,
+        copy.dateTimeFormat
     )
 
     @get:JsonIgnore
     val fullName: String get() = createFullName(organizationName, name)
+
     @get:JsonIgnore
     val schemaName: String get() = translation.schemaName
+
     @get:JsonIgnore
     val format: Report.Format get() = translation.format
+
+    @get:JsonIgnore
+    val useBatching: Boolean get() = translation.useBatching
+
     // adds a display name property that tries to show the external name, or the regular name if there isn't one
     @get:JsonIgnore
     val displayName: String get() = externalName ?: name
@@ -130,7 +173,7 @@ open class Receiver(
         val initialTime: String = "00:00",
         val timeZone: USTimeZone = USTimeZone.EASTERN,
         val maxReportCount: Int = 100,
-        val whenEmpty: WhenEmpty = WhenEmpty()
+        val whenEmpty: WhenEmpty = WhenEmpty(),
     ) {
         /**
          * Calculate the next event time.
@@ -179,7 +222,7 @@ open class Receiver(
 
     enum class BatchOperation {
         NONE,
-        MERGE
+        MERGE,
     }
 
     /**
@@ -187,7 +230,7 @@ open class Receiver(
      */
     data class WhenEmpty(
         val action: EmptyOperation = EmptyOperation.NONE,
-        val onlyOncePerDay: Boolean = false
+        val onlyOncePerDay: Boolean = false,
     )
 
     /**
@@ -202,15 +245,26 @@ open class Receiver(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
-        // TODO: Temporary workaround for full-ELR as we do not have a way to load schemas yet
-        if (topic == Topic.FULL_ELR.json_val) return null
-
-        when (translation) {
-            is CustomConfiguration -> {
-                if (metadata.findSchema(translation.schemaName) == null)
-                    return "Invalid schemaName: ${translation.schemaName}"
+        if (conditionFilter.isNotEmpty() || mappedConditionFilter.isNotEmpty()) {
+            if (!topic.isUniversalPipeline) {
+                return "Condition filter(s) not allowed for receivers with topic '${topic.jsonVal}'"
             }
         }
+
+        if (translation is CustomConfiguration) {
+            if (this.topic.isUniversalPipeline) {
+                try {
+                    FhirToHl7Converter(translation.schemaName)
+                } catch (e: SchemaException) {
+                    return e.message
+                }
+            } else {
+                if (metadata.findSchema(translation.schemaName) == null) {
+                    return "Invalid schemaName: ${translation.schemaName}"
+                }
+            }
+        }
+
         return null
     }
 

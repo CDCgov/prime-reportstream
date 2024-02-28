@@ -1,29 +1,28 @@
 import { MatcherFunction, screen } from "@testing-library/react";
 
+import SubmissionDetailsPage, { DestinationItem } from "./SubmissionDetails";
+import { DetailItem } from "../../components/DetailItem/DetailItem";
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
-
-import SubmissionDetails, {
-    DestinationItem,
-    DetailItem,
-} from "./SubmissionDetails";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { FeatureName } from "../../utils/FeatureName";
 
 /*
     Using the included regex can end up pulling various elements where the
     value has the parsed timestamp. Use a function
 */
 const dateRegex = /\d{1,2} [a-z,A-Z]{3} \d{4}/;
-const timeRegex: RegExp = /\d{1,2}:\d{2}/;
+const timeRegex = /\d{1,2}:\d{2}/;
 
-/* 
+/*
     We can only mock one behavior for useResource currently. This is a major
     limitation for us that doesn't allow us to test negative cases.
 */
 const mockData: ActionDetailsResource = new TestResponse(
-    ResponseType.ACTION_DETAIL
+    ResponseType.ACTION_DETAIL,
 ).data;
 jest.mock("rest-hooks", () => ({
+    ...jest.requireActual("rest-hooks"),
     useResource: () => {
         return mockData;
     },
@@ -34,22 +33,25 @@ jest.mock("rest-hooks", () => ({
 }));
 
 describe("SubmissionDetails", () => {
-    beforeEach(() => {
-        renderWithRouter(<SubmissionDetails />);
-    });
+    function setup() {
+        renderApp(<SubmissionDetailsPage />);
+    }
 
     test("renders crumb nav to Submissions list", () => {
+        setup();
         const submissionCrumb = screen.getByRole("link");
         expect(submissionCrumb).toBeInTheDocument();
-        expect(submissionCrumb).toHaveTextContent("Submissions");
+        expect(submissionCrumb).toHaveTextContent(FeatureName.SUBMISSIONS);
     });
 
     test("renders without error", async () => {
+        setup();
         const container = await screen.findByTestId("container");
         expect(container).toBeInTheDocument();
     });
 
     test("renders data to sub-components", async () => {
+        setup();
         /* Custom matcher for transitionTime */
         const findTimeWithoutDate: MatcherFunction = (content): boolean => {
             return !content.includes("7 Apr 1970") && timeRegex.test(content);
@@ -60,15 +62,15 @@ describe("SubmissionDetails", () => {
 
         /* DestinationItem contents*/
         const receiverOrgNameAndService = await screen.findByText(
-            `${mockData.destinations[0].organization}`
+            `${mockData.destinations[0].organization}`,
         );
         const dataStream = await screen.findByText(
-            mockData.destinations[0].service.toUpperCase()
+            mockData.destinations[0].service.toUpperCase(),
         );
         const transmissionDate = await screen.findByText("7 Apr 1970");
         const transmissionTime = screen.getByText(findTimeWithoutDate);
         const recordsTransmitted = await screen.findByText(
-            mockData.destinations[0].itemCount
+            mockData.destinations[0].itemCount,
         );
 
         /*
@@ -84,13 +86,14 @@ describe("SubmissionDetails", () => {
             recordsTransmitted,
         ];
 
-        for (let i of testElements) {
+        for (const i of testElements) {
             expect(i).toBeInTheDocument();
         }
     });
 
     test("Filename conditionally shows in title", () => {
-        /* 
+        setup();
+        /*
             TODO: How can we use the object and not static strings to
             check for substrings like this??
         */
@@ -100,26 +103,26 @@ describe("SubmissionDetails", () => {
 });
 
 describe("DetailItem", () => {
-    beforeEach(() => {
-        renderWithRouter(
-            <DetailItem item="Test Item" content="Test Content" />
-        );
-    });
+    function setup() {
+        renderApp(<DetailItem item="Test Item" content="Test Content" />);
+    }
 
     test("renders content", () => {
+        setup();
         expect(screen.getByText(/test item/i)).toBeInTheDocument();
         expect(screen.getByText(/test content/i)).toBeInTheDocument();
     });
 });
 
 describe("DestinationItem", () => {
-    beforeEach(() => {
-        renderWithRouter(
-            <DestinationItem destinationObj={mockData.destinations[0]} />
+    function setup() {
+        renderApp(
+            <DestinationItem destinationObj={mockData.destinations[0]} />,
         );
-    });
+    }
 
     test("renders content", () => {
+        setup();
         expect(screen.getByText(/transmission date/i)).toBeInTheDocument();
         expect(screen.getByText(/transmission time/i)).toBeInTheDocument();
         expect(screen.getByText(/records/i)).toBeInTheDocument();

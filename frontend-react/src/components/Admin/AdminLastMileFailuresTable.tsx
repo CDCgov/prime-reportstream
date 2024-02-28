@@ -1,28 +1,36 @@
-import React, { Suspense, useCallback, useRef, useState } from "react";
-import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
-import DOMPurify from "dompurify";
 import {
     Button,
     ButtonGroup,
     Grid,
     GridContainer,
+    Icon,
     Label,
     Modal,
     ModalFooter,
     ModalRef,
-    Table,
     TextInput,
 } from "@trussworks/react-uswds";
-import { Link } from "react-router-dom";
+import DOMPurify from "dompurify";
+import {
+    PropsWithChildren,
+    Suspense,
+    useCallback,
+    useRef,
+    useState,
+} from "react";
+import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 
-import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
-import { formatDate } from "../../utils/misc";
-import { showAlertNotification, showError } from "../AlertNotifications";
-import { getStoredOktaToken } from "../../utils/SessionStorageTools";
-import AdmAction from "../../resources/AdmActionResource";
-import { ErrorPage } from "../../pages/error/ErrorPage";
-import Spinner from "../Spinner";
 import config from "../../config";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
+import { showToast } from "../../contexts/Toast";
+import { ErrorPage } from "../../pages/error/ErrorPage";
+import AdmAction from "../../resources/AdmActionResource";
+import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
+import Table from "../../shared/Table/Table";
+import { formatDate } from "../../utils/misc";
+import Spinner from "../Spinner";
+import { USLink } from "../USLink";
 
 const { RS_API_URL } = config;
 
@@ -32,7 +40,7 @@ interface DataForDialog {
 }
 
 // Improves readability
-const DRow = (props: React.PropsWithChildren<{ label: string }>) => {
+const DRow = (props: PropsWithChildren<{ label: string }>) => {
     return (
         <Grid row className={"modal-info-row"}>
             <Grid className={"modal-info-label text-no-wrap"}>
@@ -101,7 +109,7 @@ const RenderResendModal = (props: {
 }) => {
     return (
         <>
-            <p className={"border"}>
+            <p className={""}>
                 <b>You are about to trigger a retransmission.</b>
                 <br />
                 Copy the information below into a github issue to coordinate
@@ -126,18 +134,17 @@ const RenderResendModal = (props: {
                 <ButtonGroup>
                     <Button
                         type="button"
-                        size="small"
+                        outline
+                        onClick={props.closeResendModal}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        type="button"
                         disabled={props.loading}
                         onClick={() => props.startResend()}
                     >
                         Trigger Resend
-                    </Button>
-                    <Button
-                        type="button"
-                        size="small"
-                        onClick={props.closeResendModal}
-                    >
-                        Cancel
                     </Button>
                 </ButtonGroup>
             </ModalFooter>
@@ -156,7 +163,7 @@ const DataLoadRenderTable = (props: {
 }) => {
     const lastMileData: AdmSendFailuresResource[] = useResource(
         AdmSendFailuresResource.list(),
-        { days_to_show: props.daysToShow }
+        { days_to_show: props.daysToShow },
     );
     const lastMileResends: AdmAction[] = useResource(AdmAction.list(), {
         days_to_show: props.daysToShow,
@@ -166,7 +173,7 @@ const DataLoadRenderTable = (props: {
         return lastMileResends.filter((each) => each.filterMatch(reportId));
     };
 
-    const rows = lastMileData
+    const rowData = lastMileData
         .filter((eachRow) => eachRow.filterMatch(props.filterText))
         .map((eachRow) => {
             // would be nice if org and receiver name were separate
@@ -179,90 +186,84 @@ const DataLoadRenderTable = (props: {
                 info: eachRow,
                 resends: resends,
             };
-            return (
-                <tr key={`lastmile_row_${eachRow.pk()}`}>
-                    <td>
-                        <span className={"font-mono-2xs"}>
-                            {formatDate(eachRow.failedAt)}
-                        </span>
-                    </td>
-                    <td className={"font-mono-xs"}>
-                        <Button
-                            type="button"
-                            unstyled
-                            className={"font-mono-xs"}
-                            title={"Show Info"}
-                            key={`details_${eachRow.pk()}`}
-                            onClick={() =>
-                                props.handleShowDetailsClick(
-                                    JSON.stringify(dataForDialog, null, 4)
-                                )
-                            }
-                        >
-                            {eachRow.reportId}
-                            {" ⧉"}
-                        </Button>
-                        <span
-                            className={"rs-resendmarker"}
-                            title={"Resends attempted."}
-                        >
-                            {resends.length ? "⚠️" : null}
-                        </span>
-                    </td>
-                    <td>
-                        <Link
-                            title={"Jump to Settings"}
-                            to={linkRecvSettings}
-                            key={`recv_link_${eachRow.pk()}`}
-                            className={"font-mono-xs"}
-                        >
-                            {eachRow.receiver}
-                        </Link>
-                    </td>
-                    <td>
-                        <Button
-                            key={`retry_${eachRow.pk()}`}
-                            onClick={() =>
-                                props.handleRetrySendClick(
-                                    JSON.stringify(eachRow, null, 2)
-                                )
-                            }
-                            type="button"
-                            size="small"
-                            className="padding-1 usa-button--outline"
-                            title="Requeue items for resend"
-                        >
-                            Resend...
-                        </Button>
-                    </td>
-                </tr>
-            );
+            return [
+                {
+                    columnKey: "FailedAt",
+                    columnHeader: "Failed At",
+                    content: formatDate(eachRow.failedAt),
+                },
+                {
+                    columnKey: "ReportId",
+                    columnHeader: "ReportId",
+                    content: (
+                        <>
+                            <Button
+                                type="button"
+                                unstyled
+                                className={"font-mono-xs"}
+                                title={"Show Info"}
+                                key={`details_${eachRow.pk()}`}
+                                onClick={() =>
+                                    props.handleShowDetailsClick(
+                                        JSON.stringify(dataForDialog, null, 4),
+                                    )
+                                }
+                            >
+                                {eachRow.reportId}
+                                {
+                                    <Icon.Launch className="text-bottom margin-left-2px" />
+                                }
+                            </Button>
+                            <span
+                                className={"rs-resendmarker"}
+                                title={"Resends attempted."}
+                            >
+                                {resends.length > 0 && (
+                                    <Icon.Warning className="text-middle margin-left-2px text-gold" />
+                                )}
+                            </span>
+                        </>
+                    ),
+                },
+                {
+                    columnKey: "Receiver",
+                    columnHeader: "Receiver",
+                    content: (
+                        <>
+                            <USLink
+                                title={"Jump to Settings"}
+                                href={linkRecvSettings}
+                                key={`recv_link_${eachRow.pk()}`}
+                                className={"font-mono-xs padding-right-4"}
+                            >
+                                {eachRow.receiver}
+                            </USLink>
+                            <Button
+                                key={`retry_${eachRow.pk()}`}
+                                onClick={() =>
+                                    props.handleRetrySendClick(
+                                        JSON.stringify(eachRow, null, 2),
+                                    )
+                                }
+                                type="button"
+                                className="padding-1 usa-button--outline"
+                                title="Requeue items for resend"
+                            >
+                                Resend...
+                            </Button>
+                        </>
+                    ),
+                },
+            ];
         });
 
-    return (
-        <Table
-            key="lastmiletable"
-            aria-label="List of failed sends"
-            striped
-            fullWidth
-        >
-            <thead>
-                <tr>
-                    <th scope="col">Failed At</th>
-                    <th scope="col">ReportId</th>
-                    <th scope="col">Receiver</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            <tbody id="tBodyLastMile" className={"font-mono-xs"}>
-                {rows}
-            </tbody>
-        </Table>
-    );
+    return <Table borderless striped rowData={rowData} />;
 };
 
 // Main component. Tracks state but does not load/contain data.
 export function AdminLastMileFailuresTable() {
+    const { fetchHeaders } = useAppInsightsContext();
+    const { authState } = useSessionContext();
     const modalShowInfoId = "sendFailuresModalDetails";
     const modalResendId = "sendFailuresModalDetails";
     const defaultDaysToShow = "15"; // numeric input but treat as string for easier passing around
@@ -282,7 +283,7 @@ export function AdminLastMileFailuresTable() {
             setCurrentJsonDataForModal(jsonRowData);
             modalShowInfoRef?.current?.toggleModal(undefined, true);
         },
-        [modalShowInfoRef]
+        [modalShowInfoRef],
     );
 
     const modalResendRef = useRef<ModalRef>(null); // used to show/hide modal
@@ -337,7 +338,7 @@ ${data.receiver}`;
             // we need to show confirmation dialog, then do action to trigger resent
             modalResendRef?.current?.toggleModal(undefined, true);
         },
-        [modalResendRef]
+        [modalResendRef],
     );
 
     const closeResendModal = useCallback(() => {
@@ -355,7 +356,8 @@ ${data.receiver}`;
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${getStoredOktaToken()}`,
+                    ...fetchHeaders(),
+                    Authorization: `Bearer ${authState.accessToken?.accessToken}`,
                 },
                 mode: "cors",
             });
@@ -364,25 +366,24 @@ ${data.receiver}`;
 
             if (!response.ok) {
                 const msg = `Triggering resend command failed.\n${body}`;
-                showError(msg);
+                showToast(msg, "error");
                 setHtmlContentResultText(msg);
             } else {
                 // oddly, this api just returns a bunch of messages on success.
                 const msg = `Success. \n ${body}`;
-                showAlertNotification("success", msg);
+                showToast(msg, "success");
                 setHtmlContentResultText(msg);
             }
         } catch (e: any) {
-            console.trace(e);
             const msg = `Triggering resend command failed. ${e.toString()}`;
-            showError(msg);
+            showToast(msg, "error");
             setHtmlContentResultText(msg);
         }
         setLoading(false);
     };
 
     return (
-        <section className="grid-container rs-maxwidth-vw80">
+        <section>
             <h2>Last Mile failures</h2>
 
             <form autoComplete="off" className="grid-row margin-0">
@@ -399,7 +400,6 @@ ${data.receiver}`;
                         type="text"
                         autoComplete="off"
                         aria-autocomplete="none"
-                        autoFocus
                         inputSize={"medium"}
                         onChange={(evt) => setFilter(evt.target.value)}
                     />
@@ -434,8 +434,7 @@ ${data.receiver}`;
                         id="refresh"
                         name="refresh"
                         type={"button"}
-                        autoFocus
-                        onClick={(_evt) => refresh()}
+                        onClick={() => void refresh()}
                     >
                         Refresh
                     </Button>
@@ -482,7 +481,7 @@ ${data.receiver}`;
                     htmlContentResultText={htmlContentResultText}
                     loading={loading}
                     closeResendModal={closeResendModal}
-                    startResend={startResend}
+                    startResend={() => void startResend()}
                 />
             </Modal>
         </section>

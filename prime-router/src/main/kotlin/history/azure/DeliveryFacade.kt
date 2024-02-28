@@ -3,11 +3,13 @@ package gov.cdc.prime.router.history.azure
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import java.time.OffsetDateTime
+import java.util.*
 
 /**
  * Deliveries API
@@ -15,9 +17,9 @@ import java.time.OffsetDateTime
  */
 class DeliveryFacade(
     private val dbDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess(),
-    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton
+    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
 ) : ReportFileFacade(
-    dbAccess,
+    dbAccess
 ) {
     /**
      * Find deliveries based on parameters.
@@ -30,6 +32,8 @@ class DeliveryFacade(
      * @param since is the OffsetDateTime minimum date to get results for.
      * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize Int of items to return per page.
+     * @param reportIdStr is the reportId to get results for.
+     * @param fileName is the fileName to get results for.
      *
      * @return a List of Actions
      */
@@ -41,7 +45,9 @@ class DeliveryFacade(
         cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
-        pageSize: Int
+        pageSize: Int,
+        reportIdStr: String?,
+        fileName: String?,
     ): List<DeliveryHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."
@@ -51,6 +57,13 @@ class DeliveryFacade(
         }
         require(since == null || until == null || until > since) {
             "End date must be after start date."
+        }
+
+        var reportId: UUID?
+        try {
+            reportId = if (reportIdStr != null) UUID.fromString(reportIdStr) else null
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Invalid format for report ID: $reportIdStr")
         }
 
         return dbDeliveryAccess.fetchActions(
@@ -63,7 +76,9 @@ class DeliveryFacade(
             until,
             pageSize,
             true,
-            DeliveryHistory::class.java
+            DeliveryHistory::class.java,
+            reportId,
+            fileName
         )
     }
 
@@ -104,19 +119,17 @@ class DeliveryFacade(
     }
 
     /**
-     * Check whether these [claims] allow access to this [orgName].
-     * @return true if [claims] authorizes access to this [orgName].  Return
-     * false if the [orgName] is empty or if the claim does not give access.
+     * Check whether these [claims] from this [request]
+     * allow access to the receiver associated with this [action].
+     * @return true if authorized, false otherwise.
+     * Because this is a Delivery request, this checks the [Action.receivingOrg]
      */
-    override fun checkAccessAuthorization(
+    override fun checkAccessAuthorizationForAction(
         claims: AuthenticatedClaims,
-        orgName: String?,
-        senderOrReceiver: String?,
+        action: Action,
         request: HttpRequestMessage<String?>,
     ): Boolean {
-        // todo If orgname is not known, this only works for primeadmin right now.
-        //  Need to query the report_file table to find who the receiving_org is for this id.
-        return claims.authorizedForSendOrReceive(orgName, null, request)
+        return claims.authorizedForSendOrReceive(action.receivingOrg, null, request)
     }
 
     companion object {

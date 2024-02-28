@@ -1,0 +1,44 @@
+name: Snyk Java/Kotlin scan
+
+# refresh Snyk console results for Java/Kotlin scans when merging with master
+on:
+  push:
+    branches:
+      - master
+    paths:
+      -  "prime-router/**"
+
+jobs:
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
+  snyk:
+    runs-on: ubuntu-latest
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }} && secrets.SNYK_TOKEN != ''
+    defaults:
+      run:
+        working-directory: prime-router
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: snyk/actions/setup@b98d498629f1c368650224d6d212bf7dfa89e4bf
+      - name: Set up JDK 17 to generate backend coverage stats
+        uses: actions/setup-java@9704b39bf258b59bc04b50fa2dd55e9ed76b47a8
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "gradle"
+      - uses: gradle/wrapper-validation-action@699bb18358f12c5b78b37bb0111d3a0e2276e0e2
+      - name: Snyk Monitor
+        run: snyk monitor --org=prime-reportstream
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

@@ -9,8 +9,8 @@ data class HeaderComparison(val fileOneHeaders: Set<String>, val fileTwoHeaders:
 
     override fun toString(): String {
         return """
-            There are keys in fileOne that are not in fileTwo: ${ fileOneHeaders.joinToString { "," } }
-            There are keys in fileTwo that are not in fileOne: ${ fileTwoHeaders.joinToString { "," } }
+            There are keys in fileOne that are not in fileTwo: ${fileOneHeaders.joinToString { "," }}
+            There are keys in fileTwo that are not in fileOne: ${fileTwoHeaders.joinToString { "," }}
         """.trimIndent()
     }
 }
@@ -63,7 +63,7 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
     fun compareLinesOfMaps(
         expected: Map<String, Any?>,
         actual: Map<String, Any?>,
-        headerRow: List<String>? = null
+        headerRow: List<String>? = null,
     ): Map<String, List<String>> {
         val differences = mutableMapOf<String, List<String>>()
 
@@ -73,6 +73,7 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
             @Suppress("UNCHECKED_CAST")
             val actualLines: List<String> = actual[expectedKey] as? List<String>
                 ?: error("Cast failed for actual values")
+
             @Suppress("UNCHECKED_CAST")
             val expectedLines: List<String> = expected[expectedKey] as? List<String>
                 ?: error("Cast failed for expected values")
@@ -100,7 +101,7 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
         lines: List<String>,
         recordId: String = "Patient_ID",
         skipHeader: Boolean = true,
-        delimiter: String = ","
+        delimiter: String = ",",
     ): Map<String, Any?> {
         val expectedLines = mutableMapOf<String, Any?>()
         val headerLine = lines[0]
@@ -118,8 +119,9 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
                 continue
             }
 
-            if (recordIdIndex == -1)
+            if (recordIdIndex == -1) {
                 error("Key provided for recordId was not found in header of file. Expected $recordId")
+            }
 
             val splitLine = expectedResultsLine.split(delimiter)
             if (!expectedLines.containsKey(splitLine[recordIdIndex])) {

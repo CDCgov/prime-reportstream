@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.common
 
+import com.github.doyaaaaaken.kotlincsv.dsl.context.ExcessFieldsRowBehaviour
+import com.github.doyaaaaaken.kotlincsv.dsl.context.InsufficientFieldsRowBehaviour
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import org.apache.commons.io.output.ByteArrayOutputStream
@@ -33,8 +35,9 @@ class CsvUtilities {
             // Start with header of the first table
             val mergedTable = mutableListOf<List<String>>(inputTables[0][0])
             inputTables.forEach {
-                if (mergedTable[0] != it[0])
+                if (mergedTable[0] != it[0]) {
                     error("One of the tables does not match the other in a merge")
+                }
                 mergedTable.addAll(it.takeLast(it.size - 1))
             }
             return tableToString(mergedTable)
@@ -45,7 +48,8 @@ class CsvUtilities {
                 quoteChar = '"'
                 delimiter = ','
                 skipEmptyLine = false
-                skipMissMatchedRow = false
+                insufficientFieldsRowBehaviour = InsufficientFieldsRowBehaviour.ERROR
+                excessFieldsRowBehaviour = ExcessFieldsRowBehaviour.ERROR
             }.readAll(csvTable)
         }
 

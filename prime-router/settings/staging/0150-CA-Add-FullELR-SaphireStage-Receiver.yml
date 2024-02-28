@@ -1,0 +1,107 @@
+---
+- name: "ca-dph"
+  description: "California Department of Public Health"
+  jurisdiction: "STATE"
+  stateCode: "CA"
+  countyName: null
+  filters: [ ]
+  featureFlags: null
+  keys: null
+  senders: [ ]
+  receivers:
+    - name: "full-elr-saphirestage"
+      organizationName: "ca-dph"
+      topic: "full-elr"
+      customerStatus: "testing"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: ""
+        receivingApplicationOID: null
+        receivingFacilityName: ""
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: { }
+        replaceValueAwithB: { }
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting:
+        cliaForSender: { }
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: { }
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: true
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() and %patientState = 'CA')"
+      qualityFilter:
+        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+        # Every order has at least an order-test-date (ORC-15), specimen_collection_date_time (SPM-17-1, OBR-7, OBR-8, OBX-14) or test-result-date (OBX-19)
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty() and specimen.resolve().collection.collected.empty() and effective.empty() and issued.empty() and result.resolve().effective.empty()).count() = 0"
+        # Patient has at least a street address(PID-11-1), postal code (PID-11-5),phone(PID-13) or email(PID-13-4)
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+        # Message id is not empty (MSH-10)
+        - "Bundle.identifier.value.empty().not()"
+        # Equipment model (OBX-17-2) and test result (OBX-5) are not empty
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty() or value.coding.code.empty()).count() = 0"
+        #  Specimen type (SPM-4) is not empty
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        # Patient's last name (PID-5-1), first name (PID-5-2) and date of birth (PID-7)are not empty
+        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty() or birthDate.empty()).count() = 0"
+        # Ordering provider (OBR-16-1) exists
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Organization).identifier.value.getIdType() = 'CLIA'"
+      conditionFilter:
+        # Flu B Test Performed LOINCs 85478-6, 76080-1, 92141-1, 80383-3, 82170-2
+        # Flu A Test Performed LOINCs 85477-8, 76078-5, 77026-3, 77028-9, 77027-1, 92142-9, 80382-5, 82166-0, 82167-8, 82169-4, 82168-6, 92809-3, 92808-5
+        # Special Snowflake LOINC - 95423-0 (Snomed CT code determines if it was the flu A or flu B result)
+        # Accept all positive flu A and B results or negative flu A and B results for cities in LA and Orange counties
+        - >-
+          %resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5' | '95423-0')).value.coding.code.intersect('260373001' | '407479009' | '407480007').exists()
+          or (%resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5')).value.coding.code.intersect('260415000').exists() and (%patient.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists() or %performer.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists()))
+      routingFilter:
+      processingModeFilter:
+        - "%processingId = 'T'"
+      reverseTheQualityFilter: false
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 4
+        initialTime: "06:30"
+        timeZone: "PACIFIC"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: "Full ELR Saphire Stage"
+      transport: !<SFTP>
+        host: "saphiresftpstage.cdph.ca.gov"
+        port: "22"
+        filePath: "./"
+        credentialName: null
+        type: "SFTP"
+      externalName: "Full ELR Saphire Stage Feed"
+      timeZone: "PACIFIC"
+      dateTimeFormat: "OFFSET"

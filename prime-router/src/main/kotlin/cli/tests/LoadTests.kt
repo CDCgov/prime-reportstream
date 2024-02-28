@@ -1,12 +1,12 @@
 package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import java.net.HttpURLConnection
 import kotlin.system.measureTimeMillis
 
@@ -157,7 +157,7 @@ class Huge : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simpleRepSender,
+            simpleRepSender.schemaName,
             fakeItemCount,
             receivingStates,
             csvReceiver.name,
@@ -205,7 +205,7 @@ class TooBig : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simpleRepSender,
+            simpleRepSender.schemaName,
             fakeItemCount,
             receivingStates,
             csvReceiver.name,
@@ -226,7 +226,7 @@ class TooBig : CoolTest() {
         echo("Response to POST: $responseCode")
         echo(json)
         try {
-            val tree = jacksonObjectMapper().readTree(json)
+            val tree = jacksonObjectMapper.readTree(json)
             val firstError = (tree["errors"][0]) as ObjectNode
             if (firstError["details"].textValue().contains("rows")) {
                 return good("toobig Test passed.")

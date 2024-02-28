@@ -31,6 +31,8 @@ resource "azurerm_linux_web_app" "metabase" {
       service_tag = "AzureFrontDoor.Backend"
     }
 
+    ftps_state = "Disabled"
+
     scm_use_main_ip_restriction = true
 
     always_on        = true
@@ -39,6 +41,7 @@ resource "azurerm_linux_web_app" "metabase" {
 
   app_settings = {
     "MB_DB_CONNECTION_URI" = "postgresql://${var.postgres_server_name}.postgres.database.azure.com:5432/metabase?user=${var.postgres_user}@${var.postgres_server_name}&password=${var.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+    "MB_PASSWORD_LENGTH"   = "10"
 
     # Route outbound traffic through the VNET
     "WEBSITE_VNET_ROUTE_ALL" = 1
@@ -61,6 +64,15 @@ resource "azurerm_linux_web_app" "metabase" {
     "XDT_MicrosoftApplicationInsights_BaseExtensions" = "disabled"
     "XDT_MicrosoftApplicationInsights_Mode"           = "recommended"
     "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
+    "SMTP_PASSWORD"                                   = var.sendgrid_password
+    "SMTP_PORT"                                       = "587"
+    "SMTP_SERVER"                                     = "smtp.sendgrid.net"
+    "SMTP_USERNAME"                                   = "apikey"
+    "WEBSITE_SMTP_ENABLESSL"                          = "true"
+    "WEBSITE_SMTP_PASSWORD"                           = var.sendgrid_password
+    "WEBSITE_SMTP_SERVER"                             = "smtp.sendgrid.net"
+    "WEBSITE_SMTP_USERNAME"                           = "apikey"
+
   }
 
   lifecycle {

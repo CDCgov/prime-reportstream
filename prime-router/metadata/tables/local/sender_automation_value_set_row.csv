@@ -1626,3 +1626,15 @@ patient_preferred_language,zul,Zulu,
 patient_preferred_language,zul,zul,
 patient_preferred_language,zun,Zuni,
 patient_preferred_language,zun,zun,
+aoe,95417-2,First test for condition of interest,2.69
+aoe,95419-8,Has symptoms related to condition of interest,2.69
+aoe,85658-3,Occupation [Type],2.68
+aoe,95418-0,Whether patient is employed in a healthcare setting,2.69
+aoe,65222-2,Date and time of symptom onset,2.68
+aoe,75325-1,Symptom,2.68
+aoe,95420-6,Admitted to intensive care unit for condition of interest,2.69
+aoe,95421-4,Resides in a congregate care setting,2.69
+aoe,75617-1,Residence type,2.68
+aoe,82810-3,Pregnancy status,2.68
+aoe,30525-0,Age,2.68
+aoe,77974-4,Whether patient was hospitalized because of this condition,2.68

@@ -78,13 +78,13 @@ interface Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender? = null
+        sender: Sender? = null,
     ): ElementResult
 }
 
 data class ElementAndValue(
     val element: Element,
-    val value: String
+    val value: String,
 )
 
 class MiddleInitialMapper : Mapper {
@@ -99,16 +99,19 @@ class MiddleInitialMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         return ElementResult(
             if (values.isEmpty()) {
                 null
             } else {
-                if (values.size != 1)
+                if (values.size != 1) {
                     error("Found ${values.size} values.  Expecting 1 value. Args: $args, Values: $values")
-                else if (values.first().value.isEmpty()) null
-                else values.first().value.substring(0..0).uppercase()
+                } else if (values.first().value.isEmpty()) {
+                    null
+                } else {
+                    values.first().value.substring(0..0).uppercase()
+                }
             }
         )
     }
@@ -197,7 +200,7 @@ class IfThenElseMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         return if (
             comp(
@@ -205,9 +208,11 @@ class IfThenElseMapper : Mapper {
                 decodeArg(values, args[1]),
                 decodeArg(values, args[2])
             ) // see comp()
-        )
-            ElementResult(decodeArg(values, args[3])) else
+        ) {
+            ElementResult(decodeArg(values, args[3]))
+        } else {
             ElementResult(decodeArg(values, args[4])) // see decodeArg()
+        }
     }
 }
 
@@ -224,7 +229,7 @@ class UseMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         return ElementResult(
             if (values.isEmpty()) {
@@ -260,7 +265,7 @@ class PatientAgeMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         // pull our values
         val patientAge = values.firstOrNull { ev -> ev.element.name == "patient_age" }?.value.trimToNull()
@@ -362,7 +367,7 @@ class UseSenderSettingMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         val valueToUse =
             when {
@@ -402,10 +407,11 @@ class ConcatenateMapper : Mapper {
     override val name = "concat"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.size < 2)
+        if (args.size < 2) {
             error(
                 "Schema Error: concat mapper expects to concat two or more column names"
             )
+        }
         return args
     }
 
@@ -413,7 +419,7 @@ class ConcatenateMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         return ElementResult(
             if (values.isEmpty()) {
@@ -442,7 +448,7 @@ class IfPresentMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         return ElementResult(
             if (values.size == 1) {
@@ -475,7 +481,7 @@ class IfNotPresentMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         val mode = args[0].split(":")[1]
         val modeOperator = if (args[1].contains(":")) args[1].split(":")[1] else args[1]
@@ -522,13 +528,18 @@ class IfNPIMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         return ElementResult(
-            if (values.size != 1) null
-            else if (NPIUtilities.isValidNPI(values[0].value)) args[1]
-            else if (args.size == 3) args[2]
-            else null
+            if (values.size != 1) {
+                null
+            } else if (NPIUtilities.isValidNPI(values[0].value)) {
+                args[1]
+            } else if (args.size == 3) {
+                args[2]
+            } else {
+                null
+            }
         )
     }
 }
@@ -553,7 +564,7 @@ class LookupMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         return ElementResult(
             // args should be twice size of values as it includes the index column names
@@ -570,8 +581,9 @@ class LookupMapper : Mapper {
                     // Specified in sender settings lookup mapper parameters
                     // ex: lookup(patient_state, $Column:State, patient_county, $Column:County)
                     val indexColumn = args[index.times(2).plus(1)].split(":")[1]
-                    if (indexColumn.isEmpty())
+                    if (indexColumn.isEmpty()) {
                         error("Schema Error: no tableColumn for element ${elementAndValue.element.name}")
+                    }
                     tableFilter.equalsIgnoreCase(indexColumn, elementAndValue.value)
                 }
                 val lookupColumn = element.tableColumn
@@ -602,7 +614,7 @@ class LookupSenderAutomationValuesets : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         val lookupTable = element.tableRef
             ?: return ElementResult(
@@ -680,8 +692,9 @@ class NpiLookupMapper : Mapper {
     override val name = "npiLookup"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.isEmpty())
+        if (args.isEmpty()) {
             error("Schema Error: lookup mapper expected one or more args")
+        }
         return args
     }
 
@@ -689,7 +702,7 @@ class NpiLookupMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         /* The table ref and column from the element that called the mapper */
         val lookupTable = element.tableRef
@@ -745,7 +758,7 @@ class Obx8Mapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         return ElementResult(
             if (values.isEmpty() || values.size > 1) {
@@ -790,7 +803,7 @@ class TimestampMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         val tsFormat = if (args.isEmpty()) {
             "yyyyMMddHHmmss.SSSSZZZ"
@@ -822,7 +835,7 @@ class DateTimeOffsetMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         fun parseDateTime(value: String): OffsetDateTime {
             return try {
@@ -864,7 +877,7 @@ class CoalesceMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         if (values.isEmpty()) return ElementResult(null)
         val ev = values.firstOrNull {
@@ -885,7 +898,7 @@ class TrimBlanksMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         val ev = values.firstOrNull()?.value ?: ""
         return ElementResult(ev.trim())
@@ -904,7 +917,7 @@ class StripPhoneFormattingMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         if (values.isEmpty()) return ElementResult(null)
         val returnValue = values.firstOrNull()?.value ?: ""
@@ -925,7 +938,7 @@ class StripNonNumericDataMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         if (values.isEmpty()) return ElementResult(null)
         val returnValue = values.firstOrNull()?.value ?: ""
@@ -945,7 +958,7 @@ class StripNumericDataMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         if (values.isEmpty()) return ElementResult(null)
         val returnValue = values.firstOrNull()?.value ?: ""
@@ -965,7 +978,7 @@ class SplitMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         if (values.isEmpty()) return ElementResult(null)
         val value = values.firstOrNull()?.value ?: ""
@@ -991,7 +1004,7 @@ class SplitByCommaMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         if (values.isEmpty()) return ElementResult(null)
         val value = values.firstOrNull()?.value ?: ""
@@ -1013,7 +1026,7 @@ class ZipCodeToCountyMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         val table = element.tableRef ?: error("Cannot perform lookup on a null table")
         val zipCode = values.firstOrNull()?.value ?: return ElementResult(null)
@@ -1028,6 +1041,7 @@ class ZipCodeToCountyMapper : Mapper {
         )
     }
 }
+
 /**
  * [ZipCodeToStateMapper] runs a lookup using zip code and returns the single associated state. Null is returned if
  * no zip code is provided, the zip code is not found, or if multiple records are found in the lookup.
@@ -1044,7 +1058,7 @@ class ZipCodeToStateMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         val table = element.tableRef ?: error("Cannot perform lookup on a null table")
         val zipCode = values.firstOrNull()?.value ?: return ElementResult(null)
@@ -1086,7 +1100,7 @@ class CountryMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         val patientCountry = values.firstOrNull { it.element.name == element.name }?.value
         val patientPostalCode = values.firstOrNull { it.element.name == "patient_zip_code" }?.value
@@ -1120,6 +1134,7 @@ class CountryMapper : Mapper {
         /** No magic strings. */
         /** No magic strings. */
         private const val USA = "USA"
+
         /** No magic strings. */
         private const val CAN = "CAN"
     }
@@ -1138,7 +1153,7 @@ class HashMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         if (args.isEmpty()) error("Must pass at least one element name to $name")
         if (values.isEmpty()) return ElementResult(null)
@@ -1166,8 +1181,9 @@ class NullMapper : Mapper {
     override val name = "none"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.isNotEmpty())
+        if (args.isNotEmpty()) {
             error("Schema Error: none mapper does not expect args")
+        }
         return emptyList()
     }
 
@@ -1175,7 +1191,7 @@ class NullMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         return ElementResult(null)
     }
@@ -1185,10 +1201,11 @@ object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
         val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^><=!]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
-        val args = if (match.groupValues[2].isEmpty())
+        val args = if (match.groupValues[2].isEmpty()) {
             emptyList()
-        else
+        } else {
             match.groupValues[2].split(',').map { it.trim() }
+        }
         val mapperName = match.groupValues[1]
         return Pair(mapperName, args)
     }

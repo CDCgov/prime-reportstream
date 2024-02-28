@@ -1,7 +1,7 @@
 constants:
   hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})
 elements:
-  - name: order-set-ID-orc
+  - name: order-set-id-orc
     resource: '%resource.basedOn'
     condition: '%resource.exists()'
     value:
@@ -9,7 +9,7 @@ elements:
     hl7Spec:
       - '%{hl7Order}/ORC-1'
 
-  - name: order-set-ID-obr
+  - name: order-set-id-obr
     value:
       - '%orderIndex  + 1'
     hl7Spec:

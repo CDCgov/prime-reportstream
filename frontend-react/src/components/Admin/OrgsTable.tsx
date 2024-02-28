@@ -1,59 +1,38 @@
-import React, { useState } from "react";
+import { Button, ButtonGroup, Label, TextInput } from "@trussworks/react-uswds";
+import { useState } from "react";
+import { Helmet } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 import { useResource } from "rest-hooks";
-import {
-    Button,
-    ButtonGroup,
-    Dropdown,
-    Label,
-    Table,
-    TextInput,
-} from "@trussworks/react-uswds";
-import { NavLink, useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet";
 
+import { useSessionContext } from "../../contexts/Session";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
-import { useSessionContext } from "../../contexts/SessionContext";
-import {
-    MembershipActionType,
-    MemberType,
-    MembershipSettings,
-} from "../../hooks/UseOktaMemberships";
+import Table from "../../shared/Table/Table";
+import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
+import { USNavLink } from "../USLink";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(
         OrgSettingsResource.list(),
-        {}
+        {},
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
-    const { activeMembership, dispatch } = useSessionContext();
+    const { activeMembership, setActiveMembership } = useSessionContext();
     const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        const { senderName, memberType } = activeMembership || {};
+        const { service, memberType } = activeMembership ?? {};
 
-        let payload: Partial<MembershipSettings> = {
+        const payload: Partial<MembershipSettings> = {
             parsedName: orgName,
         };
         if (
             memberType === MemberType.SENDER ||
             memberType === MemberType.PRIME_ADMIN
         ) {
-            payload.senderName = senderName || "default";
+            payload.service = service ?? "default";
         }
-        dispatch({
-            type: MembershipActionType.ADMIN_OVERRIDE,
-            payload,
-        });
-    };
-
-    const handleSetUserType = (type: MemberType) => {
-        dispatch({
-            type: MembershipActionType.ADMIN_OVERRIDE,
-            payload: {
-                memberType: type,
-            },
-        });
+        setActiveMembership(payload);
     };
 
     const handleEditOrgClick = (orgName: string) => {
@@ -76,7 +55,7 @@ export function OrgsTable() {
                         eachOrg.countyName,
                     ].join(`","`),
                     `"`,
-                ].join("")
+                ].join(""),
             )
             .join(`\n`); // join result of .map() lines
         // Note that this csv previously included a `Created` column with a createdAt
@@ -92,15 +71,84 @@ export function OrgsTable() {
         window.open(encodeURI(filecontent), "prime-orgs.csv", "noopener");
     };
 
+    const formattedTableData = () => {
+        return orgs
+            .filter((eachOrg) => eachOrg.filterMatch(filter))
+            .map((eachOrg) => [
+                {
+                    columnKey: "Name",
+                    columnHeader: "Name",
+                    content: (
+                        <span
+                            className={
+                                eachOrg.name === currentOrg
+                                    ? "font-heading-sm text-bold"
+                                    : "font-heading-sm"
+                            }
+                        >
+                            {eachOrg.name}
+                        </span>
+                    ),
+                },
+                {
+                    columnKey: "Description",
+                    columnHeader: "Description",
+                    content: eachOrg.description || "-",
+                },
+                {
+                    columnKey: "Jurisdiction",
+                    columnHeader: "Jurisdiction",
+                    content: eachOrg.jurisdiction || "",
+                },
+                {
+                    columnKey: "State",
+                    columnHeader: "State",
+                    content: eachOrg.stateCode ?? "",
+                },
+                {
+                    columnKey: "County",
+                    columnHeader: "County",
+                    content: eachOrg.countyName ?? "",
+                },
+                {
+                    columnKey: "ButtonAction",
+                    columnHeader: "",
+                    content: (
+                        <ButtonGroup type="segmented">
+                            <Button
+                                data-testid={`${eachOrg.name}_set`}
+                                key={`${eachOrg.name}_select`}
+                                onClick={() =>
+                                    handleSelectOrgClick(`${eachOrg.name}`)
+                                }
+                                type="button"
+                                className="padding-1 usa-button--outline"
+                            >
+                                Set
+                            </Button>
+                            <Button
+                                data-testid={`${eachOrg.name}_edit`}
+                                key={`${eachOrg.name}_edit`}
+                                onClick={() =>
+                                    handleEditOrgClick(`${eachOrg.name}`)
+                                }
+                                type="button"
+                                className="padding-1 usa-button--outline"
+                            >
+                                Edit
+                            </Button>
+                        </ButtonGroup>
+                    ),
+                },
+            ]);
+    };
+
     return (
         <>
             <Helmet>
                 <title>Admin-Organizations</title>
             </Helmet>
-            <section
-                id="orgsettings"
-                className="grid-container margin-bottom-5"
-            >
+            <section id="orgsettings" className="margin-bottom-5">
                 <h2>Organizations ({orgs.length})</h2>
                 <form autoComplete="off" className="grid-row">
                     <div className="flex-fill">
@@ -116,117 +164,30 @@ export function OrgsTable() {
                             type="text"
                             autoComplete="off"
                             aria-autocomplete="none"
-                            autoFocus
                             onChange={(evt) => setFilter(evt.target.value)}
                         />
                     </div>
-                    <div className="flex-fill margin-x-2">
-                        <Label
-                            className="font-sans-xs usa-label"
-                            htmlFor="input-filter"
-                        >
-                            Mimic user type:
-                        </Label>
-                        <Dropdown
-                            name="user-type-select"
-                            defaultValue={activeMembership?.memberType}
-                            className="rs-input"
-                            onChange={(e) =>
-                                handleSetUserType(e.target.value as MemberType)
-                            }
-                            id="user-type-select"
-                        >
-                            {Object.values(MemberType).map((type, index) => (
-                                <option key={index}>{type}</option>
-                            ))}
-                        </Dropdown>
-                    </div>
-                    <NavLink
-                        to={"/admin/new/org"}
+                    <USNavLink
+                        href={"/admin/new/org"}
                         className="usa-button flex-align-self-end height-5"
                     >
                         Create New Organization
-                    </NavLink>
+                    </USNavLink>
                     <Button
                         key={`savelist`}
                         onClick={() => saveListToCSVFile()}
                         type="button"
-                        size="small"
                         className="usa-button usa-button--outline usa-button--small flex-align-self-end height-5"
                     >
                         Save List to CSV
                     </Button>
                 </form>
                 <Table
-                    key="orgsettingstable"
-                    aria-label="Organizations"
                     striped
-                    fullWidth
-                >
-                    <thead>
-                        <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Jurisdiction</th>
-                            <th scope="col">State</th>
-                            <th scope="col">County</th>
-                            <th scope="col"> </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tBodyFac" className="font-mono-2xs">
-                        {orgs
-                            .filter((eachOrg) => eachOrg.filterMatch(filter))
-                            .map((eachOrg) => (
-                                <tr key={`sender-row-${eachOrg.name}`}>
-                                    <td>
-                                        <span
-                                            className={
-                                                eachOrg.name === currentOrg
-                                                    ? "font-heading-sm text-bold"
-                                                    : "font-heading-sm"
-                                            }
-                                        >
-                                            {eachOrg.name}
-                                        </span>
-                                    </td>
-                                    <td>{eachOrg?.description || "-"}</td>
-                                    <td>{eachOrg.jurisdiction || ""}</td>
-                                    <td>{eachOrg.stateCode || ""}</td>
-                                    <td>{eachOrg.countyName || ""}</td>
-                                    <td>
-                                        <ButtonGroup type="segmented">
-                                            <Button
-                                                key={`${eachOrg.name}_select`}
-                                                onClick={() =>
-                                                    handleSelectOrgClick(
-                                                        `${eachOrg.name}`
-                                                    )
-                                                }
-                                                type="button"
-                                                size="small"
-                                                className="padding-1 usa-button--outline"
-                                            >
-                                                Set
-                                            </Button>
-                                            <Button
-                                                key={`${eachOrg.name}_edit`}
-                                                onClick={() =>
-                                                    handleEditOrgClick(
-                                                        `${eachOrg.name}`
-                                                    )
-                                                }
-                                                type="button"
-                                                size="small"
-                                                className="padding-1 usa-button--outline"
-                                            >
-                                                Edit
-                                            </Button>
-                                        </ButtonGroup>
-                                    </td>
-                                </tr>
-                            ))}
-                    </tbody>
-                </Table>
+                    borderless
+                    sticky
+                    rowData={formattedTableData()}
+                />
             </section>
         </>
     );

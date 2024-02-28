@@ -13,6 +13,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.MockSettings
@@ -62,14 +63,14 @@ class SubmissionFunctionTests : Logging {
 
     data class ExpectedAPIResponse(
         val status: HttpStatus,
-        val body: List<ExpectedSubmissionList>? = null
+        val body: List<ExpectedSubmissionList>? = null,
     )
 
     data class SubmissionUnitTestCase(
         val headers: Map<String, String>,
         val parameters: Map<String, String>,
         val expectedResponse: ExpectedAPIResponse,
-        val name: String?
+        val name: String?,
     )
 
     /**
@@ -91,7 +92,7 @@ class SubmissionFunctionTests : Logging {
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
             externalName = "test-name.csv",
             reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
-            schemaTopic = "covid-19",
+            schemaTopic = Topic.COVID_19,
             itemCount = 3,
             sendingOrg = organizationName,
             sendingOrgClient = organizationClient,
@@ -168,24 +169,24 @@ class SubmissionFunctionTests : Logging {
             ),
             SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
-                mapOf("pagesize" to "-1"),
+                mapOf("pageSize" to "-1"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
-                "bad pagesize"
+                "bad pageSize"
             ),
             SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
-                mapOf("pagesize" to "fads"),
+                mapOf("pageSize" to "fads"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
-                "bad pagesize, garbage"
+                "bad pageSize, garbage"
             ),
             SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
                 mapOf(
-                    "pagesize" to "10",
+                    "pageSize" to "10",
                     "cursor" to "2021-11-30T16:36:48.307Z",
                     "sortDir" to "ASC"
                 ),
@@ -197,7 +198,7 @@ class SubmissionFunctionTests : Logging {
             SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
                 mapOf(
-                    "pagesize" to "10",
+                    "pageSize" to "10",
                     "since" to "2021-11-30T16:36:54.307109Z",
                     "until" to "2021-11-30T16:36:53.919104Z",
                     "sortCol" to "CREATED_AT",
@@ -229,7 +230,7 @@ class SubmissionFunctionTests : Logging {
             val submissionsFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
             val response = submissionsFunction.getOrgSubmissionsList(
                 httpRequestMessage,
-                organizationName,
+                organizationName
             )
             // Verify
             assertThat(response.status).isEqualTo(it.expectedResponse.status)
@@ -283,7 +284,7 @@ class SubmissionFunctionTests : Logging {
         facade: SubmissionsFacade,
     ): SubmissionFunction {
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
-        val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
+        val metadata = Metadata(schema = Schema(name = "one", topic = Topic.TEST))
         val settings = MockSettings()
         val sender = CovidSender(
             name = "default",
@@ -341,6 +342,22 @@ class SubmissionFunctionTests : Logging {
     }
 
     @Test
+    fun `test retrieval of a non-existent organization's submission history`() {
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
+        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, "foo")
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+    @Test
+    fun `test retrieval of a an organization's submission history for a non-existent sending channel`() {
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
+        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, "test-lab.foo")
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+    @Test
     fun `test access DHPrimeAdmins can view all organization's submission history`() {
         val submissionFunction = setupSubmissionFunctionForTesting("DHPrimeAdmins", mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
@@ -390,7 +407,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
-        every { mockSubmissionFacade.checkAccessAuthorization(any(), any(), null, any()) } returns true
+        every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
@@ -412,7 +429,9 @@ class SubmissionFunctionTests : Logging {
         // Good actionId, but Not authorized
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchAction(any()) } returns action
-        every { mockSubmissionFacade.checkAccessAuthorization(any(), any(), null, any()) } returns false // unauthorized
+        every {
+            mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any())
+        } returns false // unauthorized
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
@@ -420,7 +439,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockSubmissionFacade.fetchAction(any()) } returns action
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
-        every { mockSubmissionFacade.checkAccessAuthorization(any(), any(), null, any()) } returns true
+        every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())

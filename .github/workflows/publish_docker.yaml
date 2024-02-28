@@ -1,9 +1,12 @@
 name: Publish Container to GitHub
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
+  schedule:
+    - cron:  "0 0 1 * *"
 
 env:
   REGISTRY: ghcr.io
@@ -13,12 +16,12 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_tfcli_change: ${{ steps.skip_check.outputs.tfcli }}
-      has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq }}
+      has_tfcli_change: ${{ steps.skip_check.outputs.tfcli && github.event_name != 'schedule'}}
+      has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq  || github.event_name == 'schedule'}}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-      - uses: dorny/paths-filter@b2feaf19c27470162a626bd6fa8438ae5b263721
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: dorny/paths-filter@ebc4d7e9ebcb0b1eb21480bb8f43113e996ac77a
         id: skip_check
         with:
           list-files: csv
@@ -33,7 +36,7 @@ jobs:
   publish_tfcli:
     name: Publish Terraform CLI
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_tfcli_change == 'true' }}
+    if: ${{ needs.pre_job.outputs.has_tfcli_change == 'true'}}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -45,10 +48,10 @@ jobs:
       packages: write
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Log In to the Container Registry
-        uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -80,10 +83,10 @@ jobs:
         AZ_ENV: [ demo1, demo2, demo3, test, staging, prod ]
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Log In to the Container Registry
-        uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}

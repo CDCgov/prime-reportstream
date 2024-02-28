@@ -1,16 +1,18 @@
-import React, {
-    useState,
+import { Button } from "@trussworks/react-uswds";
+import {
+    Dispatch,
+    SetStateAction,
     useCallback,
     useMemo,
-    SetStateAction,
-    Dispatch,
+    useState,
 } from "react";
-import { Button } from "@trussworks/react-uswds";
 
-import { FilterManager } from "../../hooks/filters/UseFilterManager";
-
-import { RowSideEffect, TableRow as TableRowData, ColumnConfig } from "./Table";
 import { ColumnData } from "./ColumnData";
+import { ColumnConfig, RowSideEffect } from "./Table";
+import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { StringIndexed } from "../../utils/UsefulTypes";
+
+export type TableRowData = StringIndexed;
 
 interface RowProps {
     columns: ColumnConfig[];
@@ -23,6 +25,7 @@ interface TableRowsProps extends RowProps {
     filterManager?: FilterManager;
     onSave?: RowSideEffect;
     setRowToEdit: Dispatch<SetStateAction<number | undefined>>;
+    className?: string;
 }
 
 interface TableRowProps extends RowProps {
@@ -103,6 +106,7 @@ export const TableRows = ({
     columns,
     setRowToEdit,
     rowToEdit,
+    className = "font-mono-2xs", // Default font to mono if not overridden
 }: TableRowsProps) => {
     // tracks data changes to row currently being edited
     // TODO: build proper loading state
@@ -116,8 +120,7 @@ export const TableRows = ({
         // largely here for typecheck reasons, this represents a case
         // where we're somehow trying to update a row without editing enabled
         if (rowToEdit === undefined) {
-            console.error("Editing not enabled or no row to edit");
-            return;
+            throw new Error("Editing not enabled or no row to edit");
         }
 
         const rowToUpdate = updatedRow ? updatedRow : rowsToDisplay[rowToEdit];
@@ -140,7 +143,7 @@ export const TableRows = ({
                     setRowToEdit(undefined);
                     return;
                 }
-                // TODO: implement a loading state here
+                // TODO:  implement a loading state here
                 return onSave(updatedRow).then(() => {
                     setRowToEdit(undefined);
                     setUpdatedRow(null);
@@ -150,12 +153,12 @@ export const TableRows = ({
             setUpdatedRow(null); // in case we have some weird old irrelevant data in the state
             setRowToEdit(rowIndex);
         },
-        [rowToEdit, setRowToEdit, updatedRow, onSave]
+        [rowToEdit, setRowToEdit, updatedRow, onSave],
     );
 
     const addingNewRow: boolean = useMemo(
         () => rowToEdit !== undefined && rowToEdit === rows.length,
-        [rowToEdit, rows.length]
+        [rowToEdit, rows.length],
     );
 
     // decouple the rows we are displaying from the rows that have been persisted to allow
@@ -165,12 +168,12 @@ export const TableRows = ({
             return [...rows];
         }
         // if the row is currently under edit, use that row, otherwise create a blank one
-        const newRow = updatedRow || createBlankRowForColumns(columns);
+        const newRow = updatedRow ?? createBlankRowForColumns(columns);
         return [...rows].concat([newRow]);
     }, [rows, addingNewRow, updatedRow, columns]);
 
     return (
-        <>
+        <tbody className={className}>
             {rowsToDisplay.map((object: TableRowData, rowIndex: number) => {
                 // Caps page size when filterManager exists
                 if (
@@ -190,7 +193,9 @@ export const TableRows = ({
                         rowToEdit={rowToEdit}
                         updateRow={updateFieldForRow}
                         enableEditableRows={enableEditableRows}
-                        saveRowOrSetEditing={saveRowOrSetEditing}
+                        saveRowOrSetEditing={(id) =>
+                            void saveRowOrSetEditing(id)
+                        }
                         editButtonLabel={
                             rowToEdit === rowIndex ? "Save" : "Edit"
                         }
@@ -199,6 +204,6 @@ export const TableRows = ({
                     />
                 );
             })}
-        </>
+        </tbody>
     );
 };

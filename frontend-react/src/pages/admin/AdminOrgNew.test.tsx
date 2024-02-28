@@ -1,17 +1,17 @@
 import { fireEvent, screen } from "@testing-library/react";
 
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { AdminOrgNewPage } from "./AdminOrgNew";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
-import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import OrganizationResource from "../../resources/OrganizationResource";
-
-import { AdminOrgNew } from "./AdminOrgNew";
+import { ResponseType, TestResponse } from "../../resources/TestResponse";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const mockData: OrganizationResource = new TestResponse(
-    ResponseType.NEW_ORGANIZATION
+    ResponseType.NEW_ORGANIZATION,
 ).data;
 
 jest.mock("rest-hooks", () => ({
+    ...jest.requireActual("rest-hooks"),
     useResource: () => {
         return mockData;
     },
@@ -26,7 +26,7 @@ jest.mock("rest-hooks", () => ({
 }));
 
 jest.mock("react-router-dom", () => ({
-    ...(jest.requireActual("react-router-dom") as any),
+    ...jest.requireActual("react-router-dom"),
     __esModule: true,
     useNavigate: () => jest.fn(),
 }));
@@ -46,11 +46,12 @@ describe("AdminOrgNew", () => {
     beforeAll(() => settingsServer.listen());
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
-    beforeEach(() => {
-        renderWithRouter(<AdminOrgNew />);
-    });
+    function setup() {
+        renderApp(<AdminOrgNewPage />);
+    }
 
     test("should go to the new created organization's page", () => {
+        setup();
         // orgName field
         const orgNameField = screen.getByTestId("orgName");
         expect(orgNameField).toBeInTheDocument();

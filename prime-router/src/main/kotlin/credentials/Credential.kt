@@ -62,8 +62,8 @@ data class UserJksCredential(
     /**
      * [trustAlias] is the alias for the trust/public certificate stored in the JKS
      */
-    val trustAlias: String
-) : Credential()
+    val trustAlias: String,
+) : Credential(), SoapCredential
 
 /**
  * An API Key credential along with the user who stored it
@@ -76,7 +76,18 @@ data class UserApiKeyCredential(
     /**
      * [apiKey] is the api key
      */
-    val apiKey: String
+    val apiKey: String,
+) : Credential(), RestCredential
+
+/**
+ * An Assertion credential
+ */
+data class UserAssertionCredential(
+
+    /**
+     * [assertion] is the api key
+     */
+    val assertion: String,
 ) : Credential(), RestCredential
 
 /**
@@ -93,6 +104,7 @@ data class UserApiKeyCredential(
     JsonSubTypes.Type(value = UserPpkCredential::class, name = "UserPpk"),
     JsonSubTypes.Type(value = UserJksCredential::class, name = "UserJks"),
     JsonSubTypes.Type(value = UserApiKeyCredential::class, name = "UserApiKey"),
+    JsonSubTypes.Type(value = UserAssertionCredential::class, name = "UserAssertion"),
 )
 sealed class Credential {
     /** Converts the [Credential] class to JSON */
@@ -150,7 +162,7 @@ sealed class Credential {
             input: String,
             prefix: String,
             addlCharsToRemove: Int,
-            replaceWith: String
+            replaceWith: String,
         ): String {
             if (input.isEmpty() || prefix.isEmpty()) return input
             if (replaceWith.contains(prefix)) error("Infinite loop")
@@ -158,8 +170,9 @@ sealed class Credential {
             while (true) {
                 // Work from the back to the front, to avoid erasing the prefix but not the secret.
                 val index = tmp.lastIndexOf(prefix, ignoreCase = true)
-                if (index < 0)
+                if (index < 0) {
                     break
+                }
                 tmp.replace(index, index + prefix.length + addlCharsToRemove, replaceWith)
             }
             return tmp.toString()

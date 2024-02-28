@@ -1,0 +1,11 @@
+---
+- name: color-labs
+  description: Color Labs
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: color-labs
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7

@@ -1,17 +1,19 @@
-import config from "../config";
-
 import AuthResource from "./AuthResource";
+import config from "../config";
 
 const { RS_API_URL } = config;
 
-type SubmissionsResourceParams = {
+interface SubmissionsResourceParams {
     organization: string;
-    pageSize: number;
+    sortdir: string;
+    sortcol: string;
     cursor: string;
-    endCursor: string;
-    sort: string;
+    since: string;
+    until: string;
+    pageSize: number;
     showFailed: boolean;
-};
+    [k: string]: string | number | boolean;
+}
 
 const FALLBACKDATE = "2020-01-01T00:00:00.000Z";
 
@@ -33,13 +35,19 @@ export default class SubmissionsResource extends AuthResource {
         return `${this.timestamp} ${this.id}`;
     }
 
-    static get key() {
-        return "SubmissionsResource";
-    }
+    static readonly key = "SubmissionsResource";
 
     static listUrl(searchParams: SubmissionsResourceParams): string {
-        return `
-        ${RS_API_URL}/api/waters/org/${searchParams.organization}/submissions?pagesize=${searchParams.pageSize}&cursor=${searchParams.cursor}&endcursor=${searchParams.endCursor}&sort=${searchParams.sort}&showfailed=${searchParams.showFailed}`;
+        const url = new URL(`
+            ${RS_API_URL}/api/waters/org/${searchParams.organization}/submissions`);
+        url.searchParams.append("pageSize", searchParams.pageSize.toString());
+        url.searchParams.append("cursor", searchParams.cursor);
+        url.searchParams.append("since", searchParams.since);
+        url.searchParams.append("until", searchParams.until);
+        url.searchParams.append("sortcol", searchParams.sortcol);
+        url.searchParams.append("sortdir", searchParams.sortdir);
+        url.searchParams.append("showfailed", String(searchParams.showFailed));
+        return url.href;
     }
 
     isSuccessSubmitted(): boolean {
@@ -54,7 +62,7 @@ export default class SubmissionsResource extends AuthResource {
      */
     static sortByCreatedAt(
         a: SubmissionsResource,
-        b: SubmissionsResource
+        b: SubmissionsResource,
     ): number {
         // format "2022-02-01T15:11:58.200754Z" means we can compare strings without converting to dates
         // since it's in descending time format (aka year, month, day, hour, min, sec)

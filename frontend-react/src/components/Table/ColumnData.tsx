@@ -1,17 +1,14 @@
-import React, { ReactNode } from "react";
-import { NavLink } from "react-router-dom";
+import { Button } from "@trussworks/react-uswds";
+import { ReactNode } from "react";
 
-import {
-    ColumnConfig,
-    LinkableColumn,
-    ActionableColumn,
-    TableRow,
-} from "./Table";
+import { ActionableColumn, ColumnConfig, LinkableColumn } from "./Table";
+import { TableRowData } from "./TableRows";
+import { USLink } from "../USLink";
 
 export interface ColumnProps {
     rowIndex: number;
     colIndex: number;
-    rowData: TableRow;
+    rowData: TableRowData;
     columnConfig: ColumnConfig;
     editing?: boolean;
     setUpdatedRow?: (value: any, field: string) => void;
@@ -19,7 +16,7 @@ export interface ColumnProps {
 
 const showMappedFieldValue = (
     columnConfig: ColumnConfig,
-    rowData: TableRow
+    rowData: TableRowData,
 ) => {
     const rawFieldValue = rowData[columnConfig.dataAttr];
     if (columnConfig.valueMap) {
@@ -40,15 +37,15 @@ export const ColumnData = ({
     rowData,
     columnConfig,
     editing,
-    setUpdatedRow = () => {},
+    setUpdatedRow = () => void 0,
 }: ColumnProps) => {
     // Util functions
     // TODO: move these functions outside of the render
 
     // Easy-to-read way to transform value
     const transform = (
-        transformFunc: Function,
-        transformVal: string | number
+        transformFunc: (...args: any[]) => unknown,
+        transformVal: string | number,
     ) => {
         return transformFunc(transformVal);
     };
@@ -59,7 +56,7 @@ export const ColumnData = ({
     };
     // Editing state indicator
     const isEditing = (): boolean =>
-        (editing && columnConfig.editable) || false;
+        (editing && columnConfig.editable) ?? false;
 
     // <td> wrapper w/ key
     const tableData = (child: ReactNode) => (
@@ -78,38 +75,55 @@ export const ColumnData = ({
         // Render column value as NavLink
         const feature = columnConfig?.feature as LinkableColumn;
         return tableData(
-            <NavLink
-                className="usa-link"
-                to={`${feature.linkBasePath || ""}${
-                    rowData[feature.linkAttr || field]
+            <USLink
+                href={`${feature.linkBasePath ?? ""}${
+                    rowData[feature.linkAttr ?? field]
                 }`}
+                state={feature.linkState || {}}
             >
                 {columnConfig.valueMap
                     ? showMappedFieldValue(columnConfig, rowData)
                     : displayValue}
-            </NavLink>
+            </USLink>,
         );
     }
 
     if (hasFeature("action")) {
         // Make column value actionable
-        const { action, param } = columnConfig.feature as ActionableColumn;
+        const { action, param, actionButtonHandler, actionButtonParam } =
+            columnConfig.feature as ActionableColumn;
 
-        if (!rowData[param!!]) {
-            console.warn(`The row attribute '${param}' could not be found`);
+        if (!param || !rowData[param]) {
+            throw new Error(`The row attribute '${param}' could not be found`);
         }
 
         const doAction = () => {
             if (param) return action(rowData[param]);
             return action();
         };
+        const showActionButton = () => {
+            if (actionButtonHandler && actionButtonParam) {
+                return actionButtonHandler(rowData[actionButtonParam]);
+            } else {
+                return true;
+            }
+        };
+
         return tableData(
-            <button
-                className="usa-link bg-transparent border-transparent"
-                onClick={() => doAction()}
-            >
-                {displayValue}
-            </button>
+            <>
+                {showActionButton() ? (
+                    <Button
+                        className="font-mono-2xs line-height-alt-4"
+                        type="button"
+                        unstyled
+                        onClick={doAction}
+                    >
+                        {displayValue}
+                    </Button>
+                ) : (
+                    <div>{displayValue}</div>
+                )}
+            </>,
         );
     }
 
@@ -126,7 +140,7 @@ export const ColumnData = ({
                  * the same as the server-provided data, NOT the
                  * displayed data (in case of transformation/map) */
                 defaultValue={displayValue}
-            />
+            />,
         );
     }
 

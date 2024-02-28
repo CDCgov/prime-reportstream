@@ -1,70 +1,135 @@
 name:
+  condition: $msh25 NOT_NULL
   type: STRING
-  valueOf: MSH.5
+  valueOf: MSH.5.1
   expressionType: HL7Spec
+  vars:
+    msh25: MSH.25
 
-endpoint:
+endpoint_1:
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS ISO
   type: URL
-  required: true
-  valueOf: MSH.25 | MSH.6
+  valueOf: $idValue
   expressionType: HL7Spec
-
-# For OIDs
-extension_1:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
   vars:
-    idStr: String, MSH.5.2
-    value: $oidUrlPrefix + MSH.5.2
+    msh25: MSH.25
+    idStr: MSH.5.2
+    idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
   constants:
-    oidUrlPrefix: "urn:oid:"
-    KEY_NAME_SUFFIX: Oid
-    urlValue: application-identifier
+    urlPrefix: "urn:oid:"
 
-# For all other ID types
-extension_2:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO
+endpoint_2:
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS UUID
+  type: URL
+  valueOf: $idValue
+  expressionType: HL7Spec
   vars:
-    idStr: String, MSH.5.2
-    value: $idUrlPrefix + MSH.5.2
+    msh25: MSH.25
+    idStr: MSH.5.2
+    idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
   constants:
-    idUrlPrefix: "urn:id:"
-    KEY_NAME_SUFFIX: String
-    urlValue: application-identifier
+    urlPrefix: "urn:uuid:"
 
-# For OIDs
-extension_3:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
+endpoint_3:
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS DNS
+  type: URL
+  valueOf: $idValue
+  expressionType: HL7Spec
   vars:
-    idStr: String, MSH.6.2
-    value: $oidUrlPrefix + MSH.6.2
-    systemStr: String, MSH.6.3
+    msh25: MSH.25
+    idStr: MSH.5.2
+    idValue: $urlPrefix + MSH.5.2
+    systemStr: String, MSH.5.3
   constants:
-    oidUrlPrefix: "urn:oid:"
-    KEY_NAME_SUFFIX: Oid
-    urlValue: facility-identifier
+    urlPrefix: "urn:dns:"
 
-# For all other ID types
-extension_4:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO
+endpoint_4:
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS URI
+  type: URL
+  valueOf: $idValue
+  expressionType: HL7Spec
   vars:
-    idStr: String, MSH.6.2
-    value: $idUrlPrefix + MSH.6.2
-    systemStr: String, MSH.6.3
+    msh25: MSH.25
+    idStr: MSH.5.2
+    idValue: $urlPrefix + MSH.5.2
+    systemStr: String, MSH.5.3
   constants:
-    idUrlPrefix: "urn:id:"
-    KEY_NAME_SUFFIX: String
-    urlValue: facility-identifier
+    urlPrefix: "urn:uri:"
+
+endpoint_5:
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS CLIA
+  type: URL
+  valueOf: $idValue
+  expressionType: HL7Spec
+  vars:
+    msh25: MSH.25
+    idStr: MSH.5.2
+    idValue: $urlPrefix + MSH.5.2
+    systemStr: String, MSH.5.3
+  constants:
+    urlPrefix: "urn:clia:"
+
+endpoint_6:
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
+  type: URL
+  valueOf: $idValue
+  expressionType: HL7Spec
+  vars:
+    msh25: MSH.25
+    idStr: MSH.5.2
+    idValue: $urlPrefix + MSH.5.2
+    systemStr: String, MSH.5.3
+
+endpoint_7:
+  condition: $msh25 NOT_NULL
+  type: URL
+  valueOf: MSH.25
+  expressionType: HL7Spec
+  vars:
+    msh25: MSH.25
+
+receiver_1:
+  condition: $idStr NOT_NULL && $orgIdSystem EQUALS ISO
+  valueOf: resource/Organization
+  expressionType: reference
+  specs: MSH.6
+  vars:
+    orgName: String, MSH.6.1
+    orgIdValue: $urlPrefix + MSH.6.2
+    orgIdSystem: String, MSH.6.3
+    idStr: String, MSH.6.2
+  constants:
+    urlPrefix: "urn:oid:"
+
+receiver_2:
+  condition: $idStr NOT_NULL && $orgIdSystem EQUALS UUID
+  valueOf: resource/Organization
+  expressionType: reference
+  specs: MSH.6
+  vars:
+    orgName: String, MSH.6.1
+    orgIdValue: $urlPrefix + MSH.6.2
+    orgIdSystem: String, MSH.6.3
+    idStr: String, MSH.6.2
+  constants:
+    urlPrefix: "urn:uuid:"
+
+receiver_3:
+  condition: $idStr NULL && $orgName NOT_NULL
+  valueOf: resource/Organization
+  expressionType: reference
+  specs: MSH.6
+  vars:
+    orgName: String, MSH.6.1
+    idStr: String, MSH.6.2
+
+target:
+  condition: $msh5 NOT_NULL
+  valueOf: resource/Device
+  generateList: true
+  expressionType: reference
+  specs: MSH.5
+  vars:
+    msh5: MSH.5

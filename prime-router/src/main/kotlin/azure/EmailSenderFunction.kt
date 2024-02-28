@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -18,6 +17,7 @@ import com.sendgrid.SendGrid
 import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.secrets.SecretHelper
 import java.io.IOException
 import java.util.logging.Logger
@@ -43,7 +43,7 @@ data class TosAgreementForm(
     val territory: String,
     val organizationName: String,
     val operatesInMultipleStates: Boolean,
-    val agreedToTermsOfService: Boolean
+    val agreedToTermsOfService: Boolean,
 ) {
     fun validate(logger: Logger): Boolean {
         for (key in TosAgreementForm::class.memberProperties) {
@@ -69,7 +69,9 @@ data class TosAgreementForm(
     private fun verifyBoth(key: KProperty1<TosAgreementForm, *>, value: String, logger: Logger): Boolean {
         if (!verifyIsNotBlank(key, value, logger) ||
             !verifyNotExceededLimit(key, value, logger)
-        ) return false
+        ) {
+            return false
+        }
         return true
     }
 
@@ -120,14 +122,14 @@ class EmailSenderFunction {
     }
 
     /*TODO:
-    *  This should turn into something that's returned with a dynamic class (second
-    *  param) to parse many types of request bodies. Currently it only takes a single
-    *  class, TosAgreementForm.
-    */
+     *  This should turn into something that's returned with a dynamic class (second
+     *  param) to parse many types of request bodies. Currently it only takes a single
+     *  class, TosAgreementForm.
+     */
     private fun parseBody(requestBody: String, logger: Logger): TosAgreementForm? {
         return try {
-            jacksonObjectMapper().readValue<TosAgreementForm>(requestBody, TosAgreementForm::class.java)
-        } catch (ex: MissingKotlinParameterException) {
+            jacksonObjectMapper.readValue<TosAgreementForm>(requestBody, TosAgreementForm::class.java)
+        } catch (ex: MismatchedInputException) {
             logger.info("There was an exception thrown when parsing your JSON")
             null
         }
@@ -138,9 +140,9 @@ class EmailSenderFunction {
         val p: Personalization = Personalization()
 
         /*TODO:
-        *  To be a generalized function, we'd have to dictate the build sequence based on
-        *  the type of body we get. In this case, we're building for TosAgreementForm.
-        */
+         *  To be a generalized function, we'd have to dictate the build sequence based on
+         *  the type of body we get. In this case, we're building for TosAgreementForm.
+         */
         mail.setTemplateId(TOS_AGREEMENT_TEMPLATE_ID)
         mail.setFrom(Email(NO_REPLY_EMAIL))
         mail.setReplyTo(Email(REPORT_STREAM_EMAIL))

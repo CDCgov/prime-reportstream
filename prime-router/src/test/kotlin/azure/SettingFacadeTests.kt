@@ -9,6 +9,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -27,6 +28,7 @@ class SettingFacadeTests {
     private val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     private val connection = MockConnection(dataProvider)
     private val accessSpy = spyk(DatabaseAccess(connection))
+    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     private val testOrg = Setting(
         1,
@@ -235,5 +237,19 @@ class SettingFacadeTests {
 
         receiver = SettingsFacade(testMetadata(), accessSpy).findReceiver("ignore")
         assertThat(receiver).isNull()
+    }
+
+    @Test
+    fun `test findSettingsAsJson`() {
+        setupOrgDatabaseAccess()
+        val orgJson = SettingsFacade(testMetadata(), accessSpy).findSettingsAsJson(OrganizationAPI::class.java)
+        val listOrg = SettingsFacade(testMetadata(), accessSpy).organizations
+        val org = SettingsFacade(testMetadata(), accessSpy).findOrganization("test")
+
+        assertThat(listOrg.first().name).isEqualTo("test")
+        assertThat(listOrg.first().description).isEqualTo(org?.description)
+        assertThat(listOrg.first().jurisdiction).isEqualTo(Organization.Jurisdiction.STATE)
+        assertThat(listOrg.first().stateCode).isEqualTo(org?.stateCode)
+        assertThat(orgJson).isEqualTo(mapper.writeValueAsString(listOrg))
     }
 }

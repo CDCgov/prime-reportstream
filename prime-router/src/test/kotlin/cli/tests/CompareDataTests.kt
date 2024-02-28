@@ -7,6 +7,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Topic
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 
@@ -17,7 +18,7 @@ class CompareDataTests {
     fun compareCsvRows() {
         val schema = Schema(
             name = "dummy",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b")),
@@ -36,42 +37,42 @@ class CompareDataTests {
 
         // Rows equal
         var result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowA, rowA, threeHeaders, schema, 1, result)
+        CompareCsvData().compareCsvRow(rowA, rowA, threeHeaders, schema, 1, null, result)
         assertThat(result.passed).isTrue()
         assertThat(result.errors.size).isEqualTo(0)
         assertThat(result.warnings.size).isEqualTo(0)
 
         // Rows same number of cols, but different data
         result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowA, rowB, threeHeaders, schema, 1, result)
+        CompareCsvData().compareCsvRow(rowA, rowB, threeHeaders, schema, 1, null, result)
         assertThat(result.passed).isFalse()
         assertThat(result.errors.size).isEqualTo(1)
         assertThat(result.warnings.size).isEqualTo(0)
 
         // Actual has more cols
         result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowA, rowC, twoHeaders, schema, 1, result)
+        CompareCsvData().compareCsvRow(rowA, rowC, twoHeaders, schema, 1, null, result)
         assertThat(result.passed).isTrue()
         assertThat(result.errors.size).isEqualTo(0)
         assertThat(result.warnings.size).isEqualTo(2)
 
         // Expected has more cols
         result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowC, rowA, threeHeaders, schema, 1, result)
+        CompareCsvData().compareCsvRow(rowC, rowA, threeHeaders, schema, 1, null, result)
         assertThat(result.passed).isFalse()
         assertThat(result.errors.size).isEqualTo(1)
         assertThat(result.warnings.size).isEqualTo(0)
 
         // Actual has no cols
         result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowD, rowA, threeHeaders, schema, 1, result)
+        CompareCsvData().compareCsvRow(rowD, rowA, threeHeaders, schema, 1, null, result)
         assertThat(result.passed).isFalse()
         assertThat(result.errors.size).isEqualTo(1)
         assertThat(result.warnings.size).isEqualTo(0)
 
         // Actual has value, but no expected value for col
         result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowA, rowE, threeHeaders, schema, 1, result)
+        CompareCsvData().compareCsvRow(rowA, rowE, threeHeaders, schema, 1, null, result)
         assertThat(result.passed).isTrue()
         assertThat(result.errors.size).isEqualTo(0)
         assertThat(result.warnings.size).isEqualTo(1)

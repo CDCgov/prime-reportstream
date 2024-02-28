@@ -1,6 +1,7 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act } from "@testing-library/react";
 
 import useCursorManager, { CursorActionType } from "./UseCursorManager";
+import { renderHook } from "../../utils/CustomRenderUtils";
 
 describe("Cursors", () => {
     test("Hook renders with default values", () => {

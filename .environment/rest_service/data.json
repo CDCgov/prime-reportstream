@@ -61,7 +61,8 @@
       ],
       "enabled": true,
       "randomResponse": false
-    },    {
+    },    
+    {
       "uuid": "",
       "documentation": "Submit a report",
       "method": "post",
@@ -88,7 +89,61 @@
       ],
       "enabled": true,
       "randomResponse": false
-    }
+      },    {
+        "uuid": "",
+      "documentation": "Submit an HL7 report",
+      "method": "post",
+      "endpoint": "hl7",
+      "responses": [
+        {
+          "uuid": "",
+          "body": "{\r\n \"fileName\": \"file-name-assigned-to-the-message-by-GCP-system\",\r\n \"status\": \"fileName received successfully. Processing in progress\"\r\n }",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Created",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false
+    },    {
+      "uuid": "",
+    "documentation": "Submit an HL7 report as json",
+    "method": "post",
+    "endpoint": "elr",
+    "responses": [
+      {
+        "uuid": "",
+        "body": "Submitted item X-Ref-Id:12345678 has been accepted. Receipt:20220518183855647",
+        "latency": 0,
+        "statusCode": 202,
+        "label": "Created",
+        "headers": [
+          {
+            "key": "",
+            "value": ""
+          }
+        ],
+        "filePath": "",
+        "sendFileAsBody": false,
+        "rules": [],
+        "rulesOperator": "OR",
+        "disableTemplating": false
+      }
+    ],
+    "enabled": true,
+    "randomResponse": false
+  }
   ],
   "proxyMode": false,
   "proxyHost": "",

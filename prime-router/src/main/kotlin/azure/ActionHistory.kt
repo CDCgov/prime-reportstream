@@ -11,6 +11,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -20,9 +21,12 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
+import java.time.LocalDateTime
+import java.util.UUID
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -37,16 +41,18 @@ import java.io.ByteArrayOutputStream
 class ActionHistory(
     taskAction: TaskAction,
     // This will be true if this actionHistory is being used to track generation of an empty batch file
-    var generatingEmptyReport: Boolean = false
+    var generatingEmptyReport: Boolean = false,
 ) : Logging {
     /**
      * Throughout, using generated mutable jooq POJOs to store history information
      *
      */
     val action = Action()
+    val startTime: LocalDateTime
 
     init {
         action.actionName = taskAction
+        startTime = LocalDateTime.now()
     }
 
     /**
@@ -173,7 +179,11 @@ class ActionHistory(
             jsonGenerator.writeEndObject()
         }
         action.contentLength = request.headers["content-length"]?.let {
-            try { it.toInt() } catch (e: NumberFormatException) { null }
+            try {
+                it.toInt()
+            } catch (e: NumberFormatException) {
+                null
+            }
         }
         // capture the azure client IP but override with the first forwarded for if present
         action.senderIp = request.headers["x-azure-clientip"]?.take(ACTION.SENDER_IP.dataType.length())
@@ -200,7 +210,7 @@ class ActionHistory(
         if (generatingEmptyReport) {
             // if we are generating an empty report for the 'send' step there will be one report in and one out.
             //  make sure to track the lineage. for the 'batch 'step there will not be any lineage
-            if (reportsIn.size == 1 && reportsOut.size == 1)
+            if (reportsIn.size == 1 && reportsOut.size == 1) {
                 reportLineages.add(
                     ReportLineage(
                         null,
@@ -210,6 +220,7 @@ class ActionHistory(
                         null
                     )
                 )
+            }
         } else {
             generateReportLineagesUsingItemLineage(action.actionId)
         }
@@ -274,6 +285,14 @@ class ActionHistory(
     }
 
     /**
+     * Track the response result of an action by using its [httpStatus] and a [msg].
+     */
+    fun trackActionResult(httpStatus: HttpStatusCode, msg: String? = null) {
+        action.httpStatus = httpStatus.value
+        trackActionResult(msg ?: "")
+    }
+
+    /**
      * Calls trackActionParams with [request] as param, and then trackActionResult with the status of the
      * [response] as param
      */
@@ -302,6 +321,18 @@ class ActionHistory(
             }
         }
         action.externalName = payloadName
+    }
+
+    /**
+     * Adds information to the Action object about the organization and receiver channel affected by this action.
+     * Typically, this would be called when a report is batched for that receiver, sent to that receiver,
+     * downloaded by that receiver, or any other action taken by that receiver or on behalf of that receiver.
+     * @param organizationName  The name of the receiving organization to associate with this action.
+     * @param receiverName  The name of the receiver channel to associate with this action.
+     */
+    fun trackActionReceiverInfo(organizationName: String, receiverName: String) {
+        action.receivingOrg = organizationName
+        action.receivingOrgSvc = receiverName
     }
 
     /**
@@ -356,19 +387,21 @@ class ActionHistory(
         reportFile.externalName = payloadName
         action.externalName = payloadName
         reportFile.itemCount = report.itemCount
+        reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         reportsReceived[reportFile.reportId] = reportFile
 
         // check that we're dealing with an external file
         val clientSource = report.sources.firstOrNull { it is ClientSource }
         if (clientSource != null) {
-            when (report.schema.topic.lowercase()) {
-                "covid-19" -> covidResultMetadataRecords.addAll(report.getDeidentifiedCovidResults())
+            when (report.schema.topic) {
+                Topic.COVID_19 -> covidResultMetadataRecords.addAll(report.getDeidentifiedCovidResults())
                 else -> elrMetaDataRecords.addAll(report.getDeidentifiedResultMetaData())
             }
         }
 
-        if (report.itemLineages != null)
+        if (report.itemLineages != null) {
             error("For report ${report.id}:  Externally submitted reports should never have item lineage.")
+        }
     }
 
     /**
@@ -397,8 +430,9 @@ class ActionHistory(
         if (event.eventAction != Event.EventAction.BATCH &&
             event.eventAction != Event.EventAction.ROUTE &&
             event.eventAction != Event.EventAction.TRANSLATE
-        )
+        ) {
             trackEvent(event)
+        }
     }
 
     /**
@@ -430,63 +464,45 @@ class ActionHistory(
     fun trackCreatedReport(
         event: Event,
         report: Report,
-        receiver: Receiver,
-        blobInfo: BlobAccess.BlobInfo,
+        receiver: Receiver? = null,
+        blobInfo: BlobAccess.BlobInfo? = null,
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
         }
 
         val reportFile = ReportFile()
+
         reportFile.reportId = report.id
-        reportFile.nextAction = event.eventAction.toTaskAction()
-        reportFile.nextActionAt = event.at
-        reportFile.receivingOrg = receiver.organizationName
-        reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = blobInfo.blobUrl
-        reportFile.bodyFormat = blobInfo.format.toString()
-        reportFile.blobDigest = blobInfo.digest
-        reportFile.itemCount = report.itemCount
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
-        reportsOut[reportFile.reportId] = reportFile
-        trackFilteredItems(report)
-        trackItemLineages(report)
 
-        // batch queue messages are added by the batchDecider, not ActionHistory
-        // TODO: Need to update this process to have a better way to determine what messages should be sent
-        //  automatically as part of queueMessages and what are being send manually as part of the parent function.
-        //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
-        if (event.eventAction != Event.EventAction.BATCH &&
-            event.eventAction != Event.EventAction.ROUTE &&
-            event.eventAction != Event.EventAction.TRANSLATE
-        )
-            trackEvent(event) // to be sent to queue later.
-    }
-
-    fun trackCreatedReport(
-        event: Event,
-        report: Report,
-        blobInfo: BlobAccess.BlobInfo
-    ) {
-        if (isReportAlreadyTracked(report.id)) {
-            error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
-        }
-
-        val reportFile = ReportFile()
-        reportFile.reportId = report.id
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
-        reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = blobInfo.blobUrl
-        reportFile.bodyFormat = blobInfo.format.toString()
-        reportFile.blobDigest = blobInfo.digest
-        reportFile.itemCount = report.itemCount
+
+        if (receiver != null) {
+            reportFile.receivingOrg = receiver.organizationName
+            reportFile.receivingOrgSvc = receiver.name
+        } else if (report.destination != null) {
+            // when no receiver, derive receiving org and svc from report destination
+            reportFile.receivingOrg = report.destination.organizationName
+            reportFile.receivingOrgSvc = report.destination.name
+        }
+
+        if (blobInfo != null) {
+            reportFile.bodyUrl = blobInfo.blobUrl
+            reportFile.bodyFormat = blobInfo.format.toString()
+            reportFile.blobDigest = blobInfo.digest
+            reportFile.itemCount = report.itemCount
+        } else {
+            reportFile.bodyFormat = Report.Format.FHIR.toString() // currently only the UP sends null blobs
+            reportFile.itemCount = 0
+        }
+
         reportsOut[reportFile.reportId] = reportFile
-        trackItemLineages(report)
         trackFilteredItems(report)
+        trackItemLineages(report)
 
         // batch queue messages are added by the batchDecider, not ActionHistory
         // TODO: Need to update this process to have a better way to determine what messages should be sent
@@ -495,8 +511,9 @@ class ActionHistory(
         if (event.eventAction != Event.EventAction.BATCH &&
             event.eventAction != Event.EventAction.ROUTE &&
             event.eventAction != Event.EventAction.TRANSLATE
-        )
+        ) {
             trackEvent(event) // to be sent to queue later.
+        }
     }
 
     fun trackSentReport(
@@ -505,7 +522,7 @@ class ActionHistory(
         filename: String?,
         params: String,
         result: String,
-        itemCount: Int
+        header: WorkflowEngine.Header,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -513,6 +530,18 @@ class ActionHistory(
                     "we've already associated with this action"
             )
         }
+
+        if (header.content == null) {
+            error("Bug: attempt to track sent report with no contents")
+        }
+
+        val blobInfo = BlobAccess.uploadBody(
+            receiver.format,
+            header.content,
+            filename ?: UUID.randomUUID().toString(),
+            receiver.fullName,
+            Event.EventAction.NONE
+        )
         val reportFile = ReportFile()
         reportFile.reportId = sentReportId
         reportFile.receivingOrg = receiver.organizationName
@@ -523,10 +552,11 @@ class ActionHistory(
         action.externalName = filename
         reportFile.transportParams = params
         reportFile.transportResult = result
-        reportFile.bodyUrl = null
         reportFile.bodyFormat = receiver.format.toString()
-        reportFile.blobDigest = null // no blob
-        reportFile.itemCount = itemCount
+        reportFile.itemCount = header.reportFile.itemCount
+        reportFile.blobDigest = blobInfo.digest
+        reportFile.bodyUrl = blobInfo.blobUrl
+
         reportsOut[reportFile.reportId] = reportFile
     }
 
@@ -536,12 +566,11 @@ class ActionHistory(
      * of our custody.
      */
     fun trackDownloadedReport(
-        header: WorkflowEngine.Header,
+        parentReportFile: ReportFile,
         filename: String,
         externalReportId: ReportId,
         downloadedBy: String,
     ) {
-        val parentReportFile = header.reportFile
         trackExistingInputReport(parentReportFile.reportId)
         if (isReportAlreadyTracked(externalReportId)) {
             error(
@@ -635,10 +664,12 @@ class ActionHistory(
         if (reportsOut.isEmpty() && parentChildReports.isEmpty()) return // no lineage assoc with this action.
 
         // sanity should prevail, at least in ReportStream, if not in general
-        if (reportsOut.isNotEmpty() && parentChildReports.isEmpty())
+        if (reportsOut.isNotEmpty() && parentChildReports.isEmpty()) {
             error("There are child reports (${reportsOut.keys.joinToString(",")}) but no item lineages")
-        if (reportsOut.isEmpty() && parentChildReports.isNotEmpty())
+        }
+        if (reportsOut.isEmpty() && parentChildReports.isNotEmpty()) {
             error("There are item lineages (${parentChildReports.joinToString(",")}) but no child reports")
+        }
         // compare the set of reportIds from the item lineage vs the set from report lineage.  Should be identical.
         val parentReports = parentChildReports.map { it.first }.toSet()
         val childReports = parentChildReports.map { it.second }.toSet()
@@ -669,7 +700,7 @@ class ActionHistory(
         fun sanityCheckReports(
             tasks: List<Task>?,
             reportFiles: Map<ReportId, ReportFile>?,
-            failOnError: Boolean = false
+            failOnError: Boolean = false,
         ) {
             var msg = ""
             if (tasks == null) {
@@ -681,7 +712,7 @@ class ActionHistory(
                     if (tasks.size != reportFiles.size) {
                         msg = "Different report_file count: Got ${tasks.size} TASKS," +
                             " but ${reportFiles.size} reportFiles.  " +
-                            "*** TASK ids: ${tasks.map{ it.reportId}.toSortedSet().joinToString(",")}  " +
+                            "*** TASK ids: ${tasks.map { it.reportId }.toSortedSet().joinToString(",")}  " +
                             "*** REPORT_FILE ids:${reportFiles.map { it.key }.toSortedSet().joinToString(",")}"
                     } else {
                         tasks.forEach {
@@ -691,10 +722,11 @@ class ActionHistory(
                 }
             }
             if (msg.isNotEmpty()) {
-                if (failOnError)
+                if (failOnError) {
                     error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
-                else
+                } else {
                     logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
+                }
             }
         }
 
@@ -731,10 +763,11 @@ class ActionHistory(
                 }
             }
             if (msg.isNotEmpty()) {
-                if (failOnError)
+                if (failOnError) {
                     error("*** Sanity check comparing old Header info and new ReportFile info FAILED:  $msg")
-                else
+                } else {
                     logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
+                }
             }
         }
     }
