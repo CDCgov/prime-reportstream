@@ -16,7 +16,6 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
-import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
@@ -49,13 +48,12 @@ class FhirToHl7Converter(
      */
     constructor(
         schema: String,
-        schemaFolder: String,
         strict: Boolean = false,
         terser: Terser? = null,
         context: FhirToHl7Context? = null,
         blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
     ) : this(
-        schemaRef = converterSchemaFromFile(schema, schemaFolder, blobConnectionInfo),
+        schemaRef = converterSchemaFromFile(schema, blobConnectionInfo),
         strict = strict,
         terser = terser,
         context = context
@@ -70,33 +68,8 @@ class FhirToHl7Converter(
     ) : this(
         ConfigSchemaReader.fromFile(
             schemaUri,
-            null,
             HL7ConverterSchema::class.java,
             blobConnectionInfo = blobConnectionInfo
-        ),
-        strict = strict,
-        terser = terser,
-        context = context
-    )
-
-    /**
-     * Convert a FHIR bundle to an HL7 message using the [schema] which includes it folder location to perform the conversion.
-     * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
-     * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
-     * the schema validation process.
-     * @param terser the terser to use for building the HL7 message (use for dependency injection)
-     */
-    constructor(
-        schema: String,
-        strict: Boolean = false,
-        terser: Terser? = null,
-        context: FhirToHl7Context? = null,
-        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
-    ) : this(
-        schemaRef = converterSchemaFromFile(
-            FilenameUtils.getName(schema),
-            FilenameUtils.getPathNoEndSeparator(schema),
-            blobConnectionInfo
         ),
         strict = strict,
         terser = terser,

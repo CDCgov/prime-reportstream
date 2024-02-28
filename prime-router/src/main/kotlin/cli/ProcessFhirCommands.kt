@@ -163,8 +163,6 @@ class ProcessFhirCommands : CliktCommand(
                 val bundle = applySenderTransforms(fhirMessage)
                 FhirToHl7Converter(
                     receiverSchema!!.name,
-                    // TODO: #10510
-                    "",
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
                         config = HL7TranslationConfig(
@@ -247,8 +245,7 @@ class ProcessFhirCommands : CliktCommand(
                 if (!senderSchema!!.canRead()) {
                     throw CliktError("Unable to read schema file ${senderSchema!!.absolutePath}.")
                 } else {
-                    // TODO: #10510
-                    FhirTransformer(senderSchema!!.toURI().toString(), "").process(bundle)
+                    FhirTransformer(senderSchema!!.toURI().toString()).process(bundle)
                 }
             }
             else -> bundle
@@ -268,10 +265,8 @@ class ProcessFhirCommands : CliktCommand(
                 if (!receiverSchema!!.canRead()) {
                     throw CliktError("Unable to read schema file ${receiverSchema!!.absolutePath}.")
                 } else {
-                    // TODO: #10510
                     FhirTransformer(
-                        receiverSchema!!.toURI().toString(),
-                        ""
+                        receiverSchema!!.toURI().toString()
                     ).process(enrichedBundle)
                 }
             }
@@ -285,9 +280,7 @@ class ProcessFhirCommands : CliktCommand(
     private fun applyEnrichmentSchemas(bundle: Bundle): Bundle {
         if (!enrichmentSchemaNames.isNullOrEmpty()) {
             enrichmentSchemaNames!!.split(",").forEach { currentEnrichmentSchemaName ->
-                val fileNamePieces = currentEnrichmentSchemaName.split(".")
-                // TODO: #10510
-                FhirTransformer(fileNamePieces.first(), "").process(bundle)
+                FhirTransformer(currentEnrichmentSchemaName).process(bundle)
             }
         }
         return bundle
