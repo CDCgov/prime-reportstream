@@ -3,7 +3,7 @@
 
 interface OpenGraph {
     image: {
-        url: string;
+        src: string;
         altText: string;
     };
 }

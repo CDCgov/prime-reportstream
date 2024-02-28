@@ -11,7 +11,7 @@ import { LayoutBackToTop, LayoutMain, LayoutSidenav } from "./LayoutComponents";
 import styles from "./MarkdownLayout.module.scss";
 import { TableOfContents } from "./TableOfContents";
 import { USNavLink, USSmartLink } from "../../components/USLink";
-import config from "../../config";
+import { useSessionContext } from "../../contexts/Session";
 import * as shared from "../../shared";
 
 /**
@@ -98,6 +98,7 @@ function MarkdownLayout({
     } = {},
     toc: tocEntries,
 }: MarkdownLayoutProps) {
+    const { config } = useSessionContext();
     const [sidenavContent, setSidenavContent] = useState<ReactNode>(undefined);
     const [mainContent, setMainContent] = useState<ReactNode>(undefined);
     const ctx = useMemo(() => {
@@ -120,34 +121,27 @@ function MarkdownLayout({
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
     const { isFullWidth } = handle;
+    const openGraphImage =
+        meta?.openGraph?.image ?? config.META.OPENGRAPH.DEFAULT_IMAGE;
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
-            {meta && (
-                <Helmet>
-                    {meta.title && <title>{meta.title}</title>}
-                    {meta.description ? (
-                        <meta name="description" content={meta.description} />
-                    ) : (
-                        <meta
-                            name="description"
-                            content={config.PAGE_DESCRIPTION}
-                        />
-                    )}
-                    {meta.openGraph?.image && (
-                        <>
-                            <meta
-                                property="og:image"
-                                content={meta.openGraph.image.url}
-                            />
-                            <meta
-                                property="og:image:alt"
-                                content={meta.openGraph.image.altText}
-                            />
-                        </>
-                    )}
-                </Helmet>
-            )}
+            <Helmet>
+                {meta?.title && <title>{meta.title}</title>}
+                {meta?.description ? (
+                    <meta name="description" content={meta.description} />
+                ) : (
+                    <meta
+                        name="description"
+                        content={config.PAGE_DESCRIPTION}
+                    />
+                )}
+                <meta property="og:image" content={openGraphImage.src} />
+                <meta
+                    property="og:image:alt"
+                    content={openGraphImage.altText}
+                />
+            </Helmet>
             {sidenavContent ? (
                 <nav
                     aria-label="side-navigation"

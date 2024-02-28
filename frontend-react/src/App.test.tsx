@@ -107,8 +107,6 @@ const config = {
     OKTA_CLIENT_ID: "",
     OKTA_URL: "",
     PAGE_DESCRIPTION: "",
-    OPENGRAPH_DEFAULT_IMAGE_SRC: "",
-    OPENGRAPH_DEFAULT_IMAGE_ALTTEXT: "",
     RS_API_URL: "",
     IDLE_TIMERS: {
         timeout: 1000 * 60 * 15,
@@ -116,6 +114,14 @@ const config = {
         onIdle: jest.fn(),
     },
     MODE: "test",
+    META: {
+        OPENGRAPH: {
+            DEFAULT_IMAGE: {
+                src: "",
+                altText: "",
+            },
+        },
+    },
 } as const satisfies AppConfig;
 
 const mockUseSessionContext = jest.mocked(useSessionContext);
