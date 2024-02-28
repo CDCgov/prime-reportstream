@@ -2,15 +2,6 @@
 
 ## Problems
 
-In general, running Intel Docker images on Apple Silicon is a hit-or-miss proposition even with Apple's Rosetta
-technology.
-See the known Docker's documentation for known
-limitations: https://docs.docker.com/desktop/mac/apple-silicon/#known-issues
-
-At the time of the writing of this note, Microsoft's Azure Function Docker image is only `amd64` compatible, and not
-compatible with Apple Silicon processors.
-Microsoft has not announced plans to fix this problem.
-
 Many of our local developer tools are set up to run in Docker containers.
 Looking at our `docker-compose.yml` file, the `web_receiver`, `prime_dev`, and `settings` services do not work on Apple
 Silicon.
@@ -22,24 +13,6 @@ Fortunately, ReportStream can run directly on your Apple Silicon computer, outsi
 The approach outlined in this note uses `gradle` to set up your environment and to run your code directly.
 This approach has the benefit of reducing your build-debug cycle time and is detailed in
 the [Running Faster](faster-development.md) document.
-
-### Step 1 - Read the getting started instructions
-
-Read the [Getting Started](./getting-started.md) instructions as background information about various components
-needed to work in ReportStream. The [Getting Started](./getting-started.md) document may have new information not found
-in this document.
-
-### Step 2 - Install dev tools
-
-Installing the recommend tools including these for this note.
-
-- [git](./install-git.md)
-- [Docker Desktop](./install-docker.md) Install Docker Desktop directly.
-- [OpenJDK](./install-openjdk.md) Install OpenJDK 17 using Brew.
-- [Azure Functions Core Tools](./install-afct.md) Install the v3 of Azure Functions.
-- [Gradle](./install-gradle.md) Install Gradle using Brew.
-
-An IDE of your choice. Both VS Code and JetBrain's IntelliJ have ARM64 versions.
 
 ### Step 3 - Run `cleanslate.sh`
 

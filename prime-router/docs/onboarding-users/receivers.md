@@ -157,7 +157,7 @@ transport:
 
 * NOTE: If developing on an Apple Mac with a Silicon chip please follow our guide in place of the above three commands:
 
-- [Using Apple Silicon Macs for Development](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/getting-started/Using-an-apple-silicon-mac.md)
+- [Using Apple Silicon Macs for Development](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/getting-started/Using-an-apple-silicon-mac.md) # TODO
 
 
 * At this point, once the container is loaded you can submit a file via curl:

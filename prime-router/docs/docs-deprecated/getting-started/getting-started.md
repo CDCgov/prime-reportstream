@@ -1,5 +1,5 @@
 # Developer Getting Started Guide
-
+# TODO, remove with this PR
 This document will walk you through the setup instructions to get a functioning development environment.
 
 # Table of contents
@@ -37,76 +37,6 @@ This document will walk you through the setup instructions to get a functioning 
     * [Using different database credentials than the default](#using-different-database-credentials-than-the-default)
     * [Using local configuration for organizations.yml](#using-local-configuration-for-organizationsyml)
     * [`PRIME_DATA_HUB_INSECURE_SSL` environment variable](#-prime-data-hub-insecure-ssl--environment-variable)
-
-# Locally installed software prerequisites
-
-You will need to have at least the following pieces of software installed _locally_ in order to be able to build and/or debug this baseline:
-
-* [git](install-git.md) including git-bash if you're on Windows
-* [Docker or Docker Desktop](install-docker.md)
-* [OpenJDK](install-openjdk.md) (currently targetting 11 through 15)
-* [Azure Functions Core Tools](install-afct.md) (currently targetting 4)
-
-The following are optional tools that can aid you during development or debugging:
-
-* [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
-* [AzureCLI](install-azurecli.md)
-* [Gradle](install-gradle.md)
-* One or more [PostgreSQL Clients](psql-clients.md)
-
-# Bulding the Baseline
-
-## First Build
-
-1. [Clone the prime-reportstream repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository-from-github/cloning-a-repository)
-   to your workstation using git.
-
-1. If you are using Docker Desktop, verify that it is running prior to building or running ReportStream locally.
-
-1. Initialize your environment and run an initial build by running the following command using a Linux shell.
-   Note you can run `cleanslate.sh` script to reset your environment as well (run `./cleanslate.sh --help` for more
-   information). The `cleanslate.sh` script not only cleans, but also performs a first build and setup of all artifacts
-   needed for the build
-
-```bash
-cd ./prime-router
-./cleanslate.sh
-```
-
-> Note: If you are working on an Apple Silicon Mac, stop here at this step and 
-> continue on with the instructions in [Using an Apple Silicon Mac](Using-an-apple-silicon-mac.md).
-
-## Build Dependencies
-1. If you are using Docker Desktop, verify that it is running prior to building or running ReportStream locally.
-1. Building and running ReportStream requires a locally accessible PostgreSQL database instance that is initially setup
-   and run by the `cleanslate.sh` script.  This database instance runs as a Docker container defined by the
-   `docker-compose.build.yml` file.  You will need to start this database instance upon a workstation reboot by
-   using the following command:
-
-```bash
-cd ./prime-router
-docker-compose --file "docker-compose.build.yml" up --detach
-```
-
-# Building the Baseline
-
-You can invoke `gradlew` from the `./prime-router` directory to build the baseline as follows:
-
-```bash
-./gradlew clean package
-```
-
-The most useful gradle tasks are:
-
-* `clean`: deletes the build artifacts
-* `compile`: compiles the code
-* `test`: runs the unit tests
-* `testIntegration`: runs the integration tests
-* `package`: packages the build artifacts for deployment
-* `quickpackage`: re-packages the build artifacts for deployment without running the tests
-* `testSmoke`: runs all the smoke tests; this requires [that you are running ReportStream](#running-reportstream)
-* `testEnd2End`: runs the end-to-end test; this requires [that you are running ReportStream](#running-reportstream)
-* `primeCLI`: run the prime CLI.  Specify arguments with `"--args=<args>"`
 
 # Committing to this repository
 
@@ -220,6 +150,7 @@ To increase the level of Azure Function logging (Microsoft's logging), edit the 
 
 The Docker container running ReportStream exposes local port `5005` for remote Java debugging. Connect your
 debugger to `localhost:5005` while the Docker container is running and set the necessary breakpoints.
+# TODO ADD IN INTELLIJ SETUP INSTRUCTIONS
 
 ## Finding misconfigurations
 
