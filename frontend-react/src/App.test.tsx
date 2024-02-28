@@ -106,6 +106,9 @@ const config = {
     IS_PREVIEW: false,
     OKTA_CLIENT_ID: "",
     OKTA_URL: "",
+    PAGE_DESCRIPTION: "",
+    OPENGRAPH_DEFAULT_IMAGE_SRC: "",
+    OPENGRAPH_DEFAULT_IMAGE_ALTTEXT: "",
     RS_API_URL: "",
     IDLE_TIMERS: {
         timeout: 1000 * 60 * 15,
