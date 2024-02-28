@@ -6,6 +6,11 @@ import type { ConsoleLevel } from "../utils/console";
 const envVars = {
     OKTA_URL: import.meta.env.VITE_OKTA_URL,
     OKTA_CLIENT_ID: import.meta.env.VITE_OKTA_CLIENTID,
+    PAGE_DESCRIPTION: import.meta.env.VITE_DESCRIPTION,
+    OPENGRAPH_DEFAULT_IMAGE_SRC: import.meta.env
+        .VITE_OPENGRAPH_DEFAULT_IMAGE_SRC,
+    OPENGRAPH_DEFAULT_IMAGE_ALTTEXT: import.meta.env
+        .VITE_OPENGRAPH_DEFAULT_IMAGE_ALTTEXT,
     RS_API_URL: import.meta.env.VITE_BACKEND_URL,
     MODE: import.meta.env.MODE,
 };

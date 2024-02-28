@@ -11,6 +11,7 @@ import { LayoutBackToTop, LayoutMain, LayoutSidenav } from "./LayoutComponents";
 import styles from "./MarkdownLayout.module.scss";
 import { TableOfContents } from "./TableOfContents";
 import { USNavLink, USSmartLink } from "../../components/USLink";
+import config from "../../config";
 import * as shared from "../../shared";
 
 /**
@@ -87,7 +88,7 @@ function MarkdownLayout({
     mdx,
     frontmatter: {
         title,
-        metaData,
+        meta,
         breadcrumbs,
         subtitle,
         callToAction,
@@ -122,24 +123,26 @@ function MarkdownLayout({
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
-            {metaData && (
+            {meta && (
                 <Helmet>
-                    {metaData.metaTitle && <title>{metaData.metaTitle}</title>}
-                    {metaData.metaDescription && (
+                    {meta.title && <title>{meta.title}</title>}
+                    {meta.description ? (
+                        <meta name="description" content={meta.description} />
+                    ) : (
                         <meta
                             name="description"
-                            content={metaData.metaDescription}
+                            content={config.PAGE_DESCRIPTION}
                         />
                     )}
-                    {metaData.openGraphImage && (
+                    {meta.openGraph?.image && (
                         <>
                             <meta
                                 property="og:image"
-                                content={metaData.openGraphImage.url}
+                                content={meta.openGraph.image.url}
                             />
                             <meta
                                 property="og:image:alt"
-                                content={metaData.openGraphImage.altText}
+                                content={meta.openGraph.image.altText}
                             />
                         </>
                     )}
