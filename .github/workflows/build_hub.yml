@@ -6,6 +6,7 @@ on:
       - master
   merge_group:
     types: [checks_requested]
+    branches: [master]
   push:
     branches:
       - master
