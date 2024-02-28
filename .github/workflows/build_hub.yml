@@ -1,11 +1,11 @@
 name: Build Hub
 
 on:
-  merge_group:
-    types: [checks_requested]
   pull_request:
     branches:
       - master
+  merge_group:
+    types: [checks_requested]
   push:
     branches:
       - master

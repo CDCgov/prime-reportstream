@@ -1,12 +1,12 @@
 name: Frontend
 
 on:
-  merge_group:
-    types: [checks_requested]
   pull_request:
     branches:
       - master
       - production
+  merge_group:
+    types: [checks_requested]
   push:
     branches:
       - master
