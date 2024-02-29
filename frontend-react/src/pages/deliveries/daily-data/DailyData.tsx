@@ -105,7 +105,6 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     };
 
     if (isLoading) return <Spinner />;
-
     return (
         <>
             <Table
@@ -169,40 +168,31 @@ const DeliveriesFilterAndTable = ({
     ].map((receiver) => {
         return { value: receiver, label: receiver };
     });
+
     return (
         <>
-            <section className="bg-blue-5 padding-4">
-                <p className="text-bold margin-top-0">
-                    View data from a specific receiver or date and time range
-                </p>
-
-                <TableFilters
-                    receivers={receiverDropdown}
-                    startDateLabel={TableFilterDateLabel.START_DATE}
-                    endDateLabel={TableFilterDateLabel.END_DATE}
-                    showDateHints={true}
-                    filterManager={filterManager}
-                    setService={setService}
-                    onFilterClick={({
-                        from,
-                        to,
-                    }: {
-                        from: string;
-                        to: string;
-                    }) =>
-                        appInsights?.trackEvent({
-                            name: featureEvent,
-                            properties: {
-                                tableFilter: {
-                                    startRange: from,
-                                    endRange: to,
-                                },
+            <TableFilters
+                receivers={receiverDropdown}
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
+                showDateHints={true}
+                filterManager={filterManager}
+                setService={setService}
+                onFilterClick={({ from, to }: { from: string; to: string }) =>
+                    appInsights?.trackEvent({
+                        name: featureEvent,
+                        properties: {
+                            tableFilter: {
+                                startRange: from,
+                                endRange: to,
                             },
-                        })
-                    }
-                    initialService={initialService}
-                />
-            </section>
+                        },
+                    })
+                }
+                initialService={initialService}
+                resultLength={paginationProps?.resultLength}
+                isPaginationLoading={paginationProps?.isPaginationLoading}
+            />
             <DeliveriesTable
                 filterManager={filterManager}
                 paginationProps={paginationProps}

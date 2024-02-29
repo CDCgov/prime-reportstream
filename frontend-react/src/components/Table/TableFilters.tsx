@@ -11,12 +11,14 @@ import {
     FormEvent,
     SetStateAction,
     useCallback,
+    useEffect,
     useMemo,
     useRef,
     useState,
 } from "react";
 
 import styles from "./TableFilters.module.scss";
+import TableFilterStatus, { TableFilterData } from "./TableFilterStatus";
 import { RSReceiver } from "../../config/endpoints/settings";
 import {
     CursorActionType,
@@ -49,6 +51,8 @@ interface TableFilterProps {
     showDateHints?: boolean;
     startDateLabel: string;
     initialService: RSReceiver;
+    resultLength?: number;
+    isPaginationLoading?: boolean;
 }
 
 // using a regex to check for format because of different browsers' implementations of Date
@@ -80,6 +84,8 @@ function TableFilters({
     showDateHints,
     startDateLabel,
     initialService,
+    resultLength,
+    isPaginationLoading,
 }: TableFilterProps) {
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
@@ -91,8 +97,11 @@ function TableFilters({
     const [currentServiceSelect, setCurrentServiceSelect] = useState<string>(
         initialService?.name,
     );
+    const [filterStatus, setFilterStatus] = useState<TableFilterData>({
+        resultLength: resultLength,
+        activeFilters: [currentServiceSelect],
+    });
     const [reset, setReset] = useState(0);
-
     const updateRange = useCallback(
         (from: string, to: string) => {
             filterManager.updateRange({
@@ -150,6 +159,20 @@ function TableFilters({
         return { isFilterDisabled, rangeFromWithTime, rangeToWithTime };
     }, [currentServiceSelect, endTime, rangeFrom, rangeTo, startTime]);
 
+    useEffect(() => {
+        if (isPaginationLoading === false)
+            setFilterStatus({
+                resultLength: resultLength,
+                activeFilters: [
+                    currentServiceSelect,
+                    filterDetails.rangeFromWithTime,
+                    filterDetails.rangeToWithTime,
+                ],
+            });
+        // We ONLY want to update the TableFilterStatus when loading is complete
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isPaginationLoading]);
+
     /* Pushes local state to context and resets cursor to page 1 */
     const applyToFilterManager = useCallback(
         (from: string, to: string) => {
@@ -202,147 +225,162 @@ function TableFilters({
     );
 
     return (
-        <div data-testid="filter-container" className={styles.TableFilters}>
-            <form
-                ref={formRef}
-                onSubmit={submitHandler}
-                onReset={resetHandler}
-                key={reset}
-                autoComplete="off"
-                data-testid="filter-form"
+        <>
+            <section
+                data-testid="filter-container"
+                className={styles.TableFilters}
             >
-                <div className="grid-row">
-                    <div className="grid-col filter-column__one">
-                        <label
-                            id="receiver-label"
-                            data-testid="label"
-                            className="usa-label"
-                            htmlFor="receiver-dropdown"
-                        >
-                            Receiver{" "}
-                            <Tooltip
-                                className="fixed-tooltip text-sub"
-                                position="right"
-                                label={
-                                    "Your connection could have multiple receivers, such as one specific to COVID."
-                                }
+                <p className="text-bold margin-top-0">
+                    View data from a specific receiver or date and time range
+                </p>
+                <form
+                    ref={formRef}
+                    onSubmit={submitHandler}
+                    onReset={resetHandler}
+                    key={reset}
+                    autoComplete="off"
+                    data-testid="filter-form"
+                >
+                    <div className="grid-row">
+                        <div className="grid-col filter-column__one">
+                            <label
+                                id="receiver-label"
+                                data-testid="label"
+                                className="usa-label"
+                                htmlFor="receiver-dropdown"
                             >
-                                <Icon.Help />
-                            </Tooltip>
-                        </label>
-                        <Select
-                            key={receivers.length}
-                            id="receiver-dropdown"
-                            name="receiver-dropdown"
-                            onChange={(e) => {
-                                setCurrentServiceSelect(e.target.value);
-                            }}
-                            defaultValue={currentServiceSelect}
-                        >
-                            {receivers?.map((receiver) => (
-                                <option
-                                    key={receiver.value}
-                                    value={receiver.value}
+                                Receiver{" "}
+                                <Tooltip
+                                    className="fixed-tooltip text-sub"
+                                    position="right"
+                                    label={
+                                        "Your connection could have multiple receivers, such as one specific to COVID."
+                                    }
                                 >
-                                    {receiver.value}
-                                </option>
-                            ))}
-                        </Select>
-                    </div>
-                    <div className="grid-col-auto filter-column__two">
-                        <DateRangePicker
-                            className={StyleClass.DATE_CONTAINER}
-                            startDateLabel={startDateLabel}
-                            startDateHint={showDateHints ? "mm/dd/yyyy" : ""}
-                            startDatePickerProps={{
-                                id: "start-date",
-                                name: "start-date-picker",
-                                onChange: (val?: string) => {
-                                    if (isValidDateString(val)) {
-                                        setRangeFrom(new Date(val!));
-                                    } else {
-                                        setRangeFrom(undefined);
-                                    }
-                                },
-                            }}
-                            endDateLabel={endDateLabel}
-                            endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
-                            endDatePickerProps={{
-                                id: "end-date",
-                                name: "end-date-picker",
-                                onChange: (val?: string) => {
-                                    if (isValidDateString(val)) {
-                                        setRangeTo(getEndOfDay(new Date(val!)));
-                                    } else {
-                                        setRangeTo(undefined);
-                                    }
-                                },
-                            }}
-                        />
-                        <div className="grid-row">
-                            <div className="grid-row flex-column">
-                                <TimePicker
-                                    hint="hh:mm"
-                                    id="start-time"
-                                    label="Start time"
-                                    name="start-time"
-                                    step={1}
-                                    onChange={(input) => {
-                                        if (input) {
-                                            setStartTime(input);
+                                    <Icon.Help />
+                                </Tooltip>
+                            </label>
+                            <Select
+                                key={receivers.length}
+                                id="receiver-dropdown"
+                                name="receiver-dropdown"
+                                onChange={(e) => {
+                                    setCurrentServiceSelect(e.target.value);
+                                }}
+                                defaultValue={currentServiceSelect}
+                            >
+                                {receivers?.map((receiver) => (
+                                    <option
+                                        key={receiver.value}
+                                        value={receiver.value}
+                                    >
+                                        {receiver.value}
+                                    </option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="grid-col-auto filter-column__two">
+                            <DateRangePicker
+                                className={StyleClass.DATE_CONTAINER}
+                                startDateLabel={startDateLabel}
+                                startDateHint={
+                                    showDateHints ? "mm/dd/yyyy" : ""
+                                }
+                                startDatePickerProps={{
+                                    id: "start-date",
+                                    name: "start-date-picker",
+                                    onChange: (val?: string) => {
+                                        if (isValidDateString(val)) {
+                                            setRangeFrom(new Date(val!));
                                         } else {
-                                            setStartTime("0:0");
+                                            setRangeFrom(undefined);
                                         }
-                                    }}
-                                />
-                                <p className="usa-hint usa-hint__default">
-                                    Default: 12:00am
-                                </p>
+                                    },
+                                }}
+                                endDateLabel={endDateLabel}
+                                endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
+                                endDatePickerProps={{
+                                    id: "end-date",
+                                    name: "end-date-picker",
+                                    onChange: (val?: string) => {
+                                        if (isValidDateString(val)) {
+                                            setRangeTo(
+                                                getEndOfDay(new Date(val!)),
+                                            );
+                                        } else {
+                                            setRangeTo(undefined);
+                                        }
+                                    },
+                                }}
+                            />
+                            <div className="grid-row">
+                                <div className="grid-row flex-column">
+                                    <TimePicker
+                                        hint="hh:mm"
+                                        id="start-time"
+                                        label="Start time"
+                                        name="start-time"
+                                        step={1}
+                                        onChange={(input) => {
+                                            if (input) {
+                                                setStartTime(input);
+                                            } else {
+                                                setStartTime("0:0");
+                                            }
+                                        }}
+                                    />
+                                    <p className="usa-hint usa-hint__default">
+                                        Default: 12:00am
+                                    </p>
+                                </div>
+                                <div className="grid-row flex-column">
+                                    <TimePicker
+                                        hint="hh:mm"
+                                        id="end-time"
+                                        label="End time"
+                                        name="end-time"
+                                        step={1}
+                                        onChange={(input) => {
+                                            if (input) {
+                                                setEndTime(input);
+                                            } else {
+                                                setEndTime("0:0");
+                                            }
+                                        }}
+                                    />
+                                    <p className="usa-hint usa-hint__default">
+                                        Default: 11:59pm
+                                    </p>
+                                </div>
                             </div>
-                            <div className="grid-row flex-column">
-                                <TimePicker
-                                    hint="hh:mm"
-                                    id="end-time"
-                                    label="End time"
-                                    name="end-time"
-                                    step={1}
-                                    onChange={(input) => {
-                                        if (input) {
-                                            setEndTime(input);
-                                        } else {
-                                            setEndTime("0:0");
+                        </div>
+                        <div className="grid-col-fill filter-column__three">
+                            <div className="button-container">
+                                <div>
+                                    <Button
+                                        className="margin-right-205"
+                                        disabled={
+                                            filterDetails.isFilterDisabled
                                         }
-                                    }}
-                                />
-                                <p className="usa-hint usa-hint__default">
-                                    Default: 11:59pm
-                                </p>
+                                        type={"submit"}
+                                    >
+                                        Apply
+                                    </Button>
+                                    <Button
+                                        type={"reset"}
+                                        name="clear-button"
+                                        unstyled
+                                    >
+                                        Reset
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div className="grid-col-fill filter-column__three">
-                        <div className="button-container">
-                            <div>
-                                <Button
-                                    className="margin-right-205"
-                                    disabled={filterDetails.isFilterDisabled}
-                                    type={"submit"}
-                                >
-                                    Apply
-                                </Button>
-                                <Button
-                                    type={"reset"}
-                                    name="clear-button"
-                                    unstyled
-                                >
-                                    Reset
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
+                </form>
+            </section>
+            <TableFilterStatus filterStatus={filterStatus} />
+        </>
     );
 }
 
