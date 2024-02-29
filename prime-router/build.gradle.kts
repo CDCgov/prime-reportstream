@@ -568,7 +568,7 @@ dockerCompose {
 //    projectName = "prime-router" // docker-composer has this setter broken as of 0.16.4
     setProjectName("prime-router") // this is a workaround for the broken setter for projectName
     useComposeFiles.addAll("docker-compose.yml")
-    startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "vault", "azurite")
+    startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "vault", "azurite", "azurite-stage")
     stopContainers.set(false)
     waitForTcpPorts.set(false)
     // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
