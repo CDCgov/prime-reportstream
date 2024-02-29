@@ -1,4 +1,4 @@
-import moment from "moment";
+import { format, fromUnixTime, parseISO } from "date-fns";
 
 export interface DateTimeData {
     dateString: string;
@@ -19,70 +19,27 @@ export interface DateTimeData {
 export const generateDateTitles = (
     dateTimeString: string,
 ): DateTimeData | null => {
-    const dateRegex = /\d{1,2} [a-z,A-Z]{3} \d{4}/;
-    const timeRegex = /\d{1,2}:\d{2}/;
-
-    const date = new Date(dateTimeString);
-    const monthString = parseMonth(date.getMonth());
-
-    const dateString = `${date.getDate()} ${monthString} ${date.getFullYear()}`;
-    const timeString = `${date.getHours()}:${getPaddedMinutes(date)}`;
-
-    if (!dateString.match(dateRegex) || !timeString.match(timeRegex))
-        return null;
-
-    return {
-        dateString: dateString,
-        timeString: timeString,
-    };
-};
-
-const getPaddedMinutes = (date: Date) => {
-    const minutes = date.getMinutes().toString();
-    return minutes.length > 1 ? minutes : `0${minutes}`;
-};
-
-const parseMonth = (numericMonth: number) => {
-    const monthNames = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-    ];
-    return monthNames[numericMonth];
-};
-
-export const formattedDateFromTimestamp = (
-    timestamp: string,
-    format: string,
-) => {
-    const timestampDate = new Date(timestamp);
-    // TODO: refactor to remove dependency on moment
-    return moment(timestampDate).format(format);
-};
-
-export const timeZoneAbbreviated = () => {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const date = parseISO(dateTimeString);
+    try {
+        return {
+            dateString: format(date, "d LLL yyyy"),
+            timeString: format(date, "HH:mm"),
+        };
+    } catch (e: any) {
+        if (e instanceof RangeError) return null;
+        throw new Error(undefined, { cause: e });
+    }
 };
 
 export function isDateExpired(dateTimeString: string | number) {
     // eslint-disable-next-line import/no-named-as-default-member
-    const now = moment.utc().local();
+    const now = new Date();
     // eslint-disable-next-line import/no-named-as-default-member
-    const dateToCompare = moment.utc(dateTimeString).local();
+    const dateToCompare =
+        typeof dateTimeString === "string"
+            ? parseISO(dateTimeString)
+            : fromUnixTime(dateTimeString);
     return dateToCompare < now;
-}
-
-export function transformDate(s: string) {
-    return new Date(s).toLocaleString();
 }
 
 // Will return date with format: 2/9/2023, 02:24 PM

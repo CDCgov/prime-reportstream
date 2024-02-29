@@ -2538,21 +2538,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mdx-js/react@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@mdx-js/react@npm:3.0.0"
+"@mdx-js/react@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@mdx-js/react@npm:3.0.1"
   dependencies:
     "@types/mdx": ^2.0.0
   peerDependencies:
     "@types/react": ">=16"
     react: ">=16"
-  checksum: a780cff9d7f7639d6fc21c9d4e0a6ac1370c3209ea0db176923df7f9145785309591cf871f227f5135d1fe2accce0d5df9a22fc0530e5dda0c7b4b105705f20d
+  checksum: 1063a597264f6a8840aa13274a99beef8983a88dd45b0c5b8e48e6216bc23d33e247da8e2d95d6e1874483f8b4e0903b166ce5046874aa7ffa2b1333057dcddf
   languageName: node
   linkType: hard
 
-"@mdx-js/rollup@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@mdx-js/rollup@npm:3.0.0"
+"@mdx-js/rollup@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@mdx-js/rollup@npm:3.0.1"
   dependencies:
     "@mdx-js/mdx": ^3.0.0
     "@rollup/pluginutils": ^5.0.0
@@ -2560,7 +2560,7 @@ __metadata:
     vfile: ^6.0.0
   peerDependencies:
     rollup: ">=2"
-  checksum: 729a43c2925ba36b6acb7c9778520e5ec9461e5e1d9651bd28181491ade79b09ed189a781fe7e2999c022f1ae5895112c8695ed38d96343e3e3b3ccc5e20bb32
+  checksum: 44469b7ce23f9d9bea66ee5dfc9df24694fd21f13e4e207d473598fe4d56c3b1dbaa7b77fddef91daa0f2a653dce31a8ee773aea8086c3dfa94200fd67864c00
   languageName: node
   linkType: hard
 
@@ -7606,6 +7606,22 @@ __metadata:
     whatwg-mimetype: ^3.0.0
     whatwg-url: ^11.0.0
   checksum: 033fc3dd0fba6d24bc9a024ddcf9923691dd24f90a3d26f6545d6a2f71ec6956f93462f2cdf2183cc46f10dc01ed3bcb36731a8208456eb1a08147e571fe2a76
+  languageName: node
+  linkType: hard
+
+"date-fns-tz@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "date-fns-tz@npm:2.0.0"
+  peerDependencies:
+    date-fns: ">=2.0.0"
+  checksum: a6553603a9d26dd9669326c99a58a2335ac550bc060c74b86a5ad9e1de73c9d4e3e5236f0f552f990e616e4e8dcc2b6a637913a04d2e04396e6a9f8ae83c73da
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "date-fns@npm:3.3.1"
+  checksum: 6245e93a47de28ac96dffd4d62877f86e6b64854860ae1e00a4f83174d80bc8e59bd1259cf265223fb2ddce5c8e586dc9cc210f0d052faba2f7660e265877283
   languageName: node
   linkType: hard
 
@@ -13055,13 +13071,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:^2.30.1":
-  version: 2.30.1
-  resolution: "moment@npm:2.30.1"
-  checksum: 859236bab1e88c3e5802afcf797fc801acdbd0ee509d34ea3df6eea21eb6bcc2abd4ae4e4e64aa7c986aa6cba563c6e62806218e6412a765010712e5fa121ba6
-  languageName: node
-  linkType: hard
-
 "moo-color@npm:^1.0.2":
   version: 1.0.3
   resolution: "moo-color@npm:1.0.3"
@@ -14496,8 +14505,8 @@ __metadata:
     "@babel/preset-react": ^7.23.3
     "@babel/preset-typescript": ^7.23.3
     "@babel/runtime": ^7.23.9
-    "@mdx-js/react": ^3.0.0
-    "@mdx-js/rollup": ^3.0.0
+    "@mdx-js/react": ^3.0.1
+    "@mdx-js/rollup": ^3.0.1
     "@microsoft/applicationinsights-react-js": ^17.0.4
     "@microsoft/applicationinsights-web": ^3.0.8
     "@okta/okta-react": ^6.7.0
@@ -14555,6 +14564,8 @@ __metadata:
     chromatic: ^10.9.3
     classnames: ^2.5.1
     cross-env: ^7.0.3
+    date-fns: ^3.3.1
+    date-fns-tz: ^2.0.0
     dompurify: ^3.0.8
     dotenv-flow: ^4.1.0
     downloadjs: ^1.4.7
@@ -14583,7 +14594,6 @@ __metadata:
     lint-staged: ^15.2.2
     lodash: ^4.17.21
     mockdate: ^3.0.5
-    moment: ^2.30.1
     msw: ^2.2.0
     msw-storybook-addon: ^1.10.0
     npm-run-all: ^4.1.5
