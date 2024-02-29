@@ -1,5 +1,4 @@
-import moment from "moment";
-
+import { addDays } from "date-fns";
 import {
     formatDateWithoutSeconds,
     generateDateTitles,
@@ -49,7 +48,7 @@ describe("isDateExpired", () => {
     });
 
     test("returns false if date has not expired", () => {
-        const now = moment().add(1, "day").toISOString();
+        const now = addDays(new Date(), 1).toISOString();
         const futureDateTime = isDateExpired(now);
         expect(futureDateTime).toBeFalsy();
     });
