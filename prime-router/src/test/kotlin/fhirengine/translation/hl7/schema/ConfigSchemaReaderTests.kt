@@ -426,7 +426,7 @@ class ConfigSchemaReaderTests {
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
         val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
-        every { BlobAccess.downloadBlobAsByteArray(any(), any()) } returns
+        every { BlobAccess.downloadBlobAsByteArray(any<String>(), any()) } returns
             File(
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07",
                 "ORU_R01.yml"
