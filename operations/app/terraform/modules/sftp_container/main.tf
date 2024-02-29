@@ -89,7 +89,7 @@ resource "azurerm_container_group" "sftp_container" {
 resource "azurerm_storage_share" "sftp_share" {
   name                 = "${var.resource_prefix}-sftpserver"
   storage_account_name = var.storage_account.name
-
+  quota = 5120
   depends_on = [
     var.storage_account
   ]

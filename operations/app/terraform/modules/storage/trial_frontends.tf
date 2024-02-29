@@ -8,7 +8,7 @@ resource "azurerm_storage_account" "storage_trials" {
   account_kind              = "StorageV2"
   account_replication_type  = "LRS"
   min_tls_version           = "TLS1_2"
-  allow_blob_public_access  = false
+  allow_nested_items_to_be_public  = false
   enable_https_traffic_only = true
 
   static_website {
