@@ -13,7 +13,7 @@ data class ReportAcceptedEvent(
     val reportId: ReportId,
     val topic: Topic,
     val sender: String,
-    val conditions: Set<String>,
+    val conditions: List<ConditionSummary>,
 ) : AzureCustomEvent {
     // extract out conditions count into top level custom dimension for easier querying
     val conditionsCount = conditions.size

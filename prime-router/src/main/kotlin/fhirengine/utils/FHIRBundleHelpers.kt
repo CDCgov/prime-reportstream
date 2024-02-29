@@ -109,16 +109,33 @@ fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
     }
 }
 
-fun Observation.getMappedConditions(): List<String> =
-    this.getCodeSourcesMap().mapNotNull {
-        it.value.flatMap { coding ->
-            coding.extension.mapNotNull { extension ->
-                if (extension.url == conditionCodeExtensionURL) extension.castToCoding(extension.value).code else null
-            }
-        }
-    }.flatten()
+/**
+ * Gets mapped conditions present on an [Observation]
+ */
+fun Observation.getMappedConditions(): List<Coding> {
+    return this.getCodeSourcesMap()
+        .flatMap { it.value }
+        .flatMap { it.extension }
+        .filter { it.url == conditionCodeExtensionURL }
+        .map { it.castToCoding(it.value) }
+}
+
+/**
+ * Gets mapped condition codes present on an [Observation]
+ */
+fun Observation.getMappedConditionCodes(): List<String> {
+    return this.getMappedConditions().map { it.code }
+}
 
 fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<Observation>()
+
+/**
+ * Gets mapped conditions present on all [Observation]s in a Bundle
+ */
+fun Bundle.getAllMappedConditions(): List<Coding> {
+    return this.getObservations()
+        .flatMap { it.getMappedConditions() }
+}
 
 fun Bundle.getObservationsWithCondition(codes: List<String>): List<Observation> =
     if (codes.isEmpty()) {
@@ -127,18 +144,9 @@ fun Bundle.getObservationsWithCondition(codes: List<String>): List<Observation> 
         emptyList()
     } else {
         this.getObservations().filter {
-            it.getMappedConditions().any(codes::contains)
+            it.getMappedConditionCodes().any(codes::contains)
         }
     }
-
-/**
- * This will return all mapped conditions in a bundle (no duplicates)
- */
-fun Bundle.getAllMappedConditions(): Set<String> {
-    return this.getObservations()
-        .flatMap { it.getMappedConditions() }
-        .toSet()
-}
 
 /**
  * Adds references to diagnostic reports within [fhirBundle] as provenance targets
@@ -381,7 +389,7 @@ fun Bundle.filterMappedObservations(
 ): Pair<List<String>, Bundle> {
     val codes = conditionFilter.codes()
     val observations = this.getObservations()
-    val toKeep = observations.filter { it.getMappedConditions().any(codes::contains) }.map { it.idBase }
+    val toKeep = observations.filter { it.getMappedConditionCodes().any(codes::contains) }.map { it.idBase }
     val filteredBundle = this.copy()
     val filteredIds = observations.mapNotNull {
         val idBase = it.idBase
