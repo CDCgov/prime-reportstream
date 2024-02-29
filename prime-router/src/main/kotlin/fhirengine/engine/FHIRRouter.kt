@@ -4,7 +4,7 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.BundleResourceFilter
+import gov.cdc.prime.router.BundlePrunable
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.Metadata
@@ -740,7 +740,7 @@ class FHIRRouter(
     internal fun getObservationFilter(
         receiver: Receiver,
         orgFilters: List<ReportStreamFilters>?,
-    ): List<BundleResourceFilter<Observation>> {
+    ): List<BundlePrunable<Observation>> {
         return (
             orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.observationFilter
                 ?: emptyList()

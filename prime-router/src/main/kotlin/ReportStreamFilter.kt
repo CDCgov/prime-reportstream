@@ -25,10 +25,7 @@ typealias ReportStreamFilter = List<String>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(FHIRExpressionFilter::class, name = "fhirExpression"),
-    JsonSubTypes.Type(BundleResourceFilter::class, name = "bundleResource"),
-    JsonSubTypes.Type(BundleObservationFilter::class, name = "bundleObservation"),
-    JsonSubTypes.Type(BundleConditionFilter::class, name = "bundleCondition"),
+    JsonSubTypes.Type(FHIRExpressionFilter::class, name = "fhirExpression")
 )
 interface BundleFilterable {
     /**
@@ -50,7 +47,7 @@ interface BundleFilterable {
     JsonSubTypes.Type(ConditionKeywordPruner::class, name = "conditionKeyword"),
     JsonSubTypes.Type(FHIRExpressionPruner::class, name = "fhirExpression"),
 )
-interface BundlePrunable<T> {
+interface BundlePrunable<T : Resource> {
     /**
      * Check if a [resource] in a [bundle] passes this filter
      * @return whether the observation passed
@@ -60,62 +57,64 @@ interface BundlePrunable<T> {
     fun fetchResources(bundle: Bundle): List<T>
 
     /**
-     * Check if a [bundle] passes this filter
-     * @return whether the bundle passed
+     * Evaluate this filter on a [bundle]'s resources and optionally [filter] them from the bundle
+     * @return the result of pruning the bundle
      */
-    fun prune(bundle: Bundle): List<T>
+    fun prune(bundle: Bundle): List<T> =
+        fetchResources(bundle).filterNot { resource ->
+            evaluateResource(bundle, resource).also { pass ->
+                if (!pass) bundle.deleteResource(resource)
+            }
+        }
 }
 
-open class BundleResourceFilter<T : Resource>(val resourceFilter: BundlePrunable<T>) : BundleFilterable {
+open class BundleResourceFilter<T : Resource>(val resourceFilters: List<BundlePrunable<T>>) : BundleFilterable {
+    constructor(resourceFilter: BundlePrunable<T>) : this(listOf(resourceFilter))
+
     override fun pass(bundle: Bundle): Boolean {
-        return resourceFilter.fetchResources(bundle).any {
-            resourceFilter.evaluateResource(bundle, it)
+        return resourceFilters.any { filter ->
+            filter.fetchResources(bundle).any { resource ->
+                filter.evaluateResource(bundle, resource)
+            }
         }
     }
-}
-
-class BundleObservationFilter(
-    val observationFilter: BundlePrunable<Observation>,
-) : BundleResourceFilter<Observation>(observationFilter)
-
-class BundleConditionFilter(
-    val conditionFilter: BundlePrunable<Observation>,
-) : BundleResourceFilter<Observation>(conditionFilter) {
-    override fun pass(bundle: Bundle): Boolean =
-        conditionFilter.fetchResources(bundle).filter { observation ->
-            conditionFilter.evaluateResource(bundle, observation)
-        }.let { observations ->
-            // never pass a bundle with only AOE conditions
-            val conditions = observations.getMappedConditionCodes()
-            observations.isNotEmpty() && (
-                conditions.isEmpty() ||
-                    !conditions.all { it.equals("AOE", true) }
-                )
-        }
 }
 
 /**
  * Interface for pruning observations from a bundle
  */
 interface ObservationPrunable : BundlePrunable<Observation> {
-    /**
-     * Check if an observation [resource] in a [bundle] passes this filter
-     * @return whether the observation passed
-     */
-    override fun evaluateResource(bundle: Bundle, resource: Observation): Boolean
-
     override fun fetchResources(bundle: Bundle): List<Observation> = bundle.getObservations()
+}
 
-    /**
-     * Evaluate this filter on a [bundle]'s observations and optionally [filter] them from the bundle
-     * @return the result of running the observation filter
-     */
-    override fun prune(bundle: Bundle): List<Observation> =
-        bundle.getObservations().filterNot { observation ->
-            evaluateResource(bundle, observation).also { pass ->
-                if (!pass) bundle.deleteResource(observation)
+abstract class ConditionPruner : ObservationPrunable {
+    override fun prune(bundle: Bundle): List<Observation> {
+        val pass = mutableListOf<Observation>()
+        val fail = mutableListOf<Observation>()
+        val aoe = mutableListOf<Observation>()
+
+        bundle.getObservations().forEach {
+            if (evaluateResource(bundle, it)) {
+                pass.add(it)
+            } else {
+                fail.add(it)
+            }
+            if (it.getMappedConditionCodes().any { it.equals("aoe", true) }) {
+                aoe.add(it)
             }
         }
+
+        if (pass.isNotEmpty()) {
+            aoe.forEach {
+                pass.add(it)
+                fail.remove(it)
+            }
+        }
+
+        fail.forEach { bundle.deleteResource(it) }
+
+        return fail
+    }
 }
 
 /**
@@ -123,7 +122,7 @@ interface ObservationPrunable : BundlePrunable<Observation> {
  * @param value A comma-delimited list of condition codes
  * @property codeList A list of condition code strings
  */
-open class ConditionCodePruner(val codes: String) : ObservationPrunable {
+open class ConditionCodePruner(val codes: String) : ConditionPruner() {
     open val codeList = codes.split(",").map { it.trim() }
 
     override fun evaluateResource(bundle: Bundle, resource: Observation): Boolean =
@@ -245,7 +244,7 @@ data class ReportStreamFilters(
     val routingFilter: ReportStreamFilter?,
     val processingModeFilter: ReportStreamFilter?,
     val conditionFilter: ReportStreamFilter? = null,
-    val observationFilter: List<BundleResourceFilter<Observation>>? = null,
+    val observationFilter: List<BundlePrunable<Observation>>? = null,
 ) {
 
     companion object {

@@ -29,7 +29,7 @@ class ReportStreamFilterTests {
 class ReportStreamObservationFilterTests {
     @Test
     fun `test bundle observation filter passing`() {
-        val mockBundleFilter = BundleObservationFilter(MockBundleObservationPruner())
+        val mockBundleFilter = BundleResourceFilter(MockBundleObservationPruner())
         assertThat(mockBundleFilter.pass(makeBundle(goodObservations))).isEqualTo(true)
         assertThat(mockBundleFilter.pass(makeBundle(goodObservations + badObservations))).isEqualTo(true)
         assertThat(mockBundleFilter.pass(makeBundle(badObservations))).isEqualTo(false)
@@ -37,8 +37,8 @@ class ReportStreamObservationFilterTests {
 
     @Test
     fun `test condition code filter passing`() {
-        val goodFilter = BundleObservationFilter(ConditionCodePruner("1234,4321"))
-        val badFilter = BundleObservationFilter(ConditionCodePruner("5678,8765"))
+        val goodFilter = BundleResourceFilter(ConditionCodePruner("1234,4321"))
+        val badFilter = BundleResourceFilter(ConditionCodePruner("5678,8765"))
         val bundle = makeBundle(makeObservation("someCode", "4321"))
         assertThat(goodFilter.pass(bundle)).isEqualTo(true)
         assertThat(badFilter.pass(bundle)).isEqualTo(false)

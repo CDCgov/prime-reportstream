@@ -149,20 +149,14 @@
         # Covid flows through the Covid pipeline
         - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
       observationFilter:
-        - type: bundleCondition
-          conditionFilter:
-             type: conditionCode
-             codes: 840539006,1234
-        - type: bundleCondition
-          conditionFilter:
-            type: conditionKeyword
-            keywords: balamuthia,cadmium
-        - type: bundleCondition
-          conditionFilter:
-            type: fhirExpression
-            fhirExpression: "Bundle.identifier.value.empty().not()"
-            defaultResponse: true # not required
-            reverseFilter: false # not required
+        - type: conditionCode
+          codes: 840539006,1234
+        - type: conditionKeyword
+          keywords: balamuthia,cadmium
+        - type: fhirExpression
+          fhirExpression: "Bundle.identifier.value.empty().not()"
+          defaultResponse: true # not required
+          reverseFilter: false # not required
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

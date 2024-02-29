@@ -50,7 +50,7 @@ open class Receiver(
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val conditionFilter: ReportStreamFilter = emptyList(),
-    val observationFilter: List<BundleResourceFilter<Observation>> = emptyList(),
+    val observationFilter: List<BundlePrunable<Observation>> = emptyList(),
     val deidentify: Boolean = false,
     val deidentifiedValue: String = "",
     val timing: Timing? = null,
@@ -97,7 +97,7 @@ open class Receiver(
         routingFilter: ReportStreamFilter = emptyList(),
         processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
-        observationFilter: List<BundleResourceFilter<Observation>> = emptyList(),
+        observationFilter: List<BundlePrunable<Observation>> = emptyList(),
         reverseTheQualityFilter: Boolean = false,
         enrichmentSchemaNames: List<String> = emptyList(),
     ) : this(
@@ -158,18 +158,18 @@ open class Receiver(
 
     @get:JsonIgnore
     val pruners: List<BundlePrunable<Resource>> get() = filters.filterIsInstance<BundleResourceFilter<Resource>>().map {
-        it.resourceFilter
-    }
+        it.resourceFilters
+    }.flatten()
 
     @get:JsonIgnore
-    val filters: List<BundleFilterable> get() = listOf(
+    val filters: List<BundleFilterable> get() = listOfNotNull(
 //        jurisdictionalFilter,
 //        qualityFilter,
 //        routingFilter,
 //        processingModeFilter,
 //        conditionFilter,
-        observationFilter
-    ).flatten()
+        BundleResourceFilter(observationFilter)
+    )
 
     // adds a display name property that tries to show the external name, or the regular name if there isn't one
     @get:JsonIgnore
