@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.engine
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isLessThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -295,13 +294,14 @@ class FhirConverterTests {
 
         mockkClass(HL7Reader::class)
         mockkObject(HL7Reader.Companion)
-        every { HL7Reader.Companion.messageProfileMap.get(testProfile) } returns "./metadata/test_fhir_mapping"
+        every { HL7Reader.Companion.profileDirectoryMap[testProfile] } returns "./metadata/test_fhir_mapping"
 
         val result2 = engine.getContentFromHL7(message, actionLogger)
 
         // the test fhir mappings produce far fewer entries than the production ones
         assertThat(result2).isNotEmpty()
-        assertThat(result2[0].entry.size).isLessThan(result[0].entry.size)
+        assertThat(result2[0].entry.filter { it.resource is Observation }).isEmpty()
+        assertThat(result[0].entry.filter { it.resource is Observation }).isNotEmpty()
     }
 
     @Test

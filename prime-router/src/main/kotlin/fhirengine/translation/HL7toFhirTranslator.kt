@@ -40,9 +40,7 @@ class HL7toFhirTranslator(
 
         // if the requested message templates have been previously loaded, return the stored templates.
         // otherwise, load the templates
-        val messageTemplate = if (messageTemplates.containsKey(configFolderPath)) {
-            messageTemplates[configFolderPath]!!
-        } else {
+        val messageTemplate = messageTemplates.getOrElse(configFolderPath) {
             val newMessageTemplate = ResourceReader(ConverterConfiguration(configFolderPath)).messageTemplates
             messageTemplates[configFolderPath] = newMessageTemplate
             newMessageTemplate
@@ -68,10 +66,6 @@ class HL7toFhirTranslator(
         // extracted from
         // https://github.com/LinuxForHealth/hl7v2-fhir-converter/blob/d5e43fffa96654e7c5bc896e020ff2fa8aac4ff2/src/main/java/io/github/linuxforhealth/hl7/HL7ToFHIRConverter.java#L135-L159
         // If timezone specification is needed it can be provided via a custom HL7MessageEngine with a custom FHIRContext that has the time zone ID set
-
-        // reinitialize the ResourceReader to ensure the correct singleton instance for the job is loaded
-        ResourceReader(ConverterConfiguration(configFolderPath))
-
         val messageModel = getHL7MessageModel(hl7Message)
         val bundle = messageModel.convert(hl7Message, messageEngine)
         bundle.enhanceBundleMetadata(hl7Message)

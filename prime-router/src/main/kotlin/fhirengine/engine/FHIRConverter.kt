@@ -216,7 +216,7 @@ class FHIRConverter(
         } else {
             // use fhir transcoder to turn hl7 into FHIR
             // search hl7 profile map and create translator with config path if found
-            when (val configPath = HL7Reader.messageProfileMap[hl7profile]) {
+            when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
                 null -> hl7messages.map {
                     HL7toFhirTranslator().translate(it)
                 }

@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.translator
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isLessThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -129,5 +130,30 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         assertThat(
             patient.birthDateElement.valueAsString
         ).isEqualTo(Hl7RelatedGeneralUtils.dateTimeWithZoneId(birthDate, ""))
+    }
+
+    @Test
+    fun `test object multithreading`() {
+        // empty the stored message templates
+        for (key in HL7toFhirTranslator.Companion.messageTemplates.keys) {
+            HL7toFhirTranslator.Companion.messageTemplates.remove(key)
+        }
+        val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
+        assertThat(message.size).isEqualTo(1)
+
+        // process using standard templates
+        val bundle = translator.translate(message[0])
+
+        // process using test templates
+        val testTranslator = HL7toFhirTranslator("./metadata/test_fhir_mapping")
+        val bundle2 = testTranslator.translate(message[0])
+
+        // reprocess using standard templates
+        val bundle3 = translator.translate(message[0])
+
+        bundle.entry
+
+        assertThat(bundle.entry.size).isEqualTo(bundle3.entry.size)
+        assertThat(bundle2.entry.size).isLessThan(bundle.entry.size)
     }
 }

@@ -196,8 +196,8 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     }
 
     companion object {
-        // map of HL7 message profiles: maps name of profile to configuration directory path
-        val messageProfileMap: Map<MessageProfile, String> = emptyMap()
+        // map of HL7 message profiles: maps profile to configuration directory path
+        val profileDirectoryMap: Map<MessageProfile, String> = emptyMap()
 
         // data class to uniquely identify a message profile
         data class MessageProfile(val typeID: String, val profileID: String)

@@ -236,7 +236,7 @@ class ProcessFhirCommands : CliktCommand(
         }
         val hl7profile = HL7Reader.getMessageProfile(message.toString())
         // search hl7 profile map and create translator with config path if found
-        return when (val configPath = HL7Reader.messageProfileMap[hl7profile]) {
+        return when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
             null -> Pair(HL7toFhirTranslator().translate(message), message)
             else -> Pair(HL7toFhirTranslator(configPath).translate(message), message)
         }
