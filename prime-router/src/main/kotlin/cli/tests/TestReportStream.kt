@@ -331,6 +331,7 @@ Examples:
             LivdApiTest(),
             End2End(),
             End2EndUniversalPipeline(),
+            SyncTranslationSchemasTest()
         )
     }
 }
