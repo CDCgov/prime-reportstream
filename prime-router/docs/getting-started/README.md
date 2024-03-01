@@ -1,4 +1,4 @@
-# Getting started as a ReportStream developer
+# Getting Started as a ReportStream Developer
 
 ## Overview
 
@@ -9,8 +9,6 @@
 - [Locally installed software prerequisites](#locally-installed-software-prerequisites)
 - [Bulding the baseline](#bulding-the-baseline)
     * [First build](#first-build)
-        + [Run cleanslate.sh](#run-cleanslate.sh)
-        + [Run support services](#run-support-services)
     * [Seed the Postgres db and vault](#seed-the-postgres-db-and-vault)
 - [Running ReportStream backend](#running-reportstream-backend)
 - [Debugging](#debugging)
