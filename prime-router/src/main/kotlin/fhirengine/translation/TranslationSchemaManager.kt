@@ -301,6 +301,7 @@ class TranslationSchemaManager : Logging {
         sourceBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
         destinationBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
     ) {
+        // TODO: support for first time initialization
         // Upload a new previous-valid blob with time of the valid blob and delete the old one
         if (destinationValidationState.valid == null) {
             throw TranslationSyncException("Valid blob is unexpectedly missing, aborting sync")

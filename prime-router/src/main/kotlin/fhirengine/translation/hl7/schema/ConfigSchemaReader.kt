@@ -63,7 +63,7 @@ object ConfigSchemaReader : Logging {
         > fromUri(
         schemaUri: URI,
         schemaClass: Class<out Schema>,
-        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
     ): List<Schema> {
         val schemaList = mutableListOf(
             readSchemaTreeUri(
@@ -147,6 +147,16 @@ object ConfigSchemaReader : Logging {
                     ?: throw SchemaException("Cannot read $schemaUri")
                 readOneYamlSchema(input, schemaClass)
             }
+            "azure" -> {
+                // Note: the schema URIs will not include the container name i.e.
+                // azure:/hl7_mapping/receivers/STLTs/CA/CA.yml
+                val blob = BlobAccess.downloadBlobAsByteArray(
+                    "${blobConnectionInfo.getBlobEndpoint()}${schemaUri.path}",
+                    blobConnectionInfo
+                )
+                readOneYamlSchema(blob.inputStream(), schemaClass)
+            }
+            // TODO delete this functionality or consider adding support for it
             // Only valid networked option for reading schemas is azure which does not have a dedicated schema
             // and instead has URLs starting with HTTP or HTTPS
             "http", "https" -> {

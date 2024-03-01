@@ -10,7 +10,8 @@ import org.apache.logging.log4j.kotlin.Logging
 
 class SyncTranslationSchemaCommand :
     CliktCommand(
-        name = "syncShcmeas",
+        name = "syncSchemas",
+        // TODO
         help = """"
     """.trimMargin()
     ),
