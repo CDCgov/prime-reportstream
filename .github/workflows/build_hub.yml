@@ -30,6 +30,12 @@ jobs:
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
+      - name: Files changed
+        run: |
+          echo "## NEW OR CHANGED FILES" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>Backend</summary>\`${{ steps.build_vars.outputs.backend_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>Frontend</summary>\`${{ steps.build_vars.outputs.frontend_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>Terraform</summary>\`${{ steps.build_vars.outputs.terraform_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
 
   build_router:
     name: Build Router
