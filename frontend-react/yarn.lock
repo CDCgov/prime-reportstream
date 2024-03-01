@@ -4872,14 +4872,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trussworks/react-uswds@npm:^6.2.0":
-  version: 6.2.0
-  resolution: "@trussworks/react-uswds@npm:6.2.0"
+"@trussworks/react-uswds@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@trussworks/react-uswds@npm:7.0.0"
   peerDependencies:
     "@uswds/uswds": ^3.7.1
     react: ^16.x || ^17.x || ^18.x
     react-dom: ^16.x || ^17.x || ^18.x
-  checksum: 88c2c5875f9d7678522d054e938212ef0084141aae534fef686b05ccd843973b0d7dd55892dffaac440d2181b0d2671247f72c1a316cb735feeb047149175931
+  checksum: 4059ba7b255eeb8b93b6dd5bda552152911c708716cb48eabec6f21bbcc3e64ae32bb8ae0bc6618f0b7d5d9accc0d29170fce0bdd04a79025a699edac9506690
   languageName: node
   linkType: hard
 
@@ -14598,7 +14598,7 @@ __metadata:
     "@testing-library/jest-dom": ^6.4.2
     "@testing-library/react": ^14.2.1
     "@testing-library/user-event": ^14.5.2
-    "@trussworks/react-uswds": ^6.2.0
+    "@trussworks/react-uswds": ^7.0.0
     "@types/dompurify": ^3.0.5
     "@types/dotenv-flow": ^3
     "@types/downloadjs": ^1.4.6
