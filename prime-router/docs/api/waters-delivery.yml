@@ -30,6 +30,16 @@ paths:
           required: true
           schema:
             type: string
+        - name: reportId
+          in: query
+          description: the reportId within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: fileName
+          in: query
+          description: the fileName within the deliveries of the organization and client
+          schema:
+            type: string
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
