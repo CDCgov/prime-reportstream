@@ -1,4 +1,4 @@
-import { format, fromUnixTime, parseISO } from "date-fns";
+import { format, fromUnixTime, isValid, parseISO } from "date-fns";
 
 export interface DateTimeData {
     dateString: string;
@@ -16,19 +16,21 @@ export interface DateTimeData {
     dateString format: 1 Jan 2022
     timeString format: 16:30
 */
-export const generateDateTitles = (
-    dateTimeString: string,
-): DateTimeData | null => {
-    const date = parseISO(dateTimeString);
-    try {
-        return {
-            dateString: format(date, "d LLL yyyy"),
-            timeString: format(date, "HH:mm"),
-        };
-    } catch (e: any) {
-        if (e instanceof RangeError) return null;
-        throw new Error(undefined, { cause: e });
+export const generateDateTitles = (dateTimeString?: string) => {
+    if (!dateTimeString) {
+        return { dateString: "N/A", timeString: "N/A" };
     }
+
+    const date = parseISO(dateTimeString);
+
+    if (!isValid(date)) {
+        return { dateString: "N/A", timeString: "N/A" };
+    }
+
+    return {
+        dateString: format(date, "d LLL yyyy"),
+        timeString: format(date, "HH:mm"),
+    };
 };
 
 export function isDateExpired(dateTimeString: string | number) {
