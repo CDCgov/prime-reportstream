@@ -258,7 +258,7 @@ describe("Table, filter integration tests", () => {
     function setup() {
         renderApp(<TestTable />);
     }
-    test.skip("date range selection and clearing", async () => {
+    test("date range selection and clearing", async () => {
         setup();
         /* Workaround to assert changing state */
         const defaultState =
