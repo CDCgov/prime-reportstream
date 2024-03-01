@@ -1,8 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import org.apache.logging.log4j.kotlin.Logging
@@ -10,45 +9,38 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.StringType
 
-abstract class ConfigSchemaProcessor : Logging {
+abstract class ConfigSchemaProcessor<
+    Original,
+    Converted,
+    Schema : ConfigSchema<Original, Converted, Schema, SchemaElement>,
+    SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
+    >(
+    val schema: Schema,
+) :
+    Logging {
 
     /**
-     * Get the first valid string from the list of values specified in the schema for a given [element] using
-     * [bundle] and [context] starting at the [focusResource].
-     * @return the value for the element or an empty string if no value found
+     * Validates the schema the processor will use is valid given a sample input and output
+     *
+     * @property input the value to be converted
+     * @property expectedOutput the expected output of the conversion
+     * @returns Whether applying this processor against the [input] exactly matches the [expectedOutput]
      */
-    internal fun getValueAsString(
-        element: ConverterSchemaElement,
-        bundle: Bundle,
-        focusResource: Base,
-        context: CustomContext,
-        constantSubstitutor: ConstantSubstitutor? = null,
-    ): String {
-        var retVal = ""
-        run findValue@{
-            element.value?.forEach {
-                val value = if (it.isBlank()) {
-                    ""
-                } else {
-                    try {
-                        FhirPathUtils.evaluateString(context, focusResource, bundle, it, element, constantSubstitutor)
-                    } catch (e: SchemaException) {
-                        logger.error("Error while getting value for element ${element.name}", e)
-                        ""
-                    }
-                }
-                logger.trace("Evaluated value expression '$it' to '$value'")
-                if (value.isNotBlank()) {
-                    retVal = value
-                    return@findValue
-                }
-            }
-        }
-
-        // when valueSet is available, use the matching value else just pass the value as is
-        retVal = element.valueSet?.getMappedValue(retVal) ?: retVal
-        return retVal
+    fun validate(input: Original, expectedOutput: Converted): Boolean {
+        val converted = process(input)
+        return checkForEquality(converted, expectedOutput)
     }
+
+    abstract fun checkForEquality(converted: Converted, expectedOutput: Converted): Boolean
+
+    /**
+     *
+     * Accepts an input value and applies the schema to it returning the converted value
+     *
+     * @property input the value to apply the schema to
+     * @return The value after applying the schema to [input]
+     */
+    abstract fun process(input: Original): Converted
 
     /**
      * Get the first valid value from the list of values specified in the schema for a given [element] using
@@ -56,7 +48,7 @@ abstract class ConfigSchemaProcessor : Logging {
      * @return the value for the element or null if no value found
      */
     internal fun getValue(
-        element: ConfigSchemaElement,
+        element: SchemaElement,
         bundle: Bundle,
         focusResource: Base,
         context: CustomContext,
@@ -118,7 +110,7 @@ abstract class ConfigSchemaProcessor : Logging {
      * @return true if the condition expression evaluates to a boolean or if the condition expression is empty, false otherwise
      */
     internal fun canEvaluate(
-        element: ConfigSchemaElement,
+        element: SchemaElement,
         bundle: Bundle,
         focusResource: Base,
         schemaResource: Base,

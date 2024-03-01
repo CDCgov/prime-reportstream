@@ -55,6 +55,9 @@ yarn run storybook # Runs a local instance of Storybook showcase of all of the c
 
 yarn run lint # Runs the front-end linter
 yarn run lint:fix # Runs the front-end linter and fixes style errors
+
+yarn run test:e2e-ui # Runs a local instance of Playwright UI where you can view and run the e2e tests
+CI=true yarn run test:e2e-ui # Runs a local instance of Playwright UI that mimics Github integration
 ```
 
 ## Static build info
@@ -102,6 +105,43 @@ index.js:2 Refused to apply inline style because it violates the
 `.github/workflows/chromatic-master.yml` triggers a Chromatic build anytime a PR gets merged into our `master` branch.
 
 `.github/workflows/chromatic-pr.yml` triggers a Chromatic build anytime a file with `// AutoUpdateFileChromatic` comment on its FIRST LINE is checked in to a PR. The goal here is to automatically update our Chromatic anytime a file that has an associated Storybook is modified.
+
+=======
+
+## Running the e2e tests
+
+[Playwright](https://playwright.dev/) is the framework used to create and run our e2e tests.
+
+To get started you will need to create three separate OKTA users. An admin, sender, and receiver.
+
+1. Assign the users to the Test Users Group
+2. Assign the sender user to the DHSender_ignore Group.
+3. Assign the receiver user to the DHfl-phd Group and make sure that you have data locally to support that organization.
+4. Create a `.env.test.local` file within frontend-react and add the following properties along with the values created from step #1:
+
+```
+TEST_ADMIN_USERNAME=""
+TEST_ADMIN_PASSWORD=""
+TEST_ADMIN_TOTP_CODE=""
+
+TEST_SENDER_USERNAME=""
+TEST_SENDER_PASSWORD=""
+TEST_SENDER_TOTP_CODE=""
+
+TEST_RECEIVER_USERNAME=""
+TEST_RECEIVER_PASSWORD=""
+TEST_RECEIVER_TOTP_CODE=""
+```
+
+_Check with an Okta administrator on the usage of the TOTP code_
+
+```bash
+yarn run test:e2e-ui # Runs a local instance of Playwright UI where you can view and run the e2e tests
+
+CI=true yarn run test:e2e-ui # Runs a local instance of Playwright UI that mimics Github integration
+```
+
+Currently, the tests are running each time a pull request is made and must pass before the pull request can be merged into master.
 
 ## CSS Norms
 

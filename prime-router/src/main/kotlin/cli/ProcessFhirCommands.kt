@@ -180,7 +180,7 @@ class ProcessFhirCommands : CliktCommand(
                         ),
                         translationFunctions = CustomTranslationFunctions()
                     )
-                ).convert(bundle)
+                ).process(bundle)
             }
         }
     }
@@ -234,7 +234,12 @@ class ProcessFhirCommands : CliktCommand(
             val msh = message.get("MSH") as Segment
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
         }
-        return Pair(HL7toFhirTranslator.getInstance().translate(message), message)
+        val hl7profile = HL7Reader.getMessageProfile(message.toString())
+        // search hl7 profile map and create translator with config path if found
+        return when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
+            null -> Pair(HL7toFhirTranslator().translate(message), message)
+            else -> Pair(HL7toFhirTranslator(configPath).translate(message), message)
+        }
     }
 
     /**
@@ -248,7 +253,7 @@ class ProcessFhirCommands : CliktCommand(
                     throw CliktError("Unable to read schema file ${senderSchema!!.absolutePath}.")
                 } else {
                     // TODO: #10510
-                    FhirTransformer(senderSchema!!.toURI().toString(), "").transform(bundle)
+                    FhirTransformer(senderSchema!!.toURI().toString(), "").process(bundle)
                 }
             }
             else -> bundle
@@ -272,7 +277,7 @@ class ProcessFhirCommands : CliktCommand(
                     FhirTransformer(
                         receiverSchema!!.toURI().toString(),
                         ""
-                    ).transform(enrichedBundle)
+                    ).process(enrichedBundle)
                 }
             }
             else -> enrichedBundle
@@ -285,9 +290,9 @@ class ProcessFhirCommands : CliktCommand(
     private fun applyEnrichmentSchemas(bundle: Bundle): Bundle {
         if (!enrichmentSchemaNames.isNullOrEmpty()) {
             enrichmentSchemaNames!!.split(",").forEach { currentEnrichmentSchemaName ->
-//                val fileNamePieces = currentEnrichmentSchemaName.split(".")
+                val fileNamePieces = currentEnrichmentSchemaName.split(".")
                 // TODO: #10510
-                FhirTransformer(currentEnrichmentSchemaName, "").transform(bundle)
+                FhirTransformer(fileNamePieces.first(), "").process(bundle)
             }
         }
         return bundle

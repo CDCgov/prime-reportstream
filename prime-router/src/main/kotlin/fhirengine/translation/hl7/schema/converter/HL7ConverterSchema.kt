@@ -1,10 +1,12 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter
 
+import ca.uhn.hl7v2.model.Message
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetCollection
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
+import org.hl7.fhir.r4.model.Bundle
 import java.util.SortedMap
 
 /**
@@ -16,12 +18,16 @@ import java.util.SortedMap
  * @property extends the name of a schema that this schema extends
  */
 @JsonIgnoreProperties
-class ConverterSchema(
+class HL7ConverterSchema(
     var hl7Class: String? = null,
     elements: MutableList<ConverterSchemaElement> = mutableListOf(),
     constants: SortedMap<String, String> = sortedMapOf(),
     extends: String? = null,
-) : ConfigSchema<ConverterSchemaElement>(elements = elements, constants = constants, extends = extends) {
+) : ConfigSchema<Bundle, Message, HL7ConverterSchema, ConverterSchemaElement>(
+    elements = elements,
+    constants = constants,
+    extends = extends
+) {
 
     override fun toString(): String {
         return "${if (extends != null) "$extends->" else ""}$name"
@@ -48,12 +54,12 @@ class ConverterSchema(
         return super.validate(isChildSchema)
     }
 
-    override fun override(overrideSchema: ConfigSchema<ConverterSchemaElement>): ConfigSchema<ConverterSchemaElement> =
-        apply {
-            check(overrideSchema is ConverterSchema) { "Child schema ${overrideSchema.name} not a ConverterSchema." }
-            overrideSchema.hl7Class?.let { this.hl7Class = overrideSchema.hl7Class }
-            super.override(overrideSchema)
-        }
+    override fun override(
+        overrideSchema: HL7ConverterSchema,
+    ) {
+        overrideSchema.hl7Class?.let { this.hl7Class = overrideSchema.hl7Class }
+        super.override(overrideSchema)
+    }
 }
 
 /**
@@ -77,7 +83,7 @@ class ConverterSchemaElement(
     condition: String? = null,
     required: Boolean? = null,
     schema: String? = null,
-    schemaRef: ConfigSchema<ConverterSchemaElement>? = null,
+    schemaRef: HL7ConverterSchema? = null,
     resource: String? = null,
     value: List<String>? = null,
     var hl7Spec: List<String> = emptyList(),
@@ -85,7 +91,7 @@ class ConverterSchemaElement(
     constants: SortedMap<String, String> = sortedMapOf(),
     valueSet: ValueSetCollection? = null,
     debug: Boolean = false,
-) : ConfigSchemaElement(
+) : ConfigSchemaElement<Bundle, Message, ConverterSchemaElement, HL7ConverterSchema>(
     name = name,
     condition = condition,
     required = required,
@@ -109,10 +115,7 @@ class ConverterSchemaElement(
         return super.validate()
     }
 
-    override fun merge(overwritingElement: ConfigSchemaElement): ConfigSchemaElement = apply {
-        check(overwritingElement is ConverterSchemaElement) {
-            "Overwriting element ${overwritingElement.name} was not a ConverterSchemaElement."
-        }
+    override fun merge(overwritingElement: ConverterSchemaElement): ConverterSchemaElement = apply {
         if (overwritingElement.hl7Spec.isNotEmpty()) this.hl7Spec = overwritingElement.hl7Spec
         super.merge(overwritingElement)
     }

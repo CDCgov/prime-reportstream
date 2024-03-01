@@ -1,15 +1,14 @@
 import { expect, test } from "@playwright/test";
+import * as resources from "../pages/resources";
 
 // eslint-disable-next-line playwright/no-skipped-test
 test.describe.skip("Developer Resources page", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto("/developer-resources", {
-            waitUntil: "domcontentloaded",
-        });
+        await resources.goto(page);
     });
 
     test("should have correct title", async ({ page }) => {
-        await expect(page).toHaveTitle(/Developer resources/);
+        await resources.onLoad(page);
     });
 
     // TODO: Fix

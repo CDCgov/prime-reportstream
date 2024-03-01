@@ -64,8 +64,9 @@ export const dummySenders = sendersGenerator(5);
 
 /** TEST UTILITY - generates `RSReceiver[]`, each with a unique `name` (starting from "elr-0")
  *
- * @param count {number} How many unique receiverServices you want. */
-export const receiversGenerator = (count: number) => {
+ * @param count {number} How many unique receiverServices you want.
+ * @param sort {boolean} Return results sorted alphabetically, defaults to false */
+export const receiversGenerator = (count: number, sort?: boolean) => {
     const receiverServices: RSReceiver[] = [];
     for (let i = 0; i < count; i++) {
         receiverServices.push({
@@ -86,10 +87,13 @@ export const receiversGenerator = (count: number) => {
         customerStatus: CustomerStatusType.INACTIVE,
     });
 
+    if (sort)
+        return receiverServices.sort((a, b) => a.name.localeCompare(b.name));
+
     return receiverServices;
 };
 
-export const dummyReceivers = receiversGenerator(5);
+export const dummyReceivers = receiversGenerator(5, true);
 export const dummyActiveReceiver = {
     name: `abc-1`,
     organizationName: "testOrg",

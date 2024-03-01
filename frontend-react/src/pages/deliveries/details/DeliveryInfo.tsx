@@ -1,4 +1,4 @@
-import moment from "moment";
+import { format, parseISO } from "date-fns";
 
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 
@@ -27,10 +27,10 @@ function DeliveryInfo(props: Props) {
                     </h4>
                     <p className="text-bold margin-top-0">
                         {/* eslint-disable-next-line import/no-named-as-default-member */}
-                        {moment
-                            .utc(report.batchReadyAt)
-                            .local()
-                            .format("dddd, MMM DD, YYYY  HH:mm")}
+                        {format(
+                            parseISO(report.batchReadyAt),
+                            "eeee, LLL dd, yyyy HH:mm",
+                        )}
                     </p>
                 </div>
                 <div className="tablet:grid-col">
@@ -45,10 +45,10 @@ function DeliveryInfo(props: Props) {
                     </h4>
                     <p className="text-bold margin-top-0">
                         {/* eslint-disable-next-line import/no-named-as-default-member */}
-                        {moment
-                            .utc(report.expires)
-                            .local()
-                            .format("dddd, MMM DD, YYYY  HH:mm")}
+                        {format(
+                            parseISO(report.expires),
+                            "eeee, LLL dd, yyyy HH:mm",
+                        )}
                     </p>
                 </div>
             </div>

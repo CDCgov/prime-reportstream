@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import {
     deliveriesEndpoints,
@@ -25,6 +25,7 @@ export enum DeliveriesDataAttr {
     EXPIRES = "expires",
     ITEM_COUNT = "reportItemCount",
     FILE_NAME = "fileName",
+    RECEIVER = "receiver",
 }
 
 const filterManagerDefaults: FilterManagerDefaults = {
@@ -41,7 +42,8 @@ const filterManagerDefaults: FilterManagerDefaults = {
  *
  * @param service {string} the chosen receiver service (e.x. `elr-secondary`)
  * */
-const useOrgDeliveries = (service?: string) => {
+const useOrgDeliveries = (initialService?: string) => {
+    const [service, setService] = useState(initialService);
     const { activeMembership } = useSessionContext();
     const authorizedFetch = useAuthorizedFetch();
 
@@ -49,7 +51,8 @@ const useOrgDeliveries = (service?: string) => {
         activeMembership?.parsedName,
     ); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
-        () => `${adminSafeOrgName}.${service}`,
+        () =>
+            service ? `${adminSafeOrgName}.${service}` : `${adminSafeOrgName}`,
         [adminSafeOrgName, service],
     );
 
@@ -89,7 +92,7 @@ const useOrgDeliveries = (service?: string) => {
         ],
     );
 
-    return { fetchResults, filterManager };
+    return { fetchResults, filterManager, setService };
 };
 
 /** Hook consumes the ReportsApi "detail" endpoint and delivers the response

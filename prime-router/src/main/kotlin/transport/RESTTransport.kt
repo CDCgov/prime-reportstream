@@ -83,19 +83,23 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         context: ExecutionContext,
         actionHistory: ActionHistory,
     ): RetryItems? {
-        val logger: java.util.logging.Logger = context.logger
+        val logger: Logger = context.logger
 
         val restTransportInfo = transportType as RESTTransportType
         val reportId = "${header.reportFile.reportId}"
         val receiver = header.receiver ?: error("No receiver defined for report $reportId")
         val reportContent: ByteArray = header.content ?: error("No content for report $reportId")
-        // get the file name, or create one from the report ID, NY requires a file name in the POST
-        val fileName = Report.formFilename(
-            header.reportFile.reportId,
-            receiver.organizationName,
-            Report.Format.valueOf(receiver.translation.type),
-            header.reportFile.createdAt
-        )
+        // get the file name from blob url, or create one from the report metadata
+        val fileName = if (header.receiver.topic.isSendOriginal) {
+            Report.formExternalFilename(header)
+        } else {
+            Report.formFilename(
+                header.reportFile.reportId,
+                receiver.organizationName,
+                Report.Format.valueOf(receiver.translation.type),
+                header.reportFile.createdAt
+            )
+        }
 
         // get the username/password to authenticate with OAuth
         val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
@@ -455,12 +459,12 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 if (restTransportInfo.authHeaders["Authorization-Type"] == "username/password") {
                     setBody(mapOf("username" to credential.user, "password" to credential.pass))
                 } else if (restTransportInfo.authHeaders["Authorization-Type"] == "email/password") {
-                // Authorization-Type: email/password requires the following:
-                // Header:
-                //  Content-Type: application/json
-                //  Authorization: username/password
-                // Body:
-                // { "email": "<email@domain.com>", "password": "<password>"
+                    // Authorization-Type: email/password requires the following:
+                    // Header:
+                    //  Content-Type: application/json
+                    //  Authorization: username/password
+                    // Body:
+                    // { "email": "<email@domain.com>", "password": "<password>"
                     setBody(mapOf("email" to credential.user, "password" to credential.pass))
                 }
             }.body()
@@ -550,7 +554,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             val headerContentType = headers["Content-Type"]
                             logger.warning(
                                 "Unsupported Content-Type: " +
-                                "$headerContentType - please check your REST Transport setting"
+                                    "$headerContentType - please check your REST Transport setting"
                             )
                         }
                     }

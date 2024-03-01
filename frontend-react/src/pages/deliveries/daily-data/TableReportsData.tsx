@@ -1,4 +1,4 @@
-import moment from "moment";
+import { format, parseISO } from "date-fns";
 
 import ReportLink from "./ReportLink";
 import { USLink } from "../../../components/USLink";
@@ -29,18 +29,17 @@ function TableReportsData(props: Props) {
                         </USLink>
                     </th>
                     <th scope="row">
-                        {/* eslint-disable-next-line import/no-named-as-default-member */}
-                        {moment
-                            .utc(report.sent)
-                            .local()
-                            .format("YYYY-MM-DD HH:mm")}
+                        {format(
+                            parseISO(report.sent.toString()),
+                            "yyyy-MM-dd HH:mm",
+                        )}
                     </th>
                     <th scope="row">
                         {/* eslint-disable-next-line import/no-named-as-default-member */}
-                        {moment
-                            .utc(report.expires)
-                            .local()
-                            .format("YYYY-MM-DD HH:mm")}
+                        {format(
+                            parseISO(report.expires.toString()),
+                            "yyyy-MM-dd HH:mm",
+                        )}
                     </th>
                     <th scope="row">{report.total}</th>
                     <th scope="row">

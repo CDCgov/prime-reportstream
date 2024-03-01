@@ -1,13 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 import { selectTestOrg, waitForAPIResponse } from "../helpers/utils";
+import * as dailyData from "../pages/daily-data";
 
 test.describe("Daily Data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
-            await page.goto("/daily-data", {
-                waitUntil: "domcontentloaded",
-            });
+            await dailyData.goto(page);
             await expect(page).toHaveURL("/login");
         });
     });
@@ -17,9 +16,7 @@ test.describe("Daily Data page", () => {
 
         test.describe("without org selected", () => {
             test.beforeEach(async ({ page }) => {
-                await page.goto("/daily-data", {
-                    waitUntil: "domcontentloaded",
-                });
+                await dailyData.goto(page);
             });
 
             test("will not load page", async ({ page }) => {
@@ -36,11 +33,7 @@ test.describe("Daily Data page", () => {
         test.describe("with org selected", () => {
             test.beforeEach(async ({ page }) => {
                 await selectTestOrg(page);
-
-                await page.goto("/daily-data", {
-                    waitUntil: "domcontentloaded",
-                });
-
+                await dailyData.goto(page);
                 await waitForAPIResponse(page, "/api/waters/org/");
             });
 
@@ -49,26 +42,21 @@ test.describe("Daily Data page", () => {
             });
 
             test("has receiver services dropdown", async ({ page }) => {
-                await expect(
-                    page.getByTestId("services-dropdown"),
-                ).toBeAttached();
+                await expect(page.locator("#receiver-dropdown")).toBeAttached();
             });
 
             test("has filter", async ({ page }) => {
-                await expect(
-                    page.getByText("From (Start Range):"),
-                ).toBeAttached();
-                await expect(
-                    page.getByText("Until (End Range):"),
-                ).toBeAttached();
+                await expect(page.getByTestId("filter-form")).toBeAttached();
             });
 
             test("table has correct headers", async ({ page }) => {
                 await expect(page.getByText(/Report ID/)).toBeAttached();
-                await expect(page.getByText(/Available/)).toBeAttached();
-                await expect(page.getByText(/Expires/)).toBeAttached();
+                await expect(page.getByText(/Time received/)).toBeAttached();
+                await expect(
+                    page.getByText(/File available until/),
+                ).toBeAttached();
                 await expect(page.getByText(/Items/)).toBeAttached();
-                await expect(page.getByText(/File/)).toBeAttached();
+                await expect(page.getByText(/Filename/)).toBeAttached();
             });
 
             test("table has pagination", async ({ page }) => {
@@ -87,10 +75,7 @@ test.describe("Daily Data page", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ page }) => {
-            await page.goto("/daily-data", {
-                waitUntil: "domcontentloaded",
-            });
-
+            await dailyData.goto(page);
             await waitForAPIResponse(page, "/api/waters/org/");
         });
 
@@ -99,16 +84,15 @@ test.describe("Daily Data page", () => {
         });
 
         test("has filter", async ({ page }) => {
-            await expect(page.getByText("From (Start Range):")).toBeAttached();
-            await expect(page.getByText("Until (End Range):")).toBeAttached();
+            await expect(page.getByTestId("filter-form")).toBeAttached();
         });
 
         test("table has correct headers", async ({ page }) => {
             await expect(page.getByText(/Report ID/)).toBeAttached();
-            await expect(page.getByText(/Available/)).toBeAttached();
-            await expect(page.getByText(/Expires/)).toBeAttached();
+            await expect(page.getByText(/Time received/)).toBeAttached();
+            await expect(page.getByText(/File available until/)).toBeAttached();
             await expect(page.getByText(/Items/)).toBeAttached();
-            await expect(page.getByText(/File/)).toBeAttached();
+            await expect(page.getByText(/Filename/)).toBeAttached();
         });
 
         test("table has pagination", async ({ page }) => {
@@ -126,10 +110,7 @@ test.describe("Daily Data page", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
-            await page.goto("/daily-data", {
-                waitUntil: "domcontentloaded",
-            });
-
+            await dailyData.goto(page);
             await waitForAPIResponse(page, "/api/waters/org/");
         });
 

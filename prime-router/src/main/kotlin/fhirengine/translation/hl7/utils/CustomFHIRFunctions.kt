@@ -430,7 +430,8 @@ object CustomFHIRFunctions : FhirPathFunctions {
         } catch (e: DateTimeException) {
             throw SchemaException(
                 "Invalid timezone $inputTimeZone passed. See FHIR timezone valueSet " +
-                    "(https://hl7.org/fhir/valueset-timezones.html) for available timezone values."
+                    "(https://hl7.org/fhir/valueset-timezones.html) for available timezone values.",
+                        e
             )
         }
 

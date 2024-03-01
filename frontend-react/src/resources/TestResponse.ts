@@ -55,6 +55,19 @@ export class TestResponse {
                 filteredReportItems: [],
                 itemCountBeforeQualityFiltering: 0,
             },
+            {
+                organization_id: "jest",
+                organization: "Different Org",
+                service: "Secondary",
+                filteredReportRows: [
+                    "For ignore.Secondary, filter matches[ordering_facility_county, Secondary] filtered out item 682740 at index 1",
+                    "For ignore.Secondary, filter matches[ordering_facility_county, Secondary] filtered out item 496898 at index 3",
+                ],
+                itemCount: 4,
+                sentReports: [],
+                filteredReportItems: [],
+                itemCountBeforeQualityFiltering: 0,
+            },
         ],
         errors: [
             {

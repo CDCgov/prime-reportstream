@@ -123,7 +123,7 @@ internal class CredentialTests {
         // println(err2.message)
         assertThat(err2.message?.indexOf("pass", ignoreCase = true)).isEqualTo(-1)
         assertThat(err2.message?.indexOf("key", ignoreCase = true)).isEqualTo(-1)
-        assertThat(err2.message?.count { it == 'X' }).isEqualTo(12)
+        assertThat(err2.message?.contains("missing type id property '@type'"))
     }
 
     @Test

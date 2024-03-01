@@ -61,7 +61,7 @@ const FALLBACK_FROM_STRING = "01/01/2000";
 const FALLBACK_FROM = new Date(FALLBACK_FROM_STRING).toISOString();
 const FALLBACK_TO_STRING = "01/01/3000";
 const FALLBACK_TO = new Date(FALLBACK_TO_STRING).toISOString();
-
+const DEFAULT_TIME = "0:0";
 const useDateRange = (): RangeFilter => {
     const [settings, dispatchRange] = useReducer(rangeReducer, {
         from: FALLBACK_FROM,
@@ -82,5 +82,6 @@ export {
     FALLBACK_TO,
     FALLBACK_FROM_STRING,
     FALLBACK_TO_STRING,
+    DEFAULT_TIME,
 };
 export type { RangeSettings, RangeSettingsAction };

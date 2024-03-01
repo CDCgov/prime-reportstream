@@ -129,7 +129,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 logger.error("${actionHistory.action.actionResult}", t)
             }
         } finally {
-            // Note this is operating in a different transaction than the one that did the fetch/lock of the repor
+            // Note this is operating in a different transaction than the one that did the fetch/lock of the report
             logger.debug("About to save ActionHistory for $message")
             workflowEngine.recordAction(actionHistory)
             logger.debug("Done saving ActionHistory for $message")

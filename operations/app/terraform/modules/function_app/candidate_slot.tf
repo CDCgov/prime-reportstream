@@ -9,7 +9,7 @@ resource "azurerm_function_app_slot" "candidate" {
   https_only                 = true
   os_type                    = "linux"
   version                    = var.function_runtime_version
-  enable_builtin_logging     = false
+  enable_builtin_logging     = true
 
   site_config {
     ip_restriction {

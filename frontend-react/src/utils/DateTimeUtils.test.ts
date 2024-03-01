@@ -1,5 +1,4 @@
-import moment from "moment";
-
+import { addDays } from "date-fns";
 import {
     formatDateWithoutSeconds,
     generateDateTitles,
@@ -30,7 +29,10 @@ describe("submission details date display", () => {
 describe("generateDateTitles", () => {
     test("returns null for invalid date strings", () => {
         const dateTimeData = generateDateTitles("I have the high ground!");
-        expect(dateTimeData).toBe(null);
+        expect(dateTimeData).toStrictEqual({
+            dateString: "N/A",
+            timeString: "N/A",
+        });
     });
 
     test("does not error for dates with single digit minutes", () => {
@@ -49,7 +51,7 @@ describe("isDateExpired", () => {
     });
 
     test("returns false if date has not expired", () => {
-        const now = moment().add(1, "day").toISOString();
+        const now = addDays(new Date(), 1).toISOString();
         const futureDateTime = isDateExpired(now);
         expect(futureDateTime).toBeFalsy();
     });

@@ -24,9 +24,9 @@ class MDCUtilsTest {
 
         assertThat(MDC.getCopyOfContextMap()).isEqualTo(
             mapOf(
-            "key1" to "some string",
-            "key2" to "5"
-        )
+                "key1" to "some string",
+                "key2" to "5"
+            )
         )
     }
 
@@ -38,8 +38,8 @@ class MDCUtilsTest {
 
         assertThat(MDC.getCopyOfContextMap()).isEqualTo(
             mapOf(
-            "key" to "{\"key1\":\"some string\",\"key2\":5}",
-        )
+                "key" to "{\"key1\":\"some string\",\"key2\":5}",
+            )
         )
     }
 
@@ -51,9 +51,9 @@ class MDCUtilsTest {
         withLoggingContext(context) {
             assertThat(MDC.getCopyOfContextMap()).isEqualTo(
                 mapOf(
-                "key1" to "some string",
-                "key2" to "5"
-            )
+                    "key1" to "some string",
+                    "key2" to "5"
+                )
             )
         }
         assertThat(MDC.getCopyOfContextMap()).isEmpty()
@@ -64,11 +64,11 @@ class MDCUtilsTest {
         val context = TestContext("some string", 5)
 
         assertThat(MDC.getCopyOfContextMap()).isEmpty()
-        withLoggingContext("key" to context) {
+        withLoggingContext(MDCUtils.MDCProperty.USERNAME to context) {
             assertThat(MDC.getCopyOfContextMap()).isEqualTo(
                 mapOf(
-                "key" to "{\"key1\":\"some string\",\"key2\":5}",
-            )
+                    "USERNAME" to "{\"key1\":\"some string\",\"key2\":5}",
+                )
             )
         }
         assertThat(MDC.getCopyOfContextMap()).isEmpty()

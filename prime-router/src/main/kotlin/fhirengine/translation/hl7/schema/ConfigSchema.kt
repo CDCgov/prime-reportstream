@@ -6,15 +6,26 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetCollection
 import java.util.SortedMap
 
 /**
- * A schema.
+ * A [ConfigSchema] contains a list of [ConfigSchemaElement]s and can be applied to an input to produce a transformed
+ * output.  Supports the concept of [extends] which specifies a schema whose element should be included in this schema
+ *
+ * @property Original The type that this schema expects as input
+ * @property Converted The type that this schema will produce as output
+ * @property Self Reference to this schema's type
+ * @property SchemaElement The type of the schema elements that make up the schema
  * @property name the schema name
  * @property elements the elements for the schema
  * @property constants schema level constants
  * @property extends the name of a schema that this schema extends
  */
 @JsonIgnoreProperties
-abstract class ConfigSchema<T : ConfigSchemaElement>(
-    var elements: MutableList<T> = mutableListOf(),
+abstract class ConfigSchema<
+    Original,
+    Converted,
+    Self : ConfigSchema<Original, Converted, Self, SchemaElement>,
+    SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Self>,
+    >(
+    var elements: MutableList<SchemaElement> = mutableListOf(),
     var constants: SortedMap<String, String> = sortedMapOf(),
     var extends: String? = null,
 ) {
@@ -91,7 +102,7 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
      * @param overrideSchema the schema to override with
      * @return the reference to the schema
      */
-    open fun override(overrideSchema: ConfigSchema<T>) = apply {
+    open fun override(overrideSchema: Self) {
         overrideSchema.elements.forEach { childElement ->
             // If we find the element in the schema then replace it, otherwise add it.
             if (childElement.name.isNullOrBlank()) {
@@ -113,9 +124,12 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
      * instances of the element.
      * @return list of the found elements
      */
-    internal fun findElements(elementName: String): List<ConfigSchemaElement> {
+    internal fun findElements(
+        elementName: String,
+    ): List<ConfigSchemaElement<Original, Converted, SchemaElement, Self>> {
         // First try to find the element at this level in the schema.
-        var elementsInSchema: List<ConfigSchemaElement> = elements.filter { elementName == it.name }
+        var elementsInSchema: List<ConfigSchemaElement<Original, Converted, SchemaElement, Self>> =
+            elements.filter { elementName == it.name }
 
         // If the element was not found in this schema level, then traverse any elements that reference a schema
         if (elementsInSchema.isEmpty()) {
@@ -133,6 +147,10 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
 
 /**
  * An element within a Schema.
+ * @property Original The type that this schema expects as input
+ * @property Converted The type that this schema will produce as output
+ * @property Schema Reference to this schema's type
+ * @property Self The type of the schema elements that make up the schema
  * @property name the name of the element
  * @property condition a FHIR path condition to evaluate. If false then the element is ignored.
  * @property required true if the element must have a value
@@ -146,12 +164,17 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
  * @property debug log debug information for the element
  */
 @JsonIgnoreProperties
-abstract class ConfigSchemaElement(
+abstract class ConfigSchemaElement<
+    Original,
+    Converted,
+    Self : ConfigSchemaElement<Original, Converted, Self, Schema>,
+    Schema : ConfigSchema<Original, Converted, Schema, Self>,
+    >(
     var name: String? = null,
     var condition: String? = null,
     var required: Boolean? = null,
     var schema: String? = null,
-    var schemaRef: ConfigSchema<*>? = null,
+    var schemaRef: Schema? = null,
     var resource: String? = null,
     var value: List<String>? = null,
     var resourceIndex: String? = null,
@@ -179,20 +202,20 @@ abstract class ConfigSchemaElement(
     internal open fun validate(): List<String> {
         if (!resourceIndex.isNullOrBlank()) {
             when {
-                resource.isNullOrBlank() ->
-                    addError("Resource property is required to use the resourceIndex property")
-                schema.isNullOrBlank() ->
-                    addError("Schema property is required to use the resourceIndex property")
+                resource.isNullOrBlank()
+                -> addError("Resource property is required to use the resourceIndex property")
+                schema.isNullOrBlank()
+                -> addError("Schema property is required to use the resourceIndex property")
             }
         }
 
         when {
-            !schema.isNullOrBlank() && !value.isNullOrEmpty() ->
-                addError("Schema property cannot be used with the value property")
-            !schema.isNullOrBlank() && (valueSet != null) ->
-                addError("Schema property cannot be used with the valueSet property")
-            schema.isNullOrBlank() && value.isNullOrEmpty() ->
-                addError("Value property is required when not using a schema")
+            !schema.isNullOrBlank() && !value.isNullOrEmpty()
+            -> addError("Schema property cannot be used with the value property")
+            !schema.isNullOrBlank() && (valueSet != null)
+            -> addError("Schema property cannot be used with the valueSet property")
+            schema.isNullOrBlank() && value.isNullOrEmpty()
+            -> addError("Value property is required when not using a schema")
         }
 
         // value sets need a value to be...set
@@ -201,8 +224,9 @@ abstract class ConfigSchemaElement(
         }
 
         // value set keys and values cannot be null
-        if (valueSet?.toSortedMap()?.keys?.any { it == null } == true ||
-            valueSet?.toSortedMap()?.values?.any { it == null } == true
+        if (valueSet?.toSortedMap()?.keys?.any {
+                it == null
+            } == true || valueSet?.toSortedMap()?.values?.any { it == null } == true
         ) {
             addError("Value sets cannot contain null values")
         }
@@ -221,7 +245,7 @@ abstract class ConfigSchemaElement(
      * Merge an [overwritingElement] into this element, overwriting only those properties that have values.
      * @return the reference to the element
      */
-    open fun merge(overwritingElement: ConfigSchemaElement) = apply {
+    open fun merge(overwritingElement: Self) = apply {
         overwritingElement.condition?.let { this.condition = overwritingElement.condition }
         overwritingElement.required?.let { this.required = overwritingElement.required }
         overwritingElement.schema?.let { this.schema = overwritingElement.schema }
@@ -236,14 +260,12 @@ abstract class ConfigSchemaElement(
 }
 
 class ConfigSchemaElementProcessingException(
-    val schema: ConfigSchema<*>,
-    val element: ConfigSchemaElement,
+    val schema: ConfigSchema<*, *, *, *>,
+    val element: ConfigSchemaElement<*, *, *, *>,
     override val cause: Throwable?,
-) :
-    RuntimeException(cause) {
+) : RuntimeException(cause) {
 
-    override val message: String =
-        """Error encountered while applying: $element in ${schema.name} to FHIR bundle. 
+    override val message: String = """Error encountered while applying: $element in ${schema.name} to FHIR bundle. 
             |Error was: ${cause?.message}
         """.trimMargin()
 }

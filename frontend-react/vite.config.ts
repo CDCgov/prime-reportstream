@@ -29,7 +29,7 @@ function createBackendUrl(mode: string) {
     const port = getPort(mode);
     if (LOCAL_BACKEND_MODES.includes(mode))
         return `http://localhost${port ? ":" + port.toString() : ""}`;
-    return `https://${mode !== "production" ? mode + "." : ""}prime.cdc.gov`;
+    return `https://${mode !== "production" ? (mode.startsWith("trialfrontend") ? "staging" : mode) + "." : ""}prime.cdc.gov`;
 }
 
 function getPort(mode: string) {

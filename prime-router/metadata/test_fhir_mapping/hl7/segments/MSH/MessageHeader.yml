@@ -1,0 +1,23 @@
+resourceType: MessageHeader
+
+# This test version of MSH has most elements removed so that the result will be different
+
+id:
+  type: NAMED_UUID
+  valueOf: MSH.10
+  expressionType: HL7Spec
+
+language:
+  vars:
+    cwe1: MSH.19.1
+  expressionType: nested
+  expressions:
+    - condition: $cwe1 NOT_NULL
+      valueOf: MSH.19.1
+      type: STRING
+      expressionType: HL7Spec
+    - condition: $cwe1 NULL
+      valueOf: MSH.19.4
+      type: STRING
+      expressionType: HL7Spec
+

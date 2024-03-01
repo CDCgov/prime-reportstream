@@ -39,7 +39,9 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.ConditionSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
+import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -1427,15 +1429,32 @@ class FhirRouterTests {
             assertThat(actionHistory.reportsOut).hasSize(1)
 
             val reportId = (messages.first() as ReportPipelineMessage).reportId
-            assertThat(azureEventService.getEvents().first()).isEqualTo(
+            val expectedAzureEvents = listOf(
+                ReportAcceptedEvent(
+                    message.reportId,
+                    message.topic,
+                    "sendingOrg.sendingOrgClient",
+                    listOf(
+                        ConditionSummary("6142004", "Influenza (disorder)"),
+                        ConditionSummary("Some Condition Code", "Condition Name")
+                    )
+                ),
                 ReportRouteEvent(
+                    message.reportId,
                     reportId,
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     orgWithMappedConditionFilter.receivers.first().fullName,
-                    setOf("6142004", "Some Condition Code")
+                    listOf(
+                        ConditionSummary("6142004", "Influenza (disorder)"),
+                        ConditionSummary("Some Condition Code", "Condition Name")
+                    )
                 )
             )
+
+            val actualEvents = azureEventService.getEvents()
+            assertThat(actualEvents).hasSize(2)
+            assertThat(actualEvents).isEqualTo(expectedAzureEvents)
         }
 
         // assert
@@ -1547,18 +1566,38 @@ class FhirRouterTests {
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
 
-            val azureEvent = azureEventService.getEvents().first()
-            val expectedEvent = ReportRouteEvent(
+            val azureEvents = azureEventService.getEvents()
+            val expectedAcceptedEvent = ReportAcceptedEvent(
+                message.reportId,
+                message.topic,
+                "sendingOrg.sendingOrgClient",
+                listOf(
+                    ConditionSummary(
+                        "840539006",
+                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                    )
+                )
+            )
+            val expectedRoutedEvent = ReportRouteEvent(
+                message.reportId,
                 UUID.randomUUID(),
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 null,
-                setOf("840539006")
+                listOf(
+                    ConditionSummary(
+                        "840539006",
+                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                    )
+                )
             )
-            assertThat(azureEvent)
+            assertThat(azureEvents).hasSize(2)
+            assertThat(azureEvents.first())
+                .isEqualTo(expectedAcceptedEvent)
+            assertThat(azureEvents[1])
                 .isInstanceOf<ReportRouteEvent>()
                 .isEqualToIgnoringGivenProperties(
-                    expectedEvent,
+                    expectedRoutedEvent,
                     ReportRouteEvent::reportId // unable to access generated report ID since no message is generated
                 )
         }
