@@ -33,14 +33,14 @@ jobs:
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
         id: pr
-        uses: JosiahSiegel/reliable-pull-request-action@0b3e93ab2c1f75c96f4d3fd2e3f5b2897b2a43f0
+        uses: dkrylovsb/reliable-pull-request-action@143ef667bc1b9b77e282f5f5867770d7161a683e
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
           sourceBranch: "${{ env.BRANCH_NAME }}"
           targetBranch: "production"
-          labels: devops,chore,deployment
+          labels: DevOps,chore,deployment
           body: |
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
             This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.
