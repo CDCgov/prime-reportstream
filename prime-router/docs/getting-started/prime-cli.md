@@ -2,9 +2,10 @@
 
 ## How to use the CLI
 
-The PRIME command line interface allows you to interact with certain parts of report stream functionality without using the API or running all of ReportStream.  A common use case for the CLI is testing while developing mappers for the new FHIR pipeline.
+The PRIME command line interface allows you to interact with certain parts of report stream functionality without using the API or running all of ReportStream. A common use case for the CLI is testing while developing mappers for the new FHIR pipeline.
 
 The primary way to access the cli is through the gradle command (although a deprecated bash script exists as well). If you are an IntelliJ user, you can set up the gradle command to be run through your IDE and be run in debug mode to step through your code line by line.
+
 ```bash
 cd ./prime-router
 # Prints out all the available commands

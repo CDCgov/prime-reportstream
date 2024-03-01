@@ -18,6 +18,6 @@ The most useful gradle tasks are:
 * `testIntegration`: runs the integration tests
 * `package`: packages the build artifacts for deployment
 * `quickpackage`: re-packages the build artifacts for deployment without running the tests
-* `testSmoke`: runs all the smoke tests; this requires [that you are running ReportStream](#running-reportstream)
-* `testEnd2End`: runs the end-to-end test; this requires [that you are running ReportStream](#running-reportstream)
+* `testSmoke`: runs all the smoke tests; this requires [that you are running ReportStream](../getting-started/README.md#running-reportstream-backend)
+* `testEnd2End`: runs the end-to-end test; this requires [that you are running ReportStream](../getting-started/README.md#running-reportstream-backend)
 * `primeCLI`: run the prime CLI. Specify arguments with `"--args=<args>"`

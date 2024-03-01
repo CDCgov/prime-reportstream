@@ -1,4 +1,4 @@
-# Getting Started As A ReportStream Developer
+# Getting started as a ReportStream developer
 
 ## Overview
 
@@ -6,44 +6,45 @@
 
 ## Table of contents
 - [Table of contents](#table-of-contents)
-- [Locally Installed Software Prerequisites](#locally-installed-software-prerequisites)
-- [Bulding The Baseline](#bulding-the-baseline)
-    * [First Build](#first-build)
+- [Locally installed software prerequisites](#locally-installed-software-prerequisites)
+- [Bulding the baseline](#bulding-the-baseline)
+    * [First build](#first-build)
         + [Run cleanslate.sh](#run-cleanslate.sh)
-        + [Run Support Services](#run-support-services)
-    * [Seed The Postgres DB And Vault](#seed-the-postgres-db-and-vault)
-- [Running ReportStream Backend](#running-reportstream-backend)
+        + [Run support services](#run-support-services)
+    * [Seed the Postgres db and vault](#seed-the-postgres-db-and-vault)
+- [Running ReportStream backend](#running-reportstream-backend)
 - [Debugging](#debugging)
-- [Running The Frontend](#running-the-frontend)
-- [Running The Static Site](#running-the-static-site)
-- [Next Steps](#next-steps)
+- [Running the frontend](#running-the-frontend)
+- [Running the static site](#running-the-static-site)
+- [Troubleshooting](#troubleshooting)
+- [Next steps](#next-steps)
 
-## Locally Installed Software Prerequisites
+## Locally installed software prerequisites
 
 You will need to have at least the following pieces of software installed _locally_ in order to be able to build and/or debug this baseline:
 
-* [git](install-git.md) including git-bash if you're on Windows
-* [Docker or Docker Desktop](install-docker.md)
-* [OpenJDK](install-openjdk.md) (currently targetting 17)
+* [git](../docs-deprecated/getting-started/install-git.md) including git-bash if you're on Windows
+* [Docker or Docker Desktop](../docs-deprecated/getting-started/install-docker.md)
+* [OpenJDK](../docs-deprecated/getting-started/install-openjdk.md) (currently targetting 17)
     * See the linked docs for important instructions on setting `JAVA_HOME`
 * An IDE. IntelliJ is recommended for Kotlin/debugging support. 
 
 To reduce the build-debug cycle time you can install these tools to run the code directly. These tools are required if you are using an Apple Silicon computer, otherwise they are optional.
-* [Azure Functions Core Tools](install-afct.md) (currently targetting 4)
+* [Azure Functions Core Tools](../docs-deprecated/getting-started/install-afct.md) (currently targetting 4)
 * [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
-* [AzureCLI](install-azurecli.md)
-* [Gradle](install-gradle.md)
-* One or more [PostgreSQL Clients](psql-clients.md)
+* [AzureCLI](../docs-deprecated/getting-started/install-azurecli.md)
+* [Gradle](../docs-deprecated/getting-started/install-gradle.md)
+* One or more [PostgreSQL Clients](../docs-deprecated/getting-started/psql-clients.md)
 
 > [!Warning]
 > If you are using an Apple Silicon computer you will need to use Gradle as Microsoft's Azure Function Docker image is only `amd64` compatible. There are also [known issues](https://docs.docker.com/desktop/mac/apple-silicon/#known-issues) running Intel Docker images on Apple Silicon. Both approaches to running the project are documented here. 
 > Many of our local developer tools are set up to run in Docker containers. Looking at our `docker-compose.yml` file, the `web_receiver`, `prime_dev`, and `settings` services do not work on Apple Silicon. Likewise, the `builder` service in our `docker-compose.build.yml` does not work.
 
-## Bulding The Baseline
+## Bulding the baseline
 
-### First Build
+### First build
 
-The `cleanslate.sh` script does the base work needed to start developing for ReportStream. It only needs to be run once.  This script runs on Apple processors, but it skips a few steps. We will need to do these missing steps by hand.
+The `cleanslate.sh` script does the base work needed to start developing for ReportStream. It only needs to be run once. This script runs on Apple processors, but it skips a few steps. We will need to do these missing steps by hand.
 
 1. [Clone the prime-reportstream repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository-from-github/cloning-a-repository) to your workstation using git.
 
@@ -78,7 +79,7 @@ docker ps
 # 2962fb214203   postgres:11   "docker-entrypoint.s…"   57 minutes ago   Up 57 minutes   0.0.0.0:5432->5432/tcp   prime-router_postgresql_1
 ```
 
-#### Run Support Services
+#### Run support services
 
 ReportStream depends on set of services to be up before running the main Azure service. The `cleanslate.sh` script
 starts a Postgres database but skips starting a few more that are otherwise started by default when `cleanslate.sh`
@@ -104,7 +105,7 @@ You can take down these services by running `./gradlew composeDown` or `docker-c
 For now, leave these services running and open up a new terminal session.
 </details>
 
-### Seed The Postgres DB And Vault
+### Seed the Postgres db and vault
 
 To run tests, the Postgres DB and the credential vault need to be seeded with values.
 We will need to have ReportStream running for these steps to work (see previous steps).
@@ -116,7 +117,7 @@ Again, we will use a Gradle task to do these steps.
 ./gradlew reloadSettings
 ```
 
-## Running ReportStream Backend
+## Running ReportStream backend
 
 <details>
   <summary>Docker Desktop</summary>
@@ -153,6 +154,15 @@ For profiling use the JMX port 9090.
 
 If using Intellij, this can be easily configured by first opening the `primer-router` folder as it's own project. Create a Remote JVM Debug Configuration with the port set to `5005`. 
 
+
+## Running the frontend
+
+See the [frontend React docs](../../../frontend-react/README.md) for more information.
+
+## Running the static site
+
+## Troubleshooting
+
 ## Next Steps
 
 - [Contributing](./contributing.md)
@@ -168,11 +178,3 @@ If using Intellij, this can be easily configured by first opening the `primer-ro
 - [Pipeline Configuration](./universal-pipeline-configuration.md)
 - [Swagger](./swagger.md)
 - [Kotlin](./kotlin.md)
-
-## Running The Frontend
-
-See the [frontend React docs](../../../frontend-react/README.md) for more information.
-
-## Running The Static Site
-
-## Troubleshooting

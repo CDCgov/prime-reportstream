@@ -1,6 +1,6 @@
 # Running ReportStream Tests
 
-## Smoke Tests
+## Smoke tests
 
 You should be able to run tests now to confirm that everything is working.
 
@@ -50,7 +50,7 @@ End-to-end tests check if the deployed system is configured correctly. The tests
             --pass pass
     ```
 
-4. Ensure that your docker containers are running (see also "[Running ReportStream](#running-reportstream)")
+4. Ensure that your docker containers are running (see also "[Running ReportStream](../getting-started/README.md#running-reportstream-backend)")
 
     ```bash
     cd ./prime-router
@@ -92,5 +92,5 @@ export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.c
 To run the entire smoke test suite on Staging use this:
 
 ```
-    ./prime test -env staging --key <reports-endpoint-function-key>
+./prime test -env staging --key <reports-endpoint-function-key>
 ```
