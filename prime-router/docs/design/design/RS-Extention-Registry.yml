@@ -4,10 +4,23 @@
 
 - id: organization-name-type
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
-  value-type: Coding
+  valueType: Coding
   context: Organization
-  hl7-use: XON.2
-  description: "This component provides an indication of the representation provided by the data item."
+  hl7Use: XON.2
+  description: This component provides an indication of the representation provided by the data item.
+  useCase:
+    PractionerRole.organization: (ORC.21) This field contains the name of the facility placing the order.
+    PractionerRole.organization: This field contains the name of the organization/service responsible for performing the service.
+    PatientContact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
+    MessageHeader.destination.receiver: (MSH.23) Business organization that is the intended receiver of the message and is accountable for acting on the data conveyed by the transaction.
+    MessageHeader.responsible: (MSH.22) Business organization that originated and is accountable for the content of the message.
+    MessageHeader.source.extension: (SFT.1) Organization identification information for the software vendor that created this transaction.
+    Provenance.agent.who: (MSH.22) Business organization that originated and is accountable for the content of the message.
+    RelatedPerson.extension.extension: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
+    Observation.perfromer: (OBX.23) This field contains the name of the organization/service responsible for performing the service.
+    Patient.extension.extension: (PD1.14) The patient's place of worship.
+    Patient.contact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
+    Encounter.extension.extension: (PV2.23) This field contains the organization name or sub-unit and identifier that is associated with the (visit) episode of care. For example, the Allergy or Oncology Clinic within the healthcare facility might be named.
   referenceUrl: //link to hl7 table
   example:
     {
@@ -41,12 +54,25 @@
       }
     }
 
-- id: "identifier-location"
+- id: identifier-location
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location"
-  value-type: Reference
+  valueType: Reference
   context: Organization
-  hl7-use: XON.8
-  description: "The place or location identifier where the identifier was first assigned to the person."
+  hl7Use: XON.8
+  description: The place or location identifier where the identifier was first assigned to the person.
+  useCase:
+    PractionerRole.organization: (ORC.21) This field contains the name of the facility placing the order.
+    PractionerRole.organization: This field contains the name of the organization/service responsible for performing the service.
+    PatientContact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
+    MessageHeader.destination.receiver: (MSH.23) Business organization that is the intended receiver of the message and is accountable for acting on the data conveyed by the transaction.
+    MessageHeader.responsible: (MSH.22) Business organization that originated and is accountable for the content of the message.
+    MessageHeader.source.extension: (SFT.1) Organization identification information for the software vendor that created this transaction.
+    Provenance.agent.who: (MSH.22) Business organization that originated and is accountable for the content of the message.
+    RelatedPerson.extension.extension: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
+    Observation.perfromer: (OBX.23) This field contains the name of the organization/service responsible for performing the service.
+    Patient.extension.extension: (PD1.14) The patient's place of worship.
+    Patient.contact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
+    Encounter.extension.extension: (PV2.23) This field contains the organization name or sub-unit and identifier that is associated with the (visit) episode of care. For example, the Allergy or Oncology Clinic within the healthcare facility might be named.
   example:
     {
       "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
@@ -57,16 +83,101 @@
 
 - id: name-representation-code
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-representation-code"
-  value-type: String
+  valueType: String
   context: Organization
-  hl7-use: XON.9
-  description: "This component provides an indication of the representation provided by the data item."
+  hl7Use: XON.9
+  description: This component provides an indication of the representation provided by the data item.
   reference:
     A: Alphabetic (i.e., Default or some single-byte)
     I: Ideographic (i.e., Kanji)
     P: Phonetic (i.e., ASCII, Katakana, Hiragana, etc.)
+  useCase:
+    PractionerRole.organization: (ORC.21) This field contains the name of the facility placing the order.
+    PractionerRole.organization: This field contains the name of the organization/service responsible for performing the service.
+    PatientContact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
+    MessageHeader.destination.receiver: (MSH.23) Business organization that is the intended receiver of the message and is accountable for acting on the data conveyed by the transaction.
+    MessageHeader.responsible: (MSH.22) Business organization that originated and is accountable for the content of the message.
+    MessageHeader.source.extension: (SFT.1) Organization identification information for the software vendor that created this transaction.
+    Provenance.agent.who: (MSH.22) Business organization that originated and is accountable for the content of the message.
+    RelatedPerson.extension.extension: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
+    Observation.perfromer: (OBX.23) This field contains the name of the organization/service responsible for performing the service.
+    Patient.extension.extension: (PD1.14) The patient's place of worship.
+    Patient.contact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
+    Encounter.extension.extension: (PV2.23) This field contains the organization name or sub-unit and identifier that is associated with the (visit) episode of care. For example, the Allergy or Oncology Clinic within the healthcare facility might be named.
   example:
     {
       "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/name-representation-code",
       "valueString": "A"
     }
+
+- id: xon-organization
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization"
+  valueType: extension
+  context: Organization
+  hl7Use: XON.3, XON.10
+  description: This extension holds fields needed to build an XON datatype as some fields are not adequately captured in FHIR.
+  useCase:
+    Organization.extension:
+  example:
+    {
+      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization",
+      "extension": [
+        {
+          "url": "XON.3",
+          "valueString": "123"
+        },
+        {
+          "url": "XON.10",
+          "valueString": "OrgIdentifier"
+        }
+      ]
+    }
+
+- id: assigning-facility
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility"
+  valueType: Reference
+  context: Identifier
+  hl7Use: CX.6
+  description: The place or location identifier where the identifier was first assigned to the patient.
+  useCase:
+    ServiceRequest.identifier.extension: (ORC.33) This field enables a shorter number to be communicated that is unique within other identifiers.
+    ServiceRequest.identifier.extension: (OBR.53) This field enables a shorter number to be communicated that is unique within other identifiers.
+    ServiceRequest.extension.extension: (OBR.53) This field enables a shorter number to be communicated that is unique within other identifiers.
+    Patient.identifier.extension: (PID.3) This field contains the list of identifiers (one or more) used by the healthcare facility to uniquely identify a patient (e.g., medical record number, billing number, birth registry, national unique individual identifier, etc.).
+    Patient.extension.extension: (PID.18) This field contains the patient account number assigned by accounting to which all charges, payments, etc., are recorded. It is used to identify the patient's account.
+    Patient.link.extension: (PID.21) This field is used, for example, as a link field for newborns. Typically a patient ID or account number may be used. This field can contain multiple identifiers for the same mother.
+    Patient.extension.extension: (PD1.10) This field indicates that a patient is the same as, or a duplicate of, another patient found on the sending system.
+    RelatedPerson.identifier.extension: (NK1.12) This field contains the number that the employer assigns to the employee that is acting as next of kin/associated parties. However, if the contact role is the patient's employer, this field contains the employee number of the patient at their place of employment.
+    RelatedPerson.identifier.extension: (NK1.33) This field contains the identifiers for the next of kin/associated party, for example, Social Security Number, driver's license, etc.
+    Encounter.hospitalization.extension: (PV1.5) This field uniquely identifies the patient's pre-admit account. Some systems will continue to use the pre-admit number as the billing number after the patient has been admitted.
+    Encounter.identifier.extension: (PV1.19) This field contains the unique number assigned to each patient visit.
+    Encounter.identifier.extension: (PV1.50) This field contains the alternative, temporary, or pending optional visit ID number to be used if needed.
+    Encounter.episodeOfCare.identifier.extension: (PV1.54) This field contains the identifier of a Service Episode in or for which the visit occurs.
+    Specimen.extension.extension: (SPM.30) This field contains accession identifier(s) associated with the specimen. In many cases, applications involved in the collection, transportation or testing of the specimen will assign their own accession identifiers. This field allows communication of these accession identifiers.
+    Specimen.identifier.extension: (SPM.31) This field contains other identifier(s) for the specimen as referenced an application.
+    Specimen.accessionIdentifier.extension: (SPM.30) This field contains accession identifier(s) associated with the specimen. In many cases, applications involved in the collection, transportation or testing of the specimen will assign their own accession identifiers. This field allows communication of these accession identifiers.
+  example:
+    {
+      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+      "valueReference": {
+        "reference": "Organization/1707860159908390000.507ec199-3ea6-4d77-942b-d9b26ed084f2"
+      }
+    }
+
+- id:
+  url:
+  valueType:
+  context:
+  hl7Use:
+  description:
+  useCase:
+  example:
+
+- id:
+  url:
+  valueType:
+  context:
+  hl7Use:
+  description:
+  useCase:
+  example:
