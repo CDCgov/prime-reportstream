@@ -467,9 +467,7 @@ class BlobAccess() : Logging {
          * @return the blob container client
          */
         internal fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
-            return if (blobContainerClients.containsKey(blobConnInfo)) {
-                blobContainerClients[blobConnInfo]!!
-            } else {
+            return blobContainerClients.getOrElse(blobConnInfo) {
                 val blobServiceClient = BlobServiceClientBuilder()
                     .connectionString(blobConnInfo.connectionString)
                     .buildClient()
