@@ -57,12 +57,15 @@ import org.jooq.impl.DSL
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.containers.GenericContainer
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import java.io.File
 import java.time.OffsetDateTime
@@ -174,6 +177,11 @@ class FhirFunctionTests {
         every { timing1.maxReportCount } returns 1
         every { timing1.whenEmpty } returns Receiver.WhenEmpty()
         every { timing1.nextTime(any()) } returns OffsetDateTime.now().plusHours(1)
+    }
+
+    @AfterEach
+    fun jamie() {
+        clearAllMocks()
     }
 
     fun commonSetup() {
@@ -433,16 +441,14 @@ class FhirFunctionTests {
     }
 
     @Nested
+    @Testcontainers
     @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
     inner class FhirFunctionIntegrationTests {
+        @Container
         val azuriteContainer =
             GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
                 .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
                 .withExposedPorts(10000, 10001, 10002)
-
-        init {
-            azuriteContainer.start()
-        }
 
         private fun seedTask(
             fileFormat: Report.Format,
@@ -905,7 +911,7 @@ class FhirFunctionTests {
         Send a FHIR message to an HL7v2 receiver and ensure the message receiver receives is the original FHIR and NOT
         translated to HL7v2
          */
-        @Test
+        @Test // JAMIE
         fun `test successfully processes a translate message when isSendOriginal is true`() {
             // set up and seed azure blobstore
             val blobConnectionString =

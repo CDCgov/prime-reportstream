@@ -48,6 +48,42 @@ class MyService(
 Under the hood, it will serialize your event class and push the event
 to the configured Microsoft AppInsights instance.
 
+## Event Glossery
+
+### ReportAcceptedEvent
+This event is emitted during the route step _before_ running any receiver specific filtering
+- reportId
+  - The ID assigned to the report
+- topic
+  - The Topic of the report
+- sender
+  - The full sender name
+- conditions
+  - A list of condition codes and displays serialized to a json array
+- conditionsCount 
+  - extracted conditions array length for easier querying
+
+### ReportRouteEvent
+This event is emitted during the route step _after_ running any receiver specific filtering. 
+Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "joined" on 
+`ReportAcceptedEvent.reportId == ReportRouteEvent.parentReportId`.
+
+- parentReportId
+  - The ID assigned to parent report. This ID can be used to find the corresponding `ReportAcceptedEvent`.
+- reportId
+  - The ID assigned to the report
+- topic
+  - The Topic of the report
+- sender
+  - The full sender name
+- receiver
+  - The full receiver name. When a report does not get routed to a receiver this value will be `"null"`.
+- conditions
+  - A list of condition codes and displays serialized to a json array
+- conditionsCount
+    - extracted conditions array length for easier querying
+
+
 ## How to query for events
 
 Events that are pushed to Azure can be found in the `customEvents` table in the log explorer. The properties defined in
@@ -59,4 +95,88 @@ your event can be found under the `customDimensions` column. You can query for e
 customEvents
 | where name == "MyEvent"
 | where customDimensions.importantString == "important"
+```
+
+## Common Queries in KQL
+
+### General tips
+- Use the `Time range` selector in the Azure query dialog to specify what time range
+  you want your results from.
+
+### Distinct senders
+```
+customEvents
+| where name == "ReportAcceptedEvent"
+| extend sender = tostring(customDimensions.sender)
+| distinct sender
+```
+
+### Get report count sent by sender
+```
+customEvents
+| where name == "ReportAcceptedEvent"
+| extend sender = tostring(customDimensions.sender)
+| summarize count() by sender 
+| order by count_
+```
+
+### Get report count sent by topic
+```
+customEvents
+| where name == "ReportAcceptedEvent"
+| extend topic = tostring(customDimensions.topic)
+| summarize count() by topic 
+| order by count_
+```
+
+### Get reportable conditions count for all reports sent to Report Stream
+```
+customEvents
+| where name == "ReportAcceptedEvent"
+| extend conditions = parse_json(tostring(customDimensions.conditions))
+| mv-expand conditions
+| extend conditionDisplay = tostring(conditions.display)
+| summarize count() by conditionDisplay
+| order by count_
+```
+
+### Distinct receivers
+```
+customEvents
+| where name == "ReportRouteEvent"
+| extend receiver = tostring(customDimensions.receiver)
+| where receiver != "null"
+| distinct receiver
+```
+
+### Get report count routed to a receiver
+```
+customEvents
+| where name == "ReportRouteEvent"
+| extend receiver = tostring(customDimensions.receiver)
+| where receiver != "null"
+| summarize count() by receiver 
+| order by count_
+```
+
+### Get report count routed by topic
+```
+customEvents
+| where name == "ReportRouteEvent"
+| extend topic = tostring(customDimensions.topic), receiver = tostring(customDimensions.receiver)
+| where receiver != "null"
+| summarize count() by topic 
+| order by count_
+```
+
+### Get reportable conditions count for all reports routed to receivers
+```
+customEvents
+| where name == "ReportRouteEvent"
+| extend conditions = parse_json(tostring(customDimensions.conditions)), receiver = tostring(customDimensions.receiver)
+| where receiver != "null"
+| mv-expand conditions
+| extend conditionDisplay = tostring(conditions.display)
+| summarize count() by conditionDisplay
+| order by count_
 ```
