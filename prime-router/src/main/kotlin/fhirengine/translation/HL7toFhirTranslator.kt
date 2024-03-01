@@ -15,7 +15,9 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
 
 /**
- * Translate an HL7 message to FHIR.
+ * Creates a HL7toFhirTranslator object to perform HL7v2 to FHIR translations.
+ * @param configFolderPath path to a config.properties file. A default is used if none is provided.
+ * @param messageEngine HL7MessageEngine to be used. A default is used if none is provided.
  */
 class HL7toFhirTranslator(
     private val configFolderPath: String = "./metadata/fhir_mapping",

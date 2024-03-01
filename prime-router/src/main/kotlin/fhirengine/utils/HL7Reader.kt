@@ -228,7 +228,9 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
 
         /**
          * Get the profile of the [rawmessage]
-         * @return the message profile
+         * If there are multiple HL7 messages the first message's data will be returned
+         * @param rawmessage string representative of hl7 messages
+         * @return the message profile, or null if there is no message
          */
         fun getMessageProfile(rawmessage: String): MessageProfile? {
             val iterator = Hl7InputStreamMessageIterator(rawmessage.byteInputStream())

@@ -3,12 +3,16 @@ package gov.cdc.prime.router.fhirengine.translator
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isLessThan
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.utils.CompareFhirData
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Bundle
@@ -134,6 +138,10 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
 
     @Test
     fun `test object multithreading`() {
+        // within the translate process the converter library switches to a singleton instance of
+        // ResourceReader/ConverterConfiguration. we want to make sure separate instances of
+        // HL7toFhirTranslator keep their individual configurations and won't cross over.
+
         // empty the stored message templates
         for (key in HL7toFhirTranslator.Companion.messageTemplates.keys) {
             HL7toFhirTranslator.Companion.messageTemplates.remove(key)
@@ -151,9 +159,19 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         // reprocess using standard templates
         val bundle3 = translator.translate(message[0])
 
-        bundle.entry
+        val result = CompareData.Result()
+        CompareFhirData().compare(
+            FhirTranscoder.encode(bundle).byteInputStream(),
+            FhirTranscoder.encode(bundle3).byteInputStream(),
+            result
+        )
+        assertThat(result.passed).isTrue()
 
-        assertThat(bundle.entry.size).isEqualTo(bundle3.entry.size)
-        assertThat(bundle2.entry.size).isLessThan(bundle.entry.size)
+        CompareFhirData().compare(
+            FhirTranscoder.encode(bundle).byteInputStream(),
+            FhirTranscoder.encode(bundle2).byteInputStream(),
+            result
+        )
+        assertThat(result.passed).isFalse()
     }
 }
