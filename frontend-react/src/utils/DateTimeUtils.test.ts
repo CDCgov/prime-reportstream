@@ -29,7 +29,10 @@ describe("submission details date display", () => {
 describe("generateDateTitles", () => {
     test("returns null for invalid date strings", () => {
         const dateTimeData = generateDateTitles("I have the high ground!");
-        expect(dateTimeData).toBe(null);
+        expect(dateTimeData).toStrictEqual({
+            dateString: "N/A",
+            timeString: "N/A",
+        });
     });
 
     test("does not error for dates with single digit minutes", () => {

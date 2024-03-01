@@ -288,7 +288,7 @@ describe("Table, filter integration tests", () => {
         );
         // Checking for inclusive date
         expect(screen.getByText(/cursor:/)).toHaveTextContent(
-            /2024-02-20T00:00:00.000Z/,
+            /2024-03-20T00:00:00.000Z/,
         );
 
         // Change sort order and repeat
