@@ -11,16 +11,13 @@ on:
       - master
     paths:
       - "operations/slack-boltjs-app"
-  schedule:
-    - cron: '0 2 * * 0'
-  workflow_dispatch:
 
 jobs:
   pre_job:
     name: Set Build Environment
     runs-on: ubuntu-latest
     outputs:
-      env_name: ${{ env.VALIDATE_ENV }}
+      env_name: ${{ steps.build_vars.outputs.env_name }}
     steps:
       - name: Check out changes
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
@@ -28,15 +25,6 @@ jobs:
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
-
-      - name: Force env if schedule or manual
-        shell: bash
-        run: |
-          if [[ ${{ github.event_name == 'schedule' }} || ${{ github.event_name == 'workflow_dispatch' }} ]]; then
-            echo "VALIDATE_ENV=staging" >> $GITHUB_ENV
-          else
-            echo "VALIDATE_ENV=${{ steps.build_vars.outputs.env_name }}" >> $GITHUB_ENV
-          fi
 
   build_chatops_app:
     name: Build ChatOps App
