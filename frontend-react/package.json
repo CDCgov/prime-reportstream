@@ -190,7 +190,7 @@
         "patch-package": "^8.0.0",
         "postcss": "^8.4.35",
         "prettier": "^3.2.5",
-        "react-error-boundary": "^4.0.12",
+        "react-error-boundary": "^4.0.13",
         "remark-frontmatter": "^5.0.0",
         "remark-mdx-frontmatter": "^4.0.0",
         "remark-mdx-toc": "^0.3.1",
