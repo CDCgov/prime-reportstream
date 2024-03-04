@@ -133,7 +133,7 @@ class TranslationSchemaManager : Logging {
             }
             val transformBlobName = transformBlob.single().currentBlobItem.name
             val schemaUri =
-                "${blobContainerInfo.getBlobEndpoint()}/$transformBlobName"
+                "azure:/$transformBlobName"
             return ValidationContainer(input, output, schemaUri)
         }
     }
