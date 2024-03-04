@@ -27,6 +27,15 @@ outputs:
   dns_ip:
     value: ${{ steps.fetch_vpn_ip.outputs.dns_ip }}
     description: 'VPN DNS IP'
+  backend_files:
+    value: ${{ steps.filter.outputs.router_files }}
+    description: 'JSON array of changed backend files'
+  frontend_files:
+    value: ${{ steps.filter.outputs.frontend_react_files }}
+    description: 'JSON array of changed frontend files'
+  terraform_files:
+    value: ${{ steps.filter.outputs.terraform_files }}
+    description: 'JSON array of changed terraform files'
 
 runs:
   using: "composite"
@@ -145,11 +154,11 @@ runs:
       if: github.event_name != 'schedule'
       id: filter
       with:
-        list-files: csv
+        list-files: json
         filters: |
           router:
             - 'prime-router/**'
-            - 'operations/**'
+            - 'operations/!((app|readme-assets|slack-boltjs-app|vpn)/**)/**'
             - '.github/actions/build-backend/action.yml'
             - '.github/actions/deploy-backend/action.yml'
             - '.github/actions/build-vars/action.yml'

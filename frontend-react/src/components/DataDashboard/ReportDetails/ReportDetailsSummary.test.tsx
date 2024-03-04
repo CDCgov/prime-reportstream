@@ -83,7 +83,10 @@ describe("ReportDetailsSummary", () => {
     test("Does not display the download button if the date has expired", () => {
         renderApp(
             <ReportDetailsSummary
-                report={{ ...DEFAULT_RSDELIVERY, expires: pastDate.toString() }}
+                report={{
+                    ...DEFAULT_RSDELIVERY,
+                    expires: pastDate.toISOString(),
+                }}
             />,
         );
 
