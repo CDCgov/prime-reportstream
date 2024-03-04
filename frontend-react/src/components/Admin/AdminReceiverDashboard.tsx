@@ -12,7 +12,7 @@ import {
     TextInput,
     Tooltip,
 } from "@trussworks/react-uswds";
-import moment from "moment";
+import { endOfDay, startOfDay, subDays } from "date-fns";
 import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
@@ -138,15 +138,15 @@ const MAX_DAYS_MS = MAX_DAYS * 24 * 60 * 60 * 1000;
  * @return {string}
  */
 const startOfDayIso = (d: Date) => {
-    return moment(d).startOf("day").toISOString();
+    return startOfDay(d).toISOString();
 };
 
 const endOfDayIso = (d: Date) => {
-    return moment(d).endOf("day").toISOString();
+    return endOfDay(d).toISOString();
 };
 
 const initialStartDate = () => {
-    return moment().subtract(DAY_BACK_DEFAULT, "days").toDate();
+    return subDays(new Date(), DAY_BACK_DEFAULT);
 };
 
 const initialEndDate = () => {

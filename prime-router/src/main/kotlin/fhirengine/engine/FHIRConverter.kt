@@ -204,7 +204,9 @@ class FHIRConverter(
         // create the hl7 reader
         val hl7Reader = HL7Reader(actionLogger)
         // get the hl7 from the blob store
-        val hl7messages = hl7Reader.getMessages(queueMessage.downloadContent())
+        val hl7rawmessages = queueMessage.downloadContent()
+        val hl7profile = HL7Reader.getMessageProfile(hl7rawmessages)
+        val hl7messages = hl7Reader.getMessages(hl7rawmessages)
 
         val bundles = if (actionLogger.hasErrors()) {
             val errMessage = actionLogger.errors.joinToString("\n") { it.detail.message }
@@ -213,8 +215,14 @@ class FHIRConverter(
             emptyList()
         } else {
             // use fhir transcoder to turn hl7 into FHIR
-            hl7messages.map {
-                HL7toFhirTranslator.getInstance().translate(it)
+            // search hl7 profile map and create translator with config path if found
+            when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
+                null -> hl7messages.map {
+                    HL7toFhirTranslator().translate(it)
+                }
+                else -> hl7messages.map {
+                    HL7toFhirTranslator(configPath).translate(it)
+                }
             }
         }
 
