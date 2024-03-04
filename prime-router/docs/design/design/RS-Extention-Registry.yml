@@ -1,334 +1,375 @@
 ---
 
-- Resource: Organizaiton
-  Types:
+- Resource: Organization
+  FHIR-Type: NA
+  HL7-Type:
     XON:
       Example:
-      Extensions:
-        - id: organization-name-type
-          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
-          valueType: Coding
-          context: Organization
-          hl7Use: XON.2
-          description: This component provides an indication of the representation provided by the data item.
-        - id: identifier-location
-          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location"
-          valueType: Reference
-          context: Organization
-          hl7Use: XON.8
-          description: The place or location identifier where the identifier was first assigned to the person.
-
-
-- id: organization-name-type
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
-  valueType: Coding
-  context: Organization
-  hl7Use: XON.2
-  description: This component provides an indication of the representation provided by the data item.
-  useCase:
-    PractionerRole.organization: (ORC.21) This field contains the name of the facility placing the order.
-    PractionerRole.organization: This field contains the name of the organization/service responsible for performing the service.
-    PatientContact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
-    MessageHeader.destination.receiver: (MSH.23) Business organization that is the intended receiver of the message and is accountable for acting on the data conveyed by the transaction.
-    MessageHeader.responsible: (MSH.22) Business organization that originated and is accountable for the content of the message.
-    MessageHeader.source.extension: (SFT.1) Organization identification information for the software vendor that created this transaction.
-    Provenance.agent.who: (MSH.22) Business organization that originated and is accountable for the content of the message.
-    RelatedPerson.extension.extension: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
-    Observation.perfromer: (OBX.23) This field contains the name of the organization/service responsible for performing the service.
-    Patient.extension.extension: (PD1.14) The patient's place of worship.
-    Patient.contact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
-    Encounter.extension.extension: (PV2.23) This field contains the organization name or sub-unit and identifier that is associated with the (visit) episode of care. For example, the Allergy or Oncology Clinic within the healthcare facility might be named.
-  referenceUrl: //link to hl7 table
-  example:
-    {
-      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
-      "valueCoding": {
-        "extension": [
-          {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-            "valueCodeableConcept": {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                  "valueString": "XON.2"
-                }
-              ],
-              "coding": [
-                {
+        {
+          "fullUrl": "Organization/1707767013480497000.fad57a02-db28-48f7-b12b-331509951953",
+          "resource": {
+            "resourceType": "Organization",
+            "id": "1707767013480497000.fad57a02-db28-48f7-b12b-331509951953",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+                "valueCoding": {
                   "extension": [
                     {
                       "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                      "valueString": "coding"
+                      "valueCodeableConcept": {
+                        "extension": [
+                          {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                            "valueString": "XON.2"
+                          }
+                        ],
+                        "coding": [
+                          {
+                            "extension": [
+                              {
+                                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                                "valueString": "coding"
+                              },
+                              {
+                                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                                "valueString": "LN"
+                              }
+                            ],
+                            "system": "http://loinc.org",
+                            "version": "1",
+                            "code": "1234-5",
+                            "display": "TestText"
+                          },
+                          {
+                            "extension": [
+                              {
+                                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                                "valueString": "alt-coding"
+                              },
+                              {
+                                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                                "valueString": "LN"
+                              }
+                            ],
+                            "system": "http://loinc.org",
+                            "version": "2",
+                            "code": "1234-5",
+                            "display": "TestAltText"
+                          }
+                        ],
+                        "text": "OriginalText"
+                      }
                     }
                   ],
-                  "code": "L"
+                  "system": "LN",
+                  "version": "1",
+                  "code": "1234-5",
+                  "display": "TestText"
                 }
-              ]
-            }
-          }
-        ],
-        "code": "L"
-      }
-    }
-
-- id: identifier-location
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location"
-  valueType: Reference
-  context: Organization
-  hl7Use: XON.8
-  description: The place or location identifier where the identifier was first assigned to the person.
-  useCase:
-    PractionerRole.organization: (ORC.21) This field contains the name of the facility placing the order.
-    PractionerRole.organization: () This field contains the name of the organization/service responsible for performing the service.
-    PatientContact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
-    MessageHeader.destination.receiver: (MSH.23) Business organization that is the intended receiver of the message and is accountable for acting on the data conveyed by the transaction.
-    MessageHeader.responsible: (MSH.22) Business organization that originated and is accountable for the content of the message.
-    MessageHeader.source.extension: (SFT.1) Organization identification information for the software vendor that created this transaction.
-    Provenance.agent.who: (MSH.22) Business organization that originated and is accountable for the content of the message.
-    RelatedPerson.extension.extension: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
-    Observation.performer: (OBX.23) This field contains the name of the organization/service responsible for performing the service.
-    Patient.extension.extension: (PD1.14) The patient's place of worship.
-    Patient.contact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
-    Encounter.extension.extension: (PV2.23) This field contains the organization name or sub-unit and identifier that is associated with the (visit) episode of care. For example, the Allergy or Oncology Clinic within the healthcare facility might be named.
-  example:
-    {
-      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
-      "valueReference": {
-        "reference": "Location/1707860159894983000.e07f4215-2783-48e5-b16f-f6ef63cdb763"
-      }
-    }
-
-- id: name-representation-code
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-representation-code"
-  valueType: String
-  context: Organization
-  hl7Use: XON.9
-  description: This component provides an indication of the representation provided by the data item.
-  reference:
-    A: Alphabetic (i.e., Default or some single-byte)
-    I: Ideographic (i.e., Kanji)
-    P: Phonetic (i.e., ASCII, Katakana, Hiragana, etc.)
-  useCase:
-    PractionerRole.organization: (ORC.21) This field contains the name of the facility placing the order.
-    PractionerRole.organization: This field contains the name of the organization/service responsible for performing the service.
-    PatientContact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
-    MessageHeader.destination.receiver: (MSH.23) Business organization that is the intended receiver of the message and is accountable for acting on the data conveyed by the transaction.
-    MessageHeader.responsible: (MSH.22) Business organization that originated and is accountable for the content of the message.
-    MessageHeader.source.extension: (SFT.1) Organization identification information for the software vendor that created this transaction.
-    Provenance.agent.who: (MSH.22) Business organization that originated and is accountable for the content of the message.
-    RelatedPerson.extension.extension: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
-    Observation.perfromer: (OBX.23) This field contains the name of the organization/service responsible for performing the service.
-    Patient.extension.extension: (PD1.14) The patient's place of worship.
-    Patient.contact.organization: (NK1.13) This field contains the name of the organization that serves as a next of kin/associated party or as the next of kin of the patient. This field may also be used to communicate the name of the organization at which the associated party works. Multiple names for the same organization may be sent. If multiple names are sent, the legal name must be sent in the first sequence.
-    Encounter.extension.extension: (PV2.23) This field contains the organization name or sub-unit and identifier that is associated with the (visit) episode of care. For example, the Allergy or Oncology Clinic within the healthcare facility might be named.
-  example:
-    {
-      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/name-representation-code",
-      "valueString": "A"
-    }
-
-- id: xon-organization
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization"
-  valueType: extension
-  context: Organization
-  hl7Use: XON.3, XON.10
-  description: This extension holds fields needed to build an XON datatype as some fields are not adequately captured in FHIR.
-  useCase:
-    Organization.extension:
-  example:
-    {
-      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization",
-      "extension": [
-        {
-          "url": "XON.3",
-          "valueString": "123"
-        },
-        {
-          "url": "XON.10",
-          "valueString": "OrgIdentifier"
-        }
-      ]
-    }
-
-- id: assigning-facility
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility"
-  valueType: Reference
-  context: Identifier
-  hl7Use: CX.6
-  description: The place or location identifier where the identifier was first assigned to the patient.
-  useCase:
-    ServiceRequest.identifier.extension: (ORC.33) This field enables a shorter number to be communicated that is unique within other identifiers.
-    ServiceRequest.identifier.extension: (OBR.53) This field enables a shorter number to be communicated that is unique within other identifiers.
-    ServiceRequest.extension.extension: (OBR.53) This field enables a shorter number to be communicated that is unique within other identifiers.
-    Patient.identifier.extension: (PID.3) This field contains the list of identifiers (one or more) used by the healthcare facility to uniquely identify a patient (e.g., medical record number, billing number, birth registry, national unique individual identifier, etc.).
-    Patient.extension.extension: (PD1.10) This field indicates that a patient is the same as, or a duplicate of, another patient found on the sending system.
-    Patient.extension.extension: (PID.18) This field contains the patient account number assigned by accounting to which all charges, payments, etc., are recorded. It is used to identify the patient's account.
-    Patient.link.extension: (PID.21) This field is used, for example, as a link field for newborns. Typically a patient ID or account number may be used. This field can contain multiple identifiers for the same mother.
-    RelatedPerson.identifier.extension: (NK1.12) This field contains the number that the employer assigns to the employee that is acting as next of kin/associated parties. However, if the contact role is the patient's employer, this field contains the employee number of the patient at their place of employment.
-    RelatedPerson.identifier.extension: (NK1.33) This field contains the identifiers for the next of kin/associated party, for example, Social Security Number, driver's license, etc.
-    Encounter.hospitalization.extension: (PV1.5) This field uniquely identifies the patient's pre-admit account. Some systems will continue to use the pre-admit number as the billing number after the patient has been admitted.
-    Encounter.identifier.extension: (PV1.19) This field contains the unique number assigned to each patient visit.
-    Encounter.identifier.extension: (PV1.50) This field contains the alternative, temporary, or pending optional visit ID number to be used if needed.
-    Encounter.episodeOfCare.identifier.extension: (PV1.54) This field contains the identifier of a Service Episode in or for which the visit occurs.
-    Specimen.extension.extension: (SPM.30) This field contains accession identifier(s) associated with the specimen. In many cases, applications involved in the collection, transportation or testing of the specimen will assign their own accession identifiers. This field allows communication of these accession identifiers.
-    Specimen.accessionIdentifier.extension: (SPM.30) This field contains accession identifier(s) associated with the specimen. In many cases, applications involved in the collection, transportation or testing of the specimen will assign their own accession identifiers. This field allows communication of these accession identifiers.
-    Specimen.identifier.extension: (SPM.31) This field contains other identifier(s) for the specimen as referenced an application.
-  example:
-    {
-      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
-      "valueReference": {
-        "reference": "Organization/1707860159908390000.507ec199-3ea6-4d77-942b-d9b26ed084f2"
-      }
-    }
-
-- id: cx-identifier
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier"
-  valueType: extension
-  context: Identifier
-  hl7Use: CX.5, CX.9, CX.10
-  description: This extension holds fields needed to build an CX datatype as some fields are not adequately captured in FHIR.
-    #  useCase:
-    #    ServiceRequest.identifier.extension.extension: (ORC.33) This field enables a shorter number to be communicated that is unique within other identifiers.
-    #    ServiceRequest.identifier.extension.extension: (OBR.53) This field enables a shorter number to be communicated that is unique within other identifiers.
-    #    ServiceRequest.extension.extension.extension: (OBR.53) This field enables a shorter number to be communicated that is unique within other identifiers.
-    #    Patient.identifier.extension.extension: (PID.3) This field contains the list of identifiers (one or more) used by the healthcare facility to uniquely identify a patient (e.g., medical record number, billing number, birth registry, national unique individual identifier, etc.).
-    #    Patient.extension.extension.extension: (PD1.10) This field indicates that a patient is the same as, or a duplicate of, another patient found on the sending system.
-    #    Patient.extension.extension.extension: (PID.18) This field contains the patient account number assigned by accounting to which all charges, payments, etc., are recorded. It is used to identify the patient's account.
-    #    Patient.link.extension.extension: (PID.21) This field is used, for example, as a link field for newborns. Typically a patient ID or account number may be used. This field can contain multiple identifiers for the same mother.
-    #    RelatedPerson.identifier.extension.extension: (NK1.12) This field contains the number that the employer assigns to the employee that is acting as next of kin/associated parties. However, if the contact role is the patient's employer, this field contains the employee number of the patient at their place of employment.
-    #    RelatedPerson.identifier.extension.extension: (NK1.33) This field contains the identifiers for the next of kin/associated party, for example, Social Security Number, driver's license, etc.
-    #    Encounter.hospitalization.extension.extension: (PV1.5) This field uniquely identifies the patient's pre-admit account. Some systems will continue to use the pre-admit number as the billing number after the patient has been admitted.
-    #    Encounter.identifier.extension.extension: (PV1.19) This field contains the unique number assigned to each patient visit.
-    #    Encounter.identifier.extension.extension: (PV1.50) This field contains the alternative, temporary, or pending optional visit ID number to be used if needed.
-    #    Encounter.episodeOfCare.identifier.extension.extension: (PV1.54) This field contains the identifier of a Service Episode in or for which the visit occurs.
-    #    Specimen.extension.extension.extension: (SPM.30) This field contains accession identifier(s) associated with the specimen. In many cases, applications involved in the collection, transportation or testing of the specimen will assign their own accession identifiers. This field allows communication of these accession identifiers.
-    #    Specimen.accessionIdentifier.extension.extension: (SPM.30) This field contains accession identifier(s) associated with the specimen. In many cases, applications involved in the collection, transportation or testing of the specimen will assign their own accession identifiers. This field allows communication of these accession identifiers.
-    #    Specimen.identifier.extension.extension: (SPM.31) This field contains other identifier(s) for the specimen as referenced an application.
-    #  example:
-    {
-      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier",
-      "extension": [
-        {
-          "url": "CX.5",
-          "valueString": "ACSN"
-        },
-        {
-          "url": "CX.9",
-          "valueCodeableConcept": {
-            "coding": [
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization",
+                "extension": [
+                  {
+                    "url": "XON.3",
+                    "valueString": "123"
+                  },
+                  {
+                    "url": "XON.10",
+                    "valueString": "CDC CLIA"
+                  }
+                ]
+              }
+            ],
+            "identifier": [
               {
                 "extension": [
                   {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString": "coding"
+                    "url": "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
+                    "valueString": "Check Digit"
                   },
                   {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                    "valueString": "AJSys"
-                  }
-                ],
-                "code": "AJCode",
-                "display": "Assigning Jurisdiction"
-              }
-            ]
-          }
-        },
-        {
-          "url": "CX.10",
-          "valueCodeableConcept": {
-            "coding": [
-              {
-                "extension": [
-                  {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString": "coding"
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                    "extension": [
+                      {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                        "valueString": "Assigning Authority"
+                      },
+                      {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                        "valueString": "2.1.4.1"
+                      },
+                      {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                        "valueCode": "ISO"
+                      }
+                    ]
                   },
                   {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                    "valueString": "AASys"
+                    "url": "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
+                    "valueCode": "C1"
+                  },
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
+                    "valueReference": {
+                      "reference": "Location/1707767013473708000.a7caf765-7e15-479a-b9ce-9913958abb73"
+                    }
                   }
                 ],
-                "code": "AACode",
-                "display": "Assigning Agency"
+                "type": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                          "valueString": "identifier"
+                        }
+                      ],
+                      "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                      "code": "MD"
+                    }
+                  ]
+                },
+                "value": "123"
               }
-            ]
+            ],
+            "name": "Org"
           }
         }
-      ]
-    }
+      Extension:
+        - id: organization-name-type
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
+          valueType: Coding
+          hl7Use: XON.2
+        - id: identifier-location
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location"
+          valueType: Reference
+          hl7Use: XON.8
+        - id: name-representation-code
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-representation-code"
+          valueType: String
+          hl7Use: XON.9
+        - id: xon-organization
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization"
+          valueType: extension
+          hl7Use: NA
+          description: This extension holds fields needed to build an XON datatype as some fields are not adequately captured in FHIR.
+          extension:
+            - id: XON.3
+              url: "XON.3"
+              valueType: String
+              hl7Use: XON.3
+              description:
+            - id: XON.10
+              url: "XON.10"
+              valueType: String
+              hl7Use: XON.10
+              description:
 
-- id: coding-system-oid
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid"
-  valueType: OID
-  context: CodeableConcept
-  hl7Use: CWE.14
-  description:
-  useCase:
-    Specimen.extension.extension: (SPM.5) This field contains modifying or qualifying description(s) about the specimen type.
-    Specimen.extension.extension: (SPM.6) This field identifies any additives introduced to the specimen before or at the time of collection. These additives may be introduced in order to preserve, maintain or enhance the particular nature or component of the specimen.
-    Specimen.extension.extension: (SPM.10) This field differs from Specimen Source Site in those cases where the source site must be approached via a particular site (e.g., anatomic location). For example, in the case where a liver biopsy is obtained via a percutaneous needle, the collection site would be the point of entry of the needle.
-    Specimen.extension.extension: (SPM.11) This field indicates the role of the sample. Each of these values is normally identifiable by the systems and its components and can influence processing and data management related to the specimen.
-    Specimen.extension.extension: (SPM.15) This describes how the specimen and/or container need to be handled from the time of collection through the initiation of testing.
-    Specimen.extension.extension: (SPM.16) This field contains any known or suspected specimen hazards, e.g., exceptionally infectious agent or blood from a hepatitis patient.
-    Specimen.extension.extension: (SPM.22) The degree or grade of excellence of the specimen at receipt. The filler populates this attribute.
-    Specimen.extension.extension: (SPM.23) The suitability of the specimen for the particular planned use as determined by the filler.
-    Specimen.extension.extension: (SPM.28) In chain of custody cases where specimens are moved from lab to lab, the status of the container that the specimen is shipped in must be recorded at each receipt.
-    Specimen.extension.extension: (SPM.29) For child specimens, this field identifies the relationship between this specimen and the parent specimen.
-    Specimen.collection.quantity: (SPM.12) This field specifies the volume or mass of the collected specimen.
-    Specimen.collection.quantity: (OBR.9) For laboratory tests, the collection volume is the volume of a specimen.
-    Specimen.extension.extension.extension: (SPM.25) This attributes contains the amount of specimen that currently exists or is available for use in further testing.
-    Specimen.type.extension: (OBR.15.1)
-    Specimen.collection.bodySite.extension: (OBR.15.4)
-
-    Specimen.condition: (OBR.15.6)
-    Specimen.note.extension: (OBR.39)
-    DiagnosticReport.code: (OBR.4)
-    DiagnosticReport.extension: (ORC.16)
-    Patient.contact.extension: (NK1.3)
-    Patient.contact.relationship: (NK1.7)
-    Patient.communication.language: (PID.15)
-    Patient.maritalStatus: (PID.16)
-    Patient.extension: (PID.10)
-    Patient.extension: (PID.17)
-    Patient.extension: (PID.22)
-    Patient.extension.extension: (PID.26)
-    Patient.extension.extension: (PID.39)
-    Patient.extension: (PID.27)
-    Patient.extension.extension: (PID.28)
-    Patient.extension.extension: (PID.35)
-    Patient.extension.extension: (PID.36)
-    Patient.extension: (PD1.5)
-    Patient.extension: (PD1.6)
-    Patient.extension: (PD1.7)
-    Encounter.extension.extension: (PV2.38)
-
-  example:
-    {
-      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
-      "valueCodeableConcept": {
-        "extension": [
+- Resource: Any
+  FHIR-Type: Identifier
+  HL7-Type:
+    CX:
+      Example:
+        "identifier": [
           {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid",
-            "valueOid": "urn:oid:2.16.840.1.113883.12.364"
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
+                "valueString": "checkdigit"
+              },
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
+                "valueString": "checkdigitscheme"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+                "valueReference": {
+                  "reference": "Organization/1707834039123222000.fbc660cd-9a9c-440e-afdc-a0517a98ef00"
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier",
+                "extension": [
+                  {
+                    "url": "CX.5",
+                    "valueString": "ACSN"
+                  },
+                  {
+                    "url": "CX.9",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                              "valueString": "AJSys"
+                            }
+                          ],
+                          "code": "AJCode",
+                          "display": "Assigning Jurisdiction"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "CX.10",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                              "valueString": "AASys"
+                            }
+                          ],
+                          "code": "AACode",
+                          "display": "Assigning Agency"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
           }
         ]
-      }
-    }
+      Extension:
+        - id: assigning-facility
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility"
+          valueType: Reference
+          hl7Use: CX.6
+        - id: cx-identifier
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier"
+          valueType: extension
+          hl7Use: NA
+          description: This extension holds fields needed to build an CX datatype as some fields are not adequately captured in FHIR.
+          extension:
+            - id: CX.5
+              url: "CX.5"
+              valueType: String
+              hl7Use: CX.5
+            - id: CX.9
+              url: "CX.9"
+              valueType: String
+              hl7Use: CX.9
+            - id: CX.10
+              url: "CX.10"
+              valueType: String
+              hl7Use: CX.10
 
-- id: cwe-coding
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding"
-  valueType:
-  context:
-  hl7Use:
-  description:
-  useCase:
-  example:
-
-- id:
-  url:
-  valueType:
-  context:
-  hl7Use:
-  description:
-  useCase:
-  example:
+- Resource: Any
+  FHIR-Type: CodeableConcept
+  HL7-Type:
+    CWE:
+      Example:
+        "valueCodeableConcept": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid",
+              "valueOid": "urn:oid:2.16.840.1.113883.12.364"
+            }
+          ],
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "HL70364"
+                }
+              ],
+              "version": "2.5.1",
+              "code": "RE",
+              "display": "Remark"
+            }
+          ]
+        }
+      Extension:
+        - id: coding-system-oid
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid"
+          valueType: OID
+          hl7Use: CWE.14
+        - id: cwe-coding
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding"
+          valueType: String
+          hl7Use: NA
+          constant: "coding"
+        - id: cwe-coding-system
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system"
+          valueType: String
+          hl7Use: CWE.3
+    CE:
+      Example:
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "1234-5",
+              "display": "Fake"
+            }
+          ]
+        }
+      Extension:
+        - id: ce-coding
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding"
+          valueType: String
+          hl7Use: NA
+          constant: "coding"
+        - id: ce-coding-system
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding-system"
+          valueType: String
+          hl7Use: CE.3
+    CNE:
+      Example:
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "123",
+              "display": "U"
+            }
+          ]
+        }
+      Extension:
+        - id: ce-coding
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding"
+          valueType: String
+          hl7Use: NA
+          constant: "coding"
+        - id: ce-coding-system
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding-system"
+          valueType: String
+          hl7Use: CNE.3
