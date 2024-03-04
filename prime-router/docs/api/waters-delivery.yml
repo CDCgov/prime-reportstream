@@ -40,6 +40,12 @@ paths:
           description: the fileName within the deliveries of the organization and client
           schema:
             type: string
+        - name: receivingOrgSvcStatus
+          in: query
+          description: "'active' or 'inactive' status of the service used by the organization. If no status is provided then all services will be returned."
+          example: "active"
+          schema:
+            type: string
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
@@ -88,6 +94,12 @@ paths:
         - name: fileName
           in: query
           description: the fileName within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: receivingOrgSvcStatus
+          in: query
+          description: "'active', 'testing', or 'inactive' customer status of the service used by the organization. If 'active', both 'active' and 'testing' will be returned. If no status is provided then all services will be returned."
+          example: "active"
           schema:
             type: string
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
