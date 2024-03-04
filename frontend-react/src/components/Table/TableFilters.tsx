@@ -6,6 +6,7 @@ import {
     TimePicker,
     Tooltip,
 } from "@trussworks/react-uswds";
+import { format, isValid, parse } from "date-fns";
 import {
     Dispatch,
     FormEvent,
@@ -161,18 +162,36 @@ function TableFilters({
 
     useEffect(() => {
         if (isPaginationLoading === false)
+            // This piece of code outputs into activeFilters a human readable
+            // filter array for us to display on the FE, with protections against
+            // undefiend
+            // Array Example: "elr, 03/04/24, 03/07/24, 12:02 AM, 04:25 PM"
             setFilterStatus({
                 resultLength: resultLength,
                 activeFilters: [
                     currentServiceSelect,
-                    ...[
-                        isValid(rangeFrom)
-                            ? [format(rangeFrom, "MM/dd/yy")]
-                            : [],
-                    ],
-                    ...[isValid(rangeTo) ? [format(rangeTo, "MM/dd/yy")] : []],
-                    ...(startTime !== DEFAULT_TIME ? [startTime] : []),
-                    ...(endTime !== DEFAULT_TIME ? [endTime] : []),
+                    ...(rangeFrom && isValid(rangeFrom)
+                        ? [format(rangeFrom, "MM/dd/yy")]
+                        : []),
+                    ...(rangeTo && isValid(rangeTo)
+                        ? [format(rangeTo, "MM/dd/yy")]
+                        : []),
+                    ...(startTime !== DEFAULT_TIME
+                        ? [
+                              format(
+                                  parse(startTime, "HH:mm", new Date()),
+                                  "hh:mm a",
+                              ),
+                          ]
+                        : []),
+                    ...(endTime !== DEFAULT_TIME
+                        ? [
+                              format(
+                                  parse(endTime, "HH:mm", new Date()),
+                                  "hh:mm a",
+                              ),
+                          ]
+                        : []),
                 ],
             });
         // We ONLY want to update the TableFilterStatus when loading is complete
