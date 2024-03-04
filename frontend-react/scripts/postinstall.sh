@@ -2,7 +2,7 @@
 
 # Move to repo root to run commands that require .git
 cd ..;
-husky install frontend-react/.husky;
+husky frontend-react/.husky;
 # husky overrides the repo's hooks directory, so we set it back afterwards.
 # the monorepo's precommit will call husky's precommit.
 # this won't be needed once frontend is its own repo!
