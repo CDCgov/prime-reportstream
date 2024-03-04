@@ -3062,9 +3062,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.15.1":
-  version: 7.15.1
-  resolution: "@okta/okta-signin-widget@npm:7.15.1"
+"@okta/okta-signin-widget@npm:^7.16.1":
+  version: 7.16.1
+  resolution: "@okta/okta-signin-widget@npm:7.16.1"
   dependencies:
     "@okta/okta-auth-js": ~7.0.0
     "@sindresorhus/to-milliseconds": ^1.0.0
@@ -3088,7 +3088,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: 2df4b1097193fb7377b6898738b06d7dbe1149f5cbbc5e4ae53082b6eb7a39096608d40b30bfe01fc498a5a630bbf5fd0659069d1c35418ece76160ee1002b39
+  checksum: 1653ee07b080610a350c3938aab9c94526266ffea6066a4eec15580f962a9e441f2c795b1a0623386e1f5aa236a177aa1ea4a406d14c15dbe5e7c8ff791234b6
   languageName: node
   linkType: hard
 
@@ -3204,14 +3204,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.41.2":
-  version: 1.41.2
-  resolution: "@playwright/test@npm:1.41.2"
+"@playwright/test@npm:^1.42.0":
+  version: 1.42.0
+  resolution: "@playwright/test@npm:1.42.0"
   dependencies:
-    playwright: 1.41.2
+    playwright: 1.42.0
   bin:
     playwright: cli.js
-  checksum: 87d9e725106111b2af1b2dec32454cd2a2d9665ff735669dc751caa30240e6db595ecfb9422719fa65dcff6ca19dea93ac2ae70d587efddde31def0754549d4c
+  checksum: 282072bc9c8217af39a2bfd0ac606a89e45a8ff7a8c0c86ed90a390b90088bb6d260edf50afa6bcca897630a7797e1f329622fb9f3a8d0b67d8f15a20a1bc592
   languageName: node
   linkType: hard
 
@@ -4938,10 +4938,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.24.1":
-  version: 5.24.1
-  resolution: "@tanstack/query-core@npm:5.24.1"
-  checksum: 652f9d92b4785b0a12f70ac8a86d42ee7f9d6f813ac51f2ab62ca0875525f0be65118484fb9b689bc9eb8c9909b11761955bdc5d37f446887868f04ad1cbe1d4
+"@tanstack/query-core@npm:5.24.6":
+  version: 5.24.6
+  resolution: "@tanstack/query-core@npm:5.24.6"
+  checksum: 57a91fd1d9069ea1e7b367742bddcf865c078265e87d3d66e04be345b795e21f93f97c7d94a096437657fd52fa4d17cbc106521d045851b602f82a6809195e85
   languageName: node
   linkType: hard
 
@@ -4952,26 +4952,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.24.1":
-  version: 5.24.1
-  resolution: "@tanstack/react-query-devtools@npm:5.24.1"
+"@tanstack/react-query-devtools@npm:^5.24.6":
+  version: 5.24.6
+  resolution: "@tanstack/react-query-devtools@npm:5.24.6"
   dependencies:
     "@tanstack/query-devtools": 5.24.0
   peerDependencies:
-    "@tanstack/react-query": ^5.24.1
+    "@tanstack/react-query": ^5.24.6
     react: ^18.0.0
-  checksum: 81535bc9f67637f8c6fe766e7bf49420989677337b133a845d7d38a72eb10b5193dba9d953905568ae14a296e827bfa4910fd0ea46dcfff96e1fa04bf8813740
+  checksum: 791390f034f79f381eca182733feb4575d451f399178413d33739b2ae1c1e7971f62522cf2ba439afac5c8ad2ff83e3775f7f2c43b17a8ea850830941165f99c
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.24.1":
-  version: 5.24.1
-  resolution: "@tanstack/react-query@npm:5.24.1"
+"@tanstack/react-query@npm:^5.24.6":
+  version: 5.24.6
+  resolution: "@tanstack/react-query@npm:5.24.6"
   dependencies:
-    "@tanstack/query-core": 5.24.1
+    "@tanstack/query-core": 5.24.6
   peerDependencies:
     react: ^18.0.0
-  checksum: 0927c92eb280c3a86e0f8d541caf60be087dc14222da037614038137a88b06dd4910ea83fc05706d41531dea1c5e58d9515f9011c0961c5e7016cf054563db3f
+  checksum: 92e87b3210106370e6e02b2aeb087af3787d4b6691a7b99ba30fc8a8a6481845b5b27fdf97584180f5a146210b7e2585fa6b531591842c37455d96c8f6019950
   languageName: node
   linkType: hard
 
@@ -14259,27 +14259,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.41.2":
-  version: 1.41.2
-  resolution: "playwright-core@npm:1.41.2"
+"playwright-core@npm:1.42.0":
+  version: 1.42.0
+  resolution: "playwright-core@npm:1.42.0"
   bin:
     playwright-core: cli.js
-  checksum: b41ede0db3fd3e3f7e0b0efbdfb2dbc4db345e113cf9c4451af21d1d5b5d9ab5e969f5662852925e37b2198ae5daab92aa48108fe3d4eb81c849ba8752aaf8cc
+  checksum: f4b9578b285d6673e9f23040087b5bc008e3183553a5dc0304ddc9ab57445f3645dbb6b28af96a3b8535fc339262ad9cb858f5d75e46f6132a1bc707aeff9c5e
   languageName: node
   linkType: hard
 
-"playwright@npm:1.41.2":
-  version: 1.41.2
-  resolution: "playwright@npm:1.41.2"
+"playwright@npm:1.42.0":
+  version: 1.42.0
+  resolution: "playwright@npm:1.42.0"
   dependencies:
     fsevents: 2.3.2
-    playwright-core: 1.41.2
+    playwright-core: 1.42.0
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: acf166003ec42cd795f5fca096c5135880d78e84ec2d0a1911b2cab984cf75dc06e50d3aa24b56cbcbc5369ca8c61831e76c5f8674531a272fbd0f6e624fa387
+  checksum: 879903e52fa83afb1e387ee725f19e4fecceeea37d6b92405722551e746c184938da3187a4b2be3de1d8b7dafe1f32ec7ddeb324a44275c955d26c70d36a3b65
   languageName: node
   linkType: hard
 
@@ -14721,8 +14721,8 @@ __metadata:
     "@microsoft/applicationinsights-react-js": ^17.0.4
     "@microsoft/applicationinsights-web": ^3.0.8
     "@okta/okta-react": ^6.7.0
-    "@okta/okta-signin-widget": ^7.15.1
-    "@playwright/test": ^1.41.2
+    "@okta/okta-signin-widget": ^7.16.1
+    "@playwright/test": ^1.42.0
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
     "@storybook/addon-a11y": ^7.6.17
@@ -14740,8 +14740,8 @@ __metadata:
     "@storybook/react-vite": ^7.6.17
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^7.6.17
-    "@tanstack/react-query": ^5.24.1
-    "@tanstack/react-query-devtools": ^5.24.1
+    "@tanstack/react-query": ^5.24.6
+    "@tanstack/react-query-devtools": ^5.24.6
     "@testing-library/dom": ^9.3.4
     "@testing-library/jest-dom": ^6.4.2
     "@testing-library/react": ^14.2.1
