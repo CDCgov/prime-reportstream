@@ -21,7 +21,7 @@
 
 You will need to have at least the following pieces of software installed _locally_ in order to be able to build and/or debug this baseline:
 
-* [git](../docs-deprecated/getting-started/install-git.md) including git-bash if you're on Windows
+* [git](./install-git.md) including git-bash if you're on Windows
 * [Docker or Docker Desktop](../docs-deprecated/getting-started/install-docker.md)
 * [OpenJDK](../docs-deprecated/getting-started/install-openjdk.md) (currently targetting 17)
     * See the linked docs for important instructions on setting `JAVA_HOME`
@@ -119,10 +119,10 @@ Again, we will use a Gradle task to do these steps.
 
 <details>
   <summary>Docker Desktop</summary>
-* If you are using Docker Desktop, verify that it is running prior to building or running ReportStream locally.
+If you are using Docker Desktop, verify that it is running prior to building or running ReportStream locally.
 </details>
 
-⋅⋅* Building and running ReportStream requires a locally accessible PostgreSQL database instance that is initially setup and run by the `cleanslate.sh` script. This database instance runs as a Docker container defined by the `docker-compose.build.yml` file. You will need to start this database instance upon a workstation reboot by using the following command:
+Building and running ReportStream requires a locally accessible PostgreSQL database instance that is initially setup and run by the `cleanslate.sh` script. This database instance runs as a Docker container defined by the `docker-compose.build.yml` file. You will need to start this database instance upon a workstation reboot by using the following command:
 
 ```bash
 cd ./prime-router
@@ -140,8 +140,12 @@ Use Gradle to launch ReportStream, as it will set up the environment variables t
 _Note:_ for quicker development you can use `./gradlew quickrun` which skips some long running tasks, but use with
 caution as it will not build the FatJar, run database related tasks, or run the tests.
 
-ReportStream should continue to run after launching. A `ctrl-c` will kill the running ReportStream instance.
-For now, keep ReportStream running, open a new terminal session.
+ReportStream should continue to run after launching. A successful build will appear like so:
+```
+<===========--> 90% EXECUTING [46s]
+> :azureFunctionsRun
+```
+A `ctrl-c` will kill the running ReportStream instance.
 </details>
 
 ## Debugging
@@ -150,7 +154,7 @@ For now, keep ReportStream running, open a new terminal session.
 Connect your debugger remotely to port 5005.
 For profiling use the JMX port 9090.
 
-If using Intellij, this can be easily configured by first opening the `primer-router` folder as it's own project. Create a Remote JVM Debug Configuration with the port set to `5005`. 
+If using IntelliJ, this can be easily configured by first opening the `primer-router` folder as it's own project. Create a Remote JVM Debug Configuration with the port set to `5005`. 
 
 
 ## Running the frontend
