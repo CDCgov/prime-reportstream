@@ -193,12 +193,18 @@ const DeliveriesFilterAndTable = ({
                 resultLength={paginationProps?.resultLength}
                 isPaginationLoading={paginationProps?.isPaginationLoading}
             />
-            <DeliveriesTable
-                filterManager={filterManager}
-                paginationProps={paginationProps}
-                isLoading={isLoading}
-                serviceReportsList={serviceReportsList}
-            />
+            {services.length === 0 ? (
+                <div className="usa-section margin-bottom-5">
+                    <NoServicesBanner />
+                </div>
+            ) : (
+                <DeliveriesTable
+                    filterManager={filterManager}
+                    paginationProps={paginationProps}
+                    isLoading={isLoading}
+                    serviceReportsList={serviceReportsList}
+                />
+            )}
         </>
     );
 };
@@ -216,13 +222,6 @@ export const DailyData = () => {
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
-
-    if (activeReceivers.length === 0)
-        return (
-            <div className="usa-section margin-bottom-5">
-                <NoServicesBanner />
-            </div>
-        );
     return (
         <DeliveriesFilterAndTable
             fetchResults={fetchResults}

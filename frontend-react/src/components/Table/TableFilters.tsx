@@ -165,8 +165,14 @@ function TableFilters({
                 resultLength: resultLength,
                 activeFilters: [
                     currentServiceSelect,
-                    filterDetails.rangeFromWithTime,
-                    filterDetails.rangeToWithTime,
+                    ...[
+                        isValid(rangeFrom)
+                            ? [format(rangeFrom, "MM/dd/yy")]
+                            : [],
+                    ],
+                    ...[isValid(rangeTo) ? [format(rangeTo, "MM/dd/yy")] : []],
+                    ...(startTime !== DEFAULT_TIME ? [startTime] : []),
+                    ...(endTime !== DEFAULT_TIME ? [endTime] : []),
                 ],
             });
         // We ONLY want to update the TableFilterStatus when loading is complete
@@ -325,7 +331,7 @@ function TableFilters({
                                             if (input) {
                                                 setStartTime(input);
                                             } else {
-                                                setStartTime("0:0");
+                                                setStartTime(DEFAULT_TIME);
                                             }
                                         }}
                                     />
@@ -344,7 +350,7 @@ function TableFilters({
                                             if (input) {
                                                 setEndTime(input);
                                             } else {
-                                                setEndTime("0:0");
+                                                setEndTime(DEFAULT_TIME);
                                             }
                                         }}
                                     />

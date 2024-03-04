@@ -450,6 +450,14 @@ function usePagination<T>({
             resultLength: state.resultLength,
             isPaginationLoading: state.isLoading,
         };
+    } else {
+        paginationProps = {
+            slots: [],
+            setSelectedPage,
+            currentPageNum: 0,
+            resultLength: state.resultLength,
+            isPaginationLoading: state.isLoading,
+        };
     }
 
     return {
