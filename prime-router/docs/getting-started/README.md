@@ -156,7 +156,6 @@ For profiling use the JMX port 9090.
 
 If using IntelliJ, this can be easily configured by first opening the `primer-router` folder as it's own project. Create a Remote JVM Debug Configuration with the port set to `5005`. 
 
-
 ## Running the frontend
 
 See the [frontend React docs](../../../frontend-react/README.md) for more information.
