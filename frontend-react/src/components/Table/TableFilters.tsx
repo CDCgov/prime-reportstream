@@ -222,7 +222,7 @@ function TableFilters({
             setService?.(initialService.name);
             filterManager.resetAll();
         },
-        [filterManager, initialService.name, reset, setService],
+        [filterManager, initialService?.name, reset, setService],
     );
 
     const submitHandler = useCallback(
