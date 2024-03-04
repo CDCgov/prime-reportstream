@@ -156,13 +156,6 @@ object ConfigSchemaReader : Logging {
                 )
                 readOneYamlSchema(blob.inputStream(), schemaClass)
             }
-            // TODO delete this functionality or consider adding support for it
-            // Only valid networked option for reading schemas is azure which does not have a dedicated schema
-            // and instead has URLs starting with HTTP or HTTPS
-            "http", "https" -> {
-                val blob = BlobAccess.downloadBlobAsByteArray(schemaUri.toString(), blobConnectionInfo)
-                readOneYamlSchema(blob.inputStream(), schemaClass)
-            }
             else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")
         }
         rawSchema.name = schemaUri.path

@@ -17,6 +17,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
+import io.mockk.verify
 import java.io.File
 import java.net.URI
 import kotlin.test.Test
@@ -339,6 +340,7 @@ class ConfigSchemaReaderTests {
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
         val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>(), any()) } returns
             File(
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07",
@@ -348,13 +350,19 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.readSchemaTreeUri(
                 URI(
                     """
-                    http://azure.container.com/src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07/ORU_R01.yml
+                   azure:/hl7_mapping/schema/schema-read-test-07/ORU_R01.yml
                     """.trimIndent()
                 ),
                 schemaClass = HL7ConverterSchema::class.java,
                 blobConnectionInfo = blobConnectionInfo
             )
         )
+        verify(exactly = 1) {
+            BlobAccess.downloadBlobAsByteArray(
+                "http://endpoint/metadata/hl7_mapping/schema/schema-read-test-07/ORU_R01.yml",
+                blobConnectionInfo
+            )
+        }
     }
 
     @Test

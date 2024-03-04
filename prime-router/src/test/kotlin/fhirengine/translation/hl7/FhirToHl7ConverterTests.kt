@@ -425,6 +425,7 @@ class FhirToHl7ConverterTests {
         val missingDataEx = assertFailsWith<ConfigSchemaElementProcessingException> {
             FhirToHl7Converter(
                 "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
+                mockk<BlobAccess.BlobContainerMetadata>()
             ).process(bundle)
         }
         assertThat(missingDataEx.message).isEqualTo(
