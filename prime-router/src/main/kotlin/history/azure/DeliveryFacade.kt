@@ -26,6 +26,7 @@ class DeliveryFacade(
      *
      * @param organization from JWT Claim.
      * @param receivingOrgSvc is a specifier for the receiving organization's service.
+     * @param receivingOrgSvcStatus is the customer status of the receiving organization's service.
      * @param sortDir sort the table by date in ASC or DESC order; defaults to DESC.
      * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -40,6 +41,7 @@ class DeliveryFacade(
     fun findDeliveries(
         organization: String,
         receivingOrgSvc: String?,
+        receivingOrgSvcStatus: String?,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -69,6 +71,7 @@ class DeliveryFacade(
         return dbDeliveryAccess.fetchActions(
             organization,
             receivingOrgSvc,
+            receivingOrgSvcStatus,
             sortDir,
             sortColumn,
             cursor,
