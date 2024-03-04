@@ -68,8 +68,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier"
 
 # CE/CWE -> Coding
-- id: "coding-system"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system"
 - id: "coding-system-oid"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid"
 - id: "cwe-coding"
