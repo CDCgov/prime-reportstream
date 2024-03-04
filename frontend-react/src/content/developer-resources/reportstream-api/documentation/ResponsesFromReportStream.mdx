@@ -1,6 +1,11 @@
 ---
-metaTitle: API responses from ReportStream
-metaDescription: ReportStream responds to each API call with a response (JSON formatted) about the disposition of your data.
+meta:
+    title: API responses from ReportStream
+    description: ReportStream responds to each API call with a response (JSON formatted) about the disposition of your data.
+    openGraph:
+        image:
+            src: /assets/img/opengraph/reportstream-tagline.png
+            altText: "An abstract illustration of screens and a document."
 ---
 
 import Sidenav from "../Sidenav.mdx";
@@ -20,8 +25,8 @@ import Sidenav from "../Sidenav.mdx";
 
 The ReportStream response may include warnings and/or errors based on validation of the submission against the expected format.
 
-An accepted submission returns a 201 “httpStatus” code. Submissions with warnings but no errors will still be accepted. 
-While ReportStream will accept a submission with warnings, we encourage you to fix those issues to ensure you will not have future problems sending to public health departments. 
+An accepted submission returns a 201 “httpStatus” code. Submissions with warnings but no errors will still be accepted.
+While ReportStream will accept a submission with warnings, we encourage you to fix those issues to ensure you will not have future problems sending to public health departments.
 However, one or more errors fail the entire submission.
 
 **Common validation errors**

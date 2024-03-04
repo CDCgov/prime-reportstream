@@ -434,7 +434,7 @@ class TranslationTests {
         private fun translateToFhir(hl7: InputStream): InputStream {
             val hl7messages = HL7Reader(ActionLogger()).getMessages(hl7.bufferedReader().readText())
             val fhirBundles = hl7messages.map { message ->
-                HL7toFhirTranslator.getInstance().translate(message)
+                HL7toFhirTranslator().translate(message)
             }
             check(fhirBundles.size == 1)
             val fhirJson = FhirTranscoder.encode(fhirBundles[0])

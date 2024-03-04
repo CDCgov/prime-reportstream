@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -23,8 +24,11 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.ObservationMappingConstants
+import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.utils.CompareFhirData
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.LookupTable
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -266,6 +270,44 @@ class FhirConverterTests {
         verify(atLeast = 1) {
             actionLogger.error(any<ActionLogDetail>())
         }
+    }
+
+    @Test
+    fun `test getContentFromHL7 alternate profile`() {
+        val testProfile = HL7Reader.Companion.MessageProfile("ORU", "PHLabReport-NoAck")
+
+        val actionLogger = spyk(ActionLogger())
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val message = spyk(
+            FhirConvertQueueMessage(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR
+            )
+        )
+
+        every { message.downloadContent() }
+            .returns(validHl7)
+
+        val bundles = engine.getContentFromHL7(message, actionLogger)
+
+        mockkClass(HL7Reader::class)
+        mockkObject(HL7Reader.Companion)
+        every { HL7Reader.Companion.profileDirectoryMap[testProfile] } returns "./metadata/test_fhir_mapping"
+
+        val bundles2 = engine.getContentFromHL7(message, actionLogger)
+
+        // the test fhir mappings produce far fewer entries than the production ones
+        assertThat(bundles2).isNotEmpty()
+        val result = CompareData.Result()
+        CompareFhirData().compare(
+            FhirTranscoder.encode(bundles[0]).byteInputStream(),
+            FhirTranscoder.encode(bundles2[0]).byteInputStream(),
+            result
+        )
+        assertThat(result.passed).isFalse()
     }
 
     @Test
