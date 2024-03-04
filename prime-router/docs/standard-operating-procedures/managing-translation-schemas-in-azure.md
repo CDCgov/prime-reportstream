@@ -1,8 +1,9 @@
 # Managing Translation Schemas in Azure
 
-TODO description
+This document describes the standard operating procedure for how to make changes to sender and receiver transforms that
+are stored in an azure container.
 
-TODO link to design note
+[Design Note](../design/features/0005-managing-translation-schemas.md)
 
 ### Setup
 
@@ -62,6 +63,10 @@ that this was successful by checking in storage browser and confirming the `vali
       seeing `"Schemas did not pass validation and changes were rolled back."` in the logs
     - Checking in the azure storage for an updated `valid-{TIMESTAMP}.txt`
 
+9. Once the changes have been successfully pushed to STAGE, they can be pushed to PROD in two ways:
+    - **Preferred** Using the Github Action "Sync Translation Schemas"
+    - Using the same command from step 7
+
 ### Creating a new schema
 
 Creating a new schema should follow most of the same steps with the primary difference being you will need to create the
@@ -75,12 +80,33 @@ The rest of the steps for syncing will then be the same.
 
 ## Troubleshooting/FAQ
 
-TODO
-
 ### Breaking down custom transforms into smaller files
 
-New directory
+The process of validating requires that the directory containing the schema referenced in the sender/receiver settings
+be only `.yml` file present. For maintainability, it is still possible to break up the schemas into smaller files simply
+by creating a subdirectory. That would look like this:
+
+```shell
+/hl7_mapping
+  /receivers
+    /STLTs
+      /CA
+        CA.yml
+        input.fhir
+        output.hl7
+        datatypes/
+          NTE.yml
+```
+
+in the above example, `NTE.yml` can be referenced in `CA.yml` using the `azure:/` scheme.
 
 ### Validation failure when syncing locally
 
-The root cause is likely that you are out of sync with `master` branch
+The root cause is likely that you are out of sync with `master` branch and there are schema changes in the source code
+that you'll need to pull.
+
+### Validation failure when syncing to an environment
+
+The root cause is likely that the schema updates being push references schema updates in the source code that are not
+present in the higher environment. For example, if a new FHIR->HL7 schema is added to source code, it can only be
+referenced once the source code has been deployed to the environment.
