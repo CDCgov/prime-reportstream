@@ -1,7 +1,7 @@
 ---
 
 - Resource: Organization
-  FHIR-Type: NA
+  FHIR-Type: Extension
   HL7-Type:
     XON:
       Example:
@@ -565,7 +565,7 @@
           hl7Use: CWE
 
 - Resource: Practitioner
-  FHIR-Type: extension
+  FHIR-Type: Extension
   HL7-Type:
     CNN:
       Example:
@@ -986,3 +986,189 @@
               url: "SAD.2"
               valueType: String
               hl7Use: SAD.2
+
+- Resource: NA
+  FHIR-Type: HumanName
+  HL7-Type:
+    XPN:
+      Example:
+        "valueHumanName": {
+          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+          "extension": [
+            {
+              "url": "XPN.2",
+              "valueString": "LUDWIG"
+            },
+            {
+              "url": "XPN.3",
+              "valueString": "B"
+            },
+            {
+              "url": "XPN.4",
+              "valueString": "2ND"
+            },
+            {
+              "url": "XPN.6",
+              "valueString": "MD"
+            },
+            {
+              "url": "XPN.7",
+              "valueString": "B"
+            },
+            {
+              "url": "XPN.8",
+              "valueString": "A"
+            },
+            {
+              "url": "XPN.9",
+              "valueCodeableConcept": {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                    "valueString": "NK1.2"
+                  }
+                ],
+                "coding": [
+                  {
+                    "extension": [
+                      {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                      }
+                    ],
+                    "code": "Coding"
+                  }
+                ]
+              }
+            },
+            {
+              "url": "XPN.10",
+              "extension": [
+                {
+                  "url": "XPN.10.2",
+                  "valueString": "20230501102531-0400"
+                },
+                {
+                  "url": "XPN.10.1",
+                  "valueString": "20220501102531-0400"
+                }
+              ]
+            },
+            {
+              "url": "XPN.12",
+              "valueString": "20220501102531-0400"
+            },
+            {
+              "url": "XPN.13",
+              "valueString": "20230501102531-0400"
+            },
+            {
+              "url": "XPN.14",
+              "valueString": "MD"
+            }
+          ]
+        }
+      Extension:
+        - id: xpn-human-name
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name"
+          valueType: extension
+          hl7Use: NA
+          description: This extension holds fields needed to build an XPN datatype as some fields are not adequately captured in FHIR.
+          extension:
+            - id: XPN.2
+              url: "XPN.2"
+              valueType: String
+              hl7Use: XPN.2
+            - id: XPN.3
+              url: "XPN.3"
+              valueType: String
+              hl7Use: XPN.3
+            - id: XPN.4
+              url: "XPN.4"
+              valueType: String
+              hl7Use: XPN.4
+            - id: XPN.6
+              url: "XPN.6"
+              valueType: String
+              hl7Use: XPN.6
+            - id: XPN.7
+              url: "XPN.7"
+              valueType: String
+              hl7Use: XPN.7
+            - id: XPN.8
+              url: "XPN.8"
+              valueType: String
+              hl7Use: XPN.8
+            - id: XPN.9
+              url: "XPN.9"
+              valueType: CodeableConcept
+              hl7Use: XPN.9
+            - id: XPN.10
+              url: "XPN.10"
+              valueType: Extension
+              hl7Use: XPN.10
+              extension:
+                - id: XPN.10.1
+                  url: "XPN.10.1"
+                  valueType: String
+                  hl7Use: XPN.10.1
+                - id: XPN.10.2
+                  url: "XPN.10.2"
+                  valueType: String
+                  hl7Use: XPN.10.2
+            - id: XPN.12
+              url: "XPN.12"
+              valueType: String
+              hl7Use: XPN.12
+            - id: XPN.13
+              url: "XPN.13"
+              valueType: String
+              hl7Use: XPN.13
+            - id: XPN.14
+              url: "XPN.14"
+              valueType: String
+              hl7Use: XPN.14
+
+- Resource: Location
+  FHIR-Type: Extension
+  HL7-Type:
+    PL:
+      Example:
+        {
+          "fullUrl": "Location/1707410591930739000.52a4a3ec-6989-41a1-bdb8-486c25988f47",
+          "resource": {
+            "resourceType": "Location",
+            "id": "1707410591930739000.52a4a3ec-6989-41a1-bdb8-486c25988f47",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type",
+                "valueString": "location type"
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: pl6-person-location-type
+          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type"
+          valueType: String
+          hl7Use: PL.6
+    DLD:
+      Example:
+        {
+          "fullUrl": "Location/1707325956467720000.95daa094-9671-44a7-b23c-49b2e00fcf53",
+          "resource": {
+            "resourceType": "Location",
+            "id": "1707325956467720000.95daa094-9671-44a7-b23c-49b2e00fcf53",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/dld2-effective-date",
+                "valueString": "20230501102531-0400"
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: dld2-effective-date
+          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/dld2-effective-date"
+          valueType: String
+          hl7Use: DLD.2
