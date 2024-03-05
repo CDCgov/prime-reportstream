@@ -32,22 +32,6 @@ object HL7MessageHelpers : Logging {
     fun batchMessages(hl7RawMsgs: List<String>, receiver: Receiver): String {
         check(receiver.translation is Hl7Configuration)
         val useBatchHeaders = receiver.translation.useBatchHeaders
-        val replaceValueAwithB = receiver.translation.replaceValueAwithB ?: emptyMap()
-        var hl7FileHeaderEncodingCharInReplace: String? = hl7BatchHeaderEncodingChar
-        var hl7BatchHeaderEncodingCharInReplace: String? = hl7BatchHeaderEncodingChar
-
-        replaceValueAwithB.forEach { segment ->
-            // Scan through segment(s)
-            @Suppress("UNCHECKED_CAST")
-            (segment.value as ArrayList<Map<String, String>>).forEach valuePairs@{ pairs ->
-                val fields = pairs.values.first().trim()
-                if (segment.key == "FHS-2") {
-                    hl7FileHeaderEncodingCharInReplace = fields
-                } else if (segment.key == "BHS-2") {
-                    hl7BatchHeaderEncodingCharInReplace = fields
-                }
-            }
-        }
         // Grab the first message to extract some data if not set in the settings
         val firstMessage = if (hl7RawMsgs.isNotEmpty()) {
             val messages = HL7Reader(ActionLogger()).getMessages(hl7RawMsgs[0])
@@ -62,6 +46,9 @@ object HL7MessageHelpers : Logging {
         }
         val time = DTM(null)
         time.setValue(Date())
+
+        val hl7BatchFileHeaderEncodingChar: String? = "${firstMessage?.get("MSH-2") ?: hl7BatchHeaderEncodingChar}"
+
         // The extraction of these values mimics how the COVID HL7 serializer works
         var sendingApp =
             "${firstMessage?.get("MSH-3-1") ?: REPORT_STREAM_APPLICATION_NAME}^" +
@@ -74,7 +61,7 @@ object HL7MessageHelpers : Logging {
         val builder = StringBuilder()
         if (useBatchHeaders) {
             builder.append(
-                "FHS|$hl7FileHeaderEncodingCharInReplace|" +
+                "FHS|$hl7BatchFileHeaderEncodingChar|" +
                     "$sendingApp|" +
                     "$sendingApp|" +
                     "$receivingApp|" +
@@ -83,7 +70,7 @@ object HL7MessageHelpers : Logging {
             )
             builder.append(hl7SegmentDelimiter)
             builder.append(
-                "BHS|$hl7BatchHeaderEncodingCharInReplace|" +
+                "BHS|$hl7BatchFileHeaderEncodingChar|" +
                     "$sendingApp|" +
                     "$sendingApp|" +
                     "$receivingApp|" +
