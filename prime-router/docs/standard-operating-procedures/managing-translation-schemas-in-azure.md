@@ -26,7 +26,7 @@ string:
 
 ## Procedure
 
-Before making changes, sync the schema type your working on from staging to your local instance, by running the follow
+Before making changes, sync the schema type you're working on from staging to your local instance, by running the following command
 
 ```shell
 ./prime syncSchemas --schema-type="<HL7|FHIR>" -sb="<STAGING_AZURE_CONNECTION_STRING>" -sc="metadata" -db="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;" -dc="metadata"'
