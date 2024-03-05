@@ -13,6 +13,8 @@ inputs:
     default: false
   github-token:
     default: false
+  staging-azure-connection-string:
+    required: true
 
 runs:
   using: "composite"
@@ -149,6 +151,17 @@ runs:
           export $(xargs < .vault/env/.env.local)
           ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
           ./gradlew testSmoke
+        shell: bash
+
+    - name: Validate translation schemas
+      uses: ./.github/actions/retry
+      with:
+        timeout_minutes: 30
+        max_attempts: 2
+        retry_wait_seconds: 30
+        command: |
+          ./prime validateSchemas --schema-type="HL7" --blob-store-connect="${{ inputs.staging-azure-connection-string }}" --blob-store-container="metadata"
+          ./prime validateSchemas --schema-type="FHIR" --blob-store-connect="${{ inputs.staging-azure-connection-string }}" --blob-store-container="metadata"
         shell: bash
 
     - name: Dump docker logs
