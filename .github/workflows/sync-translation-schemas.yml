@@ -1,0 +1,27 @@
+name: Sync translation schemas
+
+on: workflow_dispatch
+
+jobs:
+  sync-schemas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Connect to VPN & Login into Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Build CLI
+        run: |
+          cd prime-router
+          ./gradlew fatjar
+
+      - name: Sync schemas from source to destination
+        run: ./prime syncSchemas --schema-type="HL7" -sb=${{ secrets.AZURE_STAGING_STORAGE_CONNECTION_STRING }}"" -sc="metadata" -db="${{ secrets.AZURE_PRODUCTION_STORAGE_CONNECTION_STRING }}" -dc="metadata"
