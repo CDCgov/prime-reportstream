@@ -17,7 +17,7 @@
       topic: "full-elr"
       customerStatus: "inactive"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/SC/SC-receiver-transform"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/SC/SC-receiver-transform"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: null
