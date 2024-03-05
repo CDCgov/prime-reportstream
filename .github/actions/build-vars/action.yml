@@ -158,7 +158,7 @@ runs:
         filters: |
           router:
             - 'prime-router/**'
-            - 'operations/!((app|readme-assets|slack-boltjs-app|vpn)/**)/**'
+            - 'operations/!((app|readme-assets|slack-boltjs-app|vpn))/**'
             - '.github/actions/build-backend/action.yml'
             - '.github/actions/deploy-backend/action.yml'
             - '.github/actions/build-vars/action.yml'
@@ -171,6 +171,14 @@ runs:
             - 'operations/app/terraform/**'
             - '.github/workflows/validate_terraform.yml'
             - '.github/workflows/deploy_terraform.yml'
+
+    - name: Files changed
+      shell: bash
+      run: |
+        printf "## NEW OR CHANGED FILES" >> $GITHUB_STEP_SUMMARY
+        printf "\n<details><summary>Backend</summary>\n\n\`${{ steps.filter.outputs.router_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
+        printf "\n<details><summary>Frontend</summary>\n\n\`${{ steps.filter.outputs.frontend_react_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
+        printf "\n<details><summary>Terraform</summary>\n\n\`${{ steps.filter.outputs.terraform_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
 
     - name: Force backend change if prod
       if: github.event_name != 'schedule'
