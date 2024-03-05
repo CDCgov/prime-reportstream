@@ -32,6 +32,22 @@ object HL7MessageHelpers : Logging {
     fun batchMessages(hl7RawMsgs: List<String>, receiver: Receiver): String {
         check(receiver.translation is Hl7Configuration)
         val useBatchHeaders = receiver.translation.useBatchHeaders
+        val replaceValueAwithB = receiver.translation.replaceValueAwithB ?: emptyMap()
+        var hl7FileHeaderEncodingCharInReplace: String? = hl7BatchHeaderEncodingChar
+        var hl7BatchHeaderEncodingCharInReplace: String? = hl7BatchHeaderEncodingChar
+
+        replaceValueAwithB.forEach { segment ->
+            // Scan through segment(s)
+            @Suppress("UNCHECKED_CAST")
+            (segment.value as ArrayList<Map<String, String>>).forEach valuePairs@{ pairs ->
+                val fields = pairs.values.first().trim()
+                if (segment.key == "FHS-2") {
+                    hl7FileHeaderEncodingCharInReplace = fields
+                } else if (segment.key == "BHS-2") {
+                    hl7BatchHeaderEncodingCharInReplace = fields
+                }
+            }
+        }
         // Grab the first message to extract some data if not set in the settings
         val firstMessage = if (hl7RawMsgs.isNotEmpty()) {
             val messages = HL7Reader(ActionLogger()).getMessages(hl7RawMsgs[0])
@@ -58,7 +74,7 @@ object HL7MessageHelpers : Logging {
         val builder = StringBuilder()
         if (useBatchHeaders) {
             builder.append(
-                "FHS|$hl7BatchHeaderEncodingChar|" +
+                "FHS|$hl7FileHeaderEncodingCharInReplace|" +
                     "$sendingApp|" +
                     "$sendingApp|" +
                     "$receivingApp|" +
@@ -67,7 +83,7 @@ object HL7MessageHelpers : Logging {
             )
             builder.append(hl7SegmentDelimiter)
             builder.append(
-                "BHS|$hl7BatchHeaderEncodingChar|" +
+                "BHS|$hl7BatchHeaderEncodingCharInReplace|" +
                     "$sendingApp|" +
                     "$sendingApp|" +
                     "$receivingApp|" +

@@ -116,6 +116,96 @@ class HL7QueueMessageHelpersTests {
     }
 
     @Test
+    fun `test replace FHS_2 and BHS_2 in batch file generation`() {
+        // Given "^~\\&#" to replace FHS and BHS
+        val replaceBatchFileEncodeCharacters = arrayListOf(mapOf("*" to "^~\\&#"))
+        var replaceValueAwithBMap: Map<String, Any>? = mapOf(
+            "FHS-2" to replaceBatchFileEncodeCharacters,
+            "BHS-2" to replaceBatchFileEncodeCharacters,
+        )
+
+        var receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = Hl7Configuration(
+                receivingApplicationName = null, receivingApplicationOID = null,
+                receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
+                messageProfileId = null, replaceValueAwithB = replaceValueAwithBMap
+            )
+        )
+
+        var result = HL7MessageHelpers.batchMessages(emptyList(), receiver)
+        result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
+            val regex = when (index) {
+                0 -> """^FHS\|[^|]{5}\|[^|]+\|[^|]+\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                1 -> """^BHS\|[^|]{5}\|[^|]+\|[^|]+\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                2 -> """^BTS\|0""".toRegex()
+                3 -> """^FTS\|1""".toRegex()
+                else -> null
+            }
+            if (s.isNotEmpty()) {
+                assertThat(regex).isNotNull()
+                assertThat(regex!!.matches(s), s).isTrue()
+            }
+        }
+
+        // Test replace FHS-2 with "^~\\&#"
+        replaceValueAwithBMap = mapOf(
+            "FHS-2" to replaceBatchFileEncodeCharacters
+        )
+        receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = Hl7Configuration(
+                receivingApplicationName = null, receivingApplicationOID = null,
+                receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
+                messageProfileId = null, replaceValueAwithB = replaceValueAwithBMap
+            )
+        )
+
+        result = HL7MessageHelpers.batchMessages(emptyList(), receiver)
+        result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
+            val regex = when (index) {
+                0 -> """^FHS\|[^|]{5}\|[^|]+\|[^|]+\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                1 -> """^BHS\|[^|]{4}\|[^|]+\|[^|]+\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                2 -> """^BTS\|0""".toRegex()
+                3 -> """^FTS\|1""".toRegex()
+                else -> null
+            }
+            if (s.isNotEmpty()) {
+                assertThat(regex).isNotNull()
+                assertThat(regex!!.matches(s), s).isTrue()
+            }
+        }
+
+        // Test replace BHS-2 with "^~\\&#"
+        replaceValueAwithBMap = mapOf(
+            "BHS-2" to replaceBatchFileEncodeCharacters
+        )
+        receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = Hl7Configuration(
+                receivingApplicationName = null, receivingApplicationOID = null,
+                receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
+                messageProfileId = null, replaceValueAwithB = replaceValueAwithBMap
+            )
+        )
+
+        result = HL7MessageHelpers.batchMessages(emptyList(), receiver)
+        result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
+            val regex = when (index) {
+                0 -> """^FHS\|[^|]{4}\|[^|]+\|[^|]+\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                1 -> """^BHS\|[^|]{5}\|[^|]+\|[^|]+\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                2 -> """^BTS\|0""".toRegex()
+                3 -> """^FTS\|1""".toRegex()
+                else -> null
+            }
+            if (s.isNotEmpty()) {
+                assertThat(regex).isNotNull()
+                assertThat(regex!!.matches(s), s).isTrue()
+            }
+        }
+    }
+
+    @Test
     fun `test decoding generated batch HL7 file`() {
         // Make sure the HAPI HL7 v2 library can decode the batch file
         val receiver = Receiver(
