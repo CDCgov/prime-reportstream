@@ -136,7 +136,7 @@ object FhirPathUtils : Logging {
                         "Setting value of condition to false."
             }
             logger.error(msg, e)
-            throw SchemaException(msg)
+            throw SchemaException(msg, e)
         }
         logger.trace("Evaluated condition '$expression' to '$retVal'")
         return retVal

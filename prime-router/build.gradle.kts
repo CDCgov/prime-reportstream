@@ -568,7 +568,7 @@ dockerCompose {
 //    projectName = "prime-router" // docker-composer has this setter broken as of 0.16.4
     setProjectName("prime-router") // this is a workaround for the broken setter for projectName
     useComposeFiles.addAll("docker-compose.yml")
-    startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "vault", "azurite")
+    startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "vault", "azurite", "azurite-stage")
     stopContainers.set(false)
     waitForTcpPorts.set(false)
     // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
@@ -809,7 +809,7 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.7.1")
+    jooqGenerator("org.postgresql:postgresql:42.7.2")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
@@ -874,7 +874,7 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20231013")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
-    implementation("com.hierynomus:sshj:0.37.0")
+    implementation("com.hierynomus:sshj:0.38.0")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.commons:commons-csv:1.10.0")
@@ -882,7 +882,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.11.0")
     implementation("commons-codec:commons-codec:1.16.0")
     implementation("commons-io:commons-io:2.15.0")
-    implementation("org.postgresql:postgresql:42.7.1")
+    implementation("org.postgresql:postgresql:42.7.2")
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("org.flywaydb:flyway-core:10.7.2")
     implementation("org.flywaydb:flyway-database-postgresql:10.7.2")
@@ -911,9 +911,11 @@ dependencies {
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.1")
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.poi:poi-ooxml:5.2.5")
-    implementation("commons-io:commons-io: 2.15.0")
+    // pin commons-compress to mitigate CVE-2024-25710 and CVE-2024-26308
+    implementation("org.apache.commons:commons-compress:1.26.0")
+    implementation("commons-io:commons-io:2.15.0")
     implementation("com.anyascii:anyascii:0.3.2")
-// force jsoup since skrapeit-html-parser@1.2.1+ has not updated
+    // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.16.2")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
     implementation("io.swagger:swagger-annotations:1.6.12")

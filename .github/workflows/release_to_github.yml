@@ -83,13 +83,13 @@ jobs:
           fetch-depth: 0
       - name: Download router artifact
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
-        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe
+        uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427
         with:
           name: prime-router-build-${{ needs.wf_vars.outputs.version }}
           path: archives/
       - name: Download frontend artifact
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
-        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe
+        uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427
         with:
           name: static-website-react-${{ needs.wf_vars.outputs.version }}
           path: archives/
@@ -114,7 +114,7 @@ jobs:
           prerelease: ${{ needs.wf_vars.outputs.prerelease }}
       - name: Build changelog
         id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@5f3409748e2230350e149a7f7b5b8e9bcd785d44
+        uses: mikepenz/release-changelog-builder-action@ef7f5f2ba435f80ebb3016e7c77f740f35c1f00e
         with:
           configuration: '.github/changelog_config.json'
           # Allow changelog tests in forks
