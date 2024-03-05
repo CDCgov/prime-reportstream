@@ -16,8 +16,15 @@ function TableFilterStatus({ filterStatus }: TableFilterStatusProps) {
                 for:{" "}
             </p>
 
-            <p className="display-inline text-bold">
-                {filterStatus.activeFilters.filter((item) => item).join(", ")}
+            <p className="display-inline">
+                {filterStatus.activeFilters
+                    .filter((filter) => filter)
+                    .map((filter, index, array) => (
+                        <span key={index}>
+                            <span className="text-bold">{filter}</span>
+                            {index < array.length - 1 && <span>, </span>}
+                        </span>
+                    ))}
             </p>
         </div>
     );
