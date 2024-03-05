@@ -19,24 +19,24 @@
 
 ## Locally installed software prerequisites
 
-You will need to have at least the following pieces of software installed _locally_ in order to be able to build and/or debug this baseline:
+You will need to have at least the following pieces of software installed _locally_ in order to be able to build and/or debug this project:
 
 * [git](./install-git.md) including git-bash if you're on Windows
 * [Docker or Docker Desktop](../docs-deprecated/getting-started/install-docker.md)
 * [OpenJDK](../docs-deprecated/getting-started/install-openjdk.md) (currently targetting 17)
     * See the linked docs for important instructions on setting `JAVA_HOME`
+* [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
 * An IDE. IntelliJ is recommended for Kotlin/debugging support. 
 
 To reduce the build-debug cycle time you can install these tools to run the code directly. These tools are required if you are using an Apple Silicon computer, otherwise they are optional.
 * [Azure Functions Core Tools](../docs-deprecated/getting-started/install-afct.md) (currently targetting 4)
-* [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
 * [AzureCLI](../docs-deprecated/getting-started/install-azurecli.md)
 * [Gradle](../docs-deprecated/getting-started/install-gradle.md)
 * One or more [PostgreSQL Clients](../docs-deprecated/getting-started/psql-clients.md)
 
 > [!Warning]
 > If you are using an Apple Silicon computer you will need to use Gradle as Microsoft's Azure Function Docker image is only `amd64` compatible. There are also [known issues](https://docs.docker.com/desktop/mac/apple-silicon/#known-issues) running Intel Docker images on Apple Silicon. Both approaches to running the project are documented here. 
-> Many of our local developer tools are set up to run in Docker containers. Looking at our `docker-compose.yml` file, the `web_receiver`, `prime_dev`, and `settings` services do not work on Apple Silicon. Likewise, the `builder` service in our `docker-compose.build.yml` does not work.
+> Many of our local developer tools are set up to run in Docker containers. Looking at our `docker-compose.yml` file, the `prime_dev` service does not work on Apple Silicon. Likewise, the `builder` service in our `docker-compose.build.yml` does not work.
 
 ## Bulding the baseline
 
@@ -137,16 +137,17 @@ Use Gradle to launch ReportStream, as it will set up the environment variables t
 ./gradlew run
 ```
 
-_Note:_ for quicker development you can use `./gradlew quickrun` which skips some long running tasks, but use with
-caution as it will not build the FatJar, run database related tasks, or run the tests.
-
 ReportStream should continue to run after launching. A successful build will appear like so:
 ```
 <===========--> 90% EXECUTING [46s]
 > :azureFunctionsRun
 ```
-A `ctrl-c` will kill the running ReportStream instance.
+A `ctrl-c` will escape the running ReportStream instance.
 </details>
+
+> [!TIP]
+> The recommended way to rapidly develop on the ReportStream backend is to use `./gradlew quickRun`.
+> This command skips some long running tasks, so use with caution as it will not build the FatJar, run database related tasks, or run the tests.
 
 ## Debugging
 

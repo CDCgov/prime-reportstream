@@ -1,12 +1,18 @@
 # Running ReportStream Tests
 
+The tests in ReportStream assume that you have followed the project setup including having [built the project baseline](../getting-started/README.md#bulding-the-baseline) and have your docker containers running.
+
 ## Smoke tests
 
-You should be able to run tests now to confirm that everything is working.
+You should be able to run tests after performing the backend setup to confirm that everything is working.
 
 ```bash
 # Smoke test checks that most of the system is working
 ./gradlew testSmoke
+```
+or
+```
+./prime test 
 ```
 
 ## Running the unit tests
@@ -16,63 +22,23 @@ The build will run the unit tests for you when you invoke `./gradlew package`. H
 ```bash
 cd ./prime-router
 ./gradlew test
-# Or to force the tests to run
+# Or to force the unit tests to run
 ./gradlew test -Pforcetest
 ```
-
-## Data conversion quick test
-
-The quick test is meant to test the data conversion and generation code. Use this following command to run all quick tests, which you should do as part of a Pull Request:
-
-```bash
-./quick-test.sh all
-```
-
+ 
 ## Running the end-to-end tests locally
 
-End-to-end tests check if the deployed system is configured correctly. The tests use an organization called IGNORE for running the tests. In order to successfully run the end-to-end tests, you will need to:
+End-to-end tests check if the deployed system is configured correctly. The tests use an organization called IGNORE for running the tests. 
 
-1. Have built successfully
-2. Export the vault's credentials
-
-    ```bash
-    cd ./prime-router
-    export $(xargs < .vault/env/.env.local)
-    ```
-
-3. Create the SFTP credentials and upload organizations' settings
-
-    ```bash
-    cd ./prime-router
-    ./prime create-credential --type=UserPass \
-            --persist=DEFAULT-SFTP \
-            --user foo \
-            --pass pass
-    ```
-
-4. Ensure that your docker containers are running (see also "[Running ReportStream](../getting-started/README.md#running-reportstream-backend)")
-
-    ```bash
-    cd ./prime-router
-    # Specify restart if they are already running and you want
-    # them to pick up new bianries
-    # i.e. ./devenv-infrastructure.sh restart
-    ./devenv-infrastructure.sh
-    ```
-
-5. Run the tests
-
-    ```bash
-    ./gradlew testEnd2End
-    ```
-    or 
-    ```bash
-    ./prime test --run end2end
-    ```
-    Or to run the entire smoke test suite locally:
-    ```
-    ./prime test
-    ```
+```bash
+./gradlew testEnd2End
+./gradlew testEnd2EndUP
+```
+or 
+```bash
+./prime test --run end2end
+./prime test --run end2end_up
+```
 
 Upon completion, the process should report success.
 
