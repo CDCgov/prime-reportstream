@@ -13,3 +13,9 @@ elements:
     value: [ '"TX-ELR"' ]
     hl7Spec: [ MSH-6 ]
 
+
+  - name: tx-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
