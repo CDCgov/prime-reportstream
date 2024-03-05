@@ -158,7 +158,7 @@ runs:
         filters: |
           router:
             - 'prime-router/**'
-            - 'operations/!((app|readme-assets|slack-boltjs-app|vpn)/**)/**'
+            - 'operations/!((app|readme-assets|slack-boltjs-app|vpn))/**'
             - '.github/actions/build-backend/action.yml'
             - '.github/actions/deploy-backend/action.yml'
             - '.github/actions/build-vars/action.yml'
