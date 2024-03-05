@@ -26,7 +26,8 @@ import {
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import {
-    DEFAULT_TIME,
+    DEFAULT_FROM_TIME,
+    DEFAULT_TO_TIME,
     getEndOfDay,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
@@ -93,8 +94,8 @@ function TableFilters({
     const [rangeFrom, setRangeFrom] = useState<Date | undefined>(undefined);
     const [rangeTo, setRangeTo] = useState<Date | undefined>(undefined);
     const formRef = useRef<HTMLFormElement>(null);
-    const [startTime, setStartTime] = useState(DEFAULT_TIME);
-    const [endTime, setEndTime] = useState(DEFAULT_TIME);
+    const [startTime, setStartTime] = useState(DEFAULT_FROM_TIME);
+    const [endTime, setEndTime] = useState(DEFAULT_TO_TIME);
     const [currentServiceSelect, setCurrentServiceSelect] = useState<string>(
         initialService?.name,
     );
@@ -124,8 +125,8 @@ function TableFilters({
             currentServiceSelect &&
             !rangeFrom &&
             !rangeTo &&
-            startTime === DEFAULT_TIME &&
-            endTime === DEFAULT_TIME
+            startTime === DEFAULT_FROM_TIME &&
+            endTime === DEFAULT_TO_TIME
         ) {
             return {
                 isFilterDisabled: false,
@@ -165,7 +166,7 @@ function TableFilters({
             // This piece of code outputs into activeFilters a human readable
             // filter array for us to display on the FE, with protections against
             // undefined
-            // Array Example: "elr, 03/04/24, 03/07/24, 12:02 AM, 04:25 PM"
+            // Example Output: "elr, 03/04/24-03/07/24, 12:02am-04:25pm"
             setFilterStatus({
                 resultLength: resultLength,
                 activeFilters: [
@@ -179,7 +180,7 @@ function TableFilters({
                             : []),
                     ].join("-"),
                     [
-                        ...(startTime !== DEFAULT_TIME
+                        ...(startTime !== DEFAULT_FROM_TIME
                             ? [
                                   format(
                                       parse(startTime, "HH:mm", new Date()),
@@ -187,15 +188,19 @@ function TableFilters({
                                   ),
                               ]
                             : []),
-                        ...(endTime !== DEFAULT_TIME
+                        ...(endTime !== DEFAULT_TO_TIME
                             ? [
                                   format(
-                                      parse(endTime, "HH:mm", new Date()),
+                                      parse(endTime, "hh:mm", new Date()),
                                       "hh:mm a",
                                   ),
                               ]
                             : []),
-                    ].join("-"),
+                    ]
+                        .join("-")
+                        .toLowerCase()
+                        .split(" ")
+                        .join(""),
                 ],
             });
         // We ONLY want to update the TableFilterStatus when loading is complete
@@ -220,8 +225,8 @@ function TableFilters({
             setReset(reset + 1);
             setRangeFrom(undefined);
             setRangeTo(undefined);
-            setStartTime(DEFAULT_TIME);
-            setEndTime(DEFAULT_TIME);
+            setStartTime(DEFAULT_FROM_TIME);
+            setEndTime(DEFAULT_TO_TIME);
             setCurrentServiceSelect(initialService.name);
             setService?.(initialService.name);
             filterManager.resetAll();
@@ -354,7 +359,7 @@ function TableFilters({
                                             if (input) {
                                                 setStartTime(input);
                                             } else {
-                                                setStartTime(DEFAULT_TIME);
+                                                setStartTime(DEFAULT_FROM_TIME);
                                             }
                                         }}
                                     />
@@ -373,7 +378,7 @@ function TableFilters({
                                             if (input) {
                                                 setEndTime(input);
                                             } else {
-                                                setEndTime(DEFAULT_TIME);
+                                                setEndTime(DEFAULT_TO_TIME);
                                             }
                                         }}
                                     />
@@ -408,7 +413,9 @@ function TableFilters({
                     </div>
                 </form>
             </section>
-            <TableFilterStatus filterStatus={filterStatus} />
+            {isPaginationLoading === false && (
+                <TableFilterStatus filterStatus={filterStatus} />
+            )}
         </>
     );
 }
