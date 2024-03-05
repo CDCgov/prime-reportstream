@@ -31,7 +31,7 @@ elements:
     value: [ '%resource.code.coding.code 
     + " " + %resource.code.text 
     + ": " + %resource.value.coding.display 
-    + " " + %resource.value.coding.code f
+    + " " + %resource.value.coding.code
     + " " + %resource.value.coding.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-3' ]
 
