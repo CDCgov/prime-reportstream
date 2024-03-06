@@ -222,6 +222,7 @@ abstract class ReportFileFunction(
      * @property showFailed whether to include actions that failed to be sent.
      * @property reportId is the reportId to get results for.
      * @property fileName is the fileName to get results for.
+     * @property receivingOrgSvcStatus is the customer status of the receiver to get results for.
      */
     data class HistoryApiParameters(
         val sortDir: HistoryDatabaseAccess.SortDir,
@@ -233,6 +234,7 @@ abstract class ReportFileFunction(
         val showFailed: Boolean,
         val reportId: String?,
         val fileName: String?,
+        val receivingOrgSvcStatus: String?,
     ) {
         constructor(query: Map<String, String>) : this(
             sortDir = extractSortDir(query),
@@ -244,6 +246,7 @@ abstract class ReportFileFunction(
             showFailed = extractShowFailed(query),
             reportId = query["reportId"],
             fileName = query["fileName"],
+            receivingOrgSvcStatus = query["receivingOrgSvcStatus"],
         )
 
         companion object {

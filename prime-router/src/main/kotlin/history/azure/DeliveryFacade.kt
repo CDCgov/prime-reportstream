@@ -26,7 +26,6 @@ class DeliveryFacade(
      *
      * @param organization from JWT Claim.
      * @param receivingOrgSvc is a specifier for the receiving organization's service.
-     * @param receivingOrgSvcStatus is the customer status of the receiving organization's service.
      * @param sortDir sort the table by date in ASC or DESC order; defaults to DESC.
      * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -35,13 +34,13 @@ class DeliveryFacade(
      * @param pageSize Int of items to return per page.
      * @param reportIdStr is the reportId to get results for.
      * @param fileName is the fileName to get results for.
+     * @param receivingOrgSvcStatus is the customer status of the receiving organization's service.
      *
      * @return a List of Actions
      */
     fun findDeliveries(
         organization: String,
         receivingOrgSvc: String?,
-        receivingOrgSvcStatus: String?,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -50,6 +49,7 @@ class DeliveryFacade(
         pageSize: Int,
         reportIdStr: String?,
         fileName: String?,
+        receivingOrgSvcStatus: String?,
     ): List<DeliveryHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."
@@ -71,7 +71,6 @@ class DeliveryFacade(
         return dbDeliveryAccess.fetchActions(
             organization,
             receivingOrgSvc,
-            receivingOrgSvcStatus,
             sortDir,
             sortColumn,
             cursor,
@@ -81,7 +80,8 @@ class DeliveryFacade(
             true,
             DeliveryHistory::class.java,
             reportId,
-            fileName
+            fileName,
+            receivingOrgSvcStatus
         )
     }
 

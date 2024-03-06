@@ -37,6 +37,7 @@ abstract class ReportHistory(
     var reportId: String? = null,
     var topic: Topic? = null,
     var reportItemCount: Int? = null,
+    var receivingOrgSvcStatus: String? = null,
 )
 
 /**
