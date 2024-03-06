@@ -36,28 +36,30 @@ const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDe
 const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
 
 /**
- * Looks up a condition code for the passed in [code] (typically a test) using the given [metadata] object
+ * Looks up condition codes for the provided LOINC [code] (typically a test) using the given [metadata] object
  * @param code test (or other type) code to look up a condition for
  * @param metadata metadata containing an observation-mapping lookup table
- * @return the condition code or null if no code was found
+ * @return a list of the matching condition codes (as `Coding`s)
  */
-private fun lookupCondition(code: Coding, metadata: Metadata): Coding? {
+private fun lookupConditionCodings(code: Coding, metadata: Metadata): List<Coding> {
     val mappingTable = metadata.findLookupTable("observation-mapping").also {
         if (it == null) { // could not load the table
             throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
         }
     }!!
-    val condition = mappingTable.caseSensitiveDataRowsMap.find { // search for the code
+    val conditions = mappingTable.caseSensitiveDataRowsMap.filter { // find codes
         it[ObservationMappingConstants.TEST_CODE_KEY] == code.code
-    }
-    return if (condition.isNullOrEmpty()) { // could not find the code
-        null
-    } else { // code found; create Coding instance to return
-        Coding(
-            condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
-            condition[ObservationMappingConstants.CONDITION_CODE_KEY],
-            condition[ObservationMappingConstants.CONDITION_NAME_KEY]
-        )
+    }.toList()
+    return if (conditions.isEmpty()) { // no codes found
+        emptyList()
+    } else { // code found; create Coding instances to return
+        conditions.map { condition ->
+            Coding(
+                condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
+                condition[ObservationMappingConstants.CONDITION_CODE_KEY],
+                condition[ObservationMappingConstants.CONDITION_NAME_KEY]
+            )
+        }
     }
 }
 
@@ -82,22 +84,22 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
 }
 
 /**
- * For every snomed/loinc code in code or valueCodeableConcept, lookup a condition code and add it as an extension
+ * For every snomed/loinc code in code or valueCodeableConcept, lookup condition codes and add them as extensions
  * @param metadata metadata containing an observation-mapping lookup table
  * @return a list of ActionLogDetail objects with information on any mapping failures
  */
-fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
+fun Observation.addMappedConditions(metadata: Metadata): List<ActionLogDetail> {
     val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
     var mappedSomething = false
     if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
 
     return codeSourcesMap.mapNotNull { codeSourceEntry ->
         codeSourceEntry.value.mapNotNull { code ->
-            lookupCondition(code, metadata).let { conditionCode ->
-                if (conditionCode == null) { // no code found, track this unmapped code
+            lookupConditionCodings(code, metadata).let { conditions ->
+                if (conditions.isEmpty()) { // no codes found, track this unmapped code
                     code.code
-                } else { // code found, add extension and return null to avoid mapping this as an error
-                    code.addExtension(conditionCodeExtensionURL, conditionCode)
+                } else { // codes found; add extensions and return null to avoid mapping this as an error
+                    conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) }
                     mappedSomething = true
                     null
                 }
@@ -110,15 +112,20 @@ fun Observation.addMappedCondition(metadata: Metadata): List<ActionLogDetail> {
 }
 
 /**
- * Gets mapped conditions present on an [Observation]
+ * Gets mapped condition extensions present on an [Observation]
  */
-fun Observation.getMappedConditions(): List<Coding> {
+fun Observation.getMappedConditionExtensions(): List<Extension> {
     return this.getCodeSourcesMap()
         .flatMap { it.value }
         .flatMap { it.extension }
         .filter { it.url == conditionCodeExtensionURL }
-        .map { it.castToCoding(it.value) }
 }
+
+/**
+ * Gets mapped conditions present on an [Observation]
+ */
+fun Observation.getMappedConditions(): List<Coding> =
+    this.getMappedConditionExtensions().map { it.castToCoding(it.value) }
 
 /**
  * Gets mapped condition codes present on an [Observation]
