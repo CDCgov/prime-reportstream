@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
@@ -25,6 +26,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.cli.tests.CompareData
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.CompareFhirData
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -345,7 +347,7 @@ class FhirConverterTests {
         ).isNull()
 
         assertThat(
-            engine.getTransformerFromSchema("classpath:/fhir_sender_transforms/classpath_sample_schema.yml")
+            engine.getTransformerFromSchema("fhir_sender_transforms/classpath_sample_schema")
         ).isNotNull()
     }
 
@@ -591,5 +593,23 @@ class FhirConverterTests {
                 }
             )
         }
+    }
+
+    // TODO: #10510
+    @Test
+    fun `test convertRelativeSchemaPathToUri`() {
+        assertThat(BaseEngine.convertRelativeSchemaPathToUri("")).isEqualTo("")
+        assertThat(
+            BaseEngine
+                .convertRelativeSchemaPathToUri("classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml")
+        ).isEqualTo(
+            "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        )
+        assertThat(
+            BaseEngine
+                .convertRelativeSchemaPathToUri("metadata/hl7_mapping/ORU_R01/ORU_R01-base")
+        ).isEqualTo(
+            "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        )
     }
 }

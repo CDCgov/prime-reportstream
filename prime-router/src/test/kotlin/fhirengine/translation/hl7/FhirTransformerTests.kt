@@ -871,7 +871,8 @@ class FhirTransformerTests {
         val bundle = messages[0]
 
         val childSchema = ConfigSchemaReader.fromFile(
-            "classpath:/fhir_sender_transforms/test_extension_schema.yml",
+            "test_extension_schema",
+            "src/test/resources/fhir_sender_transforms",
             schemaClass = FhirTransformSchema::class.java,
             blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
         )
