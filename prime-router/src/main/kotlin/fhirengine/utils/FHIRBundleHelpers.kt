@@ -47,20 +47,15 @@ private fun lookupConditionCodings(code: Coding, metadata: Metadata): List<Codin
             throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
         }
     }!!
-    val conditions = mappingTable.caseSensitiveDataRowsMap.filter { // find codes
+    return mappingTable.caseSensitiveDataRowsMap.filter { // find codes
         it[ObservationMappingConstants.TEST_CODE_KEY] == code.code
+    }.map { condition ->
+       Coding(
+           condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
+           condition[ObservationMappingConstants.CONDITION_CODE_KEY],
+           condition[ObservationMappingConstants.CONDITION_NAME_KEY]
+       )
     }.toList()
-    return if (conditions.isEmpty()) { // no codes found
-        emptyList()
-    } else { // code found; create Coding instances to return
-        conditions.map { condition ->
-            Coding(
-                condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
-                condition[ObservationMappingConstants.CONDITION_CODE_KEY],
-                condition[ObservationMappingConstants.CONDITION_NAME_KEY]
-            )
-        }
-    }
 }
 
 /**

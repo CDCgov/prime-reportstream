@@ -810,7 +810,7 @@ class FHIRBundleHelpersTests {
                         "Influenza (disorder)"
                     ),
                     listOf(
-                        "260373001",
+                        "80382-5",
                         "Some Condition Code",
                         "Condition Code System",
                         "Condition Name"
@@ -822,7 +822,6 @@ class FHIRBundleHelpersTests {
         val entry = Observation()
         val code = CodeableConcept()
         code.addCoding(Coding("system", "80382-5", "display"))
-        code.addCoding(Coding("system", "260373001", "display"))
         entry.setCode(code)
 
         val logs = entry.addMappedConditions(metadata)
