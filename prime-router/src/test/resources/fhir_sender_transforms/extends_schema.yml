@@ -1,4 +1,4 @@
-extends: classpath:/fhir_sender_transforms/sample_schema.yml
+extends: sample_schema
 elements:
   - name: note
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'

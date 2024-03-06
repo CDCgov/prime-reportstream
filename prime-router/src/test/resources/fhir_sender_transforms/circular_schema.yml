@@ -1,4 +1,4 @@
-extends: classpath:/fhir_sender_transforms/circular_schema.yml
+extends: circular_schema
 elements:
   - name: status
     constants:
@@ -17,4 +17,4 @@ elements:
   - name: observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
     resourceIndex: observationIndex
-    schema: classpath:/fhir_sender_transforms/observation.yml
+    schema: observation

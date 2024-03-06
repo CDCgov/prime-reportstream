@@ -10,10 +10,12 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
  */
 fun converterSchemaFromFile(
     schemaName: String,
+    folder: String? = null,
     blobConnectionInfo: BlobAccess.BlobContainerMetadata,
 ): HL7ConverterSchema {
     return ConfigSchemaReader.fromFile(
         schemaName,
+        folder,
         schemaClass = HL7ConverterSchema::class.java,
         blobConnectionInfo
     )

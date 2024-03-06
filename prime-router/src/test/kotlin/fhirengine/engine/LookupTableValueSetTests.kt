@@ -47,15 +47,16 @@ class LookupTableValueSetTests {
 
         assertThat(
             fhirTransformSchemaFromFile(
-                "classpath:/fhir_sender_transforms/lookup_value_set.yml",
+                "lookup_value_set",
+                "src/test/resources/fhir_sender_transforms",
                 blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             ).isValid()
         ).isTrue()
 
         assertFailure {
             fhirTransformSchemaFromFile(
-                "classpath:/fhir_sender_transforms/invalid_lookup_value_set.yml",
-
+                "invalid_lookup_value_set",
+                "src/test/resources/fhir_sender_transforms",
                 blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }
