@@ -381,7 +381,7 @@ class ActionHistory(
         reportFile.nextAction = report.nextAction
         reportFile.sendingOrg = source.organization
         reportFile.sendingOrgClient = source.client
-        reportFile.schemaName = report.schema.name
+        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
         reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
@@ -417,7 +417,7 @@ class ActionHistory(
         reportFile.nextAction = TaskAction.send
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        reportFile.schemaName = report.schema.name
+        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
         reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
@@ -449,7 +449,7 @@ class ActionHistory(
         reportFile.reportId = report.id
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        reportFile.schemaName = report.schema.name
+        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
         reportFile.bodyFormat = report.bodyFormat.toString()
@@ -476,7 +476,7 @@ class ActionHistory(
         val reportFile = ReportFile()
 
         reportFile.reportId = report.id
-        reportFile.schemaName = report.schema.name
+        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
 
@@ -549,15 +549,7 @@ class ActionHistory(
         reportFile.reportId = sentReportId
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        // The schema_name column only support 63 characters
-        // If the schemaName is a URI grab the path and then take the last 63
-        // otherwise just take the last 63
-        // TODO: Ticket to update the column max length
-        reportFile.schemaName = try {
-            URI(receiver.schemaName).path.takeLast(63)
-        } catch (ex: URISyntaxException) {
-            receiver.schemaName.takeLast(63)
-        }
+        reportFile.schemaName = trimSchemaNameToMaxLength(receiver.schemaName)
         reportFile.schemaTopic = receiver.topic
         reportFile.externalName = filename
         action.externalName = filename
@@ -593,7 +585,7 @@ class ActionHistory(
         reportFile.reportId = externalReportId // child report
         reportFile.receivingOrg = parentReportFile.receivingOrg
         reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
-        reportFile.schemaName = parentReportFile.schemaName
+        reportFile.schemaName = trimSchemaNameToMaxLength(parentReportFile.schemaName)
         reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = filename
         action.externalName = filename
@@ -704,6 +696,22 @@ class ActionHistory(
     }
 
     companion object : Logging {
+
+        // The schema_name column only support 63 characters
+        // If the schemaName is a URI grab the path and then take the last 63
+        // otherwise just take the last 63
+        // TODO: #13598
+        fun trimSchemaNameToMaxLength(schemaName: String?): String? {
+            if (schemaName == null) {
+                return schemaName
+            }
+            return try {
+                URI(schemaName).path.replace(".yml", "").takeLast(63)
+            } catch (ex: URISyntaxException) {
+                schemaName.takeLast(63)
+            }
+        }
+
         /**
          * Get rid of this once we have moved away from the old Task table.  In the meantime,
          * this is a way of confirming that the new tables are robust.

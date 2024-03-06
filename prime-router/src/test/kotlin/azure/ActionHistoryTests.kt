@@ -362,7 +362,7 @@ class ActionHistoryTests {
         actionHistory1.trackSentReport(org.receivers[0], uuid, "filename1", "params1", "result1", header)
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory1.reportsOut[uuid]?.schemaName)
-            .isEqualTo("ceivers/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME.yml")
+            .isEqualTo("g/receivers/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
 
         val actionHistory2 = ActionHistory(TaskAction.receive)
 
@@ -561,5 +561,12 @@ class ActionHistoryTests {
         assertNotEquals(blobUrls[0], blobUrls[1])
         assertContains(blobUrls[0], org.receivers[0].fullName)
         assertContains(blobUrls[1], org.receivers[1].fullName)
+    }
+
+    @Test
+    fun `test trimSchemaNameToMaxLength malformed URI`() {
+        val longMalformedURI = ":very_very:_long_name//with a badly formed URI that causes a parse exception"
+        val trimmed = ActionHistory.trimSchemaNameToMaxLength((longMalformedURI))
+        assertThat(trimmed).isEqualTo("ong_name//with a badly formed URI that causes a parse exception")
     }
 }
