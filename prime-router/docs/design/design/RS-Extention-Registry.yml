@@ -316,7 +316,7 @@
           valueType: String
           hl7Use: NA
           constant: "MSH.3", "MSH.24"
-            
+
 - Resource: Any
   FHIR-Type: Attachment
   HL7-Type:
@@ -1016,6 +1016,310 @@
 - Resource: Patient
   FHIR-Type: NA
   HL7-Type:
+    PID:
+      Example:
+        {
+          "fullUrl": "Patient/1707859244746803000.74fe1e9c-4e86-46b2-aef7-4c4f328d6a39",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "1707859244746803000.74fe1e9c-4e86-46b2-aef7-4c4f328d6a39",
+            "meta": {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+                  "valueReference": {
+                    "reference": "Organization/1707859244741241000.cf497536-adc4-41c1-b345-aa57c137c52f"
+                  }
+                }
+              ],
+              "lastUpdated": "2012-06-17T00:00:00-05:00",
+              "_lastUpdated": {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                    "valueString": "201206170000-0500"
+                  }
+                ]
+              }
+            },
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
+                "extension": [
+                  {
+                    "url": "PID.8",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "M"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "PID.18",
+                    "valueIdentifier": {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+                          "valueReference": {
+                            "reference": "Organization/1707859244717805000.b82898b6-2d84-4c68-a013-6200bbc9c05e"
+                          }
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier",
+                          "extension": [
+                            {
+                              "url": "CX.5",
+                              "valueString": "SS"
+                            }
+                          ]
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                          "valueString": "PID.18"
+                        }
+                      ],
+                      "type": {
+                        "coding": [
+                          {
+                            "code": "SS"
+                          }
+                        ]
+                      },
+                      "system": "SSN",
+                      "_system": {
+                        "extension": [
+                          {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                            "valueString": "SSN"
+                          },
+                          {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                            "valueString": "2.16.840.1.113883.4.1"
+                          },
+                          {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                            "valueString": "ISO"
+                          }
+                        ]
+                      },
+                      "value": "111111111"
+                    }
+                  },
+                  {
+                    "url": "PID.24",
+                    "valueString": "N"
+                  },
+                  {
+                    "url": "PID.30",
+                    "valueString": "N"
+                  },
+                  {
+                    "url": "PID.32",
+                    "valueCodeableConcept": {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid",
+                          "valueOid": "urn:oid:2.22.222.2"
+                        }
+                      ],
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                              "valueString": "HL70445"
+                            }
+                          ],
+                          "version": "2.5.1",
+                          "code": "AL",
+                          "display": "Patient/Person Name is an Alias"
+                        }
+                      ],
+                      "text": "TEST"
+                    }
+                  },
+                  {
+                    "url": "PID.38",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                              "valueString": "HL70445"
+                            }
+                          ],
+                          "code": "AL",
+                          "display": "Patient/Person Name is an Alias"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/veteran-military-status",
+                "valueCodeableConcept": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid",
+                      "valueOid": "urn:oid:9.99.999.9"
+                    }
+                  ],
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "HL70172"
+                        }
+                      ],
+                      "version": "2.5.1",
+                      "code": "V",
+                      "display": "Veteren"
+                    },
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "secondary-alt-coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "HL70172"
+                        }
+                      ],
+                      "version": "2.5.1",
+                      "code": "OV",
+                      "display": "Other Veteren"
+                    },
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "alt-coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "HL70172"
+                        }
+                      ],
+                      "version": "2.5.1",
+                      "code": "TV",
+                      "display": "Test Veteren"
+                    }
+                  ],
+                  "text": "TEST"
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/identity-unknown",
+                "valueString": "N"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "HL70189"
+                        }
+                      ],
+                      "system": "http://terminology.hl7.org/CodeSystem/v2-0189",
+                      "version": "2.5.1",
+                      "code": "N",
+                      "display": "Not Hispanic or Latino"
+                    },
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "alt-coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "L"
+                        }
+                      ],
+                      "system": "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+                      "version": "4",
+                      "code": "NH",
+                      "display": "Non hispanic"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: ethnic-group
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group"
+          valueType: CodeableConcept
+          hl7Use: PID.22
+        - id: veteran-military-status
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/veteran-military-status"
+          valueType: CodeableConcept
+          hl7Use: PID.27
+        - id: identity-unknown
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identity-unknown"
+          valueType: String
+          hl7Use: PID.31
+        - id: pid-patient
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient"
+          valueType: Extension
+          hl7Use: NA
+          extension:
+            - id: PID.8
+              url: "PID.8"
+              valueType: CodeableConcept
+              hl7Use: PID.8
+            - id: PID.18
+              url: "PID.18"
+              valueType: Identifier
+              hl7Use: PID.18
+            - id: PID.24
+              url: "PID.24"
+              valueType: String
+              hl7Use: PID.24
+            - id: PID.30
+              url: "PID.30"
+              valueType: String
+              hl7Use: PID.30
+            - id: PID.32
+              url: "PID.32"
+              valueType: CodeableConcept
+              hl7Use: PID.32
+            - id: PID.38
+              url: "PID.38"
+              valueType: CodeableConcept
+              hl7Use: PID.38
     CWE:
       Example:
         {
@@ -1081,6 +1385,30 @@
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code"
           valueType: CodeableConcept
           hl7Use: CWE
+    HD:
+      Example:
+        {
+          "fullUrl": "Patient/1707859244746803000.74fe1e9c-4e86-46b2-aef7-4c4f328d6a39",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "1707859244746803000.74fe1e9c-4e86-46b2-aef7-4c4f328d6a39",
+            "meta": {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+                  "valueReference": {
+                    "reference": "Organization/1707859244741241000.cf497536-adc4-41c1-b345-aa57c137c52f"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      Extension:
+        - id: last-updated-facility-namespace-id
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id"
+          valueType: Reference
+          hl7Use: HD
 
 - Resource: Any
   FHIR-Type: ContactPoint
