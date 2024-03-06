@@ -191,7 +191,7 @@ function TableFilters({
                         ...(endTime !== DEFAULT_TO_TIME
                             ? [
                                   format(
-                                      parse(endTime, "hh:mm", new Date()),
+                                      parse(endTime, "HH:mm", new Date()),
                                       "hh:mm a",
                                   ),
                               ]
