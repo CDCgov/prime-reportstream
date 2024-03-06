@@ -25,6 +25,8 @@ import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
+import java.net.URI
+import java.net.URISyntaxException
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -542,11 +544,20 @@ class ActionHistory(
             receiver.fullName,
             Event.EventAction.NONE
         )
+
         val reportFile = ReportFile()
         reportFile.reportId = sentReportId
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        reportFile.schemaName = receiver.schemaName
+        // The schema_name column only support 63 characters
+        // If the schemaName is a URI grab the path and then take the last 63
+        // otherwise just take the last 63
+        // TODO: Ticket to update the column max length
+        reportFile.schemaName = try {
+            URI(receiver.schemaName).path.takeLast(63)
+        } catch (ex: URISyntaxException) {
+            receiver.schemaName.takeLast(63)
+        }
         reportFile.schemaTopic = receiver.topic
         reportFile.externalName = filename
         action.externalName = filename
