@@ -10,10 +10,12 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
  */
 fun fhirTransformSchemaFromFile(
     schemaName: String,
+    folder: String? = null,
     blobConnectionInfo: BlobAccess.BlobContainerMetadata,
 ): FhirTransformSchema {
     return ConfigSchemaReader.fromFile(
         schemaName,
+        folder,
         schemaClass = FhirTransformSchema::class.java,
         blobConnectionInfo
     )

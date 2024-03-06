@@ -95,26 +95,6 @@ val reportsApiEndpointHost = (
         ?: "localhost"
     )
 
-// This storage account key is not a secret, just a dummy value.
-val devAzureConnectString =
-    "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
-        "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
-        "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
-
-val env = mutableMapOf<String, Any>(
-    "AzureWebJobsStorage" to devAzureConnectString,
-    "AzureBlobDownloadRetryCount" to 5,
-    "PartnerStorage" to devAzureConnectString,
-    "POSTGRES_USER" to dbUser,
-    "POSTGRES_PASSWORD" to dbPassword,
-    "POSTGRES_URL" to dbUrl,
-    "PRIME_ENVIRONMENT" to "local",
-    "VAULT_API_ADDR" to "http://localhost:8200",
-    "SFTP_HOST_OVERRIDE" to "localhost",
-    "SFTP_PORT_OVERRIDE" to "2222",
-    "RS_OKTA_baseUrl" to "reportstream.oktapreview.com"
-)
-
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
@@ -417,7 +397,6 @@ tasks.register<JavaExec>("primeCLI") {
     environment["POSTGRES_PASSWORD"] = dbPassword
     environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
     addVaultValuesToEnv(environment)
-    environment(env)
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
@@ -600,6 +579,26 @@ dockerCompose {
 tasks.azureFunctionsRun {
     dependsOn("composeUp")
     dependsOn("uploadSwaggerUI").mustRunAfter("composeUp")
+
+    // This storage account key is not a secret, just a dummy value.
+    val devAzureConnectString =
+        "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
+            "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
+            "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+
+    val env = mutableMapOf<String, Any>(
+        "AzureWebJobsStorage" to devAzureConnectString,
+        "AzureBlobDownloadRetryCount" to 5,
+        "PartnerStorage" to devAzureConnectString,
+        "POSTGRES_USER" to dbUser,
+        "POSTGRES_PASSWORD" to dbPassword,
+        "POSTGRES_URL" to dbUrl,
+        "PRIME_ENVIRONMENT" to "local",
+        "VAULT_API_ADDR" to "http://localhost:8200",
+        "SFTP_HOST_OVERRIDE" to "localhost",
+        "SFTP_PORT_OVERRIDE" to "2222",
+        "RS_OKTA_baseUrl" to "reportstream.oktapreview.com"
+    )
 
     // Load the vault variables
     addVaultValuesToEnv(env)

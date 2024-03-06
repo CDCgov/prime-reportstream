@@ -10,8 +10,7 @@ import org.apache.logging.log4j.kotlin.Logging
 
 class SyncTranslationSchemaCommand :
     CliktCommand(
-        name = "syncSchemas",
-        // TODO
+        name = "syncShcmeas",
         help = """"
     """.trimMargin()
     ),
@@ -73,22 +72,15 @@ class SyncTranslationSchemaCommand :
         if (!sourceIsValid) {
             echo("Source is not valid and schemas will not be synced", err = true)
         } else {
-            // The destination state can be null if this is first time it is getting synced
-            val destinationValidationState = try {
+            val destinationValidationState =
                 translationSchemaManager.retrieveValidationState(schemaType, destinationContainerMetadata)
-            } catch (e: TranslationSchemaManager.Companion.TranslationStateUninitalized) {
-                null
-            }
-
-            if (destinationValidationState?.validating != null) {
+            if (destinationValidationState.validating != null) {
                 echo("Cannot sync to destination, schemas are currently being validated", err = true)
             } else {
                 val sourceValidationState =
                     translationSchemaManager.retrieveValidationState(schemaType, sourceContainerMetadata)
 
-                if (destinationValidationState != null &&
-                    sourceValidationState.isOutOfDate(destinationValidationState)
-                ) {
+                if (sourceValidationState.isOutOfDate(destinationValidationState)) {
                     echo("Destination has been updated more recently than source copy of schemas", err = true)
                 } else {
                     echo("Source and destination are both in a valid state to sync schemas, beginning sync...")
