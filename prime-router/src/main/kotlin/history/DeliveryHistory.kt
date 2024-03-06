@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -56,7 +57,7 @@ class DeliveryHistory(
     val schemaName: String,
     @JsonProperty("fileType")
     val bodyFormat: String,
-    receivingOrgSvcStatus: String? = null,
+    receivingOrgSvcStatus: CustomerStatus? = null,
 ) : ReportHistory(
     actionId,
     createdAt,
