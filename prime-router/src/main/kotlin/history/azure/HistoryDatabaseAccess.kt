@@ -49,7 +49,6 @@ abstract class HistoryDatabaseAccess(
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
      * @param orgService is a specifier for an organization, such as the client or service used to send/receive
-     * @param receivingOrgSvcStatus is the status of the receiving organization's service.
      * @param sortDir sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -60,12 +59,12 @@ abstract class HistoryDatabaseAccess(
      * @param klass the class that the found data will be converted to.
      * @param reportId is the reportId to get results for.
      * @param fileName is the fileName to get results for.
+     * @param receivingOrgSvcStatus is the status of the receiving organization's service.
      * @return a list of results matching the SQL Query.
      */
     fun <T> fetchActions(
         organization: String,
         orgService: String?,
-        receivingOrgSvcStatus: String?,
         sortDir: SortDir,
         sortColumn: SortColumn,
         cursor: OffsetDateTime?,
@@ -76,6 +75,7 @@ abstract class HistoryDatabaseAccess(
         klass: Class<T>,
         reportId: UUID? = null,
         fileName: String? = null,
+        receivingOrgSvcStatus: String? = null,
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
         val whereClause =
@@ -103,7 +103,7 @@ abstract class HistoryDatabaseAccess(
                             .eq(DSL.jsonbGetAttributeAsText(SETTING.VALUES, "organizationName"))
                         )
                         .and(
-                            REPORT_FILE.RECEIVING_ORG
+                            REPORT_FILE.RECEIVING_ORG_SVC
                             .eq(DSL.jsonbGetAttributeAsText(SETTING.VALUES, "name"))
                         )
                         .and(SETTING.IS_ACTIVE)
@@ -169,10 +169,10 @@ abstract class HistoryDatabaseAccess(
         var filter = this.organizationFilter(organization, orgService)
 
         if (receivingOrgSvcStatus != null) {
-            filter = if (receivingOrgSvcStatus == CustomerStatus.ACTIVE.toString()) {
+            filter = if (receivingOrgSvcStatus.uppercase() == CustomerStatus.ACTIVE.toString()) {
                 filter.and(
                     DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
-                    .notEqual(CustomerStatus.INACTIVE.toString())
+                    .notEqual(CustomerStatus.INACTIVE.toString().lowercase())
                 )
             } else {
                 filter.and(
