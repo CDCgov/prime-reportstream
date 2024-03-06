@@ -8,6 +8,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import com.google.common.net.HttpHeaders
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -41,7 +42,7 @@ class DeliveryFacadeTests {
             "",
             "covid-19",
             "HL7_BATCH",
-            "active"
+            CustomerStatus.ACTIVE
         )
 
         val delivery2 = DeliveryHistory(
@@ -56,7 +57,7 @@ class DeliveryFacadeTests {
             "",
             "primedatainput/pdi-covid-19",
             "CSV",
-            "inactive"
+            CustomerStatus.INACTIVE
         )
 
         val goodReturn = listOf(delivery1, delivery2)
@@ -233,7 +234,7 @@ class DeliveryFacadeTests {
             "",
             "covid-19",
             "HL7_BATCH",
-            "active"
+            CustomerStatus.ACTIVE
         )
 
         every {

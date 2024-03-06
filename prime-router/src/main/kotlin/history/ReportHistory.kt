@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.ItemActionLogDetail
 import gov.cdc.prime.router.Topic
@@ -37,7 +38,7 @@ abstract class ReportHistory(
     var reportId: String? = null,
     var topic: Topic? = null,
     var reportItemCount: Int? = null,
-    var receivingOrgSvcStatus: String? = null,
+    var receivingOrgSvcStatus: CustomerStatus? = null,
 )
 
 /**

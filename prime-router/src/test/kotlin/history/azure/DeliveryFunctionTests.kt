@@ -117,7 +117,7 @@ class DeliveryFunctionTests : Logging {
             bodyUrl = null,
             schemaName = "covid-19",
             bodyFormat = "HL7_BATCH",
-            receivingOrgSvcStatus = "active",
+            receivingOrgSvcStatus = CustomerStatus.ACTIVE,
         ),
         DeliveryHistory(
             actionId = 284,
@@ -131,7 +131,7 @@ class DeliveryFunctionTests : Logging {
             bodyUrl = null,
             schemaName = "primedatainput/pdi-covid-19",
             bodyFormat = "CSV",
-            receivingOrgSvcStatus = "active",
+            receivingOrgSvcStatus = CustomerStatus.ACTIVE,
         )
     )
 
@@ -451,7 +451,7 @@ class DeliveryFunctionTests : Logging {
             null,
             "primedatainput/pdi-covid-19",
             "CSV",
-            "active",
+            CustomerStatus.ACTIVE,
         )
         // Happy path with a good UUID
         val action = Action()
