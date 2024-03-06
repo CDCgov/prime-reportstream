@@ -2144,6 +2144,66 @@
               url: "PD1.22"
               valueType: String
               hl7Use: PD1.22
+    NTE:
+      Example:
+        {
+          "fullUrl": "Patient/1707860159924095000.87ab51c7-db37-4d4e-bddb-533d4fff0820",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "1707860159924095000.87ab51c7-db37-4d4e-bddb-533d4fff0820",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes",
+                "valueAnnotation": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
+                      "valueCodeableConcept": {
+                        "extension": [
+                          {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid",
+                            "valueOid": "urn:oid:2.16.840.1.113883.12.364"
+                          }
+                        ],
+                        "coding": [
+                          {
+                            "extension": [
+                              {
+                                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                                "valueString": "coding"
+                              },
+                              {
+                                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                                "valueString": "HL70364"
+                              }
+                            ],
+                            "version": "2.5.1",
+                            "code": "RE",
+                            "display": "Remark"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/note-comment",
+                      "valueId": "Accession level coment."
+                    },
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
+                      "valueId": "L"
+                    }
+                  ],
+                  "text": "Accession level coment."
+                }
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: patient-notes
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes"
+          valueType: Annotation
+          hl7Use: NTE
     CWE:
       Example:
         {
