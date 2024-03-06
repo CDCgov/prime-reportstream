@@ -162,11 +162,24 @@ function TableFilters({
     }, [currentServiceSelect, endTime, rangeFrom, rangeTo, startTime]);
 
     useEffect(() => {
+        // These variable and the logic below are for a specific use case:
+        // We do NOT want to show the time range portion of the FilterStatus
+        // when a user didn't manipulate both the Start time and End time.
+        // However, to our controlled components, our input is always applied,
+        // so we have to access the inputs via an uncontrolled method to see if
+        // a user manipulated them or now.
+        const startTimeElm = formRef?.current?.querySelector(
+            "#start-time",
+        ) as HTMLInputElement | null;
+        const endTimeElm = formRef?.current?.querySelector(
+            "#end-time",
+        ) as HTMLInputElement | null;
         if (isPaginationLoading === false)
             // This piece of code outputs into activeFilters a human readable
             // filter array for us to display on the FE, with protections against
             // undefined
             // Example Output: "elr, 03/04/24-03/07/24, 12:02am-04:25pm"
+
             setFilterStatus({
                 resultLength: resultLength,
                 activeFilters: [
@@ -180,16 +193,12 @@ function TableFilters({
                             : []),
                     ].join("-"),
                     [
-                        ...(startTime !== DEFAULT_FROM_TIME
+                        ...(!!startTimeElm?.value || !!endTimeElm?.value
                             ? [
                                   format(
                                       parse(startTime, "HH:mm", new Date()),
                                       "hh:mm a",
                                   ),
-                              ]
-                            : []),
-                        ...(endTime !== DEFAULT_TO_TIME
-                            ? [
                                   format(
                                       parse(endTime, "HH:mm", new Date()),
                                       "hh:mm a",
