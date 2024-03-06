@@ -191,7 +191,7 @@ function TableFilters({
                         ...(rangeTo && isValid(rangeTo)
                             ? [format(rangeTo, "MM/dd/yy")]
                             : []),
-                    ].join("-"),
+                    ].join("–"),
                     [
                         ...(!!startTimeElm?.value || !!endTimeElm?.value
                             ? [
@@ -206,7 +206,7 @@ function TableFilters({
                               ]
                             : []),
                     ]
-                        .join("-")
+                        .join("–")
                         .toLowerCase()
                         .split(" ")
                         .join(""),
