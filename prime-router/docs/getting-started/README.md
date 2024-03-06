@@ -117,10 +117,7 @@ Again, we will use a Gradle task to do these steps.
 
 ## Running ReportStream backend
 
-<details>
-  <summary>Docker Desktop</summary>
-If you are using Docker Desktop, verify that it is running prior to building or running ReportStream locally.
-</details>
+Verify that your docker engine is running prior to building or running ReportStream locally (either Docker Desktop or through the command line).
 
 Building and running ReportStream requires a locally accessible PostgreSQL database instance that is initially setup and run by the `cleanslate.sh` script. This database instance runs as a Docker container defined by the `docker-compose.build.yml` file. You will need to start this database instance upon a workstation reboot by using the following command:
 
