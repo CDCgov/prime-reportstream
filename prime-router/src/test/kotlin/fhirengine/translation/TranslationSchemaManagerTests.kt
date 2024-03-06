@@ -349,57 +349,6 @@ class TranslationSchemaManagerTests {
     }
 
     @Test
-    fun `syncSchemas - destination is not initialized`() {
-        val sourceBlobContainerMetadata = createBlobMetadata(azuriteContainer1)
-        val destinationBlobContainerMetadata = createBlobMetadata(azuriteContainer2)
-
-        val sourceValidBlobName = "${TranslationSchemaManager.SchemaType.FHIR.directory}/valid-${Instant.now()}.txt"
-        BlobAccess.uploadBlob(
-            sourceValidBlobName,
-            "".toByteArray(),
-            sourceBlobContainerMetadata
-        )
-        val sourcePreviousValidBlobName = "${TranslationSchemaManager.SchemaType.FHIR.directory}/previous-valid-${
-            Instant.now().minus(5, ChronoUnit.MINUTES)
-        }.txt"
-        BlobAccess.uploadBlob(
-            sourcePreviousValidBlobName,
-            "".toByteArray(),
-            sourceBlobContainerMetadata
-        )
-        setupSchemaInDir(
-            TranslationSchemaManager.SchemaType.FHIR,
-            "dev/bar",
-            sourceBlobContainerMetadata,
-            "/src/test/resources/fhirengine/translation/FHIR_to_FHIR"
-        )
-
-        val sourceValidationState = TranslationSchemaManager().retrieveValidationState(
-            TranslationSchemaManager.SchemaType.FHIR,
-            sourceBlobContainerMetadata
-        )
-
-        TranslationSchemaManager().syncSchemas(
-            TranslationSchemaManager.SchemaType.FHIR,
-            sourceValidationState,
-            null,
-            sourceBlobContainerMetadata,
-            destinationBlobContainerMetadata
-        )
-
-        val destinationValidationStateAfter = TranslationSchemaManager().retrieveValidationState(
-            TranslationSchemaManager.SchemaType.FHIR,
-            destinationBlobContainerMetadata
-        )
-
-        assertThat(destinationValidationStateAfter.validating).isNotNull()
-        assertThat(destinationValidationStateAfter.previousPreviousValid).isNotNull()
-        assertThat(destinationValidationStateAfter.previousValid).isNotNull()
-        assertThat(destinationValidationStateAfter.valid).isNull()
-        assertThat(destinationValidationStateAfter.schemaBlobs).hasSize(3)
-    }
-
-    @Test
     fun `handleValidationSuccess - all files present`() {
         val blobContainerMetadata = createBlobMetadata(azuriteContainer1)
         val (previousValidBlobName, previousPreviousValidBlobName) = setupValidatingState(
@@ -585,17 +534,6 @@ class TranslationSchemaManagerTests {
         }
         assertThat(exception.message)
             .isEqualTo("Validation state was invalid, there are multiple previous-previous-valid blobs")
-    }
-
-    @Test
-    fun `retrieveValidationState - state is not initialized`() {
-        val blobContainerMetadata = createBlobMetadata(azuriteContainer1)
-        assertThrows<TranslationSchemaManager.Companion.TranslationStateUninitalized> {
-            TranslationSchemaManager().retrieveValidationState(
-                TranslationSchemaManager.SchemaType.FHIR,
-                blobContainerMetadata
-            )
-        }
     }
 
     @Test

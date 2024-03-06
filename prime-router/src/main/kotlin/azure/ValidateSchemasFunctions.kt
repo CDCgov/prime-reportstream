@@ -5,14 +5,13 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.TranslationSchemaManager
-import org.apache.logging.log4j.kotlin.Logging
 
 /**
  * Functions in this class are part of the workflow to sync translation schemas between azure blob stores.  There exists
  * one for each kind of schema (FHIR->FHIR, FHIR->HL7) and each function is triggered when a validating.txt blob is
  * added to the respective directory.
  */
-class ValidateSchemasFunctions : Logging {
+class ValidateSchemasFunctions {
 
     private val translationSchemaManager = TranslationSchemaManager()
 
@@ -45,7 +44,7 @@ class ValidateSchemasFunctions : Logging {
     fun validateFHIRToHL7Schemas(
         @BlobTrigger(
             name = "validatingFile",
-            path = "metadata/hl7_mapping/validating.txt"
+            path = "metadata/hl7_mappings/validating.txt"
         ) @Suppress("UNUSED_PARAMETER") content: Array<Byte>,
     ) {
         val blobConnectionString = Environment.get().blobEnvVar
@@ -77,10 +76,8 @@ class ValidateSchemasFunctions : Logging {
         val validationState = translationSchemaManager.retrieveValidationState(schemaType, blobContainerMetadata)
         if (results.all { it.passes }) {
             translationSchemaManager.handleValidationSuccess(schemaType, validationState, blobContainerMetadata)
-            logger.info("Successfully validated schema changes.")
         } else {
             translationSchemaManager.handleValidationFailure(schemaType, validationState, blobContainerMetadata)
-            logger.error("Schemas did not pass validation and changes were rolled back.")
         }
     }
 }

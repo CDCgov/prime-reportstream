@@ -99,7 +99,6 @@ class FhirTranslatorTests {
     @Test
     fun `test full elr translation happy path, one receiver`() {
         mockkObject(BlobAccess)
-        mockkObject(BlobAccess.BlobContainerMetadata)
 
         // set up
         val actionHistory = mockk<ActionHistory>()
@@ -125,12 +124,6 @@ class FhirTranslatorTests {
         every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every {
-            BlobAccess.BlobContainerMetadata.build(
-                "metadata",
-                any()
-            )
-        } returns mockk<BlobAccess.BlobContainerMetadata>()
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
@@ -174,7 +167,6 @@ class FhirTranslatorTests {
     @Test
     fun `test full elr translation happy path, custom schema`() {
         mockkObject(BlobAccess)
-        mockkObject(BlobAccess.BlobContainerMetadata)
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -199,12 +191,6 @@ class FhirTranslatorTests {
         every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every {
-            BlobAccess.BlobContainerMetadata.build(
-                "metadata",
-                any()
-            )
-        } returns mockk<BlobAccess.BlobContainerMetadata>()
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)

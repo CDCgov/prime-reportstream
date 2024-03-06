@@ -22,7 +22,6 @@ import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
-import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -179,7 +178,8 @@ class FHIRTranslator(
             receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
                 logger.info("Applying enrichment schema $enrichmentSchemaName")
                 val transformer = FhirTransformer(
-                    enrichmentSchemaName,
+                    convertRelativeSchemaPathToUri(enrichmentSchemaName),
+                    ""
                 )
                 transformer.process(bundle)
             }
@@ -188,7 +188,8 @@ class FHIRTranslator(
             Report.Format.FHIR -> {
                 if (receiver.schemaName.isNotEmpty()) {
                     val transformer = FhirTransformer(
-                        receiver.schemaName,
+                        convertRelativeSchemaPathToUri(receiver.schemaName),
+                        ""
                     )
                     transformer.process(bundle)
                 }
@@ -217,10 +218,10 @@ class FHIRTranslator(
                 receiver
             )
         }
-
+        // TODO: #10510
         val converter = FhirToHl7Converter(
-            receiver.schemaName,
-            BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().blobEnvVar),
+            convertRelativeSchemaPathToUri(receiver.schemaName),
+            "",
             context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
         )
         val hl7Message = converter.process(bundle)

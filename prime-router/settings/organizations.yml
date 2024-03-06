@@ -104,19 +104,19 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
+      schemaName: metadata/fhir_transforms/senders/original-pipeline-transforms
       format: HL7
     - name: dev-simple-report      # Use this to test full-elr
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml
+      schemaName: metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform
       format: FHIR
     - name: ignore-etor-ti      # Use this to test etor-ti
       organizationName: ignore
       topic: etor-ti
       customerStatus: active
-      schemaName: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
+      schemaName: metadata/fhir_transforms/senders/original-pipeline-transforms
       format: HL7
     - name: ignore-elr-elims      # Use this to test elr-elims
       organizationName: ignore
@@ -127,13 +127,13 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: classpath:/metadata/fhir_transforms/senders/HCI/hci-sender-transform.yml
+      schemaName: metadata/fhir_transforms/senders/HCI/hci-sender-transform
       format: HL7
     - name: ignore-fhir      # Use this to test fhir
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml
+      schemaName: metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform
       format: FHIR
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
@@ -226,7 +226,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO.yml"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -255,7 +255,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO.yml"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -280,7 +280,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useBatchHeaders: true
         type: "HL7"
       transport:
@@ -987,7 +987,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -1015,7 +1015,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base.yml"
+        schemaName: "metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -1040,7 +1040,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base-deidentified.yml"
+        schemaName: "metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base-deidentified"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -1066,7 +1066,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useTestProcessingMode: false
         useBatchHeaders: false
         type: "HL7"

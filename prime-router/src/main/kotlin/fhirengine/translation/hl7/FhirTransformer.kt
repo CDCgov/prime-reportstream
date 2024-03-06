@@ -2,12 +2,14 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -26,9 +28,32 @@ class FhirTransformer(
      */
     constructor(
         schema: String,
+        schemaFolder: String,
         blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
     ) : this(
-        schemaRef = fhirTransformSchemaFromFile(schema, blobConnectionInfo),
+        schemaRef = fhirTransformSchemaFromFile(schema, schemaFolder, blobConnectionInfo),
+    )
+
+    constructor(
+        schemaUri: String,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
+    ) : this(
+        ConfigSchemaReader.fromFile(
+            schemaUri,
+            null,
+            FhirTransformSchema::class.java,
+            blobConnectionInfo = blobConnectionInfo
+        )
+    )
+
+    /**
+     * Transform a FHIR bundle based on the [schema] (which includes a folder location).
+     */
+    constructor(
+        schema: String,
+    ) : this(
+        schema = FilenameUtils.getName(schema),
+        schemaFolder = FilenameUtils.getPathNoEndSeparator(schema)
     )
 
     /**
