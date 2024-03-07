@@ -345,6 +345,7 @@ class CheckFunction : Logging {
         try {
             val theRESTTransport = RESTTransport()
             val reportId = UUID.randomUUID().toString()
+            val actionId = 12345L
             // REST transport throws exception with error method to handle fails
             // get the username/password to authenticate with OAuth, fail throws exception
             val (credential, jksCredential) = theRESTTransport.getCredential(restTransportType, receiver)
@@ -357,6 +358,7 @@ class CheckFunction : Logging {
                         theRESTTransport.getOAuthToken(
                             restTransportType,
                             reportId,
+                            actionId,
                             jksCredential,
                             credential,
                             aLogger
