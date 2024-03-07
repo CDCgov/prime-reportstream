@@ -41,13 +41,14 @@ abstract class TransportIntegrationTests : Logging {
      * A test report ID.
      */
     protected val reportId: UUID = UUID.randomUUID()
+    protected val actionId: Long = 12345L
 
     /**
      * A test report file.
      */
     protected val reportFile = ReportFile(
         reportId,
-        null,
+        actionId,
         TaskAction.send,
         null,
         null,
