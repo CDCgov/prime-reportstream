@@ -212,7 +212,7 @@ class ReportFunction(
         actionHistory.trackActionResult(httpStatus)
         workflowEngine.recordAction(actionHistory)
 
-        check(actionHistory.action.actionId > 0) // This is how to get the submissionId
+        check(actionHistory.action.actionId > 0)
         val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(actionHistory.action)
 
         val response = request.createResponseBuilder(httpStatus)
