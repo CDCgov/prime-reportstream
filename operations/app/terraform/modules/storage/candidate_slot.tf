@@ -7,7 +7,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   account_tier              = "Standard"
   account_replication_type  = "GRS"
   min_tls_version           = "TLS1_2"
-  #allow_blob_public_access  = false
+  allow_nested_items_to_be_public  = false
   enable_https_traffic_only = true
 
   network_rules {
@@ -170,7 +170,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
   is_hns_enabled            = true # This enable Data Lake v2 for HHS Protect
   account_replication_type  = "GRS"
   min_tls_version           = "TLS1_2"
-  #allow_blob_public_access  = false
+  allow_nested_items_to_be_public  = false
   enable_https_traffic_only = true
 
   network_rules {
