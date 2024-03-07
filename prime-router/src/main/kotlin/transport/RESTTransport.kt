@@ -288,14 +288,14 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         logger: Logger,
     ): Pair<Map<String, String>, BearerTokens?> {
         var httpHeaders = restTransportInfo.headers.mapValues { entry ->
-            when(entry.value) {
+            when (entry.value) {
                 "header.reportFile.reportId" -> reportId
                 "header.reportFile.actionId" -> {
                     logger.info("Setting actionId header")
-                    actionId.toString()}
+                    actionId.toString()
+                }
                 else -> entry.value
             }
-
         }
         val tokenClient = httpClient ?: createDefaultHttpClient(jksCredential, null)
         // get the credential and use it to request an OAuth token
