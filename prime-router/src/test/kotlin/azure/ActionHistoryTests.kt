@@ -323,6 +323,56 @@ class ActionHistoryTests {
     }
 
     @Test
+    fun `test trackSentReport very long schema name`() {
+        val uuid = UUID.randomUUID()
+        val longNameWithClasspath =
+            "classpath:/metadata/hl7_mapping/receivers/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME.yml"
+        val longNameWithoutClasspath =
+            "metadata/hl7_mapping/receivers/NESTED/NESTED/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME"
+        val org =
+            DeepOrganization(
+                name = "myOrg",
+                description = "blah blah",
+                jurisdiction = Organization.Jurisdiction.FEDERAL,
+                receivers = listOf(
+                    Receiver(
+                        "myService", "myOrg", Topic.TEST, CustomerStatus.INACTIVE,
+                        longNameWithClasspath,
+                        format = Report.Format.CSV
+                    ),
+                    Receiver(
+                        "myServiceToo", "myOrg", Topic.TEST, CustomerStatus.INACTIVE,
+                        longNameWithoutClasspath,
+                        format = Report.Format.CSV
+                    )
+                )
+            )
+        mockkObject(BlobAccess.Companion)
+        val blobUrls = mutableListOf<String>()
+        every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
+        every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
+        every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
+        val header = mockk<WorkflowEngine.Header>()
+        val inReportFile = mockk<ReportFile>()
+        every { header.reportFile } returns inReportFile
+        every { header.content } returns "".toByteArray()
+        every { inReportFile.itemCount } returns 15
+        val actionHistory1 = ActionHistory(TaskAction.receive)
+
+        actionHistory1.trackSentReport(org.receivers[0], uuid, "filename1", "params1", "result1", header)
+        assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
+        assertThat(actionHistory1.reportsOut[uuid]?.schemaName)
+            .isEqualTo("g/receivers/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
+
+        val actionHistory2 = ActionHistory(TaskAction.receive)
+
+        actionHistory2.trackSentReport(org.receivers[1], uuid, "filename1", "params1", "result1", header)
+        assertThat(actionHistory2.reportsOut[uuid]).isNotNull()
+        assertThat(actionHistory2.reportsOut[uuid]?.schemaName)
+            .isEqualTo("STED/NESTED/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
+    }
+
+    @Test
     fun `test trackDownloadedReport`() {
         val metadata = UnitTestUtils.simpleMetadata
         val workflowEngine = mockkClass(WorkflowEngine::class)
@@ -511,5 +561,12 @@ class ActionHistoryTests {
         assertNotEquals(blobUrls[0], blobUrls[1])
         assertContains(blobUrls[0], org.receivers[0].fullName)
         assertContains(blobUrls[1], org.receivers[1].fullName)
+    }
+
+    @Test
+    fun `test trimSchemaNameToMaxLength malformed URI`() {
+        val longMalformedURI = ":very_very:_long_name//with a badly formed URI that causes a parse exception"
+        val trimmed = ActionHistory.trimSchemaNameToMaxLength((longMalformedURI))
+        assertThat(trimmed).isEqualTo("ong_name//with a badly formed URI that causes a parse exception")
     }
 }
