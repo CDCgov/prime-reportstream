@@ -4120,3 +4120,858 @@
               url: "NK1.16"
               valueType: String
               hl7Use: NK1.16
+
+- Resource: ServiceRequest
+  FHIR-Type: Extension
+  HL7-Type:
+    ORC:
+      Example:
+        {
+          "fullUrl": "ServiceRequest/1707847120816500000.36820161-5c9b-4a4d-b6bb-5fee378daec1",
+          "resource": {
+            "resourceType": "ServiceRequest",
+            "id": "1707847120816500000.36820161-5c9b-4a4d-b6bb-5fee378daec1",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
+                "valueCode": "RE"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/status-modifier",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "Order Status Modifier"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order",
+                "extension": [
+                  {
+                    "url": "ORC.5",
+                    "valueString": "CM"
+                  },
+                  {
+                    "url": "ORC.6",
+                    "valueString": "R"
+                  },
+                  {
+                    "url": "ORC.8",
+                    "valueIdentifier": {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                          "valueString": "Placer Assigned Namespace"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                          "valueString": "Placer Assigned Universal"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                          "valueString": "ISO"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                              "valueString": "Filler Assigned"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                              "valueString": "Filler Assigned Namespace"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                              "valueString": "Filler Assigned Universal"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                              "valueString": "ISO"
+                            }
+                          ]
+                        }
+                      ],
+                      "type": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            "code": "PGN"
+                          }
+                        ]
+                      },
+                      "value": "Placer Assigned"
+                    }
+                  },
+                  {
+                    "url": "ORC.10",
+                    "valueReference": {
+                      "reference": "Practitioner/1707847120766497000.a72b6506-8b0d-4c52-b85e-299449b9267d"
+                    }
+                  },
+                  {
+                    "url": "ORC.11",
+                    "valueReference": {
+                      "reference": "Practitioner/1707847120769424000.9212319b-50f7-4c2c-97fa-a86dfbe73f3a"
+                    }
+                  },
+                  {
+                    "url": "orc-12-ordering-provider",
+                    "valueReference": {
+                      "reference": "Practitioner/1707847120771892000.4eec43d2-62af-401e-a4f8-ad5825556ac6"
+                    }
+                  },
+                  {
+                    "url": "ORC.13",
+                    "valueReference": {
+                      "reference": "Location/1707847120773442000.30922dc6-6044-4b6f-92a3-de61662e9409"
+                    }
+                  },
+                  {
+                    "url": "ORC.15",
+                    "valueString": "20230816123358-0500"
+                  },
+                  {
+                    "url": "ORC.17",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "481",
+                          "display": "Entering ORG"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "ORC.18",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "Entering Device"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "ORC.19",
+                    "valueReference": {
+                      "reference": "Practitioner/1707847120750031000.ce2bad6b-4637-45f0-9291-5d7052fd99ff"
+                    }
+                  },
+                  {
+                    "url": "orc-21-ordering-facility-name",
+                    "valueReference": {
+                      "reference": "Organization/1707847120751812000.4ef62da2-9fbe-4fc9-b4d6-5ad624d82974"
+                    }
+                  },
+                  {
+                    "url": "orc-22-ordering-facility-address",
+                    "valueAddress": {
+                      "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+                          "valueCode": "6059"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                              "extension": [
+                                {
+                                  "url": "SAD.1",
+                                  "valueString": "4861"
+                                },
+                                {
+                                  "url": "SAD.2",
+                                  "valueString": "20TH AVE"
+                                },
+                                {
+                                  "url": "SAD.3",
+                                  "valueString": "1"
+                                }
+                              ]
+                            },
+                            {
+                              "url": "XAD.2",
+                              "valueString": "Ordering Facility Address"
+                            },
+                            {
+                              "url": "XAD.7",
+                              "valueCode": "H"
+                            },
+                            {
+                              "url": "XAD.8",
+                              "valueString": "Other Geographic Designation"
+                            },
+                            {
+                              "url": "XAD.11",
+                              "valueCode": "A"
+                            },
+                            {
+                              "url": "XAD.13",
+                              "valueString": "20220501102531-0400"
+                            },
+                            {
+                              "url": "XAD.14",
+                              "valueString": "20230501102531-0400"
+                            },
+                            {
+                              "url": "XAD.19",
+                              "valueCode": "Adressee"
+                            }
+                          ]
+                        }
+                      ],
+                      "use": "home",
+                      "line": [
+                        "4861",
+                        "20TH AVE",
+                        "1",
+                        "Ordering Facility Address",
+                        "Adressee"
+                      ],
+                      "city": "THUNDER MOUNTAIN",
+                      "district": "County",
+                      "state": "IG",
+                      "postalCode": "99999",
+                      "country": "USA",
+                      "period": {
+                        "start": "2022-05-01T10:25:31-04:00",
+                        "end": "2023-05-01T10:25:31-04:00"
+                      }
+                    }
+                  },
+                  {
+                    "url": "orc-24-ordering-provider-address",
+                    "valueAddress": {
+                      "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+                          "valueCode": "6059"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                              "extension": [
+                                {
+                                  "url": "SAD.1",
+                                  "valueString": "4861"
+                                },
+                                {
+                                  "url": "SAD.2",
+                                  "valueString": "20TH AVE"
+                                },
+                                {
+                                  "url": "SAD.3",
+                                  "valueString": "1"
+                                }
+                              ]
+                            },
+                            {
+                              "url": "XAD.2",
+                              "valueString": "Ordering Provider Address"
+                            },
+                            {
+                              "url": "XAD.7",
+                              "valueCode": "H"
+                            },
+                            {
+                              "url": "XAD.8",
+                              "valueString": "Other Geographic Designation"
+                            },
+                            {
+                              "url": "XAD.11",
+                              "valueCode": "A"
+                            },
+                            {
+                              "url": "XAD.13",
+                              "valueString": "20220501102531-0400"
+                            },
+                            {
+                              "url": "XAD.14",
+                              "valueString": "20230501102531-0400"
+                            },
+                            {
+                              "url": "XAD.19",
+                              "valueCode": "Adressee"
+                            }
+                          ]
+                        }
+                      ],
+                      "use": "home",
+                      "line": [
+                        "4861",
+                        "20TH AVE",
+                        "1",
+                        "Ordering Provider Address",
+                        "Adressee"
+                      ],
+                      "city": "THUNDER MOUNTAIN",
+                      "district": "County",
+                      "state": "IG",
+                      "postalCode": "99999",
+                      "country": "USA",
+                      "period": {
+                        "start": "2022-05-01T10:25:31-04:00",
+                        "end": "2023-05-01T10:25:31-04:00"
+                      }
+                    }
+                  },
+                  {
+                    "url": "ORC.27",
+                    "valueString": "20230816123358-0500"
+                  },
+                  {
+                    "url": "ORC.28",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "567",
+                          "display": "E"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "ORC.30",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "123",
+                          "display": "U"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "ORC.31",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "123",
+                          "display": "Parent"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: orc-common-order
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order"
+          valueType: Extension
+          hl7Use: NA
+          extension:
+            - id: ORC.5
+              url: "ORC.5"
+              valueType: String
+              hl7Use: ORC.5
+            - id: ORC.6
+              url: "ORC.6"
+              valueType: String
+              hl7Use: ORC.6
+            - id: ORC.8
+              url: "ORC.8"
+              valueType: Identifier
+              hl7Use: ORC.8
+            - id: ORC.10
+              url: "ORC.10"
+              valueType: Reference
+              hl7Use: ORC.10
+            - id: ORC.11
+              url: "ORC.11"
+              valueType: Reference
+              hl7Use: ORC.11
+            - id: ORC.12
+              url: "ORC.12"
+              valueType: Reference
+              hl7Use: ORC.12
+            - id: ORC.13
+              url: "ORC.13"
+              valueType: Reference
+              hl7Use: ORC.13
+            - id: ORC.15
+              url: "ORC.15"
+              valueType: String
+              hl7Use: ORC.15
+            - id: ORC.17
+              url: "ORC.17"
+              valueType: CodeableConcept
+              hl7Use: ORC.17
+            - id: ORC.18
+              url: "ORC.18"
+              valueType: CodeableConcept
+              hl7Use: ORC.18
+            - id: ORC.19
+              url: "ORC.19"
+              valueType: Reference
+              hl7Use: ORC.19
+            - id: orc-21-ordering-facility-name
+              url: "orc-21-ordering-facility-name"
+              valueType: Reference
+              hl7Use: ORC.21
+            - id: orc-22-ordering-facility-address
+              url: "orc-22-ordering-facility-address"
+              valueType: Address
+              hl7Use: ORC.22
+            - id: orc-24-ordering-provider-address
+              url: "orc-24-ordering-provider-address"
+              valueType: Address
+              hl7Use: ORC.24
+            - id: ORC.27
+              url: "ORC.27"
+              valueType: String
+              hl7Use: ORC.27
+            - id: ORC.28
+              url: "ORC.28"
+              valueType: CodeableConcept
+              hl7Use: ORC.28
+            - id: ORC.30
+              url: "ORC.30"
+              valueType: CodeableConcept
+              hl7Use: ORC.30
+            - id: ORC.31
+              url: "ORC.31"
+              valueType: CodeableConcept
+              hl7Use: ORC.31
+        - id: business-event
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event"
+          valueType: String
+          hl7Use:
+            {
+              ORC.1,
+              ORC.9
+            }
+        - id: status-modifier
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/status-modifier"
+          valueType: CodeableConcept
+          hl7Use: ORC.25
+    OBR:
+      Example:
+        {
+          "fullUrl": "ServiceRequest/1707847048661576000.8e66cd9d-b9fd-4f01-ad54-4279a9c039d9",
+          "resource": {
+            "resourceType": "ServiceRequest",
+            "id": "1707847048661576000.8e66cd9d-b9fd-4f01-ad54-4279a9c039d9",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+                "extension": [
+
+                  {
+                    "url": "OBR.10",
+                    "valueReference": {
+                      "reference": "Practitioner/1707847048645513000.14028817-3ba7-4b34-bc31-d58984741206"
+                    }
+                  },
+                  {
+                    "url": "OBR.11",
+                    "valueString": "G"
+                  },
+                  {
+                    "url": "OBR.12",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "512",
+                          "display": "Danger code"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "OBR.13",
+                    "valueString": "relevent info"
+                  },
+                  {
+                    "url": "OBR.16",
+                    "valueReference": {
+                      "reference": "Practitioner/1707847048657817000.985488a8-0d64-4002-a758-b0281359fa85"
+                    }
+                  },
+                  {
+                    "url": "OBR.18",
+                    "valueString": "placer1"
+                  },
+                  {
+                    "url": "OBR.19",
+                    "valueString": "placer2"
+                  }                  {
+                    "url": "OBR.20",
+                    "valueString": "filler1"
+                  },
+                  {
+                    "url": "OBR.21",
+                    "valueString": "filler2"
+                  },
+                  {
+                    "url": "OBR.22",
+                    "valueString": "20230816123358-0500"
+                  },
+                  {
+                    "url": "OBR.23",
+                    "extension": [
+                      {
+                        "url": "moc-1-1-monetary-amount",
+                        "valueString": "100"
+                      },
+                      {
+                        "url": "moc-1-2-monetary-denomination",
+                        "valueString": "$"
+                      },
+                      {
+                        "url": "moc-2-charge-code",
+                        "valueCodeableConcept": {
+                          "coding": [
+                            {
+                              "extension": [
+                                {
+                                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                                  "valueString": "coding"
+                                }
+                              ],
+                              "code": "16",
+                              "display": "code"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "url": "OBR.24",
+                    "valueId": "OTH"
+                  },
+                  {
+                    "url": "OBR.26",
+                    "extension": [
+                      {
+                        "url": "prl-1-parent-observation-identifier",
+                        "valueCodeableConcept": {
+                          "coding": [
+                            {
+                              "extension": [
+                                {
+                                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                                  "valueString": "coding"
+                                }
+                              ],
+                              "code": "444",
+                              "display": "ParentId"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "url": "prl-2-parent-observation-sub-identifier",
+                        "valueString": "888"
+                      },
+                      {
+                        "url": "prl-3-parent-observation-descriptor",
+                        "valueString": "ParentOBSdescriptor"
+                      }
+                    ]
+                  },
+                  {
+                    "url": "OBR.28",
+                    "valueReference": {
+                      "reference": "Practitioner/1707847048620052000.c661905f-1a3b-4022-b072-ec808320a495"
+                    }
+                  },
+                  {
+                    "url": "OBR.29",
+                    "valueIdentifier": {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                          "valueString": "CSV"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                          "valueString": "11D1111111"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                          "valueString": "CLIA"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier",
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
+                              "valueString": "f34b0f57-1601-4480-ae8a-d4006e50f38d"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                              "valueString": "Other CSV"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                              "valueString": "22D2222222"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                              "valueString": "CLIA2"
+                            }
+                          ]
+                        }
+                      ],
+                      "type": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            "code": "PGN"
+                          }
+                        ]
+                      },
+                      "value": "adb4a5cc-50ec-4f1e-95d7-0c1f77cacee1"
+                    }
+                  },
+                  {
+                    "url": "OBR.33",
+                    "valueReference": {
+                      "reference": "PractitionerRole/1707847048637292000.47c2837c-f574-415e-ac73-bb11f377ad99"
+                    }
+                  },
+                  {
+                    "url": "OBR.33",
+                    "valueReference": {
+                      "reference": "PractitionerRole/1707847048640831000.ac0b70ef-c8be-48d0-8d7b-97e5f704c593"
+                    }
+                  },
+                  {
+                    "url": "OBR.36",
+                    "valueString": "20230816123358-0500"
+                  },
+                  {
+                    "url": "OBR.39",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "4438",
+                          "display": "Collectors Comment2"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "OBR.44",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "5019",
+                          "display": "Procedure Code"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "obr-45-procedure-code-modifier",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "887766",
+                          "display": "Procedure Code Modifier"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "obr-45-procedure-code-modifier",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "887766",
+                          "display": "Procedure Code Modifier2"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "OBR.48",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "71435",
+                          "display": "Medically Necessary Duplicate Procedure"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "OBR.49",
+                    "valueString": "N"
+                  },
+                  {
+                    "url": "OBR.50",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "443331",
+                          "display": "Parent Universal Service Identifier"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+    XTN:
+      Example:
+        {
+          "fullUrl": "ServiceRequest/1707847120816500000.36820161-5c9b-4a4d-b6bb-5fee378daec1",
+          "resource": {
+            "resourceType": "ServiceRequest",
+            "id": "1707847120816500000.36820161-5c9b-4a4d-b6bb-5fee378daec1",
+            "requester": {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number",
+                  "valueContactPoint": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                        "valueString": "1"
+                      },
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                        "valueString": "518"
+                      },
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                        "valueString": "4744177"
+                      },
+                      {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                        "extension": [
+                          {
+                            "url": "XTN.2",
+                            "valueString": "WPN"
+                          },
+                          {
+                            "url": "XTN.3",
+                            "valueString": "PH"
+                          },
+                          {
+                            "url": "XTN.7",
+                            "valueString": "4744177"
+                          },
+                          {
+                            "url": "XTN.12",
+                            "valueString": "+1 518 474 4177"
+                          }
+                        ]
+                      },
+                      {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                        "valueString": "OBR.17"
+                      }
+                    ],
+                    "system": "phone",
+                    "value": "+1 518 474 4177",
+                    "use": "work"
+                  }
+                }
+              ],
+              "reference": "Practitioner/1707847123757490000.4cf35d26-d94d-44b7-87a8-ed395e063dab"
+            }
+          }
+        }
+      Extension:
+        - id: callback-number
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event"
+          valueType: ContactPoint
+          hl7Use:
+            {
+              ORC.14,
+              ORC.17
+            }
