@@ -10,6 +10,12 @@ resource "azurerm_linux_web_app" "metabase" {
   }
 
   site_config {
+
+    application_stack {
+       docker_image_name = "metabase/metabase"
+       docker_registry_url = "https://registry.hub.docker.com/v2/"
+    }
+
     ip_restriction {
       action                    = "Allow"
       name                      = "AllowVNetTraffic"
@@ -32,19 +38,15 @@ resource "azurerm_linux_web_app" "metabase" {
     }
 
     ftps_state = "Disabled"
-
     scm_use_main_ip_restriction = true
-
     always_on        = true
-    #linux_fx_version = var.linux_fx_version
+    vnet_route_all_enabled = true
+
   }
 
   app_settings = {
     "MB_DB_CONNECTION_URI" = "postgresql://${var.postgres_server_name}.postgres.database.azure.com:5432/metabase?user=${var.postgres_user}@${var.postgres_server_name}&password=${var.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
     "MB_PASSWORD_LENGTH"   = "10"
-
-    # Route outbound traffic through the VNET
-    "WEBSITE_VNET_ROUTE_ALL" = 1
 
     # Use the VNET DNS server (so we receive private endpoint URLs)
     "WEBSITE_DNS_SERVER" = "168.63.129.16"
