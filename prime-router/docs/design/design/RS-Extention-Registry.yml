@@ -3058,3 +3058,270 @@
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cq-units"
           valueType: CodeableConcept
           hl7Use: CQ.2
+
+- Resource: Observation
+  FHIR-Type: Extension
+  HL7-Type:
+    OBX:
+      Example:
+        {
+          "fullUrl": "Observation/1707860160104132000.21adb655-f8b7-4e4a-a497-4d1c104f2d14",
+          "resource": {
+            "resourceType": "Observation",
+            "id": "1707860160104132000.21adb655-f8b7-4e4a-a497-4d1c104f2d14",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+                "valueString": "ZZYGNAUM-1"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
+                "valueCode": "AOE"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time",
+                "valueDateTime": "2023-07-27T18:30:17-04:00",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "20230727183017-0400"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+                "extension": [
+                  {
+                    "url": "OBX.2",
+                    "valueId": "CWE"
+                  },
+                  {
+                    "url": "OBX.11",
+                    "valueString": "F"
+                  }
+                ]
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-5-value-sn",
+                "extension": [
+                  "extension": [
+                    {
+                      "url": "SN.1",
+                      "valueString": ">"
+                    },
+                    {
+                      "url": "SN.2",
+                      "valueString": "1"
+                    },
+                    {
+                      "url": "SN.3",
+                      "valueString": "."
+                    },
+                    {
+                      "url": "SN.4",
+                      "valueString": "3"
+                    }
+                  ]
+                ]
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/nature-of-abnormal-test",
+                "valueId": "A"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time",
+                "valueDateTime": "2023-05-01T10:25:31-04:00",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "20230501102531-0400"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+                "extension": [
+                  {
+                    "url": "OBX.2",
+                    "valueId": "CWE"
+                  },
+                  {
+                    "url": "OBX.6",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                              "valueString": "LN"
+                            }
+                          ],
+                          "system": "http://loinc.org",
+                          "version": "1",
+                          "code": "1234-5",
+                          "display": "TestText"
+                        },
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "alt-coding"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                              "valueString": "LN"
+                            }
+                          ],
+                          "system": "http://loinc.org",
+                          "version": "2",
+                          "code": "1234-5",
+                          "display": "TestAltText"
+                        }
+                      ],
+                      "text": "OriginalText"
+                    }
+                  },
+                  {
+                    "url": "OBX.11",
+                    "valueString": "F"
+                  },
+                  {
+                    "url": "OBX.12",
+                    "valueString": "20230501102531-0400"
+                  },
+                  {
+                    "url": "OBX.13",
+                    "valueString": "User Check"
+                  },
+                  {
+                    "url": "OBX.17",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"
+                        }
+                      ],
+                      "text": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"
+                    }
+                  },
+                  {
+                    "url": "OBX.18",
+                    "valueReference": {
+                      "reference": "Device/1707833723917483000.01ba8cb4-a5ef-4faa-b6d1-d1710c70e857"
+                    }
+                  },
+                  {
+                    "url": "OBX.20",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "1",
+                          "display": "ARM"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: sub-id
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id"
+          valueType: String
+          hl7Use: OBX.4
+        - id: observation-sub-type
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type"
+          valueType: Code
+          hl7Use: OBX.30
+        - id: obx-5-value-sn
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type"
+          valueType: Code
+          hl7Use: OBX.5
+          extension:
+            - id: SN.1
+              url: "SN.1"
+              valueType: String
+              hl7Use: SN.1
+            - id: SN.2
+              url: "SN.2"
+              valueType: String
+              hl7Use: SN.2
+            - id: SN.3
+              url: "SN.3"
+              valueType: String
+              hl7Use: SN.3
+            - id: SN.4
+              url: "SN.4"
+              valueType: String
+              hl7Use: SN.4
+        - id: nature-of-abnormal-test
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nature-of-abnormal-test"
+          valueType: ID
+          hl7Use: OBX.10
+        - id: analysis-date-time
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time"
+          valueType: DateTime
+          hl7Use: OBX.19
+        - id: obx-observation
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation"
+          valueType: Code
+          hl7Use: NA
+          extension:
+            - id: OBX.2
+              url: "OBX.2"
+              valueType: String
+              hl7Use: OBX.2
+            - id: OBX.6
+              url: "OBX.6"
+              valueType: CodeableConcept
+              hl7Use: OBX.6
+            - id: OBX.9
+              url: "OBX.9"
+              valueType: String
+              hl7Use: OBX.9
+            - id: OBX.11
+              url: "OBX.11"
+              valueType: String
+              hl7Use: OBX.11
+            - id: OBX.12
+              url: "OBX.12"
+              valueType: String
+              hl7Use: OBX.12
+            - id: OBX.13
+              url: "OBX.13"
+              valueType: String
+              hl7Use: OBX.13
+            - id: OBX.17
+              url: "OBX.17"
+              valueType: CodeableConcept
+              hl7Use: OBX.17
+            - id: OBX.18
+              url: "OBX.18"
+              valueType: Reference
+              hl7Use: OBX.18
+            - id: OBX.20
+              url: "OBX.20"
+              valueType: CodeableConcept
+              hl7Use: OBX.20
