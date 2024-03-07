@@ -4042,3 +4042,81 @@
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/bodySiteModifier"
           valueType: CodeableConcept
           hl7Use: SPM.9
+
+- Resource: RelatedPerson
+  FHIR-Type: Extension
+  HL7-Type:
+    NK1:
+      Example:
+        {
+          "fullUrl": "RelatedPerson/1707331110747110000.71c5ee53-90c0-4aef-85b1-bbabe7ce79b0",
+          "resource": {
+            "resourceType": "RelatedPerson",
+            "id": "1707331110747110000.71c5ee53-90c0-4aef-85b1-bbabe7ce79b0",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+                "valueString": "NK1"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-15-administrative-sex",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "HL70001"
+                        }
+                      ],
+                      "code": "M",
+                      "display": "Male"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person",
+                "extension": [
+                  {
+                    "url": "NK1.13",
+                    "valueReference": {
+                      "reference": "Organization/1707331110743890000.f91dfe01-ca81-4dee-84a0-3542635b7b1a"
+                    }
+                  },
+                  {
+                    "url": "NK1.16",
+                    "valueString": "20100622"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: hl7v2Segment
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment"
+          valueType: String
+          hl7Use: NA
+          constant: "NK1"
+        - id: nk1-15-administrative-sex
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-15-administrative-sex"
+          valueType: CodeableConcept
+          hl7Use: NK1.15
+        - id: nk1-related-person
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person"
+          valueType: Extension
+          hl7Use: NA
+          extension:
+            - id: NK1.13
+              url: "NK1.13"
+              valueType: Reference
+              hl7Use: NK1.13
+            - id: NK1.16
+              url: "NK1.16"
+              valueType: String
+              hl7Use: NK1.16
