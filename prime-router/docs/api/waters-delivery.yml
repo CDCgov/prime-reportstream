@@ -42,10 +42,14 @@ paths:
             type: string
         - name: receivingOrgSvcStatus
           in: query
-          description: "'active' or 'inactive' status of the service used by the organization. If no status is provided then all services will be returned."
-          example: "active"
+          description: "Customer status of the service used by the organization. If 'ACTIVE', both 'ACTIVE' and 'testing' will be returned. If no status is provided then all services will be returned."
+          example: "ACTIVE"
           schema:
             type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+              - TESTING
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
@@ -98,10 +102,14 @@ paths:
             type: string
         - name: receivingOrgSvcStatus
           in: query
-          description: "'active', 'testing', or 'inactive' customer status of the service used by the organization. If 'active', both 'active' and 'testing' will be returned. If no status is provided then all services will be returned."
-          example: "active"
+          description: "Customer status of the service used by the organization. If 'ACTIVE', both 'ACTIVE' and 'testing' will be returned. If no status is provided then all services will be returned."
+          example: "ACTIVE"
           schema:
             type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+              - TESTING
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'

@@ -101,7 +101,7 @@ class DeliveryFunctionTests : Logging {
         val topic: String,
         val reportItemCount: Int,
         val fileName: String,
-        val receivingOrgSvcStatus: String,
+        val receivingOrgSvcStatus: CustomerStatus,
     )
 
     private val testData = listOf(
@@ -172,7 +172,7 @@ class DeliveryFunctionTests : Logging {
                             topic = "covid-19",
                             reportItemCount = 14,
                             fileName = "covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.hl7",
-                            receivingOrgSvcStatus = "active"
+                            receivingOrgSvcStatus = CustomerStatus.ACTIVE
                         ),
                         ExpectedDelivery(
                             deliveryId = 284,
@@ -183,7 +183,7 @@ class DeliveryFunctionTests : Logging {
                             topic = "covid-19",
                             reportItemCount = 1,
                             fileName = "pdi-covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.csv",
-                            receivingOrgSvcStatus = "active"
+                            receivingOrgSvcStatus = CustomerStatus.ACTIVE
                         )
                     )
                 ),
@@ -1274,7 +1274,7 @@ class DeliveryFunctionTests : Logging {
                 }
                 """.trimIndent()
             )
-            httpRequestMessage.parameters["receivingOrgSvcStatus"] = "active"
+            httpRequestMessage.parameters["receivingOrgSvcStatus"] = "ACTIVE"
 
             val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
             val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)

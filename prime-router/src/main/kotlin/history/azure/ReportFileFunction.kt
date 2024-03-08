@@ -2,6 +2,7 @@ package gov.cdc.prime.router.history.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -234,7 +235,7 @@ abstract class ReportFileFunction(
         val showFailed: Boolean,
         val reportId: String?,
         val fileName: String?,
-        val receivingOrgSvcStatus: String?,
+        val receivingOrgSvcStatus: CustomerStatus?,
     ) {
         constructor(query: Map<String, String>) : this(
             sortDir = extractSortDir(query),
@@ -246,7 +247,7 @@ abstract class ReportFileFunction(
             showFailed = extractShowFailed(query),
             reportId = query["reportId"],
             fileName = query["fileName"],
-            receivingOrgSvcStatus = query["receivingOrgSvcStatus"],
+            receivingOrgSvcStatus = extractReceivingOrgSvcStatus(query),
         )
 
         companion object {
@@ -315,6 +316,12 @@ abstract class ReportFileFunction(
              */
             fun extractShowFailed(query: Map<String, String>): Boolean {
                 return query["showfailed"]?.toBoolean() ?: false
+            }
+
+            fun extractReceivingOrgSvcStatus(query: Map<String, String>): CustomerStatus? {
+                val receivingOrgSvcStatus = query["receivingOrgSvcStatus"]
+                // check if receivingOrgSvcStatus matches one of the values in CustomerStatus
+                return receivingOrgSvcStatus?.let { CustomerStatus.valueOf(it) }
             }
         }
     }
