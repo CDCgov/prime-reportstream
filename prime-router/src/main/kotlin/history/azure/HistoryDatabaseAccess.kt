@@ -75,7 +75,7 @@ abstract class HistoryDatabaseAccess(
         klass: Class<T>,
         reportId: UUID? = null,
         fileName: String? = null,
-        receivingOrgSvcStatus: String? = null,
+        receivingOrgSvcStatus: CustomerStatus? = null,
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
         val whereClause =
@@ -159,7 +159,7 @@ abstract class HistoryDatabaseAccess(
     private fun createWhereCondition(
         organization: String,
         orgService: String?,
-        receivingOrgSvcStatus: String?,
+        receivingOrgSvcStatus: CustomerStatus?,
         reportId: UUID?,
         fileName: String?,
         since: OffsetDateTime?,
@@ -169,7 +169,7 @@ abstract class HistoryDatabaseAccess(
         var filter = this.organizationFilter(organization, orgService)
 
         if (receivingOrgSvcStatus != null) {
-            filter = if (receivingOrgSvcStatus.uppercase() == CustomerStatus.ACTIVE.toString()) {
+            filter = if (receivingOrgSvcStatus.toString() == CustomerStatus.ACTIVE.toString()) {
                 filter.and(
                     DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
                     .notEqual(CustomerStatus.INACTIVE.toString().lowercase())
@@ -177,7 +177,7 @@ abstract class HistoryDatabaseAccess(
             } else {
                 filter.and(
                     DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
-                    .eq(receivingOrgSvcStatus)
+                    .eq(receivingOrgSvcStatus.toString())
                 )
             }
         }
