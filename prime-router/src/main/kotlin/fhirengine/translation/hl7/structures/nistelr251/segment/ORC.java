@@ -39,8 +39,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -93,12 +93,12 @@ public class ORC extends AbstractSegment {
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(ID.class, true, 1, 0, new Object[]{getMessage(), new Integer(119)}, "Order Control");
+      this.add(ID.class, true, 1, 0, new Object[]{getMessage(), Integer.valueOf(119)}, "Order Control");
       this.add(EI_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Placer Order Number");
       this.add(EI_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Filler Order Number");
       this.add(EI_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Placer Group Number");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(38)}, "Order Status");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(121)}, "Response Flag");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(38)}, "Order Status");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(121)}, "Response Flag");
       this.add(TQ.class, false, 0, 0, new Object[]{getMessage()}, "Quantity/Timing");
       this.add(EIP.class, false, 1, 0, new Object[]{getMessage()}, "Parent");
       this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of Transaction");

@@ -39,10 +39,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.FT;
-import ca.uhn.hl7v2.model.v251.datatype.ID;
-import ca.uhn.hl7v2.model.v251.datatype.SI;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -69,7 +67,7 @@ public class NTE extends AbstractSegment {
   private void init(ModelClassFactory factory) {
     try {
       this.add(SI.class, true, 1, 0, new Object[]{getMessage()}, "Set ID - NTE");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(105)}, "Source of Comment");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(105)}, "Source of Comment");
       this.add(FT.class, true, -1, 0, new Object[]{getMessage()}, "Comment");
       this.add(CWE_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Comment Type");
     } catch (HL7Exception e) {
@@ -251,7 +249,7 @@ public class NTE extends AbstractSegment {
       case 0:
         return new SI(getMessage());
       case 1:
-        return new ID(getMessage(), new Integer(105));
+        return new ID(getMessage(), Integer.valueOf(105));
       case 2:
         return new FT(getMessage());
       case 3:

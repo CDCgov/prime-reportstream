@@ -39,8 +39,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**

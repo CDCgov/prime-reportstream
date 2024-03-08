@@ -39,8 +39,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -116,13 +116,13 @@ public class OBR extends AbstractSegment {
       this.add(EI_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Placer Order Number");
       this.add(EI_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Filler Order Number");
       this.add(CWE_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Universal Service Identifier");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Priority - OBR");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Priority - OBR");
       this.add(TS.class, false, 0, 0, new Object[]{getMessage()}, "Requested Date/Time");
       this.add(TS_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Observation Date/Time");
       this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Observation End Date/Time");
       this.add(CQ.class, false, 0, 0, new Object[]{getMessage()}, "Collection Volume");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Collector Identifier");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(65)}, "Specimen Action Code");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(65)}, "Specimen Action Code");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Danger Code");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Relevant Clinical Information");
       this.add(TS.class, false, 0, 0, new Object[]{getMessage()}, "Specimen Received Date/Time");
@@ -135,13 +135,13 @@ public class OBR extends AbstractSegment {
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Filler Field 2");
       this.add(TS_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Results Rpt/Status Chng - Date/Time");
       this.add(MOC.class, false, 1, 0, new Object[]{getMessage()}, "Charge to Practice");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(74)}, "Diagnostic Serv Sect ID");
-      this.add(ID.class, true, 1, 0, new Object[]{getMessage(), new Integer(123)}, "Result Status");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(74)}, "Diagnostic Serv Sect ID");
+      this.add(ID.class, true, 1, 0, new Object[]{getMessage(), Integer.valueOf(123)}, "Result Status");
       this.add(PRL_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Parent Result");
       this.add(TQ.class, false, 0, 0, new Object[]{getMessage()}, "Quantity/Timing");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Result Copies To");
       this.add(EIP_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Parent");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Transportation Mode");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Transportation Mode");
       this.add(CWE_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Reason for Study");
       this.add(NDL_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Principal Result Interpreter");
       this.add(NDL.class, false, -1, 0, new Object[]{getMessage()}, "Assistant Result Interpreter");
@@ -152,15 +152,15 @@ public class OBR extends AbstractSegment {
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Transport Logistics of Collected Sample");
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Collector's Comment");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Transport Arrangement Responsibility");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Transport Arranged");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Escort Required");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Transport Arranged");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Escort Required");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Planned Patient Transport Comment");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Procedure Code");
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Procedure Code Modifier");
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Placer Supplemental Service Information");
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Filler Supplemental Service Information");
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Medically Necessary Duplicate Procedure Reason.");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(507)}, "Result Handling");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(507)}, "Result Handling");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Parent Universal Service Identifier");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating OBR - this is probably a bug in the source code generator.", e);

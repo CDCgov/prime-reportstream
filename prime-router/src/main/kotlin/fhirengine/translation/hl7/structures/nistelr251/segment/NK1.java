@@ -39,8 +39,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -115,16 +115,16 @@ public class NK1 extends AbstractSegment {
       this.add(CX.class, false, 0, 0, new Object[]{getMessage()}, "Next of Kin / Associated Parties Employee Number");
       this.add(XON_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Organization Name - NK1");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Marital Status");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Administrative Sex");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Administrative Sex");
       this.add(TS.class, false, 0, 0, new Object[]{getMessage()}, "Date/Time of Birth");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Living Dependency");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Ambulatory Status");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Living Dependency");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Ambulatory Status");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Citizenship");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Primary Language");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Living Arrangement");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Living Arrangement");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Publicity Code");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Protection Indicator");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Student Indicator");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Protection Indicator");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Student Indicator");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Religion");
       this.add(XPN.class, false, 0, 0, new Object[]{getMessage()}, "Mother's Maiden Name");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Nationality");
@@ -134,12 +134,12 @@ public class NK1 extends AbstractSegment {
       this.add(XTN_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Contact Person's Telephone Number");
       this.add(XAD_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Contact Person's Address");
       this.add(CX.class, false, 0, 0, new Object[]{getMessage()}, "Next of Kin/Associated Party's Identifiers");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Job Status");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Job Status");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Race");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Handicap");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Handicap");
       this.add(ST.class, false, 0, 0, new Object[]{getMessage()}, "Contact Person Social Security Number");
       this.add(ST.class, false, 0, 0, new Object[]{getMessage()}, "Next of Kin Birth Place");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "VIP Indicator");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "VIP Indicator");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating NK1 - this is probably a bug in the source code generator.", e);
     }
@@ -4036,25 +4036,25 @@ public class NK1 extends AbstractSegment {
       case 13:
         return new CWE(getMessage());
       case 14:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 15:
         return new TS(getMessage());
       case 16:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 17:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 18:
         return new CWE(getMessage());
       case 19:
         return new CWE(getMessage());
       case 20:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 21:
         return new CWE(getMessage());
       case 22:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), Integer.valueOf(0));
       case 23:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 24:
         return new CWE(getMessage());
       case 25:
@@ -4074,17 +4074,17 @@ public class NK1 extends AbstractSegment {
       case 32:
         return new CX(getMessage());
       case 33:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 34:
         return new CWE(getMessage());
       case 35:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 36:
         return new ST(getMessage());
       case 37:
         return new ST(getMessage());
       case 38:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       default:
         return null;
     }

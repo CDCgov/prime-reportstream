@@ -39,8 +39,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -115,46 +115,46 @@ public class PV1 extends AbstractSegment {
   private void init(ModelClassFactory factory) {
     try {
       this.add(SI.class, true, 1, 0, new Object[]{getMessage()}, "Set ID - PV1");
-      this.add(IS.class, true, 1, 0, new Object[]{getMessage(), new Integer(4)}, "Patient Class");
+      this.add(IS.class, true, 1, 0, new Object[]{getMessage(), Integer.valueOf(4)}, "Patient Class");
       this.add(PL.class, false, 1, 0, new Object[]{getMessage()}, "Assigned Patient Location");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(0)}, "Admission Type");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Admission Type");
       this.add(CX.class, false, 1, 0, new Object[]{getMessage()}, "Preadmit Number");
       this.add(PL.class, false, 1, 0, new Object[]{getMessage()}, "Prior Patient Location");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Attending Doctor");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Referring Doctor");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Consulting Doctor");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(0)}, "Hospital Service");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Hospital Service");
       this.add(PL.class, false, 1, 0, new Object[]{getMessage()}, "Temporary Location");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(87)}, "Preadmit Test Indicator");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Re-admission Indicator");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(23)}, "Admit Source");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Ambulatory Status");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "VIP Indicator");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(87)}, "Preadmit Test Indicator");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Re-admission Indicator");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(23)}, "Admit Source");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Ambulatory Status");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "VIP Indicator");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Admitting Doctor");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(18)}, "Patient Type");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(18)}, "Patient Type");
       this.add(CX.class, false, 1, 0, new Object[]{getMessage()}, "Visit Number");
       this.add(FC.class, false, -1, 0, new Object[]{getMessage()}, "Financial Class");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Charge Price Indicator");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Courtesy Code");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Credit Rating");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Contract Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Charge Price Indicator");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Courtesy Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Credit Rating");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Contract Code");
       this.add(DT.class, false, 0, 0, new Object[]{getMessage()}, "Contract Effective Date");
       this.add(NM.class, false, 0, 0, new Object[]{getMessage()}, "Contract Amount");
       this.add(NM.class, false, 0, 0, new Object[]{getMessage()}, "Contract Period");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Interest Code");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Transfer to Bad Debt Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Interest Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Transfer to Bad Debt Code");
       this.add(DT.class, false, 1, 0, new Object[]{getMessage()}, "Transfer to Bad Debt Date");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(21)}, "Bad Debt Agency Code");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(21)}, "Bad Debt Agency Code");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Bad Debt Transfer Amount");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Bad Debt Recovery Amount");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(111)}, "Delete Account Indicator");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(111)}, "Delete Account Indicator");
       this.add(DT.class, false, 1, 0, new Object[]{getMessage()}, "Delete Account Date");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(112)}, "Discharge Disposition");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(112)}, "Discharge Disposition");
       this.add(DLD.class, false, 1, 0, new Object[]{getMessage()}, "Discharged to Location");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Diet Type");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(115)}, "Servicing Facility");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Bed Status");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(117)}, "Account Status");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(115)}, "Servicing Facility");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Bed Status");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(117)}, "Account Status");
       this.add(PL.class, false, 1, 0, new Object[]{getMessage()}, "Pending Location");
       this.add(PL.class, false, 1, 0, new Object[]{getMessage()}, "Prior Temporary Location");
       this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Admit Date/Time");
@@ -164,7 +164,7 @@ public class PV1 extends AbstractSegment {
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Total Adjustments");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Total Payments");
       this.add(CX.class, false, 1, 0, new Object[]{getMessage()}, "Alternate Visit ID");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(326)}, "Visit Indicator");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(326)}, "Visit Indicator");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Other Healthcare Provider");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating PV1 - this is probably a bug in the source code generator.", e);
@@ -2859,11 +2859,11 @@ public class PV1 extends AbstractSegment {
       case 0:
         return new SI(getMessage());
       case 1:
-        return new IS(getMessage(), new Integer(4));
+        return new IS(getMessage(), Integer.valueOf(4));
       case 2:
         return new PL(getMessage());
       case 3:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 4:
         return new CX(getMessage());
       case 5:
@@ -2875,35 +2875,35 @@ public class PV1 extends AbstractSegment {
       case 8:
         return new XCN(getMessage());
       case 9:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 10:
         return new PL(getMessage());
       case 11:
-        return new IS(getMessage(), new Integer(87));
+        return new IS(getMessage(), Integer.valueOf(87));
       case 12:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 13:
-        return new IS(getMessage(), new Integer(23));
+        return new IS(getMessage(), Integer.valueOf(23));
       case 14:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 15:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 16:
         return new XCN(getMessage());
       case 17:
-        return new IS(getMessage(), new Integer(18));
+        return new IS(getMessage(), Integer.valueOf(18));
       case 18:
         return new CX(getMessage());
       case 19:
         return new FC(getMessage());
       case 20:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 21:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 22:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 23:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 24:
         return new DT(getMessage());
       case 25:
@@ -2911,33 +2911,33 @@ public class PV1 extends AbstractSegment {
       case 26:
         return new NM(getMessage());
       case 27:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 28:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 29:
         return new DT(getMessage());
       case 30:
-        return new IS(getMessage(), new Integer(21));
+        return new IS(getMessage(), Integer.valueOf(21));
       case 31:
         return new NM(getMessage());
       case 32:
         return new NM(getMessage());
       case 33:
-        return new IS(getMessage(), new Integer(111));
+        return new IS(getMessage(), Integer.valueOf(111));
       case 34:
         return new DT(getMessage());
       case 35:
-        return new IS(getMessage(), new Integer(112));
+        return new IS(getMessage(), Integer.valueOf(112));
       case 36:
         return new DLD(getMessage());
       case 37:
         return new CWE(getMessage());
       case 38:
-        return new IS(getMessage(), new Integer(115));
+        return new IS(getMessage(), Integer.valueOf(115));
       case 39:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 40:
-        return new IS(getMessage(), new Integer(117));
+        return new IS(getMessage(), Integer.valueOf(117));
       case 41:
         return new PL(getMessage());
       case 42:
@@ -2957,7 +2957,7 @@ public class PV1 extends AbstractSegment {
       case 49:
         return new CX(getMessage());
       case 50:
-        return new IS(getMessage(), new Integer(326));
+        return new IS(getMessage(), Integer.valueOf(326));
       case 51:
         return new XCN(getMessage());
       default:

@@ -37,7 +37,7 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import gov.cdc.nist.segment.*;
+import fhirengine.translation.hl7.structures.nistelr251.segment.*;
 
 /**
  * <p>Represents a ORU_R01_VISIT group structure (PATIENT_RESULT.PATIENT.VISIT).

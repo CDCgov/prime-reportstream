@@ -39,9 +39,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.HD_ELR;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -109,11 +108,11 @@ public class PID extends AbstractSegment {
       this.add(XPN_ELR.class, true, -1, 0, new Object[]{getMessage()}, "Patient Name");
       this.add(XPN_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Mother's Maiden Name");
       this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of Birth");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(1)}, "Administrative Sex");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(1)}, "Administrative Sex");
       this.add(XPN.class, false, 0, 0, new Object[]{getMessage()}, "Patient Alias");
       this.add(CWE_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Race");
       this.add(XAD_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Patient Address");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "County Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "County Code");
       this.add(XTN_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Phone Number - Home");
       this.add(XTN_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Phone Number - Business");
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Primary Language");
@@ -125,15 +124,15 @@ public class PID extends AbstractSegment {
       this.add(CX.class, false, -1, 0, new Object[]{getMessage()}, "Mother's Identifier");
       this.add(CWE_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Ethnic Group");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Birth Place");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(136)}, "Multiple Birth Indicator");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(136)}, "Multiple Birth Indicator");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Birth Order");
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Citizenship");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Veterans Military Status");
       this.add(CE.class, false, 0, 0, new Object[]{getMessage()}, "Nationality");
       this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Patient Death Date and Time");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(136)}, "Patient Death Indicator");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(136)}, "Identity Unknown Indicator");
-      this.add(IS.class, false, -1, 0, new Object[]{getMessage(), new Integer(445)}, "Identity Reliability Code");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(136)}, "Patient Death Indicator");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(136)}, "Identity Unknown Indicator");
+      this.add(IS.class, false, -1, 0, new Object[]{getMessage(), Integer.valueOf(445)}, "Identity Reliability Code");
       this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Last Update Date/Time");
       this.add(HD_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Last Update Facility");
       this.add(CWE_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Species Code");
@@ -2688,7 +2687,7 @@ public class PID extends AbstractSegment {
       case 6:
         return new TS_ELR(getMessage());
       case 7:
-        return new IS(getMessage(), new Integer(1));
+        return new IS(getMessage(), Integer.valueOf(1));
       case 8:
         return new XPN(getMessage());
       case 9:
@@ -2696,7 +2695,7 @@ public class PID extends AbstractSegment {
       case 10:
         return new XAD_ELR(getMessage());
       case 11:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), Integer.valueOf(0));
       case 12:
         return new XTN_ELR(getMessage());
       case 13:
@@ -2720,7 +2719,7 @@ public class PID extends AbstractSegment {
       case 22:
         return new ST(getMessage());
       case 23:
-        return new ID(getMessage(), new Integer(136));
+        return new ID(getMessage(), Integer.valueOf(136));
       case 24:
         return new NM(getMessage());
       case 25:
@@ -2732,11 +2731,11 @@ public class PID extends AbstractSegment {
       case 28:
         return new TS_ELR(getMessage());
       case 29:
-        return new ID(getMessage(), new Integer(136));
+        return new ID(getMessage(), Integer.valueOf(136));
       case 30:
-        return new ID(getMessage(), new Integer(136));
+        return new ID(getMessage(), Integer.valueOf(136));
       case 31:
-        return new IS(getMessage(), new Integer(445));
+        return new IS(getMessage(), Integer.valueOf(445));
       case 32:
         return new TS_ELR(getMessage());
       case 33:

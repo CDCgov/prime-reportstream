@@ -40,9 +40,7 @@ import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.HD_ELR;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.ST;
-import gov.cdc.nist.datatype.*;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -99,12 +97,12 @@ public class MSH extends AbstractSegment {
       this.add(VID_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Version ID");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Sequence Number");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Continuation Pointer");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(155)}, "Accept Acknowledgment Type");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(155)}, "Application Acknowledgment Type");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(0)}, "Country Code");
-      this.add(ID.class, false, -1, 0, new Object[]{getMessage(), new Integer(211)}, "Character Set");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(155)}, "Accept Acknowledgment Type");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(155)}, "Application Acknowledgment Type");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Country Code");
+      this.add(ID.class, false, -1, 0, new Object[]{getMessage(), Integer.valueOf(211)}, "Character Set");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Principal Language Of Message");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(356)}, "Alternate Character Set Handling Scheme");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(356)}, "Alternate Character Set Handling Scheme");
       this.add(EI_ELR.class, true, -1, 0, new Object[]{getMessage()}, "Message Profile Identifier");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating MSH - this is probably a bug in the source code generator.", e);
@@ -723,17 +721,17 @@ public class MSH extends AbstractSegment {
       case 13:
         return new ST(getMessage());
       case 14:
-        return new ID(getMessage(), new Integer(155));
+        return new ID(getMessage(), Integer.valueOf(155));
       case 15:
-        return new ID(getMessage(), new Integer(155));
+        return new ID(getMessage(), Integer.valueOf(155));
       case 16:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), Integer.valueOf(0));
       case 17:
-        return new ID(getMessage(), new Integer(211));
+        return new ID(getMessage(), Integer.valueOf(211));
       case 18:
         return new CWE(getMessage());
       case 19:
-        return new ID(getMessage(), new Integer(356));
+        return new ID(getMessage(), Integer.valueOf(356));
       case 20:
         return new EI_ELR(getMessage());
       default:

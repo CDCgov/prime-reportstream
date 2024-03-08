@@ -38,7 +38,7 @@ import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import gov.cdc.nist.segment.*;
+import fhirengine.translation.hl7.structures.nistelr251.segment.*;
 
 /**
  * <p>Represents a ORU_R01_SPECIMEN group structure (PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN).
