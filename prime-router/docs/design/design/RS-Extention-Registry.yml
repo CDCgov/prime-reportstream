@@ -4846,23 +4846,6 @@
                     }
                   },
                   {
-                    "url": "obr-45-procedure-code-modifier",
-                    "valueCodeableConcept": {
-                      "coding": [
-                        {
-                          "extension": [
-                            {
-                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding",
-                              "valueString": "coding"
-                            }
-                          ],
-                          "code": "887766",
-                          "display": "Procedure Code Modifier2"
-                        }
-                      ]
-                    }
-                  },
-                  {
                     "url": "OBR.48",
                     "valueCodeableConcept": {
                       "coding": [
@@ -5111,3 +5094,496 @@
               ORC.14,
               ORC.17
             }
+- Resource: Encounter
+  FHIR-Type: Extension
+  HL7-Type:
+    PV1:
+      Example:
+        {
+          "fullUrl": "Encounter/1707769152773011000.1773f8e2-a73d-4352-b575-7132156f166e",
+          "resource": {
+            "resourceType": "Encounter",
+            "id": "1707769152773011000.1773f8e2-a73d-4352-b575-7132156f166e",
+            "meta": {
+              "security": [
+                {
+                  "code": "true"
+                }
+              ]
+            },
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-patient-visit",
+                "extension": [
+                  {
+                    "url": "PV1.12",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "1",
+                          "display": "PRE"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "PV1.18",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "34",
+                          "display": "PT"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "PV1.46",
+                    "valueDecimal": 55
+                  },
+                  {
+                    "url": "PV1.47",
+                    "valueDecimal": 1000
+                  },
+                  {
+                    "url": "PV1.48",
+                    "valueDecimal": 0
+                  },
+                  {
+                    "url": "PV1.49",
+                    "valueDecimal": 0
+                  },
+                  {
+                    "url": "PV1.51",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "316",
+                          "display": "IND"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "PV1.30",
+                    "valueString": "T"
+                  },
+                  {
+                    "url": "PV1.31",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "1",
+                          "display": "AGE"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "PV1.32",
+                    "valueDecimal": 3.4
+                  },
+                  {
+                    "url": "PV1.33",
+                    "valueDecimal": 1.4
+                  },
+                  {
+                    "url": "PV1.34",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "66",
+                          "display": "DEL"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "PV1.35",
+                    "valueString": "20240501102531-0400"
+                  },
+                  {
+                    "url": "PV1.39",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "5678",
+                          "display": "SERV"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "PV1.41",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            }
+                          ],
+                          "code": "431",
+                          "display": "ST"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "class": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-2-patient-class",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "extension": [
+                              {
+                                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                                "valueString": "coding"
+                              }
+                            ],
+                            "code": "O"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                  "code": "AMB",
+                  "display": "ambulatory"
+                }
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: pv1-2-patient-class
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-2-patient-class"
+          valueType: CodeableConcept
+          hl7Use: PV1.2
+        - id: pv1-patient-visit
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-patient-visit"
+          valueType: Extension
+          hl7Use: NA
+          extension:
+            - id: PV1.12
+              url: "PV1.12"
+              valueType: CodeableConcept
+              hl7Use: PV1.12
+            - id: PV1.18
+              url: "PV1.18"
+              valueType: CodeableConcept
+              hl7Use: PV1.18
+            - id: PV1.30
+              url: "PV1.30"
+              valueType: String
+              hl7Use: PV1.30
+            - id: PV1.31
+              url: "PV1.31"
+              valueType: CodeableConcept
+              hl7Use: PV1.31
+            - id: PV1.32
+              url: "PV1.32"
+              valueType: Decimal
+              hl7Use: PV1.32
+            - id: PV1.33
+              url: "PV1.33"
+              valueType: Decimal
+              hl7Use: PV1.33
+            - id: PV1.34
+              url: "PV1.34"
+              valueType: CodeableConcept
+              hl7Use: PV1.34
+            - id: PV1.35
+              url: "PV1.35"
+              valueType: String
+              hl7Use: PV1.35
+            - id: PV1.39
+              url: "PV1.39"
+              valueType: CodeableConcept
+              hl7Use: PV1.39
+            - id: PV1.41
+              url: "PV1.41"
+              valueType: CodeableConcept
+              hl7Use: PV1.41
+            - id: PV1.46
+              url: "PV1.46"
+              valueType: Decimal
+              hl7Use: PV1.46
+            - id: PV1.47
+              url: "PV1.47"
+              valueType: Decimal
+              hl7Use: PV1.47
+            - id: PV1.48
+              url: "PV1.48"
+              valueType: Decimal
+              hl7Use: PV1.48
+            - id: PV1.49
+              url: "PV1.49"
+              valueType: Decimal
+              hl7Use: PV1.49
+            - id: PV1.51
+              url: "PV1.51"
+              valueType: CodeableConcept
+              hl7Use: PV1.51
+    PV2:
+      Example:
+        {
+          "fullUrl": "Encounter/1707769152773011000.1773f8e2-a73d-4352-b575-7132156f166e",
+          "resource": {
+            "resourceType": "Encounter",
+            "id": "1707769152773011000.1773f8e2-a73d-4352-b575-7132156f166e",
+            "meta": {
+              "security": [
+                {
+                  "code": "true"
+                }
+              ]
+            },
+            "text": {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-visit-description",
+                  "valueString": "Description"
+                }
+              ],
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Description</div>"
+            },
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/visit-user-code",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "423",
+                      "display": "X"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/planned-start-date",
+                "valueDateTime": "2023-06-01T10:25:31-04:00",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "20230601102531-0400"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/planned-discharge-date",
+                "valueDateTime": "2023-07-01T10:25:31-04:00",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "20230701102531-0400"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/estimated-length",
+                "valueQuantity": {
+                  "value": 5,
+                  "unit": "days",
+                  "system": "http://unitsofmeasure.org/",
+                  "code": "d"
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/publicity-code",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "100",
+                      "display": "PublicCode"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/admission-level-of-care",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "123",
+                      "display": "CARELEVEL1"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-patient-visit-additional-information",
+                "extension": [
+                  {
+                    "url": "PV2.15",
+                    "valueString": "EMP_ILL"
+                  },
+                  {
+                    "url": "PV2.23",
+                    "valueReference": {
+                      "reference": "Organization/1707769152730892000.31064921-e426-473b-b331-ae73116f7f98"
+                    }
+                  },
+                  {
+                    "url": "PV2.23",
+                    "valueReference": {
+                      "reference": "Organization/1707769152733183000.d51386d1-407b-4dd4-ab51-5f2dd04e56b4"
+                    }
+                  },
+                  {
+                    "url": "PV2.26",
+                    "valueString": "20230501102531-0400"
+                  },
+                  {
+                    "url": "PV2.29",
+                    "valueString": "20220501102531-0400"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: pv2-visit-description
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-visit-description"
+          valueType: String
+          hl7Use: PV2.12
+        - id: visit-user-code
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/visit-user-code"
+          valueType: CodeableConcept
+          hl7Use: PV2.7
+        - id: planned-start-date
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/planned-start-date"
+          valueType: DateTime
+          hl7Use: PV2.8
+        - id: planned-discharge-date
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/planned-discharge-date"
+          valueType: DateTime
+          hl7Use: PV2.9
+        - id: estimated-length
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/estimated-length"
+          valueType: Quantity
+          hl7Use: PV2.10
+        - id: publicity-code
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/publicity-code"
+          valueType: CodeableConcept
+          hl7Use: PV2.21
+        - id: admission-level-of-care
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/admission-level-of-care"
+          valueType: CodeableConcept
+          hl7Use: PV2.40
+        - id: pv2-patient-visit-additional-information
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-patient-visit-additional-information"
+          valueType: Extension
+          hl7Use: NA
+          extension:
+            - id: PV2.15
+              url: "PV2.15"
+              valueType: String
+              hl7Use: PV2.15
+            - id: PV2.23
+              url: "PV2.23"
+              valueType: Reference
+              hl7Use: PV2.23
+            - id: PV2.26
+              url: "PV2.26"
+              valueType: String
+              hl7Use: PV2.26
+            - id: PV2.29
+              url: "PV2.29"
+              valueType: String
+              hl7Use: PV2.29
+
+- Resource: EpisodeOfCare
+  FHIR-Type: Extension
+  HL7-Type:
+    PV1:
+      Example:
+        {
+          "fullUrl": "EpisodeOfCare/1707769195127487000.2b98db64-c5a4-4ea1-8ec6-f36ad9169547",
+          "resource": {
+            "resourceType": "EpisodeOfCare",
+            "id": "1707769195127487000.2b98db64-c5a4-4ea1-8ec6-f36ad9169547",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "PV1.54"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/episode-of-care-name",
+                "valueString": "ServiceDescriptor"
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          constant: "PV1.54"
+        - id: episode-of-care-name
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/episode-of-care-name"
+          valueType: String
+          hl7Use: PV1.54
