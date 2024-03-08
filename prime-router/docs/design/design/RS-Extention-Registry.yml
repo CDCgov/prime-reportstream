@@ -899,7 +899,12 @@
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
           valueType: String
           hl7Use: NA
-          description: Identifies the HL7 origin/destination of the data.
+          description: Identifies the HL7 origin/destination field of the data.
+        - id: hl7v2Component
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination component of the data.
         - id: placer-assigned-identifier
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier"
           valueType: Extension
