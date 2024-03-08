@@ -9,4 +9,4 @@ elements:
   - name: report-index
     resource: ‘Bundle.entry.resource.ofType(DiagnosticReport)’
     resourceIndex: orderIndex
-    schema: schemaDoesNotExist
+    schema: classpath:/fhir_sender_transforms/schemaDoesNotExist.yml
