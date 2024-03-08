@@ -4905,6 +4905,142 @@
             ]
           }
         }
+      Extension:
+        - id: obr-observation-request
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request"
+          valueType: Extension
+          hl7Use: NA
+          extension:
+            - id: OBR.2
+              url: "OBR.2"
+              valueType: Identifier
+              hl7Use: OBR.2
+            - id: OBR.3
+              url: "OBR.3"
+              valueType: Identifier
+              hl7Use: OBR.3
+            - id: OBR.10
+              url: "OBR.10"
+              valueType: Reference
+              hl7Use: OBR.10
+            - id: OBR.11
+              url: "OBR.11"
+              valueType: String
+              hl7Use: OBR.11
+            - id: OBR.12
+              url: "OBR.12"
+              valueType: CodeableConcept
+              hl7Use: OBR.12
+            - id: OBR.13
+              url: "OBR.13"
+              valueType: String
+              hl7Use: OBR.13
+            - id: OBR.16
+              url: "OBR.16"
+              valueType: Reference
+              hl7Use: OBR.16
+            - id: callback-number
+              url: "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number"
+              valueType: ContactPoint
+              hl7Use: OBR.17
+            - id: OBR.18
+              url: "OBR.18"
+              valueType: String
+              hl7Use: OBR.18
+            - id: OBR.19
+              url: "OBR.19"
+              valueType: String
+              hl7Use: OBR.19
+            - id: OBR.21
+              url: "OBR.21"
+              valueType: String
+              hl7Use: OBR.21
+            - id: OBR.22
+              url: "OBR.22"
+              valueType: String
+              hl7Use: OBR.22
+            - id: OBR.23
+              url: "OBR.23"
+              valueType: Extension
+              hl7Use: OBR.23
+              extension:
+                - id: moc-1-1-monetary-amount
+                  url: "moc-1-1-monetary-amount"
+                  valueType: String
+                  hl7Use: MOC.1.1
+                - id: moc-1-2-monetary-denomination
+                  url: "moc-1-2-monetary-denomination"
+                  valueType: String
+                  hl7Use: MOC.1.2
+                - id: moc-2-charge-code
+                  url: "moc-2-charge-code"
+                  valueType: CodeableConcept
+                  hl7Use: MOC.3
+            - id: OBR.24
+              url: "OBR.24"
+              valueType: String
+              hl7Use: OBR.24
+            - id: OBR.23
+              url: "OBR.23"
+              valueType: Extension
+              hl7Use: OBR.26
+              extension:
+                - id: prl-1-parent-observation-identifier
+                  url: "prl-1-parent-observation-identifier"
+                  valueType: CodeableConcept
+                  hl7Use: PRL.1
+                - id: prl-2-parent-observation-sub-identifier
+                  url: "prl-2-parent-observation-sub-identifier"
+                  valueType: String
+                  hl7Use: PRL.2
+                - id: prl-3-parent-observation-descriptor
+                  url: "prl-3-parent-observation-descriptor"
+                  valueType: String
+                  hl7Use: PRL.3
+            - id: OBR.28
+              url: "OBR.28"
+              valueType: Reference
+              hl7Use: OBR.28
+            - id: OBR.29
+              url: "OBR.29"
+              valueType: Identifier
+              hl7Use: OBR.29
+            - id: OBR.33
+              url: "OBR.33"
+              valueType: Reference
+              hl7Use: OBR.33
+            - id: OBR.36
+              url: "OBR.36"
+              valueType: String
+              hl7Use: OBR.36
+            - id: OBR.39
+              url: "OBR.39"
+              valueType: CodeableConcept
+              hl7Use: OBR.39
+            - id: OBR.44
+              url: "OBR.44"
+              valueType: CodeableConcept
+              hl7Use: OBR.44
+            - id: obr-45-procedure-code-modifier
+              url: "obr-45-procedure-code-modifier"
+              valueType: CodeableConcept
+              hl7Use: OBR.45
+            - id: OBR.48
+              url: "OBR.48"
+              valueType: CodeableConcept
+              hl7Use: OBR.48
+            - id: OBR.49
+              url: "OBR.49"
+              valueType: String
+              hl7Use: OBR.49
+            - id: OBR.50
+              url: "OBR.50"
+              valueType: CodeableConcept
+              hl7Use: OBR.50
+            - id: OBR.53
+              url: "OBR.53"
+              valueType: Identifier
+              hl7Use: OBR.53
     XTN:
       Example:
         {
