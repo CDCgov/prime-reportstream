@@ -40,6 +40,8 @@ import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.HD_ELR;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.ST;
 import gov.cdc.nist.datatype.*;
 
 

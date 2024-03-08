@@ -39,8 +39,10 @@ import ca.uhn.hl7v2.model.AbstractMessage;
 import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.parser.DefaultModelClassFactory;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import gov.cdc.nist.group.*;
-import gov.cdc.nist.segment.*;
+import fhirengine.translation.hl7.structures.nistelr251.group.ORU_R01_PATIENT_RESULT;
+import fhirengine.translation.hl7.structures.nistelr251.segment.DSC;
+import fhirengine.translation.hl7.structures.nistelr251.segment.MSH;
+import fhirengine.translation.hl7.structures.nistelr251.segment.SFT;
 
 
 /**

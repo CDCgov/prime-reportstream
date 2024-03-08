@@ -40,8 +40,8 @@ import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.model.Varies;
-import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -88,31 +88,31 @@ public class OBX extends AbstractSegment {
 
     private void init(ModelClassFactory factory) {
        try {
-                                  this.add(SI.class, true, 1, 0, new Object[]{ getMessage() }, "Set ID - OBX");
-                                              this.add(ID.class, false, 1, 0, new Object[]{ getMessage(), new Integer(125) }, "Value Type");
-                                  this.add(CWE_ELR.class, true, 1, 0, new Object[]{ getMessage() }, "Observation Identifier");
-                                  this.add(ST.class, false, 1, 0, new Object[]{ getMessage() }, "Observation Sub-ID");
-                                  this.add(Varies.class, false, 1, 0, new Object[]{ getMessage() }, "Observation Value");
-                                  this.add(CWE_ELR.class, false, 1, 0, new Object[]{ getMessage() }, "Units");
-                                  this.add(ST.class, false, 1, 0, new Object[]{ getMessage() }, "References Range");
-                                  this.add(CWE_ELR.class, false, -1, 0, new Object[]{ getMessage() }, "Abnormal Flags");
-                                  this.add(NM.class, false, 1, 0, new Object[]{ getMessage() }, "Probability");
-                                              this.add(ID.class, false, 1, 0, new Object[]{ getMessage(), new Integer(80) }, "Nature of Abnormal Test");
-                                              this.add(ID.class, true, 1, 0, new Object[]{ getMessage(), new Integer(85) }, "Observation Result Status");
-                                  this.add(TS.class, false, 1, 0, new Object[]{ getMessage() }, "Effective Date of Reference Range Values");
-                                  this.add(ST.class, false, 1, 0, new Object[]{ getMessage() }, "User Defined Access Checks");
-                                  this.add(TS_ELR.class, false, 1, 0, new Object[]{ getMessage() }, "Date/Time of the Observation");
-                                  this.add(CWE.class, false, 1, 0, new Object[]{ getMessage() }, "Producer's ID");
-                                  this.add(XCN.class, false, -1, 0, new Object[]{ getMessage() }, "Responsible Observer");
-                                  this.add(CWE_ELR.class, false, -1, 0, new Object[]{ getMessage() }, "Observation Method");
-                                  this.add(EI.class, false, -1, 0, new Object[]{ getMessage() }, "Equipment Instance Identifier");
-                                  this.add(TS_ELR.class, false, 1, 0, new Object[]{ getMessage() }, "Date/Time of the Analysis");
-                                  this.add((TBD).class, false, 0, 0, new Object[]{ getMessage() }, "Reserved for harmonization with V2.6");
-                                  this.add((TBD).class, false, 0, 0, new Object[]{ getMessage() }, "Reserved for harmonization with V2.6");
-                                  this.add((TBD).class, false, 0, 0, new Object[]{ getMessage() }, "Reserved for harmonization with V2.6");
-                                  this.add(XON_ELR.class, true, 1, 0, new Object[]{ getMessage() }, "Performing Organization Name");
-                                  this.add(XAD_ELR.class, true, 1, 0, new Object[]{ getMessage() }, "Performing Organization Address");
-                                  this.add(XCN_ELR.class, false, 1, 0, new Object[]{ getMessage() }, "Performing Organization Medical Director");
+          this.add(SI.class, true, 1, 0, new Object[]{ getMessage() }, "Set ID - OBX");
+                      this.add(ID.class, false, 1, 0, new Object[]{ getMessage(), Integer.valueOf(125) }, "Value Type");
+          this.add(CWE_ELR.class, true, 1, 0, new Object[]{ getMessage() }, "Observation Identifier");
+          this.add(ST.class, false, 1, 0, new Object[]{ getMessage() }, "Observation Sub-ID");
+          this.add(Varies.class, false, 1, 0, new Object[]{ getMessage() }, "Observation Value");
+          this.add(CWE_ELR.class, false, 1, 0, new Object[]{ getMessage() }, "Units");
+          this.add(ST.class, false, 1, 0, new Object[]{ getMessage() }, "References Range");
+          this.add(CWE_ELR.class, false, -1, 0, new Object[]{ getMessage() }, "Abnormal Flags");
+          this.add(NM.class, false, 1, 0, new Object[]{ getMessage() }, "Probability");
+                      this.add(ID.class, false, 1, 0, new Object[]{ getMessage(), Integer.valueOf(80) }, "Nature of Abnormal Test");
+                      this.add(ID.class, true, 1, 0, new Object[]{ getMessage(), Integer.valueOf(85) }, "Observation Result Status");
+          this.add(TS.class, false, 1, 0, new Object[]{ getMessage() }, "Effective Date of Reference Range Values");
+          this.add(ST.class, false, 1, 0, new Object[]{ getMessage() }, "User Defined Access Checks");
+          this.add(TS_ELR.class, false, 1, 0, new Object[]{ getMessage() }, "Date/Time of the Observation");
+          this.add(CWE.class, false, 1, 0, new Object[]{ getMessage() }, "Producer's ID");
+          this.add(XCN.class, false, -1, 0, new Object[]{ getMessage() }, "Responsible Observer");
+          this.add(CWE_ELR.class, false, -1, 0, new Object[]{ getMessage() }, "Observation Method");
+          this.add(EI.class, false, -1, 0, new Object[]{ getMessage() }, "Equipment Instance Identifier");
+          this.add(TS_ELR.class, false, 1, 0, new Object[]{ getMessage() }, "Date/Time of the Analysis");
+          this.add((TBD).class, false, 0, 0, new Object[]{ getMessage() }, "Reserved for harmonization with V2.6")
+         this.add((TBD).class, false, 0, 0, new Object[]{ getMessage() }, "Reserved for harmonization with V2.6")
+         this.add((TBD).class, false, 0, 0, new Object[]{ getMessage() }, "Reserved for harmonization with V2.6")
+         this.add(XON_ELR.class, true, 1, 0, new Object[]{ getMessage() }, "Performing Organization Name");
+          this.add(XAD_ELR.class, true, 1, 0, new Object[]{ getMessage() }, "Performing Organization Address");
+          this.add(XCN_ELR.class, false, 1, 0, new Object[]{ getMessage() }, "Performing Organization Medical Director");
        } catch(HL7Exception e) {
           log.error("Unexpected error creating OBX - this is probably a bug in the source code generator.", e);
        }
@@ -859,8 +859,8 @@ public class OBX extends AbstractSegment {
      * Returns all repetitions of Reserved for harmonization with V2.6 (OBX-20).
      */
     public (TBD)[] getReservedForHarmonizationWithV26() {
-    	(TBD)[] retVal = this.getTypedField(20, new (TBD)[0]);
-    	return retVal;
+    	(TBD)[] retVal = this.getTypedField(20, new (TBD)[0])
+    return retVal;
     }
 
 
@@ -868,8 +868,8 @@ public class OBX extends AbstractSegment {
      * Returns all repetitions of Reserved for harmonization with V2.6 (OBX-20).
      */
     public (TBD)[] getObx20_ReservedForHarmonizationWithV26() {
-    	(TBD)[] retVal = this.getTypedField(20, new (TBD)[0]);
-    	return retVal;
+    	(TBD)[] retVal = this.getTypedField(20, new (TBD)[0])
+    return retVal;
     }
 
 
@@ -968,8 +968,8 @@ public class OBX extends AbstractSegment {
      * Returns all repetitions of Reserved for harmonization with V2.6 (OBX-21).
      */
     public (TBD)[] getReservedForHarmonizationWithV26() {
-    	(TBD)[] retVal = this.getTypedField(21, new (TBD)[0]);
-    	return retVal;
+    	(TBD)[] retVal = this.getTypedField(21, new (TBD)[0])
+    return retVal;
     }
 
 
@@ -977,8 +977,8 @@ public class OBX extends AbstractSegment {
      * Returns all repetitions of Reserved for harmonization with V2.6 (OBX-21).
      */
     public (TBD)[] getObx21_ReservedForHarmonizationWithV26() {
-    	(TBD)[] retVal = this.getTypedField(21, new (TBD)[0]);
-    	return retVal;
+    	(TBD)[] retVal = this.getTypedField(21, new (TBD)[0])
+    return retVal;
     }
 
 
@@ -1077,8 +1077,8 @@ public class OBX extends AbstractSegment {
      * Returns all repetitions of Reserved for harmonization with V2.6 (OBX-22).
      */
     public (TBD)[] getReservedForHarmonizationWithV26() {
-    	(TBD)[] retVal = this.getTypedField(22, new (TBD)[0]);
-    	return retVal;
+    	(TBD)[] retVal = this.getTypedField(22, new (TBD)[0])
+    return retVal;
     }
 
 
@@ -1086,8 +1086,8 @@ public class OBX extends AbstractSegment {
      * Returns all repetitions of Reserved for harmonization with V2.6 (OBX-22).
      */
     public (TBD)[] getObx22_ReservedForHarmonizationWithV26() {
-    	(TBD)[] retVal = this.getTypedField(22, new (TBD)[0]);
-    	return retVal;
+    	(TBD)[] retVal = this.getTypedField(22, new (TBD)[0])
+    return retVal;
     }
 
 
@@ -1249,7 +1249,7 @@ public class OBX extends AbstractSegment {
     protected Type createNewTypeWithoutReflection(int field) {
        switch (field) {
           case 0: return new SI(getMessage());
-          case 1: return new ID(getMessage(), new Integer( 125 ));
+          case 1: return new ID(getMessage(), Integer.valueOf(125));
           case 2: return new CWE_ELR(getMessage());
           case 3: return new ST(getMessage());
           case 4: return new Varies(getMessage());
@@ -1257,8 +1257,8 @@ public class OBX extends AbstractSegment {
           case 6: return new ST(getMessage());
           case 7: return new CWE_ELR(getMessage());
           case 8: return new NM(getMessage());
-          case 9: return new ID(getMessage(), new Integer( 80 ));
-          case 10: return new ID(getMessage(), new Integer( 85 ));
+          case 9: return new ID(getMessage(), Integer.valueOf(80));
+          case 10: return new ID(getMessage(), Integer.valueOf(85));
           case 11: return new TS(getMessage());
           case 12: return new ST(getMessage());
           case 13: return new TS_ELR(getMessage());
