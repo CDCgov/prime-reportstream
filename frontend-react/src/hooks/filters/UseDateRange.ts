@@ -68,7 +68,6 @@ const useDateRange = (): RangeFilter => {
         from: FALLBACK_FROM,
         to: FALLBACK_TO,
     });
-
     return {
         settings,
         update: dispatchRange,

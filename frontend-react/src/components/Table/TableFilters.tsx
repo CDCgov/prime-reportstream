@@ -174,6 +174,7 @@ function TableFilters({
         const endTimeElm = formRef?.current?.querySelector(
             "#end-time",
         ) as HTMLInputElement | null;
+
         if (isPaginationLoading === false)
             // This piece of code outputs into activeFilters a human readable
             // filter array for us to display on the FE, with protections against
@@ -214,7 +215,7 @@ function TableFilters({
             });
         // We ONLY want to update the TableFilterStatus when loading is complete
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isPaginationLoading]);
+    }, [resultLength]);
 
     /* Pushes local state to context and resets cursor to page 1 */
     const applyToFilterManager = useCallback(
