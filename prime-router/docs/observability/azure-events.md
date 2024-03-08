@@ -58,10 +58,10 @@ This event is emitted during the route step _before_ running any receiver specif
   - The Topic of the report
 - sender
   - The full sender name
-- conditions
-  - A list of condition codes and displays serialized to a json array
-- conditionsCount 
-  - extracted conditions array length for easier querying
+- observations
+  - A list of observations each containing a list of its mapped conditions
+- bundleSize
+  - Length of the bundle JSON string
 
 ### ReportRouteEvent
 This event is emitted during the route step _after_ running any receiver specific filtering. 
@@ -78,11 +78,10 @@ Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "jo
   - The full sender name
 - receiver
   - The full receiver name. When a report does not get routed to a receiver this value will be `"null"`.
-- conditions
-  - A list of condition codes and displays serialized to a json array
-- conditionsCount
-    - extracted conditions array length for easier querying
-
+- observations
+  - A list of observations each containing a list of its mapped conditions 
+- bundleSize
+  - Length of the bundle JSON string
 
 ## How to query for events
 
@@ -133,7 +132,9 @@ customEvents
 ```
 customEvents
 | where name == "ReportAcceptedEvent"
-| extend conditions = parse_json(tostring(customDimensions.conditions))
+| extend observations = parse_json(tostring(customDimensions.observations))
+| mv-expand observations
+| extend conditions = parse_json(tostring(observations.conditions))
 | mv-expand conditions
 | extend conditionDisplay = tostring(conditions.display)
 | summarize count() by conditionDisplay
@@ -173,8 +174,10 @@ customEvents
 ```
 customEvents
 | where name == "ReportRouteEvent"
-| extend conditions = parse_json(tostring(customDimensions.conditions)), receiver = tostring(customDimensions.receiver)
+| extend observations = parse_json(tostring(customDimensions.observations)), receiver = tostring(customDimensions.receiver)
 | where receiver != "null"
+| mv-expand observations
+| extend conditions = parse_json(tostring(observations.conditions))
 | mv-expand conditions
 | extend conditionDisplay = tostring(conditions.display)
 | summarize count() by conditionDisplay

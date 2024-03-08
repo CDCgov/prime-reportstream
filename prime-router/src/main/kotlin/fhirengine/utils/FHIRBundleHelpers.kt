@@ -129,14 +129,6 @@ fun Observation.getMappedConditionCodes(): List<String> {
 
 fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<Observation>()
 
-/**
- * Gets mapped conditions present on all [Observation]s in a Bundle
- */
-fun Bundle.getAllMappedConditions(): List<Coding> {
-    return this.getObservations()
-        .flatMap { it.getMappedConditions() }
-}
-
 fun Bundle.getObservationsWithCondition(codes: List<String>): List<Observation> =
     if (codes.isEmpty()) {
         // TODO: consider throwing IllegalArgumentException here while implementing

@@ -11,17 +11,23 @@ class AzureEventUtilsTest {
     private val validFhirUrl = "src/test/resources/fhirengine/engine/routing/valid.fhir"
 
     @Test
-    fun `get all conditions from bundle and map them correctly`() {
+    fun `get all observations from bundle and map them correctly`() {
         val fhirData = File(validFhirUrl).readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
         val expected = listOf(
-            ConditionSummary(
-                "840539006",
-                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-            )
+            ObservationSummary(
+                ConditionSummary(
+                    "840539006",
+                    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                )
+            ),
+            ObservationSummary.EMPTY,
+            ObservationSummary.EMPTY,
+            ObservationSummary.EMPTY,
+            ObservationSummary.EMPTY
         )
-        val actual = AzureEventUtils.getConditions(bundle)
+        val actual = AzureEventUtils.getObservations(bundle)
 
         assertThat(actual).isEqualTo(expected)
     }
