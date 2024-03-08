@@ -22,4 +22,4 @@ elements:
   - name: observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
     resourceIndex: observationIndex
-    schema: observation
+    schema: classpath:/fhir_sender_transforms/observation.yml

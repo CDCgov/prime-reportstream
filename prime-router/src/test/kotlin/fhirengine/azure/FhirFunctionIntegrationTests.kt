@@ -567,6 +567,11 @@ class FhirFunctionIntegrationTests() {
         mockkObject(QueueMessage)
         mockkObject(QueueAccess)
         every { QueueAccess.sendMessage(any(), any()) } returns Unit
+        mockkObject(BlobAccess.BlobContainerMetadata)
+        every { BlobAccess.BlobContainerMetadata.build("metadata", any()) } returns BlobAccess.BlobContainerMetadata(
+            "metadata",
+            blobConnectionString
+        )
 
         // The topic param of queueMessage is what should determine how the Translate function runs
         val queueMessage = "{\"type\":\"translate\",\"reportId\":\"${translateReport.id}\"," +
