@@ -78,6 +78,10 @@ class TranslationSchemaManager : Logging {
         class TranslationSyncException(override val message: String, override val cause: Throwable? = null) :
             RuntimeException(cause)
 
+        class TranslationStateUninitalized() : RuntimeException() {
+            override val message = "The azure account and container have not been initialized"
+        }
+
         /**
          * Internal helper function that fetches the raw input, output file and the URI for the schema to be validated
          *
@@ -129,7 +133,7 @@ class TranslationSchemaManager : Logging {
             }
             val transformBlobName = transformBlob.single().currentBlobItem.name
             val schemaUri =
-                "${blobContainerInfo.getBlobEndpoint()}/$transformBlobName"
+                "azure:/$transformBlobName"
             return ValidationContainer(input, output, schemaUri)
         }
     }
@@ -247,7 +251,9 @@ class TranslationSchemaManager : Logging {
         blobContainerInfo: BlobAccess.BlobContainerMetadata,
     ): ValidationState {
         val allBlobs = BlobAccess.listBlobs(schemaType.directory, blobContainerInfo)
-
+        if (allBlobs.isEmpty()) {
+            throw TranslationStateUninitalized()
+        }
         val valid = allBlobs.singleOrNull { it.blobName.contains(validBlobNameRegex) }
         val previousValid = allBlobs.singleOrNull { it.blobName.contains(previousValidBlobNameRegex) }
             ?: throw TranslationSyncException("Validation state was invalid, the previous-valid blob is misconfigured")
@@ -297,47 +303,71 @@ class TranslationSchemaManager : Logging {
     fun syncSchemas(
         schemaType: SchemaType,
         sourceValidationState: ValidationState,
-        destinationValidationState: ValidationState,
+        destinationValidationState: ValidationState?,
         sourceBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
         destinationBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
     ) {
-        // Upload a new previous-valid blob with time of the valid blob and delete the old one
-        if (destinationValidationState.valid == null) {
-            throw TranslationSyncException("Valid blob is unexpectedly missing, aborting sync")
+        // If the destinationValidationState is null, it means that the destination is being initialized for the first
+        // time.  In that case, copy and create the previous-valid and previous-valid-valid files from the source
+        if (destinationValidationState == null) {
+            logger.info("Initializing a new translation schema validation state.")
+            // Copy all the files between the two azure stores
+            BlobAccess.copyDir(
+                schemaType.directory,
+                sourceBlobContainerMetadata,
+                destinationBlobContainerMetadata
+            ) { blob -> !blob.blobName.endsWith(".txt") }
+            if (sourceValidationState.valid == null) {
+                throw TranslationSyncException("Valid blob is unexpectedly missing, aborting sync")
+            }
+            BlobAccess.uploadBlob(
+                sourceValidationState.valid.name.replace(validBlobName, previousValidBlobName),
+                "".toByteArray(),
+                destinationBlobContainerMetadata
+            )
+            BlobAccess.uploadBlob(
+                sourceValidationState.previousValid.name.replace(previousValidBlobName, previousPreviousValidBlobName),
+                "".toByteArray(),
+                destinationBlobContainerMetadata
+            )
+        } else {
+            // Upload a new previous-valid blob with time of the valid blob and delete the old one
+            if (destinationValidationState.valid == null) {
+                throw TranslationSyncException("Valid blob is unexpectedly missing, aborting sync")
+            }
+            BlobAccess.deleteBlob(destinationValidationState.previousValid, destinationBlobContainerMetadata)
+            BlobAccess.uploadBlob(
+                destinationValidationState.valid.name.replace(
+                    validBlobName,
+                    previousValidBlobName
+                ),
+                "".toByteArray(), destinationBlobContainerMetadata
+            )
+
+            // Create a previous-previous-valid blob with the timestamp from the previous-valid blob
+            BlobAccess.uploadBlob(
+                destinationValidationState.previousValid.name.replace(
+                    previousValidBlobName,
+                    previousPreviousValidBlobName
+                ),
+                "".toByteArray(), destinationBlobContainerMetadata
+            )
+
+            // Delete the valid blob
+            BlobAccess.deleteBlob(destinationValidationState.valid, destinationBlobContainerMetadata)
+
+            // Copy all the files between the two azure stores
+            BlobAccess.copyDir(
+                schemaType.directory,
+                sourceBlobContainerMetadata,
+                destinationBlobContainerMetadata
+            ) { blob -> !blob.blobName.endsWith(".txt") }
+            val sourceSchemaBlobNames = sourceValidationState.schemaBlobs.map { it.blobName }.toSet()
+            // Delete all the blobs present in the destination but no longer present in the soruce
+            val blobsToDelete =
+                destinationValidationState.schemaBlobs.filterNot { sourceSchemaBlobNames.contains(it.blobName) }
+            blobsToDelete.forEach { BlobAccess.deleteBlob(it.currentBlobItem, destinationBlobContainerMetadata) }
         }
-        BlobAccess.deleteBlob(destinationValidationState.previousValid, destinationBlobContainerMetadata)
-        BlobAccess.uploadBlob(
-            destinationValidationState.valid.name.replace(
-                validBlobName,
-                previousValidBlobName
-            ),
-            "".toByteArray(), destinationBlobContainerMetadata
-        )
-
-        // Create a previous-previous-valid blob with the timestamp from the previous-valid blob
-        BlobAccess.uploadBlob(
-            destinationValidationState.previousValid.name.replace(
-                previousValidBlobName,
-                previousPreviousValidBlobName
-            ),
-            "".toByteArray(), destinationBlobContainerMetadata
-        )
-
-        // Delete the valid blob
-        BlobAccess.deleteBlob(destinationValidationState.valid, destinationBlobContainerMetadata)
-
-        // Copy all the files between the two azure stores
-        BlobAccess.copyDir(
-            schemaType.directory,
-            sourceBlobContainerMetadata,
-            destinationBlobContainerMetadata
-        ) { blob -> !blob.blobName.endsWith(".txt") }
-        val sourceSchemaBlobNames = sourceValidationState.schemaBlobs.map { it.blobName }.toSet()
-        // Delete all the blobs present in the destination but no longer present in the soruce
-        val blobsToDelete =
-            destinationValidationState.schemaBlobs.filterNot { sourceSchemaBlobNames.contains(it.blobName) }
-        blobsToDelete.forEach { BlobAccess.deleteBlob(it.currentBlobItem, destinationBlobContainerMetadata) }
-
         // Upload the validating.txt to trigger the validation azure function for the schema type
         BlobAccess.uploadBlob(
             "${schemaType.directory}/validating.txt",

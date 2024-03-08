@@ -26,7 +26,4 @@ Features include:
 The full feature set is kept in the repositories project folder.
 
 ## Learn More
-To continue the developer orientation, please read
-- [Contributing](../contributing.md) to see the contributions rules for the project
-- [Getting Started](docs/getting-started/getting-started.md) to continue the developer machine setup
-- [Release Notes](docs/release-notes.md)
+To continue the developer orientation, please read documentation on the [Universal Pipeline](docs/README.md).

@@ -20,7 +20,7 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import gov.cdc.prime.router.fhirengine.utils.addMappedCondition
+import gov.cdc.prime.router.fhirengine.utils.addMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
@@ -96,7 +96,7 @@ class FHIRConverter(
 
                 // 'stamp' observations with their condition code
                 bundle.getObservations().forEach {
-                    it.addMappedCondition(metadata).run {
+                    it.addMappedConditions(metadata).run {
                         actionLogger.getItemLogger(bundleIndex + 1, it.id)
                             .setReportId(queueMessage.reportId)
                             .warn(this)
@@ -182,10 +182,8 @@ class FHIRConverter(
      * transformer in tests.
      */
     fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
-        // TODO: #10510
-        val convertedSchemaName = convertRelativeSchemaPathToUri(schemaName)
-        return if (convertedSchemaName.isNotBlank()) {
-            FhirTransformer(convertedSchemaName, "")
+        return if (schemaName.isNotBlank()) {
+            FhirTransformer(schemaName)
         } else {
             null
         }
