@@ -12,6 +12,9 @@ async function logIntoOkta(page: Page, login: TestLogin) {
         route.fulfill({ status: 204, body: "" }),
     );
 
+    // abort all app insight calls
+    await page.route("/v2/track", (route) => route.abort());
+
     await page.goto("/login", {
         waitUntil: "domcontentloaded",
     });

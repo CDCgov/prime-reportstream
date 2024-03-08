@@ -41,7 +41,7 @@ test.describe("Last Mile Failure page", () => {
             );
         });
 
-        test("table column Failed At has expected data", async ({ page }) => {
+        test("table column 'Failed At' has expected data", async ({ page }) => {
             await expect(
                 page
                     .locator(".usa-table tbody")
@@ -52,7 +52,7 @@ test.describe("Last Mile Failure page", () => {
             ).toHaveText("Tue, 2/20/2024, 9:35 PM");
         });
 
-        test("table column ReportId will open a modal with report details", async ({
+        test("table column 'ReportId' will open a modal with report details", async ({
             page,
         }) => {
             const reportId = page
@@ -72,7 +72,7 @@ test.describe("Last Mile Failure page", () => {
             );
         });
 
-        test("table column Receiver will open receiver edit page", async ({
+        test("table column 'Receiver' will open receiver edit page", async ({
             page,
         }) => {
             const reportId = page
