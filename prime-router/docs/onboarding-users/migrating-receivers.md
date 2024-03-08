@@ -26,9 +26,10 @@ To start migrating the receiver to the UP their most current settings need to be
 After retrieving the settings they will be updated to be able to route a message through the UP.
 
 * To begin create a new branch in git for your changes.
-* Fetch the STLTs production settings by running this command: `./prime multiple-settings get -f tx-doh --output tx-doh.yml`
+* Fetch the STLTs production settings by running this command: `./prime multiple-settings get -f <filter> --output <output file>`
+  * Example: `./prime multiple-settings get -f tx-doh --output tx-doh.yml`
   * To append the receiver settings to your local organizations.yml and also load them into the local database
-run the command with these options `./prime multiple-settings get -f tx-doh -l -a`
+  run the command with these options: `./prime multiple-settings get -f tx-doh -l -a`
 
 ### 2. Update receiver settings to route messages through UP
 
@@ -182,7 +183,7 @@ Once they have been reviewed push the settings to staging
 One of the ways to push the settings to staging is by running the PRIME command:
 `./prime multiple-settings set --input {path-to-schema} --env staging`
 
-Follow the steps here [Simple Report Test data](#simple-report-test-data) to send a combination of test messages to the STLT.
+Follow the steps here [Simple Report Test data](#simple-report-test-data) to generate a combination of Single Entry and CSV upload test messages through SimpleReport.
 The message should get routed to the STLT if their transport has been set-up correctly.  
 Messages routed to the STLT can be viewed by:
 * Logging in as an Admin to ReportStream
@@ -204,6 +205,7 @@ Once we have data we can notify the STLT to start reviewing the messages.
 A quick and easy way to get test data to send to a STLT is by going into SimpleReport's test environment https://test.simplereport.gov.   
 Access can be requested on the [shared-simple-report-universal-pipeline](https://nava.slack.com/archives/C0411VC78DN) thread.   
 Instructions on how to send a test message can be found on this youtube playlist https://www.youtube.com/playlist?list=PL3U3nqqPGhab0sys3ombZmwOplRYlBOBF. 
+The file [SR upload](./samples/SimpleReport/SR-UPLOAD.csv) can be used test sending reports through SimpleReport's CSV upload.
 To route the report to a specific STLT either the patient or facility state needs to updated to the STLT's jurisdiction. Keep in mind that if they are not updated the message might get routed to the incorrect STLT.
 The report sent by SimpleReport can be found in the Azure BlobStorage. The UP message will be stored in the `receive/simple_report.fullelr` and the covid pipeline message will be stored in `receive/simple_report.default`. This message can be used locally to test any new sender or receiver transforms.
 To access the blob storage. Microsoft Storage Explorer needs to be installed and login with your CDC SU credentials.
