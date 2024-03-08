@@ -2409,6 +2409,65 @@
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-annotation"
           valueType: CodeableConcept
           hl7Use: CWE
+    NTE:
+      Example:
+        "valueAnnotation": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
+              "valueCodeableConcept": {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid",
+                    "valueOid": "urn:oid:2.16.840.1.113883.12.364"
+                  }
+                ],
+                "coding": [
+                  {
+                    "extension": [
+                      {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                      },
+                      {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                        "valueString": "HL70364"
+                      }
+                    ],
+                    "version": "2.5.1",
+                    "code": "RE",
+                    "display": "Remark"
+                  }
+                ]
+              }
+            },
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/note-comment",
+              "valueId": "Patient Note"
+            },
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
+              "valueId": "L"
+            }
+          ],
+          "authorReference": {
+            "reference": "Practitioner/1707860303745020000.d72df819-95be-4ac8-8d06-8e43a415548e"
+          },
+          "text": "Patient Note"
+        }
+      Extension:
+        - id: note-source
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source"
+          valueType: ID
+          hl7Use: NTE.2
+        - id: note-comment
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-comment"
+          valueType: ID
+          hl7Use: NTE.3
+        - id: note-type
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
+          valueType: CodeableConcept
+          hl7Use: NTE.4
 
 - Resource: Practitioner
   FHIR-Type: Extension
@@ -2450,7 +2509,6 @@
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn-practitioner"
           valueType: extension
           hl7Use: NA
-          description: This extension holds fields needed to build an CNN datatype as some fields are not adequately captured in FHIR.
           extension:
             - id: CNN.3
               url: "CNN.3"
