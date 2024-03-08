@@ -88,6 +88,6 @@ resource "azurerm_linux_web_app" "metabase" {
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "metabase_vnet_integration" {
-  app_service_id = var.service_plan_id
+  app_service_id = azurerm_linux_web_app.metabase.id
   subnet_id      = var.use_cdc_managed_vnet ? var.subnets.public_subnets[0] : var.subnets.public_subnets[2]
 }
