@@ -159,12 +159,12 @@ export function processResultsReducer<T>(
         pageCursorMap,
         pageResultsMap,
     } = state;
-
     // Determine the number of whole pages we requested data for. Ignoring the
     // remainder accounts for a dangling result, which we use as an indicator of
     // a subsequent page.
     const numTargetWholePages = Math.floor(numResults / pageSize);
-    const resultLength = results.length;
+    const resultLength =
+        cursorPageNum === 1 ? results.length : state.resultLength;
     let finalPageNum;
 
     const resultPages = chunk(results, pageSize);
