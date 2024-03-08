@@ -131,6 +131,11 @@
           }
         }
       Extension:
+        - id: sender-id
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the entity sending the bundle to ReportStream
         - id: encoding-characters
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters"
           valueType: String
@@ -490,6 +495,10 @@
                     "valueString": "CDC CLIA"
                   }
                 ]
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "MSH.23"
               }
             ],
             "identifier": [
@@ -548,6 +557,11 @@
           }
         }
       Extension:
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
         - id: organization-name-type
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
           valueType: Coding
@@ -617,6 +631,80 @@
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization"
           valueType: CodeableConcept
           hl7Use: CWE
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
+    EI:
+      Example:
+        {
+          "fullUrl": "Organization/1707847155713462000.da8053be-d79a-4c15-9e50-ec19218d7287",
+          "resource": {
+            "resourceType": "Organization",
+            "id": "1707847155713462000.da8053be-d79a-4c15-9e50-ec19218d7287",
+            "identifier": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                    "valueString": "EI.2"
+                  }
+                ],
+                "value": "NAME"
+              },
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                    "valueString": "EI.3,EI.4"
+                  }
+                ],
+                "type": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/codeable-concept-id",
+                          "valueBoolean": true
+                        }
+                      ],
+                      "code": "ISO"
+                    }
+                  ]
+                },
+                "value": "UNI"
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
+    HD:
+      Example:
+        {
+          "fullUrl": "Organization/urn-oid-2.16.840.1.114222.4.1.10080",
+          "resource": {
+            "resourceType": "Organization",
+            "id": "urn-oid-2.16.840.1.114222.4.1.10080",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "MSH.6"
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
 
 - Resource: Any
   FHIR-Type: Identifier
@@ -626,6 +714,10 @@
         "identifier": [
           {
             "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "NK1.12"
+              },
               {
                 "url": "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
                 "valueString": "checkdigit"
@@ -695,6 +787,11 @@
           }
         ]
       Extension:
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
         - id: assigning-facility
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility"
           valueType: Reference
@@ -782,8 +879,8 @@
                 ]
               },
               {
-                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component",
-                "valueString": "SPM.2.2"
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "SPM.3"
               }
             ],
             "type": {
@@ -798,6 +895,11 @@
           }
         ]
       Extension:
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
         - id: placer-assigned-identifier
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier"
           valueType: Extension
@@ -846,6 +948,27 @@
           {
             "extension": [
               {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "ORC.2"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString": "Placer Identifier Namespace"
+                  },
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                    "valueString": "Placer Universal ID"
+                  },
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                    "valueCode": "ISO"
+                  }
+                ]
+              },
+              {
                 "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type",
                 "valueString": "default"
               }
@@ -879,7 +1002,71 @@
           valueType: String
           hl7Use: NA
           constant: "organization"
-
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
+        - id: assigning-authority
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority"
+          valueType: Extension
+          hl7Use: EI
+          extension:
+            - id: namespace-id
+              url: "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id"
+              valueType: String
+              hl7Use: EI.2
+            - id: universal-id
+              url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id"
+              valueType: String
+              hl7Use: EI.3
+            - id: universal-id-type
+              url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"
+              valueType: String
+              hl7Use: EI.4
+    HD:
+      Example:
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "HD.1"
+              }
+            ],
+            "value": "MN Public Health Lab"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "HD.2,HD.3"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                      "valueString": "identifier"
+                    }
+                  ],
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0301",
+                  "code": "ISO"
+                }
+              ]
+            },
+            "system": "urn:ietf:rfc:3986",
+            "value": "2.16.840.1.114222.4.1.10080"
+          }
+        ]
+      Extension:
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
 - Resource: Any
   FHIR-Type: CodeableConcept
   HL7-Type:
@@ -929,6 +1116,11 @@
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system"
           valueType: String
           hl7Use: CWE.3
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
     CE:
       Example:
         "code": {
@@ -2301,39 +2493,44 @@
       Example:
         "telecom": [
           {
-            "extension": [ {
-              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
-              "extension": [
-                {
-                  "url": "XTN.1",
-                  "valueString": "(111) 222 3333"
-                },
-                {
-                  "url": "XTN.2",
-                  "valueString": "PRN"
-                },
-                {
-                  "url": "XTN.3",
-                  "valueString": "PH"
-                },
-                {
-                  "url": "XTN.4",
-                  "valueString": "order.callback@email.com"
-                },
-                {
-                  "url": "XTN.7",
-                  "valueString": "2223333"
-                },
-                {
-                  "url": "XTN.9",
-                  "valueString": "(111)222-3333"
-                },
-                {
-                  "url": "XTN.12",
-                  "valueString": "+1 111 222 3333"
-                }
-              ]
-            }
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "PID.40"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                "extension": [
+                  {
+                    "url": "XTN.1",
+                    "valueString": "(111) 222 3333"
+                  },
+                  {
+                    "url": "XTN.2",
+                    "valueString": "PRN"
+                  },
+                  {
+                    "url": "XTN.3",
+                    "valueString": "PH"
+                  },
+                  {
+                    "url": "XTN.4",
+                    "valueString": "order.callback@email.com"
+                  },
+                  {
+                    "url": "XTN.7",
+                    "valueString": "2223333"
+                  },
+                  {
+                    "url": "XTN.9",
+                    "valueString": "(111)222-3333"
+                  },
+                  {
+                    "url": "XTN.12",
+                    "valueString": "+1 111 222 3333"
+                  }
+                ]
+              }
             ],
             "system": "pager",
             "value": "+1 260 759 5016",
@@ -2341,11 +2538,15 @@
           }
         ]
       Extension:
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
         - id: xtn-contact-point
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point"
           valueType: extension
           hl7Use: NA
-          description: This extension holds fields needed to build an XTN datatype as some fields are not adequately captured in FHIR.
           extension:
             - id: XTN.1
               url: "XTN.1"
@@ -2375,6 +2576,49 @@
               url: "XTN.12"
               valueType: String
               hl7Use: XTN.12
+
+- Resource: Any
+  FHIR-Type: Destination
+  HL7-Type:
+    HD:
+      Example:
+        "destination": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString": "2.16.840.1.114222.4.3.3.10.1.1"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString": "ISO"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "MSH.5"
+              }
+            ],
+            "name": "CDPH CA CALREDIE",
+            "endpoint": "urn:oid:2.16.840.1.114222.4.3.3.10.1.1",
+            "receiver": {
+              "reference": "Organization/1707860159563474000.dccc1ca0-c211-4edf-b4b7-45f6233c1748"
+            }
+          }
+        ]
+      Extension:
+        - id: universal-id
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id"
+          valueType: String
+          hl7Use: HD.2
+        - id: universal-id-type
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"
+          valueType: String
+          hl7Use: HD.3
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
 
 - Resource: Any
   FHIR-Type: Annotation
@@ -2552,6 +2796,10 @@
                 ]
               },
               {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "ORC.12"
+              },
+              {
                 "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
                 "extension": [
                   {
@@ -2673,11 +2921,15 @@
           }
         }
       Extension:
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
         - id: xcn-practitioner
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner"
           valueType: extension
           hl7Use: NA
-          description: This extension holds fields needed to build an XCN datatype as some fields are not adequately captured in FHIR.
           extension:
             - id: XCN.3
               url: "XCN.3"
@@ -2896,83 +3148,100 @@
   HL7-Type:
     XPN:
       Example:
-        "valueHumanName": {
-          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
-          "extension": [
+        {
+          "name": [
             {
-              "url": "XPN.2",
-              "valueString": "LUDWIG"
-            },
-            {
-              "url": "XPN.3",
-              "valueString": "B"
-            },
-            {
-              "url": "XPN.4",
-              "valueString": "2ND"
-            },
-            {
-              "url": "XPN.6",
-              "valueString": "MD"
-            },
-            {
-              "url": "XPN.7",
-              "valueString": "B"
-            },
-            {
-              "url": "XPN.8",
-              "valueString": "A"
-            },
-            {
-              "url": "XPN.9",
-              "valueCodeableConcept": {
-                "extension": [
-                  {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                    "valueString": "NK1.2"
-                  }
-                ],
-                "coding": [
-                  {
-                    "extension": [
-                      {
-                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                        "valueString": "coding"
-                      }
-                    ],
-                    "code": "Coding"
-                  }
-                ]
-              }
-            },
-            {
-              "url": "XPN.10",
               "extension": [
                 {
-                  "url": "XPN.10.2",
-                  "valueString": "20230501102531-0400"
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                  "valueString": "NK1.2"
                 },
                 {
-                  "url": "XPN.10.1",
-                  "valueString": "20220501102531-0400"
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                  "extension": [
+                    {
+                      "url": "XPN.2",
+                      "valueString": "LUDWIG"
+                    },
+                    {
+                      "url": "XPN.3",
+                      "valueString": "B"
+                    },
+                    {
+                      "url": "XPN.4",
+                      "valueString": "2ND"
+                    },
+                    {
+                      "url": "XPN.6",
+                      "valueString": "MD"
+                    },
+                    {
+                      "url": "XPN.7",
+                      "valueString": "B"
+                    },
+                    {
+                      "url": "XPN.8",
+                      "valueString": "A"
+                    },
+                    {
+                      "url": "XPN.9",
+                      "valueCodeableConcept": {
+                        "extension": [
+                          {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                            "valueString": "NK1.2"
+                          }
+                        ],
+                        "coding": [
+                          {
+                            "extension": [
+                              {
+                                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                                "valueString": "coding"
+                              }
+                            ],
+                            "code": "Coding"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "url": "XPN.10",
+                      "extension": [
+                        {
+                          "url": "XPN.10.2",
+                          "valueString": "20230501102531-0400"
+                        },
+                        {
+                          "url": "XPN.10.1",
+                          "valueString": "20220501102531-0400"
+                        }
+                      ]
+                    },
+                    {
+                      "url": "XPN.12",
+                      "valueString": "20220501102531-0400"
+                    },
+                    {
+                      "url": "XPN.13",
+                      "valueString": "20230501102531-0400"
+                    },
+                    {
+                      "url": "XPN.14",
+                      "valueString": "MD"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "url": "XPN.12",
-              "valueString": "20220501102531-0400"
-            },
-            {
-              "url": "XPN.13",
-              "valueString": "20230501102531-0400"
-            },
-            {
-              "url": "XPN.14",
-              "valueString": "MD"
             }
           ]
         }
       Extension:
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
         - id: xpn-human-name
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name"
           valueType: extension
@@ -5171,6 +5440,10 @@
             },
             "extension": [
               {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "PV1.3"
+              },
+              {
                 "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-patient-visit",
                 "extension": [
                   {
@@ -5353,6 +5626,11 @@
           }
         }
       Extension:
+        - id: hl7v2Field
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+          valueType: String
+          hl7Use: NA
+          description: Identifies the HL7 origin/destination of the data.
         - id: pv1-2-patient-class
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-2-patient-class"
           valueType: CodeableConcept
