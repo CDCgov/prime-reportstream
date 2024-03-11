@@ -2,6 +2,16 @@ package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import gov.cdc.prime.router.cli.ObservationMappingConstants
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.utils.deleteResource
+import gov.cdc.prime.router.fhirengine.utils.getMappedConditionCodes
+import gov.cdc.prime.router.fhirengine.utils.getObservations
+import org.hl7.fhir.r4.model.Base
+import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Observation
+import org.hl7.fhir.r4.model.Resource
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
@@ -9,32 +19,188 @@ import kotlin.reflect.full.memberProperties
  * A ReportStreamFilter is the use (call) of one or more ReportStreamFilterDefinitions.
  */
 typealias ReportStreamFilter = List<String>
-typealias ReportStreamConditionFilter = List<ConditionFilter>
 
-fun ReportStreamConditionFilter.codes(): List<String> = this.flatMap { it.codes() }
-
+/**
+ * Interface for determining if a bundle passes a filter
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(CodeStringConditionFilter::class, name = "codeString"),
-    JsonSubTypes.Type(ConditionLookupConditionFilter::class, name = "conditionLookup"),
-    JsonSubTypes.Type(FHIRExpressionConditionFilter::class, name = "fhirExpression"),
+    JsonSubTypes.Type(FHIRExpressionFilter::class, name = "fhirExpression")
 )
-abstract class ConditionFilter(val value: String) {
-    // TODO: change to .filter() or .passes() method and combine with legacy filter
-    abstract fun codes(): List<String>
+interface BundleFilterable {
+    /**
+     * Check if a [bundle] passes this filter
+     * @return whether the bundle passed
+     */
+    fun pass(bundle: Bundle): Boolean
 }
 
-class CodeStringConditionFilter(value: String) : ConditionFilter(value) {
-    private val codeList = value.split(",").map { it.trim() }
-    override fun codes() = codeList
+/**
+ * Interface for pruning T resources from a bundle
+ */
+/**
+ * A bundle filter that uses resources as the basis for filtering
+ */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+    JsonSubTypes.Type(ConditionCodePruner::class, name = "conditionCode"),
+    JsonSubTypes.Type(ConditionKeywordPruner::class, name = "conditionKeyword"),
+    JsonSubTypes.Type(FHIRExpressionPruner::class, name = "fhirExpression"),
+)
+interface BundlePrunable<T : Resource> {
+    /**
+     * Check if a [resource] in a [bundle] passes this filter
+     * @return whether the observation passed
+     */
+    fun evaluateResource(bundle: Bundle, resource: T): Boolean
+
+    fun fetchResources(bundle: Bundle): List<T>
+
+    /**
+     * Evaluate this filter on a [bundle]'s resources and optionally [filter] them from the bundle
+     * @return the result of pruning the bundle
+     */
+    fun prune(bundle: Bundle): List<T> =
+        fetchResources(bundle).filterNot { resource ->
+            evaluateResource(bundle, resource).also { pass ->
+                if (!pass) bundle.deleteResource(resource)
+            }
+        }
 }
 
-class ConditionLookupConditionFilter(value: String) : ConditionFilter(value) {
-    override fun codes() = emptyList<String>()
+open class BundleResourceFilter<T : Resource>(val resourceFilters: List<BundlePrunable<T>>) : BundleFilterable {
+    constructor(resourceFilter: BundlePrunable<T>) : this(listOf(resourceFilter))
+
+    override fun pass(bundle: Bundle): Boolean {
+        return resourceFilters.any { filter ->
+            filter.fetchResources(bundle).any { resource ->
+                filter.evaluateResource(bundle, resource)
+            }
+        }
+    }
 }
 
-class FHIRExpressionConditionFilter(value: String) : ConditionFilter(value) {
-    override fun codes() = emptyList<String>()
+/**
+ * Interface for pruning observations from a bundle
+ */
+interface ObservationPrunable : BundlePrunable<Observation> {
+    override fun fetchResources(bundle: Bundle): List<Observation> = bundle.getObservations()
+}
+
+abstract class ConditionPruner : ObservationPrunable {
+    override fun prune(bundle: Bundle): List<Observation> {
+        val pass = mutableListOf<Observation>()
+        val fail = mutableListOf<Observation>()
+        val aoe = mutableListOf<Observation>()
+
+        bundle.getObservations().forEach {
+            if (evaluateResource(bundle, it)) {
+                pass.add(it)
+            } else {
+                fail.add(it)
+            }
+            if (it.getMappedConditionCodes().any { it.equals("aoe", true) }) {
+                aoe.add(it)
+            }
+        }
+
+        if (pass.isNotEmpty()) {
+            aoe.forEach {
+                pass.add(it)
+                fail.remove(it)
+            }
+        }
+
+        fail.forEach { bundle.deleteResource(it) }
+
+        return fail
+    }
+}
+
+/**
+ * A filter that checks if any of a bundle's observations is stamped with a condition code
+ * @param value A comma-delimited list of condition codes
+ * @property codeList A list of condition code strings
+ */
+open class ConditionCodePruner(val codes: String) : ConditionPruner() {
+    open val codeList = codes.split(",").map { it.trim() }
+
+    override fun evaluateResource(bundle: Bundle, resource: Observation): Boolean =
+        resource.getMappedConditionCodes().any(codeList::contains)
+}
+
+/**
+ * A filter that checks if any of a bundle's observations is stamped with a condition keyword
+ * @param value A comma-delimited list of condition keywords
+ * @property codeList A list of condition code strings looked up using condition keywords
+ */
+class ConditionKeywordPruner(val keywords: String) : ConditionCodePruner(keywords) {
+    override val codeList = getConditionCodes(keywords)
+
+    /**
+     * Parse a string [value] comma-delimited list of condition keywords and lookup their condition codes
+     * @return a list of condition codes as strings
+     */
+    private fun getConditionCodes(value: String): List<String> {
+        // get observation mapping lookup table
+        val conditionStrings = value.split(",").map { it.trim() }
+        val metadata = Metadata.getInstance()
+        val table = metadata.findLookupTable("observation-mapping")!!
+
+        // check the condition name column of every row for the keyword
+        return table.caseSensitiveDataRowsMap.mapNotNull { row ->
+            val conditionName = row.getValue(ObservationMappingConstants.CONDITION_NAME_KEY)
+            if (conditionStrings.any { conditionName.contains(it, true) }) {
+                row.getValue(ObservationMappingConstants.CONDITION_CODE_KEY)
+            } else {
+                null
+            }
+        }.distinct().toList()
+    }
+}
+
+/**
+ * A filter that evaluates a FHIR expression on a bundle
+ *
+ * @param filters A list of FHIR expressions to run
+ * @param useOr What operand to use to combine filter results (&& or ||)
+ * @param defaultResponse What the default response should be for empty filters (deprecated?)
+ * @param reverseFilter Whether the filter result should be reversed
+ */
+open class FHIRExpressionFilter(
+    val fhirExpression: String,
+    val defaultResponse: Boolean = true,
+    val reverseFilter: Boolean = false,
+) : BundleFilterable {
+    override fun pass(bundle: Bundle) = evaluateFhirExpression(
+        fhirExpression,
+        bundle,
+        bundle,
+        defaultResponse,
+        reverseFilter
+    )
+}
+
+/**
+ * A filter that evaluates a FHIR expression on a bundle's observations
+ *
+ * @param filters A list of FHIR expressions to run
+ * @param useOr What operand to use to combine filter results (&& or ||)
+ * @param defaultResponse What the default response should be for empty filters (deprecated?)
+ * @param reverseFilter Whether the filter result should be reversed
+ */
+class FHIRExpressionPruner(
+    val fhirExpression: String,
+    val defaultResponse: Boolean = true,
+    val reverseFilter: Boolean = false,
+) : ObservationPrunable {
+    override fun evaluateResource(bundle: Bundle, resource: Observation) = evaluateFhirExpression(
+        fhirExpression,
+        bundle,
+        resource,
+        defaultResponse,
+        reverseFilter
+    )
 }
 
 /**
@@ -46,7 +212,7 @@ enum class ReportStreamFilterType(val field: String) {
     ROUTING_FILTER("routingFilter"),
     PROCESSING_MODE_FILTER("processingModeFilter"),
     CONDITION_FILTER("conditionFilter"),
-    MAPPED_CONDITION_FILTER("mappedConditionFilter"),
+    OBSERVATION_FILTER("observationFilter"),
     ;
 
     // Reflection, so that we can write a single routine to handle all types of filters.
@@ -78,7 +244,7 @@ data class ReportStreamFilters(
     val routingFilter: ReportStreamFilter?,
     val processingModeFilter: ReportStreamFilter?,
     val conditionFilter: ReportStreamFilter? = null,
-    val mappedConditionFilter: ReportStreamConditionFilter? = null,
+    val observationFilter: List<BundlePrunable<Observation>>? = null,
 ) {
 
     companion object {
@@ -135,5 +301,26 @@ data class ReportStreamFilters(
             defaultMonkeypoxFilters.topic to defaultMonkeypoxFilters,
             defaultTestFilters.topic to defaultTestFilters
         )
+    }
+}
+
+/**
+ * Check if a [bundle] passes this filter with an optional [focusResource]
+ * @return the result of running the filter
+ */
+fun evaluateFhirExpression(
+    fhirExpression: String,
+    bundle: Bundle,
+    focusResource: Base,
+    defaultResponse: Boolean,
+    reverseFilter: Boolean,
+): Boolean {
+    if (fhirExpression.isEmpty()) return defaultResponse
+    val log = mutableListOf<ActionLogDetail>()
+    try {
+        return FhirPathUtils.evaluateCondition(bundle, focusResource, fhirExpression) == !reverseFilter
+    } catch (e: SchemaException) {
+        log.add(EvaluateFilterConditionErrorMessage(e.message)) // TODO: do something with log
+        return false
     }
 }

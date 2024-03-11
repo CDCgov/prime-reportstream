@@ -148,9 +148,15 @@
         # Accept all conditions except Covid results in the LIVD look up table
         # Covid flows through the Covid pipeline
         - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
-      mappedConditionFilter:
-        - type: codeString
-          value: 840539006,1234
+      observationFilter:
+        - type: conditionCode
+          codes: 840539006,1234
+        - type: conditionKeyword
+          keywords: balamuthia,cadmium
+        - type: fhirExpression
+          fhirExpression: "Bundle.identifier.value.empty().not()"
+          defaultResponse: true # not required
+          reverseFilter: false # not required
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

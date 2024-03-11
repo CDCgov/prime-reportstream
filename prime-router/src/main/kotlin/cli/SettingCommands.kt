@@ -1038,7 +1038,7 @@ class GetMultipleSettings : SettingCommand(
                         it.processingModeFilter,
                         it.reverseTheQualityFilter,
                         it.conditionFilter,
-                        it.mappedConditionFilter,
+                        it.observationFilter,
                         it.deidentify,
                         it.deidentifiedValue,
                         it.timing,

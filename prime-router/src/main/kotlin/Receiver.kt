@@ -5,6 +5,8 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import org.hl7.fhir.r4.model.Observation
+import org.hl7.fhir.r4.model.Resource
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -49,7 +51,7 @@ open class Receiver(
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val conditionFilter: ReportStreamFilter = emptyList(),
-    val mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
+    val observationFilter: List<BundlePrunable<Observation>> = emptyList(),
     val deidentify: Boolean = false,
     val deidentifiedValue: String = "",
     val timing: Timing? = null,
@@ -96,7 +98,7 @@ open class Receiver(
         routingFilter: ReportStreamFilter = emptyList(),
         processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
-        mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
+        observationFilter: List<BundlePrunable<Observation>> = emptyList(),
         reverseTheQualityFilter: Boolean = false,
         enrichmentSchemaNames: List<String> = emptyList(),
     ) : this(
@@ -110,7 +112,7 @@ open class Receiver(
         routingFilter = routingFilter,
         processingModeFilter = processingModeFilter,
         conditionFilter = conditionFilter,
-        mappedConditionFilter = mappedConditionFilter,
+        observationFilter = observationFilter,
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
@@ -131,7 +133,7 @@ open class Receiver(
         copy.processingModeFilter,
         copy.reverseTheQualityFilter,
         copy.conditionFilter,
-        copy.mappedConditionFilter,
+        copy.observationFilter,
         copy.deidentify,
         copy.deidentifiedValue,
         copy.timing,
@@ -154,6 +156,21 @@ open class Receiver(
 
     @get:JsonIgnore
     val useBatching: Boolean get() = translation.useBatching
+
+    @get:JsonIgnore
+    val pruners: List<BundlePrunable<Resource>> get() = filters.filterIsInstance<BundleResourceFilter<Resource>>().map {
+        it.resourceFilters
+    }.flatten()
+
+    @get:JsonIgnore
+    val filters: List<BundleFilterable> get() = listOfNotNull(
+//        jurisdictionalFilter,
+//        qualityFilter,
+//        routingFilter,
+//        processingModeFilter,
+//        conditionFilter,
+        BundleResourceFilter(observationFilter)
+    )
 
     // adds a display name property that tries to show the external name, or the regular name if there isn't one
     @get:JsonIgnore
@@ -246,7 +263,7 @@ open class Receiver(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
-        if (conditionFilter.isNotEmpty() || mappedConditionFilter.isNotEmpty()) {
+        if (conditionFilter.isNotEmpty() || observationFilter.isNotEmpty()) {
             if (!topic.isUniversalPipeline) {
                 return "Condition filter(s) not allowed for receivers with topic '${topic.jsonVal}'"
             }

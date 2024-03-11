@@ -2,7 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import gov.cdc.prime.router.CodeStringConditionFilter
+import gov.cdc.prime.router.ConditionCodePruner
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
@@ -99,7 +99,7 @@ class GetFilterTests {
         routingFilter = listOf("testRouting"),
         processingModeFilter = listOf("testProcMode"),
         conditionFilter = listOf("testCondition"),
-        mappedConditionFilter = listOf(CodeStringConditionFilter("1234"))
+        observationFilter = listOf(ConditionCodePruner("1234"))
     )
 
     private val orgFilters = listOf(
@@ -419,18 +419,18 @@ class GetFilterTests {
     }
 
     @Test
-    fun `test getMappedConditionFilter`() {
+    fun `test getObservationFilter`() {
         val settings = FileSettings().loadOrganizations(orgNoFilters)
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
-        val filters = engine.getMappedConditionFilter(receiverWithFilters, orgFilters)
+        val filters = engine.getObservationFilter(receiverWithFilters, orgFilters)
         assert(filters.size == 1)
-        assert(filters.any { it == receiverWithFilters.mappedConditionFilter[0] })
+        assert(filters.any { it == receiverWithFilters.observationFilter })
     }
 
     @Test
     fun `test CodeStringConditionFilter parse`() {
-        val filter = CodeStringConditionFilter("c1,c2, c3,c4 , c 5 ")
-        assertThat(filter.codes()).isEqualTo(listOf("c1", "c2", "c3", "c4", "c 5"))
+        val filter = ConditionCodePruner("c1,c2, c3,c4 , c 5 ")
+        assertThat(filter.codeList).isEqualTo(listOf("c1", "c2", "c3", "c4", "c 5"))
     }
 }
