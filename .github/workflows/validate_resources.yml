@@ -120,3 +120,25 @@ jobs:
               az postgres server update -g prime-data-hub-${{ matrix.env_name }} -n pdh${{ matrix.env_name }}-pgsql-replica --sku-name GP_Gen5_4
             fi
           shell: bash
+
+  vpn_validation:
+    name: Optimize demo databases
+    #if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env_name: [ staging ]
+    environment: ${{ matrix.env_name }}
+    concurrency: ${{ matrix.env_name }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Connect to VPN
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ matrix.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
