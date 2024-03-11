@@ -2858,9 +2858,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.15.1":
-  version: 7.15.1
-  resolution: "@okta/okta-signin-widget@npm:7.15.1"
+"@okta/okta-signin-widget@npm:^7.16.1":
+  version: 7.16.1
+  resolution: "@okta/okta-signin-widget@npm:7.16.1"
   dependencies:
     "@okta/okta-auth-js": ~7.0.0
     "@sindresorhus/to-milliseconds": ^1.0.0
@@ -2884,7 +2884,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: 2df4b1097193fb7377b6898738b06d7dbe1149f5cbbc5e4ae53082b6eb7a39096608d40b30bfe01fc498a5a630bbf5fd0659069d1c35418ece76160ee1002b39
+  checksum: 1653ee07b080610a350c3938aab9c94526266ffea6066a4eec15580f962a9e441f2c795b1a0623386e1f5aa236a177aa1ea4a406d14c15dbe5e7c8ff791234b6
   languageName: node
   linkType: hard
 
@@ -3000,14 +3000,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.41.2":
-  version: 1.41.2
-  resolution: "@playwright/test@npm:1.41.2"
+"@playwright/test@npm:^1.42.0":
+  version: 1.42.0
+  resolution: "@playwright/test@npm:1.42.0"
   dependencies:
-    playwright: 1.41.2
+    playwright: 1.42.0
   bin:
     playwright: cli.js
-  checksum: 87d9e725106111b2af1b2dec32454cd2a2d9665ff735669dc751caa30240e6db595ecfb9422719fa65dcff6ca19dea93ac2ae70d587efddde31def0754549d4c
+  checksum: 282072bc9c8217af39a2bfd0ac606a89e45a8ff7a8c0c86ed90a390b90088bb6d260edf50afa6bcca897630a7797e1f329622fb9f3a8d0b67d8f15a20a1bc592
   languageName: node
   linkType: hard
 
@@ -3579,10 +3579,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@remix-run/router@npm:1.15.1":
-  version: 1.15.1
-  resolution: "@remix-run/router@npm:1.15.1"
-  checksum: 5c404e64a95da7d2a06811c15e8b213cd1079bca546d8a78a1626264ac0b71361b9ce93269bda7209a938e5a22c25993902841f81240c58eb7ed0934e1781197
+"@remix-run/router@npm:1.15.2":
+  version: 1.15.2
+  resolution: "@remix-run/router@npm:1.15.2"
+  checksum: aac403791316d7f3a32b20621138a34ec0ffc62b32617a42a4e1c5390221eec6da9756032032e22ec1b1f3756758666f5dd7f03c5babd9171d4696f894ee3012
   languageName: node
   linkType: hard
 
@@ -4734,10 +4734,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.24.1":
-  version: 5.24.1
-  resolution: "@tanstack/query-core@npm:5.24.1"
-  checksum: 652f9d92b4785b0a12f70ac8a86d42ee7f9d6f813ac51f2ab62ca0875525f0be65118484fb9b689bc9eb8c9909b11761955bdc5d37f446887868f04ad1cbe1d4
+"@tanstack/query-core@npm:5.24.6":
+  version: 5.24.6
+  resolution: "@tanstack/query-core@npm:5.24.6"
+  checksum: 57a91fd1d9069ea1e7b367742bddcf865c078265e87d3d66e04be345b795e21f93f97c7d94a096437657fd52fa4d17cbc106521d045851b602f82a6809195e85
   languageName: node
   linkType: hard
 
@@ -4748,26 +4748,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.24.1":
-  version: 5.24.1
-  resolution: "@tanstack/react-query-devtools@npm:5.24.1"
+"@tanstack/react-query-devtools@npm:^5.24.6":
+  version: 5.24.6
+  resolution: "@tanstack/react-query-devtools@npm:5.24.6"
   dependencies:
     "@tanstack/query-devtools": 5.24.0
   peerDependencies:
-    "@tanstack/react-query": ^5.24.1
+    "@tanstack/react-query": ^5.24.6
     react: ^18.0.0
-  checksum: 81535bc9f67637f8c6fe766e7bf49420989677337b133a845d7d38a72eb10b5193dba9d953905568ae14a296e827bfa4910fd0ea46dcfff96e1fa04bf8813740
+  checksum: 791390f034f79f381eca182733feb4575d451f399178413d33739b2ae1c1e7971f62522cf2ba439afac5c8ad2ff83e3775f7f2c43b17a8ea850830941165f99c
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.24.1":
-  version: 5.24.1
-  resolution: "@tanstack/react-query@npm:5.24.1"
+"@tanstack/react-query@npm:^5.24.6":
+  version: 5.24.6
+  resolution: "@tanstack/react-query@npm:5.24.6"
   dependencies:
-    "@tanstack/query-core": 5.24.1
+    "@tanstack/query-core": 5.24.6
   peerDependencies:
     react: ^18.0.0
-  checksum: 0927c92eb280c3a86e0f8d541caf60be087dc14222da037614038137a88b06dd4910ea83fc05706d41531dea1c5e58d9515f9011c0961c5e7016cf054563db3f
+  checksum: 92e87b3210106370e6e02b2aeb087af3787d4b6691a7b99ba30fc8a8a6481845b5b27fdf97584180f5a146210b7e2585fa6b531591842c37455d96c8f6019950
   languageName: node
   linkType: hard
 
@@ -8740,9 +8740,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-playwright@npm:^1.3.1":
-  version: 1.3.1
-  resolution: "eslint-plugin-playwright@npm:1.3.1"
+"eslint-plugin-playwright@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "eslint-plugin-playwright@npm:1.5.1"
   dependencies:
     globals: ^13.23.0
   peerDependencies:
@@ -8751,7 +8751,7 @@ __metadata:
   peerDependenciesMeta:
     eslint-plugin-jest:
       optional: true
-  checksum: 87073e5a3ee2e9db740afa18ed58ace82a7aac635a94b5082e1214bbd418261542e5b8a45d978ba1fa8bbf6c6414954df57e201a89fe91d4ba92b967ab826b9b
+  checksum: bb151e2e00adc7d6ac71bda10932905fad609a87096a4fdb8f45477479ca273c7fcc09ecdfb1fbe2ee4ac153fa116ea82507564e7e8d07f40460bea4851408a0
   languageName: node
   linkType: hard
 
@@ -14048,27 +14048,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.41.2":
-  version: 1.41.2
-  resolution: "playwright-core@npm:1.41.2"
+"playwright-core@npm:1.42.0":
+  version: 1.42.0
+  resolution: "playwright-core@npm:1.42.0"
   bin:
     playwright-core: cli.js
-  checksum: b41ede0db3fd3e3f7e0b0efbdfb2dbc4db345e113cf9c4451af21d1d5b5d9ab5e969f5662852925e37b2198ae5daab92aa48108fe3d4eb81c849ba8752aaf8cc
+  checksum: f4b9578b285d6673e9f23040087b5bc008e3183553a5dc0304ddc9ab57445f3645dbb6b28af96a3b8535fc339262ad9cb858f5d75e46f6132a1bc707aeff9c5e
   languageName: node
   linkType: hard
 
-"playwright@npm:1.41.2":
-  version: 1.41.2
-  resolution: "playwright@npm:1.41.2"
+"playwright@npm:1.42.0":
+  version: 1.42.0
+  resolution: "playwright@npm:1.42.0"
   dependencies:
     fsevents: 2.3.2
-    playwright-core: 1.41.2
+    playwright-core: 1.42.0
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: acf166003ec42cd795f5fca096c5135880d78e84ec2d0a1911b2cab984cf75dc06e50d3aa24b56cbcbc5369ca8c61831e76c5f8674531a272fbd0f6e624fa387
+  checksum: 879903e52fa83afb1e387ee725f19e4fecceeea37d6b92405722551e746c184938da3187a4b2be3de1d8b7dafe1f32ec7ddeb324a44275c955d26c70d36a3b65
   languageName: node
   linkType: hard
 
@@ -14472,14 +14472,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-error-boundary@npm:^4.0.12":
-  version: 4.0.12
-  resolution: "react-error-boundary@npm:4.0.12"
+"react-error-boundary@npm:^4.0.13":
+  version: 4.0.13
+  resolution: "react-error-boundary@npm:4.0.13"
   dependencies:
     "@babel/runtime": ^7.12.5
   peerDependencies:
     react: ">=16.13.1"
-  checksum: c4a14c2b609037baba394d8871fb021a7c16fb1abfd8d23b2d2aa331bdcc420e5cff4b3d48f2f2ac7fa64ac90c322d0bcf358d706995b30df5a8d5fcb0c27b1e
+  checksum: 50398d080015d51d22c6f94c56f4ea336d10232d72345b36ee6f15b6b643666d20b072829b02f091a80e5af68fe67f68a62ef0d2b649dbd759ead929304449af
   languageName: node
   linkType: hard
 
@@ -14510,8 +14510,8 @@ __metadata:
     "@microsoft/applicationinsights-react-js": ^17.0.4
     "@microsoft/applicationinsights-web": ^3.0.8
     "@okta/okta-react": ^6.7.0
-    "@okta/okta-signin-widget": ^7.15.1
-    "@playwright/test": ^1.41.2
+    "@okta/okta-signin-widget": ^7.16.1
+    "@playwright/test": ^1.42.0
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
     "@storybook/addon-a11y": ^7.6.17
@@ -14529,8 +14529,8 @@ __metadata:
     "@storybook/react-vite": ^7.6.17
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^7.6.17
-    "@tanstack/react-query": ^5.24.1
-    "@tanstack/react-query-devtools": ^5.24.1
+    "@tanstack/react-query": ^5.24.6
+    "@tanstack/react-query-devtools": ^5.24.6
     "@testing-library/dom": ^9.3.4
     "@testing-library/jest-dom": ^6.4.2
     "@testing-library/react": ^14.2.1
@@ -14576,7 +14576,7 @@ __metadata:
     eslint-plugin-jest: ^27.9.0
     eslint-plugin-jest-dom: ^5.1.0
     eslint-plugin-jsx-a11y: ^6.8.0
-    eslint-plugin-playwright: ^1.3.1
+    eslint-plugin-playwright: ^1.5.1
     eslint-plugin-react: ^7.33.2
     eslint-plugin-react-hooks: ^4.6.0
     eslint-plugin-react-refresh: ^0.4.5
@@ -14604,14 +14604,14 @@ __metadata:
     prettier: ^3.2.5
     react: ^18.2.0
     react-dom: ^18.2.0
-    react-error-boundary: ^4.0.12
+    react-error-boundary: ^4.0.13
     react-helmet-async: ^2.0.4
     react-idle-timer: ^5.7.2
     react-loader-spinner: ^6.1.6
     react-markdown: ^9.0.1
     react-query-kit: ^3.1.2
-    react-router: ^6.22.1
-    react-router-dom: ^6.22.1
+    react-router: ^6.22.2
+    react-router-dom: ^6.22.2
     react-scroll-sync: ^0.11.2
     react-toastify: ^10.0.4
     rehype-raw: ^7.0.0
@@ -14623,7 +14623,7 @@ __metadata:
     sanitize-html: ^2.12.1
     sass: ^1.71.1
     storybook: ^7.6.17
-    storybook-addon-react-router-v6: ^2.0.10
+    storybook-addon-react-router-v6: ^2.0.11
     ts-node: ^10.9.2
     tslib: ^2.6.2
     typescript: ^5.3.3
@@ -14786,27 +14786,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.22.1":
-  version: 6.22.1
-  resolution: "react-router-dom@npm:6.22.1"
+"react-router-dom@npm:^6.22.2":
+  version: 6.22.2
+  resolution: "react-router-dom@npm:6.22.2"
   dependencies:
-    "@remix-run/router": 1.15.1
-    react-router: 6.22.1
+    "@remix-run/router": 1.15.2
+    react-router: 6.22.2
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: 01a074518663db1b64d9ee7fa22eb628544b74316057aab0c39ef58ad665f012df081e8523eb62c4e060272a67c8d90cccedb6a6dac4e8f71290f9be8aaab1f6
+  checksum: b4226d7f2640de5598bc0c02266301f43b55966481634b9225adeab0360ec1ff56f4cdebe20c7112470cb33c4f4e5b7ef81fc8a42c54126e52111b63c5bace74
   languageName: node
   linkType: hard
 
-"react-router@npm:6.22.1, react-router@npm:^6.22.1":
-  version: 6.22.1
-  resolution: "react-router@npm:6.22.1"
+"react-router@npm:6.22.2, react-router@npm:^6.22.2":
+  version: 6.22.2
+  resolution: "react-router@npm:6.22.2"
   dependencies:
-    "@remix-run/router": 1.15.1
+    "@remix-run/router": 1.15.2
   peerDependencies:
     react: ">=16.8"
-  checksum: b53fab4c507eca8af03581387e37d9a1616f5cda0639abd84ba223c502528324171c4fee0ad8b86a92ba00eb3de4bd77c25c107e1754eb62988c874a059f3060
+  checksum: adbf6afdd568fa746e1c16a90efcdeecb34d311bd7d8b14eec8df7bc0f972362cbe56ea5efa65de2ed62325389038ddf6e5c65b4c0e32d99fa58dc9132f9416e
   languageName: node
   linkType: hard
 
@@ -15993,9 +15993,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storybook-addon-react-router-v6@npm:^2.0.10":
-  version: 2.0.10
-  resolution: "storybook-addon-react-router-v6@npm:2.0.10"
+"storybook-addon-react-router-v6@npm:^2.0.11":
+  version: 2.0.11
+  resolution: "storybook-addon-react-router-v6@npm:2.0.11"
   dependencies:
     compare-versions: ^6.0.0
     react-inspector: 6.0.2
@@ -16015,7 +16015,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 94479b8a7838e8a9694fbfce23f21801b618b0d28cc10d76e12b3d4162c978b15c8f100407dabf25164a5d7cdeeaeca00c55205b46c9f3d0e3ddda9d5d87ae19
+  checksum: 977aebab16ecf15f058e2b0f10117dfc23d35d65a034b29c152021beba80ca5c91e037fb8e78a13c83ca5704129a6d6896b548c2eff7c71137b3dae77040fec0
   languageName: node
   linkType: hard
 
