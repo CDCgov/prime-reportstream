@@ -58,6 +58,7 @@ jobs:
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          dns-ip: 10.0.2.4
 
       - name: Restart DNS if failure
         uses: ./.github/actions/retry

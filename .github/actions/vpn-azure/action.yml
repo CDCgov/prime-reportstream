@@ -67,29 +67,40 @@ runs:
       run: |
         sudo apt-get update
         sudo apt-get install openvpn
-        sudo apt install openvpn-systemd-resolved
+        sudo apt-get install openvpn-systemd-resolved
       shell: bash
 
-    - name: Update VPN DNS IP
-      if: inputs.dns-ip != '127.0.0.1' && inputs.ca-cert != 'false'
-      run: |
-        sed -i "s/\(dhcp-option DNS \).*/\1${{ inputs.dns-ip }}/" .github/vpn/${{ env.VPN_ENV }}.ovpn
-      shell: bash
-
-    - uses: josiahsiegel/action-connect-ovpn@794339aff94452216c97f609476c367a43a31295
-      if: env.VPN_ENV && inputs.ca-cert != 'false'
-      id: connect_vpn
-      with:
-        FILE_OVPN: .github/vpn/${{ env.VPN_ENV }}.ovpn
-        TLS_KEY: ${{ inputs.tls-key }}
-        PING_URL: ${{ inputs.dns-ip }}
+    - name: Connect VPN
       env:
+        TLS_KEY: ${{ inputs.tls-key }}
         CA_CRT: ${{ inputs.ca-cert}}
         USER_CRT: ${{ inputs.user-crt }}
         USER_KEY: ${{ inputs.user-key }}
+        SECRET:
+      shell: bash
+      run: |
+        echo "$TLS_KEY" | base64 -d > tls.key
+        echo "$CA_CRT" | base64 -d > ca.crt
+        echo "$USER_CRT" | base64 -d > user.crt
+        echo "$USER_KEY" | base64 -d > user.key
+        echo "$SECRET" | base64 -d > secret.txt
+        sudo openvpn --config .github/vpn/${{ env.VPN_ENV }}.ovpn --daemon
+
+    - name: VPN Status
+      id: vpn_status
+      env:
+        PING_URL: ${{ inputs.dns-ip }}
+      shell: bash
+      run: |
+        sleep 5
+        if ping -c 2 $PING_URL > /dev/null 2>&1; then
+          echo "vpn-status=true" >> $GITHUB_OUTPUT
+        else
+          echo "vpn-status=false" >> $GITHUB_OUTPUT
+        fi
 
     - name: Check VPN status
-      if: env.VPN_ENV && inputs.ca-cert != 'false' && steps.connect_vpn.outputs.STATUS != 'true'
+      if: env.VPN_ENV && inputs.ca-cert != 'false' && steps.vpn_status.outputs.vpn-status != 'true'
       run: |
         echo "VPN connected: ${{ steps.connect_vpn.outputs.STATUS }}"
         exit 1
