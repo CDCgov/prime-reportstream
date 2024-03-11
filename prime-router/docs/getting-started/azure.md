@@ -9,7 +9,7 @@
 - Environment Provisioning (already exists)
 - Terraform (already exists)
 
-- ## Data Restore
+## Data Restore
 This section shall cover strategies for restoring data and various Azure services when the need arises.
 
 ### Conditions Requiring Blob Restore

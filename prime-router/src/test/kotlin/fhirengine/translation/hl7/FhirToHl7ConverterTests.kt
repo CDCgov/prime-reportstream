@@ -424,12 +424,13 @@ class FhirToHl7ConverterTests {
         // Use a file based schema which will fail as we do not have enough data in the bundle
         val missingDataEx = assertFailsWith<ConfigSchemaElementProcessingException> {
             FhirToHl7Converter(
-                "ORU_R01",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
+                "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
+                mockk<BlobAccess.BlobContainerMetadata>()
             ).process(bundle)
         }
         assertThat(missingDataEx.message).isEqualTo(
-            "Error encountered while applying: message-headers in ORU_R01 to FHIR bundle. \n" +
+            "Error encountered while applying: message-headers in" +
+                " /fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml to FHIR bundle. \n" +
                 "Error was: Required element message-headers conditional was false or value was empty."
         )
     }

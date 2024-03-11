@@ -6,6 +6,8 @@ Download the setup from [https://git-scm.com/download/win](https://git-scm.com/d
 
 ## macOS
 
+Attempting to run a git command like `git --version` will prompt you to install dev tools, which includes git. Otherwise you can use [brew](https://brew.sh) which itself is used to install many other things. 
+
 ```bash
 # Using homebrew
 brew update

@@ -113,6 +113,18 @@ const config = {
         onIdle: jest.fn(),
     },
     MODE: "test",
+    PAGE_META: {
+        defaults: {
+            title: "test title",
+            description: "test description",
+            openGraph: {
+                image: {
+                    src: "",
+                    altText: "",
+                },
+            },
+        },
+    },
 } as const satisfies AppConfig;
 
 const mockUseSessionContext = jest.mocked(useSessionContext);

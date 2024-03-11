@@ -1,4 +1,4 @@
-extends: test_base_schema
+extends: classpath:/fhir_sender_transforms/test_base_schema.yml
 elements:
   - name: note
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
@@ -7,7 +7,7 @@ elements:
   - name: observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result.resolve()'
     resourceIndex: observationIndex
-    schema: observation
+    schema: classpath:/fhir_sender_transforms/observation.yml
   - name: id
     resource: 'Bundle.entry.resource.ofType(Patient)[0]'
     bundleProperty: '%resource.id'

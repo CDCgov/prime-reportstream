@@ -48,8 +48,8 @@ locals {
     function_runtime_version = "~4"
   }
   chatops = {
-    github_repo            = "JosiahSiegel/hubot-slack-docker"
-    github_target_branches = "temp1,demo1,demo2"
+    github_repo            = "JosiahSiegel/slack-boltjs-app"
+    github_target_branches = "dummy"
   }
   log_analytics_workspace = {
     law_retention_period = "30"

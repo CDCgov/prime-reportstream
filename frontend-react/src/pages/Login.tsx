@@ -35,6 +35,14 @@ export function Login() {
         <>
             <Helmet>
                 <title>ReportStream login</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/reportstream.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
+                />
             </Helmet>
             <OktaSignInWidget
                 className="margin-top-6 margin-x-auto width-mobile-lg padding-x-8"

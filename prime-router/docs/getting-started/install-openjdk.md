@@ -14,17 +14,8 @@ VERSION=17
 brew install openjdk@${VERSION?}
 ```
 
-If after running `./cleanslate.sh` you see the following error
-
-```bash
-./cleanslate.sh
-# ...
-INFO: Bringing up the minimum build dependencies
-The operation couldn’t be completed. Unable to locate a Java Runtime.
-Please visit http://www.java.com for information on installing Java.
-```
-
-You need to follow the rest of the brew install instructions:
+> [!IMPORTANT]
+> You need to follow the rest of the brew install instructions:
 
 ```bash
 VERSION=17
@@ -45,13 +36,16 @@ For compilers to find openjdk@17 you may need to set:
   export CPPFLAGS="-I/opt/homebrew/opt/openjdk@17/include"
 ```
 
-I had to follow all three commands to get `./cleanslate.sh` to run cleanly.
+All three commands are necessary to get `./cleanslate.sh` to run cleanly.
 
 After installing openjdk, run the following command to set the `JAVA_HOME` variable for Azure Functions to use:
 
 ```bash
 echo export "JAVA_HOME=\$(/usr/libexec/java_home)" >> ~/.zshrc
 ```
+
+> [!TIP]
+> After changing path variables you will have to refresh your environment variables. This can be done with `source ~/.zshrc` or simply restarting the terminal.
 
 ## Linux
 

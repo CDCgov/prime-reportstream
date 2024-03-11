@@ -19,5 +19,5 @@ elements:
     resource: '%resource.result'
     condition: '%resource.count() > 0'
     required: true
-    schema: observation
+    schema: classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01/observation.yml
     resourceIndex: observationIndex

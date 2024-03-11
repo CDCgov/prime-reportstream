@@ -98,13 +98,13 @@ class HL7QueueMessageHelpersTests {
         result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
             when (index) {
                 0 -> {
-                    val regex = """^FHS\|[^|]{4}\|hl7sendingApp.*\|hl7sendingApp.*|hl7recApp\|hl7recFac\|.*"""
+                    val regex = """^FHS\|[^|]{5}\|hl7sendingApp.*\|hl7sendingApp.*|hl7recApp\|hl7recFac\|.*"""
                         .toRegex()
                     assertThat(regex.matches(s)).isTrue()
                 }
 
                 1 -> {
-                    val regex = """^BHS\|[^|]{4}\|hl7sendingApp.*\|hl7sendingApp.*|hl7recApp\|hl7recFac\|.*"""
+                    val regex = """^BHS\|[^|]{5}\|hl7sendingApp.*\|hl7sendingApp.*|hl7recApp\|hl7recFac\|.*"""
                         .toRegex()
                     assertThat(regex.matches(s)).isTrue()
                 }

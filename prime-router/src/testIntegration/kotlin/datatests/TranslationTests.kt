@@ -476,8 +476,7 @@ class TranslationTests {
 
             val hl7 = FhirToHl7Converter(
                 schema,
-                // TODO: #10510
-                "",
+                false,
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = translationConfig,
@@ -496,10 +495,8 @@ class TranslationTests {
             var fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
             if (!schema.isNullOrEmpty()) {
                 schema.split(",").forEach { currentEnrichmentSchema ->
-                    // TODO: #10510
                     fhirBundle = FhirTransformer(
                         currentEnrichmentSchema,
-                        "",
                         blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
                     ).process(fhirBundle)
                 }

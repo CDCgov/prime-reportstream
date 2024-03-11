@@ -196,4 +196,46 @@ class SyncTranslationSchemaCommandTests {
             command.test("-s", "FHIR", "-sb", "source", "-sc", "container1", "-db", "destination", "-dc", "container1")
         assertThat(result.stderr).contains("Source is not valid and schemas will not be synced")
     }
+
+    @Test
+    fun `syncs to a destination that has not been initialized`() {
+        val sourceValidBlob = BlobItem()
+        sourceValidBlob.name = "valid-${Instant.now()}.txt"
+        val destinationValidBlob = BlobItem()
+        destinationValidBlob.name = "valid-${Instant.now().minus(5, ChronoUnit.MINUTES)}.txt"
+        mockkConstructor(TranslationSchemaManager::class)
+        every {
+            anyConstructed<TranslationSchemaManager>().validateManagedSchemas(
+                TranslationSchemaManager.SchemaType.FHIR,
+                any()
+            )
+        } returns listOf(TranslationSchemaManager.Companion.ValidationResult("foo/bar/transform.yml", true))
+        every { anyConstructed<TranslationSchemaManager>().syncSchemas(any(), any(), any(), any(), any()) } returns Unit
+        every {
+            anyConstructed<TranslationSchemaManager>().retrieveValidationState(
+                TranslationSchemaManager.SchemaType.FHIR,
+                BlobAccess.BlobContainerMetadata("container1", "source")
+            )
+        } returns TranslationSchemaManager.Companion.ValidationState(
+            sourceValidBlob,
+            BlobItem(),
+            null,
+            null,
+            emptyList()
+        )
+        every {
+            anyConstructed<TranslationSchemaManager>().retrieveValidationState(
+                TranslationSchemaManager.SchemaType.FHIR,
+                BlobAccess.BlobContainerMetadata("container1", "destination")
+            )
+        } throws TranslationSchemaManager.Companion.TranslationStateUninitalized()
+
+        val command = SyncTranslationSchemaCommand()
+        val result =
+            command.test("-s", "FHIR", "-sb", "source", "-sc", "container1", "-db", "destination", "-dc", "container1")
+        assertThat(result.output)
+            .contains("Source and destination are both in a valid state to sync schemas, beginning sync...")
+        assertThat(result.output)
+            .contains("Successfully synced source to destination, validation will now be triggered")
+    }
 }
