@@ -46,6 +46,9 @@ object HL7MessageHelpers : Logging {
         }
         val time = DTM(null)
         time.setValue(Date())
+
+        val hl7BatchFileHeaderEncodingChar: String? = "${firstMessage?.get("MSH-2") ?: hl7BatchHeaderEncodingChar}"
+
         // The extraction of these values mimics how the COVID HL7 serializer works
         var sendingApp =
             "${firstMessage?.get("MSH-3-1") ?: REPORT_STREAM_APPLICATION_NAME}^" +
@@ -58,7 +61,7 @@ object HL7MessageHelpers : Logging {
         val builder = StringBuilder()
         if (useBatchHeaders) {
             builder.append(
-                "FHS|$hl7BatchHeaderEncodingChar|" +
+                "FHS|$hl7BatchFileHeaderEncodingChar|" +
                     "$sendingApp|" +
                     "$sendingApp|" +
                     "$receivingApp|" +
@@ -67,7 +70,7 @@ object HL7MessageHelpers : Logging {
             )
             builder.append(hl7SegmentDelimiter)
             builder.append(
-                "BHS|$hl7BatchHeaderEncodingChar|" +
+                "BHS|$hl7BatchFileHeaderEncodingChar|" +
                     "$sendingApp|" +
                     "$sendingApp|" +
                     "$receivingApp|" +
