@@ -13,7 +13,6 @@ inputs:
     description: "User key"
   sp-creds:
     description: "Azure Service Principal creds"
-    required: true
   env-name:
     required: true
   tf-auth:
@@ -67,7 +66,7 @@ runs:
       run: |
         sudo apt-get update
         sudo apt-get install openvpn
-        sudo apt install openvpn-systemd-resolved
+        sudo apt-get install openvpn-systemd-resolved
       shell: bash
 
     - name: Update VPN DNS IP
@@ -88,7 +87,7 @@ runs:
         USER_CRT: ${{ inputs.user-crt }}
         USER_KEY: ${{ inputs.user-key }}
 
-    - name: Check VPN status
+    - name: Exit on vpn failure
       if: env.VPN_ENV && inputs.ca-cert != 'false' && steps.connect_vpn.outputs.STATUS != 'true'
       run: |
         echo "VPN connected: ${{ steps.connect_vpn.outputs.STATUS }}"
@@ -96,11 +95,12 @@ runs:
       shell: bash
 
     - uses: azure/login@8c334a195cbb38e46038007b304988d888bf676a
+      if: inputs.sp-creds
       with:
         creds: ${{ inputs.sp-creds }}
 
     - name: Terraform Auth
-      if: inputs.tf-auth == 'true'
+      if: inputs.tf-auth == 'true' && inputs.sp-creds
       env:
         AZURE_CREDENTIALS: ${{ inputs.sp-creds }}
       run: |
