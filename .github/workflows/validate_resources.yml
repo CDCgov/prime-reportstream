@@ -122,7 +122,7 @@ jobs:
           shell: bash
 
   vpn_validation:
-    name: Optimize demo databases
+    name: VPN Validation
     #if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
     strategy:
