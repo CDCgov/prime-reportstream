@@ -156,10 +156,11 @@ runs:
     - name: Validate translation schemas
       uses: ./.github/actions/retry
       with:
-        timeout_minutes: 30
+        timeout_minutes: 5
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
+          cd prime-router
           ./prime validateSchemas --schema-type="HL7" --blob-store-connect="${{ inputs.staging-azure-connection-string }}" --blob-store-container="metadata"
           ./prime validateSchemas --schema-type="FHIR" --blob-store-connect="${{ inputs.staging-azure-connection-string }}" --blob-store-container="metadata"
         shell: bash

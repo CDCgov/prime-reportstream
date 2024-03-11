@@ -69,6 +69,7 @@ jobs:
           version: ${{ github.run_id }}
           upload-build: false
           run-integration-tests: true
+          staging-azure-connection-string: ${{ secrets.AZURE_STAGING_STORAGE_CONNECTION_STRING }}
 
       - name: Generate New Schema Docs
         run: |
