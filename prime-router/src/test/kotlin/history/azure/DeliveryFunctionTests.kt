@@ -101,7 +101,7 @@ class DeliveryFunctionTests : Logging {
         val topic: String,
         val reportItemCount: Int,
         val fileName: String,
-        val receivingOrgSvcStatus: CustomerStatus,
+        val receivingOrgSvcStatus: String,
     )
 
     private val testData = listOf(
@@ -117,7 +117,7 @@ class DeliveryFunctionTests : Logging {
             bodyUrl = null,
             schemaName = "covid-19",
             bodyFormat = "HL7_BATCH",
-            receivingOrgSvcStatus = CustomerStatus.ACTIVE,
+            receivingOrgSvcStatus = "active",
         ),
         DeliveryHistory(
             actionId = 284,
@@ -131,7 +131,7 @@ class DeliveryFunctionTests : Logging {
             bodyUrl = null,
             schemaName = "primedatainput/pdi-covid-19",
             bodyFormat = "CSV",
-            receivingOrgSvcStatus = CustomerStatus.ACTIVE,
+            receivingOrgSvcStatus = "active",
         )
     )
 
@@ -172,7 +172,7 @@ class DeliveryFunctionTests : Logging {
                             topic = "covid-19",
                             reportItemCount = 14,
                             fileName = "covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.hl7",
-                            receivingOrgSvcStatus = CustomerStatus.ACTIVE
+                            receivingOrgSvcStatus = "active"
                         ),
                         ExpectedDelivery(
                             deliveryId = 284,
@@ -183,7 +183,7 @@ class DeliveryFunctionTests : Logging {
                             topic = "covid-19",
                             reportItemCount = 1,
                             fileName = "pdi-covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.csv",
-                            receivingOrgSvcStatus = CustomerStatus.ACTIVE
+                            receivingOrgSvcStatus = "active"
                         )
                     )
                 ),
@@ -451,7 +451,7 @@ class DeliveryFunctionTests : Logging {
             null,
             "primedatainput/pdi-covid-19",
             "CSV",
-            CustomerStatus.ACTIVE,
+            "active",
         )
         // Happy path with a good UUID
         val action = Action()

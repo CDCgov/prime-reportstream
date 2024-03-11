@@ -177,7 +177,7 @@ abstract class HistoryDatabaseAccess(
             } else {
                 filter.and(
                     DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
-                    .eq(receivingOrgSvcStatus.toString())
+                    .eq(receivingOrgSvcStatus.toString().lowercase())
                 )
             }
         }
