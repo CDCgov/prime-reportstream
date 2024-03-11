@@ -3,16 +3,17 @@
   jurisdiction: "STATE"
   stateCode: "HI"
   countyName: null
+  filters: []
   featureFlags: null
   keys: null
   senders: []
   receivers:
-    - name: "fullelr"
+    - name: "full-elr"
       organizationName: "hi-phd"
       topic: "full-elr"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/HI/HI-receiver-transform"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/HI/HI-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: null
@@ -56,15 +57,17 @@
           truncateHl7Fields: []
           customLengthHl7Fields: {}
       jurisdictionalFilter:
-        - "(%performerState.exists() and %performerState = 'HI') or (%patientState.exists()\
-      \ and %patientState = 'HI')"
+        - "(Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state\
+      \ = 'HI') or (Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists()\
+      \ and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state\
+      \ = 'HI')"
       qualityFilter:
-        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
         - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty()\
       \ or value.coding.code.empty()).count() = 0"
         - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty()\
       \ and specimen.resolve().collection.collected.empty() and effective.empty()\
       \ and issued.empty() and result.resolve().effective.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"
         - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty()\
       \ and telecom.where(system = 'phone').value.empty() and telecom.where(system\
       \ = 'email').value.empty()).count() = 0"
@@ -74,8 +77,8 @@
       \ = 'CLIA').value.getIdType() = 'CLIA'"
         - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.where(type.coding.code\
       \ = 'CLIA').value.getIdType() = 'CLIA'"
-        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count()\
-      \ = 0"
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count()=\
+      \ 0"
         - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
         - "Bundle.identifier.value.empty().not()"
       routingFilter: []
@@ -87,20 +90,21 @@
       deidentifiedValue: ""
       timing:
         operation: "MERGE"
-        numberPerDay: 1440
+        numberPerDay: 24
         initialTime: "01:15"
         timeZone: "HAWAII"
         maxReportCount: 100
         whenEmpty:
           action: "NONE"
           onlyOncePerDay: false
-      description: "Test receiver to end point"
+      description: "full-elr"
       transport: !<SFTP>
         host: "sftp"
         port: "22"
         filePath: "./upload"
         credentialName: DEFAULT-SFTP
         type: "SFTP"
-      externalName: "Test Feed to end point"
+      externalName: "full-elr"
       enrichmentSchemaNames: []
-      timeZone: HAWAII
+      timeZone: "HAWAII"
+      dateTimeFormat: "OFFSET"
