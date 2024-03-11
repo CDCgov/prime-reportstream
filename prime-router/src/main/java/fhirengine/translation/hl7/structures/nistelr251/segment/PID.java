@@ -33,8 +33,6 @@
 
 package fhirengine.translation.hl7.structures.nistelr251.segment;
 
-// import gov.cdc.nist.group.*;
-
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;

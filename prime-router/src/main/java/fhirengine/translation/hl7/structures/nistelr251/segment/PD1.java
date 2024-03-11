@@ -33,7 +33,6 @@
 
 package fhirengine.translation.hl7.structures.nistelr251.segment;
 
-// import gov.cdc.nist.group.*;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
@@ -83,27 +82,27 @@ public class PD1 extends AbstractSegment {
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(IS.class, false, -1, 0, new Object[]{getMessage(), new Integer(223)}, "Living Dependency");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(220)}, "Living Arrangement");
+      this.add(IS.class, false, -1, 0, new Object[]{getMessage(), 223}, "Living Dependency");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 220}, "Living Arrangement");
       this.add(XON.class, false, -1, 0, new Object[]{getMessage()}, "Patient Primary Facility");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Patient Primary Care Provider Name & ID No.");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(231)}, "Student Indicator");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(295)}, "Handicap");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(315)}, "Living Will Code");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(316)}, "Organ Donor Code");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(136)}, "Separate Bill");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 231}, "Student Indicator");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 295}, "Handicap");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 315}, "Living Will Code");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 316}, "Organ Donor Code");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 136}, "Separate Bill");
       this.add(CX.class, false, -1, 0, new Object[]{getMessage()}, "Duplicate Patient");
       this.add(CE.class, false, 1, 0, new Object[]{getMessage()}, "Publicity Code");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(136)}, "Protection Indicator");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 136}, "Protection Indicator");
       this.add(DT.class, false, 1, 0, new Object[]{getMessage()}, "Protection Indicator Effective Date");
       this.add(XON.class, false, -1, 0, new Object[]{getMessage()}, "Place of Worship");
       this.add(CE.class, false, -1, 0, new Object[]{getMessage()}, "Advance Directive Code");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(441)}, "Immunization Registry Status");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 441}, "Immunization Registry Status");
       this.add(DT.class, false, 1, 0, new Object[]{getMessage()}, "Immunization Registry Status Effective Date");
       this.add(DT.class, false, 1, 0, new Object[]{getMessage()}, "Publicity Code Effective Date");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(140)}, "Military Branch");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(141)}, "Military Rank/Grade");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(142)}, "Military Status");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 140}, "Military Branch");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 141}, "Military Rank/Grade");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 142}, "Military Status");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating PD1 - this is probably a bug in the source code generator.", e);
     }
@@ -1049,29 +1048,29 @@ public class PD1 extends AbstractSegment {
   protected Type createNewTypeWithoutReflection(int field) {
     switch (field) {
       case 0:
-        return new IS(getMessage(), new Integer(223));
+        return new IS(getMessage(), 223);
       case 1:
-        return new IS(getMessage(), new Integer(220));
+        return new IS(getMessage(), 220);
       case 2:
         return new XON(getMessage());
       case 3:
         return new XCN(getMessage());
       case 4:
-        return new IS(getMessage(), new Integer(231));
+        return new IS(getMessage(), 231);
       case 5:
-        return new IS(getMessage(), new Integer(295));
+        return new IS(getMessage(), 295);
       case 6:
-        return new IS(getMessage(), new Integer(315));
+        return new IS(getMessage(), 315);
       case 7:
-        return new IS(getMessage(), new Integer(316));
+        return new IS(getMessage(), 316);
       case 8:
-        return new ID(getMessage(), new Integer(136));
+        return new ID(getMessage(), 136);
       case 9:
         return new CX(getMessage());
       case 10:
         return new CE(getMessage());
       case 11:
-        return new ID(getMessage(), new Integer(136));
+        return new ID(getMessage(), 136);
       case 12:
         return new DT(getMessage());
       case 13:
@@ -1079,17 +1078,17 @@ public class PD1 extends AbstractSegment {
       case 14:
         return new CE(getMessage());
       case 15:
-        return new IS(getMessage(), new Integer(441));
+        return new IS(getMessage(), 441);
       case 16:
         return new DT(getMessage());
       case 17:
         return new DT(getMessage());
       case 18:
-        return new IS(getMessage(), new Integer(140));
+        return new IS(getMessage(), 140);
       case 19:
-        return new IS(getMessage(), new Integer(141));
+        return new IS(getMessage(), 141);
       case 20:
-        return new IS(getMessage(), new Integer(142));
+        return new IS(getMessage(), 142);
       default:
         return null;
     }

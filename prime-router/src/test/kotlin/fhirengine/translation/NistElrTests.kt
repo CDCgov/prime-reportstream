@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Message
@@ -33,5 +34,6 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
 
         assertThat(messages).isNotEmpty()
         assertThat(messages[0].encode()).isNotEmpty()
+        assertThat(messages[0].encode().trimIndent()).isEqualTo(rawMessage)
     }
 }

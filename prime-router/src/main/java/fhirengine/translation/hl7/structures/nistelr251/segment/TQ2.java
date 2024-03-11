@@ -73,15 +73,15 @@ public class TQ2 extends AbstractSegment {
   private void init(ModelClassFactory factory) {
     try {
       this.add(SI.class, false, 1, 0, new Object[]{getMessage()}, "Set ID - TQ2");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(503)}, "Sequence/Results Flag");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 503}, "Sequence/Results Flag");
       this.add(EI.class, false, -1, 0, new Object[]{getMessage()}, "Related Placer Number");
       this.add(EI.class, false, -1, 0, new Object[]{getMessage()}, "Related Filler Number");
       this.add(EI.class, false, -1, 0, new Object[]{getMessage()}, "Related Placer Group Number");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(504)}, "Sequence Condition Code");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(505)}, "Cyclic Entry/Exit Indicator");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 504}, "Sequence Condition Code");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 505}, "Cyclic Entry/Exit Indicator");
       this.add(CQ.class, false, 1, 0, new Object[]{getMessage()}, "Sequence Condition Time Interval");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Cyclic Group Maximum Number of Repeats");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(506)}, "Special Service Request Relationship");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 506}, "Special Service Request Relationship");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating TQ2 - this is probably a bug in the source code generator.", e);
     }
@@ -553,7 +553,7 @@ public class TQ2 extends AbstractSegment {
       case 0:
         return new SI(getMessage());
       case 1:
-        return new ID(getMessage(), new Integer(503));
+        return new ID(getMessage(), 503);
       case 2:
         return new EI(getMessage());
       case 3:
@@ -561,15 +561,15 @@ public class TQ2 extends AbstractSegment {
       case 4:
         return new EI(getMessage());
       case 5:
-        return new ID(getMessage(), new Integer(504));
+        return new ID(getMessage(), 504);
       case 6:
-        return new ID(getMessage(), new Integer(505));
+        return new ID(getMessage(), 505);
       case 7:
         return new CQ(getMessage());
       case 8:
         return new NM(getMessage());
       case 9:
-        return new ID(getMessage(), new Integer(506));
+        return new ID(getMessage(), 506);
       default:
         return null;
     }

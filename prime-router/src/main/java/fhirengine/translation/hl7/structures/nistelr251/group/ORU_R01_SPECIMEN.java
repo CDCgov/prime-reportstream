@@ -38,36 +38,36 @@ import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.segment.*;
-
+import fhirengine.translation.hl7.structures.nistelr251.segment.OBX;
+import fhirengine.translation.hl7.structures.nistelr251.segment.SPM;
 
 /**
- * <p>Represents a ORU_R01_OBSERVATION group structure (PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION).
+ * <p>Represents a ORU_R01_SPECIMEN group structure (PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
  * <ul>
- * <li>1: OBX (Observation/Result) <b>  </b></li>
- * <li>2: NTE (Notes and Comments for OBX) <b>optional repeating </b></li>
+ * <li>1: SPM (Specimen) <b>  </b></li>
+ * <li>2: OBX (Observation/Result) <b>optional repeating </b></li>
  * </ul>
  */
 //@SuppressWarnings("unused")
-public class ORU_R01_OBSERVATION extends AbstractGroup {
+public class ORU_R01_SPECIMEN extends AbstractGroup {
 
   /**
-   * Creates a new ORU_R01_OBSERVATION group
+   * Creates a new ORU_R01_SPECIMEN group
    */
-  public ORU_R01_OBSERVATION(Group parent, ModelClassFactory factory) {
+  public ORU_R01_SPECIMEN(Group parent, ModelClassFactory factory) {
     super(parent, factory);
     init(factory);
   }
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(OBX.class, true, false, false);
-      this.add(NTE.class, false, true, false);
+      this.add(SPM.class, true, false, false);
+      this.add(OBX.class, false, true, false);
     } catch (HL7Exception e) {
-      log.error("Unexpected error creating ORU_R01_OBSERVATION - this is probably a bug in the source code generator.", e);
+      log.error("Unexpected error creating ORU_R01_SPECIMEN - this is probably a bug in the source code generator.", e);
     }
   }
 
@@ -81,6 +81,17 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
 
   /**
    * Returns
+   * SPM (Specimen) - creates it if necessary
+   */
+  public SPM getSPM() {
+    SPM retVal = getTyped("SPM", SPM.class);
+    return retVal;
+  }
+
+
+  /**
+   * Returns
+   * the first repetition of
    * OBX (Observation/Result) - creates it if necessary
    */
   public OBX getOBX() {
@@ -90,76 +101,65 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
 
 
   /**
-   * Returns
-   * the first repetition of
-   * NTE (Notes and Comments for OBX) - creates it if necessary
-   */
-  public NTE getNTE() {
-    NTE retVal = getTyped("NTE", NTE.class);
-    return retVal;
-  }
-
-
-  /**
    * Returns a specific repetition of
-   * NTE (Notes and Comments for OBX) - creates it if necessary
+   * OBX (Observation/Result) - creates it if necessary
    *
    * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
    * @throws HL7Exception if the repetition requested is more than one
    *                      greater than the number of existing repetitions.
    */
-  public NTE getNTE(int rep) {
-    NTE retVal = getTyped("NTE", rep, NTE.class);
+  public OBX getOBX(int rep) {
+    OBX retVal = getTyped("OBX", rep, OBX.class);
     return retVal;
   }
 
   /**
-   * Returns the number of existing repetitions of NTE
+   * Returns the number of existing repetitions of OBX
    */
-  public int getNTEReps() {
-    return getReps("NTE");
+  public int getOBXReps() {
+    return getReps("OBX");
   }
 
   /**
    * <p>
-   * Returns a non-modifiable List containing all current existing repetitions of NTE.
+   * Returns a non-modifiable List containing all current existing repetitions of OBX.
    * <p>
    * <p>
-   * Note that unlike {@link #getNTE()}, this method will not create any reps
+   * Note that unlike {@link #getOBX()}, this method will not create any reps
    * if none are already present, so an empty list may be returned.
    * </p>
    */
-  public java.util.List<NTE> getNTEAll() throws HL7Exception {
-    return getAllAsList("NTE", NTE.class);
+  public java.util.List<OBX> getOBXAll() throws HL7Exception {
+    return getAllAsList("OBX", OBX.class);
   }
 
   /**
-   * Inserts a specific repetition of NTE (Notes and Comments for OBX)
+   * Inserts a specific repetition of OBX (Observation/Result)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public void insertNTE(NTE structure, int rep) throws HL7Exception {
-    super.insertRepetition("NTE", structure, rep);
+  public void insertOBX(OBX structure, int rep) throws HL7Exception {
+    super.insertRepetition("OBX", structure, rep);
   }
 
 
   /**
-   * Inserts a specific repetition of NTE (Notes and Comments for OBX)
+   * Inserts a specific repetition of OBX (Observation/Result)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public NTE insertNTE(int rep) throws HL7Exception {
-    return (NTE) super.insertRepetition("NTE", rep);
+  public OBX insertOBX(int rep) throws HL7Exception {
+    return (OBX) super.insertRepetition("OBX", rep);
   }
 
 
   /**
-   * Removes a specific repetition of NTE (Notes and Comments for OBX)
+   * Removes a specific repetition of OBX (Observation/Result)
    *
    * @see AbstractGroup#removeRepetition(String, int)
    */
-  public NTE removeNTE(int rep) throws HL7Exception {
-    return (NTE) super.removeRepetition("NTE", rep);
+  public OBX removeOBX(int rep) throws HL7Exception {
+    return (OBX) super.removeRepetition("OBX", rep);
   }
 
 

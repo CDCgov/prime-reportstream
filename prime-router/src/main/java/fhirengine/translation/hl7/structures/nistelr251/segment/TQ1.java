@@ -33,7 +33,6 @@
 
 package fhirengine.translation.hl7.structures.nistelr251.segment;
 
-// import gov.cdc.nist.group.*;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
@@ -87,7 +86,7 @@ public class TQ1 extends AbstractSegment {
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Priority");
       this.add(TX.class, false, 1, 0, new Object[]{getMessage()}, "Condition text");
       this.add(TX.class, false, 1, 0, new Object[]{getMessage()}, "Text instruction");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(427)}, "Conjunction");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 427}, "Conjunction");
       this.add(CQ.class, false, 1, 0, new Object[]{getMessage()}, "Occurrence duration");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Total occurrence's");
     } catch (HL7Exception e) {
@@ -746,7 +745,7 @@ public class TQ1 extends AbstractSegment {
       case 10:
         return new TX(getMessage());
       case 11:
-        return new ID(getMessage(), new Integer(427));
+        return new ID(getMessage(), 427);
       case 12:
         return new CQ(getMessage());
       case 13:

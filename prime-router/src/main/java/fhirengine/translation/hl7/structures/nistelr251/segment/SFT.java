@@ -40,7 +40,10 @@ import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.ST;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.TS_ELR;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.TX;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.XON_ELR;
 
 
 /**

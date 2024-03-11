@@ -37,35 +37,36 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.segment.*;
+import fhirengine.translation.hl7.structures.nistelr251.segment.TQ1;
+import fhirengine.translation.hl7.structures.nistelr251.segment.TQ2;
 
 /**
- * <p>Represents a ORU_R01_VISIT group structure (PATIENT_RESULT.PATIENT.VISIT).
+ * <p>Represents a ORU_R01_TIMING_QTY group structure (PATIENT_RESULT.ORDER_OBSERVATION.TIMING_QTY).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
  * <ul>
- * <li>1: PV1 (Patient Visit) <b>  </b></li>
- * <li>2: PV2 (Patient Visit - Additional Information) <b>optional  </b></li>
+ * <li>1: TQ1 (Timing/Quantity) <b>  </b></li>
+ * <li>2: TQ2 (Timing/Quantity Relationship) <b>optional  </b></li>
  * </ul>
  */
 //@SuppressWarnings("unused")
-public class ORU_R01_VISIT extends AbstractGroup {
+public class ORU_R01_TIMING_QTY extends AbstractGroup {
 
   /**
-   * Creates a new ORU_R01_VISIT group
+   * Creates a new ORU_R01_TIMING_QTY group
    */
-  public ORU_R01_VISIT(Group parent, ModelClassFactory factory) {
+  public ORU_R01_TIMING_QTY(Group parent, ModelClassFactory factory) {
     super(parent, factory);
     init(factory);
   }
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(PV1.class, true, false, false);
-      this.add(PV2.class, false, false, false);
+      this.add(TQ1.class, true, false, false);
+      this.add(TQ2.class, false, false, false);
     } catch (HL7Exception e) {
-      log.error("Unexpected error creating ORU_R01_VISIT - this is probably a bug in the source code generator.", e);
+      log.error("Unexpected error creating ORU_R01_TIMING_QTY - this is probably a bug in the source code generator.", e);
     }
   }
 
@@ -79,20 +80,20 @@ public class ORU_R01_VISIT extends AbstractGroup {
 
   /**
    * Returns
-   * PV1 (Patient Visit) - creates it if necessary
+   * TQ1 (Timing/Quantity) - creates it if necessary
    */
-  public PV1 getPV1() {
-    PV1 retVal = getTyped("PV1", PV1.class);
+  public TQ1 getTQ1() {
+    TQ1 retVal = getTyped("TQ1", TQ1.class);
     return retVal;
   }
 
 
   /**
    * Returns
-   * PV2 (Patient Visit - Additional Information) - creates it if necessary
+   * TQ2 (Timing/Quantity Relationship) - creates it if necessary
    */
-  public PV2 getPV2() {
-    PV2 retVal = getTyped("PV2", PV2.class);
+  public TQ2 getTQ2() {
+    TQ2 retVal = getTyped("TQ2", TQ2.class);
     return retVal;
   }
 

@@ -33,7 +33,6 @@
 
 package fhirengine.translation.hl7.structures.nistelr251.segment;
 
-// import gov.cdc.nist.group.*;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
@@ -98,7 +97,7 @@ public class FT1 extends AbstractSegment {
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Transaction Batch ID");
       this.add(DR.class, true, 1, 0, new Object[]{getMessage()}, "Transaction Date");
       this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Transaction Posting Date");
-      this.add(IS.class, true, 1, 0, new Object[]{getMessage(), new Integer(17)}, "Transaction Type");
+      this.add(IS.class, true, 1, 0, new Object[]{getMessage(), 17}, "Transaction Type");
       this.add(CE.class, true, 1, 0, new Object[]{getMessage()}, "Transaction Code");
       this.add(ST.class, false, -1, 0, new Object[]{getMessage()}, "Transaction Description");
       this.add(ST.class, false, -1, 0, new Object[]{getMessage()}, "Transaction Description - Alt");
@@ -109,8 +108,8 @@ public class FT1 extends AbstractSegment {
       this.add(CE.class, false, 1, 0, new Object[]{getMessage()}, "Insurance Plan ID");
       this.add(CP.class, false, 1, 0, new Object[]{getMessage()}, "Insurance Amount");
       this.add(PL.class, false, 1, 0, new Object[]{getMessage()}, "Assigned Patient Location");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(24)}, "Fee Schedule");
-      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), new Integer(18)}, "Patient Type");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 24}, "Fee Schedule");
+      this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 18}, "Patient Type");
       this.add(CE.class, false, -1, 0, new Object[]{getMessage()}, "Diagnosis Code - FT1");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Performed By Code");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Ordered By Code");
@@ -1447,7 +1446,7 @@ public class FT1 extends AbstractSegment {
       case 4:
         return new TS(getMessage());
       case 5:
-        return new IS(getMessage(), new Integer(17));
+        return new IS(getMessage(), 17);
       case 6:
         return new CE(getMessage());
       case 7:
@@ -1469,9 +1468,9 @@ public class FT1 extends AbstractSegment {
       case 15:
         return new PL(getMessage());
       case 16:
-        return new IS(getMessage(), new Integer(24));
+        return new IS(getMessage(), 24);
       case 17:
-        return new IS(getMessage(), new Integer(18));
+        return new IS(getMessage(), 18);
       case 18:
         return new CE(getMessage());
       case 19:

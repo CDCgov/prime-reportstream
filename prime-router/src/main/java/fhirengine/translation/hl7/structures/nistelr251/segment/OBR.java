@@ -33,7 +33,6 @@
 
 package fhirengine.translation.hl7.structures.nistelr251.segment;
 
-// import gov.cdc.nist.group.*;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
@@ -3446,7 +3445,7 @@ public class OBR extends AbstractSegment {
       case 3:
         return new CWE_ELR(getMessage());
       case 4:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), 0);
       case 5:
         return new TS(getMessage());
       case 6:
@@ -3458,7 +3457,7 @@ public class OBR extends AbstractSegment {
       case 9:
         return new XCN(getMessage());
       case 10:
-        return new ID(getMessage(), new Integer(65));
+        return new ID(getMessage(), 65);
       case 11:
         return new CWE(getMessage());
       case 12:
@@ -3484,9 +3483,9 @@ public class OBR extends AbstractSegment {
       case 22:
         return new MOC(getMessage());
       case 23:
-        return new ID(getMessage(), new Integer(74));
+        return new ID(getMessage(), 74);
       case 24:
-        return new ID(getMessage(), new Integer(123));
+        return new ID(getMessage(), 123);
       case 25:
         return new PRL_ELR(getMessage());
       case 26:
@@ -3496,7 +3495,7 @@ public class OBR extends AbstractSegment {
       case 28:
         return new EIP_ELR(getMessage());
       case 29:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), 0);
       case 30:
         return new CWE_ELR(getMessage());
       case 31:
@@ -3518,9 +3517,9 @@ public class OBR extends AbstractSegment {
       case 39:
         return new CWE(getMessage());
       case 40:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), 0);
       case 41:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), 0);
       case 42:
         return new CWE(getMessage());
       case 43:
@@ -3534,7 +3533,7 @@ public class OBR extends AbstractSegment {
       case 47:
         return new CWE(getMessage());
       case 48:
-        return new IS(getMessage(), new Integer(507));
+        return new IS(getMessage(), 507);
       case 49:
         return new CWE(getMessage());
       default:

@@ -33,7 +33,6 @@
 
 package fhirengine.translation.hl7.structures.nistelr251.segment;
 
-// import gov.cdc.nist.group.*;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
@@ -110,7 +109,7 @@ public class SPM extends AbstractSegment {
       this.add(DR_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Specimen Collection Date/Time");
       this.add(TS_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Specimen Received Date/Time");
       this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Specimen Expiration Date/Time");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(136)}, "Specimen Availability");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 136}, "Specimen Availability");
       this.add(CWE_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Specimen Reject Reason");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Specimen Quality");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Specimen Appropriateness");
@@ -1611,7 +1610,7 @@ public class SPM extends AbstractSegment {
       case 18:
         return new TS(getMessage());
       case 19:
-        return new ID(getMessage(), new Integer(136));
+        return new ID(getMessage(), 136);
       case 20:
         return new CWE_ELR(getMessage());
       case 21:

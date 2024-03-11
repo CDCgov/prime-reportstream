@@ -33,7 +33,6 @@
 
 package fhirengine.translation.hl7.structures.nistelr251.segment;
 
-// import gov.cdc.nist.group.*;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
@@ -1615,7 +1614,7 @@ public class ORC extends AbstractSegment {
   protected Type createNewTypeWithoutReflection(int field) {
     switch (field) {
       case 0:
-        return new ID(getMessage(), new Integer(119));
+        return new ID(getMessage(), 119);
       case 1:
         return new EI_ELR(getMessage());
       case 2:
@@ -1623,9 +1622,9 @@ public class ORC extends AbstractSegment {
       case 3:
         return new EI_ELR(getMessage());
       case 4:
-        return new ID(getMessage(), new Integer(38));
+        return new ID(getMessage(), 38);
       case 5:
-        return new ID(getMessage(), new Integer(121));
+        return new ID(getMessage(), 121);
       case 6:
         return new TQ(getMessage());
       case 7:

@@ -117,7 +117,7 @@ public class PV2 extends AbstractSegment {
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Transfer Reason");
       this.add(ST.class, false, 0, 0, new Object[]{getMessage()}, "Patient Valuables");
       this.add(ST.class, false, 0, 0, new Object[]{getMessage()}, "Patient Valuables Location");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Visit User Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), 0}, "Visit User Code");
       this.add(TS.class, false, 0, 0, new Object[]{getMessage()}, "Expected Admit Date/Time");
       this.add(TS.class, false, 0, 0, new Object[]{getMessage()}, "Expected Discharge Date/Time");
       this.add(NM.class, false, 0, 0, new Object[]{getMessage()}, "Estimated Length of Inpatient Stay");
@@ -125,41 +125,41 @@ public class PV2 extends AbstractSegment {
       this.add(ST.class, false, 0, 0, new Object[]{getMessage()}, "Visit Description");
       this.add(XCN.class, false, 0, 0, new Object[]{getMessage()}, "Referral Source Code");
       this.add(DT.class, false, 0, 0, new Object[]{getMessage()}, "Previous Service Date");
-      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), new Integer(136)}, "Employment Illness Related Indicator");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Purge Status Code");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 136}, "Employment Illness Related Indicator");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), 0}, "Purge Status Code");
       this.add(DT.class, false, 0, 0, new Object[]{getMessage()}, "Purge Status Date");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Special Program Code");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Retention Indicator");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), 0}, "Special Program Code");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), 0}, "Retention Indicator");
       this.add(NM.class, false, 0, 0, new Object[]{getMessage()}, "Expected Number of Insurance Plans");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Visit Publicity Code");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Visit Protection Indicator");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), 0}, "Visit Publicity Code");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), 0}, "Visit Protection Indicator");
       this.add(XON.class, false, -1, 0, new Object[]{getMessage()}, "Clinic Organization Name");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Patient Status Code");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Visit Priority Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), 0}, "Patient Status Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), 0}, "Visit Priority Code");
       this.add(DT.class, false, 1, 0, new Object[]{getMessage()}, "Previous Treatment Date");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Expected Discharge Disposition");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), 0}, "Expected Discharge Disposition");
       this.add(DT.class, false, 0, 0, new Object[]{getMessage()}, "Signature on File Date");
       this.add(DT.class, false, 1, 0, new Object[]{getMessage()}, "First Similar Illness Date");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Patient Charge Adjustment Code");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Recurring Service Code");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Billing Media Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), 0}, "Recurring Service Code");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), 0}, "Billing Media Code");
       this.add(TS.class, false, 0, 0, new Object[]{getMessage()}, "Expected Surgery Date and Time");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Military Partnership Code");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Military Non-Availability Code");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Newborn Baby Indicator");
-      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Baby Detained Indicator");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), 0}, "Military Partnership Code");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), 0}, "Military Non-Availability Code");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), 0}, "Newborn Baby Indicator");
+      this.add(ID.class, false, 0, 0, new Object[]{getMessage(), 0}, "Baby Detained Indicator");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Mode of Arrival Code");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Recreational Drug Use Code");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Admission Level of Care Code");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Precaution Code");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Patient Condition Code");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Living Will Code");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Organ Donor Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), 0}, "Living Will Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), 0}, "Organ Donor Code");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Advance Directive Code");
       this.add(DT.class, false, 0, 0, new Object[]{getMessage()}, "Patient Status Effective Date");
       this.add(TS.class, false, 0, 0, new Object[]{getMessage()}, "Expected LOA Return Date/Time");
       this.add(TS.class, false, 0, 0, new Object[]{getMessage()}, "Expected Pre-admission Testing Date/Time");
-      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), new Integer(0)}, "Notify Clergy Code");
+      this.add(IS.class, false, 0, 0, new Object[]{getMessage(), 0}, "Notify Clergy Code");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating PV2 - this is probably a bug in the source code generator.", e);
     }
@@ -5031,7 +5031,7 @@ public class PV2 extends AbstractSegment {
       case 5:
         return new ST(getMessage());
       case 6:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), 0);
       case 7:
         return new TS(getMessage());
       case 8:
@@ -5047,31 +5047,31 @@ public class PV2 extends AbstractSegment {
       case 13:
         return new DT(getMessage());
       case 14:
-        return new ID(getMessage(), new Integer(136));
+        return new ID(getMessage(), 136);
       case 15:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), 0);
       case 16:
         return new DT(getMessage());
       case 17:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), 0);
       case 18:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), 0);
       case 19:
         return new NM(getMessage());
       case 20:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), 0);
       case 21:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), 0);
       case 22:
         return new XON(getMessage());
       case 23:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), 0);
       case 24:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), 0);
       case 25:
         return new DT(getMessage());
       case 26:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), 0);
       case 27:
         return new DT(getMessage());
       case 28:
@@ -5079,19 +5079,19 @@ public class PV2 extends AbstractSegment {
       case 29:
         return new CWE(getMessage());
       case 30:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), 0);
       case 31:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), 0);
       case 32:
         return new TS(getMessage());
       case 33:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), 0);
       case 34:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), 0);
       case 35:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), 0);
       case 36:
-        return new ID(getMessage(), new Integer(0));
+        return new ID(getMessage(), 0);
       case 37:
         return new CWE(getMessage());
       case 38:
@@ -5103,9 +5103,9 @@ public class PV2 extends AbstractSegment {
       case 41:
         return new CWE(getMessage());
       case 42:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), 0);
       case 43:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), 0);
       case 44:
         return new CWE(getMessage());
       case 45:
@@ -5115,7 +5115,7 @@ public class PV2 extends AbstractSegment {
       case 47:
         return new TS(getMessage());
       case 48:
-        return new IS(getMessage(), new Integer(0));
+        return new IS(getMessage(), 0);
       default:
         return null;
     }

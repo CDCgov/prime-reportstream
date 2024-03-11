@@ -38,7 +38,10 @@ import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.segment.*;
+import fhirengine.translation.hl7.structures.nistelr251.segment.NK1;
+import fhirengine.translation.hl7.structures.nistelr251.segment.NTE;
+import fhirengine.translation.hl7.structures.nistelr251.segment.PD1;
+import fhirengine.translation.hl7.structures.nistelr251.segment.PID;
 
 /**
  * <p>Represents a ORU_R01_PATIENT group structure (PATIENT_RESULT.PATIENT).
