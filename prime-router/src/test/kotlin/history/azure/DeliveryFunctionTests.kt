@@ -101,6 +101,7 @@ class DeliveryFunctionTests : Logging {
         val topic: String,
         val reportItemCount: Int,
         val fileName: String,
+        val receivingOrgSvcStatus: String,
     )
 
     private val testData = listOf(
@@ -115,7 +116,8 @@ class DeliveryFunctionTests : Logging {
             receivingOrgSvc = "elr-secondary",
             bodyUrl = null,
             schemaName = "covid-19",
-            bodyFormat = "HL7_BATCH"
+            bodyFormat = "HL7_BATCH",
+            receivingOrgSvcStatus = "active",
         ),
         DeliveryHistory(
             actionId = 284,
@@ -128,7 +130,8 @@ class DeliveryFunctionTests : Logging {
             receivingOrgSvc = null,
             bodyUrl = null,
             schemaName = "primedatainput/pdi-covid-19",
-            bodyFormat = "CSV"
+            bodyFormat = "CSV",
+            receivingOrgSvcStatus = "active",
         )
     )
 
@@ -168,7 +171,8 @@ class DeliveryFunctionTests : Logging {
                             reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
                             topic = "covid-19",
                             reportItemCount = 14,
-                            fileName = "covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.hl7"
+                            fileName = "covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.hl7",
+                            receivingOrgSvcStatus = "active"
                         ),
                         ExpectedDelivery(
                             deliveryId = 284,
@@ -178,7 +182,8 @@ class DeliveryFunctionTests : Logging {
                             reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
                             topic = "covid-19",
                             reportItemCount = 1,
-                            fileName = "pdi-covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.csv"
+                            fileName = "pdi-covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.csv",
+                            receivingOrgSvcStatus = "active"
                         )
                     )
                 ),
@@ -282,6 +287,8 @@ class DeliveryFunctionTests : Logging {
 
         every {
             mockDatabaseAccess.fetchActions<DeliveryHistory>(
+                any(),
+                any(),
                 any(),
                 any(),
                 any(),
@@ -443,7 +450,8 @@ class DeliveryFunctionTests : Logging {
             "elr-secondary",
             null,
             "primedatainput/pdi-covid-19",
-            "CSV"
+            "CSV",
+            "active",
         )
         // Happy path with a good UUID
         val action = Action()
@@ -1246,6 +1254,36 @@ class DeliveryFunctionTests : Logging {
             val response = DeliveryFunction().getDeliveries(httpRequestMessage, receiver1.fullName)
             assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
             assertThat(response.body).isEqualTo("{\"error\": \"Invalid format for report ID: b9f63105-\"}")
+        }
+
+        @Test
+        fun `test successfully returns when sending a receivingOrgSvcStatus`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+            httpRequestMessage.parameters["receivingOrgSvcStatus"] = "ACTIVE"
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = DeliveryFunction().getDeliveries(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
         }
     }
 
