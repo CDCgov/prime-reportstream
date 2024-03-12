@@ -1,15 +1,14 @@
 package gov.cdc.prime.router
 
 import gov.cdc.prime.router.tokens.Jwk
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.Jwts.SIG
 import java.security.interfaces.RSAPublicKey
 import java.util.Base64
 
 // TODO: https://github.com/CDCgov/prime-reportstream/issues/8659
 // This test class be removed
 class SettingsProviderTest {
-    val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
+    val keyPair = SIG.RS256.keyPair().build()
     val pubKey = keyPair.getPublic() as RSAPublicKey
 
     val scopeOne = "simple_report.default.report"

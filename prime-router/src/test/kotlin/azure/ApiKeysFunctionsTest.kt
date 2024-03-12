@@ -14,8 +14,7 @@ import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.Jwts.SIG
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -46,12 +45,12 @@ class ApiKeysFunctionsTest {
         null
     )
 
-    val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
+    val keyPair = SIG.RS256.keyPair().build()
     val pubKey = keyPair.getPublic() as RSAPublicKey
-    val keyPair2 = Keys.keyPairFor(SignatureAlgorithm.RS256)
+    val keyPair2 = SIG.RS256.keyPair().build()
     val pubKey2 = keyPair2.getPublic() as RSAPublicKey
-    val keyPair3 = Keys.keyPairFor(SignatureAlgorithm.RS256)
-    val pubKey3 = keyPair2.getPublic() as RSAPublicKey
+    val keyPair3 = SIG.RS256.keyPair().build()
+    val pubKey3 = keyPair3.getPublic() as RSAPublicKey
 
     var encodedPubKey: String? = null
     val jwk = Jwk(

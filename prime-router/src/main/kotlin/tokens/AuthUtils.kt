@@ -34,15 +34,14 @@ class AuthUtils {
             expirationSecondsFromNow: Int = 300,
         ): String {
             val jwsObj = Jwts.builder()
-                .setHeaderParam("kid", keyId) // kid
-                .setHeaderParam("typ", "JWT") // typ
-                .setIssuer(issuer) // iss
-                .setSubject(issuer) // sub
-                .setAudience(baseUrl) // aud
-                .setExpiration(Date(System.currentTimeMillis() + expirationSecondsFromNow * 1000)) // exp
+                .header().add("kid", keyId).add("typ", "JWT").and()
+                .issuer(issuer)
+                .subject(issuer)
+                .audience().add(baseUrl).and()
+                .expiration(Date(System.currentTimeMillis() + expirationSecondsFromNow * 1000)) // exp
                 .signWith(privateKey)
             if (jti != null) {
-                jwsObj.setId(jti) // jti
+                jwsObj.id(jti) // jti
             }
             val jws = jwsObj.compact()
             return jws

@@ -16,8 +16,7 @@ import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.Server2ServerAuthentication
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.Jwts.SIG
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkClass
@@ -40,7 +39,7 @@ class TokenFunctionTests {
     var settings = MockSettings()
     val klogger = mockkClass(KotlinLogger::class)
 
-    val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
+    val keyPair = SIG.RS256.keyPair().build()
     val pubKey = keyPair.getPublic() as RSAPublicKey
 
     var sender = CovidSender(
@@ -107,10 +106,10 @@ class TokenFunctionTests {
         val expiresAtSeconds = ((System.currentTimeMillis() / 1000) + 10).toInt()
         val expirationDate = Date(expiresAtSeconds.toLong() * 1000)
         token = Jwts.builder()
-            .setExpiration(expirationDate) // exp
-            .setId(UUID.randomUUID().toString()) // jti
-            .setIssuer(sender.fullName)
-            .setHeaderParam("kid", jwk.kid)
+            .expiration(expirationDate) // exp
+            .id(UUID.randomUUID().toString()) // jti
+            .issuer(sender.fullName)
+            .header().add("kid", jwk.kid).and()
             .signWith(keyPair.getPrivate()).compact()
     }
 
@@ -203,9 +202,9 @@ class TokenFunctionTests {
     fun `Test missing issuer`() {
         val expiresAtSeconds = ((System.currentTimeMillis() / 1000) + 10).toInt()
         val expirationDate = Date(expiresAtSeconds.toLong() * 1000)
-        val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
+        val keyPair = SIG.RS256.keyPair().build()
         val token = Jwts.builder()
-            .setExpiration(expirationDate) // exp
+            .expiration(expirationDate) // exp
             .signWith(keyPair.getPrivate()).compact()
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
@@ -234,9 +233,9 @@ class TokenFunctionTests {
         val expiresAtSeconds = ((System.currentTimeMillis() / 1000) + 10).toInt()
         val expirationDate = Date(expiresAtSeconds.toLong() - 1000)
         val token = Jwts.builder()
-            .setExpiration(expirationDate) // exp
-            .setId("helloworld") // jti
-            .setIssuer(sender.fullName)
+            .expiration(expirationDate) // exp
+            .id("helloworld") // jti
+            .issuer(sender.fullName)
             .signWith(keyPair.getPrivate()).compact()
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
@@ -344,11 +343,12 @@ class TokenFunctionTests {
         val expiresAtSeconds = ((System.currentTimeMillis() / 1000) + 10).toInt()
         val expirationDate = Date(expiresAtSeconds.toLong() * 1000)
         token = Jwts.builder()
-            .setExpiration(expirationDate) // exp
-            .setId(UUID.randomUUID().toString()) // jti
-            .setIssuer(organization.name)
-            .setHeaderParam("kid", jwk.kid)
-            .signWith(keyPair.getPrivate()).compact()
+            .expiration(expirationDate) // exp
+            .id(UUID.randomUUID().toString()) // jti
+            .issuer(organization.name)
+            .header().add("kid", jwk.kid).and()
+            .signWith(keyPair.private)
+            .compact()
         mockkConstructor(Server2ServerAuthentication::class)
         every {
             anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())

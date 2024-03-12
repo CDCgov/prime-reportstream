@@ -894,7 +894,7 @@ dependencies {
 
     implementation("commons-net:commons-net:3.10.0")
     implementation("com.cronutils:cron-utils:9.2.1")
-    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
     implementation("de.m3y.kformat:kformat:0.10")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -932,8 +932,8 @@ dependencies {
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.8")
     runtimeOnly("com.squareup.okio:okio:3.8.0")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 
     testImplementation(kotlin("test-junit5"))
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0") {
