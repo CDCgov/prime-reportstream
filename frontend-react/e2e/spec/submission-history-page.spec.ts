@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-import { selectTestOrg, waitForAPIResponse } from "../helpers/utils";
+import { selectTestOrg, TEST_ORG_IGNORE } from "../helpers/utils";
 import * as submissionHistory from "../pages/submission-history";
 import * as submissions from "../pages/submission-history";
+import { openReportIdDetailPage } from "../pages/submission-history";
 
 test.describe("Submission history page", () => {
     test.describe("not authenticated", () => {
@@ -31,10 +32,13 @@ test.describe("Submission history page", () => {
             });
         });
 
-        test.describe.only("with org selected", () => {
+        test.describe("with org selected", () => {
             test.beforeEach(async ({ page }) => {
                 await selectTestOrg(page);
-                await submissions.mockGetSubmissionsResponse(page);
+                await submissions.mockGetSubmissionsResponse(
+                    page,
+                    TEST_ORG_IGNORE,
+                );
                 await submissions.mockGetReportHistoryResponse(page);
                 await submissionHistory.goto(page);
             });
@@ -86,12 +90,7 @@ test.describe("Submission history page", () => {
                 await expect(reportId).toContainText(id);
                 await reportId.click();
 
-                const reportDetailsPage = page;
-                await reportDetailsPage.waitForLoadState();
-                await expect(reportDetailsPage).toHaveURL(`/submissions/${id}`);
-                expect(
-                    reportDetailsPage.getByText(`Report ID:${id}`),
-                ).toBeTruthy();
+                await openReportIdDetailPage(page, id);
             });
 
             test("table column 'Date/time submitted' has expected data", async ({
@@ -159,14 +158,6 @@ test.describe("Submission history page", () => {
             await expect(navItems).not.toContainText(["Submissions"]);
         });
 
-        test("response returns 404", async ({ page }) => {
-            await waitForAPIResponse(
-                page,
-                submissionHistory.API_GET_SUBMISSIONS,
-                404,
-            );
-        });
-
         test("displays no data message", async ({ page }) => {
             await expect(page.getByText(/No available data/)).toBeAttached();
         });
@@ -184,8 +175,9 @@ test.describe("Submission history page", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
+            await submissions.mockGetSubmissionsResponse(page, TEST_ORG_IGNORE);
+            await submissions.mockGetReportHistoryResponse(page);
             await submissionHistory.goto(page);
-            await waitForAPIResponse(page, "/submissions");
         });
 
         test("nav contains the Submissions option", async ({ page }) => {
@@ -217,6 +209,58 @@ test.describe("Submission history page", () => {
             await expect(page.locator(".usa-table th").nth(4)).toHaveText(
                 /Status/,
             );
+        });
+
+        test("table column 'ReportId' will open the report details", async ({
+            page,
+        }) => {
+            const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
+
+            const reportId = page
+                .locator(".usa-table tbody")
+                .locator("tr")
+                .nth(0)
+                .locator("td")
+                .nth(0);
+            await expect(reportId).toContainText(id);
+            await reportId.click();
+
+            await openReportIdDetailPage(page, id);
+        });
+
+        test("table column 'Date/time submitted' has expected data", async ({
+            page,
+        }) => {
+            await expect(
+                page
+                    .locator(".usa-table tbody")
+                    .locator("tr")
+                    .nth(0)
+                    .locator("td")
+                    .nth(1),
+            ).toHaveText("3/7/2024, 6:00:22 PM");
+        });
+
+        test("table column 'Records' has expected data", async ({ page }) => {
+            await expect(
+                page
+                    .locator(".usa-table tbody")
+                    .locator("tr")
+                    .nth(0)
+                    .locator("td")
+                    .nth(3),
+            ).toHaveText("1");
+        });
+
+        test("table column 'Status' has expected data", async ({ page }) => {
+            await expect(
+                page
+                    .locator(".usa-table tbody")
+                    .locator("tr")
+                    .nth(0)
+                    .locator("td")
+                    .nth(4),
+            ).toHaveText("Success");
         });
 
         test("table has pagination", async ({ page }) => {

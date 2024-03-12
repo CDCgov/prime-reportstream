@@ -1,10 +1,8 @@
 import { expect, Page } from "@playwright/test";
-import { TEST_ORG } from "../helpers/utils";
 import { MOCK_GET_REPORT_HISTORY } from "../mocks/history";
 import { MOCK_GET_SUBMISSIONS } from "../mocks/submissions";
 
-const URL_SUBMISSION_HISTORY = "/submissions";
-export const API_GET_SUBMISSIONS = `**/api/waters/org/${TEST_ORG}/submissions?*`;
+export const URL_SUBMISSION_HISTORY = "/submissions";
 export const API_GET_REPORT_HISTORY = `**/api/waters/report/**`;
 export async function goto(page: Page) {
     await page.goto(URL_SUBMISSION_HISTORY, {
@@ -12,11 +10,17 @@ export async function goto(page: Page) {
     });
 }
 
+export function getOrgAPI(org: string) {
+    return `**/api/waters/org/${org}/submissions?*`;
+}
+
 export async function mockGetSubmissionsResponse(
     page: Page,
+    org: string,
     responseStatus = 200,
 ) {
-    await page.route(API_GET_SUBMISSIONS, async (route) => {
+    const submissionsApi = getOrgAPI(org);
+    await page.route(submissionsApi, async (route) => {
         const json = MOCK_GET_SUBMISSIONS;
         await route.fulfill({ json, status: responseStatus });
     });
@@ -32,13 +36,9 @@ export async function mockGetReportHistoryResponse(
     });
 }
 
-export async function openDetailPage(page: Page, id: string) {
+export async function openReportIdDetailPage(page: Page, id: string) {
     const reportDetailsPage = page;
     await reportDetailsPage.waitForLoadState();
-    await expect(reportDetailsPage).toHaveURL(/\/submissions\/${id}/);
-    expect(
-        reportDetailsPage.getByText(
-            /Report ID:73e3cbc8-9920-4ab7-871f-843a1db4c074/,
-        ),
-    ).toBeTruthy();
+    await expect(reportDetailsPage).toHaveURL(`/submissions/${id}`);
+    expect(reportDetailsPage.getByText(`Report ID:${id}`)).toBeTruthy();
 }
