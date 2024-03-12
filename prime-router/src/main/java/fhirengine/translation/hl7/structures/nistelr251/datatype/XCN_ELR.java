@@ -36,7 +36,8 @@ import ca.uhn.hl7v2.model.AbstractComposite;
 import ca.uhn.hl7v2.model.DataTypeException;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.Type;
-
+import ca.uhn.hl7v2.model.v251.datatype.ST;
+import ca.uhn.hl7v2.model.v251.datatype.*;
 
 /**
  * <p>Represents an HL7 XCN (Extended Composite ID Number and Name for Persons) data type.

@@ -39,12 +39,11 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
+import ca.uhn.hl7v2.model.v251.datatype.FT;
+import ca.uhn.hl7v2.model.v251.datatype.ID;
+import ca.uhn.hl7v2.model.v251.datatype.SI;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 import fhirengine.translation.hl7.structures.nistelr251.datatype.CWE_ELR;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.FT;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.ID;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.SI;
-
 
 /**
  * <p>Represents an HL7 NTE message segment (Notes and Comments for PID).

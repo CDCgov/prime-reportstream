@@ -36,6 +36,7 @@ import ca.uhn.hl7v2.model.AbstractComposite;
 import ca.uhn.hl7v2.model.DataTypeException;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.Type;
+import ca.uhn.hl7v2.model.v251.datatype.EI;
 
 /**
  * <p>Represents an HL7 EIP (Entity Identifier Pair) data type.

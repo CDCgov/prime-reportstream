@@ -38,8 +38,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
+import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -99,7 +99,7 @@ public class FT1 extends AbstractSegment {
       this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Transaction Posting Date");
       this.add(IS.class, true, 1, 0, new Object[]{getMessage(), 17}, "Transaction Type");
       this.add(CE.class, true, 1, 0, new Object[]{getMessage()}, "Transaction Code");
-      this.add(ST.class, false, -1, 0, new Object[]{getMessage()}, "Transaction Description");
+      this.add(NULLDT.class, false, -1, 0, new Object[]{getMessage()}, "Transaction Description");
       this.add(ST.class, false, -1, 0, new Object[]{getMessage()}, "Transaction Description - Alt");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Transaction Quantity");
       this.add(CP.class, false, 1, 0, new Object[]{getMessage()}, "Transaction Amount - Extended");

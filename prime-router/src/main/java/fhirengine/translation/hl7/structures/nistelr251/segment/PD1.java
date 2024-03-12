@@ -38,8 +38,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
+import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -85,7 +85,7 @@ public class PD1 extends AbstractSegment {
       this.add(IS.class, false, -1, 0, new Object[]{getMessage(), 223}, "Living Dependency");
       this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 220}, "Living Arrangement");
       this.add(XON.class, false, -1, 0, new Object[]{getMessage()}, "Patient Primary Facility");
-      this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Patient Primary Care Provider Name & ID No.");
+      this.add(NULLDT.class, false, -1, 0, new Object[]{getMessage()}, "Patient Primary Care Provider Name & ID No.");
       this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 231}, "Student Indicator");
       this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 295}, "Handicap");
       this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 315}, "Living Will Code");

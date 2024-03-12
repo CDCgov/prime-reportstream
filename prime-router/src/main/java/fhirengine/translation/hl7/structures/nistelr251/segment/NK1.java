@@ -39,6 +39,17 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
+import ca.uhn.hl7v2.model.v251.datatype.CWE;
+import ca.uhn.hl7v2.model.v251.datatype.CX;
+import ca.uhn.hl7v2.model.v251.datatype.DT;
+import ca.uhn.hl7v2.model.v251.datatype.ID;
+import ca.uhn.hl7v2.model.v251.datatype.IS;
+import ca.uhn.hl7v2.model.v251.datatype.JCC;
+import ca.uhn.hl7v2.model.v251.datatype.SI;
+import ca.uhn.hl7v2.model.v251.datatype.ST;
+import ca.uhn.hl7v2.model.v251.datatype.TS;
+import ca.uhn.hl7v2.model.v251.datatype.XPN;
+import ca.uhn.hl7v2.model.v251.datatype.XTN;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 

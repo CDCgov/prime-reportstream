@@ -37,10 +37,10 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.AbstractMessage;
 import ca.uhn.hl7v2.model.Structure;
+import ca.uhn.hl7v2.model.v251.segment.DSC;
 import ca.uhn.hl7v2.parser.DefaultModelClassFactory;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 import fhirengine.translation.hl7.structures.nistelr251.group.ORU_R01_PATIENT_RESULT;
-import fhirengine.translation.hl7.structures.nistelr251.segment.DSC;
 import fhirengine.translation.hl7.structures.nistelr251.segment.MSH;
 import fhirengine.translation.hl7.structures.nistelr251.segment.SFT;
 
@@ -78,7 +78,6 @@ public class ORU_R01 extends AbstractMessage {
       this.add(MSH.class, true, false);
       this.add(SFT.class, true, true);
       this.add(ORU_R01_PATIENT_RESULT.class, true, true);
-      this.add(DSC.class, false, false);
     } catch (HL7Exception e) {
       log.error("Unexpected error creating ORU_R01 - this is probably a bug in the source code generator.", e);
     }

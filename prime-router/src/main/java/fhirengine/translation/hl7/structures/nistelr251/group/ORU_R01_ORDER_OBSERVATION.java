@@ -37,8 +37,13 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
+import ca.uhn.hl7v2.model.v251.segment.CTD;
+import ca.uhn.hl7v2.model.v251.segment.CTI;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.segment.*;
+import fhirengine.translation.hl7.structures.nistelr251.segment.FT1;
+import fhirengine.translation.hl7.structures.nistelr251.segment.NTE;
+import fhirengine.translation.hl7.structures.nistelr251.segment.OBR;
+import fhirengine.translation.hl7.structures.nistelr251.segment.ORC;
 
 /**
  * <p>Represents a ORU_R01_ORDER_OBSERVATION group structure (PATIENT_RESULT.ORDER_OBSERVATION).

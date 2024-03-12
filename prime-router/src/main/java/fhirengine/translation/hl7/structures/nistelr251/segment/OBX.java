@@ -41,6 +41,14 @@ import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.model.Varies;
 import ca.uhn.hl7v2.model.primitive.NULLDT;
+import ca.uhn.hl7v2.model.v251.datatype.CWE;
+import ca.uhn.hl7v2.model.v251.datatype.EI;
+import ca.uhn.hl7v2.model.v251.datatype.ID;
+import ca.uhn.hl7v2.model.v251.datatype.NM;
+import ca.uhn.hl7v2.model.v251.datatype.SI;
+import ca.uhn.hl7v2.model.v251.datatype.ST;
+import ca.uhn.hl7v2.model.v251.datatype.TS;
+import ca.uhn.hl7v2.model.v251.datatype.XCN;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
@@ -984,20 +992,32 @@ public class OBX extends AbstractSegment {
         return new ST(getMessage());
       case 13:
         return new TS_ELR(getMessage());
-      case 14: return new CWE(getMessage());
-          case 15: return new XCN(getMessage());
-          case 16: return new CWE_ELR(getMessage());
-          case 17: return new EI(getMessage());
-          case 18: return new TS_ELR(getMessage());
-          case 19: return new NULLDT(getMessage());
-          case 20: return new NULLDT(getMessage());
-          case 21: return new NULLDT(getMessage());
-          case 22: return new XON_ELR(getMessage());
-          case 23: return new XAD_ELR(getMessage());
-          case 24: return new XCN_ELR(getMessage());
-          default: return null;
-       }
-   }
+      case 14:
+        return new CWE(getMessage());
+      case 15:
+        return new XCN(getMessage());
+      case 16:
+        return new CWE_ELR(getMessage());
+      case 17:
+        return new EI(getMessage());
+      case 18:
+        return new TS_ELR(getMessage());
+      case 19:
+        return new NULLDT(getMessage());
+      case 20:
+        return new NULLDT(getMessage());
+      case 21:
+        return new NULLDT(getMessage());
+      case 22:
+        return new XON_ELR(getMessage());
+      case 23:
+        return new XAD_ELR(getMessage());
+      case 24:
+        return new XCN_ELR(getMessage());
+      default:
+        return null;
+    }
+  }
 
 
 }

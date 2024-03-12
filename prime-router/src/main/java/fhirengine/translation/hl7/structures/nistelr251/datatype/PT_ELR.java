@@ -36,7 +36,7 @@ import ca.uhn.hl7v2.model.AbstractComposite;
 import ca.uhn.hl7v2.model.DataTypeException;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.Type;
-
+import ca.uhn.hl7v2.model.v251.datatype.ID;
 
 /**
  * <p>Represents an HL7 PT (Processing Type) data type.

@@ -36,6 +36,8 @@ import ca.uhn.hl7v2.model.AbstractComposite;
 import ca.uhn.hl7v2.model.DataTypeException;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.Type;
+import ca.uhn.hl7v2.model.v251.datatype.ID;
+import ca.uhn.hl7v2.model.v251.datatype.TX;
 
 /**
  * <p>Represents an HL7 ED (Encapsulated Data) data type.
