@@ -141,7 +141,8 @@ class FHIRRouter(
         actionHistory.trackExistingInputReport(message.reportId)
 
         // pull fhir document and parse FHIR document
-        val bundle = FhirTranscoder.decode(message.downloadContent())
+        val fhirJson = message.downloadContent()
+        val bundle = FhirTranscoder.decode(fhirJson)
 
         // get the receivers that this bundle should go to
         val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
@@ -150,12 +151,14 @@ class FHIRRouter(
         val sender = reportService.getSenderName(message.reportId)
 
         // send event to Azure AppInsights
+        val observationSummary = AzureEventUtils.getObservations(bundle)
         azureEventService.trackEvent(
             ReportAcceptedEvent(
                 message.reportId,
                 message.topic,
                 sender,
-                AzureEventUtils.getConditions(bundle)
+                observationSummary,
+                fhirJson.length
             )
         )
 
@@ -217,10 +220,10 @@ class FHIRRouter(
                 )
 
                 // upload new copy to blobstore
-                val bodyBytes = FhirTranscoder.encode(receiverBundle).toByteArray()
+                val bodyString = FhirTranscoder.encode(receiverBundle)
                 val blobInfo = BlobAccess.uploadBody(
                     Report.Format.FHIR,
-                    bodyBytes,
+                    bodyString.toByteArray(),
                     report.name,
                     message.blobSubFolderName,
                     nextEvent.eventAction
@@ -229,6 +232,7 @@ class FHIRRouter(
                 actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
                 // send event to Azure AppInsights
+                val receiverObservationSummary = AzureEventUtils.getObservations(receiverBundle)
                 azureEventService.trackEvent(
                     ReportRouteEvent(
                         message.reportId,
@@ -236,7 +240,8 @@ class FHIRRouter(
                         message.topic,
                         sender,
                         receiver.fullName,
-                        AzureEventUtils.getConditions(receiverBundle)
+                        receiverObservationSummary,
+                        bodyString.length
                     )
                 )
 
@@ -295,6 +300,7 @@ class FHIRRouter(
             actionHistory.trackCreatedReport(nextEvent, report)
 
             // send event to Azure AppInsights
+            val receiverObservationSummary = AzureEventUtils.getObservations(bundle)
             azureEventService.trackEvent(
                 ReportRouteEvent(
                     message.reportId,
@@ -302,7 +308,8 @@ class FHIRRouter(
                     message.topic,
                     sender,
                     null,
-                    AzureEventUtils.getConditions(bundle)
+                    receiverObservationSummary,
+                    fhirJson.length
                 )
             )
 
