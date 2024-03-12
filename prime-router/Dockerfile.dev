@@ -22,7 +22,7 @@ RUN if [ -n "$INSECURE_SSL" ] && [ "$INSECURE_SSL" = "true" ]; then \
 RUN apt-get clean && \
     apt-get --allow-releaseinfo-change --allow-releaseinfo-change-suite update && \
     apt-get upgrade -y && \
-    apt-get --yes install gpg curl lsb-release gnupg ca-certificates apt-transport-https
+    apt-get --yes install --fix-missing gpg curl lsb-release gnupg ca-certificates apt-transport-https
 
 # Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
