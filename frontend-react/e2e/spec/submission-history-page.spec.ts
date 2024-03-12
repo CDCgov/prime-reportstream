@@ -40,6 +40,8 @@ test.describe("Submission history page", () => {
                     TEST_ORG_IGNORE,
                 );
                 await submissions.mockGetReportHistoryResponse(page);
+                // abort all app insight calls
+                await page.route("**/v2/track", (route) => route.abort());
                 await submissionHistory.goto(page);
             });
 
