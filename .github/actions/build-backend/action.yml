@@ -76,9 +76,10 @@ runs:
         sp-creds: ${{ inputs.sp-creds }}
 
     # Allow runner IP for storage testing
-    - name: Get public ip
-      shell: bash
-      run: echo "PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)" >> $GITHUB_ENV
+    - name: Get runner ip
+      if: inputs.run-integration-tests == 'true' && inputs.sp-creds
+      id: runner_ip
+      uses: ./.github/actions/runner-ip
 
     - name: Validate translation schemas
       if: inputs.run-integration-tests == 'true' && inputs.sp-creds
@@ -88,13 +89,16 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
-          az storage account network-rule add -g prime-data-hub-staging --account-name pdhstagingstorageaccount --ip-address ${{ env.PUBLIC_IP }} --output none;
+          az storage account network-rule add -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
+          --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none;
           sleep 10;
           cd prime-router
-          bsc=$(az storage account show-connection-string --name pdhstagingstorageaccount --resource-group prime-data-hub-staging --subscription 7d1e3999-6577-4cd5-b296-f518e5c8e677 -o tsv)
+          bsc=$(az storage account show-connection-string --name pdhstagingstorageaccount --resource-group prime-data-hub-staging \
+          --subscription 7d1e3999-6577-4cd5-b296-f518e5c8e677 -o tsv)
           ./prime validateSchemas --schema-type="HL7" --blob-store-connect="$bsc" --blob-store-container="metadata"
           ./prime validateSchemas --schema-type="FHIR" --blob-store-connect="$bsc" --blob-store-container="metadata"
-          az storage account network-rule remove -g prime-data-hub-staging --account-name pdhstagingstorageaccount --ip-address ${{ env.PUBLIC_IP }} --output none;
+          az storage account network-rule remove -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
+          --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none;
         shell: bash
 
     - name: Publish Unit Test Results
