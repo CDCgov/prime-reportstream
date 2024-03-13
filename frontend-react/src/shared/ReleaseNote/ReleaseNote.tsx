@@ -5,7 +5,14 @@ import styles from "./ReleaseNote.module.scss";
 
 interface Section {
     title: string;
-    tag: "feature" | "bug" | "announcement" | "improvement";
+    tag:
+        | "feature"
+        | "bug"
+        | "announcement"
+        | "improvement"
+        | "recently-completed"
+        | "working-on-now"
+        | "next";
     body: JSX.Element;
 }
 
@@ -24,6 +31,18 @@ function NoteTag({ tag }: { tag: Section["tag"] }) {
             return <Tag className="tag tag--announcement">Announcement</Tag>;
         case "improvement":
             return <Tag className="tag tag--improvement">Improvement</Tag>;
+        case "recently-completed":
+            return (
+                <Tag className="tag tag--recently-completed">
+                    Recently completed
+                </Tag>
+            );
+        case "working-on-now":
+            return (
+                <Tag className="tag tag--working-on-now">Working on now</Tag>
+            );
+        case "next":
+            return <Tag className="tag tag--next">Next</Tag>;
     }
 }
 
