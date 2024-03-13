@@ -1,9 +1,10 @@
 resource "azurerm_linux_web_app" "metabase" {
-  name                = "${var.resource_prefix}-metabase"
-  location            = var.location
-  resource_group_name = var.resource_group
-  service_plan_id     = var.service_plan_id
-  https_only          = true
+  name                          = "${var.resource_prefix}-metabase"
+  location                      = var.location
+  resource_group_name           = var.resource_group
+  service_plan_id               = var.service_plan_id
+  https_only                    = true
+  public_network_access_enabled = false
 
   identity {
     type = "SystemAssigned"
@@ -87,7 +88,8 @@ resource "azurerm_linux_web_app" "metabase" {
       app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
       app_settings["MB_DB_CONNECTION_URI"],
       # The AzureRM Terraform provider provides regional virtual network integration via the standalone resource app_service_virtual_network_swift_connection and in-line within this resource using the virtual_network_subnet_id property. You cannot use both methods simultaneously. If the virtual network is set via the resource app_service_virtual_network_swift_connection then ignore_changes should be used in the web app configuration.
-      virtual_network_subnet_id
+      virtual_network_subnet_id,
+      public_network_access_enabled
     ]
   }
 }
