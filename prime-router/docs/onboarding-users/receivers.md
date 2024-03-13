@@ -28,6 +28,14 @@ During pre-onboarding ideally we will be able to know/collect/obtain all the unk
 6. Validation in Prod
 7. Set up transport 
 
+### Test data
+
+A quick and easy way to get test data to send to a STLT is by going into SimpleReport's test environment https://test.simplereport.gov.   
+Access can be requested on the [shared-simple-report-universal-pipeline](https://nava.slack.com/archives/C0411VC78DN) thread.   
+Instructions on how to send a test message can be found on this youtube playlist https://www.youtube.com/playlist?list=PL3U3nqqPGhab0sys3ombZmwOplRYlBOBF. 
+To route the report to a specific STLT either the patient or facility state needs to updated to the STLT's jurisdiction. Keep in mind that if they are not updated the message might get routed to the incorrect STLT.
+The report sent by SimpleReport can be found in the Azure BlobStorage by navigating to the SimpleReport receive folder (receive/simple_report.fullelr). This message can be used locally to test any new sender or receiver transforms.
+
 ### 1. Set up new organization
 * Create a new branch in git for your changes.
 * Create a new organization for the State, (canonical style: `lt-phd`), in organizations.yml, which is used by your local 
