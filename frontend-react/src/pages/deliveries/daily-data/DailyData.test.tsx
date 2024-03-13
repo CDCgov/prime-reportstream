@@ -176,7 +176,7 @@ describe("DeliveriesTableWithNumbered", () => {
                         name: "Daily Data | Table Filter",
                         properties: {
                             tableFilter: {
-                                endRange: "2024-03-23T00:00:00.000Z",
+                                endRange: "2024-03-23T23:59:00.000Z",
                                 startRange: "2024-03-20T00:00:00.000Z",
                             },
                         },
