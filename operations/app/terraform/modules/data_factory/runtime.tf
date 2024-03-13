@@ -1,7 +1,7 @@
 resource "azurerm_data_factory_integration_runtime_azure" "vnet" {
-  name                = "VnetIR"
-  data_factory_id     = azurerm_data_factory.primary.id
-  location            = var.location
+  name                    = "VnetIR"
+  data_factory_id         = azurerm_data_factory.primary.id
+  location                = var.location
   cleanup_enabled         = false
   compute_type            = "General"
   core_count              = 8

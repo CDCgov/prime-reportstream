@@ -12,8 +12,8 @@ resource "azurerm_linux_web_app" "metabase" {
   site_config {
 
     application_stack {
-       docker_image_name = "metabase/metabase"
-       docker_registry_url = "https://registry.hub.docker.com/v2/"
+      docker_image_name   = "metabase/metabase"
+      docker_registry_url = "https://registry.hub.docker.com/v2/"
     }
 
     ip_restriction {
@@ -37,13 +37,13 @@ resource "azurerm_linux_web_app" "metabase" {
       service_tag = "AzureFrontDoor.Backend"
     }
 
-    ftps_state = "Disabled"
-    scm_use_main_ip_restriction = true
-    always_on        = true
-    vnet_route_all_enabled = true
+    ftps_state                    = "Disabled"
+    scm_use_main_ip_restriction   = true
+    always_on                     = true
+    vnet_route_all_enabled        = true
     ip_restriction_default_action = "Deny"
-    scm_minimum_tls_version = "1.0"
-    use_32_bit_worker = false
+    scm_minimum_tls_version       = "1.0"
+    use_32_bit_worker             = false
 
   }
 

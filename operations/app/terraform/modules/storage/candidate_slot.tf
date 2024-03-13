@@ -1,14 +1,14 @@
 # Manage a separate storage account for the candidate slot to run smoke tests against
 
 resource "azurerm_storage_account" "storage_account_candidate" {
-  resource_group_name       = var.resource_group
-  name                      = "${var.resource_prefix}candidate"
-  location                  = var.location
-  account_tier              = "Standard"
-  account_replication_type  = "GRS"
-  min_tls_version           = "TLS1_2"
-  allow_nested_items_to_be_public  = false
-  enable_https_traffic_only = true
+  resource_group_name             = var.resource_group
+  name                            = "${var.resource_prefix}candidate"
+  location                        = var.location
+  account_tier                    = "Standard"
+  account_replication_type        = "GRS"
+  min_tls_version                 = "TLS1_2"
+  allow_nested_items_to_be_public = false
+  enable_https_traffic_only       = true
 
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
@@ -142,10 +142,10 @@ resource "azurerm_key_vault_access_policy" "storage_policy_candidate" {
   object_id    = azurerm_storage_account.storage_account_candidate.identity.0.principal_id
 
   key_permissions = [
-    "Get",  
-    "UnwrapKey", 
+    "Get",
+    "UnwrapKey",
     "WrapKey"
-    ]
+  ]
 }
 
 resource "azurerm_storage_account_customer_managed_key" "storage_key_candidate" {
@@ -162,16 +162,16 @@ resource "azurerm_storage_account_customer_managed_key" "storage_key_candidate" 
 # # Partner
 
 resource "azurerm_storage_account" "storage_partner_candidate" {
-  resource_group_name       = var.resource_group
-  name                      = "${var.resource_prefix}candpartner"
-  location                  = var.location
-  account_tier              = "Standard"
-  account_kind              = "StorageV2"
-  is_hns_enabled            = true # This enable Data Lake v2 for HHS Protect
-  account_replication_type  = "GRS"
-  min_tls_version           = "TLS1_2"
-  allow_nested_items_to_be_public  = false
-  enable_https_traffic_only = true
+  resource_group_name             = var.resource_group
+  name                            = "${var.resource_prefix}candpartner"
+  location                        = var.location
+  account_tier                    = "Standard"
+  account_kind                    = "StorageV2"
+  is_hns_enabled                  = true # This enable Data Lake v2 for HHS Protect
+  account_replication_type        = "GRS"
+  min_tls_version                 = "TLS1_2"
+  allow_nested_items_to_be_public = false
+  enable_https_traffic_only       = true
 
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
@@ -215,10 +215,10 @@ resource "azurerm_key_vault_access_policy" "storage_candidate_partner_policy" {
   object_id    = azurerm_storage_account.storage_partner_candidate.identity.0.principal_id
 
   key_permissions = [
-    "Get",  
-    "UnwrapKey", 
+    "Get",
+    "UnwrapKey",
     "WrapKey"
-    ]
+  ]
 }
 
 resource "azurerm_storage_account_customer_managed_key" "storage_candidate_partner_key" {
