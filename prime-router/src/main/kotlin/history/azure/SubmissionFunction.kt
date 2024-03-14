@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.history.azure
 
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -7,13 +8,21 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.transport.RESTTransport
+import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.statement.HttpResponse
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.logging.Logger
 
 /**
  * Submissions API
@@ -134,7 +143,7 @@ class SubmissionFunction(
      * The [id] can be a valid UUID or a valid actionId (aka submissionId, to our users)
      */
     @FunctionName("getTiMetadata")
-    suspend fun getTiMetadata(
+    fun getTiMetadata(
         @HttpTrigger(
             name = "getTiMetadata",
             methods = [HttpMethod.GET],
@@ -142,12 +151,42 @@ class SubmissionFunction(
             route = "waters/report/{id}/tiMetadata"
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
+        context: ExecutionContext,
     ): HttpResponseMessage {
+        var response: HttpResponse? = null
+
+        runBlocking {
+            launch {
+                val receiver = workflowEngine.settings.findReceiver("flexion.etor-service-receiver")
+                val client = HttpClient()
+                val restTransport = RESTTransport(client)
+                val restTransportInfo = receiver?.transport as RESTTransportType
+                val (credential, jksCredential) = restTransport.getCredential(restTransportInfo, receiver)
+                val logger: Logger = context.logger
+
+                var (httpHeaders, _: io.ktor.client.plugins.auth.providers.BearerTokens?) = restTransport.getOAuthToken(
+                    restTransportInfo,
+                    id,
+                    jksCredential,
+                    credential,
+                    logger
+                )
+
+                // val reportClient = httpClient ?: RESTTransport.createDefaultHttpClient(jksCredential, bearerTokens)
+
+                response = client.get("http://host.docker.internal:8080/v1/etor/metadata/" + id) {
+                    httpHeaders.forEach {
+                        entry ->
+                        headers.append(entry.key, entry.value)
+                    }
+                }
+            }
+        }
 //
 //        val client  = HttpClient()
 //
 //        val response = client.get("http://localhost:8080/v1/etor/metadata/"+id)
 //        logger.info(response)
-        return HttpUtilities.okJSONResponse(request, "the id is " + id)
+        return HttpUtilities.okJSONResponse(request, response.toString())
     }
 }
