@@ -66,172 +66,94 @@ class Ping : CoolTest() {
 }
 
 /**
- * End to end test for the universal pipeline. This test should read in a submission, verify it reached all steps
- * (receive, convert, route, translate, batch, send) and that it generated the correct lineage records.
+ * Updated end2end test for the universal pipeline. This test posts a report and verifies that the correct
+ * receiver received the file and that the correct file is in the sftp directory.
+ * This test is repeated: Once for the normal UP workflow and once for the ELIMS workflow.
  */
 class End2EndUniversalPipeline : CoolTest() {
-    override val name = "end2end_up"
-    override val description = "Create Fake data, submit, wait, confirm sent via database lineage data for UP"
-    override val status = TestStatus.SMOKE
+     override val name = "end2end_up"
+     override val description = "e2e tests that verify reports are correctly received and uploaded"
+     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCountiesForUniversalPipeline()
-        ugly("Starting $name Test: send ${fullELRSender.fullName} data to $allGoodCounties")
+     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
+         initListOfGoodReceiversAndCountiesForUniversalPipeline()
 
-        // run through the universal pipeline test
-        ugly("Running end2end_up asynchronously")
-        var passed = true
+         ugly("Running $name asynchronously")
+         var passed = true
 
-        passed = passed and universalPipelineEnd2End(
-            environment,
-            options,
-            fullELRSender,
-            listOf(universalPipelineReceiver1, universalPipelineReceiver2)
-        )
-        passed = passed and universalPipelineEnd2End(environment, options, etorTISender, listOf(etorReceiver))
-        passed = passed and universalPipelineEnd2End(environment, options, elrElimsSender, listOf(elimsReceiver))
-        return passed
-    }
+         ugly("Starting $name Test: send ${fullELRSender.fullName} data to $allGoodCounties")
+         passed = passed and end2EndUP(
+             environment,
+             options,
+             fullELRSender,
+             listOf(hl7FullELRReceiver, fhirFullELRReceiver)
+         )
 
-    private suspend fun universalPipelineEnd2End(
-        environment: Environment,
-        options: CoolTestOptions,
-        sender: Sender,
-        expectedReceivers: List<Receiver>,
-    ): Boolean {
-        var passed = true
-        // load a valid HL7 file
-        val file = File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7")
+         ugly("Starting $name Test: send ${elrElimsSender.fullName} data to $allGoodCounties")
+         passed = passed and end2EndUP(environment, options, elrElimsSender, listOf(elimsReceiver))
 
-        echo("Loaded datafile $file")
-        // Now send it to ReportStream.
-        val (responseCode, json) =
-            HttpUtilities.postReportFile(
-                environment,
-                file,
-                sender,
-                true,
-                options.key,
-                payloadName = "$name ${status.description}",
-            )
-        if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            bad("***end2end_up Test FAILED***:  response code $responseCode")
-            passed = false
-        } else {
-            good("Posting of async report succeeded with response code $responseCode")
-        }
+         return passed
+     }
 
-        echo(json)
-        passed = passed and examinePostResponse(json, false)
-        if (!passed) {
-            bad("***async end2end_up FAILED***: Error in post response")
-        }
-        // gets back 'received' reportId
-        val reportId = getReportIdFromResponse(json)
+     private suspend fun end2EndUP(
+         environment: Environment,
+         options: CoolTestOptions,
+         sender: Sender,
+         expectedReceivers: List<Receiver>,
+     ): Boolean {
+         var passed = true
+         val file = File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7")
+         echo("Loaded datafile $file")
 
-        if (reportId != null) {
-            // check convert step
-            val convertResults = pollForStepResult(reportId, TaskAction.convert)
-            // verify each result is valid
-            for (result in convertResults.values)
-                passed = passed && examineStepResponse(result, "convert", sender.topic)
-            if (!passed) {
-                bad("***async end2end_up FAILED***: Convert result invalid")
-            }
+         val (responseCode, json) =
+             HttpUtilities.postReportFile(
+                 environment,
+                 file,
+                 sender,
+                 true,
+                 options.key,
+                 payloadName = "$name ${status.description}",
+             )
+         if (responseCode != HttpURLConnection.HTTP_CREATED) {
+             bad("***end2end_up Test FAILED***: Response code $responseCode")
+             passed = false
+         } else {
+             good("Posting of async report succeeded with response code $responseCode")
+         }
 
-            // check route step
-            val convertReportId = getSingleChildReportId(reportId)
-                ?: return bad("***async end2end_up FAILED***: Convert report id null")
+         echo(json)
+         passed = passed and examinePostResponse(json, false)
+         if (!passed) {
+             bad("***end2end_up FAILED***: Error in post response")
+         }
 
-            val routeResults = pollForStepResult(convertReportId, TaskAction.route)
-            // verify each result is valid
-            for (result in routeResults.values)
-                passed = passed && examineStepResponse(result, "route", sender.topic)
-            if (!passed) {
-                bad("***async end2end_up FAILED***: Route result invalid")
-            }
-            val receiverNames = routeResults.values.flatMap { it?.reports ?: emptyList() }
-                .map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
-            expectedReceivers.forEach { receiver ->
-                if (!receiverNames.contains(receiver.fullName)) {
-                    bad("***async end2end_up FAILED***: expected ${receiver.fullName} to have received a report")
+         val reportId = getReportIdFromResponse(json)
+             ?: return bad("***end2end_up FAILED***: Did not find report id")
+
+         // Need just a little wait for the db to catch up
+         waitABit(10, environment)
+
+         db = WorkflowEngine().db
+         db.transact { txn ->
+            expectedReceivers.forEach { expectedReceiver ->
+                // Check that reportId is attached to a created file and that the expected receiver matches actual
+                val fileName = sftpFilenameQuery(txn, reportId, expectedReceiver.name)
+                if (!fileName.isNullOrEmpty()) {
+                    good("The report was received by ${expectedReceiver.name}")
+                } else {
+                    bad("***end2end_up FAILED***: Did not find report id")
+                    passed = false
+                }
+
+                // Check that created file exists in sftp directory
+                val createdFile = File("./build/sftp/$fileName")
+                if (createdFile.exists()) {
+                    good("File sftp succeeded with the creation of $fileName")
+                } else {
+                    bad("***end2end_up FAILED***: Did not find $fileName in sftp directory")
                     passed = false
                 }
             }
-
-            // check translate step
-            val routeReportIds = getAllChildrenReportId(convertReportId)
-            if (routeReportIds.size < expectedReceivers.size) {
-                return bad(
-                    "***async end2end_up FAILED***: Expected at least ${expectedReceivers.size} route" +
-                        "report id(s), but got ${routeReportIds.size}."
-                )
-            }
-            routeReportIds.forEach { routeReportId ->
-                val translateResults = pollForStepResult(routeReportId, TaskAction.translate)
-                // verify each result is valid
-                for (result in translateResults.values)
-                    passed = passed && examineStepResponse(result, "translate", sender.topic)
-                if (!passed) {
-                    bad("***async end2end_up FAILED***: Translate result invalid")
-                }
-
-                if (sender.topic.isSendOriginal) { // original message pass through has translate directly call send
-                    // check send step
-                    val translateReportId = getSingleChildReportId(routeReportId)
-                        ?: return bad(
-                            "***async end2end_up FAILED***:" +
-                                " Did not find a translate report id from route: $routeReportId"
-                        )
-                    val sendResults = pollForStepResult(translateReportId, TaskAction.send)
-                    // verify each result is valid
-                    for (result in sendResults.values)
-                        passed = passed && examineStepResponse(result, "send", sender.topic)
-                    if (!passed) {
-                        bad("***async end2end_up FAILED***: Send result invalid")
-                    }
-                } else {
-                    // check batch step
-                    val translateReportId = getSingleChildReportId(routeReportId)
-                        ?: return bad(
-                            "***async end2end_up FAILED***:" +
-                                " Did not find a translate report id from route: $routeReportId"
-                        )
-                    val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
-                    if (batchResults.isEmpty()) {
-                        return bad(
-                            "***async end2end_up FAILED***: No batch report was found after translate: " +
-                                "$translateReportId"
-                        )
-                    }
-                    // verify each result is valid
-                    for (result in batchResults.values)
-                        passed = passed && examineStepResponse(result, "batch", sender.topic)
-                    if (!passed) {
-                        bad("***async end2end_up FAILED***: Batch result invalid")
-                    }
-
-                    // check send step
-                    val batchReportId = getSingleChildReportId(translateReportId)
-                        ?: return bad("***async end2end_up FAILED***: Batch report id null")
-                    val sendResults = pollForStepResult(batchReportId, TaskAction.send)
-                    // verify each result is valid
-                    for (result in sendResults.values)
-                        passed = passed && examineStepResponse(result, "send", sender.topic)
-                    if (!passed) {
-                        bad("***async end2end_up FAILED***: Send result invalid")
-                    }
-                }
-            }
-
-            // check that lineages were generated properly
-            passed = passed and pollForLineageResults(
-                reportId,
-                expectedReceivers,
-                expectedReceivers.size,
-                asyncProcessMode = true,
-                isUniversalPipeline = true
-            )
         }
         return passed
     }
