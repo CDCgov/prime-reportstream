@@ -1,4 +1,43 @@
 ---
+## README
+# This Extension registry includes examples and information about all custom extensions used in ReportStream. This is
+# NOT an exhaustive resource for ALL extensions used in ReportStream. There are many extensions used that have been
+# adopted into official implementation guides. Those are documented in the FHIR Extension Registry which can be found
+# online. Further, this registry is not meant to serve as an implementation guide but instead as a reference.
+
+# This registry is split into two section: Resource-Extensions and DataType-Extensions. Resource-Extensions define
+# extensions that are at the top level of the resource. Whereas DataType-Extensions are on elements with-in Resources.
+# DataType-Extensions are meant to be applicable in different types of Resources so the examples therein do not
+# represent the full breadth of implementations but rather a snapshot guide for assembling the extension.
+
+## Dev Notes
+# Some elements include comments describing the data that should be in the value of the extension. As an example:
+#      "valueCodeableConcept": {
+#        # CWE to CodeableConcept
+#      }
+# In the above example the comment (CWE to CodeableConcept) the data within "valueCodeableConcept" should be a
+# CodeableConcept and is mapped to a CWE during FHIR --> HL7 transformation. In instances like this please refer to the
+# DataType-Extension for CodeableConcept then find the HL7-Type section for CWE.
+
+# As we know, many resources and elements in a FHIR bundle can repeat or have an array value. The order of values in the
+# array or repeats does not matter in the bundle. Within HL7 messages, there are also repeat and array-like values.
+# However, the order does matter in many instances. This fact makes transforming these FHIR bundles to HL7 a difficulty.
+# As a solution, ReportStream devised three custom extensions:
+#      - id: "hl7v2Segment"
+#        url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment"
+#      - id: "hl7v2Field"
+#        url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+#      - id: "hl7v2Component"
+#        url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component"
+# These extensions are used to identify where particular pieces of data should be placed in an HL7 message. For example,
+# in HL7 there is a segment titled NK1 that is meant to identify the Next-of-Kin for the patient. Then there is a field
+# identify the patient's mother (PID.21). Data for those fields are both included as RelatedPerson resource in a FHIR
+# bundle. The use of extension "hl7v2Segment" would identify which RelatedPerson should map to NK1 and which to PID.21.
+# The same concept allies to "hl7v2Field" and "hl7v2Component".
+
+
+#Resource-Extensions
+
 - Resource: Encounter
   FHIR-Type: Extension
   HL7-Type:
@@ -377,6 +416,7 @@
           valueType: String
           hl7Use: NA
           constant: "PV1.54"
+          description: Identifies the HL7 field of the data.
         - id: episode-of-care-name
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/episode-of-care-name"
           valueType: String
@@ -719,6 +759,7 @@
           valueType: String
           hl7Use: NA
           constant: "MSH.3", "MSH.24"
+          description: Identifies the HL7 field of the data.
 
 - Resource: Organization
   FHIR-Type: Extension
@@ -2905,7 +2946,7 @@
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
           valueType: String
           hl7Use: NA
-          description: Identifies the HL7 field field of the data.
+          description: Identifies the HL7 field of the data.
         - id: hl7v2Component
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component"
           valueType: String
@@ -3019,18 +3060,6 @@
             "assigner": {
               "reference": "Organization/1707847155713462000.da8053be-d79a-4c15-9e50-ec19218d7287"
             }
-          },
-          {
-            "extension": [
-              {
-                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type",
-                "valueString": "organization"
-              }
-            ],
-            "value": "Entity ID",
-            "assigner": {
-              "reference": "Organization/1707769195125082000.40e4d3f4-bbd6-43af-aefe-5894b31e9806"
-            }
           }
         ]
       Extension:
@@ -3038,12 +3067,7 @@
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
           valueType: String
           hl7Use: NA
-          constant: "default"
-        - id: ei-assigner-organization-type
-          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
-          valueType: String
-          hl7Use: NA
-          constant: "organization"
+          constant: "default", "organization"
         - id: hl7v2Field
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
           valueType: String
@@ -3362,7 +3386,7 @@
               hl7Use: XTN.12
 
 - Resource: Any
-  FHIR-Type: Destination
+  FHIR-Type: MessageHeader.destination
   HL7-Type:
     HD:
       Example:
