@@ -8,10 +8,12 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import io.ktor.client.request.get
 
 /**
  * Submissions API
@@ -125,5 +127,27 @@ class SubmissionFunction(
         @BindingName("id") id: String,
     ): HttpResponseMessage {
         return this.getDetailedView(request, id)
+    }
+
+    /**
+     * API endpoint to return history of a single report.
+     * The [id] can be a valid UUID or a valid actionId (aka submissionId, to our users)
+     */
+    @FunctionName("getTiMetadata")
+    suspend fun getTiMetadata(
+        @HttpTrigger(
+            name = "getTiMetadata",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "waters/report/{id}/tiMetadata"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("id") id: String,
+    ): HttpResponseMessage {
+//
+//        val client  = HttpClient()
+//
+//        val response = client.get("http://localhost:8080/v1/etor/metadata/"+id)
+//        logger.info(response)
+        return HttpUtilities.okJSONResponse(request, "the id is " + id)
     }
 }
