@@ -40,8 +40,7 @@ class DeliveryFacadeTests {
             null,
             "",
             "covid-19",
-            "HL7_BATCH",
-            "active"
+            "HL7_BATCH"
         )
 
         val delivery2 = DeliveryHistory(
@@ -55,8 +54,7 @@ class DeliveryFacadeTests {
             "elr-secondary",
             "",
             "primedatainput/pdi-covid-19",
-            "CSV",
-            "inactive"
+            "CSV"
         )
 
         val goodReturn = listOf(delivery1, delivery2)
@@ -88,7 +86,6 @@ class DeliveryFacadeTests {
             null,
             10,
             null,
-            null,
             null
         )
 
@@ -107,7 +104,6 @@ class DeliveryFacadeTests {
                 null,
                 10,
                 null,
-                null,
                 null
             )
         }.hasMessage("Invalid organization.")
@@ -123,7 +119,6 @@ class DeliveryFacadeTests {
                 null,
                 null,
                 -10,
-                null,
                 null,
                 null
             )
@@ -141,7 +136,6 @@ class DeliveryFacadeTests {
                 OffsetDateTime.now().minusDays(1),
                 10,
                 null,
-                null,
                 null
             )
         }.hasMessage("End date must be after start date.")
@@ -157,7 +151,6 @@ class DeliveryFacadeTests {
                 OffsetDateTime.now(),
                 null,
                 10,
-                null,
                 null,
                 null
             )
@@ -175,7 +168,6 @@ class DeliveryFacadeTests {
                 null,
                 10,
                 null,
-                null,
                 null
             )
         )
@@ -191,7 +183,6 @@ class DeliveryFacadeTests {
                 OffsetDateTime.now().minusDays(1),
                 OffsetDateTime.now(),
                 10,
-                null,
                 null,
                 null
             )
@@ -209,7 +200,6 @@ class DeliveryFacadeTests {
                 null,
                 10,
                 "b9f63105-bbed-4b41-b1ad-002a90f07e62",
-                null,
                 null
             )
         )
@@ -232,8 +222,7 @@ class DeliveryFacadeTests {
             "elr-secondary",
             "",
             "covid-19",
-            "HL7_BATCH",
-            "active"
+            "HL7_BATCH"
         )
 
         every {
