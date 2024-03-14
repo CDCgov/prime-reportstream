@@ -48,6 +48,10 @@
   url: "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit"
 - id: "naming-system-check-digit"
   url: "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit"
+- id: "patient-animal"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-animal"
+- id: "relationship"
+  url: "https://hl7.org/fhir/StructureDefinition/relationship"
 
 ## Datatypes
 
@@ -68,8 +72,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier"
 
 # CE/CWE -> Coding
-- id: "coding-system"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system"
 - id: "coding-system-oid"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid"
 - id: "cwe-coding"
@@ -88,7 +90,7 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code"
 
 # XTN -> ContactPoint
-- id: xtn-contact-point
+- id: "xtn-contact-point"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point"
 
 # CWE -> Annotation
@@ -120,10 +122,6 @@
 # DLD -> Location
 - id: "dld2-effective-date"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/dld2-effective-date"
-
-# CWE -> Quantity
-- id: "cwe-quantity"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-quantity"
 
 # CQ -> Quantity
 - id: "cq-units"
@@ -176,26 +174,26 @@
 # PID -> Patient
 - id: "last-updated-facility-namespace-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id"
-- id: "patient-animal"
-  url: "http://hl7.org/fhir/StructureDefinition/patient-animal"
 - id: "ethnic-group"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group"
-- id: "patient-notes"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes"
 - id: "veteran-military-status"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/veteran-military-status"
 - id: "identity-unknown"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identity-unknown"
 - id: "pid-patient"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient"
+
+# PD1 -> Patient
 - id: "pd1-patient-additional-demographic"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pd1-patient-additional-demographic"
 - id: "studentStatus"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/studentStatus"
 - id: "livingWill"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/livingWill"
-- id: "relationship"
-  url: "https://hl7.org/fhir/StructureDefinition/relationship"
+
+# NTE -> Patient
+- id: "patient-notes"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes"
 
 # OBX -> Observation
 - id: "sub-id"
