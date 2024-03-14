@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.history.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -35,7 +34,6 @@ class DeliveryFacade(
      * @param pageSize Int of items to return per page.
      * @param reportIdStr is the reportId to get results for.
      * @param fileName is the fileName to get results for.
-     * @param receivingOrgSvcStatus is the customer status of the receiving organization's service.
      *
      * @return a List of Actions
      */
@@ -50,7 +48,6 @@ class DeliveryFacade(
         pageSize: Int,
         reportIdStr: String?,
         fileName: String?,
-        receivingOrgSvcStatus: CustomerStatus?,
     ): List<DeliveryHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."
@@ -81,8 +78,7 @@ class DeliveryFacade(
             true,
             DeliveryHistory::class.java,
             reportId,
-            fileName,
-            receivingOrgSvcStatus
+            fileName
         )
     }
 

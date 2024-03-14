@@ -25,7 +25,6 @@ import java.util.UUID
  * @property reportId unique identifier for this specific report file
  * @property topic the kind of data contained in the report (e.g. "covid-19")
  * @property reportItemCount number of tests (data rows) contained in the report
- * @property receivingOrgSvcStatus customer status of the organization's service that's receiving this submission
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class ReportHistory(
@@ -38,7 +37,6 @@ abstract class ReportHistory(
     var reportId: String? = null,
     var topic: Topic? = null,
     var reportItemCount: Int? = null,
-    var receivingOrgSvcStatus: String? = null,
 )
 
 /**
