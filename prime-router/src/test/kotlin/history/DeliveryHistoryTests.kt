@@ -21,7 +21,7 @@ class DeliveryHistoryTests {
             "elr-secondary",
             "http://anyblob.com",
             "test-schema",
-            "CSV",
+            "CSV"
         ).run {
             assertThat(actionId).isEqualTo(922)
             assertThat(createdAt).isEqualTo(OffsetDateTime.parse("2022-04-19T18:04:26.534Z"))

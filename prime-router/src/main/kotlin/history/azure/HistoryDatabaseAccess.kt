@@ -1,10 +1,8 @@
 package gov.cdc.prime.router.history.azure
 
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
-import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.common.BaseEngine
 import org.jooq.Condition
 import org.jooq.SortField
@@ -59,7 +57,6 @@ abstract class HistoryDatabaseAccess(
      * @param klass the class that the found data will be converted to.
      * @param reportId is the reportId to get results for.
      * @param fileName is the fileName to get results for.
-     * @param receivingOrgSvcStatus is the status of the receiving organization's service.
      * @return a list of results matching the SQL Query.
      */
     fun <T> fetchActions(
@@ -75,13 +72,9 @@ abstract class HistoryDatabaseAccess(
         klass: Class<T>,
         reportId: UUID? = null,
         fileName: String? = null,
-        receivingOrgSvcStatus: CustomerStatus? = null,
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
-        val whereClause =
-            createWhereCondition(
-                organization, orgService, receivingOrgSvcStatus, reportId, fileName, since, until, showFailed
-            )
+        val whereClause = createWhereCondition(organization, orgService, reportId, fileName, since, until, showFailed)
 
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
@@ -89,24 +82,13 @@ abstract class HistoryDatabaseAccess(
                 .select(
                     ACTION.ACTION_ID, ACTION.CREATED_AT, ACTION.SENDING_ORG, ACTION.SENDING_ORG_CLIENT,
                     REPORT_FILE.RECEIVING_ORG, REPORT_FILE.RECEIVING_ORG_SVC,
-                    DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus").`as`("receiving_org_svc_status"),
                     ACTION.HTTP_STATUS, ACTION.EXTERNAL_NAME, REPORT_FILE.REPORT_ID, REPORT_FILE.SCHEMA_TOPIC,
                     REPORT_FILE.ITEM_COUNT, REPORT_FILE.BODY_URL, REPORT_FILE.SCHEMA_NAME, REPORT_FILE.BODY_FORMAT
                 )
                 .from(
                     ACTION.join(REPORT_FILE).on(
-                        REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID),
+                        REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID)
                     )
-                        .join(SETTING)
-                        .on(
-                            REPORT_FILE.RECEIVING_ORG
-                            .eq(DSL.jsonbGetAttributeAsText(SETTING.VALUES, "organizationName"))
-                        )
-                        .and(
-                            REPORT_FILE.RECEIVING_ORG_SVC
-                            .eq(DSL.jsonbGetAttributeAsText(SETTING.VALUES, "name"))
-                        )
-                        .and(SETTING.IS_ACTIVE)
                 )
                 .where(whereClause)
                 .orderBy(sortedColumn)
@@ -150,7 +132,6 @@ abstract class HistoryDatabaseAccess(
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
      * @param orgService is a specifier for an organization, such as the client or service used to send/receive
-     * @param receivingOrgSvcStatus is the status for the receiving service in an organization, i.e. active/inactive
      * @param since is the OffsetDateTime that dictates how far back returned results date.
      * @param until is the OffsetDateTime that dictates how recently returned results date.
      * @param showFailed filter out submissions that failed to send.
@@ -159,7 +140,6 @@ abstract class HistoryDatabaseAccess(
     private fun createWhereCondition(
         organization: String,
         orgService: String?,
-        receivingOrgSvcStatus: CustomerStatus?,
         reportId: UUID?,
         fileName: String?,
         since: OffsetDateTime?,
@@ -167,20 +147,6 @@ abstract class HistoryDatabaseAccess(
         showFailed: Boolean,
     ): Condition {
         var filter = this.organizationFilter(organization, orgService)
-
-        if (receivingOrgSvcStatus != null) {
-            filter = if (receivingOrgSvcStatus.toString() == CustomerStatus.ACTIVE.toString()) {
-                filter.and(
-                    DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
-                    .notEqual(CustomerStatus.INACTIVE.toString().lowercase())
-                )
-            } else {
-                filter.and(
-                    DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
-                    .eq(receivingOrgSvcStatus.toString().lowercase())
-                )
-            }
-        }
 
         if (reportId != null) {
             filter = filter.and(REPORT_FILE.REPORT_ID.eq(reportId))
