@@ -48,7 +48,7 @@ jobs:
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@800a2825992141ddde1a8bca8ad394cec34d3188
+        uses: tj-actions/changed-files@aa08304bd477b800d468db44fe10f6c61f7f7b11
         with:
           files_yaml: |
             frontend:
@@ -58,7 +58,7 @@ jobs:
 
       - name: Set up JDK 17
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: actions/setup-java@9704b39bf258b59bc04b50fa2dd55e9ed76b47a8
+        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9
         with:
           java-version: "17"
           distribution: "temurin"
