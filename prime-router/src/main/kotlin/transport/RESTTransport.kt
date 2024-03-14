@@ -18,6 +18,7 @@ import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthUtils
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -65,7 +66,7 @@ import javax.net.ssl.SSLContext
  * A REST transport that will get an authentication token from the authTokenUrl
  * and POST HL7 to the reportUrl
  */
-class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
+class RESTTransport(private val httpClient: HttpClient? = null, private val reportService: ReportService = ReportService()) : ITransport {
     /**
      * Send the content on the specific transport. Return retry information, if needed. Null, if not.
      *
@@ -86,10 +87,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         val logger: Logger = context.logger
 
         val restTransportInfo = transportType as RESTTransportType
-        val reportId = "${header.reportFile.reportId}"
-        val actionId = header.reportFile.actionId
-        val receiver = header.receiver ?: error("No receiver defined for report $reportId")
-        val reportContent: ByteArray = header.content ?: error("No content for report $reportId")
+        val reportIdUUID = header.reportFile.reportId
+        val reportIdStr = reportIdUUID.toString()
+        val actionId = fetchReceiveActionId(reportIdUUID)
+        val receiver = header.receiver ?: error("No receiver defined for report $reportIdStr")
+        val reportContent: ByteArray = header.content ?: error("No content for report $reportIdStr")
         // get the file name from blob url, or create one from the report metadata
         val fileName = if (header.receiver.topic.isSendOriginal) {
             Report.formExternalFilename(header)
@@ -113,7 +115,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         // parse headers for any dynamic values, OK needs the report ID
                         var (httpHeaders, bearerTokens: BearerTokens?) = getOAuthToken(
                             restTransportInfo,
-                            reportId,
+                            reportIdStr,
                             actionId,
                             jksCredential,
                             credential,
@@ -206,6 +208,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 }
             }
         }
+    }
+
+     private fun fetchReceiveActionId(reportId: ReportId): Long {
+       val rootReport = reportService.getRootReport(reportId)
+       return rootReport.actionId
     }
 
     /**
@@ -338,6 +345,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         }
         return Pair(httpHeaders, bearerTokens)
     }
+
+
 
     /**
      * Get the OAuth token by submitting Assertion credential
