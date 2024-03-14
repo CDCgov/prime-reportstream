@@ -182,10 +182,8 @@ class FHIRConverter(
      * transformer in tests.
      */
     fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
-        // TODO: #10510
-        val convertedSchemaName = convertRelativeSchemaPathToUri(schemaName)
-        return if (convertedSchemaName.isNotBlank()) {
-            FhirTransformer(convertedSchemaName, "")
+        return if (schemaName.isNotBlank()) {
+            FhirTransformer(schemaName)
         } else {
             null
         }
