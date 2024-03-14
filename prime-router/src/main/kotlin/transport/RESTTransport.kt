@@ -66,7 +66,10 @@ import javax.net.ssl.SSLContext
  * A REST transport that will get an authentication token from the authTokenUrl
  * and POST HL7 to the reportUrl
  */
-class RESTTransport(private val httpClient: HttpClient? = null, private val reportService: ReportService = ReportService()) : ITransport {
+class RESTTransport(
+    private val httpClient: HttpClient? = null,
+    private val reportService: ReportService = ReportService(),
+) : ITransport {
     /**
      * Send the content on the specific transport. Return retry information, if needed. Null, if not.
      *
@@ -345,8 +348,6 @@ class RESTTransport(private val httpClient: HttpClient? = null, private val repo
         }
         return Pair(httpHeaders, bearerTokens)
     }
-
-
 
     /**
      * Get the OAuth token by submitting Assertion credential
