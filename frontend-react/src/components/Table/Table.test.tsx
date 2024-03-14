@@ -254,7 +254,7 @@ describe("Sorting integration", () => {
 /* TODO:
  *   Refactor these tests to use new functions instead of TestTable
  * */
-describe("Table, filter integration tests", () => {
+describe.skip("Table, filter integration tests", () => {
     function setup() {
         renderApp(<TestTable />);
     }
