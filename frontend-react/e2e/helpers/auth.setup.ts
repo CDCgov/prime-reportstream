@@ -8,12 +8,9 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     const totp = new TOTP({ secret: login.totpCode });
 
     // fulfill GA request so that we don't log to it and alter the metrics
-    await page.route("https://www.google-analytics.com/**", (route) =>
+    await page.route("https://www.google-analytics.com/j/collect*", (route) =>
         route.fulfill({ status: 204, body: "" }),
     );
-
-    // abort all app insight calls
-    await page.route("**/v2/track", (route) => route.abort());
 
     await page.goto("/login", {
         waitUntil: "domcontentloaded",
