@@ -69,7 +69,7 @@ class DeliveryFacade(
             throw IllegalArgumentException("Invalid format for report ID: $reportIdStr")
         }
 
-        return dbDeliveryAccess.fetchActions(
+        return dbDeliveryAccess.fetchActionsForDeliveries(
             organization,
             receivingOrgSvc,
             sortDir,

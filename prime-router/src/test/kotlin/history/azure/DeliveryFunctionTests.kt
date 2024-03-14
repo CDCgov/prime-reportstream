@@ -286,7 +286,7 @@ class DeliveryFunctionTests : Logging {
         val mockDatabaseAccess = mockkClass(DatabaseDeliveryAccess::class)
 
         every {
-            mockDatabaseAccess.fetchActions<DeliveryHistory>(
+            mockDatabaseAccess.fetchActionsForDeliveries<DeliveryHistory>(
                 any(),
                 any(),
                 any(),

@@ -62,7 +62,7 @@ class DeliveryFacadeTests {
         val goodReturn = listOf(delivery1, delivery2)
 
         every {
-            mockDeliveryAccess.fetchActions(
+            mockDeliveryAccess.fetchActionsForDeliveries(
                 any(),
                 any(),
                 any(),
