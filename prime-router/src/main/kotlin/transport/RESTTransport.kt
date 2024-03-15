@@ -57,7 +57,7 @@ import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import java.io.InputStream
 import java.security.KeyStore
-import java.util.Base64
+import java.util.*
 import java.util.logging.Logger
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
@@ -90,11 +90,10 @@ class RESTTransport(
         val logger: Logger = context.logger
 
         val restTransportInfo = transportType as RESTTransportType
-        val reportIdUUID = header.reportFile.reportId
-        val reportIdStr = reportIdUUID.toString()
-        val actionId = fetchReceiveActionId(reportIdUUID)
-        val receiver = header.receiver ?: error("No receiver defined for report $reportIdStr")
-        val reportContent: ByteArray = header.content ?: error("No content for report $reportIdStr")
+        val reportId = "${header.reportFile.reportId}"
+        val actionId = fetchReceiveActionId(reportId)
+        val receiver = header.receiver ?: error("No receiver defined for report $reportId")
+        val reportContent: ByteArray = header.content ?: error("No content for report $reportId")
         // get the file name from blob url, or create one from the report metadata
         val fileName = if (header.receiver.topic.isSendOriginal) {
             Report.formExternalFilename(header)
@@ -118,7 +117,7 @@ class RESTTransport(
                         // parse headers for any dynamic values, OK needs the report ID
                         var (httpHeaders, bearerTokens: BearerTokens?) = getOAuthToken(
                             restTransportInfo,
-                            reportIdStr,
+                            reportId,
                             actionId,
                             jksCredential,
                             credential,
@@ -213,8 +212,8 @@ class RESTTransport(
         }
     }
 
-     private fun fetchReceiveActionId(reportId: ReportId): Long {
-       val rootReport = reportService.getRootReport(reportId)
+     private fun fetchReceiveActionId(reportId: String): Long {
+       val rootReport = reportService.getRootReport(UUID.fromString(reportId))
        return rootReport.actionId
     }
 
