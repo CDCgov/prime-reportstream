@@ -57,10 +57,10 @@ function ReleaseNote({ header, sections }: ReleaseNoteProps) {
                 >
                     <p className="section-title">{section.title}</p>
                     <div className="grid-row section-content">
-                        <div className="grid-col-12 desktop:grid-col-2">
+                        <div className="grid-col-12 desktop:grid-col-3">
                             <NoteTag tag={section.tag} />
                         </div>
-                        <div className="grid-col-12 margin-top-205 desktop:grid-col-10 desktop:margin-top-0">
+                        <div className="grid-col-12 margin-top-205 desktop:grid-col-9 desktop:margin-top-0">
                             {section.body}
                         </div>
                     </div>

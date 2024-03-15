@@ -204,8 +204,8 @@ function ReportStreamNavbar({
                 <USSmartLink href="/about/our-network" key="our-network">
                     Our network
                 </USSmartLink>,
-                <USSmartLink href="/about" key="roadmap">
-                    Product roadmap
+                <USSmartLink href="/about/roadmap" key="roadmap">
+                    Roadmap
                 </USSmartLink>,
                 <USSmartLink href="/about/news" key="news">
                     News
