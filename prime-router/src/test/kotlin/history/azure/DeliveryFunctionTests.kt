@@ -1285,6 +1285,36 @@ class DeliveryFunctionTests : Logging {
             val response = DeliveryFunction().getDeliveries(httpRequestMessage, receiver1.fullName)
             assertThat(response.status).isEqualTo(HttpStatus.OK)
         }
+
+        @Test
+        fun `test returns an error when sending an invalid receivingOrgSvcStatus`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+            httpRequestMessage.parameters["receivingOrgSvcStatus"] = "active"
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = DeliveryFunction().getDeliveries(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
     }
 
     @Nested

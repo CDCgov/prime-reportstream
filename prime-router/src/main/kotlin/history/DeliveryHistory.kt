@@ -22,10 +22,10 @@ import java.time.OffsetDateTime
  * @property reportItemCount number of tests (data rows) contained in the report
  * @property receivingOrg the name of the organization that's receiving this submission
  * @property receivingOrgSvc the name of the organization's service that's receiving this submission
- * @property receivingOrgSvcStatus the customer status of the organization's service that's receiving this submission
  * @property bodyUrl url used for generating the filename
  * @property schemaName schema used for generating the filename
  * @property bodyFormat filetype, used for generating the filename
+ * @property receivingOrgSvcStatus the customer status of the organization's service that's receiving this submission
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(
@@ -56,15 +56,14 @@ class DeliveryHistory(
     val schemaName: String,
     @JsonProperty("fileType")
     val bodyFormat: String,
-    receivingOrgSvcStatus: String? = null,
+    val receivingOrgSvcStatus: String? = null,
 ) : ReportHistory(
     actionId,
     createdAt,
     externalName,
     reportId,
     schema_topic,
-    itemCount,
-    receivingOrgSvcStatus
+    itemCount
 ) {
     @JsonIgnore
     private val DAYS_TO_SHOW = 30L

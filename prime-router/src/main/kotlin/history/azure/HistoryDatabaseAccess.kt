@@ -230,10 +230,10 @@ abstract class HistoryDatabaseAccess(
         var filter = this.organizationFilter(organization, orgService)
 
         if (receivingOrgSvcStatus != null) {
-            filter = if (receivingOrgSvcStatus.toString() == CustomerStatus.ACTIVE.toString()) {
+            filter = if (receivingOrgSvcStatus == CustomerStatus.ACTIVE) {
                 filter.and(
                     DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
-                    .notEqual(CustomerStatus.INACTIVE.toString().lowercase())
+                    .notEqual(CustomerStatus.INACTIVE.name.lowercase())
                 )
             } else {
                 filter.and(

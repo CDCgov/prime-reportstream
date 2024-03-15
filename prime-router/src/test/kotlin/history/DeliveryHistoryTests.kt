@@ -22,6 +22,7 @@ class DeliveryHistoryTests {
             "http://anyblob.com",
             "test-schema",
             "CSV",
+            "active"
         ).run {
             assertThat(actionId).isEqualTo(922)
             assertThat(createdAt).isEqualTo(OffsetDateTime.parse("2022-04-19T18:04:26.534Z"))
@@ -34,6 +35,7 @@ class DeliveryHistoryTests {
             assertThat(bodyUrl).isEqualTo("http://anyblob.com")
             assertThat(schemaName).isEqualTo("test-schema")
             assertThat(bodyFormat).isEqualTo("CSV")
+            assertThat(receivingOrgSvcStatus).isEqualTo("active")
 
             assertThat(expires).isEqualTo(OffsetDateTime.parse("2022-05-19T18:04:26.534Z"))
 
@@ -58,7 +60,8 @@ class DeliveryHistoryTests {
             null,
             null,
             "test-schema",
-            "CSV"
+            "CSV",
+            "active"
         ).run {
             assertThat(actionId).isEqualTo(922)
             assertThat(createdAt).isEqualTo(OffsetDateTime.parse("2022-04-19T18:04:26.534Z"))
@@ -71,6 +74,7 @@ class DeliveryHistoryTests {
             assertThat(bodyUrl).isNull()
             assertThat(schemaName).isEqualTo("test-schema")
             assertThat(bodyFormat).isEqualTo("CSV")
+            assertThat(receivingOrgSvcStatus).isEqualTo("active")
 
             assertThat(expires).isEqualTo(OffsetDateTime.parse("2022-05-19T18:04:26.534Z"))
         }
