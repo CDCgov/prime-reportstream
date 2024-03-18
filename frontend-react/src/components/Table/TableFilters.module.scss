@@ -3,15 +3,13 @@
 $column-gutter: 2rem;
 
 .TableFilters {
-    padding: 2rem;
-    background-color: color(blue-5);
-    margin-bottom: 64px;
+    
 
     :global {
         .filter-container {
-            display: flex;
-            align-items: flex-end;
-            margin-bottom: 1em;
+            padding: 2rem;
+            background-color: color(blue-5);
+            margin-bottom: 64px;
         }
 
         .button-container {
