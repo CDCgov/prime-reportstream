@@ -53,8 +53,10 @@
                 background-color: color("mint-cool-10v");
             }
         }
+    }
 
-        & .section-container:last-child {
+    & .divider-toggle {
+        .section-container:last-child {
             border-bottom: 1px solid color("gray-cool-10");
             margin-bottom: 0;
             padding-bottom: 64px;
@@ -100,11 +102,5 @@
         &--improvement {
             background-color: color("mint-cool-10v");
         }
-    }
-
-    & .section-container:last-child {
-        border-bottom: 1px solid color("gray-cool-10");
-        margin-bottom: 0;
-        padding-bottom: 64px;
     }
 }

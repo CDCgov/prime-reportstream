@@ -17,6 +17,7 @@ interface Section {
 }
 
 interface ReleaseNoteProps {
+    isDivided?: boolean;
     header: string;
     sections: Section[];
 }
@@ -46,9 +47,19 @@ function NoteTag({ tag }: { tag: Section["tag"] }) {
     }
 }
 
-function ReleaseNote({ header, sections }: ReleaseNoteProps) {
+function ReleaseNote({ isDivided = true, header, sections }: ReleaseNoteProps) {
     return (
-        <div className={classnames(styles.ReleaseNote, "margin-top-0")}>
+        <div
+            className={
+                isDivided
+                    ? classnames(
+                          styles.ReleaseNote,
+                          "margin-top-0",
+                          "divider-toggle",
+                      )
+                    : classnames(styles.ReleaseNote, "margin-top-0")
+            }
+        >
             <p className="header">{header}</p>
             {sections.map((section: Section, index) => (
                 <div
