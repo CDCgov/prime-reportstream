@@ -156,7 +156,7 @@ class SubmissionFunction(
 
         val receiver = workflowEngine.settings.findReceiver("flexion.etor-service-receiver-orders")
         val client = HttpClient()
-        val restTransport = RESTTransport(client)
+        val restTransport = RESTTransport()
         val restTransportInfo = receiver?.transport as RESTTransportType
         val (credential, jksCredential) = restTransport.getCredential(restTransportInfo, receiver)
         val logger: Logger = context.logger
@@ -169,6 +169,8 @@ class SubmissionFunction(
         //
         runBlocking {
             launch {
+                logger.info("Does this show up")
+                print("or this")
                 authPair = restTransport.getOAuthToken(
                     restTransportInfo,
                     id,
@@ -178,6 +180,8 @@ class SubmissionFunction(
                 )
             }
         }
+        logger.info("AUth pair value" + authPair.first)
+        logger.info("Auth pair 2 " + authPair.second)
 
         runBlocking {
             launch {
