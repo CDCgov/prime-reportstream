@@ -50,7 +50,7 @@ extension:
           value: SPM.5
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
     - expressionType: nested
       vars:
         spm6: SPM.6
@@ -63,7 +63,7 @@ extension:
           value: SPM.6
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
     - expressionType: nested
       vars:
         spm10: SPM.10
@@ -89,7 +89,7 @@ extension:
           value: SPM.11
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
     - expressionType: nested
       vars:
         spm13: SPM.13

@@ -5,6 +5,7 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
+# TODO: this is either OBX.16 (XCN_ELR) or OBX.25 (XCN)
 practitioner:
   valueOf: datatypes/XCN/Practitioner
   expressionType: reference
@@ -12,7 +13,7 @@ practitioner:
 
 organization:
   condition: $roleOrg NOT_NULL
-  valueOf: datatypes/XON/Organization
+  valueOf: datatypes/XON_ELR/Organization
   expressionType: reference
   specs: $OBXPractitionerRoleOrganization
   vars:

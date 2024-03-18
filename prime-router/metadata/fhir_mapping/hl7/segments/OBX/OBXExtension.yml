@@ -27,7 +27,7 @@ extension:
           type: STRING
           value: OBX.6
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           specs: OBX.6
           expressionType: resource
     - expressionType: nested
@@ -89,7 +89,7 @@ extension:
           type: STRING
           value: OBX.17
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
     - expressionType: nested
       vars:

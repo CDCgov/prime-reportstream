@@ -14,7 +14,7 @@ practitioner:
   expressions:
     - expressionType: reference
       condition: $orc12 NOT_NULL
-      valueOf: datatypes/XCN/Practitioner
+      valueOf: datatypes/XCN_ELR/Practitioner
       specs: ORC.12
       vars:
         XADAddress: ORC.24
@@ -34,5 +34,5 @@ organization:
     XADAddress: ORC.22
     XTNTelecom: ORC.23 *
   expressionType: reference
-  valueOf: datatypes/XON/Organization
+  valueOf: datatypes/XON_ELR/Organization
   specs: ORC.21

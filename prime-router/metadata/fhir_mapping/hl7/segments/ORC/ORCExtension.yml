@@ -82,7 +82,7 @@ extension:
           value: orc-12-ordering-provider
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: datatypes/XCN_ELR/Practitioner
     - expressionType: nested
       vars:
         orc13: STRING_ALL, ORC.13
@@ -156,7 +156,7 @@ extension:
           value: orc-21-ordering-facility-name
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XON/Organization
+          valueOf: datatypes/XON_ELR/Organization
     - expressionType: nested
       vars:
         orc22: STRING_ALL, ORC.22
@@ -169,7 +169,7 @@ extension:
           value: orc-22-ordering-facility-address
         valueAddress:
           expressionType: resource
-          valueOf: datatypes/XAD/Address
+          valueOf: datatypes/XAD_ELR/Address
     - expressionType: nested
       vars:
         orc24: STRING_ALL, ORC.24
@@ -182,7 +182,7 @@ extension:
           value: orc-24-ordering-provider-address
         valueAddress:
           expressionType: resource
-          valueOf: datatypes/XAD/Address
+          valueOf: datatypes/XAD_ELR/Address
     - expressionType: nested
       vars:
         orc27: ORC.27

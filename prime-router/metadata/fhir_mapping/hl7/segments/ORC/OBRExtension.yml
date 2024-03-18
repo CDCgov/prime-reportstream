@@ -16,7 +16,7 @@ extension:
           type: STRING
           value: OBR.2
         valueIdentifier:
-          valueOf: datatypes/EI/Identifier
+          valueOf: datatypes/EI_ELR/Identifier
           expressionType: resource
           specs: OBR.2
     - expressionType: nested
@@ -29,7 +29,7 @@ extension:
           type: STRING
           value: OBR.3
         valueIdentifier:
-          valueOf: datatypes/EI/Identifier
+          valueOf: datatypes/EI_ELR/Identifier
           expressionType: resource
           specs: OBR.3
     - expressionType: nested
@@ -93,7 +93,7 @@ extension:
           value: OBR.16
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: datatypes/XCN_ELR/Practitioner
     - condition: $orc14 NOT_NULL && $obr17 NOT_NULL
       vars:
         orc14: STRING_ALL, ORC.14
@@ -106,7 +106,7 @@ extension:
           type: SYSTEM_URL
           value: callback-number
         valueContactPoint:
-          valueOf: datatypes/XTN/ContactPoint
+          valueOf: datatypes/XTN_ELR/ContactPoint
           expressionType: resource
           constants:
             hl7v2Field: "OBR.17"
@@ -194,7 +194,7 @@ extension:
       vars:
         obr26: STRING_ALL, OBR.26
       condition: $obr26 NOT_NULL
-      valueOf: datatypes/PRL/Extension
+      valueOf: datatypes/PRL_ELR/Extension
       specs: OBR.26
       constants:
         prlExtensionName: OBR.26
@@ -220,7 +220,7 @@ extension:
           type: STRING
           value: OBR.29
         valueIdentifier:
-          valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+          valueOf: datatypes/EIP_ELR/Identifier-PlacerAssignedIdentifier
           expressionType: resource
           specs: OBR.29
           constants:

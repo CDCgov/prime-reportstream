@@ -36,7 +36,7 @@ name:
   expressionType: nested
   generateList: true
   expressions:
-    - valueOf: datatypes/XPN/HumanName
+    - valueOf: datatypes/XPN_ELR/HumanName
       expressionType: resource
       condition: $nk1-2 NOT_NULL
       generateList: true
@@ -45,7 +45,7 @@ name:
       specs: NK1.2 *
       constants:
         hl7v2Field: "NK1.2"
-    - valueOf: datatypes/XPN/HumanName
+    - valueOf: datatypes/XPN_ELR/HumanName
       expressionType: resource
       condition: $nk1-30 NOT_NULL
       generateList: true
@@ -59,7 +59,7 @@ relationship:
   expressionType: nested
   generateList: true
   expressions:
-    - valueOf: datatypes/CWE/CodeableConcept
+    - valueOf: datatypes/CWE_ELR/CodeableConcept
       expressionType: resource
       condition: $nk1-3 NOT_NULL
       vars:
@@ -89,7 +89,7 @@ address:
       specs: NK1.4 *
       constants:
         hl7v2Field: "NK1.4"
-    - valueOf: datatypes/XAD/Address
+    - valueOf: datatypes/XAD_ELR/Address
       generateList: true
       expressionType: resource
       condition: $nk1-32 NOT_NULL
@@ -104,7 +104,7 @@ telecom:
   generateList: true
   expressions:
     - condition: $valueIn NOT_NULL
-      valueOf: datatypes/XTN/ContactPoint
+      valueOf: datatypes/XTN_ELR/ContactPoint
       generateList: true
       expressionType: resource
       specs: NK1.5 *
@@ -123,7 +123,7 @@ telecom:
         useCode: work
         hl7v2Field: "NK1.6"
     - condition: $valueIn NOT_NULL
-      valueOf: datatypes/XTN/ContactPoint
+      valueOf: datatypes/XTN_ELR/ContactPoint
       generateList: true
       expressionType: resource
       specs: NK1.31 *

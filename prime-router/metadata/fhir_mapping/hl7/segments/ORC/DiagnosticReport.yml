@@ -17,7 +17,7 @@ identifier:
     obr53: STRING_ALL, OBR.53
   expressions:
     - condition: $orc2 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: datatypes/EI_ELR/Identifier
       expressionType: resource
       specs: ORC.2
       constants:
@@ -25,7 +25,7 @@ identifier:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         hl7v2Field: ORC.2
     - condition: $orc2 NULL && $obr2 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: datatypes/EI_ELR/Identifier
       expressionType: resource
       specs: OBR.2
       constants:
@@ -33,7 +33,7 @@ identifier:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         hl7v2Field: OBR.2
     - condition: $orc3 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: datatypes/EI_ELR/Identifier
       expressionType: resource
       specs: ORC.3
       constants:
@@ -41,7 +41,7 @@ identifier:
         code: "FILL"
         display: "Filler Identifier"
     - condition: $orc3 NULL && $obr3 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: datatypes/EI_ELR/Identifier
       expressionType: resource
       specs: OBR.3
       constants:
@@ -56,7 +56,7 @@ identifier:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "PGN"
     - condition: $orc4 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: datatypes/EI_ELR/Identifier
       expressionType: resource
       specs: ORC.4
       constants:
@@ -64,7 +64,7 @@ identifier:
         code: "FGN"
 
 code:
-  valueOf: datatypes/CWE/CodeableConcept
+  valueOf: datatypes/CWE_ELR/CodeableConcept
   expressionType: resource
   specs: OBR.4
 
@@ -180,7 +180,7 @@ resultsInterpreter:
   vars:
     obr32: STRING_ALL, OBR.32
   condition: $obr32 NOT_NULL
-  valueOf: datatypes/NDL/PractitionerRole
+  valueOf: datatypes/NDL_ELR/PractitionerRole
   generateList: true
   expressionType: reference
   specs: OBR.32

@@ -7,13 +7,13 @@ id:
 
 eventCoding:
   expressionType: resource
-  valueOf: datatypes/MSG/Coding
+  valueOf: datatypes/MSG_ELR/Coding
   specs: MSH.9
   required: true
 
 meta:
   expressionType: resource
-  valueOf: datatypes/PT/Meta
+  valueOf: datatypes/PT_ELR/Meta
   specs: MSH.11
   vars:
     metaSecurity: STRING, MSH.8
@@ -27,13 +27,13 @@ source:
     - constants:
         messageHeaderSourceField: MSH.3
       condition: $msh3 NOT_NULL
-      valueOf: segments/MSH/datatypes/HD/Source
+      valueOf: segments/MSH/datatypes/HD_ELR/Source
       expressionType: resource
       specs: MSH.3
     - constants:
         messageHeaderSourceField: MSH.24
       condition: $msh3 NULL && $msh24 NOT_NULL
-      valueOf: segments/MSH/datatypes/HD/Source
+      valueOf: segments/MSH/datatypes/HD_ELR/Source
       expressionType: resource
       specs: MSH.24
     - condition: $msh24 NULL && $msh3 NULL
@@ -44,7 +44,7 @@ source:
 
 sender:
   condition: $msh4 NOT_NULL || $organizationCountry NOT_NULL
-  valueOf: datatypes/HD/Organization
+  valueOf: datatypes/HD_ELR/Organization
   expressionType: reference
   generateList: true
   specs: MSH.4
@@ -65,18 +65,18 @@ destination:
         messageHeaderDestinationField: MSH.5
       condition: $msh5 NOT_NULL
       expressionType: resource
-      valueOf: segments/MSH/datatypes/HD/Destination
+      valueOf: segments/MSH/datatypes/HD_ELR/Destination
       specs: MSH.5
     - constants:
         messageHeaderDestinationField: MSH.25
       condition: $msh25 NOT_NULL && $msh25 NOT_EQUALS $msh5
-      valueOf: segments/MSH/datatypes/HD/Destination
+      valueOf: segments/MSH/datatypes/HD_ELR/Destination
       expressionType: resource
       specs: MSH.25
     - constants:
         messageHeaderDestinationField: MSH.25
       condition: $msh25 NOT_NULL && $msh5 NULL
-      valueOf: segments/MSH/datatypes/HD/Destination
+      valueOf: segments/MSH/datatypes/HD_ELR/Destination
       expressionType: resource
       specs: MSH.25
     - expressionType: nested
@@ -86,7 +86,7 @@ destination:
       expressionsMap:
         receiver:
           expressionType: reference
-          valueOf: datatypes/HD/Organization
+          valueOf: datatypes/HD_ELR/Organization
           specs: MSH.6
     - expressionType: nested
       condition: $msh6 NOT_NULL && $msh23 NOT_NULL
@@ -95,7 +95,7 @@ destination:
       expressionsMap:
         receiver:
           expressionType: reference
-          valueOf: datatypes/XON/Organization
+          valueOf: datatypes/XON_ELR/Organization
           specs: MSH.23
 
 language:

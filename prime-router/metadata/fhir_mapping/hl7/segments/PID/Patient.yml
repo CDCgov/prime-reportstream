@@ -34,7 +34,7 @@ contact:
       expressionType: resource
       generateList: true
       specs: NK1.2 *
-      valueOf: datatypes/XPN/HumanName
+      valueOf: datatypes/XPN_ELR/HumanName
     extension:
       generateList: true
       expressionType: nested
@@ -44,11 +44,11 @@ contact:
           type: SYSTEM_URL
           value: relationship
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
     address:
       condition: $nk14 NOT_NULL
-      valueOf: datatypes/XAD/Address
+      valueOf: datatypes/XAD_ELR/Address
       generateList: true
       expressionType: resource
       specs: NK1.4 *
@@ -59,7 +59,7 @@ contact:
       generateList: true
       expressions:
         - condition: $nk15 NOT_NULL
-          valueOf: datatypes/XTN/ContactPoint
+          valueOf: datatypes/XTN_ELR/ContactPoint
           generateList: true
           expressionType: resource
           specs: NK1.5 *
@@ -138,7 +138,7 @@ contact:
     organization:
       condition: $XONOrganization NOT_NULL || $XPNContactName NOT_NULL || $XPNContactTelecom NOT_NULL || $XADContactAddress NOT_NULL
       expressionType: reference
-      valueOf: datatypes/XON/Organization
+      valueOf: datatypes/XON_ELR/Organization
       specs: NK1.13
       vars:
         XONOrganization: NK1.13
@@ -165,7 +165,7 @@ identifier:
     - condition: $pid3 NOT_NULL
       expressionType: resource
       specs: PID.3 *
-      valueOf: datatypes/CX/Identifier
+      valueOf: datatypes/CX_ELR/Identifier
       generateList: true
       vars:
         pid3: STRING_ALL, PID.3
@@ -188,7 +188,7 @@ name:
       expressionType: resource
       generateList: true
       specs: PID.5 *
-      valueOf: datatypes/XPN/HumanName
+      valueOf: datatypes/XPN_ELR/HumanName
       vars:
         pid5: STRING_ALL, PID.5
       constants:
@@ -248,7 +248,7 @@ gender:
 
 address:
   condition: $pid11 NOT_NULL
-  valueOf: datatypes/XAD/Address
+  valueOf: datatypes/XAD_ELR/Address
   generateList: true
   expressionType: resource
   specs: PID.11 *
@@ -260,7 +260,7 @@ telecom:
   generateList: true
   expressions:
     - condition: $pid13 NOT_NULL
-      valueOf: datatypes/XTN/ContactPoint
+      valueOf: datatypes/XTN_ELR/ContactPoint
       generateList: true
       expressionType: resource
       specs: PID.13 *
@@ -269,7 +269,7 @@ telecom:
       constants:
         useCode: home
     - condition: $pid14 NOT_NULL
-      valueOf: datatypes/XTN/ContactPoint
+      valueOf: datatypes/XTN_ELR/ContactPoint
       generateList: true
       expressionType: resource
       specs: PID.14 *
@@ -315,7 +315,7 @@ link:
   generateList: true
   expressionsMap:
     other:
-      valueOf: datatypes/CX/RelatedPerson-mother
+      valueOf: datatypes/CX/RelatedPerson-mother # TODO delete this from nist
       expressionType: reference
     type:
       type: STRING
@@ -411,7 +411,7 @@ meta:
           type: SYSTEM_URL
           value: last-updated-facility-namespace-id
         valueReference:
-          valueOf: datatypes/HD/Organization
+          valueOf: datatypes/HD_ELR/Organization
           expressionType: reference
           specs: PID.34
 
@@ -454,7 +454,7 @@ extension:
           type: SYSTEM_URL
           value: mothersMaidenName
         valueHumanName:
-          valueOf: datatypes/XPN/HumanName
+          valueOf: datatypes/XPN_ELR/HumanName
           expressionType: resource
     - condition: $pid10 NOT_NULL
       expressionType: nested
@@ -467,7 +467,7 @@ extension:
           type: SYSTEM_URL
           value: race
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
           specs: CWE
     - condition: $pid17 NOT_NULL
@@ -494,7 +494,7 @@ extension:
           type: SYSTEM_URL
           value: ethnic-group
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
     - condition: $pid23 NOT_NULL
       expressionType: nested
@@ -628,7 +628,7 @@ extension:
                   type: STRING
                   value: species
                 valueCodeableConcept:
-                  valueOf: datatypes/CWE/CodeableConcept
+                  valueOf: datatypes/CWE_ELR/CodeableConcept
                   expressionType: resource
                   specs: PID.35
             - condition: $pid36 NOT_NULL

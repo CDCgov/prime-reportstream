@@ -13,7 +13,7 @@ identifier:
   expressionType: nested
   expressions:
     - condition: $spm21 NOT_NULL
-      valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+      valueOf: datatypes/EIP_ELR/Identifier-PlacerAssignedIdentifier
       expressionType: resource
       specs: SPM.2
       vars:
@@ -55,7 +55,7 @@ parent:
   specs: SPM.3 *
 
 type:
-  valueOf: datatypes/CWE/CodeableConcept
+  valueOf: datatypes/CWE_ELR/CodeableConcept
   expressionType: resource
   specs: SPM.4
 
@@ -71,7 +71,7 @@ container:
       expressionType: nested
       expressions:
         - condition: $spm6 NOT_NULL
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
           specs: SPM.6 *
     type:
@@ -91,11 +91,11 @@ collection:
     spm17: SPM.17
   expressionsMap:
     method:
-      valueOf: datatypes/CWE/CodeableConcept
+      valueOf: datatypes/CWE_ELR/CodeableConcept
       expressionType: resource
       specs: SPM.7
     bodySite:
-      valueOf: datatypes/CWE/CodeableConcept
+      valueOf: datatypes/CWE_ELR/CodeableConcept
       expressionType: resource
       specs: SPM.8
     extension:
@@ -108,10 +108,10 @@ collection:
           type: SYSTEM_URL
           value: bodySiteModifier
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
     quantity:
-      valueOf: datatypes/CQ/Quantity
+      valueOf: datatypes/CQ_ELR/Quantity
       expressionType: resource
       specs: SPM.12
     collectedPeriod:
@@ -120,7 +120,7 @@ collection:
         spm17: SPM.17
       expressions:
         - condition: $end NOT_NULL
-          valueOf: datatypes/DR/Period
+          valueOf: datatypes/DR_ELR/Period
           expressionType: resource
           specs: SPM.17
           vars:
@@ -234,7 +234,7 @@ extension:
           type: SYSTEM_URL
           value: reject-reason
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
 
 condition:

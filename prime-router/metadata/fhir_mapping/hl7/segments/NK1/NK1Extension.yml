@@ -15,7 +15,7 @@ extension:
           type: STRING
           value: NK1.13
         valueReference:
-          valueOf: datatypes/XON/Organization
+          valueOf: datatypes/XON_ELR/Organization
           expressionType: reference
     - expressionType: nested
       condition: $nk1-16 NOT_NULL

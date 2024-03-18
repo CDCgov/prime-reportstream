@@ -18,6 +18,7 @@ extension:
           type: STRING
           expressionType: HL7Spec
           valueOf: MSH.7
+    # TODO shouldn't this be VID?
     - expressionType: nested
       vars:
         msh13: MSH.13
@@ -76,7 +77,7 @@ extension:
           value: MSH.19
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           specs: MSH.19
     - vars:
         msh20: MSH.20
