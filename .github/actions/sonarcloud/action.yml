@@ -28,6 +28,7 @@ runs:
           -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
           -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
+          -Dsonar.exclusions=prime-router/src/main/java/**
 
     - name: Run Frontend SonarCloud Scan
       if: inputs.scan-level == 'frontend'
@@ -45,6 +46,7 @@ runs:
           -Dsonar.organization=cdcgov
           -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
           -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
+          -Dsonar.exclusions=prime-router/src/main/java/**
 
     - name: Run Backend SonarCloud Scan
       if: inputs.scan-level == 'backend'
