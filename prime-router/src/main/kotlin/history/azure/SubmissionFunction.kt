@@ -17,8 +17,11 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.transport.RESTTransport
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.headers
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.logging.Logger
@@ -152,7 +155,7 @@ class SubmissionFunction(
         @BindingName("id") id: String,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        var response: HttpResponse? = null
+        var response: HttpResponse?
 
         val receiver = workflowEngine.settings.findReceiver("flexion.etor-service-receiver-orders")
         val client = HttpClient()
@@ -166,7 +169,8 @@ class SubmissionFunction(
             Pair(httpHeaders, bearerToken)
         // Was wondering if having 2 suspend functions in the same blocking section of code was causing the issue.  It was not
 
-        //
+        var responseBody = ""
+
         runBlocking {
             launch {
                 logger.info("Does this show up")
@@ -181,7 +185,7 @@ class SubmissionFunction(
             }
         }
         logger.info("AUth pair value" + authPair.first)
-        logger.info("Auth pair 2 " + authPair.second)
+        logger.info("Auth pair 2 " + authPair.second!!.accessToken)
 
         runBlocking {
             launch {
@@ -192,14 +196,13 @@ class SubmissionFunction(
                         entry ->
                         headers.append(entry.key, entry.value)
                     }
+
+                    headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!.accessToken)
                 }
+                responseBody = response!!.body()
             }
         }
-//
-//        val client  = HttpClient()
-//
-//        val response = client.get("http://localhost:8080/v1/etor/metadata/"+id)
-//        logger.info(response)
-        return HttpUtilities.okJSONResponse(request, response.toString())
+
+        return HttpUtilities.createdResponse(request, responseBody)
     }
 }
