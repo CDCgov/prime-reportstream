@@ -24,6 +24,7 @@
         "history": "^5.3.0",
         "html-to-text": "^9.0.5",
         "lodash": "^4.17.21",
+        "next": "latest",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-helmet-async": "^2.0.4",
@@ -44,7 +45,7 @@
     },
     "scripts": {
         "postinstall": "scripts/postinstall.sh",
-        "dev": "vite",
+        "dev": "next dev",
         "preview": "vite preview --mode preview",
         "preview:csp": "yarn run preview --mode csp",
         "preview:test": "yarn run preview --mode test",
@@ -64,7 +65,7 @@
         "build:staging": "yarn run build-base --mode staging",
         "build:production": "yarn run build-base",
         "build:csp": "yarn run build-base --mode csp",
-        "build-base": "vite build",
+        "build-base": "next build",
         "test": "jest",
         "test:debug": "cross-env DEBUG_PRINT_LIMIT=100000 jest --watch --runInBand",
         "test:ci": "cross-env VITE_BACKEND_URL=http://localhost jest --ci --runInBand --coverage --verbose",
@@ -78,7 +79,8 @@
         "build-storybook": "storybook build",
         "browserslist:update": "yarn dlx -p browserslist -p update-browserslist-db update-browserslist-db",
         "browserslist:generate": "yarn run browserslist:update && ts-node-esm ./scripts/generateBrowserslistRegex.ts",
-        "browserslist:dryRun": "yarn run browserslist:generate dryRun"
+        "browserslist:dryRun": "yarn run browserslist:generate dryRun",
+        "start": "next start"
     },
     "browserslist": {
         "production": [

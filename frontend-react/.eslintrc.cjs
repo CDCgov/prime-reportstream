@@ -23,6 +23,7 @@ module.exports = {
         "jest.config.ts",
         "coverage",
         "storybook-static",
+        "next.config.js"
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {

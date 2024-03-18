@@ -43,3 +43,8 @@ package-lock.json
 /e2e-data
 
 .local
+
+# Next.js
+.next
+next-env.d.ts
+dist

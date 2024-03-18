@@ -7,7 +7,7 @@ const envVars = {
     OKTA_URL: import.meta.env.VITE_OKTA_URL,
     OKTA_CLIENT_ID: import.meta.env.VITE_OKTA_CLIENTID,
     RS_API_URL: import.meta.env.VITE_BACKEND_URL,
-    MODE: import.meta.env.MODE,
+    MODE: process.env.NODE_ENV,
 };
 
 const DEFAULT_FEATURE_FLAGS = import.meta.env.VITE_FEATURE_FLAGS
