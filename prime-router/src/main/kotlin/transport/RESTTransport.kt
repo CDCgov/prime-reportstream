@@ -18,7 +18,6 @@ import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
-import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthUtils
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -57,7 +56,7 @@ import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import java.io.InputStream
 import java.security.KeyStore
-import java.util.*
+import java.util.Base64
 import java.util.logging.Logger
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
@@ -68,7 +67,6 @@ import javax.net.ssl.SSLContext
  */
 class RESTTransport(
     private val httpClient: HttpClient? = null,
-    private val reportService: ReportService = ReportService(),
 ) : ITransport {
     /**
      * Send the content on the specific transport. Return retry information, if needed. Null, if not.
@@ -91,7 +89,7 @@ class RESTTransport(
 
         val restTransportInfo = transportType as RESTTransportType
         val reportId = "${header.reportFile.reportId}"
-        val actionId = fetchReceiveActionId(reportId)
+        val actionId = header.reportFile.actionId
         val receiver = header.receiver ?: error("No receiver defined for report $reportId")
         val reportContent: ByteArray = header.content ?: error("No content for report $reportId")
         // get the file name from blob url, or create one from the report metadata
@@ -210,11 +208,6 @@ class RESTTransport(
                 }
             }
         }
-    }
-
-     private fun fetchReceiveActionId(reportId: String): Long {
-       val rootReport = reportService.getRootReport(UUID.fromString(reportId))
-       return rootReport.actionId
     }
 
     /**
