@@ -111,17 +111,14 @@ If you are using OpenVPN Connect, uninstall it and install the [OpenVPN Client](
 
 ## Generate a VPN Profile (Automatic)
 
-1. Download the following files from our Keybase team `prime_dev_ops`: [keybase://team/prime_dev_ops/vpn](keybase://team/prime_dev_ops/vpn)
-   * `caCert.pem`
-   * `caKey.pem`
-   * `prime-data-hub-prod.ovpn`
-   * `prime-data-hub-staging.ovpn`
-   * `prime-data-hub-test.ovpn`
-   * `createKey.sh`
-   > If **new** Virtual Network Gateway, update the appropriate `.ovpn` file above with new `remote`, `verify-x509-name`, and `<tls-auth>` values.
-2. Run `createKey.sh` and follow the prompts
-3. The user's VPN profile with be outputted in a folder with their name
-4. Securely transmit the VPN profile to the recipient
+>Requires CDC OneDrive installed on local computer.
+
+1. Open CDC Teams and navigate to `ReportStream > DevOps - Private > Files`
+2. For directory `VPN`, select "Add shortcut to OneDrive"
+3. In a Bash shell, navigate to your `OneDrive - CDC/vpn` directory mount
+4. Run `./createKey.sh` and follow the prompts
+5. The user's VPN profiles with be created in a folder with their name under `profiles/`
+6. Send profile to user via CDC teams
 
 ## Generate a VPN Profile (Manual)
 
