@@ -75,16 +75,16 @@ test.describe("Last Mile Failure page", () => {
         test("table column 'Receiver' will open receiver edit page", async ({
             page,
         }) => {
-            const reportId = page
+            const receiver = page
                 .locator(".usa-table tbody")
                 .locator("tr")
                 .nth(0)
                 .locator("td")
                 .nth(2);
-            await expect(reportId).toContainText(
+            await expect(receiver).toContainText(
                 /flexion.etor-service-receiver-results/,
             );
-            await reportId.click();
+            await receiver.click();
 
             await expect(page).toHaveURL(
                 "/admin/orgreceiversettings/org/flexion/receiver/etor-service-receiver-results/action/edit",
