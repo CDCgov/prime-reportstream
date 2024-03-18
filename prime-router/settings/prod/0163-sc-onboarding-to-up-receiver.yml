@@ -17,7 +17,7 @@
       topic: "full-elr"
       customerStatus: "inactive"
       translation: !<HL7>
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/SC/SC-receiver-transform"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/SC/SC-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: null
@@ -79,7 +79,7 @@
       deidentifiedValue: ""
       timing:
         operation: "MERGE"
-        numberPerDay: 12
+        numberPerDay: 1440
         initialTime: "01:09"
         timeZone: "EASTERN"
         maxReportCount: 100
@@ -87,7 +87,12 @@
           action: "NONE"
           onlyOncePerDay: false
       description: ""
-      transport: []
+      transport: !<SFTP>
+        host: "sftp.dhec.sc.gov"
+        port: "22"
+        filePath: "./Prod"
+        credentialName: null
+        type: "SFTP"
       externalName: null
       enrichmentSchemaNames: []
       timeZone: null
