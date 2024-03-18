@@ -2,6 +2,7 @@ import {
     Button,
     DateRangePicker,
     Icon,
+    Search,
     Select,
     TimePicker,
     Tooltip,
@@ -32,9 +33,9 @@ import {
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import TableFilterSearch from "./TableFilterSearch";
 
 export enum StyleClass {
-    CONTAINER = "filter-container",
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
 }
 
@@ -269,10 +270,12 @@ function TableFilters({
     );
 
     return (
-        <>
+        <div className={styles.TableFilters}>
+            <TableFilterSearch />
+
             <section
                 data-testid="filter-container"
-                className={styles.TableFilters}
+                className="filter-container"
             >
                 <p className="text-bold margin-top-0">
                     View data from a specific receiver or date and time range
@@ -426,7 +429,7 @@ function TableFilters({
             {isPaginationLoading === false && (
                 <TableFilterStatus filterStatus={filterStatus} />
             )}
-        </>
+        </div>
     );
 }
 
