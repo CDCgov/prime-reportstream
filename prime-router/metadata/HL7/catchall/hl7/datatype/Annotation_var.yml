@@ -1,0 +1,20 @@
+text:
+  type: STRING
+  valueOf: $noteText
+  required: true
+
+extension_1:
+  condition: $noteSource NOT_NULL
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: note-source
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        code: String, $noteSource
+      constants:
+        system: v2-0105
