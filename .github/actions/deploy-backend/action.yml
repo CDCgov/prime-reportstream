@@ -233,7 +233,7 @@ runs:
           --action Allow \
           --ip-address $RUNNER_IP \
           --priority 750 \
-          > /dev/null
+          -o none
       shell: bash
 
     - name: Pre-deploy image details
@@ -263,7 +263,8 @@ runs:
       run: |
         az functionapp config container set -n ${{ env.FUNCTION_APP }} \
         -g ${{ env.RESOURCE_GROUP }} --slot candidate \
-        --image ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}
+        --image ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }} \
+        --only-show-errors -o none
       shell: bash
 
     - name: Pre-swap image details
@@ -278,15 +279,19 @@ runs:
       shell: bash
 
     - name: Promote candidate slot
-      id: promote-candidate
-      working-directory: operations
-      run: |
-        make \
-          TF_ENV=${{ env.TERRAFORM_ENV }} \
-          AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
-          AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
-          zdd-promote-slot
-      shell: bash
+      uses: ./.github/actions/retry
+      with:
+        timeout_minutes: 30
+        max_attempts: 3
+        retry_wait_seconds: 30
+        command: |
+          cd operations
+          make \
+            TF_ENV=${{ env.TERRAFORM_ENV }} \
+            AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
+            AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
+            zdd-promote-slot
+        shell: bash
 
     - name: Post-swap image details
       run: |
@@ -336,5 +341,5 @@ runs:
         -n ${{ env.FUNCTION_APP }} \
         --slot candidate \
         --rule-name GitHubActionIPV4 \
-        > /dev/null 
+        -o none
       shell: bash

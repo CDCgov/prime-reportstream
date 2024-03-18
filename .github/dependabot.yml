@@ -142,7 +142,6 @@ updates:
           - "eslint*"
         exclude-patterns:
           - "*prettier"
-          - "*cypress"
           - "*jest*"
           - "*storybook"
           - "*testing-library"
@@ -168,9 +167,6 @@ updates:
       react-router:
         patterns:
           - "*react-router*"
-      cypress:
-        patterns:
-          - "*cypress*"
       vite:
         patterns:
           - "vite*"

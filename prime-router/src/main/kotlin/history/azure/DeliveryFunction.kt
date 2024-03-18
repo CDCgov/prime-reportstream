@@ -97,8 +97,7 @@ class DeliveryFunction(
             params.until,
             params.pageSize,
             params.reportId,
-            params.fileName,
-            params.receivingOrgSvcStatus
+            params.fileName
         )
 
         return mapper.writeValueAsString(deliveries)
