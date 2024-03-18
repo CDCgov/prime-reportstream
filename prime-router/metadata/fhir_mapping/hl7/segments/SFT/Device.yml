@@ -31,37 +31,33 @@ version:
       expressionType: HL7Spec
       valueOf: $sft2
     extension:
+      generateList: true
       expressionType: nested
-      condition: $sft6 NOT_NULL
+      condition: $dateTimeIn NOT_NULL
       vars:
-        sft6: SFT.6
+        dateTimeIn: SFT.6, GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)
+        hl7Date: SFT.6
       expressionsMap:
-        yrl:
+        url:
           type: SYSTEM_URL
-          value:
-          valueDateTime:
-            type: STRING
-            valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-            expressionType: JEXL
-            vars:
-              dateTimeIn: OBX.19
-          _valueDateTime:
-            expressionType: nested
-            condition: $obx19 NOT_NULL
-            vars:
-              obx19: OBX.19
-            expressionsMap:
-              extension_1:
-                generateList: true
-                expressionType: nested
-                expressionsMap:
-                  url:
-                    type: SYSTEM_URL
-                    value: hl7v2-date-time
-                  valueString:
-                    type: STRING
-                    valueOf: $obx19
-                    expressionType: HL7Spec
+          value: software-install-date
+        valueDateTime:
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
+        _valueDateTime:
+          expressionType: nested
+          expressionsMap:
+            extension_1:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: $hl7Date
+                  expressionType: HL7Spec
 
 deviceName:
   expressionType: nested
@@ -97,3 +93,15 @@ note:
       valueOf: $sft5
 
 extension:
+  expressionType: nested
+  vars:
+    sft1: STRING_ALL, SFT.1
+  condition: $sft1 NOT_NULL
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "software-vendor-org"
+    valueReference:
+      valueOf: datatypes/XON/Organization
+      expressionType: reference
+      specs: SFT.1
