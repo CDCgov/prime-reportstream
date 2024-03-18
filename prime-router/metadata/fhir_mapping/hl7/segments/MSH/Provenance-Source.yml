@@ -80,3 +80,14 @@ activity:
         display:
           type: STRING
           valueOf: $displayValue
+
+entity:
+  expressionType: nested
+  expressionsMap:
+    what:
+      expressionType: reference
+      valueOf: segments/SFT/Device
+      specs: SFT
+    role:
+      type: STRING
+      value: "source"
