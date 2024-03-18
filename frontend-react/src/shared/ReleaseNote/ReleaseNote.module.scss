@@ -55,11 +55,13 @@
         }
     }
 
-    & .divider-toggle {
-        .section-container:last-child {
-            border-bottom: 1px solid color("gray-cool-10");
-            margin-bottom: 0;
-            padding-bottom: 64px;
+    &:global(.divider) {
+        :global {
+            .section-container:last-child {
+                border-bottom: 1px solid color("gray-cool-10");
+                margin-bottom: 0;
+                padding-bottom: 64px;
+            }
         }
     }
 

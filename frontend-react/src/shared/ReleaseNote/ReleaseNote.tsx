@@ -52,11 +52,7 @@ function ReleaseNote({ isDivided = true, header, sections }: ReleaseNoteProps) {
         <div
             className={
                 isDivided
-                    ? classnames(
-                          styles.ReleaseNote,
-                          "margin-top-0",
-                          "divider-toggle",
-                      )
+                    ? classnames(styles.ReleaseNote, "margin-top-0", "divider")
                     : classnames(styles.ReleaseNote, "margin-top-0")
             }
         >
