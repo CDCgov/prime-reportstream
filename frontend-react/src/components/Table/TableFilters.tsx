@@ -2,7 +2,6 @@ import {
     Button,
     DateRangePicker,
     Icon,
-    Search,
     Select,
     TimePicker,
     Tooltip,
@@ -20,6 +19,7 @@ import {
 } from "react";
 
 import styles from "./TableFilters.module.scss";
+import TableFilterSearch from "./TableFilterSearch";
 import TableFilterStatus, { TableFilterData } from "./TableFilterStatus";
 import { RSReceiver } from "../../config/endpoints/settings";
 import {
@@ -33,7 +33,6 @@ import {
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import TableFilterSearch from "./TableFilterSearch";
 
 export enum StyleClass {
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
@@ -48,6 +47,7 @@ interface TableFilterProps {
     cursorManager?: CursorManager;
     endDateLabel: string;
     filterManager: FilterManager;
+    setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
     receivers: { value: string; label: string }[];
     setService?: Dispatch<SetStateAction<string | undefined>>;
@@ -81,6 +81,7 @@ function TableFilters({
     cursorManager,
     endDateLabel,
     filterManager,
+    setSearchTerm,
     onFilterClick,
     receivers,
     setService,
@@ -271,7 +272,10 @@ function TableFilters({
 
     return (
         <div className={styles.TableFilters}>
-            <TableFilterSearch />
+            <TableFilterSearch
+                setSearchTerm={setSearchTerm}
+                resetHandler={resetHandler}
+            />
 
             <section
                 data-testid="filter-container"

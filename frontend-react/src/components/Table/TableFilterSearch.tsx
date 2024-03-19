@@ -1,4 +1,5 @@
-import { Search } from "@trussworks/react-uswds";
+import { Button, Search } from "@trussworks/react-uswds";
+import { FormEvent } from "react";
 
 export interface TableFilterSearch {
     resultLength?: number;
@@ -6,10 +7,21 @@ export interface TableFilterSearch {
 }
 
 interface TableFilterSearchProps {
-    filterStatus: TableFilterData;
+    setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+    resetHandler: (e: FormEvent<Element>) => void;
 }
 
-function TableFilterSearch({ filterStatus }: TableFilterSearchProps) {
+function TableFilterSearch({
+    setSearchTerm,
+    resetHandler,
+}: TableFilterSearchProps) {
+    const submitHandler = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const searchField = e.currentTarget.elements.namedItem(
+            "search",
+        ) as HTMLInputElement;
+        setSearchTerm(searchField?.value);
+    };
     return (
         <div className="margin-bottom-4 padding-left-4">
             <label
@@ -24,7 +36,17 @@ function TableFilterSearch({ filterStatus }: TableFilterSearchProps) {
                 Enter full Report ID or Filename, including file extension when
                 applicable.
             </div>
-            <Search />
+            <div className="display-flex">
+                <Search onSubmit={submitHandler} className="margin-right-205" />
+                <Button
+                    onClick={resetHandler}
+                    type={"reset"}
+                    name="clear-button"
+                    unstyled
+                >
+                    Reset
+                </Button>
+            </div>
         </div>
     );
 }

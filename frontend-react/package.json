@@ -40,6 +40,7 @@
         "rest-hooks": "^6.1.7",
         "sanitize-html": "^2.12.1",
         "use-deep-compare-effect": "^1.8.1",
+        "uuid": "^9.0.1",
         "web-vitals": "^3.4.0"
     },
     "scripts": {
@@ -149,6 +150,7 @@
         "@types/react-router-dom": "^5.3.3",
         "@types/react-scroll-sync": "^0.9.0",
         "@types/sanitize-html": "^2.11.0",
+        "@types/uuid": "^9",
         "@typescript-eslint/eslint-plugin": "^7.1.0",
         "@typescript-eslint/parser": "^7.1.0",
         "@vitejs/plugin-react": "^4.2.1",
