@@ -62,7 +62,12 @@ runs:
       working-directory: frontend-react
       shell: bash
 
-    - name: Run lint and unit tests
+    - name: Run lint
+      run: yarn lint
+      working-directory: frontend-react
+      shell: bash
+        
+    - name: Run unit tests
       uses: ./.github/actions/retry
       with:
         timeout_minutes: 10
@@ -71,9 +76,6 @@ runs:
         command: |
           set -e pipefail
           cd frontend-react
-          echo "::group::Lint"
-          yarn lint
-          echo "::endgroup::"
           echo "::group::Unit tests"
           yarn test:ci
           echo "::endgroup::"
