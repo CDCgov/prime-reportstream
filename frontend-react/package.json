@@ -213,7 +213,7 @@
         "undici": "^5.28.2"
     },
     "engines": {
-        "node": "^18.18"
+        "node": "^20.11"
     },
     "packageManager": "yarn@3.6.3"
 }
