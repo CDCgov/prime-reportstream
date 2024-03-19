@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import * as externalLinks from "../helpers/external-links";
+import { CONNECT_URL } from "../helpers/external-links";
 import { scrollToFooter, scrollToTop } from "../helpers/utils";
 import * as gettingStarted from "../pages/getting-started";
 import * as header from "../pages/header";
@@ -52,7 +53,12 @@ test.describe("Homepage", () => {
     test('opens the "Connect with ReportStream" tab within header', async ({
         page,
     }) => {
-        await externalLinks.clickOnConnect("header", "Connect with us", page);
+        await externalLinks.clickOnExternalLink(
+            "header",
+            "Connect with us",
+            page,
+            CONNECT_URL,
+        );
 
         expect(true).toBe(true);
     });
@@ -60,7 +66,12 @@ test.describe("Homepage", () => {
     test('opens the "Connect with ReportStream" tab within footer', async ({
         page,
     }) => {
-        await externalLinks.clickOnConnect("footer", "Connect now", page);
+        await externalLinks.clickOnExternalLink(
+            "footer",
+            "Connect now",
+            page,
+            CONNECT_URL,
+        );
 
         expect(true).toBe(true);
     });
