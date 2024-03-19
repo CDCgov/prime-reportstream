@@ -19,5 +19,6 @@
 # Generic common placeholders
 .*changeIT!.*
 .*[A-Z0-9]{20}.tmp
+.*Actual data has value.*.for column.*
 
 ####################################################################
