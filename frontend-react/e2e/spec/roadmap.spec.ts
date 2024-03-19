@@ -87,7 +87,7 @@ test.describe("Product roadmap page", () => {
         // TODO: figure out how to open .pdf docs in playwright
         // test("has 'NIST HL7 2.5.1'", async ({ page }) => {
         //     await page.getByRole("link", { name: "NIST HL7 2.5.1" }).click();
-        //     await expect(page).toHaveURL(NIST);
+        //     await expect(page).toHaveURL("https://www.cdc.gov/vaccines/programs/iis/technical-guidance/downloads/hl7guide-1-5-2014-11.pdf");
         // });
 
         test("has 'MakeMyTestCount.org'", async ({ page }) => {
