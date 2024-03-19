@@ -1,9 +1,0 @@
-repeat:
-  expressionType: nested
-  expressionsMap:
-    boundsPeriod:
-      valueOf: datatype/Period
-      expressionType: resource
-      vars:
-        start: $startTiming
-        end: $endTiming
