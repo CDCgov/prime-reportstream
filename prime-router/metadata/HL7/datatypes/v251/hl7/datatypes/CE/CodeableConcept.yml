@@ -61,17 +61,17 @@ coding_alt:
       type: SYSTEM_URL
       expressionType: HL7Spec
       valueOf: CE.6
-    extension_cwe-coding:
+    extension_ce-coding:
       condition: $altCode NOT_NULL || $altDisplay NOT_NULL || $altSystem NOT_NULL
       generateList: true
       expressionType: nested
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cwe-coding
+          value: ce-coding
         valueString:
           value: alt-coding
-    extension_cwe-coding-system:
+    extension_ce-coding-system:
       condition: $coding-system NOT_NULL
       generateList: true
       expressionType: nested
@@ -80,7 +80,7 @@ coding_alt:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cwe-coding-system
+          value: ce-coding-system
         valueString:
           value: $coding-system
 

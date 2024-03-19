@@ -4,10 +4,12 @@ start:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: $start
+    dateTimeIn: DR.1
 _start:
   expressionType: nested
-  condition: $dateTimeIn NOT_NULL
+  vars:
+    dr1: DR.1
+  condition: $dr1 NOT_NULL
   expressionsMap:
     extension_1:
       generateList: true
@@ -18,7 +20,7 @@ _start:
           value: hl7v2-date-time
         valueString:
           type: STRING
-          valueOf: $dateTimeIn
+          valueOf: DR.1
           expressionType: HL7Spec
 
 end:
@@ -27,10 +29,12 @@ end:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: $end
+    dateTimeIn: DR.2
 _end:
   expressionType: nested
-  condition: $dateTimeOut NOT_NULL
+  condition: $dr2 NOT_NULL
+  vars:
+    dr2: DR.2
   expressionsMap:
     extension_1:
       generateList: true
@@ -41,5 +45,5 @@ _end:
           value: hl7v2-date-time
         valueString:
           type: STRING
-          valueOf: $dateTimeOut
+          valueOf: DR.2
           expressionType: HL7Spec
