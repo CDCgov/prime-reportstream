@@ -10,7 +10,7 @@ export async function clickNetwork(page: Page) {
 export async function clickRoadmap(page: Page) {
     await page
         .getByTestId("sidenav")
-        .getByRole("link", { name: /Roadmap/ })
+        .getByRole("link", { name: /Product roadmap/ })
         .click();
 }
 

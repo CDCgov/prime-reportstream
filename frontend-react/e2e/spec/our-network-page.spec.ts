@@ -17,7 +17,7 @@ test.describe("Our network page", () => {
             await expect(page).toHaveURL(/.*about\/our-network/);
         });
 
-        test("has Roadmap link", async ({ page }) => {
+        test("has Product roadmap link", async ({ page }) => {
             await sideNav.clickRoadmap(page);
             await expect(page).toHaveURL(/.*about\/roadmap/);
         });

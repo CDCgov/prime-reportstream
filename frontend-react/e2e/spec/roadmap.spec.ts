@@ -7,7 +7,7 @@ import {
     SIMPLEREPORT,
 } from "../helpers/external-links";
 import * as internalLinks from "../helpers/internal-links";
-import { ELC } from "../helpers/internal-links";
+import { ELC, NIST } from "../helpers/internal-links";
 import * as sideNav from "../pages/about-side-navigation";
 import * as roadmap from "../pages/roadmap";
 test.describe("Product roadmap page", () => {
@@ -25,7 +25,7 @@ test.describe("Product roadmap page", () => {
             await expect(page).toHaveURL(/.*about\/our-network/);
         });
 
-        test("has Roadmap link", async ({ page }) => {
+        test("has Product roadmap link", async ({ page }) => {
             await sideNav.clickRoadmap(page);
             await expect(page).toHaveURL(/.*about\/roadmap/);
         });
@@ -103,6 +103,26 @@ test.describe("Product roadmap page", () => {
                 "News",
                 page,
                 /.*about\/news/,
+            );
+        });
+
+        test("has Release notes", async ({ page }) => {
+            await internalLinks.clickOnInternalLink(
+                "div",
+                "CardGroup",
+                "Release notes",
+                page,
+                /.*about\/release-notes/,
+            );
+        });
+
+        test("has Developer resources", async ({ page }) => {
+            await internalLinks.clickOnInternalLink(
+                "div",
+                "CardGroup",
+                "Developer resources",
+                page,
+                /.*developer-resources/,
             );
         });
     });
