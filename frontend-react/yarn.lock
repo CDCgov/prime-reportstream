@@ -3543,70 +3543,70 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@microsoft/applicationinsights-analytics-js@npm:3.0.8":
-  version: 3.0.8
-  resolution: "@microsoft/applicationinsights-analytics-js@npm:3.0.8"
+"@microsoft/applicationinsights-analytics-js@npm:3.1.1":
+  version: 3.1.1
+  resolution: "@microsoft/applicationinsights-analytics-js@npm:3.1.1"
   dependencies:
-    "@microsoft/applicationinsights-common": 3.0.8
-    "@microsoft/applicationinsights-core-js": 3.0.8
+    "@microsoft/applicationinsights-common": 3.1.1
+    "@microsoft/applicationinsights-core-js": 3.1.1
     "@microsoft/applicationinsights-shims": 3.0.1
     "@microsoft/dynamicproto-js": ^2.0.3
     "@nevware21/ts-utils": ">= 0.10.5 < 2.x"
   peerDependencies:
     tslib: "*"
-  checksum: a4321ac465218875ffbe8489adb828812b9f550e9aad5a571e6a95b78b9089fd7c3a2f5b8f660145b25f377b0ef0ec2c6095f0b2b3916717d27848592261cad3
+  checksum: 9aa14b07e00ba31bcaacd9d4a53857624ae3be4e5f07a349c216522857bec96ce59b18a8f41fd1d15c640a5ee2fae3e97fc90a09337e547bb29cc9e791d77551
   languageName: node
   linkType: hard
 
-"@microsoft/applicationinsights-cfgsync-js@npm:3.0.8":
-  version: 3.0.8
-  resolution: "@microsoft/applicationinsights-cfgsync-js@npm:3.0.8"
+"@microsoft/applicationinsights-cfgsync-js@npm:3.1.1":
+  version: 3.1.1
+  resolution: "@microsoft/applicationinsights-cfgsync-js@npm:3.1.1"
   dependencies:
-    "@microsoft/applicationinsights-common": 3.0.8
-    "@microsoft/applicationinsights-core-js": 3.0.8
-    "@microsoft/applicationinsights-shims": 3.0.1
-    "@microsoft/dynamicproto-js": ^2.0.3
-    "@nevware21/ts-async": ">= 0.3.0 < 2.x"
-    "@nevware21/ts-utils": ">= 0.10.5 < 2.x"
-  peerDependencies:
-    tslib: "*"
-  checksum: c7db38cba5d5c90a6266178da773032892636c8c86e2f35689d072145d05acf436d75509ecdef176970c6f4f8520f170070c2a01b127a53d5367b338f8f8199c
-  languageName: node
-  linkType: hard
-
-"@microsoft/applicationinsights-channel-js@npm:3.0.8":
-  version: 3.0.8
-  resolution: "@microsoft/applicationinsights-channel-js@npm:3.0.8"
-  dependencies:
-    "@microsoft/applicationinsights-common": 3.0.8
-    "@microsoft/applicationinsights-core-js": 3.0.8
+    "@microsoft/applicationinsights-common": 3.1.1
+    "@microsoft/applicationinsights-core-js": 3.1.1
     "@microsoft/applicationinsights-shims": 3.0.1
     "@microsoft/dynamicproto-js": ^2.0.3
     "@nevware21/ts-async": ">= 0.3.0 < 2.x"
     "@nevware21/ts-utils": ">= 0.10.5 < 2.x"
   peerDependencies:
     tslib: "*"
-  checksum: 8f01ebaf54deb62bc77da112fdaf5e148a34f159c0a565d8126c5b4dca3495f8ad5f1d350d1c42cbc43a75fd166c1fde0cf2574187732f1d0e504ff8d1d96aa9
+  checksum: d2cf2c938fa84c91973315fe753b8c8fd7aa2cc63cbdef3a94f729f66c681e3e88f57f47122c78acadf87cbf97aa52666ade99124f1aad7071b4d3cdce8e81d7
   languageName: node
   linkType: hard
 
-"@microsoft/applicationinsights-common@npm:3.0.8, @microsoft/applicationinsights-common@npm:^3.0.8":
-  version: 3.0.8
-  resolution: "@microsoft/applicationinsights-common@npm:3.0.8"
+"@microsoft/applicationinsights-channel-js@npm:3.1.1":
+  version: 3.1.1
+  resolution: "@microsoft/applicationinsights-channel-js@npm:3.1.1"
   dependencies:
-    "@microsoft/applicationinsights-core-js": 3.0.8
+    "@microsoft/applicationinsights-common": 3.1.1
+    "@microsoft/applicationinsights-core-js": 3.1.1
+    "@microsoft/applicationinsights-shims": 3.0.1
+    "@microsoft/dynamicproto-js": ^2.0.3
+    "@nevware21/ts-async": ">= 0.3.0 < 2.x"
+    "@nevware21/ts-utils": ">= 0.10.5 < 2.x"
+  peerDependencies:
+    tslib: "*"
+  checksum: 9816d41d582659cafbb751762c699737b87c42c4dc3b6a15381fab7a10139138dd6b15ff349721263889a347c74c9f847d5cae8a5ec13e3438285067ed142444
+  languageName: node
+  linkType: hard
+
+"@microsoft/applicationinsights-common@npm:3.1.1, @microsoft/applicationinsights-common@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "@microsoft/applicationinsights-common@npm:3.1.1"
+  dependencies:
+    "@microsoft/applicationinsights-core-js": 3.1.1
     "@microsoft/applicationinsights-shims": 3.0.1
     "@microsoft/dynamicproto-js": ^2.0.3
     "@nevware21/ts-utils": ">= 0.10.5 < 2.x"
   peerDependencies:
     tslib: "*"
-  checksum: a5f142ee9a90975c37c2a3f59c0fb1a21e776fd5deb60c39099adc4c5ee699022686b6c9f95453c0ee5c11c6fe92ff56f6c974e5c8acc8d2debd865faeb8a25a
+  checksum: b3e845335018a7104f74fd1c4308d481f5abc8be3a3eb3936f032663dc25d5edce1d0b72d3174f8b8fdc455cccff69f0012f2da32dd5e04e8c0e5db3b5accffa
   languageName: node
   linkType: hard
 
-"@microsoft/applicationinsights-core-js@npm:3.0.8, @microsoft/applicationinsights-core-js@npm:^3.0.8":
-  version: 3.0.8
-  resolution: "@microsoft/applicationinsights-core-js@npm:3.0.8"
+"@microsoft/applicationinsights-core-js@npm:3.1.1, @microsoft/applicationinsights-core-js@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "@microsoft/applicationinsights-core-js@npm:3.1.1"
   dependencies:
     "@microsoft/applicationinsights-shims": 3.0.1
     "@microsoft/dynamicproto-js": ^2.0.3
@@ -3614,47 +3614,47 @@ __metadata:
     "@nevware21/ts-utils": ">= 0.10.5 < 2.x"
   peerDependencies:
     tslib: "*"
-  checksum: a0aa118f813e1d194ada36812d216a94ca24b78917b5974446d3913a5c9444e031fa26f2641fb49665d52d1f545503597a810c15326f8e73a1360c0f69c3b3c8
+  checksum: 6534cfa7fbafe4980937875f79f8ad25d90595b08d8f95430a5bcafe9ed23a3f4fcf749496382303e77dcb41d2bb8b4f9254ad13c3997da9d403ba74751c7a5e
   languageName: node
   linkType: hard
 
-"@microsoft/applicationinsights-dependencies-js@npm:3.0.8":
-  version: 3.0.8
-  resolution: "@microsoft/applicationinsights-dependencies-js@npm:3.0.8"
+"@microsoft/applicationinsights-dependencies-js@npm:3.1.1":
+  version: 3.1.1
+  resolution: "@microsoft/applicationinsights-dependencies-js@npm:3.1.1"
   dependencies:
-    "@microsoft/applicationinsights-common": 3.0.8
-    "@microsoft/applicationinsights-core-js": 3.0.8
+    "@microsoft/applicationinsights-common": 3.1.1
+    "@microsoft/applicationinsights-core-js": 3.1.1
     "@microsoft/applicationinsights-shims": 3.0.1
     "@microsoft/dynamicproto-js": ^2.0.3
     "@nevware21/ts-async": ">= 0.3.0 < 2.x"
     "@nevware21/ts-utils": ">= 0.10.5 < 2.x"
   peerDependencies:
     tslib: "*"
-  checksum: fe2cf5b4c7e6c33e904a73a40fe1552fb3f9c219e8fc1d01ba976c7a92c1a1fc3e19c05124955cbfc99b313b01fb3b33c2d6e12f9223c47064b78c43fed00056
+  checksum: 13683ac5464cb35fc84a2ad639aa463965ab5c5aac34f043cce78539b041b24c2088ab4fbb57f4b6272746763d2b7ef362c493dbd5663ef87a07cb0f2bab2753
   languageName: node
   linkType: hard
 
-"@microsoft/applicationinsights-properties-js@npm:3.0.8":
-  version: 3.0.8
-  resolution: "@microsoft/applicationinsights-properties-js@npm:3.0.8"
+"@microsoft/applicationinsights-properties-js@npm:3.1.1":
+  version: 3.1.1
+  resolution: "@microsoft/applicationinsights-properties-js@npm:3.1.1"
   dependencies:
-    "@microsoft/applicationinsights-common": 3.0.8
-    "@microsoft/applicationinsights-core-js": 3.0.8
+    "@microsoft/applicationinsights-common": 3.1.1
+    "@microsoft/applicationinsights-core-js": 3.1.1
     "@microsoft/applicationinsights-shims": 3.0.1
     "@microsoft/dynamicproto-js": ^2.0.3
     "@nevware21/ts-utils": ">= 0.10.5 < 2.x"
   peerDependencies:
     tslib: "*"
-  checksum: f42756f9f6eae265d8db6426272f083a51abd5957adaf92fe0f345c6336acf5977cf1efc07c820306c6de9ecbf06f4de5ceba600d5d5e5d8daabb8a8cc7cfd18
+  checksum: ec108bb9537379cc471d73c2bfe04e40fbccb935d373fd0a72d9c2cbdca541b5570c42ecc924280bea7f56297b1316a1262fda400bfbaed5b9f889cb0d581455
   languageName: node
   linkType: hard
 
-"@microsoft/applicationinsights-react-js@npm:^17.0.4":
-  version: 17.0.4
-  resolution: "@microsoft/applicationinsights-react-js@npm:17.0.4"
+"@microsoft/applicationinsights-react-js@npm:^17.1.1":
+  version: 17.1.1
+  resolution: "@microsoft/applicationinsights-react-js@npm:17.1.1"
   dependencies:
-    "@microsoft/applicationinsights-common": ^3.0.8
-    "@microsoft/applicationinsights-core-js": ^3.0.8
+    "@microsoft/applicationinsights-common": ^3.1.1
+    "@microsoft/applicationinsights-core-js": ^3.1.1
     "@microsoft/applicationinsights-shims": ^3.0.1
     "@microsoft/dynamicproto-js": ^2.0.3
     "@nevware21/ts-utils": ">= 0.10.5 < 2.x"
@@ -3662,7 +3662,7 @@ __metadata:
     history: ">= 4.10.1"
     react: ">= 17.0.1"
     tslib: "*"
-  checksum: b8262829bc0eae25b5aa4a9c600f7876de930479e708969f767f4434c5f3c28b83a56f8653787527178ccc9d0500accd8c2a08a0cac1ed50c1e689719ad4dbaf
+  checksum: aa5862706a6c8992bc6b490f7b7467b962b26f330b65a54364f59d14ef38b5d831613d38135e4d0d3e18a445bbf12022e878798060cfc422548e66f7d96e6197
   languageName: node
   linkType: hard
 
@@ -3675,24 +3675,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@microsoft/applicationinsights-web@npm:^3.0.8":
-  version: 3.0.8
-  resolution: "@microsoft/applicationinsights-web@npm:3.0.8"
+"@microsoft/applicationinsights-web@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "@microsoft/applicationinsights-web@npm:3.1.1"
   dependencies:
-    "@microsoft/applicationinsights-analytics-js": 3.0.8
-    "@microsoft/applicationinsights-cfgsync-js": 3.0.8
-    "@microsoft/applicationinsights-channel-js": 3.0.8
-    "@microsoft/applicationinsights-common": 3.0.8
-    "@microsoft/applicationinsights-core-js": 3.0.8
-    "@microsoft/applicationinsights-dependencies-js": 3.0.8
-    "@microsoft/applicationinsights-properties-js": 3.0.8
+    "@microsoft/applicationinsights-analytics-js": 3.1.1
+    "@microsoft/applicationinsights-cfgsync-js": 3.1.1
+    "@microsoft/applicationinsights-channel-js": 3.1.1
+    "@microsoft/applicationinsights-common": 3.1.1
+    "@microsoft/applicationinsights-core-js": 3.1.1
+    "@microsoft/applicationinsights-dependencies-js": 3.1.1
+    "@microsoft/applicationinsights-properties-js": 3.1.1
     "@microsoft/applicationinsights-shims": 3.0.1
     "@microsoft/dynamicproto-js": ^2.0.3
     "@nevware21/ts-async": ">= 0.3.0 < 2.x"
     "@nevware21/ts-utils": ">= 0.10.5 < 2.x"
   peerDependencies:
     tslib: "*"
-  checksum: 98095ac7fb211b0425961ad16e6b9ee13a601c1e86f5f6f2ba3ada6c68e5bd85b1f572fece3677a55798aa210ab6c13ee48c2115cf07677c2a8d18c3ccfffc79
+  checksum: 94032960f8421e92152e614fec6d846c5dc515b6ef07ea7f6c4da26e2b4524fdd72a0ca176dcf70dff2e3016af24f14d98281e82cf40bb57c00bcf441506be45
   languageName: node
   linkType: hard
 
@@ -3837,9 +3837,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.16.1":
-  version: 7.16.1
-  resolution: "@okta/okta-signin-widget@npm:7.16.1"
+"@okta/okta-signin-widget@npm:^7.16.2":
+  version: 7.16.2
+  resolution: "@okta/okta-signin-widget@npm:7.16.2"
   dependencies:
     "@okta/okta-auth-js": ~7.0.0
     "@sindresorhus/to-milliseconds": ^1.0.0
@@ -3863,7 +3863,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: 1653ee07b080610a350c3938aab9c94526266ffea6066a4eec15580f962a9e441f2c795b1a0623386e1f5aa236a177aa1ea4a406d14c15dbe5e7c8ff791234b6
+  checksum: e4e87286f3d87ad35a38e69ff3fabff6828aa9cb09ea26084106c9a180f22c425575dd1b352fd4f0d08a663de0b0dbb61bb669456c123df44cbeb18b218a037e
   languageName: node
   linkType: hard
 
@@ -3979,14 +3979,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.42.0":
-  version: 1.42.0
-  resolution: "@playwright/test@npm:1.42.0"
+"@playwright/test@npm:^1.42.1":
+  version: 1.42.1
+  resolution: "@playwright/test@npm:1.42.1"
   dependencies:
-    playwright: 1.42.0
+    playwright: 1.42.1
   bin:
     playwright: cli.js
-  checksum: 282072bc9c8217af39a2bfd0ac606a89e45a8ff7a8c0c86ed90a390b90088bb6d260edf50afa6bcca897630a7797e1f329622fb9f3a8d0b67d8f15a20a1bc592
+  checksum: a41505f02a4dac358e645452a190cac620b8d4eae79ab5d90ea1fb7ca06d86a9f5749b1a803dea789b662d1cbfd216380f722bed72093897e18b4238f4a07a4d
   languageName: node
   linkType: hard
 
@@ -4558,10 +4558,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@remix-run/router@npm:1.15.2":
-  version: 1.15.2
-  resolution: "@remix-run/router@npm:1.15.2"
-  checksum: aac403791316d7f3a32b20621138a34ec0ffc62b32617a42a4e1c5390221eec6da9756032032e22ec1b1f3756758666f5dd7f03c5babd9171d4696f894ee3012
+"@remix-run/router@npm:1.15.3":
+  version: 1.15.3
+  resolution: "@remix-run/router@npm:1.15.3"
+  checksum: 9e70bd334d99fdf9285f0885c10353d7e25f66369080f551d997e3ce204e1af3a12d6f12b091f94a2dc9a54c80598bbe3c5194b57cbae17b7b40ab815dcd49a0
   languageName: node
   linkType: hard
 
@@ -5713,40 +5713,40 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.24.6":
-  version: 5.24.6
-  resolution: "@tanstack/query-core@npm:5.24.6"
-  checksum: 57a91fd1d9069ea1e7b367742bddcf865c078265e87d3d66e04be345b795e21f93f97c7d94a096437657fd52fa4d17cbc106521d045851b602f82a6809195e85
+"@tanstack/query-core@npm:5.28.4":
+  version: 5.28.4
+  resolution: "@tanstack/query-core@npm:5.28.4"
+  checksum: d6dfbd2f14a6c7a3100e54c20b7ac42d7ea74b9d86772ae9b79f18885ebf0256f42f085abe87b8cab336e736d721ef4d68e81875b3bde8bb5145cfa362cd913f
   languageName: node
   linkType: hard
 
-"@tanstack/query-devtools@npm:5.24.0":
-  version: 5.24.0
-  resolution: "@tanstack/query-devtools@npm:5.24.0"
-  checksum: c557eb09316a95405a459638a00c43de3537c76bcf4c4045e71acf31c8449f8856138712304e9cfce8b54141e5f81b8657bd54d2a768baf26a67e84eea787df9
+"@tanstack/query-devtools@npm:5.28.3":
+  version: 5.28.3
+  resolution: "@tanstack/query-devtools@npm:5.28.3"
+  checksum: e6cd8cc479adee690d801a1db4a64b986570ad7416d130d6f1b53829bf565237d1b19338a800646c5bd681bb956c27df2607a34be10039ca9b4b2f59f0cbe26a
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.24.6":
-  version: 5.24.6
-  resolution: "@tanstack/react-query-devtools@npm:5.24.6"
+"@tanstack/react-query-devtools@npm:^5.28.4":
+  version: 5.28.4
+  resolution: "@tanstack/react-query-devtools@npm:5.28.4"
   dependencies:
-    "@tanstack/query-devtools": 5.24.0
+    "@tanstack/query-devtools": 5.28.3
   peerDependencies:
-    "@tanstack/react-query": ^5.24.6
+    "@tanstack/react-query": ^5.28.4
     react: ^18.0.0
-  checksum: 791390f034f79f381eca182733feb4575d451f399178413d33739b2ae1c1e7971f62522cf2ba439afac5c8ad2ff83e3775f7f2c43b17a8ea850830941165f99c
+  checksum: e0d7a86034a01b559c10684ed6b9a035eeb5bc02f60533a5f6d2630679b8fef5c9fe58afe04b1bc72ff3900b37c69d9e68bbf0bf83f5bf1c0155ae43cd472c48
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.24.6":
-  version: 5.24.6
-  resolution: "@tanstack/react-query@npm:5.24.6"
+"@tanstack/react-query@npm:^5.28.4":
+  version: 5.28.4
+  resolution: "@tanstack/react-query@npm:5.28.4"
   dependencies:
-    "@tanstack/query-core": 5.24.6
+    "@tanstack/query-core": 5.28.4
   peerDependencies:
     react: ^18.0.0
-  checksum: 92e87b3210106370e6e02b2aeb087af3787d4b6691a7b99ba30fc8a8a6481845b5b27fdf97584180f5a146210b7e2585fa6b531591842c37455d96c8f6019950
+  checksum: 1d7a4cf7ffd8b141fcb75e6c31cd8c7e0b8ecc6ff0d974ebe6226fe50df7da890bdae3349cdef89dac86b1c3506924640743dd58739f9cebfdf018ca6b609f68
   languageName: node
   linkType: hard
 
@@ -6420,12 +6420,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.2.19":
+"@types/react-dom@npm:^18.0.0":
   version: 18.2.19
   resolution: "@types/react-dom@npm:18.2.19"
   dependencies:
     "@types/react": "*"
   checksum: 087a19d8e4c1c0900ec4ac5ddb749a811a38274b25683d233c11755d2895cc6e475e8bf9bea3dee36519769298e078d4c2feab9ab4bd13b26bc2a6170716437e
+  languageName: node
+  linkType: hard
+
+"@types/react-dom@npm:^18.2.22":
+  version: 18.2.22
+  resolution: "@types/react-dom@npm:18.2.22"
+  dependencies:
+    "@types/react": "*"
+  checksum: 83bb3ddcd7894f20a9a6cbc2befe75d8b76984734020c455b4c50cad625a4025250d8e1d247ef6264e484d47d5a94f2dd11f77c1dcac6a5de998cb447d85b720
   languageName: node
   linkType: hard
 
@@ -15428,27 +15437,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.42.0":
-  version: 1.42.0
-  resolution: "playwright-core@npm:1.42.0"
+"playwright-core@npm:1.42.1":
+  version: 1.42.1
+  resolution: "playwright-core@npm:1.42.1"
   bin:
     playwright-core: cli.js
-  checksum: f4b9578b285d6673e9f23040087b5bc008e3183553a5dc0304ddc9ab57445f3645dbb6b28af96a3b8535fc339262ad9cb858f5d75e46f6132a1bc707aeff9c5e
+  checksum: e7081ff0f43b4b9053255109eb1d82164b7c6b55c7d022e25fca935d0f4fc547cb2e02a7b64f0c2a9462729be7bb45edb082f8b038306415944f1061d00d9c90
   languageName: node
   linkType: hard
 
-"playwright@npm:1.42.0":
-  version: 1.42.0
-  resolution: "playwright@npm:1.42.0"
+"playwright@npm:1.42.1":
+  version: 1.42.1
+  resolution: "playwright@npm:1.42.1"
   dependencies:
     fsevents: 2.3.2
-    playwright-core: 1.42.0
+    playwright-core: 1.42.1
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: 879903e52fa83afb1e387ee725f19e4fecceeea37d6b92405722551e746c184938da3187a4b2be3de1d8b7dafe1f32ec7ddeb324a44275c955d26c70d36a3b65
+  checksum: 06c16bcd07d03993126ee6c168bde28c59d3cab7f7d4721eaf57bd5c51e9c929e10a286758de062b5fc02874413ceae2684d14cbb7865c0a51fc8df6d9001ad1
   languageName: node
   linkType: hard
 
@@ -15905,11 +15914,11 @@ __metadata:
     "@babel/runtime": ^7.24.1
     "@mdx-js/react": ^3.0.1
     "@mdx-js/rollup": ^3.0.1
-    "@microsoft/applicationinsights-react-js": ^17.0.4
-    "@microsoft/applicationinsights-web": ^3.0.8
+    "@microsoft/applicationinsights-react-js": ^17.1.1
+    "@microsoft/applicationinsights-web": ^3.1.1
     "@okta/okta-react": ^6.7.0
-    "@okta/okta-signin-widget": ^7.16.1
-    "@playwright/test": ^1.42.0
+    "@okta/okta-signin-widget": ^7.16.2
+    "@playwright/test": ^1.42.1
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
     "@storybook/addon-a11y": ^7.6.17
@@ -15927,8 +15936,8 @@ __metadata:
     "@storybook/react-vite": ^7.6.17
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^7.6.17
-    "@tanstack/react-query": ^5.24.6
-    "@tanstack/react-query-devtools": ^5.24.6
+    "@tanstack/react-query": ^5.28.4
+    "@tanstack/react-query-devtools": ^5.28.4
     "@testing-library/dom": ^9.3.4
     "@testing-library/jest-dom": ^6.4.2
     "@testing-library/react": ^14.2.1
@@ -15944,7 +15953,7 @@ __metadata:
     "@types/mdx": ^2.0.11
     "@types/node": ^18.18.7
     "@types/react": 18.2.55
-    "@types/react-dom": ^18.2.19
+    "@types/react-dom": ^18.2.22
     "@types/react-router-dom": ^5.3.3
     "@types/react-scroll-sync": ^0.9.0
     "@types/sanitize-html": ^2.11.0
@@ -16007,11 +16016,11 @@ __metadata:
     react-idle-timer: ^5.7.2
     react-loader-spinner: ^6.1.6
     react-markdown: ^9.0.1
-    react-query-kit: ^3.1.2
-    react-router: ^6.22.2
-    react-router-dom: ^6.22.2
+    react-query-kit: ^3.2.0
+    react-router: ^6.22.3
+    react-router-dom: ^6.22.3
     react-scroll-sync: ^0.11.2
-    react-toastify: ^10.0.4
+    react-toastify: ^10.0.5
     rehype-raw: ^7.0.0
     rehype-slug: ^5.1.0
     remark-frontmatter: ^5.0.0
@@ -16025,7 +16034,7 @@ __metadata:
     ts-node: ^10.9.2
     tslib: ^2.6.2
     typescript: ^5.4.2
-    undici: ^6.6.1
+    undici: ^6.9.0
     use-deep-compare-effect: ^1.8.1
     vite: ^5.1.6
     vite-plugin-checker: ^0.6.4
@@ -16130,15 +16139,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-query-kit@npm:^3.1.2":
-  version: 3.1.2
-  resolution: "react-query-kit@npm:3.1.2"
+"react-query-kit@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "react-query-kit@npm:3.2.0"
   peerDependencies:
     "@tanstack/react-query": ^4 || ^5
   peerDependenciesMeta:
     "@tanstack/react-query":
       optional: true
-  checksum: 495cae0d0639be9b255d52679bbfe57737ff04dd4e1aac13193430a7fcf3a7246145789ba0ce1a46fea1eb327080d0eb155f4991613bb92866572bfd78372f34
+  checksum: 71eb42dfa905ed85d54a84c3ce74a9d0a7c0425c7688c731e7d9648482aa026d7d752bbbeadca8c33d8836f90bcfe37d6d55b94f99730c8cf53f0b82525e31c8
   languageName: node
   linkType: hard
 
@@ -16184,27 +16193,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.22.2":
-  version: 6.22.2
-  resolution: "react-router-dom@npm:6.22.2"
+"react-router-dom@npm:^6.22.3":
+  version: 6.22.3
+  resolution: "react-router-dom@npm:6.22.3"
   dependencies:
-    "@remix-run/router": 1.15.2
-    react-router: 6.22.2
+    "@remix-run/router": 1.15.3
+    react-router: 6.22.3
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: b4226d7f2640de5598bc0c02266301f43b55966481634b9225adeab0360ec1ff56f4cdebe20c7112470cb33c4f4e5b7ef81fc8a42c54126e52111b63c5bace74
+  checksum: 5ae3759a70e4123cd4b8efbb82199a69f5d8c4a7a434d186d2ec7b532b6ef3302df2a98e5c27db977d3f0d725c7a279010a16ae77a3bf6257f1fee96123d8b77
   languageName: node
   linkType: hard
 
-"react-router@npm:6.22.2, react-router@npm:^6.22.2":
-  version: 6.22.2
-  resolution: "react-router@npm:6.22.2"
+"react-router@npm:6.22.3, react-router@npm:^6.22.3":
+  version: 6.22.3
+  resolution: "react-router@npm:6.22.3"
   dependencies:
-    "@remix-run/router": 1.15.2
+    "@remix-run/router": 1.15.3
   peerDependencies:
     react: ">=16.8"
-  checksum: adbf6afdd568fa746e1c16a90efcdeecb34d311bd7d8b14eec8df7bc0f972362cbe56ea5efa65de2ed62325389038ddf6e5c65b4c0e32d99fa58dc9132f9416e
+  checksum: 1f7d9a5a849761ff69ef8f3d3131b4c1c25d18b76317ba5ad6f0d9421192c0b8b71ab0cc818c57aad7b81ada725559e513307d0ab43296a460262f0358602672
   languageName: node
   linkType: hard
 
@@ -16237,15 +16246,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-toastify@npm:^10.0.4":
-  version: 10.0.4
-  resolution: "react-toastify@npm:10.0.4"
+"react-toastify@npm:^10.0.5":
+  version: 10.0.5
+  resolution: "react-toastify@npm:10.0.5"
   dependencies:
     clsx: ^2.1.0
   peerDependencies:
-    react: ">=16"
-    react-dom: ">=16"
-  checksum: fea1b6924f8f15cd2b5d27df0d1a4aec40321080d00fb12188d9fb14f7249554bad591da0a500024424685bc81576a6b04e4190b2a4e9b3f9054c73fff25db6a
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 982d33918c63e99464623a1b3b023ab5fe18fe341143cb0cb04287e37fd0611c560d9ef451e151ac8ade15a1cda09df09d4c442b3db582965d71aaf42d49b230
   languageName: node
   linkType: hard
 
