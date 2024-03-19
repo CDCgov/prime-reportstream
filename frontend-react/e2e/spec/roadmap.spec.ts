@@ -7,7 +7,7 @@ import {
     SIMPLEREPORT,
 } from "../helpers/external-links";
 import * as internalLinks from "../helpers/internal-links";
-import { ELC, NIST } from "../helpers/internal-links";
+import { ELC } from "../helpers/internal-links";
 import * as sideNav from "../pages/about-side-navigation";
 import * as roadmap from "../pages/roadmap";
 test.describe("Product roadmap page", () => {
