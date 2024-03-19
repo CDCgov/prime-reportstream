@@ -1,0 +1,13 @@
+role:
+  type: STRING
+  value: source
+
+what:
+  valueOf: resource/Device
+  expressionType: reference
+  vars:
+    deviceName: MSH.3.1
+    code: MSH.3.2
+    display: MSH.3.1
+  constants:
+    system: http://terminology.hl7.org/NamingSystem/uri

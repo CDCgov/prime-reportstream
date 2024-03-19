@@ -1,0 +1,22 @@
+system:
+  type: SYSTEM_URL
+  valueOf: $sys
+  expressionType: HL7Spec
+
+# override - simply pass the value if no need to join
+value_1:
+  condition: $fillpla NOT_NULL
+  type: STRING
+  valueOf: $fillpla
+  expressionType: HL7Spec
+  required: true
+
+# override from library - verify $obx3 exists before joining
+value_2:
+  condition: $fillpla NOT_NULL && $obx3 NOT_NULL
+  type: STRING
+  valueOf: $join
+  expressionType: HL7Spec
+  required: true
+  vars:
+    join: $fillpla + $joinChar + $obx3
