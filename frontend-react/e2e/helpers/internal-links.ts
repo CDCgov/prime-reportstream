@@ -9,12 +9,10 @@ export async function clickOnInternalLink(
     dataTestId: string,
     linkName: string,
     page: Page,
-    expectedUrl: string | RegExp,
 ) {
     await page
         .locator(locator)
         .getByTestId(dataTestId)
         .getByRole("link", { name: linkName })
         .click();
-    await expect(page).toHaveURL(expectedUrl);
 }

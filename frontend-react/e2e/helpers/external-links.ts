@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 
 export const CONNECT_URL =
     "https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957";
@@ -10,12 +10,11 @@ export async function clickOnExternalLink(
     locator: string,
     linkName: string,
     page: Page,
-    expectedUrl: string | RegExp,
 ) {
     const newTabPromise = page.waitForEvent("popup");
     await page.locator(locator).getByRole("link", { name: linkName }).click();
 
     const newTab = await newTabPromise;
     await newTab.waitForLoadState();
-    await expect(newTab).toHaveURL(expectedUrl);
+    return newTab;
 }

@@ -17,7 +17,9 @@ test.describe("Homepage", () => {
     });
 
     test("has correct title", async ({ page }) => {
-        await homepage.onLoad(page);
+        await expect(page).toHaveTitle(
+            /ReportStream - CDC's free, interoperable data transfer platform/,
+        );
     });
 
     test("has About link and dropdown menu items", async ({ page }) => {
@@ -53,26 +55,26 @@ test.describe("Homepage", () => {
     test('opens the "Connect with ReportStream" tab within header', async ({
         page,
     }) => {
-        await externalLinks.clickOnExternalLink(
+        const newTab = await externalLinks.clickOnExternalLink(
             "header",
             "Connect with us",
             page,
-            CONNECT_URL,
         );
 
+        await expect(newTab).toHaveURL(CONNECT_URL);
         expect(true).toBe(true);
     });
 
     test('opens the "Connect with ReportStream" tab within footer', async ({
         page,
     }) => {
-        await externalLinks.clickOnExternalLink(
+        const newTab = await externalLinks.clickOnExternalLink(
             "footer",
             "Connect now",
             page,
-            CONNECT_URL,
         );
 
+        await expect(newTab).toHaveURL(CONNECT_URL);
         expect(true).toBe(true);
     });
 
@@ -145,7 +147,11 @@ test.describe("Homepage", () => {
     test("explicit scroll to footer and then scroll to top", async ({
         page,
     }) => {
+        await expect(page.locator("footer")).not.toBeInViewport();
         await scrollToFooter(page);
+        await expect(page.locator("footer")).toBeInViewport();
+        await expect(page.getByTestId("govBanner")).not.toBeInViewport();
         await scrollToTop(page);
+        await expect(page.getByTestId("govBanner")).toBeInViewport();
     });
 });

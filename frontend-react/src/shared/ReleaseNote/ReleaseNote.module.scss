@@ -3,13 +3,6 @@
 .ReleaseNote {
     margin-top: 0px;
     :global {
-        .header {
-            color: color("gray-cool-50");
-            font-size: 32px;
-            font-weight: 700;
-            margin: 54px 0 32px;
-        }
-
         .section-title {
             font-size: 22px;
             font-weight: 700;
@@ -57,6 +50,13 @@
 
     &:global(.divider) {
         :global {
+            .header {
+                color: color("gray-cool-50");
+                font-size: 32px;
+                font-weight: 700;
+                margin: 54px 0 32px;
+            }
+
             .section-container:last-child {
                 border-bottom: 1px solid color("gray-cool-10");
                 margin-bottom: 0;

@@ -10,13 +10,15 @@ import * as internalLinks from "../helpers/internal-links";
 import { ELC } from "../helpers/internal-links";
 import * as sideNav from "../pages/about-side-navigation";
 import * as roadmap from "../pages/roadmap";
+import { URL_ROADMAP } from "../pages/roadmap";
 test.describe("Product roadmap page", () => {
     test.beforeEach(async ({ page }) => {
         await roadmap.goto(page);
     });
 
     test("has correct title", async ({ page }) => {
-        await roadmap.onLoad(page);
+        await expect(page).toHaveURL(URL_ROADMAP);
+        await expect(page).toHaveTitle(/Product roadmap/);
     });
 
     test.describe("Side navigation", () => {
@@ -57,26 +59,29 @@ test.describe("Product roadmap page", () => {
                 .locator("article")
                 .getByRole("link", { name: "ELC-funded" });
             await expect(linksCount).toHaveCount(2);
-            await linksCount.nth(0).click();
-            await expect(page).toHaveURL(ELC);
+            const newTabPromise = page.waitForEvent("popup");
+            await linksCount.nth(1).click();
+            const newTab = await newTabPromise;
+            await newTab.waitForLoadState();
+            await expect(newTab).toHaveURL(ELC);
         });
 
         test("has 'SimpleReport'", async ({ page }) => {
-            await externalLinks.clickOnExternalLink(
+            const newTab = await externalLinks.clickOnExternalLink(
                 "article",
                 "SimpleReport",
                 page,
-                SIMPLEREPORT,
             );
+            await expect(newTab).toHaveURL(SIMPLEREPORT);
         });
 
         test("has 'RADx MARS'", async ({ page }) => {
-            await externalLinks.clickOnExternalLink(
+            const newTab = await externalLinks.clickOnExternalLink(
                 "article",
                 "RADx MARS",
                 page,
-                RADX_MARS,
             );
+            await expect(newTab).toHaveURL(RADX_MARS);
         });
 
         // TODO: figure out how to open .pdf docs in playwright
@@ -86,12 +91,12 @@ test.describe("Product roadmap page", () => {
         // });
 
         test("has 'MakeMyTestCount.org'", async ({ page }) => {
-            await externalLinks.clickOnExternalLink(
+            const newTab = await externalLinks.clickOnExternalLink(
                 "article",
                 "MakeMyTestCount.org",
                 page,
-                MAKE_MY_TEST_COUNT,
             );
+            await expect(newTab).toHaveURL(MAKE_MY_TEST_COUNT);
         });
     });
 
@@ -102,8 +107,8 @@ test.describe("Product roadmap page", () => {
                 "CardGroup",
                 "News",
                 page,
-                /.*about\/news/,
             );
+            await expect(page).toHaveURL(/.*about\/news/);
         });
 
         test("has Release notes", async ({ page }) => {
@@ -112,8 +117,8 @@ test.describe("Product roadmap page", () => {
                 "CardGroup",
                 "Release notes",
                 page,
-                /.*about\/release-notes/,
             );
+            await expect(page).toHaveURL(/.*about\/release-notes/);
         });
 
         test("has Developer resources", async ({ page }) => {
@@ -122,8 +127,8 @@ test.describe("Product roadmap page", () => {
                 "CardGroup",
                 "Developer resources",
                 page,
-                /.*developer-resources/,
             );
+            await expect(page).toHaveURL(/.*developer-resources/);
         });
     });
 });

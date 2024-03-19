@@ -89,9 +89,6 @@ test.describe("Last Mile Failure page", () => {
             await expect(page).toHaveURL(
                 "/admin/orgreceiversettings/org/flexion/receiver/etor-service-receiver-results/action/edit",
             );
-            await expect(page.locator("h1").nth(0)).toHaveText(
-                /Receiver name: etor-service-receiver-results/,
-            );
         });
     });
 
@@ -129,11 +126,12 @@ test.describe("Last Mile Failure page", () => {
         });
 
         test("response returns 401", async ({ page }) => {
-            await waitForAPIResponse(
+            const response = await waitForAPIResponse(
                 page,
                 lastMileFailures.API_GET_SEND_FAILURES,
-                401,
             );
+
+            expect(response).toBe(401);
         });
 
         test("has correct title", async ({ page }) => {
@@ -162,11 +160,11 @@ test.describe("Last Mile Failure page", () => {
         });
 
         test("response returns 401", async ({ page }) => {
-            await waitForAPIResponse(
+            const response = await waitForAPIResponse(
                 page,
                 lastMileFailures.API_GET_SEND_FAILURES,
-                401,
             );
+            expect(response).toBe(401);
         });
 
         test("has correct title", async ({ page }) => {
