@@ -122,7 +122,6 @@
         "@storybook/addon-interactions": "^8.0.2",
         "@storybook/addon-links": "^8.0.2",
         "@storybook/addons": "^7.6.17",
-        "@storybook/api": "^7.6.17",
         "@storybook/blocks": "^8.0.2",
         "@storybook/components": "^8.0.2",
         "@storybook/core-events": "^8.0.2",

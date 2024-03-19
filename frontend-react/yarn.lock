@@ -3393,16 +3393,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/api@npm:^7.6.17":
-  version: 7.6.17
-  resolution: "@storybook/api@npm:7.6.17"
-  dependencies:
-    "@storybook/client-logger": 7.6.17
-    "@storybook/manager-api": 7.6.17
-  checksum: 4db900736db259d2ba78b1669a5995ff7ed851d1d1e87872f1129e7affa1eb0840dbe98548b3955d78dd1a2f2ce9e285bf3ed30d106b3b04ffd9cd4fb11ecf73
-  languageName: node
-  linkType: hard
-
 "@storybook/blocks@npm:8.0.2, @storybook/blocks@npm:^8.0.2":
   version: 8.0.2
   resolution: "@storybook/blocks@npm:8.0.2"
@@ -14064,7 +14054,6 @@ __metadata:
     "@storybook/addon-interactions": ^8.0.2
     "@storybook/addon-links": ^8.0.2
     "@storybook/addons": ^7.6.17
-    "@storybook/api": ^7.6.17
     "@storybook/blocks": ^8.0.2
     "@storybook/components": ^8.0.2
     "@storybook/core-events": ^8.0.2
