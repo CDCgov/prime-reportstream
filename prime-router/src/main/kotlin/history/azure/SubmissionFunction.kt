@@ -19,7 +19,6 @@ import gov.cdc.prime.router.transport.RESTTransport
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.headers
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.launch
@@ -141,7 +140,7 @@ class SubmissionFunction(
     }
 
     /**
-     * API endpoint to return history of a single report.
+     * API endpoint to return history of a single report from the CDC Intermediary.
      * The [id] can be a valid UUID or a valid actionId (aka submissionId, to our users)
      */
     @FunctionName("getTiMetadata")
@@ -155,6 +154,13 @@ class SubmissionFunction(
         @BindingName("id") id: String,
         context: ExecutionContext,
     ): HttpResponseMessage {
+
+        val authResult = this.authSingleBlocks(request, id)
+
+         if (authResult != null) {
+             return authResult
+        }
+
         var response: HttpResponse?
 
         val receiver = workflowEngine.settings.findReceiver("flexion.etor-service-receiver-orders")
@@ -163,18 +169,13 @@ class SubmissionFunction(
         val restTransportInfo = receiver?.transport as RESTTransportType
         val (credential, jksCredential) = restTransport.getCredential(restTransportInfo, receiver)
         val logger: Logger = context.logger
-        var httpHeaders: Map<String, String>? = null
-        var bearerToken: io.ktor.client.plugins.auth.providers.BearerTokens? = null
         var authPair: Pair<Map<String, String>?, io.ktor.client.plugins.auth.providers.BearerTokens?> =
-            Pair(httpHeaders, bearerToken)
-        // Was wondering if having 2 suspend functions in the same blocking section of code was causing the issue.  It was not
+            Pair(null, null)
 
         var responseBody = ""
 
         runBlocking {
             launch {
-                logger.info("Does this show up")
-                print("or this")
                 authPair = restTransport.getOAuthToken(
                     restTransportInfo,
                     id,
@@ -184,14 +185,9 @@ class SubmissionFunction(
                 )
             }
         }
-        logger.info("AUth pair value" + authPair.first)
-        logger.info("Auth pair 2 " + authPair.second!!.accessToken)
-
         runBlocking {
             launch {
-                // val reportClient = httpClient ?: RESTTransport.createDefaultHttpClient(jksCredential, bearerTokens)
-
-                response = client.get("http://host.docker.internal:8080/v1/etor/metadata/" + id) {
+                 response = client.get("http://host.docker.internal:8080/v1/etor/metadata/" + id) {
                     authPair.first?.forEach {
                         entry ->
                         headers.append(entry.key, entry.value)
