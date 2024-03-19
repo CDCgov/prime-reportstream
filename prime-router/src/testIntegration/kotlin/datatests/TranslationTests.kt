@@ -154,6 +154,7 @@ class TranslationTests {
         val receiver: String? = null,
         val conditionFiler: String? = null,
         val enrichmentSchemas: String? = null,
+        val additionalProfiles: List<String> = emptyList(),
     )
 
     /**
@@ -295,27 +296,18 @@ class TranslationTests {
                     when {
                         // Compare the output of an HL7 to FHIR conversion
                         config.expectedFormat == Report.Format.FHIR -> {
-                            // Currently only supporting one HL7 message
-                            check(config.inputFormat == Report.Format.HL7)
-                            val actualStream = translateToFhir(inputStream)
-                            val enrichedStream = if (!config.enrichmentSchemas.isNullOrEmpty()) {
-                                runSenderTransformOrEnrichment(actualStream, config.enrichmentSchemas)
-                            } else {
-                                actualStream
+                            val rawHL7 = inputStream.bufferedReader().readText()
+                            val expectedRawFhir = expectedStream.bufferedReader().readText()
+                            verifyHL7toFhir(rawHL7, result, expectedRawFhir)
+                            config.additionalProfiles.forEach { profile ->
+                                verifyHL7toFhir(rawHL7, result, expectedRawFhir, profile)
                             }
-
-                            result.merge(
-                                CompareData().compare(
-                                    expectedStream, enrichedStream, config.expectedFormat,
-                                    null
-                                )
-                            )
                         }
 
                         // Compare the output of an HL7 to FHIR to HL7 conversion
                         config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.HL7 -> {
                             check(!config.outputSchema.isNullOrBlank())
-                            val bundle = translateToFhir(inputStream)
+                            val bundle = translateToFhir(inputStream.bufferedReader().readText())
                             val afterEnrichment = if (config.enrichmentSchemas != null) {
                                 runSenderTransformOrEnrichment(bundle, config.enrichmentSchemas)
                             } else {
@@ -427,14 +419,41 @@ class TranslationTests {
             return result
         }
 
+        private fun verifyHL7toFhir(
+            rawHL7: String,
+            result: CompareData.Result,
+            expectedRawFhir: String,
+            profile: String? = null,
+        ) {
+            // Currently only supporting one HL7 message
+            check(config.inputFormat == Report.Format.HL7)
+            val actualStream = translateToFhir(rawHL7, profile)
+            val enrichedStream = if (!config.enrichmentSchemas.isNullOrEmpty()) {
+                runSenderTransformOrEnrichment(actualStream, config.enrichmentSchemas)
+            } else {
+                actualStream
+            }
+
+            result.merge(
+                CompareData().compare(
+                    expectedRawFhir.byteInputStream(), enrichedStream, config.expectedFormat,
+                    null
+                )
+            )
+        }
+
         /**
          * Translate an [hl7] to a FHIR bundle as JSON.
          * @return a FHIR bundle as a JSON input stream
          */
-        private fun translateToFhir(hl7: InputStream): InputStream {
-            val hl7messages = HL7Reader(ActionLogger()).getMessages(hl7.bufferedReader().readText())
+        private fun translateToFhir(hl7: String, profile: String? = null): InputStream {
+            val hl7messages = HL7Reader(ActionLogger()).getMessages(hl7)
             val fhirBundles = hl7messages.map { message ->
-                HL7toFhirTranslator().translate(message)
+                if (profile == null) {
+                    HL7toFhirTranslator().translate(message)
+                } else {
+                    HL7toFhirTranslator(profile).translate(message)
+                }
             }
             check(fhirBundles.size == 1)
             val fhirJson = FhirTranscoder.encode(fhirBundles[0])

@@ -7,7 +7,12 @@ class HDToOrganizationTests {
 
     @Test
     fun `test that an ISO HD HL7 datatype can be mapped to a FHIR Organization`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("hd/HD-to-Organization-iso").passed)
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "hd/HD-to-Organization-iso",
+                additionalProfiles = listOf("./metadata/HL7/v251-elr")
+            ).passed
+        )
     }
 
     @Test
