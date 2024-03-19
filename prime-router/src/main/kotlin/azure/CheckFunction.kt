@@ -40,6 +40,10 @@ class CheckFunction : Logging {
         val contents: String,
     )
 
+    companion object {
+        const val ACTION_ID = 12345L
+    }
+
     /**
      * A class to wrap the connection check event
      */
@@ -345,7 +349,7 @@ class CheckFunction : Logging {
         try {
             val theRESTTransport = RESTTransport()
             val reportId = UUID.randomUUID().toString()
-            val actionId = 12345L
+            val actionId = ACTION_ID
             // REST transport throws exception with error method to handle fails
             // get the username/password to authenticate with OAuth, fail throws exception
             val (credential, jksCredential) = theRESTTransport.getCredential(restTransportType, receiver)
