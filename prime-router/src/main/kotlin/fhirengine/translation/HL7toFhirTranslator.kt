@@ -20,7 +20,7 @@ import org.hl7.fhir.r4.model.Bundle
  * @param messageEngine HL7MessageEngine to be used. A default is used if none is provided.
  */
 class HL7toFhirTranslator(
-    private val configFolderPath: String = "./metadata/hl7_fhir_mapping/catchall",
+    private val configFolderPath: String = "./metadata/HL7/catchall",
     private val messageEngine: HL7MessageEngine = FhirTranscoder.getMessageEngine(),
 ) : Logging {
     companion object {
