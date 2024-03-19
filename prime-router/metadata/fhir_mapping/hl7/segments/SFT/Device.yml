@@ -97,10 +97,11 @@ extension:
   vars:
     sft1: STRING_ALL, SFT.1
   condition: $sft1 NOT_NULL
+  generateList: true
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "software-vendor-org"
+      value: software-vendor-org
     valueReference:
       valueOf: datatypes/XON/Organization
       expressionType: reference
