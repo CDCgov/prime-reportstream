@@ -2,47 +2,47 @@ coding:
   generateList: true
   expressionType: nested
   vars:
-    code: String, CNE.1
-    display: String, CNE.2
-    system: SYSTEM_URL, CNE.3
-    version: String, CNE.7
+    code: String, CWE.1
+    display: String, CWE.2
+    system: SYSTEM_URL, CWE.3
+    version: String, CWE.7
   expressionsMap:
     code:
       type: String
       expressionType: HL7Spec
-      valueOf: CNE.1
+      valueOf: CWE.1
     display:
       type: String
       expressionType: HL7Spec
-      valueOf: CNE.2
+      valueOf: CWE.2
     system:
       type: SYSTEM_URL
       expressionType: HL7Spec
-      valueOf: CNE.3
+      valueOf: CWE.3
     version:
       type: String
       expressionType: HL7Spec
-      valueOf: CNE.7
-    extension_CNE-coding:
+      valueOf: CWE.7
+    extension_cwe-coding:
       condition: $code NOT_NULL || $display NOT_NULL || $system NOT_NULL || $version NOT_NULL
       generateList: true
       expressionType: nested
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: CNE-coding
+          value: cwe-coding
         valueString:
           value: coding
-    extension_CNE-coding-system:
+    extension_cwe-coding-system:
       condition: $coding-system NOT_NULL
       generateList: true
       expressionType: nested
       vars:
-        coding-system: String, CNE.3
+        coding-system: String, CWE.3
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: CNE-coding-system
+          value: cwe-coding-system
         valueString:
           value: $coding-system
 
@@ -50,47 +50,47 @@ coding_alt:
   generateList: true
   expressionType: nested
   vars:
-    altCode: String, CNE.4
-    altDisplay: String, CNE.5
-    altSystem: SYSTEM_URL, CNE.6
-    altVersion: String, CNE.8
+    altCode: String, CWE.4
+    altDisplay: String, CWE.5
+    altSystem: SYSTEM_URL, CWE.6
+    altVersion: String, CWE.8
   expressionsMap:
     code:
       type: String
       expressionType: HL7Spec
-      valueOf: CNE.4
+      valueOf: CWE.4
     display:
       type: String
       expressionType: HL7Spec
-      valueOf: CNE.5
+      valueOf: CWE.5
     system:
       type: SYSTEM_URL
       expressionType: HL7Spec
-      valueOf: CNE.6
+      valueOf: CWE.6
     version:
       type: String
       expressionType: HL7Spec
-      valueOf: CNE.8
-    extension_CNE-coding:
+      valueOf: CWE.8
+    extension_cwe-coding:
       condition: $altCode NOT_NULL || $altDisplay NOT_NULL || $altSystem NOT_NULL || $altVersion NOT_NULL
       generateList: true
       expressionType: nested
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: CNE-coding
+          value: cwe-coding
         valueString:
           value: alt-coding
-    extension_CNE-coding-system:
+    extension_cwe-coding-system:
       condition: $coding-system NOT_NULL
       generateList: true
       expressionType: nested
       vars:
-        coding-system: String, CNE.6
+        coding-system: String, CWE.6
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: CNE-coding-system
+          value: cwe-coding-system
         valueString:
           value: $coding-system
 
@@ -119,17 +119,17 @@ coding_secondary-alt:
       type: String
       expressionType: HL7Spec
       valueOf: CWE.13
-    extension_cne-coding:
+    extension_cwe-coding:
       condition: $secondaryAltCode NOT_NULL || $secondaryAltDisplay NOT_NULL || $secondaryAltSystem NOT_NULL || $secondaryAltVersion NOT_NULL
       generateList: true
       expressionType: nested
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cne-coding
+          value: cwe-coding
         valueString:
           value: secondary-alt-coding
-    extension_cne-coding-system:
+    extension_cwe-coding-system:
       condition: $coding-system NOT_NULL
       generateList: true
       expressionType: nested
@@ -138,19 +138,36 @@ coding_secondary-alt:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: cne-coding-system
+          value: cwe-coding-system
         valueString:
           value: $coding-system
 
 text:
   type: STRING
   expressionType: HL7Spec
-  valueOf: CNE.9
+  valueOf: CWE.9
 
 extension:
   generateList: true
   expressionType: nested
   expressions:
+    # codingSystemOID
+    - generateList: true
+      expressionType: nested
+      condition: $codingSystemOID NOT_NULL
+      vars:
+        codingSystemOID: String, CWE.14
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: coding-system-oid
+        valueOid:
+          type: STRING
+          valueOf: $oidString
+          vars:
+            oidString: $oidUrlPrefix + $codingSystemOID
+          constants:
+            oidUrlPrefix: "urn:oid:"
     - generateList: true
       expressionType: nested
       condition: $hl7v2Field NOT_NULL
