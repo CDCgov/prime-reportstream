@@ -25,4 +25,9 @@ class XCNtoPractitionerTests {
         assert(verifyHL7ToFHIRToHL7Mapping("xcn/xcn-to-practitioner-uuid-assigning-authority-no-namespace").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("xcn/xcn-to-practitioner-iso-assigning-authority-no-namespace").passed)
     }
+
+    @Test
+    fun `test translate to HL7 to FHIR to HL7 with organization assigning facility`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("xcn/xcn-to-practitioner-uuid-assigning-facility").passed)
+    }
 }
