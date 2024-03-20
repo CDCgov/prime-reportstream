@@ -19,12 +19,6 @@ npm-debug.log*
 .env.local
 .env.*.local
 
-# Cypress
-cypress.*.json
-cypress/downloads
-cypress/videos
-cypress/screenshots
-
 # Yarn
 yarn-debug.log*
 yarn-error.log*
@@ -48,3 +42,6 @@ package-lock.json
 .next
 next-env.d.ts
 dist
+
+# Typescript
+tsconfig.tsbuildinfo
