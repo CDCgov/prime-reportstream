@@ -324,6 +324,7 @@ interface UsePaginationState<T> {
     isLoading: boolean;
     paginationProps?: PaginationProps;
     setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+    searchTerm: string;
 }
 
 // Arguments need to initialize the hook's internal state.
@@ -481,6 +482,7 @@ function usePagination<T>({
         isLoading: state.isLoading,
         paginationProps,
         setSearchTerm,
+        searchTerm,
     };
 }
 
