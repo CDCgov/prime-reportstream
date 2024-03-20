@@ -48,6 +48,7 @@ interface TableFilterProps {
     endDateLabel: string;
     filterManager: FilterManager;
     setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+    searchTerm: string;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
     receivers: { value: string; label: string }[];
     setService?: Dispatch<SetStateAction<string | undefined>>;
@@ -82,6 +83,7 @@ function TableFilters({
     endDateLabel,
     filterManager,
     setSearchTerm,
+    searchTerm,
     onFilterClick,
     receivers,
     setService,
@@ -182,37 +184,51 @@ function TableFilters({
             // filter array for us to display on the FE, with protections against
             // undefined
             // Example Output: "elr, 03/04/24-03/07/24, 12:02am-04:25pm"
+            // If user is using search, override filter display and just show searchTerm
 
             setFilterStatus({
                 resultLength: resultLength,
                 activeFilters: [
-                    currentServiceSelect,
-                    [
-                        ...(rangeFrom && isValid(rangeFrom)
-                            ? [format(rangeFrom, "MM/dd/yy")]
-                            : []),
-                        ...(rangeTo && isValid(rangeTo)
-                            ? [format(rangeTo, "MM/dd/yy")]
-                            : []),
-                    ].join("–"),
-                    [
-                        ...(!!startTimeElm?.value || !!endTimeElm?.value
-                            ? [
-                                  format(
-                                      parse(startTime, "HH:mm", new Date()),
-                                      "hh:mm a",
-                                  ),
-                                  format(
-                                      parse(endTime, "HH:mm", new Date()),
-                                      "hh:mm a",
-                                  ),
+                    ...(searchTerm.length
+                        ? [searchTerm]
+                        : [
+                              currentServiceSelect,
+                              [
+                                  ...(rangeFrom && isValid(rangeFrom)
+                                      ? [format(rangeFrom, "MM/dd/yy")]
+                                      : []),
+                                  ...(rangeTo && isValid(rangeTo)
+                                      ? [format(rangeTo, "MM/dd/yy")]
+                                      : []),
+                              ].join("–"),
+                              [
+                                  ...(!!startTimeElm?.value ||
+                                  !!endTimeElm?.value
+                                      ? [
+                                            format(
+                                                parse(
+                                                    startTime,
+                                                    "HH:mm",
+                                                    new Date(),
+                                                ),
+                                                "hh:mm a",
+                                            ),
+                                            format(
+                                                parse(
+                                                    endTime,
+                                                    "HH:mm",
+                                                    new Date(),
+                                                ),
+                                                "hh:mm a",
+                                            ),
+                                        ]
+                                      : []),
                               ]
-                            : []),
-                    ]
-                        .join("–")
-                        .toLowerCase()
-                        .split(" ")
-                        .join(""),
+                                  .join("–")
+                                  .toLowerCase()
+                                  .split(" ")
+                                  .join(""),
+                          ]),
                 ],
             });
         // We ONLY want to update the TableFilterStatus when loading is complete

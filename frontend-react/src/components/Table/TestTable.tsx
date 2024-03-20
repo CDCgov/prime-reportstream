@@ -159,6 +159,7 @@ export const TestTable = ({
                 setSearchTerm={
                     handleSearchTerm as Dispatch<SetStateAction<string>>
                 }
+                searchTerm={""}
             />
             <Table
                 title={"Test Table Title"}
