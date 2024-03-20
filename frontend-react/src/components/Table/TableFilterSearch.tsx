@@ -7,11 +7,13 @@ export interface TableFilterSearch {
 }
 
 interface TableFilterSearchProps {
+    reset: number;
     setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
     resetHandler: (e: FormEvent<Element>) => void;
 }
 
 function TableFilterSearch({
+    reset,
     setSearchTerm,
     resetHandler,
 }: TableFilterSearchProps) {
@@ -37,7 +39,12 @@ function TableFilterSearch({
                 applicable.
             </div>
             <div className="display-flex">
-                <Search onSubmit={submitHandler} className="margin-right-205" />
+                <Search
+                    key={reset}
+                    onSubmit={submitHandler}
+                    size="small"
+                    className="margin-right-205"
+                />
                 <Button
                     onClick={resetHandler}
                     type={"reset"}
