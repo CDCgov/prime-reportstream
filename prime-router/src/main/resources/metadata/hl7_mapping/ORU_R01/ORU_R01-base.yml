@@ -13,9 +13,14 @@ elements:
     schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/MSH.yml
 
   - name: software-segment
-    condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
+    resource: 'Bundle.entry.resource.ofType(Provenance).where(entity.exists()).entity.what.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Device/SFT.yml
+
+  - name: software-segment-legacy
+    condition: 'Bundle.entry.resource.ofType(Provenance).entity.exists().not() and Bundle.entry.resource.ofType(MessageHeader).exists()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/SFT.yml
+
 
   - name: patient-result
     resource: 'Bundle.entry.resource.ofType(Patient)'

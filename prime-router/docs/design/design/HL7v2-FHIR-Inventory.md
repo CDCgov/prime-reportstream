@@ -57,7 +57,7 @@ that ReportStream does not think match the reality of the data the application r
 the ReportStream
 implementation differs from what is in the spreadsheets.
 
-### MSH/SFT -> MessageHeader
+### MSH -> MessageHeader
 
 - MSH.24 vs MSH.3: The inventory prefers MSH.24 over MSH.3, but ReportStream prefers MSH.3 as from experience it has
   better information
@@ -65,9 +65,6 @@ implementation differs from what is in the spreadsheets.
   better information
 - MSH.23 vs MSH.6: The inventory prefers MSH.23 over MSH.6, but the ReportStream prefers MSH.5 as from experience it has
   better information
-- The inventory specifies two different, contradicting mappings for MessageHeader.source and the team opted to
-  use [HD[MessageHeader.source.endpoint]](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0)
-  as it is more specific
 - The inventory specifies two different, contradicting mappings for MessageHeader.destination and the team opted to
   use [HD[MessageHeader.destination.endpoint]](https://docs.google.com/spreadsheets/d/1T99UdnCSjoGpbamAvfVEZMDN5wKRtc0gUlWZ0ufRd6c/edit#gid=0)
   as it is more specific
@@ -93,6 +90,14 @@ implementation differs from what is in the spreadsheets.
   and [MSH[Provenance-Transformation]](https://docs.google.com/spreadsheets/d/1byfzqOfOvIVdRkHv2Tto5a-a0YMYWWP0eryaZBvibIo/edit#gid=0)
   both include entity values to contain the original HL7v2 message. Since we currently don't have a good way to include
   real references to those messages, we've omitted the associated `entity` fields altogether.
+
+### SFT -> Provenance -> Device
+
+- The
+  inventory [SFT[Device]](https://docs.google.com/spreadsheets/d/1wSSB1L4LrwVFEqDYzoB6zv4Iuvsh3YxhxNBPq2oB4g8/edit#gid=0)
+  specifies an FHIR R5 extension for SFT.6 but this implementation is using R4. A custom extension has been implemented
+  in
+  place of the R5 extension.
 
 ### OBR/ORC -> ServiceRequest
 

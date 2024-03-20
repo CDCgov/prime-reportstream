@@ -47,7 +47,7 @@ version:
         _valueDateTime:
           expressionType: nested
           expressionsMap:
-            extension_1:
+            extension:
               generateList: true
               expressionType: nested
               expressionsMap:
