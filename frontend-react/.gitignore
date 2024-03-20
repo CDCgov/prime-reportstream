@@ -40,7 +40,6 @@ package-lock.json
 
 # Next.js
 .next
-next-env.d.ts
 dist
 
 # Typescript
