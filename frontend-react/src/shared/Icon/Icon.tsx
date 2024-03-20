@@ -4,7 +4,7 @@ import { IconProps as OrigIconProps } from "@trussworks/react-uswds/lib/componen
 import classNames from "classnames";
 import { HTMLAttributes } from "react";
 
-import rsSprite from "./reportstream-sprite.svg?url";
+import rsSprite from "./reportstream-sprite.svg";
 
 export type RSIconName =
     | "rs-mpox"
