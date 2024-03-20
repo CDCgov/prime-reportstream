@@ -125,12 +125,24 @@ runs:
           az acr login --name ${{ env.ACR_NAME }}
         shell: bash
 
-    - uses: Azure/get-keyvault-secrets@c2b531e47fab4ca7cd8df09d44a65256651bf46e
-      if: env.USE_DCT == 'true'
-      with:
-        keyvault: ${{ env.KEY_VAULT }}
-        secrets: ${{ env.KEY_NAME }}  # comma separated list of secret keys that need to be fetched from the Key Vault 
+    # - uses: Azure/get-keyvault-secrets@c2b531e47fab4ca7cd8df09d44a65256651bf46e
+    #   if: env.USE_DCT == 'true'
+    #   with:
+    #     keyvault: ${{ env.KEY_VAULT }}
+    #     secrets: ${{ env.KEY_NAME }}  # comma separated list of secret keys that need to be fetched from the Key Vault 
+    #   id: key-vault
+
+    - name: 'Get secrets'
       id: key-vault
+      if: env.USE_DCT == 'true'
+      run: |
+        secrets=${{ env.KEY_NAME }}
+        for secret_get in ${secrets_get[@]}
+        do
+          value=$(az keyvault secret show --name $secret_get --vault-name ${{ env.KEY_VAULT }} --query value --output tsv)
+          echo "::add-mask::$value"
+          echo "$secret_get=$value" >> $GITHUB_OUTPUT
+        done
 
     - name: Create ssl key file
       if: env.USE_DCT == 'true'
