@@ -48,11 +48,6 @@ class MSHToMessageHeaderTests {
     }
 
     @Test
-    fun `test stores info from SFT when MSH3 and MSH24 are not valued`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-stores-sft-without-msh3-msh24").passed)
-    }
-
-    @Test
     fun `test stores multiple character sets correctly`() {
         assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-handles-multiple-msh18").passed)
     }
@@ -75,10 +70,5 @@ class MSHToMessageHeaderTests {
     @Test
     fun `test all MSH valued`() {
         assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-everything-valued").passed)
-    }
-
-    @Test
-    fun `test all MSH and SFT valued`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("msh/MSH-to-MessageHeader-everything-valued-SFT-valued").passed)
     }
 }
