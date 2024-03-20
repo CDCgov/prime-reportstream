@@ -154,7 +154,6 @@ class SubmissionFunction(
         @BindingName("id") id: String,
         context: ExecutionContext,
     ): HttpResponseMessage {
-
         val authResult = this.authSingleBlocks(request, id)
 
          if (authResult != null) {
