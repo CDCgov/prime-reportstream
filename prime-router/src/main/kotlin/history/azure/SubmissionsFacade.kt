@@ -165,7 +165,7 @@ class SubmissionsFacade(
         return receivingOrgs.any { claims.authorizedForSendOrReceive(it, null, request) }
     }
 
-    private fun receivingOrgsForAction(action: Action): List<String?> {
+    private fun receivingOrgsForAction(action: Action): Set<String?> {
         val report = this.fetchReportForActionId(action.actionId)
 
         val relatedActions = dbSubmissionAccess.fetchRelatedActions(
@@ -175,7 +175,7 @@ class SubmissionsFacade(
 
         return relatedActions.filter { it.actionName == TaskAction.send }
             .flatMap { it.reports!! }
-            .map { it.receivingOrg }
+            .map { it.receivingOrg }.toSet()
     }
 
     companion object {
