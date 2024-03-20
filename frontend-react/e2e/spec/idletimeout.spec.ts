@@ -3,7 +3,7 @@ import process from "node:process";
 
 import * as organization from "../pages/organization";
 
-const timeout = parseInt(process.env.VITE_IDLE_TIMEOUT ?? "20000");
+const timeout = parseInt(process.env.NEXT_PUBLIC_IDLE_TIMEOUT ?? "20000");
 // Add/Sub 500 ms to account for variance
 const timeoutLow = timeout - 500;
 const timeoutHigh = timeout + 500;

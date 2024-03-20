@@ -5,7 +5,7 @@ import process from "node:process";
  * Won't be needed with vitest.
  */
 function setup() {
-    process.env.VITE_BACKEND_URL = "http://localhost";
+    process.env.NEXT_PUBLIC_BACKEND_URL = "http://localhost";
 }
 
 export default setup;

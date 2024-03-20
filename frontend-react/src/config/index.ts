@@ -4,14 +4,14 @@ import type { IIdleTimerProps } from "react-idle-timer";
 import type { ConsoleLevel } from "../utils/console";
 
 const envVars = {
-    OKTA_URL: import.meta.env.VITE_OKTA_URL,
-    OKTA_CLIENT_ID: import.meta.env.VITE_OKTA_CLIENTID,
-    RS_API_URL: import.meta.env.VITE_BACKEND_URL,
+    OKTA_URL: process.env.NEXT_PUBLIC_OKTA_URL,
+    OKTA_CLIENT_ID: process.env.NEXT_PUBLIC_OKTA_CLIENTID,
+    RS_API_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
     MODE: process.env.NODE_ENV,
 };
 
-const DEFAULT_FEATURE_FLAGS = import.meta.env.VITE_FEATURE_FLAGS
-    ? import.meta.env.VITE_FEATURE_FLAGS.split(",")
+const DEFAULT_FEATURE_FLAGS = process.env.NEXT_PUBLIC_FEATURE_FLAGS
+    ? process.env.NEXT_PUBLIC_FEATURE_FLAGS.split(",")
     : [];
 
 const config = {
@@ -36,7 +36,7 @@ const config = {
         trace: SeverityLevel.Warning,
     } as Record<ConsoleLevel, SeverityLevel>,
     IDLE_TIMERS: {
-        timeout: import.meta.env.VITE_IDLE_TIMEOUT ?? 1000 * 60 * 15, // 15 minutes
+        timeout: process.env.NEXT_PUBLIC_IDLE_TIMEOUT ?? 1000 * 60 * 15, // 15 minutes
         debounce: 500,
         crossTab: true,
         syncTimers: 200,
@@ -44,13 +44,13 @@ const config = {
     } as IIdleTimerProps,
     PAGE_META: {
         defaults: {
-            title: import.meta.env.VITE_TITLE,
-            description: import.meta.env.VITE_DESCRIPTION,
+            title: process.env.NEXT_PUBLIC_TITLE,
+            description: process.env.NEXT_PUBLIC_DESCRIPTION,
             openGraph: {
                 image: {
-                    src: import.meta.env.VITE_OPENGRAPH_DEFAULT_IMAGE_SRC,
-                    altText: import.meta.env
-                        .VITE_OPENGRAPH_DEFAULT_IMAGE_ALTTEXT,
+                    src: process.env.NEXT_PUBLIC_OPENGRAPH_DEFAULT_IMAGE_SRC,
+                    altText: process.env
+                        .NEXT_PUBLIC_OPENGRAPH_DEFAULT_IMAGE_ALTTEXT,
                 },
             },
         },

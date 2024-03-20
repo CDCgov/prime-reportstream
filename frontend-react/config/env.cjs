@@ -38,9 +38,9 @@ dotenvFiles.forEach((dotenvFile) => {
     }
 });
 
-// Grab NODE_ENV and VITE_* environment variables and prepare them to be
+// Grab NODE_ENV and NEXT_PUBLIC_* environment variables and prepare them to be
 // injected into the application.
-const VITE = /^VITE_/i;
+const VITE = /^NEXT_PUBLIC_/i;
 
 function getClientEnvironment() {
     const nodeEnv = process.env.NODE_ENV || "development";

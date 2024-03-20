@@ -74,7 +74,7 @@ This command loads the environment variables for develop (found in file `'.env.d
 cross-env NODE_ENV=development [cmd]
 ```
 
-The build can then use variables like `%VITE_TITLE%` in the index.html template and `import.meta.env.VITE_TITLE` in the React code.
+The build can then use variables like `%NEXT_PUBLIC_TITLE%` in the index.html template and `process.env.NEXT_PUBLIC_TITLE` in the React code.
 
 ## Testing Content-Security-Policy locally
 

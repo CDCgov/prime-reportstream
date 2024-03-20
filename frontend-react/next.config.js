@@ -1,3 +1,8 @@
+import createMDX from '@next/mdx'
+import rehypeSlug from "rehype-slug";
+import { remarkMdxToc } from "remark-mdx-toc";
+import remarkFrontmatter from "remark-frontmatter";
+import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import sassOptions from "./scripts/sassOptions.js"
 
 /**
@@ -15,6 +20,19 @@ const nextConfig = {
   output: 'export', // Outputs a Single-Page Application (SPA).
   distDir: './dist', // Changes the build output directory to `./dist/`.
   sassOptions: appSassOptions,
+  pageExtensions: ['mdx', 'ts', 'tsx'],
 }
  
-export default nextConfig
+const withMDX = createMDX({
+  // Add markdown plugins here, as desired
+  options: {
+    remarkPlugins: [
+        remarkMdxToc,
+        remarkFrontmatter,
+        remarkMdxFrontmatter,
+    ],
+    rehypePlugins: [rehypeSlug],
+  },
+})
+ 
+export default withMDX(nextConfig)

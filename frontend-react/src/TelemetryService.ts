@@ -8,9 +8,9 @@ import {
 export let appInsights: ApplicationInsights | undefined;
 
 export const aiConfig = {
-    connectionString: import.meta.env
-        .VITE_APPLICATIONINSIGHTS_CONNECTION_STRING,
-    loggingLevelConsole: import.meta.env.NODE_ENV === "development" ? 2 : 0,
+    connectionString: process.env
+        .NEXT_PUBLIC_APPLICATIONINSIGHTS_CONNECTION_STRING,
+    loggingLevelConsole: process.env.NODE_ENV === "development" ? 2 : 0,
     disableFetchTracking: false,
     enableAutoRouteTracking: true,
     loggingLevelTelemetry: 2,
