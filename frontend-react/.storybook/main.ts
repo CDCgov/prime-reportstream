@@ -30,9 +30,6 @@ const config: StorybookConfig = {
         options: {},
     },
     core: {},
-    features: {
-        buildStoriesJson: true,
-    },
     async viteFinal(config, { configType }) {
         // Exclude our mdx plugin from vite config in favor of storybook's
         config.plugins = config.plugins?.filter(
