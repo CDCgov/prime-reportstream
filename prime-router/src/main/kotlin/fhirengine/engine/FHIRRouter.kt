@@ -29,6 +29,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.codes
@@ -38,8 +39,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
-import gov.cdc.prime.router.fhirengine.utils.getAllMappedConditions
-import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
+import gov.cdc.prime.router.fhirengine.utils.getMappedConditionCodes
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
 import gov.cdc.prime.router.report.ReportService
@@ -141,7 +141,8 @@ class FHIRRouter(
         actionHistory.trackExistingInputReport(message.reportId)
 
         // pull fhir document and parse FHIR document
-        val bundle = FhirTranscoder.decode(message.downloadContent())
+        val fhirJson = message.downloadContent()
+        val bundle = FhirTranscoder.decode(fhirJson)
 
         // get the receivers that this bundle should go to
         val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
@@ -150,12 +151,14 @@ class FHIRRouter(
         val sender = reportService.getSenderName(message.reportId)
 
         // send event to Azure AppInsights
+        val observationSummary = AzureEventUtils.getObservations(bundle)
         azureEventService.trackEvent(
             ReportAcceptedEvent(
                 message.reportId,
                 message.topic,
                 sender,
-                bundle.getAllMappedConditions()
+                observationSummary,
+                fhirJson.length
             )
         )
 
@@ -217,10 +220,10 @@ class FHIRRouter(
                 )
 
                 // upload new copy to blobstore
-                val bodyBytes = FhirTranscoder.encode(receiverBundle).toByteArray()
+                val bodyString = FhirTranscoder.encode(receiverBundle)
                 val blobInfo = BlobAccess.uploadBody(
                     Report.Format.FHIR,
-                    bodyBytes,
+                    bodyString.toByteArray(),
                     report.name,
                     message.blobSubFolderName,
                     nextEvent.eventAction
@@ -229,6 +232,7 @@ class FHIRRouter(
                 actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
                 // send event to Azure AppInsights
+                val receiverObservationSummary = AzureEventUtils.getObservations(receiverBundle)
                 azureEventService.trackEvent(
                     ReportRouteEvent(
                         message.reportId,
@@ -236,7 +240,8 @@ class FHIRRouter(
                         message.topic,
                         sender,
                         receiver.fullName,
-                        receiverBundle.getAllMappedConditions()
+                        receiverObservationSummary,
+                        bodyString.length
                     )
                 )
 
@@ -295,6 +300,7 @@ class FHIRRouter(
             actionHistory.trackCreatedReport(nextEvent, report)
 
             // send event to Azure AppInsights
+            val receiverObservationSummary = AzureEventUtils.getObservations(bundle)
             azureEventService.trackEvent(
                 ReportRouteEvent(
                     message.reportId,
@@ -302,7 +308,8 @@ class FHIRRouter(
                     message.topic,
                     sender,
                     null,
-                    bundle.getAllMappedConditions()
+                    receiverObservationSummary,
+                    fhirJson.length
                 )
             )
 
@@ -433,7 +440,7 @@ class FHIRRouter(
                     )
                 }
                 passes = passes && filteredObservations.isNotEmpty() && // don't pass a bundle with only AOEs
-                    !filteredObservations.all { it.getMappedConditions().all { code -> code == "AOE" } }
+                    !filteredObservations.all { it.getMappedConditionCodes().all { code -> code == "AOE" } }
             }
 
             // if all filters pass, add this receiver to the list of valid receivers

@@ -12,8 +12,6 @@ data class ReportRouteEvent(
     val topic: Topic,
     val sender: String,
     val receiver: String?,
-    val conditions: Set<String>,
-) : AzureCustomEvent {
-    // extract out conditions count into top level custom dimension for easier querying
-    val conditionsCount = conditions.size
-}
+    val observations: List<ObservationSummary>,
+    val bundleSize: Int,
+) : AzureCustomEvent

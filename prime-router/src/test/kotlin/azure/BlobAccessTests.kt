@@ -779,4 +779,87 @@ class BlobAccessTests {
         assertThat(testBlobMetadata.containerName).isEqualTo(testContainer)
         assertThat(testBlobMetadata.connectionString).isEqualTo("testconnection")
     }
+
+    @Test
+    fun `restorePreviousVersion success`() {
+        val mockBlobContainerMetadata = mockk<BlobAccess.BlobContainerMetadata>()
+        val mockBlobContainer = mockk<BlobContainerClient>()
+        val mockBlobClient = mockk<BlobClient>()
+        val mockVersionClient = mockk<BlobClient>()
+        every { mockVersionClient.blobUrl } returns "http://foo.com/foo.txt"
+        val currentBlob = BlobItem()
+        currentBlob.name = "foo.txt"
+        val previousVersionBlob = BlobItem()
+        previousVersionBlob.name = "foo.txt"
+        previousVersionBlob.versionId = "af-123"
+        val blobItemAndPreviousVersions = BlobAccess.Companion.BlobItemAndPreviousVersions(
+            currentBlob,
+            listOf(previousVersionBlob)
+        )
+        mockkObject(BlobAccess)
+        every { BlobAccess.getBlobContainer(mockBlobContainerMetadata) } returns mockBlobContainer
+        every { mockBlobContainer.getBlobClient(currentBlob.name) } returns mockBlobClient
+        every {
+            mockBlobContainer.getBlobVersionClient(
+                currentBlob.name,
+                previousVersionBlob.versionId
+            )
+        } returns mockVersionClient
+        every { mockBlobClient.copyFromUrl("http://foo.com/foo.txt") } returns ""
+
+        BlobAccess.restorePreviousVersion(blobItemAndPreviousVersions, mockBlobContainerMetadata)
+
+        verify(exactly = 1) {
+            BlobAccess.getBlobContainer(mockBlobContainerMetadata)
+            mockBlobContainer.getBlobClient(currentBlob.name)
+            mockBlobContainer.getBlobVersionClient(
+                currentBlob.name,
+                previousVersionBlob.versionId
+            )
+            mockBlobClient.copyFromUrl("http://foo.com/foo.txt")
+        }
+    }
+
+    @Test
+    fun `restorePreviousVersion missing previous versions`() {
+        val mockBlobContainerMetadata = mockk<BlobAccess.BlobContainerMetadata>()
+        val mockBlobContainer = mockk<BlobContainerClient>()
+        val mockBlobClient = mockk<BlobClient>()
+
+        val currentBlob = BlobItem()
+        currentBlob.name = "foo.txt"
+        val previousVersionBlob = BlobItem()
+        previousVersionBlob.name = "foo.txt"
+        previousVersionBlob.versionId = "af-123"
+        val blobItemAndPreviousVersions = BlobAccess.Companion.BlobItemAndPreviousVersions(
+            currentBlob,
+            emptyList()
+        )
+        mockkObject(BlobAccess)
+        every { BlobAccess.getBlobContainer(mockBlobContainerMetadata) } returns mockBlobContainer
+        every { mockBlobContainer.getBlobClient(currentBlob.name) } returns mockBlobClient
+
+        BlobAccess.restorePreviousVersion(blobItemAndPreviousVersions, mockBlobContainerMetadata)
+
+        verify(exactly = 1) {
+            BlobAccess.getBlobContainer(mockBlobContainerMetadata)
+            mockBlobContainer.getBlobClient(currentBlob.name)
+        }
+
+        verify(exactly = 0) {
+            mockBlobContainer.getBlobVersionClient(
+                currentBlob.name,
+                previousVersionBlob.versionId
+            )
+            mockBlobClient.copyFromUrl(any())
+        }
+    }
+
+    @Test
+    fun `BlobItemAndPreviousVersions#blobName returns name of current blob`() {
+        val currentBlob = BlobItem()
+        currentBlob.name = "foo.txt"
+        val blobItemAndPreviousVersions = BlobAccess.Companion.BlobItemAndPreviousVersions(currentBlob, emptyList())
+        assertThat(blobItemAndPreviousVersions.blobName).isEqualTo("foo.txt")
+    }
 }

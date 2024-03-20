@@ -9,6 +9,14 @@ export function AdminReceiverDashPage() {
         <GridContainer>
             <Helmet>
                 <title>Receiver status dashboard - Admin</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/reportstream.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
+                />
             </Helmet>
             <article>
                 <AdminReceiverDashboard />

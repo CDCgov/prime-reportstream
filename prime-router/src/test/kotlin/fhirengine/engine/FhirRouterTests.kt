@@ -39,7 +39,9 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.ConditionSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
+import gov.cdc.prime.router.azure.observability.event.ObservationSummary
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
@@ -1433,7 +1435,15 @@ class FhirRouterTests {
                     message.reportId,
                     message.topic,
                     "sendingOrg.sendingOrgClient",
-                    setOf("6142004", "Some Condition Code")
+                    listOf(
+                        ObservationSummary(
+                            listOf(
+                                ConditionSummary("6142004", "Influenza (disorder)"),
+                                ConditionSummary("Some Condition Code", "Condition Name")
+                            )
+                        )
+                    ),
+                    1945
                 ),
                 ReportRouteEvent(
                     message.reportId,
@@ -1441,7 +1451,15 @@ class FhirRouterTests {
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     orgWithMappedConditionFilter.receivers.first().fullName,
-                    setOf("6142004", "Some Condition Code")
+                    listOf(
+                        ObservationSummary(
+                            listOf(
+                                ConditionSummary("6142004", "Influenza (disorder)"),
+                                ConditionSummary("Some Condition Code", "Condition Name")
+                            )
+                        )
+                    ),
+                    1945
                 )
             )
 
@@ -1564,7 +1582,19 @@ class FhirRouterTests {
                 message.reportId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
-                setOf("840539006")
+                listOf(
+                    ObservationSummary(
+                        ConditionSummary(
+                            "840539006",
+                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        )
+                    ),
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY
+                ),
+                36942
             )
             val expectedRoutedEvent = ReportRouteEvent(
                 message.reportId,
@@ -1572,7 +1602,19 @@ class FhirRouterTests {
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 null,
-                setOf("840539006")
+                listOf(
+                    ObservationSummary(
+                        ConditionSummary(
+                            "840539006",
+                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        )
+                    ),
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY
+                ),
+                36942
             )
             assertThat(azureEvents).hasSize(2)
             assertThat(azureEvents.first())

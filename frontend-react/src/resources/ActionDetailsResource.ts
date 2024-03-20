@@ -9,7 +9,7 @@ export interface Destination {
     service: string;
     filteredReportRows: string[];
     filteredReportItems: FilteredReportItem[];
-    sending_at: string;
+    sending_at?: string;
     itemCount: number;
     itemCountBeforeQualityFiltering: number;
     sentReports: string[];

@@ -2,13 +2,12 @@ import { FC, useCallback } from "react";
 import { useController } from "rest-hooks";
 
 import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
+import DataDashboardTableFilters from "../../components/DataDashboard/DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import Spinner from "../../components/Spinner";
 import { PaginationProps } from "../../components/Table/Pagination";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
-import TableFilters, {
-    TableFilterDateLabel,
-} from "../../components/Table/TableFilters";
+import { TableFilterDateLabel } from "../../components/Table/TableFilters";
 import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
 import { useSessionContext } from "../../contexts/Session";
 import useFilterManager, {
@@ -77,7 +76,7 @@ const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
 
     return (
         <>
-            <TableFilters
+            <DataDashboardTableFilters
                 startDateLabel={TableFilterDateLabel.START_DATE}
                 endDateLabel={TableFilterDateLabel.END_DATE}
                 showDateHints={true}
