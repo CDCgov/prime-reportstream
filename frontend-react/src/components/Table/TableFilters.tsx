@@ -256,10 +256,11 @@ function TableFilters({
             setStartTime(DEFAULT_FROM_TIME);
             setEndTime(DEFAULT_TO_TIME);
             setCurrentServiceSelect(initialService.name);
+            setSearchTerm("");
             setService?.(initialService.name);
             filterManager.resetAll();
         },
-        [filterManager, initialService?.name, reset, setService],
+        [filterManager, initialService.name, reset, setSearchTerm, setService],
     );
 
     const submitHandler = useCallback(
@@ -289,6 +290,7 @@ function TableFilters({
     return (
         <div className={styles.TableFilters}>
             <TableFilterSearch
+                reset={reset}
                 setSearchTerm={setSearchTerm}
                 resetHandler={resetHandler}
             />
