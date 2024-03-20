@@ -156,21 +156,26 @@ class SubmissionsFacade(
         val senderAuthorized = claims.authorizedForSendOrReceive(action.sendingOrg, null, request)
 
         if (senderAuthorized) {
+            // if the sender is authorized, no need to check the receivers.  This is equivalent to a short-circuited "or" statement.
             return true
         }
 
+        val receivingOrgs = receivingOrgsForAction(action)
+
+        return receivingOrgs.any { claims.authorizedForSendOrReceive(it, null, request) }
+    }
+
+    private fun receivingOrgsForAction(action: Action): List<String?> {
         val report = this.fetchReportForActionId(action.actionId)
 
-        val relatedSubmissions = dbSubmissionAccess.fetchRelatedActions(
+        val relatedActions = dbSubmissionAccess.fetchRelatedActions(
             report!!.reportId,
             DetailedSubmissionHistory::class.java
         )
 
-        val receivingOrgs = relatedSubmissions.filter {
-            it.actionName == TaskAction.send
-        }.flatMap { it.reports!! }.map { it.receivingOrg }
-
-        return receivingOrgs.any { claims.authorizedForSendOrReceive(it, null, request) }
+        return relatedActions.filter { it.actionName == TaskAction.send }
+            .flatMap { it.reports!! }
+            .map { it.receivingOrg }
     }
 
     companion object {
