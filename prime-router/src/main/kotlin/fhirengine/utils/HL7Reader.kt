@@ -262,6 +262,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         fun getPatientPath(hl7Message: Message): String? {
             return when (getMessageType(hl7Message)) {
                 "ORM" -> "PATIENT"
+                "OML" -> "PATIENT"
                 "ORU" -> "PATIENT_RESULT/PATIENT"
                 else -> null
             }
