@@ -8,7 +8,7 @@ elements:
 
   - name: software-vendor-name
     condition: true
-    resource: 'Bundle.entry.resource.ofType(Provenance).where(entity.exists()).entity.what.resolve()'
+    resource: 'Bundle.entry.resource.ofType(Provenance).where(entity.exists()).entity.what.resolve().where(extension(%`rsext-software-vendor-org`).exists())'
     bundleProperty: '%resource.extension(%`rsext-software-vendor-org`).value.resolve().name'
     value: [ '"Orange Software Vendor Name"' ]
 
