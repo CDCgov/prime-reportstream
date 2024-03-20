@@ -153,7 +153,24 @@ class SubmissionsFacade(
         action: Action,
         request: HttpRequestMessage<String?>,
     ): Boolean {
-        return claims.authorizedForSendOrReceive(action.sendingOrg, null, request)
+        val senderAuthorized = claims.authorizedForSendOrReceive(action.sendingOrg, null, request)
+
+        if (senderAuthorized) {
+            return true
+        }
+
+        val report = this.fetchReportForActionId(action.actionId)
+
+        val relatedSubmissions = dbSubmissionAccess.fetchRelatedActions(
+            report!!.reportId,
+            DetailedSubmissionHistory::class.java
+        )
+
+        val receivingOrgs = relatedSubmissions.filter {
+            it.actionName == TaskAction.send
+        }.flatMap { it.reports!! }.map { it.receivingOrg }
+
+        return receivingOrgs.any { claims.authorizedForSendOrReceive(it, null, request) }
     }
 
     companion object {
