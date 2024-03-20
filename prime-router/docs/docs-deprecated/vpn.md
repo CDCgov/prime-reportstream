@@ -111,14 +111,7 @@ If you are using OpenVPN Connect, uninstall it and install the [OpenVPN Client](
 
 ## Generate a VPN Profile (Automatic)
 
->Requires CDC OneDrive installed on local computer.
-
-1. Open CDC Teams and navigate to `ReportStream > DevOps - Private > Files`
-2. For directory `VPN`, select "Add shortcut to OneDrive"
-3. In a Bash shell, navigate to your `OneDrive - CDC/vpn` directory mount
-4. Run `./createKey.sh` and follow the prompts
-5. The user's VPN profiles with be created in a folder with their name under `profiles/`
-6. Send profile to user via CDC teams
+ * [Instructions](../../../operations/vpn/README.md)
 
 ## Generate a VPN Profile (Manual)
 
@@ -153,8 +146,8 @@ To generate keys for a VPN profile, follow the below steps. These steps [are der
     * `${VPN_USERNAME}Key.pem` to `<key></key>`
 * Securely transmit the VPN profile to the recipient
 
-**Note:** GitHub environment VPN credentials are [stored as base64](https://github.com/golfzaptw/action-connect-ovpn#how-to-prepare-file-ovpn).
+**Note:** GitHub environment VPN credentials are [stored as base64](https://github.com/JosiahSiegel/action-connect-ovpn?#how-to-prepare-file-ovpn).
 
 ## Revoke a VPN Profile
 
- * [Instructions](../../operations/vpn/README.md)
+ * [Instructions](../../../operations/vpn/README.md)
