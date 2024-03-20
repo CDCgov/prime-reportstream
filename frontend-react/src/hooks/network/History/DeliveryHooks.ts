@@ -88,7 +88,9 @@ const useOrgDeliveries = (initialService?: string) => {
                 pageSize: numResults,
                 ...additionalParams,
             };
-
+            // Basically, if there are search parameters present, ignore the
+            // specifically chosen Receiver, so that the search can be across
+            // ALL Receivers
             const segmentParam = Object.keys(additionalParams).length
                 ? adminSafeOrgName
                 : orgAndService;
