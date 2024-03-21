@@ -93,6 +93,8 @@ export interface PaginationProps {
     setSelectedPage: (pageNum: number) => void;
     currentPageNum: number;
     label?: string;
+    resultLength?: number;
+    isPaginationLoading?: boolean;
 }
 
 const Pagination: FC<PaginationProps> = ({

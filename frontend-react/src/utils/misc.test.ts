@@ -38,12 +38,13 @@ test("verify checking json for errors", () => {
     expect(checkJson(`{`)).toStrictEqual({
         valid: false,
         offset: 1,
-        errorMsg: "Unexpected end of JSON input",
+        errorMsg: "Expected property name or '}' in JSON at position 1",
     });
     expect(checkJson(`{ "foo": [1,2,3 }`)).toStrictEqual({
         valid: false,
         offset: 16,
-        errorMsg: "Unexpected token } in JSON at position 16",
+        errorMsg:
+            "Expected ',' or ']' after array element in JSON at position 16",
     });
 });
 

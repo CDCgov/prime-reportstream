@@ -157,18 +157,18 @@ runs:
         list-files: json
         filters: |
           router:
-            - 'prime-router/**'
+            - 'prime-router/**/**.!(md)'
             - 'operations/!((app|readme-assets|slack-boltjs-app|vpn))/**'
             - '.github/actions/build-backend/action.yml'
             - '.github/actions/deploy-backend/action.yml'
             - '.github/actions/build-vars/action.yml'
             - '.github/workflows/build_hub.yml'
           frontend_react:
-            - 'frontend-react/**'
+            - 'frontend-react/**/**.!(md)'
             - '.github/actions/build-vars/action.yml'
             - '.github/actions/build-frontend/action.yml'            
           terraform:
-            - 'operations/app/terraform/**'
+            - 'operations/app/terraform/**/**.!(md)'
             - '.github/workflows/validate_terraform.yml'
             - '.github/workflows/deploy_terraform.yml'
 
@@ -214,7 +214,7 @@ runs:
           echo "has_react_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi
 
-    - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
+    - uses: azure/login@8c334a195cbb38e46038007b304988d888bf676a
       if: inputs.sp-creds != 'false'
       with:
         creds: ${{ inputs.sp-creds }}

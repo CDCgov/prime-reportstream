@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure.observability.event
 
-import gov.cdc.prime.router.fhirengine.utils.getAllMappedConditions
+import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
+import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Bundle
 
 /**
@@ -9,11 +10,15 @@ import org.hl7.fhir.r4.model.Bundle
 object AzureEventUtils {
 
     /**
-     * Retrieves all mapped conditions from a [Bundle] and converts them to a [ConditionSummary]
+     * Retrieves all observations from a bundle and maps them to a list of [ObservationSummary] each
+     * containing a list of [ConditionSummary]
      */
-    fun getConditions(bundle: Bundle): List<ConditionSummary> {
-        return bundle
-            .getAllMappedConditions()
-            .map(ConditionSummary::fromCoding)
+    fun getObservations(bundle: Bundle): List<ObservationSummary> {
+        return bundle.getObservations().map { observation ->
+            val conditions = observation
+                .getMappedConditions()
+                .map(ConditionSummary::fromCoding)
+            ObservationSummary(conditions)
+        }
     }
 }
