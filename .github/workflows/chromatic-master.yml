@@ -15,9 +15,9 @@ jobs:
         with:
           fetch-depth: 0 # need commit history for Chromatic
 
-      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
-          node-version-file: frontend-react/package.json
+          node-version-file: "frontend-react/.nvmrc"
 
       - name: Install dependencies
         run: yarn
@@ -26,7 +26,7 @@ jobs:
 
       - name: Publish to Chromatic and accept baseline
         id: chromatic_publish
-        uses: chromaui/action@v10
+        uses: chromaui/action@v11
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}

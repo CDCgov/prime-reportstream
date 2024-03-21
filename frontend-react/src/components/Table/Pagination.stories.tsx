@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import { ReactElement } from "react";
 
 import Pagination from "./Pagination";
 
@@ -10,7 +10,7 @@ export default {
 export const PaginationCmp = (): ReactElement => (
     <Pagination
         slots={[1, 2, 3]}
-        setSelectedPage={() => {}}
+        setSelectedPage={() => void 0}
         currentPageNum={1}
     />
 );

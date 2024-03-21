@@ -1,30 +1,30 @@
-import { NetworkErrorBoundary, useResource } from "rest-hooks";
-import React, { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import {
     Button,
     DateRangePicker,
-    Dropdown,
     Grid,
     GridContainer,
     Label,
     Modal,
     ModalRef,
     ModalToggleButton,
+    Select,
     SiteAlert,
     TextInput,
     Tooltip,
 } from "@trussworks/react-uswds";
+import { endOfDay, startOfDay, subDays } from "date-fns";
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
-import moment from "moment";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
+import { ErrorPage } from "../../pages/error/ErrorPage";
 import {
-    AdmConnStatusResource,
     AdmConnStatusDataType,
+    AdmConnStatusResource,
 } from "../../resources/AdmConnStatusResource";
 import { formatDate } from "../../utils/misc";
-import { TableFilterDateLabel, StyleClass } from "../Table/TableFilters";
 import Spinner from "../Spinner";
-import { ErrorPage } from "../../pages/error/ErrorPage";
+import { StyleClass, TableFilterDateLabel } from "../Table/TableFilters";
 import { USLink } from "../USLink";
 
 const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
@@ -138,15 +138,15 @@ const MAX_DAYS_MS = MAX_DAYS * 24 * 60 * 60 * 1000;
  * @return {string}
  */
 const startOfDayIso = (d: Date) => {
-    return moment(d).startOf("day").toISOString();
+    return startOfDay(d).toISOString();
 };
 
 const endOfDayIso = (d: Date) => {
-    return moment(d).endOf("day").toISOString();
+    return endOfDay(d).toISOString();
 };
 
 const initialStartDate = () => {
-    return moment().subtract(DAY_BACK_DEFAULT, "days").toDate();
+    return subDays(new Date(), DAY_BACK_DEFAULT);
 };
 
 const initialEndDate = () => {
@@ -292,7 +292,7 @@ class TimeSlots implements IterateTimeSlots {
     private readonly end: Date;
     private readonly skipHours: number;
 
-    constructor(range: DatePair, skipHours: number = 2) {
+    constructor(range: DatePair, skipHours = 2) {
         this.current = range[0];
         this.end = range[1];
         this.skipHours = skipHours;
@@ -359,16 +359,16 @@ function renderAllReceiverRows(props: {
         let currentEntry = props.data[offset];
         let currentDate = new Date(currentEntry.connectionCheckCompletedAt);
         let currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
-        let rowReceiver = currentReceiver; // used to know when we've run out of row data
+        const rowReceiver = currentReceiver; // used to know when we've run out of row data
 
         // loop over all days
         const daySlots = new TimeSlots([props.startDate, props.endDate], 24);
-        for (let [daySlotStart, daySlotEnd] of daySlots) {
+        for (const [daySlotStart, daySlotEnd] of daySlots) {
             const timeSlots = new TimeSlots(
                 [daySlotStart, daySlotEnd],
                 SKIP_HOURS,
             );
-            for (let [timeSlotStart, timeSlotEnd] of timeSlots) {
+            for (const [timeSlotStart, timeSlotEnd] of timeSlots) {
                 const successForSlice = new SuccessRateTracker();
 
                 let errorFilterMatchedSlice =
@@ -444,7 +444,7 @@ function renderAllReceiverRows(props: {
                 sliceElements.push(
                     <Grid
                         row
-                        key={`slice:${currentReceiver}|${timeSlotStart}`}
+                        key={`slice:${currentReceiver}|${timeSlotStart.toISOString()}`}
                         className={`slice ${sliceClassName} ${sliceFilterClassName}`}
                         data-offset={dataOffset}
                         data-offset-end={dataOffsetEnd}
@@ -457,10 +457,10 @@ function renderAllReceiverRows(props: {
                                       // get saved offset from "data-offset" attribute on this element
                                       const target = evt.currentTarget;
                                       const sliceStart = parseInt(
-                                          target?.dataset["offset"] || "-1",
+                                          target?.dataset.offset ?? "-1",
                                       );
                                       let sliceEnd = parseInt(
-                                          target?.dataset["offsetEnd"] || "-1",
+                                          target?.dataset.offsetEnd ?? "-1",
                                       );
                                       // sanity check it's within range (should never happen)
                                       if (
@@ -579,8 +579,8 @@ function FilterRenderedRows(props: {
     const renderedRows = props.renderedRows;
 
     const resultArray: JSX.Element[] = [];
-    for (let offset = 0; offset < renderedRows.length; offset++) {
-        const renderedRow = renderedRows[offset];
+    for (const element of renderedRows) {
+        const renderedRow = element;
         const rowStatus = renderedRow.props["data-rowstatus"] || "";
         const orgRecvName = renderedRow.props["data-orgrecvname"] || "";
         const allSlicesFilteredOut =
@@ -899,9 +899,9 @@ export function AdminReceiverDashboard() {
                     <DateRangePickingAtomic
                         defaultStartDate={startOfDayIso(initialStartDate())}
                         defaultEndDate={initialEndDate().toISOString()}
-                        onChange={(props) => {
-                            setStartDate(props.startDate);
-                            setEndDate(props.endDate);
+                        onChange={(params) => {
+                            setStartDate(params.startDate);
+                            setEndDate(params.endDate);
                         }}
                     />
                 </div>
@@ -922,7 +922,6 @@ export function AdminReceiverDashboard() {
                             type="text"
                             autoComplete="off"
                             aria-autocomplete="none"
-                            autoFocus
                             onChange={(evt) =>
                                 setFilterReceivers(evt.target.value)
                             }
@@ -947,7 +946,6 @@ export function AdminReceiverDashboard() {
                             type="text"
                             autoComplete="off"
                             aria-autocomplete="none"
-                            autoFocus
                             onChange={(evt) =>
                                 setFilterErrorResults(evt.target.value)
                             }
@@ -966,7 +964,7 @@ export function AdminReceiverDashboard() {
                         className="fixed-tooltip"
                         label="Show only rows in one of these states."
                     >
-                        <Dropdown
+                        <Select
                             id="successrate-dropdown"
                             name="successrate-dropdown"
                             onChange={(evt) =>
@@ -985,7 +983,7 @@ export function AdminReceiverDashboard() {
                             <option value={SuccessRate.MIXED_SUCCESS}>
                                 Mixed success
                             </option>
-                        </Dropdown>
+                        </Select>
                     </Tooltip>
                 </div>
             </form>

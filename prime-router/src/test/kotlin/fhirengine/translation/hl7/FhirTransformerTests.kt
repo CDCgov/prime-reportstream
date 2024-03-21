@@ -10,6 +10,7 @@ import assertk.assertions.isNotSameAs
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
@@ -21,6 +22,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import org.apache.logging.log4j.kotlin.KotlinLogger
@@ -161,7 +163,7 @@ class FhirTransformerTests {
 
         val rootSchema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        val newBundle = FhirTransformer(rootSchema).transform(bundle)
+        val newBundle = FhirTransformer(rootSchema).process(bundle)
         assertThat(newBundle.id).isEqualTo("654321")
         assertThat(newBundle.entry[0].resource.id).isEqualTo("fedcba")
     }
@@ -194,7 +196,7 @@ class FhirTransformerTests {
         val overrideSchema = FhirTransformSchema(elements = mutableListOf(elemBOverride))
         rootSchema.override(overrideSchema)
 
-        val newBundle = FhirTransformer(rootSchema).transform(bundle)
+        val newBundle = FhirTransformer(rootSchema).process(bundle)
         assertThat(newBundle.id).isEqualTo("overrideVal")
         assertThat(newBundle.entry[0].resource.id).isEqualTo("overrideVal")
     }
@@ -216,7 +218,7 @@ class FhirTransformerTests {
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        val newBundle = FhirTransformer(schema).transform(bundle)
+        val newBundle = FhirTransformer(schema).process(bundle)
         var newValue =
             FhirPathUtils.evaluate(
                 CustomContext(newBundle, newBundle),
@@ -254,7 +256,7 @@ class FhirTransformerTests {
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        FhirTransformer(schema).transform(bundle)
+        FhirTransformer(schema).process(bundle)
         var newValue =
             FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.name.text"
@@ -262,7 +264,7 @@ class FhirTransformerTests {
         assertThat(newValue).isEmpty()
 
         resource.id = "654fed"
-        FhirTransformer(schema).transform(bundle)
+        FhirTransformer(schema).process(bundle)
         newValue =
             FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.name.text"
@@ -290,7 +292,7 @@ class FhirTransformerTests {
         schema.name = "ErrorSchema"
 
         val ex = assertFailsWith<ConfigSchemaElementProcessingException> {
-            FhirTransformer(schema).transform(bundle)
+            FhirTransformer(schema).process(bundle)
         }
         assertThat(ex.message).isEqualTo(
             "Error encountered while applying: elementA in ErrorSchema to FHIR bundle. " +
@@ -315,7 +317,7 @@ class FhirTransformerTests {
         )
         val schemaA = FhirTransformSchema(elements = mutableListOf(elemA))
         var bundle = origBundle.copy()
-        FhirTransformer(schemaA).transform(bundle)
+        FhirTransformer(schemaA).process(bundle)
         var newValue =
             FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.name.text"
@@ -331,7 +333,7 @@ class FhirTransformerTests {
         )
         val schemaB = FhirTransformSchema(elements = mutableListOf(elemB))
         bundle = origBundle.copy()
-        FhirTransformer(schemaB).transform(bundle)
+        FhirTransformer(schemaB).process(bundle)
         newValue =
             FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.gender"
@@ -341,7 +343,7 @@ class FhirTransformerTests {
         // In original order, same result
         val schemaC = FhirTransformSchema(elements = mutableListOf(elemA, elemB))
         bundle = origBundle.copy()
-        FhirTransformer(schemaC).transform(bundle)
+        FhirTransformer(schemaC).process(bundle)
         newValue =
             FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.name.text"
@@ -356,7 +358,7 @@ class FhirTransformerTests {
         // In backwards order, both updates occur
         val schemaD = FhirTransformSchema(elements = mutableListOf(elemB, elemA))
         bundle = origBundle.copy()
-        FhirTransformer(schemaD).transform(bundle)
+        FhirTransformer(schemaD).process(bundle)
         newValue =
             FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.name.text"
@@ -386,7 +388,7 @@ class FhirTransformerTests {
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        FhirTransformer(schema).transform(bundle)
+        FhirTransformer(schema).process(bundle)
         val newValue =
             FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle),
@@ -415,7 +417,7 @@ class FhirTransformerTests {
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        FhirTransformer(schema).transform(bundle)
+        FhirTransformer(schema).process(bundle)
         val newValue =
             FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle),
@@ -443,7 +445,7 @@ class FhirTransformerTests {
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        FhirTransformer(schema).transform(bundle)
+        FhirTransformer(schema).process(bundle)
         val newValue =
             FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle),
@@ -491,7 +493,7 @@ class FhirTransformerTests {
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        FhirTransformer(schema).transform(bundle)
+        FhirTransformer(schema).process(bundle)
 
         assertThat(resource.name[0].text).isEqualTo("ghi789")
         assertThat(resource2.name[0].text).isEqualTo("")
@@ -696,7 +698,7 @@ class FhirTransformerTests {
                 )
             )
         val transformer = FhirTransformer(schema)
-        transformer.transform(bundle)
+        transformer.process(bundle)
         assertThat(patient.id).isEqualTo("12345")
         assertThat(patient.name[0].text).isEqualTo("SomeName")
         assertThat(patient.active).isTrue()
@@ -731,7 +733,7 @@ class FhirTransformerTests {
                 elements = mutableListOf(elementA, elementB),
             )
         val transformer = FhirTransformer(schema)
-        transformer.transform(bundle)
+        transformer.process(bundle)
         assertThat(patient.id).isEqualTo("12345")
         assertThat(patient.name[0].text).isEqualTo("backupValue")
     }
@@ -784,7 +786,7 @@ class FhirTransformerTests {
             )
         val transformer = FhirTransformer(schema)
 
-        transformer.transform(bundle)
+        transformer.process(bundle)
         // Element A used local constant
         assertThat(patient.active).isTrue()
         // Element w/ child used element constant in child element, didn't access constants from Element A
@@ -845,7 +847,7 @@ class FhirTransformerTests {
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        FhirTransformer(schema).transform(bundle)
+        FhirTransformer(schema).process(bundle)
         val newValue =
             FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle),
@@ -859,19 +861,23 @@ class FhirTransformerTests {
 
     @Test
     fun `test extending schema overwrite element`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
         val bundle = messages[0]
 
         val childSchema = ConfigSchemaReader.fromFile(
-            "test_extension_schema",
-            "src/test/resources/fhir_sender_transforms",
+            "classpath:/fhir_sender_transforms/test_extension_schema.yml",
             schemaClass = FhirTransformSchema::class.java,
-        ) as FhirTransformSchema
+            blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        )
 
         val transformer = FhirTransformer(childSchema)
-        val transformedBundle = transformer.transform(bundle)
+        val transformedBundle = transformer.process(bundle)
 
         val transformedDiagnosticReports = mutableListOf<DiagnosticReport>()
         var transformedPatient = Patient()

@@ -1,15 +1,16 @@
-import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { screen } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
-import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import ReportDetailsTable from "./ReportDetailsTable";
 import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
 
-import ReportDetailsTable from "./ReportDetailsTable";
+import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { renderApp } from "../../../utils/CustomRenderUtils";
+import { selectDatesFromRange } from "../../../utils/TestUtils";
 
 const TEST_ID = "123";
 
@@ -58,18 +59,17 @@ describe("ReportDetailsTable", () => {
         describe("TableFilter", () => {
             test("Clicking on filter invokes the trackAppInsightEvent", async () => {
                 setup();
-                await waitFor(async () => {
-                    await userEvent.click(screen.getByText("Filter"));
+                await selectDatesFromRange("20", "23");
+                await userEvent.click(screen.getByText("Filter"));
 
-                    expect(mockAppInsights.trackEvent).toBeCalledWith({
-                        name: "Report Details | Table Filter",
-                        properties: {
-                            tableFilter: {
-                                endRange: "3000-01-01T23:59:59.999Z",
-                                startRange: "2000-01-01T00:00:00.000Z",
-                            },
+                expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                    name: "Report Details | Table Filter",
+                    properties: {
+                        tableFilter: {
+                            endRange: "3000-01-23T23:59:59.999Z",
+                            startRange: "2000-01-20T00:00:00.000Z",
                         },
-                    });
+                    },
                 });
             });
         });

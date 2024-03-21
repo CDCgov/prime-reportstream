@@ -1,68 +1,35 @@
-import React, { Dispatch, FC, SetStateAction } from "react";
+import { Dispatch, FC, SetStateAction } from "react";
 
+import { getReportAndDownload } from "./ReportsUtils";
+import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
+import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
+import Spinner from "../../../components/Spinner";
+import { PaginationProps } from "../../../components/Table/Pagination";
 import Table, {
     ColumnConfig,
     TableConfig,
 } from "../../../components/Table/Table";
-import { FilterManager } from "../../../hooks/filters/UseFilterManager";
-import { useSessionContext } from "../../../contexts/Session";
-import {
-    useOrgDeliveries,
-    DeliveriesDataAttr,
-} from "../../../hooks/network/History/DeliveryHooks";
-import Spinner from "../../../components/Spinner";
 import TableFilters, {
     TableFilterDateLabel,
 } from "../../../components/Table/TableFilters";
-import { PaginationProps } from "../../../components/Table/Pagination";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
-import usePagination from "../../../hooks/UsePagination";
-import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
-import { FeatureName } from "../../../utils/FeatureName";
-import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
-import { isDateExpired } from "../../../utils/DateTimeUtils";
-import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import {
     EventName,
     useAppInsightsContext,
 } from "../../../contexts/AppInsights";
-
-import { getReportAndDownload } from "./ReportsUtils";
-import ServicesDropdown from "./ServicesDropdown";
+import { useSessionContext } from "../../../contexts/Session";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
+import {
+    DeliveriesDataAttr,
+    useOrgDeliveries,
+} from "../../../hooks/network/History/DeliveryHooks";
+import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
+import usePagination, { ResultsFetcher } from "../../../hooks/UsePagination";
+import { isDateExpired } from "../../../utils/DateTimeUtils";
+import { FeatureName } from "../../../utils/FeatureName";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
-
-const ServiceDisplay = ({
-    services,
-    activeService,
-    handleSetActive,
-}: {
-    services: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    handleSetActive: (v: string) => void;
-}) => {
-    return (
-        <div className="grid-col-12">
-            {services && services?.length > 1 ? (
-                <ServicesDropdown
-                    services={services}
-                    active={activeService?.name || ""}
-                    chosenCallback={handleSetActive}
-                />
-            ) : (
-                <p>
-                    Default service:{" "}
-                    <strong>
-                        {(services?.length && services[0].name.toUpperCase()) ||
-                            ""}
-                    </strong>
-                </p>
-            )}
-        </div>
-    );
-};
 
 interface DeliveriesTableContentProps {
     filterManager: FilterManager;
@@ -91,7 +58,7 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     const handleExpirationDate = (expiresDate: string) => {
         return !isDateExpired(expiresDate);
     };
-    const columns: Array<ColumnConfig> = [
+    const columns: ColumnConfig[] = [
         {
             dataAttr: DeliveriesDataAttr.REPORT_ID,
             columnHeader: "Report ID",
@@ -102,13 +69,13 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         },
         {
             dataAttr: DeliveriesDataAttr.BATCH_READY,
-            columnHeader: "Available",
+            columnHeader: "Time received",
             sortable: true,
             transform: transformDate,
         },
         {
             dataAttr: DeliveriesDataAttr.EXPIRES,
-            columnHeader: "Expires",
+            columnHeader: "File available until",
             sortable: true,
             transform: transformDate,
         },
@@ -118,7 +85,7 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         },
         {
             dataAttr: DeliveriesDataAttr.FILE_NAME,
-            columnHeader: "File",
+            columnHeader: "Filename",
             feature: {
                 action: handleFetchAndDownload,
                 param: DeliveriesDataAttr.REPORT_ID,
@@ -126,15 +93,18 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
                 actionButtonParam: DeliveriesDataAttr.EXPIRES,
             },
         },
+        {
+            dataAttr: DeliveriesDataAttr.RECEIVER,
+            columnHeader: "Receiver",
+        },
     ];
 
     const resultsTableConfig: TableConfig = {
         columns: columns,
-        rows: serviceReportsList || [],
+        rows: serviceReportsList ?? [],
     };
 
     if (isLoading) return <Spinner />;
-
     return (
         <>
             <Table
@@ -147,23 +117,20 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
 };
 
 const DeliveriesFilterAndTable = ({
+    fetchResults,
+    filterManager,
     services,
-    activeService,
-    setActiveService,
+    setService,
+    initialService,
 }: {
+    fetchResults: ResultsFetcher<any>;
+    filterManager: FilterManager;
     services: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+    setService?: Dispatch<SetStateAction<string | undefined>>;
+    initialService: RSReceiver;
 }) => {
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
-    const handleSetActive = (name: string) => {
-        setActiveService(services.find((item) => item.name === name));
-    };
-
-    const { fetchResults, filterManager } = useOrgDeliveries(
-        activeService?.name,
-    );
     const pageSize = filterManager.pageSettings.size;
     const sortOrder = filterManager.sortSettings.order;
     const rangeTo = filterManager.rangeSettings.to;
@@ -192,72 +159,77 @@ const DeliveriesFilterAndTable = ({
         paginationProps.label = "Deliveries pagination";
     }
 
+    const receiverDropdown = [
+        ...new Set(
+            services.map((data) => {
+                return data.name;
+            }),
+        ),
+    ].map((receiver) => {
+        return { value: receiver, label: receiver };
+    });
+
     return (
         <>
-            <ServiceDisplay
-                services={services}
-                activeService={activeService}
-                handleSetActive={handleSetActive}
-            />
             <TableFilters
+                receivers={receiverDropdown}
                 startDateLabel={TableFilterDateLabel.START_DATE}
                 endDateLabel={TableFilterDateLabel.END_DATE}
                 showDateHints={true}
                 filterManager={filterManager}
+                setService={setService}
                 onFilterClick={({ from, to }: { from: string; to: string }) =>
                     appInsights?.trackEvent({
                         name: featureEvent,
                         properties: {
-                            tableFilter: { startRange: from, endRange: to },
+                            tableFilter: {
+                                startRange: from,
+                                endRange: to,
+                            },
                         },
                     })
                 }
+                initialService={initialService}
+                resultLength={paginationProps?.resultLength}
+                isPaginationLoading={paginationProps?.isPaginationLoading}
             />
-            <DeliveriesTable
-                filterManager={filterManager}
-                paginationProps={paginationProps}
-                isLoading={isLoading}
-                serviceReportsList={serviceReportsList}
-            />
+            {services.length === 0 ? (
+                <div className="usa-section margin-bottom-5">
+                    <NoServicesBanner />
+                </div>
+            ) : (
+                <DeliveriesTable
+                    filterManager={filterManager}
+                    paginationProps={paginationProps}
+                    isLoading={isLoading}
+                    serviceReportsList={serviceReportsList}
+                />
+            )}
         </>
     );
 };
 
 export const DailyData = () => {
-    const {
-        isLoading,
-        data: services,
-        activeService,
-        setActiveService,
-        isDisabled,
-    } = useOrganizationReceiversFeed();
+    const { isLoading, isDisabled, activeReceivers } =
+        useOrganizationReceivers();
+    const initialService = activeReceivers?.[0];
+    const { fetchResults, filterManager, setService } = useOrgDeliveries(
+        initialService?.name,
+    );
 
     if (isLoading) return <Spinner />;
 
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
-
-    if (
-        !isLoading &&
-        (!activeService ||
-            activeService?.customerStatus === CustomerStatusType.INACTIVE)
-    )
-        return (
-            <div className="usa-section margin-bottom-5">
-                <NoServicesBanner />
-            </div>
-        );
     return (
-        <>
-            {activeService && (
-                <DeliveriesFilterAndTable
-                    services={services!!}
-                    activeService={activeService}
-                    setActiveService={setActiveService}
-                />
-            )}
-        </>
+        <DeliveriesFilterAndTable
+            fetchResults={fetchResults}
+            filterManager={filterManager}
+            setService={setService}
+            services={activeReceivers}
+            initialService={initialService}
+        />
     );
 };
 

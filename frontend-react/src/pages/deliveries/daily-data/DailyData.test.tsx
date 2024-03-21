@@ -1,23 +1,23 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { renderApp } from "../../../utils/CustomRenderUtils";
-import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import DailyData from "./DailyData";
+import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import {
     orgServer,
     receiversGenerator,
 } from "../../../__mocks__/OrganizationMockServer";
-import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
-import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
+import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
-
-import DailyData from "./DailyData";
+import { selectDatesFromRange } from "../../../utils/TestUtils";
 
 const mockUsePagination = {
     currentPageResults: makeDeliveryFixtureArray(10),
@@ -69,14 +69,12 @@ describe("DeliveriesTable", () => {
                 fetchHeaders: () => ({}),
             });
             // Mock our receiver services feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
-                activeService: undefined,
+            mockUseOrganizationReceivers.mockReturnValue({
+                allReceivers: [],
+                activeReceivers: [],
                 isLoading: false,
-                data: [],
-                setActiveService: () => {},
                 isDisabled: false,
             } as any);
-
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
                 authState: {
@@ -100,6 +98,7 @@ describe("DeliveriesTable", () => {
             const mockUseOrgDeliveriesCallback = {
                 fetchResults: () => Promise.resolve([]),
                 filterManager: mockFilterManager,
+                setService: () => Promise.resolve([]),
             };
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
@@ -122,11 +121,10 @@ describe("DeliveriesTableWithNumbered", () => {
                 mockAppInsightsContextReturnValue({
                     fetchHeaders: () => ({}),
                 });
-                mockUseOrganizationReceiversFeed.mockReturnValue({
-                    activeService: mockActiveReceiver,
+                mockUseOrganizationReceivers.mockReturnValue({
+                    allReceivers: [mockActiveReceiver],
+                    activeReceivers: [mockActiveReceiver],
                     isLoading: false,
-                    data: mockReceivers,
-                    setActiveService: () => {},
                     isDisabled: false,
                 } as any);
 
@@ -134,6 +132,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     fetchResults: () =>
                         Promise.resolve(makeDeliveryFixtureArray(101)),
                     filterManager: mockFilterManager,
+                    setService: () => Promise.resolve([]),
                 };
                 mockUseOrgDeliveries.mockReturnValue(
                     mockUseOrgDeliveriesCallback,
@@ -151,10 +150,12 @@ describe("DeliveriesTableWithNumbered", () => {
                 expect(pagination).toBeInTheDocument();
                 // Column headers render
                 expect(screen.getByText("Report ID")).toBeInTheDocument();
-                expect(screen.getByText("Available")).toBeInTheDocument();
-                expect(screen.getByText("Expires")).toBeInTheDocument();
+                expect(screen.getByText("Time received")).toBeInTheDocument();
+                expect(
+                    screen.getByText("File available until"),
+                ).toBeInTheDocument();
                 expect(screen.getByText("Items")).toBeInTheDocument();
-                expect(screen.getByText("File")).toBeInTheDocument();
+                expect(screen.getByText("Filename")).toBeInTheDocument();
             });
 
             test("renders 10 results per page + 1 header row", () => {
@@ -166,16 +167,17 @@ describe("DeliveriesTableWithNumbered", () => {
             });
 
             describe("TableFilter", () => {
-                test("Clicking on filter invokes the trackAppInsightEvent", async () => {
+                test("Clicking on Apply invokes the trackAppInsightEvent", async () => {
                     setup();
-                    await userEvent.click(screen.getByText("Filter"));
+                    await selectDatesFromRange("20", "23");
+                    await userEvent.click(screen.getByText("Apply"));
 
-                    expect(mockAppInsights.trackEvent).toBeCalledWith({
+                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
                         name: "Daily Data | Table Filter",
                         properties: {
                             tableFilter: {
-                                endRange: "3000-01-01T23:59:59.999Z",
-                                startRange: "2000-01-01T00:00:00.000Z",
+                                endRange: "2024-03-23T23:59:00.000Z",
+                                startRange: "2024-03-20T00:00:00.000Z",
                             },
                         },
                     });
@@ -189,11 +191,10 @@ describe("DeliveriesTableWithNumbered", () => {
                     fetchHeaders: () => ({}),
                 });
                 // Mock our receiver services feed data
-                mockUseOrganizationReceiversFeed.mockReturnValue({
-                    activeService: undefined,
+                mockUseOrganizationReceivers.mockReturnValue({
+                    allReceivers: [],
+                    activeReceivers: [],
                     isLoading: false,
-                    data: [],
-                    setActiveService: () => {},
                     isDisabled: false,
                 } as any);
 
@@ -221,6 +222,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     fetchResults: () =>
                         Promise.resolve(makeDeliveryFixtureArray(0)),
                     filterManager: mockFilterManager,
+                    setService: () => Promise.resolve([]),
                 };
                 mockUseOrgDeliveries.mockReturnValue(
                     mockUseOrgDeliveriesCallback,
@@ -244,11 +246,10 @@ describe("DeliveriesTableWithNumbered", () => {
                 fetchHeaders: () => ({}),
             });
             // Mock our receiver services feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
-                activeService: undefined,
+            mockUseOrganizationReceivers.mockReturnValue({
+                allReceivers: [],
+                activeReceivers: [],
                 isLoading: false,
-                data: [],
-                setActiveService: () => {},
                 isDisabled: true,
             } as any);
 
@@ -276,6 +277,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 fetchResults: () =>
                     Promise.resolve(makeDeliveryFixtureArray(0)),
                 filterManager: mockFilterManager,
+                setService: () => Promise.resolve([]),
             };
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 

@@ -1,6 +1,6 @@
 url:
   type: SYSTEM_URL
-  value: pd1-patient
+  value: pd1-patient-additional-demographic
 
 extension:
   expressionType: nested
@@ -15,7 +15,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-1-living-dependency
+          value: PD1.1
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -27,7 +27,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-2-living-arrangement
+          value: PD1.2
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -39,7 +39,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-8-organ-donor-code
+          value: PD1.8
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -50,7 +50,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-9-separate-bill
+          value: PD1.9
         valueString:
           type: STRING
           valueOf: PD1.9
@@ -64,12 +64,12 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-10-duplicate-patient
+          value: PD1.10
         valueIdentifier:
           valueOf: datatypes/CX/Identifier
           expressionType: resource
           constants:
-            identifierIndexName: duplicate-patient
+            CXIdentifierField: PD1.10
     - expressionType: nested
       condition: $pd111 NOT_NULL
       specs: PD1.11
@@ -78,7 +78,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-11-publicity-code
+          value: PD1.11
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -89,7 +89,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-12-protection-indicator
+          value: PD1.12
         valueString:
           type: STRING
           valueOf: PD1.12
@@ -101,7 +101,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-13-protection-indicator-effective-date
+          value: PD1.13
         valueString:
           type: STRING
           valueOf: PD1.13
@@ -115,7 +115,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-14-patient-congregation
+          value: PD1.14
         valueReference:
           valueOf: datatypes/XON/Organization
           expressionType: reference
@@ -128,7 +128,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-15-advance-directive-code
+          value: PD1.15
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -140,7 +140,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-16-immunization-registry-status
+          value: PD1.16
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -151,7 +151,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-17-immunization-registry-status-effective-date
+          value: PD1.17
         valueString:
           type: STRING
           valueOf: PD1.17
@@ -163,7 +163,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-18-publicity-code-effective-date
+          value: PD1.18
         valueString:
           type: STRING
           valueOf: PD1.18
@@ -176,7 +176,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-19-military-branch
+          value: PD1.19
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -188,7 +188,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-20-military-rank
+          value: PD1.20
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -200,7 +200,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-21-military-status
+          value: PD1.21
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
@@ -211,7 +211,7 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: pd1-22-advance-directive-last-verified-date
+          value: PD1.22
         valueString:
           type: STRING
           valueOf: PD1.22

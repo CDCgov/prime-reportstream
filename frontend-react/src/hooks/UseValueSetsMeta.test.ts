@@ -1,10 +1,9 @@
 import { waitFor } from "@testing-library/react";
 
+import { useValueSetsMeta } from "./UseValueSets";
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables } from "../config/endpoints/lookupTables";
 import { renderHook } from "../utils/CustomRenderUtils";
-
-import { useValueSetsMeta } from "./UseValueSets";
 
 describe("useValueSetsMeta", () => {
     const renderWithAppWrapper = (tableName?: LookupTables) =>
@@ -19,7 +18,7 @@ describe("useValueSetsMeta", () => {
         await waitFor(() =>
             expect(result.current.data?.createdAt).toBeDefined(),
         );
-        const { createdAt, createdBy } = result.current.data!!;
+        const { createdAt, createdBy } = result.current.data!;
         expect(createdAt).toEqual("now");
         expect(createdBy).toEqual("test@example.com");
     });
@@ -30,13 +29,13 @@ describe("useValueSetsMeta", () => {
         await waitFor(() =>
             expect(result.current.data?.createdAt).toBeDefined(),
         );
-        const { createdAt, createdBy } = result.current.data!!;
+        const { createdAt, createdBy } = result.current.data!;
         expect(createdAt).toEqual("later");
         expect(createdBy).toEqual("again@example.com");
     });
 
     test("returns empty metadata when the passed table name doesn't exist in returned list of tables", async () => {
         const { result } = renderWithAppWrapper("invalid" as LookupTables);
-        expect(result.current.data).toBeUndefined();
+        await waitFor(() => expect(result.current.data).toBeUndefined());
     });
 });

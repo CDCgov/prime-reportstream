@@ -1,6 +1,0 @@
-elements:
-  - name: organization-cwe
-    schema: ../../datatypes/codeableConcept/CWE
-    resource: '%resource.extension(%`rsext-cwe-organization`).value'
-    constants:
-      cweField: '%{organizationCWEFieldPath}'

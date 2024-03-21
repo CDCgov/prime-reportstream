@@ -1,24 +1,23 @@
+import { FC, useCallback } from "react";
 import { useController } from "rest-hooks";
-import React, { FC, useCallback } from "react";
 
+import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
+import DataDashboardTableFilters from "../../components/DataDashboard/DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import Spinner from "../../components/Spinner";
-import usePagination from "../../hooks/UsePagination";
+import { PaginationProps } from "../../components/Table/Pagination";
+import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
+import { TableFilterDateLabel } from "../../components/Table/TableFilters";
+import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
 import useFilterManager, {
     FilterManager,
     FilterManagerDefaults,
 } from "../../hooks/filters/UseFilterManager";
-import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
-import TableFilters, {
-    TableFilterDateLabel,
-} from "../../components/Table/TableFilters";
-import { PaginationProps } from "../../components/Table/Pagination";
-import SubmissionsResource from "../../resources/SubmissionsResource";
-import { useSessionContext } from "../../contexts/Session";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-import { FeatureName } from "../../utils/FeatureName";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
-import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
-import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
+import usePagination from "../../hooks/UsePagination";
+import SubmissionsResource from "../../resources/SubmissionsResource";
+import { FeatureName } from "../../utils/FeatureName";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
@@ -46,7 +45,7 @@ const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
 }) => {
     const { appInsights } = useAppInsightsContext();
     const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
-    const columns: Array<ColumnConfig> = [
+    const columns: ColumnConfig[] = [
         {
             dataAttr: "id",
             columnHeader: "Report ID",
@@ -77,7 +76,7 @@ const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
 
     return (
         <>
-            <TableFilters
+            <DataDashboardTableFilters
                 startDateLabel={TableFilterDateLabel.START_DATE}
                 endDateLabel={TableFilterDateLabel.END_DATE}
                 showDateHints={true}

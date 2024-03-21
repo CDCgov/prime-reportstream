@@ -1,12 +1,11 @@
-import chunk from "lodash.chunk";
-import range from "lodash.range";
+import { chunk, range } from "lodash";
 import { useCallback, useEffect, useReducer } from "react";
 import useDeepCompareEffect from "use-deep-compare-effect";
 
 import {
+    OVERFLOW_INDICATOR,
     PaginationProps,
     SlotItem,
-    OVERFLOW_INDICATOR,
 } from "../components/Table/Pagination";
 import { useAppInsightsContext } from "../contexts/AppInsights";
 
@@ -115,6 +114,8 @@ export interface PaginationState<T> {
     pageSize: number;
     // Optional set of parameters for requesting a new batch of results.
     requestConfig?: RequestConfig;
+    // Total number of results
+    resultLength?: number;
 }
 
 enum PaginationActionType {
@@ -158,11 +159,12 @@ export function processResultsReducer<T>(
         pageCursorMap,
         pageResultsMap,
     } = state;
-
     // Determine the number of whole pages we requested data for. Ignoring the
     // remainder accounts for a dangling result, which we use as an indicator of
     // a subsequent page.
     const numTargetWholePages = Math.floor(numResults / pageSize);
+    const resultLength =
+        cursorPageNum === 1 ? results.length : state.resultLength;
     let finalPageNum;
 
     const resultPages = chunk(results, pageSize);
@@ -214,6 +216,7 @@ export function processResultsReducer<T>(
         finalPageNum,
         pageResultsMap,
         pageCursorMap,
+        resultLength,
     };
 }
 
@@ -233,7 +236,7 @@ export function setSelectedPageReducer<T>(
     const slotNumbers = slots.filter((s) => Number.isInteger(s)) as number[];
     // The slots will always contain at least one number so we can safely cast
     // the last page as not undefined.
-    const lastSlotPage = slotNumbers.pop() as number;
+    const lastSlotPage = slotNumbers.pop()!;
 
     const fetchedPageNumbers = Object.keys(state.pageResultsMap).map((k) =>
         parseInt(k),
@@ -281,8 +284,10 @@ function reducer<T>(
                 payload as ProcessResultsPayload<T>,
             );
         case PaginationActionType.RESET:
-            const initialState = getInitialState(payload as ResetPayload<T>);
-            return setSelectedPageReducer(initialState, 1);
+            return setSelectedPageReducer(
+                getInitialState(payload as ResetPayload<T>),
+                1,
+            );
         case PaginationActionType.SET_SELECTED_PAGE:
             return setSelectedPageReducer(
                 state,
@@ -407,7 +412,7 @@ function usePagination<T>({
                 },
             });
         }
-        doEffect();
+        void doEffect();
     }, [fetchResults, requestConfig]);
 
     // Create a callback for changing the current page to pass down to the
@@ -442,6 +447,16 @@ function usePagination<T>({
             slots: getSlots(state.currentPageNum, state.finalPageNum),
             setSelectedPage,
             currentPageNum: state.currentPageNum,
+            resultLength: state.resultLength,
+            isPaginationLoading: state.isLoading,
+        };
+    } else {
+        paginationProps = {
+            slots: [],
+            setSelectedPage,
+            currentPageNum: 0,
+            resultLength: state.resultLength,
+            isPaginationLoading: state.isLoading,
         };
     }
 

@@ -1,6 +1,6 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import remarkToc from "remark-mdx-toc";
-import path from "node:path";
+import turbosnap from "vite-plugin-turbosnap";
 
 const config: StorybookConfig = {
     stories: [
@@ -30,27 +30,19 @@ const config: StorybookConfig = {
         options: {},
     },
     core: {},
-    features: {
-        buildStoriesJson: true,
-    },
-    async viteFinal(config, options) {
+    async viteFinal(config, { configType }) {
         // Exclude our mdx plugin from vite config in favor of storybook's
         config.plugins = config.plugins?.filter(
             (x: any, i) => x.name !== "@mdx-js/rollup",
         );
 
-        // Proxy react-uswds storybook website locally so we can supply
-        // locally-created stories.json file so that it works on sb 7
-        if (!config.server) {
-            config.server = {};
+        if (configType === "PRODUCTION") {
+            config.plugins?.push(
+                turbosnap({
+                    rootDir: config.root ?? process.cwd(),
+                }),
+            );
         }
-        if (!config.server.proxy) {
-            config.server.proxy = {};
-        }
-        if (!config.server.fs) {
-            config.server.fs = {};
-        }
-        config.server.fs.allow = [".."];
 
         return {
             ...config,

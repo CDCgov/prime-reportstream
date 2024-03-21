@@ -1,9 +1,9 @@
-import moment from "moment";
+import { format, fromUnixTime, isValid, parseISO } from "date-fns";
 
-export type DateTimeData = {
+export interface DateTimeData {
     dateString: string;
     timeString: string;
-};
+}
 
 /*
     This function serves as a cleaner (read: more contained) way of parsing out
@@ -16,71 +16,32 @@ export type DateTimeData = {
     dateString format: 1 Jan 2022
     timeString format: 16:30
 */
-export const generateDateTitles = (
-    dateTimeString: string,
-): DateTimeData | null => {
-    const dateRegex = /\d{1,2} [a-z,A-Z]{3} \d{4}/;
-    const timeRegex = /\d{1,2}:\d{2}/;
+export const generateDateTitles = (dateTimeString?: string) => {
+    if (!dateTimeString) {
+        return { dateString: "N/A", timeString: "N/A" };
+    }
 
-    const date = new Date(dateTimeString);
-    const monthString = parseMonth(date.getMonth());
+    const date = parseISO(dateTimeString);
 
-    const dateString = `${date.getDate()} ${monthString} ${date.getFullYear()}`;
-    const timeString = `${date.getHours()}:${getPaddedMinutes(date)}`;
-
-    if (!dateString.match(dateRegex) || !timeString.match(timeRegex))
-        return null;
+    if (!isValid(date)) {
+        return { dateString: "N/A", timeString: "N/A" };
+    }
 
     return {
-        dateString: dateString,
-        timeString: timeString,
+        dateString: format(date, "d LLL yyyy"),
+        timeString: format(date, "HH:mm"),
     };
 };
 
-const getPaddedMinutes = (date: Date) => {
-    const minutes = date.getMinutes().toString();
-    return minutes.length > 1 ? minutes : `0${minutes}`;
-};
-
-const parseMonth = (numericMonth: number) => {
-    const monthNames = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-    ];
-    return monthNames[numericMonth];
-};
-
-export const formattedDateFromTimestamp = (
-    timestamp: string,
-    format: string,
-) => {
-    const timestampDate = new Date(timestamp);
-    // TODO: refactor to remove dependency on moment
-    return moment(timestampDate).format(format);
-};
-
-export const timeZoneAbbreviated = () => {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone;
-};
-
 export function isDateExpired(dateTimeString: string | number) {
-    const now = moment.utc().local();
-    const dateToCompare = moment.utc(dateTimeString).local();
+    // eslint-disable-next-line import/no-named-as-default-member
+    const now = new Date();
+    // eslint-disable-next-line import/no-named-as-default-member
+    const dateToCompare =
+        typeof dateTimeString === "string"
+            ? parseISO(dateTimeString)
+            : fromUnixTime(dateTimeString);
     return dateToCompare < now;
-}
-
-export function transformDate(s: string) {
-    return new Date(s).toLocaleString();
 }
 
 // Will return date with format: 2/9/2023, 02:24 PM

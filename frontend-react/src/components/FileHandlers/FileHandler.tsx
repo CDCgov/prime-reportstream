@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
+import { Suspense, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 
+import FileHandlerErrorsWarningsStep from "./FileHandlerErrorsWarningsStep";
+import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
+import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
+import FileHandlerSuccessStep from "./FileHandlerSuccessStep";
+import { WatersResponse } from "../../config/endpoints/waters";
+import site from "../../content/site.json";
 import { showToast } from "../../contexts/Toast";
 import useFileHandler, {
     FileHandlerActionType,
     FileHandlerState,
 } from "../../hooks/UseFileHandler";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import site from "../../content/site.json";
-import { USExtLink, USLink } from "../USLink";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
-import { WatersResponse } from "../../config/endpoints/waters";
 import Alert from "../../shared/Alert/Alert";
-
-import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
-import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
-import FileHandlerErrorsWarningsStep from "./FileHandlerErrorsWarningsStep";
-import FileHandlerSuccessStep from "./FileHandlerSuccessStep";
+import Spinner from "../Spinner";
+import { USExtLink, USLink } from "../USLink";
 
 export interface FileHandlerStepProps extends FileHandlerState {
     isValid?: boolean;
@@ -142,6 +142,14 @@ export default function FileHandler() {
                     name="description"
                     content="Check that public health entities can receive your data through ReportStream by validating your file format."
                 />
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/howwehelpyou-3.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content="An abstract illustration of screens and a document."
+                />
             </Helmet>
 
             <GridContainer>
@@ -180,16 +188,18 @@ export default function FileHandler() {
                                     );
                                 case FileHandlerFileUploadStep:
                                     return (
-                                        <FileHandlerFileUploadStep
-                                            {...commonStepProps}
-                                            onFileChange={handleFileChange}
-                                            onFileSubmitError={
-                                                handleResetToFileSelection
-                                            }
-                                            onFileSubmitSuccess={
-                                                handleFileSubmitSuccess
-                                            }
-                                        />
+                                        <Suspense fallback={<Spinner />}>
+                                            <FileHandlerFileUploadStep
+                                                {...commonStepProps}
+                                                onFileChange={handleFileChange}
+                                                onFileSubmitError={
+                                                    handleResetToFileSelection
+                                                }
+                                                onFileSubmitSuccess={
+                                                    handleFileSubmitSuccess
+                                                }
+                                            />
+                                        </Suspense>
                                     );
                                 case FileHandlerErrorsWarningsStep:
                                     return (

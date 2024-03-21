@@ -5,30 +5,6 @@ value:
   valueOf: CX.1
   expressionType: HL7Spec
 
-extension_1:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: identifier-check-digit
-    valueString:
-      type: STRING
-      expressionType: HL7Spec
-      valueOf: CX.2
-
-extension_2:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: naming-system-check-digit
-    valueString:
-      type: STRING
-      expressionType: HL7Spec
-      valueOf: CX.3
-
 # Checking if HD is an Organization or a System by looking at the ID type.
 # If ID type is null or ID type is not ISO or UUID, treat as organization.
 # Otherwise, treat as system.
@@ -142,36 +118,6 @@ type:
           condition: $CXIdentifierText NOT_NULL
           valueOf: $CXIdentifierText
 
-extension_type:
-  generateList: true
-  expressionType: nested
-  condition: $cx5 NOT_NULL
-  vars:
-    cx5: CX.5
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: identifier-type-code
-    valueString:
-      type: STRING
-      valueOf: $cx5
-      expressionType: HL7Spec
-
-extension_assigningFacility:
-  generateList: true
-  expressionType: nested
-  condition: $cx6 NOT_NULL
-  vars:
-    cx6: CX.6
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: assigning-facility
-    valueReference:
-      valueOf: datatypes/HD/Organization
-      expressionType: reference
-      specs: CX.6
-
 period:
   vars:
     startDate: CX.7
@@ -216,43 +162,59 @@ period:
               valueOf: $endDate
               expressionType: HL7Spec
 
-extension_4:
+extension:
   generateList: true
   expressionType: nested
-  vars:
-    cx9: STRING_ALL, CX.9
-  condition: $cx9 NOT_NULL
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: assigning-jurisdiction
-    valueCodeableConcept:
-      valueOf: datatypes/CWE/CodeableConcept
-      expressionType: resource
-      specs: CX.9
-
-extension_5:
-  generateList: true
-  expressionType: nested
-  vars:
-    cx10: STRING_ALL, CX.10
-  condition: $cx10 NOT_NULL
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: assigning-agency-or-department
-    valueCodeableConcept:
-      valueOf: datatypes/CWE/CodeableConcept
-      expressionType: resource
-      specs: CX.10
-
-extension_6:
-  generateList: true
-  expressionType: nested
-  condition: $identifierIndexName NOT_NULL
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: hl7-use
-    valueString:
-      value: $identifierIndexName
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: identifier-check-digit
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CX.2
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: naming-system-check-digit
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CX.3
+    - expressionType: nested
+      condition: $cx6 NOT_NULL
+      vars:
+        cx6: CX.6
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: assigning-facility
+        valueReference:
+          valueOf: datatypes/HD/Organization
+          expressionType: reference
+          specs: CX.6
+    - expressionType: resource
+      valueOf: datatypes/CX/CXExtension
+    - generateList: true
+      expressionType: nested
+      condition: $CXIdentifierField NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $CXIdentifierField
+    - generateList: true
+      expressionType: nested
+      condition: $CXIdentifierComponent NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $CXIdentifierComponent

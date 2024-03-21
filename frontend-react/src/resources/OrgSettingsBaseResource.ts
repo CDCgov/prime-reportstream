@@ -10,7 +10,7 @@ export interface MetaTaggedResource {
  * This is an ABSTRACT base class for all the fields that are common to all the various "settings" api calls.
  */
 export default abstract class OrgSettingsBaseResource extends AuthResource {
-    name: string = "";
+    name = "";
     readonly version: number = 0;
     readonly createdBy: string = "";
     readonly createdAt: string = "";
@@ -27,7 +27,7 @@ export default abstract class OrgSettingsBaseResource extends AuthResource {
         return this.memo("#delete", () =>
             endpoint.extend({
                 fetch(params) {
-                    // @ts-ignore
+                    // @ts-expect-error Type mismatch on deprecated code
                     return endpoint.fetch.call(this, params).then(() => params);
                 },
 

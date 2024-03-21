@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
@@ -48,6 +49,7 @@ open class Receiver(
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val conditionFilter: ReportStreamFilter = emptyList(),
+    val mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
     val deidentify: Boolean = false,
     val deidentifiedValue: String = "",
     val timing: Timing? = null,
@@ -94,6 +96,7 @@ open class Receiver(
         routingFilter: ReportStreamFilter = emptyList(),
         processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
+        mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false,
         enrichmentSchemaNames: List<String> = emptyList(),
     ) : this(
@@ -107,6 +110,7 @@ open class Receiver(
         routingFilter = routingFilter,
         processingModeFilter = processingModeFilter,
         conditionFilter = conditionFilter,
+        mappedConditionFilter = mappedConditionFilter,
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
@@ -127,6 +131,7 @@ open class Receiver(
         copy.processingModeFilter,
         copy.reverseTheQualityFilter,
         copy.conditionFilter,
+        copy.mappedConditionFilter,
         copy.deidentify,
         copy.deidentifiedValue,
         copy.timing,
@@ -241,16 +246,17 @@ open class Receiver(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
-        if (conditionFilter.isNotEmpty()) {
+        if (conditionFilter.isNotEmpty() || mappedConditionFilter.isNotEmpty()) {
             if (!topic.isUniversalPipeline) {
-                return "Condition filter not allowed for receivers with topic '${topic.jsonVal}'"
+                return "Condition filter(s) not allowed for receivers with topic '${topic.jsonVal}'"
             }
         }
 
         if (translation is CustomConfiguration) {
             if (this.topic.isUniversalPipeline) {
                 try {
-                    FhirToHl7Converter(translation.schemaName)
+                    // This is already scheduled for deletion in https://github.com/CDCgov/prime-reportstream/pull/13313
+                    FhirToHl7Converter(translation.schemaName, BlobAccess.defaultBlobMetadata)
                 } catch (e: SchemaException) {
                     return e.message
                 }

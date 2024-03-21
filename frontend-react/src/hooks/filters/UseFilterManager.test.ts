@@ -1,13 +1,12 @@
-import { renderHook } from "../../utils/CustomRenderUtils";
-
+import { RangeField, RangeSettings } from "./UseDateRange";
 import useFilterManager, {
     cursorOrRange,
     extractFiltersFromManager,
     FilterManager,
 } from "./UseFilterManager";
-import { RangeField, RangeSettings } from "./UseDateRange";
 import { PageSettings } from "./UsePages";
 import { SortSettings } from "./UseSortOrder";
+import { renderHook } from "../../utils/CustomRenderUtils";
 
 const mockUpdateSort = jest.fn();
 const mockUpdatePage = jest.fn();

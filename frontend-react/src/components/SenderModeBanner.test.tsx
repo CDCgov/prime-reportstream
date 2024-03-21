@@ -1,11 +1,10 @@
 import { screen } from "@testing-library/react";
 
-import { orgServer } from "../__mocks__/OrganizationMockServer";
-import { renderApp } from "../utils/CustomRenderUtils";
-import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
-import { MemberType } from "../utils/OrganizationUtils";
-
 import SenderModeBanner from "./SenderModeBanner";
+import { orgServer } from "../__mocks__/OrganizationMockServer";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { renderApp } from "../utils/CustomRenderUtils";
+import { MemberType } from "../utils/OrganizationUtils";
 
 describe("SenderModeBanner", () => {
     beforeAll(() => {

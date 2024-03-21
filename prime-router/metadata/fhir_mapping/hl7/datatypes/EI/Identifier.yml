@@ -40,7 +40,7 @@ extension_1-assigning-authority:
           expressionsMap:
             url:
               type: SYSTEM_URL
-              valueOf: assigning-authority-namespace-id
+              valueOf: namespace-id
             valueString:
               type: STRING
               expressionType: HL7Spec
@@ -50,7 +50,7 @@ extension_1-assigning-authority:
           expressionsMap:
             url:
               type: SYSTEM_URL
-              valueOf: assigning-authority-universal-id
+              valueOf: universal-id
             valueString:
               type: STRING
               expressionType: HL7Spec
@@ -66,13 +66,25 @@ extension_1-assigning-authority:
               expressionType: HL7Spec
               valueOf: $ei4
 
-extension_2-hl7-use:
+extension:
   generateList: true
   expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      valueOf: hl7-use
-    valueString:
-      type: STRING
-      valueOf: $hl7Use
+  expressions:
+    - expressionType: nested
+      condition: $hl7v2Field NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Field
+    - expressionType: nested
+      condition: $hl7v2Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Component

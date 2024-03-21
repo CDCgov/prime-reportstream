@@ -1,8 +1,13 @@
 ---
 title: Support
 subtitle: If you need to learn more or solve an issue, we're here to help.
-metaTitle: ReportStream support
-metaDescription: Find quick answers to common problems or connect with our expert team to troubleshoot issues throughout your use of ReportStream.
+meta:
+    title: ReportStream support
+    description: Find quick answers to common problems or connect with our expert team to troubleshoot issues throughout your use of ReportStream.
+    openGraph:
+        image:
+            src: /assets/img/opengraph/reportstream-tagline.png
+            altText: '"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
 backToTop: true
 ---
 
@@ -50,7 +55,7 @@ import site from "../../content/site.json";
 
                     [How do I update or reset my password?](#how-do-i-update-or-reset-my-password)
 
-                    [How do I resubmit my data?](#how-do-i-resubmit-my-data)
+                    [How can I start sending or receiving more conditions?](#how-can-i-start-sending-or-receiving-more-conditions)
 
                     [View all topics](#using-reportstream-1)
                 </CardBody>
@@ -87,14 +92,7 @@ import site from "../../content/site.json";
                         title: "What conditions can I send or receive?",
                         content: (<>
                             <p>
-                            While ReportStream currently works with COVID-19 and mpox data, we are adding more reportable
-                            conditions soon.
-                            </p>
-
-                            <p>
-                            <A href={site.forms.contactUs.url}>Contact us</A> if
-                            you would like updates on additional conditions as they become available.
-                            You can submit flu data through <A href="https://www.simplereport.gov">SimpleReport</A>.
+                            ReportStream now supports mpox, COVID, and flu data, and we are building support for RSV and more conditions.
                             </p>
                         </>)
                     },
@@ -322,7 +320,7 @@ import site from "../../content/site.json";
                         </p>)
                     },
                     {
-                        id: "how-do-i-resubmit-my-data",
+                        id: "how-can-i-send-or-receive",
                         headingLevel: "h4",
                         title: "How do I resubmit my data?",
                         content: (<>
@@ -347,8 +345,8 @@ import site from "../../content/site.json";
                         headingLevel: "h4",
                         title: "How do I update or reset my password?",
                         content: (<p>
-                            Select <strong>Need help signing in?</strong> on the <A href="/login">login</A> page. 
-                            After selecting <strong>Reset password</strong>, enter your email address. 
+                            Select <strong>Need help signing in?</strong> on the <A href="/login">login</A> page.
+                            After selecting <strong>Reset password</strong>, enter your email address.
                             Follow the instructions in the reset email you receive.
                             To update your password, log out and follow the same steps.
                         </p>)
@@ -365,10 +363,16 @@ import site from "../../content/site.json";
                         id: "how-can-i-start-sending-or-receiving-more-conditions",
                         headingLevel: "h4",
                         title: "How can I start sending or receiving more conditions?",
-                        content: (<p>
-                            <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">Let us know</A> what conditions you are interested in, and our team will let you know what you
-                            need to do next.
-                        </p>)
+                        content: (<>
+                        <p>
+                            If you are a public health entity only receiving COVID or mpox data, we’ll contact you about next steps. If you haven’t heard from our team yet, <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">let us know</A> you are ready to get started. You’ll need to answer some questions about your data requirements and confirm your current settings.
+                        </p>
+                        <p>
+                            We test the messages based on your requirements. No data will go live until your testing requirements are met. As we build capacity for more conditions, we will always check your requirements and testing process for those conditions.
+                        </p>
+                        <p>
+                            Health care organizations can begin sending flu and RSV data directly through ReportStream later in 2024. If your organization has a ReportStream connection, we’ll contact you about next steps closer to release.</p>
+                        </>)
                     },
                     {
                         id: "can-public-health-departments-receive-a-report-on-facilities-reporting-them",

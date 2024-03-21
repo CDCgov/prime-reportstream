@@ -269,7 +269,7 @@ class Report : Logging {
             schema.baseName,
             bodyFormat,
             createdDateTime,
-            translationConfig = destination?.translation,
+            translationConfig = if (destination?.topic?.isSendOriginal == true) null else destination?.translation,
             metadata = this.metadata
         )
 
@@ -1554,20 +1554,13 @@ class Report : Logging {
             header: WorkflowEngine.Header,
             metadata: Metadata? = null,
         ): String {
-            // extract the filename from the blob url.
-            val filename = if (header.reportFile.bodyUrl != null) {
+            return if (header.reportFile.bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl)
             } else {
-                ""
-            }
-            return if (filename.isNotEmpty()) {
-                filename
-            } else {
-                // todo: extend this to use the APHL naming convention
                 formFilename(
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
+                    Format.valueOfFromExt(header.reportFile.bodyFormat),
                     header.reportFile.createdAt,
                     metadata = metadata ?: Metadata.getInstance()
                 )
@@ -1586,14 +1579,9 @@ class Report : Logging {
             createdAt: OffsetDateTime,
             metadata: Metadata? = null,
         ): String {
-            // extract the filename from the blob url.
-            val filename = if (bodyUrl != null) {
+            return if (bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
             } else {
-                ""
-            }
-            return filename.ifEmpty {
-                // todo: extend this to use the APHL naming convention
                 formFilename(
                     reportId,
                     schemaName,
@@ -1651,13 +1639,16 @@ class Report : Logging {
             metadata: Metadata,
             actionHistory: ActionHistory,
             topic: Topic,
+            externalName: String? = null,
+            format: Format? = null,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {
             check(messageBody.isNotEmpty())
             check(sourceReportIds.isNotEmpty())
 
             // create report object
             val sources = emptyList<Source>()
-            val reportFormat = when (receiver.format) {
+            // determine format based off the receiver's specified format if format is not specified
+            val reportFormat = format ?: when (receiver.format) {
                 Report.Format.HL7, Report.Format.HL7_BATCH -> {
                     if (sourceReportIds.size > 1) {
                         Report.Format.HL7_BATCH
@@ -1718,7 +1709,7 @@ class Report : Logging {
             val blobInfo = BlobAccess.uploadBody(
                 reportFormat,
                 messageBody,
-                report.name,
+                if (!externalName.isNullOrEmpty()) "$externalName-${report.name}" else report.name,
                 receiver.fullName,
                 event.eventAction
             )

@@ -1,16 +1,15 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import ManagePublicKeyUpload, {
     ManagePublicKeyUploadProps,
 } from "./ManagePublicKeyUpload";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("ManagePublicKeyUpload", () => {
     const DEFAULT_PROPS: ManagePublicKeyUploadProps = {
-        onPublicKeySubmit: () => {},
-        onFileChange: () => {},
-        onBack: () => {},
+        onPublicKeySubmit: () => void 0,
+        onFileChange: () => void 0,
+        onBack: () => void 0,
         hasBack: false,
         publicKey: false,
         file: null,

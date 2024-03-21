@@ -11,7 +11,10 @@ import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.jooq.Field
@@ -20,6 +23,7 @@ import java.time.OffsetDateTime
 const val elrConvertQueueName = "elr-fhir-convert"
 const val elrRoutingQueueName = "elr-fhir-route"
 const val elrTranslationQueueName = "elr-fhir-translate"
+const val elrSendQueueName = "send"
 
 /**
  * All logical processing for full ELR / FHIR processing should be within this class.
@@ -34,6 +38,8 @@ abstract class FHIREngine(
     val settings: SettingsProvider = this.settingsProviderSingleton,
     val db: DatabaseAccess = this.databaseAccessSingleton,
     val blob: BlobAccess = BlobAccess(),
+    val azureEventService: AzureEventService = AzureEventServiceImpl(),
+    val reportService: ReportService = ReportService(),
 ) : BaseEngine() {
 
     /**
@@ -52,6 +58,8 @@ abstract class FHIREngine(
         var blobAccess: BlobAccess? = null,
         var hl7Serializer: Hl7Serializer? = null,
         var csvSerializer: CsvSerializer? = null,
+        var azureEventService: AzureEventService? = null,
+        var reportService: ReportService? = null,
     ) {
         /**
          * Set the metadata instance.
@@ -78,6 +86,22 @@ abstract class FHIREngine(
         fun blobAccess(blobAccess: BlobAccess) = apply { this.blobAccess = blobAccess }
 
         /**
+         * Set the azure event service instance.
+         * @return the modified workflow engine
+         */
+        fun azureEventService(azureEventService: AzureEventService) = apply {
+            this.azureEventService = azureEventService
+        }
+
+        /**
+         * Set the report service instance.
+         * @return the modified workflow engine
+         */
+        fun reportService(reportService: ReportService) = apply {
+            this.reportService = reportService
+        }
+
+        /**
          * Build the fhir engine instance.
          * @return the fhir engine instance
          */
@@ -94,19 +118,23 @@ abstract class FHIREngine(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess()
+                    blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl()
                 )
                 TaskAction.route -> FHIRRouter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess()
+                    blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService()
                 )
                 TaskAction.translate -> FHIRTranslator(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl()
                 )
                 else -> throw NotImplementedError("Invalid action type for FHIR engine")
             }

@@ -1,12 +1,10 @@
-import moment from "moment";
-
-import { ResponseType, TestResponse } from "../resources/TestResponse";
-
+import { addDays } from "date-fns";
 import {
     formatDateWithoutSeconds,
     generateDateTitles,
     isDateExpired,
 } from "./DateTimeUtils";
+import { ResponseType, TestResponse } from "../resources/TestResponse";
 
 /*
     Ensuring formatting of SubmissionDate type
@@ -22,22 +20,19 @@ describe("submission details date display", () => {
             actionDetailsTestResource.timestamp,
         );
 
-        if (submissionDate) {
-            // This will fail if you change the dummy object's dates!
-            expect(submissionDate.dateString).toBe("7 Apr 1970");
-            expect(submissionDate.timeString).toMatch(/\d{1,2}:\d{2}/);
-        } else {
-            throw new Error(
-                "You were the chosen one! You were meant to destroy the nulls, not join them!",
-            );
-        }
+        // This will fail if you change the dummy object's dates!
+        expect(submissionDate?.dateString).toBe("7 Apr 1970");
+        expect(submissionDate?.timeString).toMatch(/\d{1,2}:\d{2}/);
     });
 });
 
 describe("generateDateTitles", () => {
     test("returns null for invalid date strings", () => {
         const dateTimeData = generateDateTitles("I have the high ground!");
-        expect(dateTimeData).toBe(null);
+        expect(dateTimeData).toStrictEqual({
+            dateString: "N/A",
+            timeString: "N/A",
+        });
     });
 
     test("does not error for dates with single digit minutes", () => {
@@ -56,7 +51,7 @@ describe("isDateExpired", () => {
     });
 
     test("returns false if date has not expired", () => {
-        const now = moment().add(1, "day").toISOString();
+        const now = addDays(new Date(), 1).toISOString();
         const futureDateTime = isDateExpired(now);
         expect(futureDateTime).toBeFalsy();
     });

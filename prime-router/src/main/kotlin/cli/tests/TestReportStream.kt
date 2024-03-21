@@ -331,6 +331,7 @@ Examples:
             LivdApiTest(),
             End2End(),
             End2EndUniversalPipeline(),
+            SyncTranslationSchemasTest()
         )
     }
 }
@@ -737,8 +738,11 @@ abstract class CoolTest {
                     actionsList.add(TaskAction.route)
                     actionsList.add(TaskAction.translate)
                 }
-                if (receiver.timing != null) actionsList.add(TaskAction.batch)
+                if (!receiver.topic.isSendOriginal && receiver.timing != null) {
+                    actionsList.add(TaskAction.batch)
+                }
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
+                echo("actions we are checking: $actionsList")
                 actionsList.forEach { action ->
                     val useRecevingServiceName = !(
                         (action == TaskAction.receive && asyncProcessMode) ||

@@ -77,6 +77,12 @@ class BlobAccess() : Logging {
         val connectionString: String,
     ) {
         companion object {
+
+            /**
+             * Regex used to extract the URL for blob storage
+             */
+            private val blobEndpointRegex = Regex(";BlobEndpoint=(?<blobEndpoint>[^;]+);")
+
             /**
              * Builds a [BlobContainerMetadata] object. [envVar] will be resolved to the blobstore connection string.
              */
@@ -91,6 +97,18 @@ class BlobAccess() : Logging {
             fun build(blobTransport: BlobStoreTransportType): BlobContainerMetadata {
                 return BlobContainerMetadata(blobTransport.containerName, getBlobConnection(blobTransport.storageName))
             }
+        }
+
+        /**
+         * Helper function to extract the storage URL from the connection endpoint and configured container name
+         *
+         * @return the URL for the storage and container that this object represents
+         */
+        fun getBlobEndpoint(): String {
+            val match = blobEndpointRegex.find(connectionString)
+            val blobStorageUrl = match?.groups?.get("blobEndpoint")?.value
+                ?: throw RuntimeException("Connection string is misconfigured and does not contain a blob endpoint URL")
+            return "$blobStorageUrl/$containerName"
         }
     }
 
@@ -111,7 +129,7 @@ class BlobAccess() : Logging {
     companion object : Logging {
         private const val defaultBlobDownloadRetryVar = "AzureBlobDownloadRetryCount"
         private val defaultEnvVar = Environment.get().blobEnvVar
-        private val defaultBlobMetadata by lazy {
+        val defaultBlobMetadata by lazy {
             BlobContainerMetadata.build(
                 defaultBlobContainerName,
                 defaultEnvVar
@@ -202,11 +220,16 @@ class BlobAccess() : Logging {
          * @param source - the source account to copy from
          * @param destination - the destination to copy to
          */
-        fun copyDir(directory: String, source: BlobContainerMetadata, destination: BlobContainerMetadata) {
+        fun copyDir(
+            directory: String,
+            source: BlobContainerMetadata,
+            destination: BlobContainerMetadata,
+            blobFilter: (blob: BlobItemAndPreviousVersions) -> Boolean = { _ -> true },
+        ) {
             val sourceContainer = getBlobContainer(source)
             val destinationContainer = getBlobContainer(destination)
             val blobsToCopy = listBlobs(directory, source)
-            blobsToCopy.forEach { blob ->
+            blobsToCopy.filter(blobFilter).forEach { blob ->
                 val sourceBlobClient = sourceContainer.getBlobClient(blob.currentBlobItem.name)
                 val destinationBlobClient = destinationContainer.getBlobClient(blob.currentBlobItem.name)
                 // Azurite does not support copying between instances of azurite
@@ -232,7 +255,11 @@ class BlobAccess() : Logging {
         data class BlobItemAndPreviousVersions(
             val currentBlobItem: BlobItem,
             val previousBlobItemVersions: List<BlobItem>?,
-        )
+        ) {
+            val blobName: String by lazy {
+                currentBlobItem.name
+            }
+        }
 
         /**
          * Fetches all the blobs prefixed with [directory].  Azure stores blobs in a flat
@@ -306,6 +333,23 @@ class BlobAccess() : Logging {
         }
 
         /**
+         * Helper function that converts a [BlobItem] into a blob URL and downloads it
+         *
+         * @param blobItem the item to download
+         * @param blobConnInfo the azure blob store to download from
+         * @param retries number of download retries
+         * @return the byte array with contents of the blob
+         */
+        fun downloadBlobAsByteArray(
+            blobItem: BlobItem,
+            blobConnInfo: BlobContainerMetadata,
+            retries: Int = blobDownloadRetryCount,
+        ): ByteArray {
+            val blobClient = getBlobContainer(blobConnInfo).getBlobClient(blobItem.name)
+            return downloadBlobAsByteArray(blobClient.blobUrl, blobConnInfo, retries)
+        }
+
+        /**
          * Download the blob at the given [blobUrl] as BinaryData
          */
         fun downloadBlobAsBinaryData(
@@ -339,6 +383,36 @@ class BlobAccess() : Logging {
         }
 
         /**
+         * Accepts a [BlobItemAndPreviousVersions] and grabs the most recent previous version and updates
+         * the blob to it.
+         *
+         * If the list of previous versions is empty (meaning there is nothing to restore), an error is logged
+         * and nothing occurs
+         *
+         * @param blobItemAndPreviousVersions - the blob to restore the most recent previous version
+         * @param blobConnInfo the azure blob connection info
+         */
+        fun restorePreviousVersion(
+            blobItemAndPreviousVersions: BlobItemAndPreviousVersions,
+            blobConnInfo: BlobContainerMetadata,
+        ) {
+            val container = getBlobContainer(blobConnInfo)
+            val currentBlobClient = container.getBlobClient(blobItemAndPreviousVersions.currentBlobItem.name)
+            val previousVersionId = blobItemAndPreviousVersions.previousBlobItemVersions?.firstOrNull()?.versionId
+            if (previousVersionId != null) {
+                val previousVersionBlobClient = container.getBlobVersionClient(
+                    blobItemAndPreviousVersions.currentBlobItem.name,
+                    previousVersionId
+                )
+                currentBlobClient.copyFromUrl(previousVersionBlobClient.blobUrl)
+            } else {
+                logger.error(
+                    "${blobItemAndPreviousVersions.currentBlobItem.name} did not have any previous versions to restore"
+                )
+            }
+        }
+
+        /**
          * Download all blobs located at [sourceBlobDirectoryPath] with container info [sourceBlobContainerInfo] to the
          * [destinationDirectoryPath].
          */
@@ -368,6 +442,19 @@ class BlobAccess() : Logging {
         }
 
         /**
+         * Accepts a [BlobItem] and attempts to delete from the passed blob container info
+         *
+         *
+         * @param blobItem the blob item to delete
+         * @param blobContainerMetadata the blob container connection info
+         */
+        fun deleteBlob(blobItem: BlobItem, blobContainerMetadata: BlobContainerMetadata) {
+            val blobContainer = getBlobContainer(blobContainerMetadata)
+            val blobClient = blobContainer.getBlobClient(blobItem.name)
+            blobClient.delete()
+        }
+
+        /**
          * Check the connection to the blob store
          */
         fun checkConnection(blobConnInfo: BlobContainerMetadata = defaultBlobMetadata) {
@@ -379,10 +466,8 @@ class BlobAccess() : Logging {
          * If one exists for the container name and connection string, the existing one will be reused.
          * @return the blob container client
          */
-        private fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
-            return if (blobContainerClients.containsKey(blobConnInfo)) {
-                blobContainerClients[blobConnInfo]!!
-            } else {
+        internal fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
+            return blobContainerClients.getOrElse(blobConnInfo) {
                 val blobServiceClient = BlobServiceClientBuilder()
                     .connectionString(blobConnInfo.connectionString)
                     .buildClient()

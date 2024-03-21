@@ -89,9 +89,7 @@ class End2EndUniversalPipeline : CoolTest() {
             listOf(universalPipelineReceiver1, universalPipelineReceiver2)
         )
         passed = passed and universalPipelineEnd2End(environment, options, etorTISender, listOf(etorReceiver))
-
         passed = passed and universalPipelineEnd2End(environment, options, elrElimsSender, listOf(elimsReceiver))
-
         return passed
     }
 
@@ -178,35 +176,51 @@ class End2EndUniversalPipeline : CoolTest() {
                     bad("***async end2end_up FAILED***: Translate result invalid")
                 }
 
-                // check batch step
-                val translateReportId = getSingleChildReportId(routeReportId)
-                    ?: return bad(
-                        "***async end2end_up FAILED***:" +
-                            " Did not find a translate report id from route: $routeReportId"
-                    )
+                if (sender.topic.isSendOriginal) { // original message pass through has translate directly call send
+                    // check send step
+                    val translateReportId = getSingleChildReportId(routeReportId)
+                        ?: return bad(
+                            "***async end2end_up FAILED***:" +
+                                " Did not find a translate report id from route: $routeReportId"
+                        )
+                    val sendResults = pollForStepResult(translateReportId, TaskAction.send)
+                    // verify each result is valid
+                    for (result in sendResults.values)
+                        passed = passed && examineStepResponse(result, "send", sender.topic)
+                    if (!passed) {
+                        bad("***async end2end_up FAILED***: Send result invalid")
+                    }
+                } else {
+                    // check batch step
+                    val translateReportId = getSingleChildReportId(routeReportId)
+                        ?: return bad(
+                            "***async end2end_up FAILED***:" +
+                                " Did not find a translate report id from route: $routeReportId"
+                        )
+                    val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
+                    if (batchResults.isEmpty()) {
+                        return bad(
+                            "***async end2end_up FAILED***: No batch report was found after translate: " +
+                                "$translateReportId"
+                        )
+                    }
+                    // verify each result is valid
+                    for (result in batchResults.values)
+                        passed = passed && examineStepResponse(result, "batch", sender.topic)
+                    if (!passed) {
+                        bad("***async end2end_up FAILED***: Batch result invalid")
+                    }
 
-                val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
-                if (batchResults.isEmpty()) {
-                    return bad(
-                        "***async end2end_up FAILED***: No batch report was found after translate: $translateReportId"
-                    )
-                }
-                // verify each result is valid
-                for (result in batchResults.values)
-                    passed = passed && examineStepResponse(result, "batch", sender.topic)
-                if (!passed) {
-                    bad("***async end2end_up FAILED***: Batch result invalid")
-                }
-
-                // check send step
-                val batchReportId = getSingleChildReportId(translateReportId)
-                    ?: return bad("***async end2end_up FAILED***: Batch report id null")
-                val sendResults = pollForStepResult(batchReportId, TaskAction.send)
-                // verify each result is valid
-                for (result in sendResults.values)
-                    passed = passed && examineStepResponse(result, "send", sender.topic)
-                if (!passed) {
-                    bad("***async end2end_up FAILED***: Send result invalid")
+                    // check send step
+                    val batchReportId = getSingleChildReportId(translateReportId)
+                        ?: return bad("***async end2end_up FAILED***: Batch report id null")
+                    val sendResults = pollForStepResult(batchReportId, TaskAction.send)
+                    // verify each result is valid
+                    for (result in sendResults.values)
+                        passed = passed && examineStepResponse(result, "send", sender.topic)
+                    if (!passed) {
+                        bad("***async end2end_up FAILED***: Send result invalid")
+                    }
                 }
             }
 

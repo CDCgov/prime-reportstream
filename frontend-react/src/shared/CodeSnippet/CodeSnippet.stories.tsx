@@ -1,12 +1,11 @@
-import React from "react";
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { StoryFn, StoryObj } from "@storybook/react";
 
-import { CodeSnippet } from "./CodeSnippet";
+import CodeSnippet from "./CodeSnippet";
 
 export default {
     title: "components/CodeSnippet",
     component: CodeSnippet,
-} as ComponentMeta<typeof CodeSnippet>;
+} as StoryObj<typeof CodeSnippet>;
 
 const blockText = `{
     "header": {
@@ -23,7 +22,7 @@ const blockText = `{
     }
 }`;
 
-export const Default: ComponentStory<typeof CodeSnippet> = () => (
+export const Default: StoryFn<typeof CodeSnippet> = () => (
     <p>
         <CodeSnippet>
             This is a code snippet to copy with highlighted kid healthy-labs

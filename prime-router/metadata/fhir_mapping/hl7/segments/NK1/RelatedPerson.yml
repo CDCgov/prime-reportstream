@@ -30,6 +30,7 @@ patient:
   valueOf: datatype/Reference
   expressionType: resource
   specs: $Patient
+  useGroup: true
 
 name:
   expressionType: nested
@@ -43,7 +44,7 @@ name:
         nk1-2: NK1.2
       specs: NK1.2 *
       constants:
-        hl7v2Name: "name"
+        hl7v2Field: "NK1.2"
     - valueOf: datatypes/XPN/HumanName
       expressionType: resource
       condition: $nk1-30 NOT_NULL
@@ -52,7 +53,7 @@ name:
         nk1-30: NK1.30
       specs: NK1.30 *
       constants:
-        hl7v2Name: "contact-person-name"
+        hl7v2Field: "NK1.30"
 
 relationship:
   expressionType: nested
@@ -65,7 +66,7 @@ relationship:
         nk1-3: NK1.3
       specs: NK1.3
       constants:
-        hl7v2Name: "relationship"
+        hl7v2Field: "NK1.3"
     - valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
       condition: $nk1-7 NOT_NULL
@@ -73,7 +74,7 @@ relationship:
         nk1-7: NK1.7
       specs: NK1.7
       constants:
-        hl7v2Name: "contact-role"
+        hl7v2Field: "NK1.7"
 
 address:
   expressionType: nested
@@ -87,7 +88,7 @@ address:
         nk1-4: NK1.4
       specs: NK1.4 *
       constants:
-        hl7v2Name: "address"
+        hl7v2Field: "NK1.4"
     - valueOf: datatypes/XAD/Address
       generateList: true
       expressionType: resource
@@ -96,7 +97,7 @@ address:
         nk1-32: NK1.32
       specs: NK1.32 *
       constants:
-        hl7v2Name: "contact-person-address"
+        hl7v2Field: "NK1.32"
 
 telecom:
   expressionType: nested
@@ -110,7 +111,7 @@ telecom:
       vars:
         valueIn: NK1.5
       constants:
-        hl7v2Name: "phone-number"
+        hl7v2Field: "NK1.5"
     - condition: $valueIn NOT_NULL
       valueOf: datatypes/XTN/ContactPoint
       generateList: true
@@ -120,7 +121,7 @@ telecom:
         valueIn: NK1.6
       constants:
         useCode: work
-        hl7v2Name: "business-phone-number"
+        hl7v2Field: "NK1.6"
     - condition: $valueIn NOT_NULL
       valueOf: datatypes/XTN/ContactPoint
       generateList: true
@@ -129,7 +130,7 @@ telecom:
       vars:
         valueIn: NK1.31
       constants:
-        hl7v2Name: "contact-person-telephone-number"
+        hl7v2Field: "NK1.31"
     - condition: $valueIn NOT_NULL
       valueOf: datatypes/XTN/ContactPoint
       generateList: true
@@ -138,7 +139,7 @@ telecom:
       vars:
         valueIn: NK1.40
       constants:
-        hl7v2Name: "next-of-kin-telecomm-info"
+        hl7v2Field: "NK1.40"
     - condition: $valueIn NOT_NULL
       valueOf: datatypes/XTN/ContactPoint
       generateList: true
@@ -147,7 +148,7 @@ telecom:
       vars:
         valueIn: NK1.41
       constants:
-        hl7v2Name: "contact-person-telecomm-info"
+        hl7v2Field: "NK1.41"
 
 period:
   vars:
@@ -204,7 +205,7 @@ identifier:
       expressionType: resource
       specs: NK1.12
       constants:
-        identifierIndexName: next-of-kin-employee-number
+        CXIdentifierField: NK1.12
     - valueOf: datatypes/CX/Identifier
       condition: $nk1-33 NOT_NULL
       vars:
@@ -213,7 +214,7 @@ identifier:
       expressionType: resource
       specs: NK1.33 *
       constants:
-        identifierIndexName: next-of-kin-identifier
+        CXIdentifierField: NK1.33
     - expressionType: nested
       condition: $nk1-37 NOT_NULL
       vars:
@@ -289,27 +290,8 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          valueOf: hl7v2Name
+          valueOf: hl7v2Segment
         valueString:
           valueOf: 'NK1'
-    - expressionType: nested
-      generateList: true
-      condition: $nk1-13 NOT_NULL
-      specs: NK1.13 *
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: nk1-13-organization-name
-        valueReference:
-          valueOf: datatypes/XON/Organization
-          expressionType: reference
-    - expressionType: nested
-      condition: $nk1-16 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: nk1-16-birth-date
-        valueString:
-          type: STRING
-          valueOf: NK1.16
-          expressionType: HL7Spec
+    - expressionType: resource
+      valueOf: segments/NK1/NK1Extension

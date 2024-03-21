@@ -55,7 +55,7 @@ locals {
     "APPINSIGHTS_SNAPSHOTFEATURE_VERSION"             = "1.0.0"
     "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"       = ""
     "APPLICATIONINSIGHTS_CONNECTION_STRING"           = var.ai_connection_string
-    "ApplicationInsightsAgent_EXTENSION_VERSION"      = "~3"
+    "APPLICATIONINSIGHTS_ENABLE_AGENT"                = "true"
     "DiagnosticServices_EXTENSION_VERSION"            = "~3"
     "InstrumentationEngine_EXTENSION_VERSION"         = "disabled"
     "SnapshotDebugger_EXTENSION_VERSION"              = "disabled"

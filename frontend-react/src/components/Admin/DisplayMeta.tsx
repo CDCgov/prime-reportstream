@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import { MetaTaggedResource } from "../../resources/OrgSettingsBaseResource";
 import { formatDate } from "../../utils/misc";
 
-type DisplayMetaProps = {
+interface DisplayMetaProps {
     metaObj?: MetaTaggedResource;
-};
+}
 
 export const DisplayMeta = ({ metaObj }: DisplayMetaProps) => {
     const [metaData, setMetaData] = useState<MetaTaggedResource>();

@@ -1,11 +1,10 @@
 import { waitFor } from "@testing-library/react";
 
-import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
+import useSenderResource from "./UseSenderResource";
 import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
-import { MemberType, MembershipSettings } from "../utils/OrganizationUtils";
-
-import useSenderResource from "./UseSenderResource";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
+import { MembershipSettings, MemberType } from "../utils/OrganizationUtils";
 
 describe("useSenderResource", () => {
     beforeAll(() => {
@@ -13,7 +12,7 @@ describe("useSenderResource", () => {
     });
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
-    test("returns undefined if no sender available on membership", () => {
+    test("returns null if no sender available on membership", async () => {
         mockSessionContentReturnValue({
             authState: {
                 accessToken: { accessToken: "TOKEN" },
@@ -31,7 +30,7 @@ describe("useSenderResource", () => {
             } as any,
         });
         const { result } = renderHook(() => useSenderResource());
-        expect(result.current.data).toEqual(undefined);
+        await waitFor(() => expect(result.current.data).toBeNull());
     });
     test("returns correct sender match", async () => {
         mockSessionContentReturnValue({

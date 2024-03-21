@@ -1,6 +1,6 @@
 import ActionDetailsResource from "./ActionDetailsResource";
-import OrgSenderSettingsResource from "./OrgSenderSettingsResource";
 import OrganizationResource from "./OrganizationResource";
+import OrgSenderSettingsResource from "./OrgSenderSettingsResource";
 
 export enum ResponseType {
     ACTION_DETAIL = "actionDetail",
@@ -51,6 +51,19 @@ export class TestResponse {
                 ],
                 sending_at: "1970-04-07T16:26:14.345Z",
                 itemCount: 3,
+                sentReports: [],
+                filteredReportItems: [],
+                itemCountBeforeQualityFiltering: 0,
+            },
+            {
+                organization_id: "jest",
+                organization: "Different Org",
+                service: "Secondary",
+                filteredReportRows: [
+                    "For ignore.Secondary, filter matches[ordering_facility_county, Secondary] filtered out item 682740 at index 1",
+                    "For ignore.Secondary, filter matches[ordering_facility_county, Secondary] filtered out item 496898 at index 3",
+                ],
+                itemCount: 4,
                 sentReports: [],
                 filteredReportItems: [],
                 itemCountBeforeQualityFiltering: 0,
@@ -116,7 +129,7 @@ export class TestResponse {
         pk: function (): string {
             throw new Error("Function not implemented.");
         },
-        name: "",
+        name: "testSender",
         version: 0,
         createdBy: "mctest@example.com",
         createdAt: "1/1/2000 00:00:00",

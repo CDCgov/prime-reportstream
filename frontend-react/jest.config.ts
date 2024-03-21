@@ -11,12 +11,19 @@ import _ from "./config/env.cjs";
 const config: Config.InitialOptions = {
     roots: ["<rootDir>/src"],
     collectCoverageFrom: ["src/**/*.{js,jsx,ts,tsx}", "!src/**/*.d.ts"],
+    globalSetup: "<rootDir>/src/globalSetup.ts",
     setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
     testMatch: [
         "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
         "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}",
     ],
     testEnvironment: "jsdom",
+    testEnvironmentOptions: {
+        /**
+         * @see https://mswjs.io/docs/migrations/1.x-to-2.x/#cannot-find-module-mswnode-jsdom
+         */
+        customExportConditions: [""],
+    },
     transform: {
         "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$":
             "<rootDir>/config/jest/babelTransform.cjs",
@@ -36,7 +43,6 @@ const config: Config.InitialOptions = {
             "<rootDir>/node_modules/@rest-hooks/$1/dist/$1.js",
             "<rootDir>/node_modules/@rest-hooks/$1/dist/index.cjs.js",
         ],
-        "^msw/lib/node$": "<rootDir>/node_modules/msw/lib/node/index.js",
         "^rest-hooks$": "<rootDir>/node_modules/rest-hooks/dist/index.js",
         "\\.(css|less|scss)$": "identity-obj-proxy",
         "@mdx-js/react": "<rootDir>/src/__mocks__/mdxjsReactMock.tsx",

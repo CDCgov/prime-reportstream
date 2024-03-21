@@ -33,17 +33,17 @@ const rangeReducer = (
         case RangeSettingsActionType.UPDATE_FROM:
             return {
                 ...state,
-                from: payload?.from || state.from,
+                from: payload?.from ?? state.from,
             };
         case RangeSettingsActionType.UPDATE_TO:
             return {
                 ...state,
-                to: payload?.to || state.to,
+                to: payload?.to ?? state.to,
             };
         case RangeSettingsActionType.RESET: // Can use this to manually set for edge cases
             return {
-                from: payload?.from || FALLBACK_FROM,
-                to: payload?.to || FALLBACK_TO,
+                from: payload?.from ?? FALLBACK_FROM,
+                to: payload?.to ?? FALLBACK_TO,
             };
         default:
             return state;
@@ -61,13 +61,13 @@ const FALLBACK_FROM_STRING = "01/01/2000";
 const FALLBACK_FROM = new Date(FALLBACK_FROM_STRING).toISOString();
 const FALLBACK_TO_STRING = "01/01/3000";
 const FALLBACK_TO = new Date(FALLBACK_TO_STRING).toISOString();
-
+const DEFAULT_FROM_TIME = "0:0";
+const DEFAULT_TO_TIME = "23:59";
 const useDateRange = (): RangeFilter => {
     const [settings, dispatchRange] = useReducer(rangeReducer, {
         from: FALLBACK_FROM,
         to: FALLBACK_TO,
     });
-
     return {
         settings,
         update: dispatchRange,
@@ -82,5 +82,7 @@ export {
     FALLBACK_TO,
     FALLBACK_FROM_STRING,
     FALLBACK_TO_STRING,
+    DEFAULT_FROM_TIME,
+    DEFAULT_TO_TIME,
 };
 export type { RangeSettings, RangeSettingsAction };

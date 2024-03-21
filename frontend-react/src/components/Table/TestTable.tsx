@@ -1,13 +1,16 @@
 import { useEffect, useMemo } from "react";
 
+import Table, { ColumnConfig, TableConfig } from "./Table";
+import TableFilters, { TableFilterDateLabel } from "./TableFilters";
+import { DatasetAction } from "./TableInfo";
+import { receiverServicesGenerator } from "../../__mocks__/DataDashboardMockServer";
 import useCursorManager, {
     CursorActionType,
 } from "../../hooks/filters/UseCursorManager";
 import useFilterManager from "../../hooks/filters/UseFilterManager";
 
-import Table, { ColumnConfig, TableConfig } from "./Table";
-import TableFilters, { TableFilterDateLabel } from "./TableFilters";
-import { DatasetAction } from "./TableInfo";
+const mockReceiverServices = receiverServicesGenerator(5);
+const mockActiveReceiver = mockReceiverServices[0];
 
 const testDataRowOne = {
     one: "value one",
@@ -75,7 +78,7 @@ export const TestTable = ({
     };
 
     /* Configuration objects to pass to <Table> */
-    const fakeColumns: Array<ColumnConfig> = [
+    const fakeColumns: ColumnConfig[] = [
         {
             dataAttr: "two",
             columnHeader: "Column Two",
@@ -138,12 +141,17 @@ export const TestTable = ({
                 startDateLabel={TableFilterDateLabel.START_DATE}
                 endDateLabel={TableFilterDateLabel.END_DATE}
                 filterManager={filterManager}
+                receivers={[
+                    { value: "Receiver One", label: "Receiver One" },
+                    { value: "Receiver Two", label: "Receiver Two" },
+                ]}
                 cursorManager={{
                     cursors,
                     hasNext,
                     hasPrev,
                     update: updateCursors,
                 }}
+                initialService={mockActiveReceiver}
             />
             <Table
                 title={"Test Table Title"}
