@@ -128,6 +128,8 @@ runs:
     - name: 'Get secrets'
       id: key-vault
       if: env.USE_DCT == 'true'
+      working-directory: prime-router
+      shell: bash
       run: |
         secrets=${{ env.KEY_NAME }}
         for secret_get in ${secrets_get[@]}
@@ -136,6 +138,7 @@ runs:
           echo "::add-mask::$value"
           echo "$secret_get=$value" >> $GITHUB_OUTPUT
         done
+        
 
     - name: Create ssl key file
       if: env.USE_DCT == 'true'
