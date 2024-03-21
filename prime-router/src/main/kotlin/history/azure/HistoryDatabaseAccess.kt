@@ -136,7 +136,7 @@ abstract class HistoryDatabaseAccess(
         klass: Class<T>,
         reportId: UUID? = null,
         fileName: String? = null,
-        receivingOrgSvcStatus: CustomerStatus? = null,
+        receivingOrgSvcStatus: List<CustomerStatus>? = null,
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
         val whereClause =
@@ -220,7 +220,7 @@ abstract class HistoryDatabaseAccess(
     private fun createWhereCondition(
         organization: String,
         orgService: String?,
-        receivingOrgSvcStatus: CustomerStatus?,
+        receivingOrgSvcStatus: List<CustomerStatus>?,
         reportId: UUID?,
         fileName: String?,
         since: OffsetDateTime?,
@@ -229,19 +229,11 @@ abstract class HistoryDatabaseAccess(
     ): Condition {
         var filter = this.organizationFilter(organization, orgService)
 
-        if (receivingOrgSvcStatus != null) {
-            filter = if (receivingOrgSvcStatus == CustomerStatus.ACTIVE) {
-                filter.and(
-                    DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
-                    .notEqual(CustomerStatus.INACTIVE.name.lowercase())
-                )
-            } else {
-                filter.and(
-                    DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
-                    .eq(receivingOrgSvcStatus.toString().lowercase())
-                )
-            }
-        }
+        var statusList = receivingOrgSvcStatus?.map { it.name.lowercase() }
+        filter = filter.and(
+                DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
+                    .`in`(statusList)
+            )
 
         if (reportId != null) {
             filter = filter.and(REPORT_FILE.REPORT_ID.eq(reportId))

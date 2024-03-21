@@ -42,7 +42,7 @@ paths:
             type: string
         - name: receivingOrgSvcStatus
           in: query
-          description: "Customer status of the service used by the organization. If 'ACTIVE', both 'ACTIVE' and 'testing' will be returned. If no status is provided then all services will be returned."
+          description: "Customer status of the service used by the organization."
           example: "ACTIVE"
           schema:
             type: string
@@ -102,7 +102,7 @@ paths:
             type: string
         - name: receivingOrgSvcStatus
           in: query
-          description: "Customer status of the service used by the organization. If 'ACTIVE', both 'ACTIVE' and 'testing' will be returned. If no status is provided then all services will be returned."
+          description: "Customer status of the service used by the organization."
           example: "ACTIVE"
           schema:
             type: string

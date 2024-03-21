@@ -50,7 +50,7 @@ class DeliveryFacade(
         pageSize: Int,
         reportIdStr: String?,
         fileName: String?,
-        receivingOrgSvcStatus: CustomerStatus?,
+        receivingOrgSvcStatus: List<CustomerStatus>?,
     ): List<DeliveryHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."

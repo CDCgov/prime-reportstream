@@ -235,7 +235,7 @@ abstract class ReportFileFunction(
         val showFailed: Boolean,
         val reportId: String?,
         val fileName: String?,
-        val receivingOrgSvcStatus: CustomerStatus?,
+        val receivingOrgSvcStatus: List<CustomerStatus>?,
     ) {
         constructor(query: Map<String, String>) : this(
             sortDir = extractSortDir(query),
@@ -318,10 +318,8 @@ abstract class ReportFileFunction(
                 return query["showfailed"]?.toBoolean() ?: false
             }
 
-            fun extractReceivingOrgSvcStatus(query: Map<String, String>): CustomerStatus? {
-                val receivingOrgSvcStatus = query["receivingOrgSvcStatus"]
-                // check if receivingOrgSvcStatus matches one of the values in CustomerStatus
-                return receivingOrgSvcStatus?.let { CustomerStatus.valueOf(it) }
+            fun extractReceivingOrgSvcStatus(query: Map<String, String>): List<CustomerStatus>? {
+                return query["receivingOrgSvcStatus"]?.split(",")?.map{ CustomerStatus.valueOf(it)}
             }
         }
     }
