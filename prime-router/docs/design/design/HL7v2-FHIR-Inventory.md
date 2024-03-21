@@ -98,6 +98,13 @@ implementation differs from what is in the spreadsheets.
   specifies an FHIR R5 extension for SFT.6 but this implementation is using R4. A custom extension has been implemented
   in
   place of the R5 extension.
+- Entity.role is required if SFT exists. The mapping inventory has the following direction:
+  > - If the software does not represent the original source system then Entity.role=derivation
+  >
+  > - If the software does represent the original source system then Entity.role=source
+
+  The source system cannot currently be derived from messages sent to the system. As such, this implementation has opted
+  to default `Entity.role=source`.
 
 ### OBR/ORC -> ServiceRequest
 

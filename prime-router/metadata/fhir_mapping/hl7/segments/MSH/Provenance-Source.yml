@@ -1,8 +1,3 @@
-# Entity.role is required if SFT exists. The mapping inventory has the following direction:
-#   - If the software does not represent the original source system then Entity.role=derivation
-#   - If the software does represent the original source system then Entity.role=source
-# Either source or derivation will need to be set for each sender
-
 resourceType: Provenance
 id:
   type: STRING
