@@ -27,7 +27,7 @@ resources:
       - PATIENT.PID
 
   - resourceName: Observation
-    segment: OBSERVATION_REQUEST.OBSERVATION.OBX
+    segment: .OBSERVATION_REQUEST.OBSERVATION.OBX
     group: ORDER
     resourcePath: segments/OBX/Observation
     repeats: true
