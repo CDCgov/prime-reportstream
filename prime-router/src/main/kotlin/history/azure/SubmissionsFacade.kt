@@ -166,7 +166,7 @@ class SubmissionsFacade(
     }
 
     private fun receivingOrgsForAction(action: Action): Set<String?> {
-        val report = this.fetchReportForActionId(action.actionId)
+        val report = fetchReportForActionId(action.actionId)
 
         val relatedActions = dbSubmissionAccess.fetchRelatedActions(
             report!!.reportId,
