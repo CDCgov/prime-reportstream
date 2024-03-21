@@ -138,7 +138,7 @@ class SubmissionsFacadeTests {
     }
 
     @Test
-    fun `test checkAccessAuthorizationForAction`() {
+    fun `authorization happy path`() {
         val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
@@ -159,30 +159,90 @@ class SubmissionsFacadeTests {
         var claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
+    }
+
+    @Test
+    fun `authorization prime admin OK in a different org`() {
+        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
+        val mockRequest = MockHttpRequestMessage()
+
+        val action = Action()
+        action.actionId = 123
+        action.sendingOrg = "mySendingOrg"
+        action.sendingOrgClient = "mySendingOrgClient"
+        action.receivingOrg = "myReceivingOrg"
+        action.receivingOrgSvc = "myReceivingOrgSvc"
 
         // PrimeAdmin happy path:   PrimeAdmin user ok to be in a different org.
         val adminClaims: Map<String, Any> = mapOf(
             "organization" to listOf("DHfoobar", "DHPrimeAdmins"),
             "sub" to "bob@bob.com"
         )
-        claims = AuthenticatedClaims(adminClaims, AuthenticationType.Okta)
+        val claims = AuthenticatedClaims(adminClaims, AuthenticationType.Okta)
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
+    }
+
+    @Test
+    fun `authorization regular user and orgs don't match`() {
+        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
+        val mockRequest = MockHttpRequestMessage()
+
+        val action = Action()
+        action.actionId = 123
+        action.sendingOrg = "mySendingOrg"
+        action.sendingOrgClient = "mySendingOrgClient"
+        action.receivingOrg = "myReceivingOrg"
+        action.receivingOrgSvc = "myReceivingOrgSvc"
 
         // Error: Regular user and Orgs don't match
         val mismatchedClaims: Map<String, Any> = mapOf(
             "organization" to listOf("DHSender_foobar"),
             "sub" to "bob@bob.com"
         )
-        claims = AuthenticatedClaims(mismatchedClaims, AuthenticationType.Okta)
+        val claims = AuthenticatedClaims(mismatchedClaims, AuthenticationType.Okta)
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isFalse()
+    }
+
+    @Test
+    fun `authorization not looking up the receivingOrg`() {
+        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
+        val mockRequest = MockHttpRequestMessage()
+
+        val action = Action()
+        action.actionId = 123
+        action.sendingOrg = "mySendingOrg"
+        action.sendingOrgClient = "mySendingOrgClient"
+        action.receivingOrg = "myReceivingOrg"
+        action.receivingOrgSvc = "myReceivingOrgSvc"
 
         // This is a submissions query.  So, we sure better not be looking up the receivingOrg.
         val mismatchedClaims2: Map<String, Any> = mapOf(
             "organization" to listOf("DHmyReceivingOrg"),
             "sub" to "bob@bob.com"
         )
-        claims = AuthenticatedClaims(mismatchedClaims2, AuthenticationType.Okta)
+        val claims = AuthenticatedClaims(mismatchedClaims2, AuthenticationType.Okta)
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isFalse()
+    }
+
+    @Test
+    fun `authorization without Sender_`() {
+        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
+        val mockRequest = MockHttpRequestMessage()
+
+        val action = Action()
+        action.actionId = 123
+        action.sendingOrg = "mySendingOrg"
+        action.sendingOrgClient = "mySendingOrgClient"
+        action.receivingOrg = "myReceivingOrg"
+        action.receivingOrgSvc = "myReceivingOrgSvc"
 
         // The auth should work, even without the
         // annoying "Sender_" string in the claims, which is actually not needed any more.
@@ -190,7 +250,7 @@ class SubmissionsFacadeTests {
             "organization" to listOf("DHmySendingOrg"),
             "sub" to "bob@bob.com"
         )
-        claims = AuthenticatedClaims(mismatchedClaims3, AuthenticationType.Okta)
+        val claims = AuthenticatedClaims(mismatchedClaims3, AuthenticationType.Okta)
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
     }
 }
