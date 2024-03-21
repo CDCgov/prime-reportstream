@@ -23,10 +23,12 @@ jobs:
         with:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Build CLI
-        run: |
-          cd prime-router
-          ./gradlew fatjar
+      - name: Build backend
+        uses: ./.github/actions/build-backend
+        with:
+          version: ${{ github.run_id }}
+          upload-build: false
+          run-integration-tests: false
 
       # Allow runner IP for storage testing
       - name: Get runner ip
