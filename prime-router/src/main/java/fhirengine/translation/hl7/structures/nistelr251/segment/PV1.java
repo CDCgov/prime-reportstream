@@ -41,7 +41,6 @@ import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.TS_ELR;
 
 
 /**
@@ -91,8 +90,8 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.TS_ELR;
  * <li>PV1-41: Account Status (IS) <b>optional </b>
  * <li>PV1-42: Pending Location (PL) <b>optional </b>
  * <li>PV1-43: Prior Temporary Location (PL) <b>optional </b>
- * <li>PV1-44: Admit Date/Time (TS_ELR) <b>optional </b>
- * <li>PV1-45: Discharge Date/Time (TS_ELR) <b>optional </b>
+ * <li>PV1-44: Admit Date/Time (TS) <b>optional </b>
+ * <li>PV1-45: Discharge Date/Time (TS) <b>optional </b>
  * <li>PV1-46: Current Patient Balance (NM) <b>optional </b>
  * <li>PV1-47: Total Charges (NM) <b>optional </b>
  * <li>PV1-48: Total Adjustments (NM) <b>optional </b>
@@ -158,8 +157,8 @@ public class PV1 extends AbstractSegment {
       this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 117}, "Account Status");
       this.add(PL.class, false, 1, 0, new Object[]{getMessage()}, "Pending Location");
       this.add(PL.class, false, 1, 0, new Object[]{getMessage()}, "Prior Temporary Location");
-      this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Admit Date/Time");
-      this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Discharge Date/Time");
+      this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Admit Date/Time");
+      this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Discharge Date/Time");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Current Patient Balance");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Total Charges");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Total Adjustments");
@@ -2596,8 +2595,8 @@ public class PV1 extends AbstractSegment {
    * Returns
    * PV1-44: "Admit Date/Time" - creates it if necessary
    */
-  public TS_ELR getAdmitDateTime() {
-    TS_ELR retVal = this.getTypedField(44, 0);
+  public TS getAdmitDateTime() {
+    TS retVal = this.getTypedField(44, 0);
     return retVal;
   }
 
@@ -2605,8 +2604,8 @@ public class PV1 extends AbstractSegment {
    * Returns
    * PV1-44: "Admit Date/Time" - creates it if necessary
    */
-  public TS_ELR getPv144_AdmitDateTime() {
-    TS_ELR retVal = this.getTypedField(44, 0);
+  public TS getPv144_AdmitDateTime() {
+    TS retVal = this.getTypedField(44, 0);
     return retVal;
   }
 
@@ -2615,8 +2614,8 @@ public class PV1 extends AbstractSegment {
    * Returns
    * PV1-45: "Discharge Date/Time" - creates it if necessary
    */
-  public TS_ELR getDischargeDateTime() {
-    TS_ELR retVal = this.getTypedField(45, 0);
+  public TS getDischargeDateTime() {
+    TS retVal = this.getTypedField(45, 0);
     return retVal;
   }
 
@@ -2624,8 +2623,8 @@ public class PV1 extends AbstractSegment {
    * Returns
    * PV1-45: "Discharge Date/Time" - creates it if necessary
    */
-  public TS_ELR getPv145_DischargeDateTime() {
-    TS_ELR retVal = this.getTypedField(45, 0);
+  public TS getPv145_DischargeDateTime() {
+    TS retVal = this.getTypedField(45, 0);
     return retVal;
   }
 
@@ -2944,9 +2943,9 @@ public class PV1 extends AbstractSegment {
       case 42:
         return new PL(getMessage());
       case 43:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 44:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 45:
         return new NM(getMessage());
       case 46:
