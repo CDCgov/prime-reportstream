@@ -200,6 +200,54 @@ class SubmissionsFacadeTests {
         action.receivingOrg = "myReceivingOrg"
         action.receivingOrgSvc = "myReceivingOrgSvc"
 
+        val mockReportFile = ReportFile()
+        mockReportFile.reportId = UUID.randomUUID()
+
+        every {
+            mockDbAccess.fetchReportForActionId(any())
+        } returns mockReportFile
+
+        val relatedAction1 = DetailedSubmissionHistory(1L, TaskAction.translate, OffsetDateTime.now())
+        val relatedAction2 = DetailedSubmissionHistory(2L, TaskAction.route, OffsetDateTime.now())
+        val relatedAction3 = DetailedSubmissionHistory(3L, TaskAction.batch, OffsetDateTime.now())
+        val relatedActionSend1 = DetailedSubmissionHistory(4L, TaskAction.send, OffsetDateTime.now())
+        val relatedActionSend2 = DetailedSubmissionHistory(5L, TaskAction.send, OffsetDateTime.now())
+        val relatedActionSend3 = DetailedSubmissionHistory(6L, TaskAction.send, OffsetDateTime.now())
+
+        val detailedReportOtherOrg = DetailedReport(
+            reportId = UUID.randomUUID(),
+            receivingOrg = "some other organization",
+            receivingOrgSvc = null,
+            sendingOrg = null,
+            sendingOrgClient = null,
+            schemaTopic = null,
+            externalName = null,
+            createdAt = null,
+            nextActionAt = null,
+            itemCount = 1,
+            itemCountBeforeQualFilter = null,
+            receiverHasTransport = true
+        )
+
+        relatedActionSend1.reports!!.add(detailedReportOtherOrg)
+        relatedActionSend3.reports!!.add(detailedReportOtherOrg)
+
+        val relatedActions = listOf(
+            relatedAction1,
+            relatedAction2,
+            relatedAction3,
+            relatedActionSend1,
+            relatedActionSend2,
+            relatedActionSend3
+        )
+
+        every {
+            mockSubmissionAccess.fetchRelatedActions(
+                mockReportFile.reportId,
+                DetailedSubmissionHistory::class.java
+            )
+        } returns relatedActions
+
         // Error: Regular user and Orgs don't match
         val mismatchedClaims: Map<String, Any> = mapOf(
             "organization" to listOf("DHSender_foobar"),
@@ -286,12 +334,12 @@ class SubmissionsFacadeTests {
             )
         } returns relatedActions
 
-        val mismatchedClaims2: Map<String, Any> = mapOf(
+        val mismatchedClaims: Map<String, Any> = mapOf(
             "organization" to listOf(validReceivingOrg),
             "sub" to "bob@bob.com",
             "scope" to "$validReceivingOrg.*.report",
         )
-        val claims = AuthenticatedClaims(mismatchedClaims2, AuthenticationType.Server2Server)
+        val claims = AuthenticatedClaims(mismatchedClaims, AuthenticationType.Server2Server)
         assertThat(facade.checkAccessAuthorizationForAction(claims, receiveAction, mockRequest)).isTrue()
     }
 
