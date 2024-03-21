@@ -150,15 +150,13 @@ class SubmissionsFacadeTests {
         action.actionId = 123
         action.sendingOrg = "mySendingOrg"
         action.sendingOrgClient = "mySendingOrgClient"
-        action.receivingOrg = "myReceivingOrg"
-        action.receivingOrgSvc = "myReceivingOrgSvc"
 
         // Regular user Happy path test.
         val userClaims: Map<String, Any> = mapOf(
             "organization" to listOf("DHSender_mySendingOrg"),
             "sub" to "bob@bob.com"
         )
-        var claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
+        val claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
     }
@@ -174,8 +172,6 @@ class SubmissionsFacadeTests {
         action.actionId = 123
         action.sendingOrg = "mySendingOrg"
         action.sendingOrgClient = "mySendingOrgClient"
-        action.receivingOrg = "myReceivingOrg"
-        action.receivingOrgSvc = "myReceivingOrgSvc"
 
         // PrimeAdmin happy path:   PrimeAdmin user ok to be in a different org.
         val adminClaims: Map<String, Any> = mapOf(
@@ -197,8 +193,6 @@ class SubmissionsFacadeTests {
         action.actionId = 123
         action.sendingOrg = "mySendingOrg"
         action.sendingOrgClient = "mySendingOrgClient"
-        action.receivingOrg = "myReceivingOrg"
-        action.receivingOrgSvc = "myReceivingOrgSvc"
 
         val mockReportFile = ReportFile()
         mockReportFile.reportId = UUID.randomUUID()
@@ -354,8 +348,6 @@ class SubmissionsFacadeTests {
         action.actionId = 123
         action.sendingOrg = "mySendingOrg"
         action.sendingOrgClient = "mySendingOrgClient"
-        action.receivingOrg = "myReceivingOrg"
-        action.receivingOrgSvc = "myReceivingOrgSvc"
 
         // The auth should work, even without the
         // annoying "Sender_" string in the claims, which is actually not needed any more.
