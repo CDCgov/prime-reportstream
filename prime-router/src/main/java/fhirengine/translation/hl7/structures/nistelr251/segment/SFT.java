@@ -40,21 +40,21 @@ import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.model.v251.datatype.ST;
+import ca.uhn.hl7v2.model.v251.datatype.TS;
 import ca.uhn.hl7v2.model.v251.datatype.TX;
+import ca.uhn.hl7v2.model.v251.datatype.XON;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.TS_ELR;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.XON_ELR;
 
 /**
  * <p>Represents an HL7 SFT message segment (Software Segment).
  * This segment has the following fields:</p>
  * <ul>
- * <li>SFT-1: Software Vendor Organization (XON_ELR) <b> </b>
+ * <li>SFT-1: Software Vendor Organization (XON) <b> </b>
  * <li>SFT-2: Software Certified Version or Release Number (ST) <b> </b>
  * <li>SFT-3: Software Product Name (ST) <b> </b>
  * <li>SFT-4: Software Binary ID (ST) <b> </b>
  * <li>SFT-5: Software Product Information (TX) <b>optional </b>
- * <li>SFT-6: Software Install Date (TS_ELR) <b>optional </b>
+ * <li>SFT-6: Software Install Date (TS) <b>optional </b>
  * </ul>
  */
 @SuppressWarnings("unused")
@@ -70,12 +70,12 @@ public class SFT extends AbstractSegment {
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(XON_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Software Vendor Organization");
+      this.add(XON.class, true, 1, 0, new Object[]{getMessage()}, "Software Vendor Organization");
       this.add(ST.class, true, 1, 0, new Object[]{getMessage()}, "Software Certified Version or Release Number");
       this.add(ST.class, true, 1, 0, new Object[]{getMessage()}, "Software Product Name");
       this.add(ST.class, true, 1, 0, new Object[]{getMessage()}, "Software Binary ID");
       this.add(TX.class, false, 1, 0, new Object[]{getMessage()}, "Software Product Information");
-      this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Software Install Date");
+      this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Software Install Date");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating SFT - this is probably a bug in the source code generator.", e);
     }
@@ -86,8 +86,8 @@ public class SFT extends AbstractSegment {
    * Returns
    * SFT-1: "Software Vendor Organization" - creates it if necessary
    */
-  public XON_ELR getSoftwareVendorOrganization() {
-    XON_ELR retVal = this.getTypedField(1, 0);
+  public XON getSoftwareVendorOrganization() {
+    XON retVal = this.getTypedField(1, 0);
     return retVal;
   }
 
@@ -95,8 +95,8 @@ public class SFT extends AbstractSegment {
    * Returns
    * SFT-1: "Software Vendor Organization" - creates it if necessary
    */
-  public XON_ELR getSft1_SoftwareVendorOrganization() {
-    XON_ELR retVal = this.getTypedField(1, 0);
+  public XON getSft1_SoftwareVendorOrganization() {
+    XON retVal = this.getTypedField(1, 0);
     return retVal;
   }
 
@@ -181,8 +181,8 @@ public class SFT extends AbstractSegment {
    * Returns
    * SFT-6: "Software Install Date" - creates it if necessary
    */
-  public TS_ELR getSoftwareInstallDate() {
-    TS_ELR retVal = this.getTypedField(6, 0);
+  public TS getSoftwareInstallDate() {
+    TS retVal = this.getTypedField(6, 0);
     return retVal;
   }
 
@@ -190,8 +190,8 @@ public class SFT extends AbstractSegment {
    * Returns
    * SFT-6: "Software Install Date" - creates it if necessary
    */
-  public TS_ELR getSft6_SoftwareInstallDate() {
-    TS_ELR retVal = this.getTypedField(6, 0);
+  public TS getSft6_SoftwareInstallDate() {
+    TS retVal = this.getTypedField(6, 0);
     return retVal;
   }
 
@@ -202,7 +202,7 @@ public class SFT extends AbstractSegment {
   protected Type createNewTypeWithoutReflection(int field) {
     switch (field) {
       case 0:
-        return new XON_ELR(getMessage());
+        return new XON(getMessage());
       case 1:
         return new ST(getMessage());
       case 2:
@@ -212,7 +212,7 @@ public class SFT extends AbstractSegment {
       case 4:
         return new TX(getMessage());
       case 5:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       default:
         return null;
     }

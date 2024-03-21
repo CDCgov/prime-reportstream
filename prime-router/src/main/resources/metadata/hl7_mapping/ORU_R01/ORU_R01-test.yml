@@ -5,12 +5,6 @@ elements:
   - name: message-header
     condition: true
 
-  - name: software-segment
-    condition: >
-      Bundle.entry.resource.ofType(MessageHeader).exists() and 
-      Bundle.entry.resource.ofType(MessageHeader).source.exists() and
-      Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`).exists()
-
   - name: order-observation-base
     required: false
 
