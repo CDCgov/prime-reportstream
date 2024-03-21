@@ -419,6 +419,14 @@ class TranslationTests {
             return result
         }
 
+        /**
+         * Helper function to convert an HL7 string into FHIR and verify it matches the passed expected value
+         *
+         * @param rawHL7 the HL7 message as a string
+         * @param result container that holds the results of running the comparisons
+         * @param expectedRawFhir the expected raw FHIR string
+         * @param an optional profile value that when passed it will run the conversion with that mappings specific to the profile
+         */
         private fun verifyHL7toFhir(
             rawHL7: String,
             result: CompareData.Result,
