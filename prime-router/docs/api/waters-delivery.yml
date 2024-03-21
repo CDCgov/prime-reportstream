@@ -42,7 +42,7 @@ paths:
             type: string
         - name: receivingOrgSvcStatus
           in: query
-          description: "Customer status of the service used by the organization."
+          description: "Customer status of the service used by the organization. Can append the parameter multiple times for more than one status."
           example: "ACTIVE"
           schema:
             type: string
@@ -102,7 +102,7 @@ paths:
             type: string
         - name: receivingOrgSvcStatus
           in: query
-          description: "Customer status of the service used by the organization."
+          description: "Customer status of the service used by the organization. Can append the parameter multiple times for more than one status."
           example: "ACTIVE"
           schema:
             type: string

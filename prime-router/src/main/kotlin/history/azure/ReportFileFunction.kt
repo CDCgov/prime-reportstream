@@ -319,7 +319,7 @@ abstract class ReportFileFunction(
             }
 
             fun extractReceivingOrgSvcStatus(query: Map<String, String>): List<CustomerStatus>? {
-                return query["receivingOrgSvcStatus"]?.split(",")?.map{ CustomerStatus.valueOf(it)}
+                return query["receivingOrgSvcStatus"]?.split(",")?.map { CustomerStatus.valueOf(it) }
             }
         }
     }

@@ -1257,7 +1257,7 @@ class DeliveryFunctionTests : Logging {
         }
 
         @Test
-        fun `test successfully returns when sending a receivingOrgSvcStatus`() {
+        fun `test successfully returns when sending a single receivingOrgSvcStatus`() {
             val httpRequestMessage = MockHttpRequestMessage(
                 """
                 {
@@ -1275,6 +1275,37 @@ class DeliveryFunctionTests : Logging {
                 """.trimIndent()
             )
             httpRequestMessage.parameters["receivingOrgSvcStatus"] = "ACTIVE"
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = DeliveryFunction().getDeliveries(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
+
+        @Test
+        fun `test successfully returns when sending multiple receivingOrgSvcStatus`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+            httpRequestMessage.parameters["receivingOrgSvcStatus"] = "ACTIVE"
+            httpRequestMessage.parameters["receivingOrgSvcStatus"] = "INACTIVE"
 
             val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
             val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
