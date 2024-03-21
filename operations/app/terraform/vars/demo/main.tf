@@ -195,7 +195,15 @@ module "front_door" {
   application_key_vault_id    = module.key_vault.application_key_vault_id
 }
 
-/* module "sftp" {
+module "ssh" {
+  source          = "../../modules/ssh"
+  environment     = local.init.environment
+  resource_group  = local.init.resource_group_name
+  resource_prefix = local.init.resource_prefix
+  location        = local.init.location
+}
+
+module "sftp" {
   source                      = "../../modules/sftp"
   environment                 = local.init.environment
   resource_group              = local.init.resource_group_name
@@ -204,7 +212,14 @@ module "front_door" {
   key_vault_id                = module.key_vault.application_key_vault_id
   terraform_caller_ip_address = local.network.terraform_caller_ip_address
   nat_gateway_id              = module.nat_gateway.nat_gateway_id
-} */
+  sshnames                    = module.ssh.sshnames
+  sshinstances                = module.ssh.sshinstances
+  sftp_dir                    = module.ssh.sftp_dir
+
+  depends_on = [
+    module.ssh
+  ]
+}
 
 module "sftp_container" {
   count = local.init.sftp_container_module == true ? 1 : 0
