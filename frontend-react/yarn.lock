@@ -4406,15 +4406,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trussworks/react-uswds@https://github.com/trussworks/react-uswds#e05061e5a302137fd699fe4f716c9036b327fbcb":
-  version: 8.0.0
-  resolution: "@trussworks/react-uswds@https://github.com/trussworks/react-uswds.git#commit=e05061e5a302137fd699fe4f716c9036b327fbcb"
+"@trussworks/react-uswds@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@trussworks/react-uswds@npm:9.0.0"
   peerDependencies:
     "@uswds/uswds": ^3.7.1
     focus-trap-react: ^10.2.3
     react: ^16.x || ^17.x || ^18.x
     react-dom: ^16.x || ^17.x || ^18.x
-  checksum: 5662cbb26544443505a90d273e57c2b7da4a55ac34dfcbff33bce7774e75a82ea5388060f9c6c7d3330ccb0e3458037b6ddab5ea172fa147c0d4dd60805e549b
+  checksum: 2e2d310c69a6dc2e92d48830537ad1873b45a4f0cfab81ccfa180ec2cae55c4b61153397c4956295dfd2cdad7b8a5156b69eb3c5464b0bba213fc386564c4993
   languageName: node
   linkType: hard
 
@@ -14092,7 +14092,7 @@ __metadata:
     "@testing-library/jest-dom": ^6.4.2
     "@testing-library/react": ^14.2.1
     "@testing-library/user-event": ^14.5.2
-    "@trussworks/react-uswds": "https://github.com/trussworks/react-uswds#e05061e5a302137fd699fe4f716c9036b327fbcb"
+    "@trussworks/react-uswds": ^9.0.0
     "@types/dompurify": ^3.0.5
     "@types/dotenv-flow": ^3
     "@types/downloadjs": ^1.4.6
