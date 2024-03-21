@@ -41,16 +41,9 @@ import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.model.Varies;
 import ca.uhn.hl7v2.model.primitive.NULLDT;
-import ca.uhn.hl7v2.model.v251.datatype.CWE;
-import ca.uhn.hl7v2.model.v251.datatype.EI;
-import ca.uhn.hl7v2.model.v251.datatype.ID;
-import ca.uhn.hl7v2.model.v251.datatype.NM;
-import ca.uhn.hl7v2.model.v251.datatype.SI;
-import ca.uhn.hl7v2.model.v251.datatype.ST;
-import ca.uhn.hl7v2.model.v251.datatype.TS;
-import ca.uhn.hl7v2.model.v251.datatype.XCN;
+import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.CWE_ELR;
 
 
 /**
@@ -70,18 +63,18 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * <li>OBX-11: Observation Result Status (ID) <b> </b>
  * <li>OBX-12: Effective Date of Reference Range Values (TS) <b>optional </b>
  * <li>OBX-13: User Defined Access Checks (ST) <b>optional </b>
- * <li>OBX-14: Date/Time of the Observation (TS_ELR) <b>optional </b>
+ * <li>OBX-14: Date/Time of the Observation (TS) <b>optional </b>
  * <li>OBX-15: Producer's ID (CWE) <b>optional </b>
  * <li>OBX-16: Responsible Observer (XCN) <b>optional repeating</b>
  * <li>OBX-17: Observation Method (CWE_ELR) <b>optional repeating</b>
  * <li>OBX-18: Equipment Instance Identifier (EI) <b>optional repeating</b>
- * <li>OBX-19: Date/Time of the Analysis (TS_ELR) <b>optional </b>
+ * <li>OBX-19: Date/Time of the Analysis (TS) <b>optional </b>
  * <li>OBX-20: Reserved for harmonization with V2.6 (NULLDT) <b>optional </b>
  * <li>OBX-21: Reserved for harmonization with V2.6 (NULLDT) <b>optional </b>
  * <li>OBX-22: Reserved for harmonization with V2.6 (NULLDT) <b>optional </b>
- * <li>OBX-23: Performing Organization Name (XON_ELR) <b> </b>
- * <li>OBX-24: Performing Organization Address (XAD_ELR) <b> </b>
- * <li>OBX-25: Performing Organization Medical Director (XCN_ELR) <b>optional </b>
+ * <li>OBX-23: Performing Organization Name (XON) <b> </b>
+ * <li>OBX-24: Performing Organization Address (XAD) <b> </b>
+ * <li>OBX-25: Performing Organization Medical Director (XCN) <b>optional </b>
  * </ul>
  */
 @SuppressWarnings("unused")
@@ -110,18 +103,18 @@ public class OBX extends AbstractSegment {
       this.add(ID.class, true, 1, 0, new Object[]{getMessage(), Integer.valueOf(85)}, "Observation Result Status");
       this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Effective Date of Reference Range Values");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "User Defined Access Checks");
-      this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of the Observation");
+      this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of the Observation");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Producer's ID");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Responsible Observer");
       this.add(CWE_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Observation Method");
       this.add(EI.class, false, -1, 0, new Object[]{getMessage()}, "Equipment Instance Identifier");
-      this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of the Analysis");
+      this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of the Analysis");
       this.add(NULLDT.class, false, 0, 0, new Object[]{getMessage()}, "Reserved for harmonization with V2.6");
       this.add(NULLDT.class, false, 0, 0, new Object[]{getMessage()}, "Reserved for harmonization with V2.6");
       this.add(NULLDT.class, false, 0, 0, new Object[]{getMessage()}, "Reserved for harmonization with V2.6");
-      this.add(XON_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Performing Organization Name");
-      this.add(XAD_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Performing Organization Address");
-      this.add(XCN_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Performing Organization Medical Director");
+      this.add(XON.class, true, 1, 0, new Object[]{getMessage()}, "Performing Organization Name");
+      this.add(XAD.class, true, 1, 0, new Object[]{getMessage()}, "Performing Organization Address");
+      this.add(XCN.class, false, 1, 0, new Object[]{getMessage()}, "Performing Organization Medical Director");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating OBX - this is probably a bug in the source code generator.", e);
     }
@@ -468,8 +461,8 @@ public class OBX extends AbstractSegment {
    * Returns
    * OBX-14: "Date/Time of the Observation" - creates it if necessary
    */
-  public TS_ELR getDateTimeOfTheObservation() {
-    TS_ELR retVal = this.getTypedField(14, 0);
+  public TS getDateTimeOfTheObservation() {
+    TS retVal = this.getTypedField(14, 0);
     return retVal;
   }
 
@@ -477,8 +470,8 @@ public class OBX extends AbstractSegment {
    * Returns
    * OBX-14: "Date/Time of the Observation" - creates it if necessary
    */
-  public TS_ELR getObx14_DateTimeOfTheObservation() {
-    TS_ELR retVal = this.getTypedField(14, 0);
+  public TS getObx14_DateTimeOfTheObservation() {
+    TS retVal = this.getTypedField(14, 0);
     return retVal;
   }
 
@@ -830,8 +823,8 @@ public class OBX extends AbstractSegment {
    * Returns
    * OBX-19: "Date/Time of the Analysis" - creates it if necessary
    */
-  public TS_ELR getDateTimeOfTheAnalysis() {
-    TS_ELR retVal = this.getTypedField(19, 0);
+  public TS getDateTimeOfTheAnalysis() {
+    TS retVal = this.getTypedField(19, 0);
     return retVal;
   }
 
@@ -839,8 +832,8 @@ public class OBX extends AbstractSegment {
    * Returns
    * OBX-19: "Date/Time of the Analysis" - creates it if necessary
    */
-  public TS_ELR getObx19_DateTimeOfTheAnalysis() {
-    TS_ELR retVal = this.getTypedField(19, 0);
+  public TS getObx19_DateTimeOfTheAnalysis() {
+    TS retVal = this.getTypedField(19, 0);
     return retVal;
   }
 
@@ -906,8 +899,8 @@ public class OBX extends AbstractSegment {
    * Returns
    * OBX-23: "Performing Organization Name" - creates it if necessary
    */
-  public XON_ELR getPerformingOrganizationName() {
-    XON_ELR retVal = this.getTypedField(23, 0);
+  public XON getPerformingOrganizationName() {
+    XON retVal = this.getTypedField(23, 0);
     return retVal;
   }
 
@@ -915,8 +908,8 @@ public class OBX extends AbstractSegment {
    * Returns
    * OBX-23: "Performing Organization Name" - creates it if necessary
    */
-  public XON_ELR getObx23_PerformingOrganizationName() {
-    XON_ELR retVal = this.getTypedField(23, 0);
+  public XON getObx23_PerformingOrganizationName() {
+    XON retVal = this.getTypedField(23, 0);
     return retVal;
   }
 
@@ -925,8 +918,8 @@ public class OBX extends AbstractSegment {
    * Returns
    * OBX-24: "Performing Organization Address" - creates it if necessary
    */
-  public XAD_ELR getPerformingOrganizationAddress() {
-    XAD_ELR retVal = this.getTypedField(24, 0);
+  public XAD getPerformingOrganizationAddress() {
+    XAD retVal = this.getTypedField(24, 0);
     return retVal;
   }
 
@@ -934,8 +927,8 @@ public class OBX extends AbstractSegment {
    * Returns
    * OBX-24: "Performing Organization Address" - creates it if necessary
    */
-  public XAD_ELR getObx24_PerformingOrganizationAddress() {
-    XAD_ELR retVal = this.getTypedField(24, 0);
+  public XAD getObx24_PerformingOrganizationAddress() {
+    XAD retVal = this.getTypedField(24, 0);
     return retVal;
   }
 
@@ -944,8 +937,8 @@ public class OBX extends AbstractSegment {
    * Returns
    * OBX-25: "Performing Organization Medical Director" - creates it if necessary
    */
-  public XCN_ELR getPerformingOrganizationMedicalDirector() {
-    XCN_ELR retVal = this.getTypedField(25, 0);
+  public XCN getPerformingOrganizationMedicalDirector() {
+    XCN retVal = this.getTypedField(25, 0);
     return retVal;
   }
 
@@ -953,8 +946,8 @@ public class OBX extends AbstractSegment {
    * Returns
    * OBX-25: "Performing Organization Medical Director" - creates it if necessary
    */
-  public XCN_ELR getObx25_PerformingOrganizationMedicalDirector() {
-    XCN_ELR retVal = this.getTypedField(25, 0);
+  public XCN getObx25_PerformingOrganizationMedicalDirector() {
+    XCN retVal = this.getTypedField(25, 0);
     return retVal;
   }
 
@@ -991,7 +984,7 @@ public class OBX extends AbstractSegment {
       case 12:
         return new ST(getMessage());
       case 13:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 14:
         return new CWE(getMessage());
       case 15:
@@ -1001,7 +994,7 @@ public class OBX extends AbstractSegment {
       case 17:
         return new EI(getMessage());
       case 18:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 19:
         return new NULLDT(getMessage());
       case 20:
@@ -1009,11 +1002,11 @@ public class OBX extends AbstractSegment {
       case 21:
         return new NULLDT(getMessage());
       case 22:
-        return new XON_ELR(getMessage());
+        return new XON(getMessage());
       case 23:
-        return new XAD_ELR(getMessage());
+        return new XAD(getMessage());
       case 24:
-        return new XCN_ELR(getMessage());
+        return new XCN(getMessage());
       default:
         return null;
     }

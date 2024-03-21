@@ -21,5 +21,6 @@
 .*[A-Z0-9]{20}.tmp
 # gov.cdc.prime.router.datatests.TranslationTests
 .*Actual.*.Actual.*
+.*urn:dns.*
 
 ####################################################################
