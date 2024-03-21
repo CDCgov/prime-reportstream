@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import * as externalLinks from "../helpers/external-links";
+import { CONNECT_URL } from "../helpers/external-links";
 import { scrollToFooter, scrollToTop } from "../helpers/utils";
 import * as gettingStarted from "../pages/getting-started";
 import * as header from "../pages/header";
@@ -16,7 +17,9 @@ test.describe("Homepage", () => {
     });
 
     test("has correct title", async ({ page }) => {
-        await homepage.onLoad(page);
+        await expect(page).toHaveTitle(
+            /ReportStream - CDC's free, interoperable data transfer platform/,
+        );
     });
 
     test("has About link and dropdown menu items", async ({ page }) => {
@@ -52,16 +55,26 @@ test.describe("Homepage", () => {
     test('opens the "Connect with ReportStream" tab within header', async ({
         page,
     }) => {
-        await externalLinks.clickOnConnect("header", "Connect with us", page);
+        const newTab = await externalLinks.clickOnExternalLink(
+            "header",
+            "Connect with us",
+            page,
+        );
 
+        await expect(newTab).toHaveURL(CONNECT_URL);
         expect(true).toBe(true);
     });
 
     test('opens the "Connect with ReportStream" tab within footer', async ({
         page,
     }) => {
-        await externalLinks.clickOnConnect("footer", "Connect now", page);
+        const newTab = await externalLinks.clickOnExternalLink(
+            "footer",
+            "Connect now",
+            page,
+        );
 
+        await expect(newTab).toHaveURL(CONNECT_URL);
         expect(true).toBe(true);
     });
 
@@ -134,7 +147,11 @@ test.describe("Homepage", () => {
     test("explicit scroll to footer and then scroll to top", async ({
         page,
     }) => {
+        await expect(page.locator("footer")).not.toBeInViewport();
         await scrollToFooter(page);
+        await expect(page.locator("footer")).toBeInViewport();
+        await expect(page.getByTestId("govBanner")).not.toBeInViewport();
         await scrollToTop(page);
+        await expect(page.getByTestId("govBanner")).toBeInViewport();
     });
 });
