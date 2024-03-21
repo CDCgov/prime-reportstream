@@ -15,7 +15,7 @@
     - name: "full-elr"
       organizationName: "sc-phd"
       topic: "full-elr"
-      customerStatus: "inactive"
+      customerStatus: "active"
       translation: !<HL7>
         schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/SC/SC-receiver-transform.yml"
         useTestProcessingMode: false
@@ -61,19 +61,25 @@
           truncateHl7Fields: []
           customLengthHl7Fields: {}
       jurisdictionalFilter:
-        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'SC') or (Bundle.entry.resource.ofType(Patient).address.state = 'SC')"
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state\
+      \ = 'SC') or (Bundle.entry.resource.ofType(Patient).address.state = 'SC')"
       qualityFilter:
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists()\
+      \ or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or\
+      \ Bundle.entry.resource.ofType(serviceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
+        - "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists()\
+      \ or Bundle.entry.resource.ofType(Patient).telecom.exists())"
         - "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
         - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
         - "Bundle.entry.resource.ofType(Specimen).type.exists()"
-        - "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or Bundle.entry.resource.ofType(Patient).telecom.exists())"
-        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(serviceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
       routingFilter: []
       processingModeFilter: []
       reverseTheQualityFilter: false
-      conditionFilter: []
+      conditionFilter:
+        - "%resource.where(code.coding.code in ('85478-6' | '85477-8' | '94500-6')).exists()\
+      \ and %resource.where(value.coding.code in ('260373001')).exists()"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
