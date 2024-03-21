@@ -38,14 +38,11 @@ resources:
       - .OBSERVATION_REQUEST.OBSERVATION.NTE
       - MSH
 
-  # TODO Add support for inbound SPM, instead of deriving from OBR; see https://github.com/LinuxForHealth/hl7v2-fhir-converter/blob/66bd89490c083e97d08c2a6229baca4ffed8dfa5/src/main/resources/hl7/message/OML_O21.yml
   - resourceName: Specimen
-    segment: .OBR
+    segment: SPECIMEN.SPM
     group: ORDER.OBSERVATION_REQUEST
     resourcePath: segments/SPM/Specimen
     repeats: true
     isReferenced: true
     additionalSegments:
-      - .OBSERVATION.OBX
-      - .OBSERVATION.NTE
       - MSH
