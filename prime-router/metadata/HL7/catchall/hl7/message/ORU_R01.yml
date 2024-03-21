@@ -5,8 +5,6 @@ resources:
     resourcePath: segments/MSH/MessageHeader
     repeats: false
     isReferenced: true
-    additionalSegments:
-      - SFT
 
   - resourceName: Provenance
     segment: MSH
