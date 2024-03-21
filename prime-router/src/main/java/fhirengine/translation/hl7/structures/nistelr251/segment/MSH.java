@@ -39,12 +39,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.CWE;
-import ca.uhn.hl7v2.model.v251.datatype.ID;
-import ca.uhn.hl7v2.model.v251.datatype.NM;
-import ca.uhn.hl7v2.model.v251.datatype.ST;
+import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -53,16 +49,16 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * <ul>
  * <li>MSH-1: Field Separator (ST) <b> </b>
  * <li>MSH-2: Encoding Characters (ST) <b> </b>
- * <li>MSH-3: Sending Application (HD_ELR) <b> </b>
- * <li>MSH-4: Sending Facility (HD_ELR) <b> </b>
- * <li>MSH-5: Receiving Application (HD_ELR) <b> </b>
- * <li>MSH-6: Receiving Facility (HD_ELR) <b> </b>
- * <li>MSH-7: Date/Time Of Message (TS_ELR) <b> </b>
+ * <li>MSH-3: Sending Application (HD) <b> </b>
+ * <li>MSH-4: Sending Facility (HD) <b> </b>
+ * <li>MSH-5: Receiving Application (HD) <b> </b>
+ * <li>MSH-6: Receiving Facility (HD) <b> </b>
+ * <li>MSH-7: Date/Time Of Message (TS) <b> </b>
  * <li>MSH-8: Security (ST) <b>optional </b>
- * <li>MSH-9: Message Type (MSG_ELR) <b> </b>
+ * <li>MSH-9: Message Type (MSG) <b> </b>
  * <li>MSH-10: Message Control ID (ST) <b> </b>
- * <li>MSH-11: Processing ID (PT_ELR) <b> </b>
- * <li>MSH-12: Version ID (VID_ELR) <b> </b>
+ * <li>MSH-11: Processing ID (PT) <b> </b>
+ * <li>MSH-12: Version ID (VID) <b> </b>
  * <li>MSH-13: Sequence Number (NM) <b>optional </b>
  * <li>MSH-14: Continuation Pointer (ST) <b>optional </b>
  * <li>MSH-15: Accept Acknowledgment Type (ID) <b>optional </b>
@@ -71,7 +67,7 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * <li>MSH-18: Character Set (ID) <b>optional repeating</b>
  * <li>MSH-19: Principal Language Of Message (CWE) <b>optional </b>
  * <li>MSH-20: Alternate Character Set Handling Scheme (ID) <b>optional </b>
- * <li>MSH-21: Message Profile Identifier (EI_ELR) <b> repeating</b>
+ * <li>MSH-21: Message Profile Identifier (EI) <b> repeating</b>
  * </ul>
  */
 @SuppressWarnings("unused")
@@ -89,16 +85,16 @@ public class MSH extends AbstractSegment {
     try {
       this.add(ST.class, true, 1, 0, new Object[]{getMessage()}, "Field Separator");
       this.add(ST.class, true, 1, 0, new Object[]{getMessage()}, "Encoding Characters");
-      this.add(HD_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Sending Application");
-      this.add(HD_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Sending Facility");
-      this.add(HD_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Receiving Application");
-      this.add(HD_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Receiving Facility");
-      this.add(TS_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Date/Time Of Message");
+      this.add(HD.class, true, 1, 0, new Object[]{getMessage()}, "Sending Application");
+      this.add(HD.class, true, 1, 0, new Object[]{getMessage()}, "Sending Facility");
+      this.add(HD.class, true, 1, 0, new Object[]{getMessage()}, "Receiving Application");
+      this.add(HD.class, true, 1, 0, new Object[]{getMessage()}, "Receiving Facility");
+      this.add(TS.class, true, 1, 0, new Object[]{getMessage()}, "Date/Time Of Message");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Security");
-      this.add(MSG_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Message Type");
+      this.add(MSG.class, true, 1, 0, new Object[]{getMessage()}, "Message Type");
       this.add(ST.class, true, 1, 0, new Object[]{getMessage()}, "Message Control ID");
-      this.add(PT_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Processing ID");
-      this.add(VID_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Version ID");
+      this.add(PT.class, true, 1, 0, new Object[]{getMessage()}, "Processing ID");
+      this.add(VID.class, true, 1, 0, new Object[]{getMessage()}, "Version ID");
       this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Sequence Number");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Continuation Pointer");
       this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(155)}, "Accept Acknowledgment Type");
@@ -107,7 +103,7 @@ public class MSH extends AbstractSegment {
       this.add(ID.class, false, -1, 0, new Object[]{getMessage(), Integer.valueOf(211)}, "Character Set");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Principal Language Of Message");
       this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(356)}, "Alternate Character Set Handling Scheme");
-      this.add(EI_ELR.class, true, -1, 0, new Object[]{getMessage()}, "Message Profile Identifier");
+      this.add(EI.class, true, -1, 0, new Object[]{getMessage()}, "Message Profile Identifier");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating MSH - this is probably a bug in the source code generator.", e);
     }
@@ -156,8 +152,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-3: "Sending Application" - creates it if necessary
    */
-  public HD_ELR getSendingApplication() {
-    HD_ELR retVal = this.getTypedField(3, 0);
+  public HD getSendingApplication() {
+    HD retVal = this.getTypedField(3, 0);
     return retVal;
   }
 
@@ -165,8 +161,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-3: "Sending Application" - creates it if necessary
    */
-  public HD_ELR getMsh3_SendingApplication() {
-    HD_ELR retVal = this.getTypedField(3, 0);
+  public HD getMsh3_SendingApplication() {
+    HD retVal = this.getTypedField(3, 0);
     return retVal;
   }
 
@@ -175,8 +171,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-4: "Sending Facility" - creates it if necessary
    */
-  public HD_ELR getSendingFacility() {
-    HD_ELR retVal = this.getTypedField(4, 0);
+  public HD getSendingFacility() {
+    HD retVal = this.getTypedField(4, 0);
     return retVal;
   }
 
@@ -184,8 +180,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-4: "Sending Facility" - creates it if necessary
    */
-  public HD_ELR getMsh4_SendingFacility() {
-    HD_ELR retVal = this.getTypedField(4, 0);
+  public HD getMsh4_SendingFacility() {
+    HD retVal = this.getTypedField(4, 0);
     return retVal;
   }
 
@@ -194,8 +190,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-5: "Receiving Application" - creates it if necessary
    */
-  public HD_ELR getReceivingApplication() {
-    HD_ELR retVal = this.getTypedField(5, 0);
+  public HD getReceivingApplication() {
+    HD retVal = this.getTypedField(5, 0);
     return retVal;
   }
 
@@ -203,8 +199,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-5: "Receiving Application" - creates it if necessary
    */
-  public HD_ELR getMsh5_ReceivingApplication() {
-    HD_ELR retVal = this.getTypedField(5, 0);
+  public HD getMsh5_ReceivingApplication() {
+    HD retVal = this.getTypedField(5, 0);
     return retVal;
   }
 
@@ -213,8 +209,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-6: "Receiving Facility" - creates it if necessary
    */
-  public HD_ELR getReceivingFacility() {
-    HD_ELR retVal = this.getTypedField(6, 0);
+  public HD getReceivingFacility() {
+    HD retVal = this.getTypedField(6, 0);
     return retVal;
   }
 
@@ -222,8 +218,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-6: "Receiving Facility" - creates it if necessary
    */
-  public HD_ELR getMsh6_ReceivingFacility() {
-    HD_ELR retVal = this.getTypedField(6, 0);
+  public HD getMsh6_ReceivingFacility() {
+    HD retVal = this.getTypedField(6, 0);
     return retVal;
   }
 
@@ -232,8 +228,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-7: "Date/Time Of Message" - creates it if necessary
    */
-  public TS_ELR getDateTimeOfMessage() {
-    TS_ELR retVal = this.getTypedField(7, 0);
+  public TS getDateTimeOfMessage() {
+    TS retVal = this.getTypedField(7, 0);
     return retVal;
   }
 
@@ -241,8 +237,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-7: "Date/Time Of Message" - creates it if necessary
    */
-  public TS_ELR getMsh7_DateTimeOfMessage() {
-    TS_ELR retVal = this.getTypedField(7, 0);
+  public TS getMsh7_DateTimeOfMessage() {
+    TS retVal = this.getTypedField(7, 0);
     return retVal;
   }
 
@@ -270,8 +266,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-9: "Message Type" - creates it if necessary
    */
-  public MSG_ELR getMessageType() {
-    MSG_ELR retVal = this.getTypedField(9, 0);
+  public MSG getMessageType() {
+    MSG retVal = this.getTypedField(9, 0);
     return retVal;
   }
 
@@ -279,8 +275,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-9: "Message Type" - creates it if necessary
    */
-  public MSG_ELR getMsh9_MessageType() {
-    MSG_ELR retVal = this.getTypedField(9, 0);
+  public MSG getMsh9_MessageType() {
+    MSG retVal = this.getTypedField(9, 0);
     return retVal;
   }
 
@@ -308,8 +304,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-11: "Processing ID" - creates it if necessary
    */
-  public PT_ELR getProcessingID() {
-    PT_ELR retVal = this.getTypedField(11, 0);
+  public PT getProcessingID() {
+    PT retVal = this.getTypedField(11, 0);
     return retVal;
   }
 
@@ -317,8 +313,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-11: "Processing ID" - creates it if necessary
    */
-  public PT_ELR getMsh11_ProcessingID() {
-    PT_ELR retVal = this.getTypedField(11, 0);
+  public PT getMsh11_ProcessingID() {
+    PT retVal = this.getTypedField(11, 0);
     return retVal;
   }
 
@@ -327,8 +323,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-12: "Version ID" - creates it if necessary
    */
-  public VID_ELR getVersionID() {
-    VID_ELR retVal = this.getTypedField(12, 0);
+  public VID getVersionID() {
+    VID retVal = this.getTypedField(12, 0);
     return retVal;
   }
 
@@ -336,8 +332,8 @@ public class MSH extends AbstractSegment {
    * Returns
    * MSH-12: "Version ID" - creates it if necessary
    */
-  public VID_ELR getMsh12_VersionID() {
-    VID_ELR retVal = this.getTypedField(12, 0);
+  public VID getMsh12_VersionID() {
+    VID retVal = this.getTypedField(12, 0);
     return retVal;
   }
 
@@ -586,8 +582,8 @@ public class MSH extends AbstractSegment {
   /**
    * Returns all repetitions of Message Profile Identifier (MSH-21).
    */
-  public EI_ELR[] getMessageProfileIdentifier() {
-    EI_ELR[] retVal = this.getTypedField(21, new EI_ELR[0]);
+  public EI[] getMessageProfileIdentifier() {
+    EI[] retVal = this.getTypedField(21, new EI[0]);
     return retVal;
   }
 
@@ -595,8 +591,8 @@ public class MSH extends AbstractSegment {
   /**
    * Returns all repetitions of Message Profile Identifier (MSH-21).
    */
-  public EI_ELR[] getMsh21_MessageProfileIdentifier() {
-    EI_ELR[] retVal = this.getTypedField(21, new EI_ELR[0]);
+  public EI[] getMsh21_MessageProfileIdentifier() {
+    EI[] retVal = this.getTypedField(21, new EI[0]);
     return retVal;
   }
 
@@ -617,8 +613,8 @@ public class MSH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public EI_ELR getMessageProfileIdentifier(int rep) {
-    EI_ELR retVal = this.getTypedField(21, rep);
+  public EI getMessageProfileIdentifier(int rep) {
+    EI retVal = this.getTypedField(21, rep);
     return retVal;
   }
 
@@ -628,8 +624,8 @@ public class MSH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public EI_ELR getMsh21_MessageProfileIdentifier(int rep) {
-    EI_ELR retVal = this.getTypedField(21, rep);
+  public EI getMsh21_MessageProfileIdentifier(int rep) {
+    EI retVal = this.getTypedField(21, rep);
     return retVal;
   }
 
@@ -650,8 +646,8 @@ public class MSH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public EI_ELR insertMessageProfileIdentifier(int rep) throws HL7Exception {
-    return (EI_ELR) super.insertRepetition(21, rep);
+  public EI insertMessageProfileIdentifier(int rep) throws HL7Exception {
+    return (EI) super.insertRepetition(21, rep);
   }
 
 
@@ -662,8 +658,8 @@ public class MSH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public EI_ELR insertMsh21_MessageProfileIdentifier(int rep) throws HL7Exception {
-    return (EI_ELR) super.insertRepetition(21, rep);
+  public EI insertMsh21_MessageProfileIdentifier(int rep) throws HL7Exception {
+    return (EI) super.insertRepetition(21, rep);
   }
 
 
@@ -674,8 +670,8 @@ public class MSH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public EI_ELR removeMessageProfileIdentifier(int rep) throws HL7Exception {
-    return (EI_ELR) super.removeRepetition(21, rep);
+  public EI removeMessageProfileIdentifier(int rep) throws HL7Exception {
+    return (EI) super.removeRepetition(21, rep);
   }
 
 
@@ -686,8 +682,8 @@ public class MSH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public EI_ELR removeMsh21_MessageProfileIdentifier(int rep) throws HL7Exception {
-    return (EI_ELR) super.removeRepetition(21, rep);
+  public EI removeMsh21_MessageProfileIdentifier(int rep) throws HL7Exception {
+    return (EI) super.removeRepetition(21, rep);
   }
 
 
@@ -701,25 +697,25 @@ public class MSH extends AbstractSegment {
       case 1:
         return new ST(getMessage());
       case 2:
-        return new HD_ELR(getMessage());
+        return new HD(getMessage());
       case 3:
-        return new HD_ELR(getMessage());
+        return new HD(getMessage());
       case 4:
-        return new HD_ELR(getMessage());
+        return new HD(getMessage());
       case 5:
-        return new HD_ELR(getMessage());
+        return new HD(getMessage());
       case 6:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 7:
         return new ST(getMessage());
       case 8:
-        return new MSG_ELR(getMessage());
+        return new MSG(getMessage());
       case 9:
         return new ST(getMessage());
       case 10:
-        return new PT_ELR(getMessage());
+        return new PT(getMessage());
       case 11:
-        return new VID_ELR(getMessage());
+        return new VID(getMessage());
       case 12:
         return new NM(getMessage());
       case 13:
@@ -737,7 +733,7 @@ public class MSH extends AbstractSegment {
       case 19:
         return new ID(getMessage(), Integer.valueOf(356));
       case 20:
-        return new EI_ELR(getMessage());
+        return new EI(getMessage());
       default:
         return null;
     }
