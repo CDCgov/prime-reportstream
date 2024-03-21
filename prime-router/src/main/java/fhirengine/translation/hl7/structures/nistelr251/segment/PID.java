@@ -39,7 +39,8 @@ import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.CWE_ELR;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.XPN_ELR;
 
 
 /**
@@ -48,18 +49,18 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * <ul>
  * <li>PID-1: Set ID - PID (SI) <b> </b>
  * <li>PID-2: Patient ID (CX) <b>optional repeating</b>
- * <li>PID-3: Patient Identifier List (CX_ELR) <b> repeating</b>
+ * <li>PID-3: Patient Identifier List (CX) <b> repeating</b>
  * <li>PID-4: Alternate Patient ID - PID (CX) <b>optional repeating</b>
  * <li>PID-5: Patient Name (XPN_ELR) <b> repeating</b>
  * <li>PID-6: Mother's Maiden Name (XPN_ELR) <b>optional </b>
- * <li>PID-7: Date/Time of Birth (TS_ELR) <b>optional </b>
+ * <li>PID-7: Date/Time of Birth (TS) <b>optional </b>
  * <li>PID-8: Administrative Sex (IS) <b>optional </b>
  * <li>PID-9: Patient Alias (XPN) <b>optional repeating</b>
  * <li>PID-10: Race (CWE_ELR) <b>optional repeating</b>
- * <li>PID-11: Patient Address (XAD_ELR) <b>optional repeating</b>
+ * <li>PID-11: Patient Address (XAD) <b>optional repeating</b>
  * <li>PID-12: County Code (IS) <b>optional repeating</b>
- * <li>PID-13: Phone Number - Home (XTN_ELR) <b>optional repeating</b>
- * <li>PID-14: Phone Number - Business (XTN_ELR) <b>optional repeating</b>
+ * <li>PID-13: Phone Number - Home (XTN) <b>optional repeating</b>
+ * <li>PID-14: Phone Number - Business (XTN) <b>optional repeating</b>
  * <li>PID-15: Primary Language (CWE) <b>optional repeating</b>
  * <li>PID-16: Marital Status (CWE) <b>optional </b>
  * <li>PID-17: Religion (CWE) <b>optional </b>
@@ -74,12 +75,12 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * <li>PID-26: Citizenship (CWE) <b>optional repeating</b>
  * <li>PID-27: Veterans Military Status (CWE) <b>optional </b>
  * <li>PID-28: Nationality (CE) <b>optional repeating</b>
- * <li>PID-29: Patient Death Date and Time (TS_ELR) <b>optional </b>
+ * <li>PID-29: Patient Death Date and Time (TS) <b>optional </b>
  * <li>PID-30: Patient Death Indicator (ID) <b>optional </b>
  * <li>PID-31: Identity Unknown Indicator (ID) <b>optional </b>
  * <li>PID-32: Identity Reliability Code (IS) <b>optional repeating</b>
- * <li>PID-33: Last Update Date/Time (TS_ELR) <b>optional </b>
- * <li>PID-34: Last Update Facility (HD_ELR) <b>optional </b>
+ * <li>PID-33: Last Update Date/Time (TS) <b>optional </b>
+ * <li>PID-34: Last Update Facility (HD) <b>optional </b>
  * <li>PID-35: Species Code (CWE_ELR) <b>optional </b>
  * <li>PID-36: Breed Code (CWE) <b>optional </b>
  * <li>PID-37: Strain (ST) <b>optional </b>
@@ -102,18 +103,18 @@ public class PID extends AbstractSegment {
     try {
       this.add(SI.class, true, 1, 0, new Object[]{getMessage()}, "Set ID - PID");
       this.add(CX.class, false, 0, 0, new Object[]{getMessage()}, "Patient ID");
-      this.add(CX_ELR.class, true, -1, 0, new Object[]{getMessage()}, "Patient Identifier List");
+      this.add(CX.class, true, -1, 0, new Object[]{getMessage()}, "Patient Identifier List");
       this.add(NULLDT.class, false, 0, 0, new Object[]{getMessage()}, "Alternate Patient ID - PID");
       this.add(XPN_ELR.class, true, -1, 0, new Object[]{getMessage()}, "Patient Name");
       this.add(XPN_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Mother's Maiden Name");
-      this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of Birth");
+      this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of Birth");
       this.add(IS.class, false, 1, 0, new Object[]{getMessage(), 1}, "Administrative Sex");
       this.add(NULLDT.class, false, 0, 0, new Object[]{getMessage()}, "Patient Alias");
       this.add(CWE_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Race");
-      this.add(XAD_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Patient Address");
+      this.add(XAD.class, false, -1, 0, new Object[]{getMessage()}, "Patient Address");
       this.add(NULLDT.class, false, 0, 0, new Object[]{getMessage(), 0}, "County Code");
-      this.add(XTN_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Phone Number - Home");
-      this.add(XTN_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Phone Number - Business");
+      this.add(XTN.class, false, -1, 0, new Object[]{getMessage()}, "Phone Number - Home");
+      this.add(XTN.class, false, -1, 0, new Object[]{getMessage()}, "Phone Number - Business");
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Primary Language");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Marital Status");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Religion");
@@ -128,12 +129,12 @@ public class PID extends AbstractSegment {
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Citizenship");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Veterans Military Status");
       this.add(NULLDT.class, false, 0, 0, new Object[]{getMessage()}, "Nationality");
-      this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Patient Death Date and Time");
+      this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Patient Death Date and Time");
       this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 136}, "Patient Death Indicator");
       this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 136}, "Identity Unknown Indicator");
       this.add(IS.class, false, -1, 0, new Object[]{getMessage(), 445}, "Identity Reliability Code");
-      this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Last Update Date/Time");
-      this.add(HD_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Last Update Facility");
+      this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Last Update Date/Time");
+      this.add(HD.class, false, 1, 0, new Object[]{getMessage()}, "Last Update Facility");
       this.add(CWE_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Species Code");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Breed Code");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Strain");
@@ -275,8 +276,8 @@ public class PID extends AbstractSegment {
   /**
    * Returns all repetitions of Patient Identifier List (PID-3).
    */
-  public CX_ELR[] getPatientIdentifierList() {
-    CX_ELR[] retVal = this.getTypedField(3, new CX_ELR[0]);
+  public CX[] getPatientIdentifierList() {
+    CX[] retVal = this.getTypedField(3, new CX[0]);
     return retVal;
   }
 
@@ -284,8 +285,8 @@ public class PID extends AbstractSegment {
   /**
    * Returns all repetitions of Patient Identifier List (PID-3).
    */
-  public CX_ELR[] getPid3_PatientIdentifierList() {
-    CX_ELR[] retVal = this.getTypedField(3, new CX_ELR[0]);
+  public CX[] getPid3_PatientIdentifierList() {
+    CX[] retVal = this.getTypedField(3, new CX[0]);
     return retVal;
   }
 
@@ -306,8 +307,8 @@ public class PID extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public CX_ELR getPatientIdentifierList(int rep) {
-    CX_ELR retVal = this.getTypedField(3, rep);
+  public CX getPatientIdentifierList(int rep) {
+    CX retVal = this.getTypedField(3, rep);
     return retVal;
   }
 
@@ -317,8 +318,8 @@ public class PID extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public CX_ELR getPid3_PatientIdentifierList(int rep) {
-    CX_ELR retVal = this.getTypedField(3, rep);
+  public CX getPid3_PatientIdentifierList(int rep) {
+    CX retVal = this.getTypedField(3, rep);
     return retVal;
   }
 
@@ -339,8 +340,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CX_ELR insertPatientIdentifierList(int rep) throws HL7Exception {
-    return (CX_ELR) super.insertRepetition(3, rep);
+  public CX insertPatientIdentifierList(int rep) throws HL7Exception {
+    return (CX) super.insertRepetition(3, rep);
   }
 
 
@@ -351,8 +352,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CX_ELR insertPid3_PatientIdentifierList(int rep) throws HL7Exception {
-    return (CX_ELR) super.insertRepetition(3, rep);
+  public CX insertPid3_PatientIdentifierList(int rep) throws HL7Exception {
+    return (CX) super.insertRepetition(3, rep);
   }
 
 
@@ -363,8 +364,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CX_ELR removePatientIdentifierList(int rep) throws HL7Exception {
-    return (CX_ELR) super.removeRepetition(3, rep);
+  public CX removePatientIdentifierList(int rep) throws HL7Exception {
+    return (CX) super.removeRepetition(3, rep);
   }
 
 
@@ -375,8 +376,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CX_ELR removePid3_PatientIdentifierList(int rep) throws HL7Exception {
-    return (CX_ELR) super.removeRepetition(3, rep);
+  public CX removePid3_PatientIdentifierList(int rep) throws HL7Exception {
+    return (CX) super.removeRepetition(3, rep);
   }
 
 
@@ -619,8 +620,8 @@ public class PID extends AbstractSegment {
    * Returns
    * PID-7: "Date/Time of Birth" - creates it if necessary
    */
-  public TS_ELR getDateTimeOfBirth() {
-    TS_ELR retVal = this.getTypedField(7, 0);
+  public TS getDateTimeOfBirth() {
+    TS retVal = this.getTypedField(7, 0);
     return retVal;
   }
 
@@ -628,8 +629,8 @@ public class PID extends AbstractSegment {
    * Returns
    * PID-7: "Date/Time of Birth" - creates it if necessary
    */
-  public TS_ELR getPid7_DateTimeOfBirth() {
-    TS_ELR retVal = this.getTypedField(7, 0);
+  public TS getPid7_DateTimeOfBirth() {
+    TS retVal = this.getTypedField(7, 0);
     return retVal;
   }
 
@@ -872,8 +873,8 @@ public class PID extends AbstractSegment {
   /**
    * Returns all repetitions of Patient Address (PID-11).
    */
-  public XAD_ELR[] getPatientAddress() {
-    XAD_ELR[] retVal = this.getTypedField(11, new XAD_ELR[0]);
+  public XAD[] getPatientAddress() {
+    XAD[] retVal = this.getTypedField(11, new XAD[0]);
     return retVal;
   }
 
@@ -881,8 +882,8 @@ public class PID extends AbstractSegment {
   /**
    * Returns all repetitions of Patient Address (PID-11).
    */
-  public XAD_ELR[] getPid11_PatientAddress() {
-    XAD_ELR[] retVal = this.getTypedField(11, new XAD_ELR[0]);
+  public XAD[] getPid11_PatientAddress() {
+    XAD[] retVal = this.getTypedField(11, new XAD[0]);
     return retVal;
   }
 
@@ -903,8 +904,8 @@ public class PID extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XAD_ELR getPatientAddress(int rep) {
-    XAD_ELR retVal = this.getTypedField(11, rep);
+  public XAD getPatientAddress(int rep) {
+    XAD retVal = this.getTypedField(11, rep);
     return retVal;
   }
 
@@ -914,8 +915,8 @@ public class PID extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XAD_ELR getPid11_PatientAddress(int rep) {
-    XAD_ELR retVal = this.getTypedField(11, rep);
+  public XAD getPid11_PatientAddress(int rep) {
+    XAD retVal = this.getTypedField(11, rep);
     return retVal;
   }
 
@@ -936,8 +937,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR insertPatientAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.insertRepetition(11, rep);
+  public XAD insertPatientAddress(int rep) throws HL7Exception {
+    return (XAD) super.insertRepetition(11, rep);
   }
 
 
@@ -948,8 +949,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR insertPid11_PatientAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.insertRepetition(11, rep);
+  public XAD insertPid11_PatientAddress(int rep) throws HL7Exception {
+    return (XAD) super.insertRepetition(11, rep);
   }
 
 
@@ -960,8 +961,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR removePatientAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.removeRepetition(11, rep);
+  public XAD removePatientAddress(int rep) throws HL7Exception {
+    return (XAD) super.removeRepetition(11, rep);
   }
 
 
@@ -972,8 +973,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR removePid11_PatientAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.removeRepetition(11, rep);
+  public XAD removePid11_PatientAddress(int rep) throws HL7Exception {
+    return (XAD) super.removeRepetition(11, rep);
   }
 
 
@@ -1088,8 +1089,8 @@ public class PID extends AbstractSegment {
   /**
    * Returns all repetitions of Phone Number - Home (PID-13).
    */
-  public XTN_ELR[] getPhoneNumberHome() {
-    XTN_ELR[] retVal = this.getTypedField(13, new XTN_ELR[0]);
+  public XTN[] getPhoneNumberHome() {
+    XTN[] retVal = this.getTypedField(13, new XTN[0]);
     return retVal;
   }
 
@@ -1097,8 +1098,8 @@ public class PID extends AbstractSegment {
   /**
    * Returns all repetitions of Phone Number - Home (PID-13).
    */
-  public XTN_ELR[] getPid13_PhoneNumberHome() {
-    XTN_ELR[] retVal = this.getTypedField(13, new XTN_ELR[0]);
+  public XTN[] getPid13_PhoneNumberHome() {
+    XTN[] retVal = this.getTypedField(13, new XTN[0]);
     return retVal;
   }
 
@@ -1119,8 +1120,8 @@ public class PID extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getPhoneNumberHome(int rep) {
-    XTN_ELR retVal = this.getTypedField(13, rep);
+  public XTN getPhoneNumberHome(int rep) {
+    XTN retVal = this.getTypedField(13, rep);
     return retVal;
   }
 
@@ -1130,8 +1131,8 @@ public class PID extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getPid13_PhoneNumberHome(int rep) {
-    XTN_ELR retVal = this.getTypedField(13, rep);
+  public XTN getPid13_PhoneNumberHome(int rep) {
+    XTN retVal = this.getTypedField(13, rep);
     return retVal;
   }
 
@@ -1152,8 +1153,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertPhoneNumberHome(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(13, rep);
+  public XTN insertPhoneNumberHome(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(13, rep);
   }
 
 
@@ -1164,8 +1165,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertPid13_PhoneNumberHome(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(13, rep);
+  public XTN insertPid13_PhoneNumberHome(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(13, rep);
   }
 
 
@@ -1176,8 +1177,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removePhoneNumberHome(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(13, rep);
+  public XTN removePhoneNumberHome(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(13, rep);
   }
 
 
@@ -1188,16 +1189,16 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removePid13_PhoneNumberHome(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(13, rep);
+  public XTN removePid13_PhoneNumberHome(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(13, rep);
   }
 
 
   /**
    * Returns all repetitions of Phone Number - Business (PID-14).
    */
-  public XTN_ELR[] getPhoneNumberBusiness() {
-    XTN_ELR[] retVal = this.getTypedField(14, new XTN_ELR[0]);
+  public XTN[] getPhoneNumberBusiness() {
+    XTN[] retVal = this.getTypedField(14, new XTN[0]);
     return retVal;
   }
 
@@ -1205,8 +1206,8 @@ public class PID extends AbstractSegment {
   /**
    * Returns all repetitions of Phone Number - Business (PID-14).
    */
-  public XTN_ELR[] getPid14_PhoneNumberBusiness() {
-    XTN_ELR[] retVal = this.getTypedField(14, new XTN_ELR[0]);
+  public XTN[] getPid14_PhoneNumberBusiness() {
+    XTN[] retVal = this.getTypedField(14, new XTN[0]);
     return retVal;
   }
 
@@ -1227,8 +1228,8 @@ public class PID extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getPhoneNumberBusiness(int rep) {
-    XTN_ELR retVal = this.getTypedField(14, rep);
+  public XTN getPhoneNumberBusiness(int rep) {
+    XTN retVal = this.getTypedField(14, rep);
     return retVal;
   }
 
@@ -1238,8 +1239,8 @@ public class PID extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getPid14_PhoneNumberBusiness(int rep) {
-    XTN_ELR retVal = this.getTypedField(14, rep);
+  public XTN getPid14_PhoneNumberBusiness(int rep) {
+    XTN retVal = this.getTypedField(14, rep);
     return retVal;
   }
 
@@ -1260,8 +1261,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertPhoneNumberBusiness(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(14, rep);
+  public XTN insertPhoneNumberBusiness(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(14, rep);
   }
 
 
@@ -1272,8 +1273,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertPid14_PhoneNumberBusiness(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(14, rep);
+  public XTN insertPid14_PhoneNumberBusiness(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(14, rep);
   }
 
 
@@ -1284,8 +1285,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removePhoneNumberBusiness(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(14, rep);
+  public XTN removePhoneNumberBusiness(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(14, rep);
   }
 
 
@@ -1296,8 +1297,8 @@ public class PID extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removePid14_PhoneNumberBusiness(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(14, rep);
+  public XTN removePid14_PhoneNumberBusiness(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(14, rep);
   }
 
 
@@ -2194,8 +2195,8 @@ public class PID extends AbstractSegment {
    * Returns
    * PID-29: "Patient Death Date and Time" - creates it if necessary
    */
-  public TS_ELR getPatientDeathDateAndTime() {
-    TS_ELR retVal = this.getTypedField(29, 0);
+  public TS getPatientDeathDateAndTime() {
+    TS retVal = this.getTypedField(29, 0);
     return retVal;
   }
 
@@ -2203,8 +2204,8 @@ public class PID extends AbstractSegment {
    * Returns
    * PID-29: "Patient Death Date and Time" - creates it if necessary
    */
-  public TS_ELR getPid29_PatientDeathDateAndTime() {
-    TS_ELR retVal = this.getTypedField(29, 0);
+  public TS getPid29_PatientDeathDateAndTime() {
+    TS retVal = this.getTypedField(29, 0);
     return retVal;
   }
 
@@ -2359,8 +2360,8 @@ public class PID extends AbstractSegment {
    * Returns
    * PID-33: "Last Update Date/Time" - creates it if necessary
    */
-  public TS_ELR getLastUpdateDateTime() {
-    TS_ELR retVal = this.getTypedField(33, 0);
+  public TS getLastUpdateDateTime() {
+    TS retVal = this.getTypedField(33, 0);
     return retVal;
   }
 
@@ -2368,8 +2369,8 @@ public class PID extends AbstractSegment {
    * Returns
    * PID-33: "Last Update Date/Time" - creates it if necessary
    */
-  public TS_ELR getPid33_LastUpdateDateTime() {
-    TS_ELR retVal = this.getTypedField(33, 0);
+  public TS getPid33_LastUpdateDateTime() {
+    TS retVal = this.getTypedField(33, 0);
     return retVal;
   }
 
@@ -2378,8 +2379,8 @@ public class PID extends AbstractSegment {
    * Returns
    * PID-34: "Last Update Facility" - creates it if necessary
    */
-  public HD_ELR getLastUpdateFacility() {
-    HD_ELR retVal = this.getTypedField(34, 0);
+  public HD getLastUpdateFacility() {
+    HD retVal = this.getTypedField(34, 0);
     return retVal;
   }
 
@@ -2387,8 +2388,8 @@ public class PID extends AbstractSegment {
    * Returns
    * PID-34: "Last Update Facility" - creates it if necessary
    */
-  public HD_ELR getPid34_LastUpdateFacility() {
-    HD_ELR retVal = this.getTypedField(34, 0);
+  public HD getPid34_LastUpdateFacility() {
+    HD retVal = this.getTypedField(34, 0);
     return retVal;
   }
 
@@ -2676,7 +2677,7 @@ public class PID extends AbstractSegment {
       case 1:
         return new CX(getMessage());
       case 2:
-        return new CX_ELR(getMessage());
+        return new CX(getMessage());
       case 3:
         return new CX(getMessage());
       case 4:
@@ -2684,7 +2685,7 @@ public class PID extends AbstractSegment {
       case 5:
         return new XPN_ELR(getMessage());
       case 6:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 7:
         return new IS(getMessage(), Integer.valueOf(1));
       case 8:
@@ -2692,13 +2693,13 @@ public class PID extends AbstractSegment {
       case 9:
         return new CWE_ELR(getMessage());
       case 10:
-        return new XAD_ELR(getMessage());
+        return new XAD(getMessage());
       case 11:
         return new IS(getMessage(), Integer.valueOf(0));
       case 12:
-        return new XTN_ELR(getMessage());
+        return new XTN(getMessage());
       case 13:
-        return new XTN_ELR(getMessage());
+        return new XTN(getMessage());
       case 14:
         return new CWE(getMessage());
       case 15:
@@ -2728,7 +2729,7 @@ public class PID extends AbstractSegment {
       case 27:
         return new CE(getMessage());
       case 28:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 29:
         return new ID(getMessage(), Integer.valueOf(136));
       case 30:
@@ -2736,9 +2737,9 @@ public class PID extends AbstractSegment {
       case 31:
         return new IS(getMessage(), Integer.valueOf(445));
       case 32:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 33:
-        return new HD_ELR(getMessage());
+        return new HD(getMessage());
       case 34:
         return new CWE_ELR(getMessage());
       case 35:
