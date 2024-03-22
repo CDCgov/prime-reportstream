@@ -135,5 +135,13 @@ export default defineConfig(async ({ mode, isPreview }) => {
             },
             devSourcemap: true,
         },
+        resolve: {
+            alias: {
+                "msw/native": resolve(
+                    __dirname,
+                    "./node_modules/msw/lib/native/index.mjs",
+                ),
+            },
+        },
     };
 });
