@@ -15,6 +15,9 @@ const About = lazy(
 const OurNetwork = lazy(
     lazyRouteMarkdown(() => import("./content/about/our-network.mdx")),
 );
+const Roadmap = lazy(
+    lazyRouteMarkdown(() => import("./content/about/roadmap.mdx")),
+);
 const News = lazy(lazyRouteMarkdown(() => import("./content/about/news.mdx")));
 const Security = lazy(
     lazyRouteMarkdown(() => import("./content/about/security.mdx")),
@@ -216,6 +219,13 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "our-network",
                         element: <OurNetwork />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "roadmap",
+                        element: <Roadmap />,
                         handle: {
                             isContentPage: true,
                         },
