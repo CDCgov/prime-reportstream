@@ -70,5 +70,9 @@ $column-gutter: 2rem;
                 padding: 0 calc($column-gutter - 14px) 0 $column-gutter;
             }
         }
+
+        .file-search-container #search-field {
+          width: 600px;
+        }
     }
 }

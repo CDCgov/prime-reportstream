@@ -7,18 +7,23 @@ export interface TableFilterSearch {
 }
 
 interface TableFilterSearchProps {
-    reset: number;
-    setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+    filterReset: number;
     resetHandler: (e: FormEvent<Element>) => void;
+    searchReset: number;
+    setFilterReset: React.Dispatch<React.SetStateAction<number>>;
+    setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
 }
 
 function TableFilterSearch({
-    reset,
-    setSearchTerm,
+    filterReset,
     resetHandler,
+    searchReset,
+    setFilterReset,
+    setSearchTerm,
 }: TableFilterSearchProps) {
     const submitHandler = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setFilterReset(filterReset + 1);
         const searchField = e.currentTarget.elements.namedItem(
             "search",
         ) as HTMLInputElement;
@@ -38,11 +43,10 @@ function TableFilterSearch({
                 Enter full Report ID or Filename, including file extension when
                 applicable.
             </div>
-            <div className="display-flex">
+            <div className="display-flex file-search-container">
                 <Search
-                    key={reset}
+                    key={searchReset}
                     onSubmit={submitHandler}
-                    size="small"
                     className="margin-right-205"
                 />
                 <Button
