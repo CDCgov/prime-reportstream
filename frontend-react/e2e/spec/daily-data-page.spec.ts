@@ -54,13 +54,14 @@ test.describe("Daily Data page", () => {
             });
 
             test("table has correct headers", async ({ page }) => {
-                await expect(page.getByText(/Report ID/)).toBeAttached();
-                await expect(page.getByText(/Time received/)).toBeAttached();
+                const table = page.locator("table");
+                await expect(table.getByText(/Report ID/)).toBeAttached();
+                await expect(table.getByText(/Time received/)).toBeAttached();
                 await expect(
-                    page.getByText(/File available until/),
+                    table.getByText(/File available until/),
                 ).toBeAttached();
-                await expect(page.getByText(/Items/)).toBeAttached();
-                await expect(page.getByText(/Filename/)).toBeAttached();
+                await expect(table.getByText(/Items/)).toBeAttached();
+                await expect(table.getByText(/Filename/)).toBeAttached();
             });
 
             test("table has pagination", async ({ page }) => {
@@ -93,11 +94,14 @@ test.describe("Daily Data page", () => {
         });
 
         test("table has correct headers", async ({ page }) => {
-            await expect(page.getByText(/Report ID/)).toBeAttached();
-            await expect(page.getByText(/Time received/)).toBeAttached();
-            await expect(page.getByText(/File available until/)).toBeAttached();
-            await expect(page.getByText(/Items/)).toBeAttached();
-            await expect(page.getByText(/Filename/)).toBeAttached();
+            const table = page.locator("table");
+            await expect(table.getByText(/Report ID/)).toBeAttached();
+            await expect(table.getByText(/Time received/)).toBeAttached();
+            await expect(
+                table.getByText(/File available until/),
+            ).toBeAttached();
+            await expect(table.getByText(/Items/)).toBeAttached();
+            await expect(table.getByText(/Filename/)).toBeAttached();
         });
 
         test("table has pagination", async ({ page }) => {
