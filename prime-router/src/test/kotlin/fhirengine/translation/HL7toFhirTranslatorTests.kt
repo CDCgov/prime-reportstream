@@ -143,9 +143,8 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         // HL7toFhirTranslator keep their individual configurations and won't cross over.
 
         // empty the stored message templates
-        for (key in HL7toFhirTranslator.Companion.messageTemplates.keys) {
-            HL7toFhirTranslator.Companion.messageTemplates.remove(key)
-        }
+        HL7toFhirTranslator.Companion.messageTemplates.clear()
+
         val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)
 
