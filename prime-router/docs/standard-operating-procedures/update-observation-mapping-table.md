@@ -70,8 +70,7 @@ options:
 ```
 
 ### Update one of more specific valueset(S) from the Value Set Authority Center(VSAC)
-Use ./prime lookuptables update-mapping CLI command to update all RCTC value sets from the VSAC. Be sure to select yes when prompted to write the table or output a new local csv.
-include the -d parameter and provide a comma sperated list of OIDs to update.
+To update only specific valuesets in the table include the -d parameter and provide a comma sperated list of OIDs. This will add new values from only the specified valuesets.
 
 Example:
 ```
