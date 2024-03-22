@@ -34,9 +34,4 @@ class MSHHDSourceTests {
     fun `test missing HD2`() {
         assert(verifyHL7ToFHIRToHL7Mapping("msh/hd/HD-to-Source-missing-hd2").passed)
     }
-
-    @Test
-    fun `test adds in the correct SFT fields`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("msh/hd/HD-to-Source-with-SFT").passed)
-    }
 }

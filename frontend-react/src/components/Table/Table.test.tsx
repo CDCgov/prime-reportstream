@@ -254,7 +254,7 @@ describe("Sorting integration", () => {
 /* TODO:
  *   Refactor these tests to use new functions instead of TestTable
  * */
-describe.skip("Table, filter integration tests", () => {
+describe("Table, filter integration tests", () => {
     function setup() {
         renderApp(<TestTable />);
     }
@@ -271,8 +271,8 @@ describe.skip("Table, filter integration tests", () => {
         /* Assert the value of state in string has changed */
         expect(screen.getByText(/range:/)).not.toHaveTextContent(defaultState);
 
-        const clearButton = screen.getByText("Reset");
-        await userEvent.click(clearButton);
+        const clearButton = screen.getAllByText("Reset");
+        await userEvent.click(clearButton[0]);
     });
 
     test("cursor sets properly according to sort order", async () => {

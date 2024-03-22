@@ -39,19 +39,10 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.CWE;
-import ca.uhn.hl7v2.model.v251.datatype.CX;
-import ca.uhn.hl7v2.model.v251.datatype.DT;
-import ca.uhn.hl7v2.model.v251.datatype.ID;
-import ca.uhn.hl7v2.model.v251.datatype.IS;
-import ca.uhn.hl7v2.model.v251.datatype.JCC;
-import ca.uhn.hl7v2.model.v251.datatype.SI;
-import ca.uhn.hl7v2.model.v251.datatype.ST;
-import ca.uhn.hl7v2.model.v251.datatype.TS;
-import ca.uhn.hl7v2.model.v251.datatype.XPN;
-import ca.uhn.hl7v2.model.v251.datatype.XTN;
+import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.CWE_ELR;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.XPN_ELR;
 
 
 /**
@@ -61,8 +52,8 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * <li>NK1-1: Set ID - NK1 (SI) <b> </b>
  * <li>NK1-2: Name (XPN_ELR) <b>optional repeating</b>
  * <li>NK1-3: Relationship (CWE_ELR) <b>optional </b>
- * <li>NK1-4: Address (XAD_ELR) <b>optional repeating</b>
- * <li>NK1-5: Phone Number (XTN_ELR) <b>optional repeating</b>
+ * <li>NK1-4: Address (XAD) <b>optional repeating</b>
+ * <li>NK1-5: Phone Number (XTN) <b>optional repeating</b>
  * <li>NK1-6: Business Phone Number (XTN) <b>optional repeating</b>
  * <li>NK1-7: Contact Role (CWE) <b>optional repeating</b>
  * <li>NK1-8: Start Date (DT) <b>optional repeating</b>
@@ -70,7 +61,7 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * <li>NK1-10: Next of Kin / Associated Parties Job Title (ST) <b>optional repeating</b>
  * <li>NK1-11: Next of Kin / Associated Parties Job Code/Class (JCC) <b>optional repeating</b>
  * <li>NK1-12: Next of Kin / Associated Parties Employee Number (CX) <b>optional repeating</b>
- * <li>NK1-13: Organization Name - NK1 (XON_ELR) <b>optional </b>
+ * <li>NK1-13: Organization Name - NK1 (XON) <b>optional </b>
  * <li>NK1-14: Marital Status (CWE) <b>optional repeating</b>
  * <li>NK1-15: Administrative Sex (IS) <b>optional repeating</b>
  * <li>NK1-16: Date/Time of Birth (TS) <b>optional repeating</b>
@@ -88,8 +79,8 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * <li>NK1-28: Ethnic Group (CWE) <b>optional repeating</b>
  * <li>NK1-29: Contact Reason (CWE) <b>optional repeating</b>
  * <li>NK1-30: Contact Person's Name (XPN_ELR) <b>optional repeating</b>
- * <li>NK1-31: Contact Person's Telephone Number (XTN_ELR) <b>optional repeating</b>
- * <li>NK1-32: Contact Person's Address (XAD_ELR) <b>optional repeating</b>
+ * <li>NK1-31: Contact Person's Telephone Number (XTN) <b>optional repeating</b>
+ * <li>NK1-32: Contact Person's Address (XAD) <b>optional repeating</b>
  * <li>NK1-33: Next of Kin/Associated Party's Identifiers (CX) <b>optional repeating</b>
  * <li>NK1-34: Job Status (IS) <b>optional repeating</b>
  * <li>NK1-35: Race (CWE) <b>optional repeating</b>
@@ -115,8 +106,8 @@ public class NK1 extends AbstractSegment {
       this.add(SI.class, true, 1, 0, new Object[]{getMessage()}, "Set ID - NK1");
       this.add(XPN_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Name");
       this.add(CWE_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Relationship");
-      this.add(XAD_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Address");
-      this.add(XTN_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Phone Number");
+      this.add(XAD.class, false, -1, 0, new Object[]{getMessage()}, "Address");
+      this.add(XTN.class, false, -1, 0, new Object[]{getMessage()}, "Phone Number");
       this.add(XTN.class, false, 0, 0, new Object[]{getMessage()}, "Business Phone Number");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Contact Role");
       this.add(DT.class, false, 0, 0, new Object[]{getMessage()}, "Start Date");
@@ -124,7 +115,7 @@ public class NK1 extends AbstractSegment {
       this.add(ST.class, false, 0, 0, new Object[]{getMessage()}, "Next of Kin / Associated Parties Job Title");
       this.add(JCC.class, false, 0, 0, new Object[]{getMessage()}, "Next of Kin / Associated Parties Job Code/Class");
       this.add(CX.class, false, 0, 0, new Object[]{getMessage()}, "Next of Kin / Associated Parties Employee Number");
-      this.add(XON_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Organization Name - NK1");
+      this.add(XON.class, false, 1, 0, new Object[]{getMessage()}, "Organization Name - NK1");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Marital Status");
       this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Administrative Sex");
       this.add(TS.class, false, 0, 0, new Object[]{getMessage()}, "Date/Time of Birth");
@@ -142,8 +133,8 @@ public class NK1 extends AbstractSegment {
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Ethnic Group");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Contact Reason");
       this.add(XPN_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Contact Person's Name");
-      this.add(XTN_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Contact Person's Telephone Number");
-      this.add(XAD_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Contact Person's Address");
+      this.add(XTN.class, false, -1, 0, new Object[]{getMessage()}, "Contact Person's Telephone Number");
+      this.add(XAD.class, false, -1, 0, new Object[]{getMessage()}, "Contact Person's Address");
       this.add(CX.class, false, 0, 0, new Object[]{getMessage()}, "Next of Kin/Associated Party's Identifiers");
       this.add(IS.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Job Status");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Race");
@@ -306,8 +297,8 @@ public class NK1 extends AbstractSegment {
   /**
    * Returns all repetitions of Address (NK1-4).
    */
-  public XAD_ELR[] getAddress() {
-    XAD_ELR[] retVal = this.getTypedField(4, new XAD_ELR[0]);
+  public XAD[] getAddress() {
+    XAD[] retVal = this.getTypedField(4, new XAD[0]);
     return retVal;
   }
 
@@ -315,8 +306,8 @@ public class NK1 extends AbstractSegment {
   /**
    * Returns all repetitions of Address (NK1-4).
    */
-  public XAD_ELR[] getNk14_Address() {
-    XAD_ELR[] retVal = this.getTypedField(4, new XAD_ELR[0]);
+  public XAD[] getNk14_Address() {
+    XAD[] retVal = this.getTypedField(4, new XAD[0]);
     return retVal;
   }
 
@@ -337,8 +328,8 @@ public class NK1 extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XAD_ELR getAddress(int rep) {
-    XAD_ELR retVal = this.getTypedField(4, rep);
+  public XAD getAddress(int rep) {
+    XAD retVal = this.getTypedField(4, rep);
     return retVal;
   }
 
@@ -348,8 +339,8 @@ public class NK1 extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XAD_ELR getNk14_Address(int rep) {
-    XAD_ELR retVal = this.getTypedField(4, rep);
+  public XAD getNk14_Address(int rep) {
+    XAD retVal = this.getTypedField(4, rep);
     return retVal;
   }
 
@@ -370,8 +361,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR insertAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.insertRepetition(4, rep);
+  public XAD insertAddress(int rep) throws HL7Exception {
+    return (XAD) super.insertRepetition(4, rep);
   }
 
 
@@ -382,8 +373,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR insertNk14_Address(int rep) throws HL7Exception {
-    return (XAD_ELR) super.insertRepetition(4, rep);
+  public XAD insertNk14_Address(int rep) throws HL7Exception {
+    return (XAD) super.insertRepetition(4, rep);
   }
 
 
@@ -394,8 +385,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR removeAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.removeRepetition(4, rep);
+  public XAD removeAddress(int rep) throws HL7Exception {
+    return (XAD) super.removeRepetition(4, rep);
   }
 
 
@@ -406,16 +397,16 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR removeNk14_Address(int rep) throws HL7Exception {
-    return (XAD_ELR) super.removeRepetition(4, rep);
+  public XAD removeNk14_Address(int rep) throws HL7Exception {
+    return (XAD) super.removeRepetition(4, rep);
   }
 
 
   /**
    * Returns all repetitions of Phone Number (NK1-5).
    */
-  public XTN_ELR[] getPhoneNumber() {
-    XTN_ELR[] retVal = this.getTypedField(5, new XTN_ELR[0]);
+  public XTN[] getPhoneNumber() {
+    XTN[] retVal = this.getTypedField(5, new XTN[0]);
     return retVal;
   }
 
@@ -423,8 +414,8 @@ public class NK1 extends AbstractSegment {
   /**
    * Returns all repetitions of Phone Number (NK1-5).
    */
-  public XTN_ELR[] getNk15_PhoneNumber() {
-    XTN_ELR[] retVal = this.getTypedField(5, new XTN_ELR[0]);
+  public XTN[] getNk15_PhoneNumber() {
+    XTN[] retVal = this.getTypedField(5, new XTN[0]);
     return retVal;
   }
 
@@ -445,8 +436,8 @@ public class NK1 extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getPhoneNumber(int rep) {
-    XTN_ELR retVal = this.getTypedField(5, rep);
+  public XTN getPhoneNumber(int rep) {
+    XTN retVal = this.getTypedField(5, rep);
     return retVal;
   }
 
@@ -456,8 +447,8 @@ public class NK1 extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getNk15_PhoneNumber(int rep) {
-    XTN_ELR retVal = this.getTypedField(5, rep);
+  public XTN getNk15_PhoneNumber(int rep) {
+    XTN retVal = this.getTypedField(5, rep);
     return retVal;
   }
 
@@ -478,8 +469,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(5, rep);
+  public XTN insertPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(5, rep);
   }
 
 
@@ -490,8 +481,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertNk15_PhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(5, rep);
+  public XTN insertNk15_PhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(5, rep);
   }
 
 
@@ -502,8 +493,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removePhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(5, rep);
+  public XTN removePhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(5, rep);
   }
 
 
@@ -514,8 +505,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removeNk15_PhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(5, rep);
+  public XTN removeNk15_PhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(5, rep);
   }
 
 
@@ -1279,8 +1270,8 @@ public class NK1 extends AbstractSegment {
    * Returns
    * NK1-13: "Organization Name - NK1" - creates it if necessary
    */
-  public XON_ELR getOrganizationNameNK1() {
-    XON_ELR retVal = this.getTypedField(13, 0);
+  public XON getOrganizationNameNK1() {
+    XON retVal = this.getTypedField(13, 0);
     return retVal;
   }
 
@@ -1288,8 +1279,8 @@ public class NK1 extends AbstractSegment {
    * Returns
    * NK1-13: "Organization Name - NK1" - creates it if necessary
    */
-  public XON_ELR getNk113_OrganizationNameNK1() {
-    XON_ELR retVal = this.getTypedField(13, 0);
+  public XON getNk113_OrganizationNameNK1() {
+    XON retVal = this.getTypedField(13, 0);
     return retVal;
   }
 
@@ -3044,8 +3035,8 @@ public class NK1 extends AbstractSegment {
   /**
    * Returns all repetitions of Contact Person's Telephone Number (NK1-31).
    */
-  public XTN_ELR[] getContactPersonSTelephoneNumber() {
-    XTN_ELR[] retVal = this.getTypedField(31, new XTN_ELR[0]);
+  public XTN[] getContactPersonSTelephoneNumber() {
+    XTN[] retVal = this.getTypedField(31, new XTN[0]);
     return retVal;
   }
 
@@ -3053,8 +3044,8 @@ public class NK1 extends AbstractSegment {
   /**
    * Returns all repetitions of Contact Person's Telephone Number (NK1-31).
    */
-  public XTN_ELR[] getNk131_ContactPersonSTelephoneNumber() {
-    XTN_ELR[] retVal = this.getTypedField(31, new XTN_ELR[0]);
+  public XTN[] getNk131_ContactPersonSTelephoneNumber() {
+    XTN[] retVal = this.getTypedField(31, new XTN[0]);
     return retVal;
   }
 
@@ -3075,8 +3066,8 @@ public class NK1 extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getContactPersonSTelephoneNumber(int rep) {
-    XTN_ELR retVal = this.getTypedField(31, rep);
+  public XTN getContactPersonSTelephoneNumber(int rep) {
+    XTN retVal = this.getTypedField(31, rep);
     return retVal;
   }
 
@@ -3086,8 +3077,8 @@ public class NK1 extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getNk131_ContactPersonSTelephoneNumber(int rep) {
-    XTN_ELR retVal = this.getTypedField(31, rep);
+  public XTN getNk131_ContactPersonSTelephoneNumber(int rep) {
+    XTN retVal = this.getTypedField(31, rep);
     return retVal;
   }
 
@@ -3108,8 +3099,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertContactPersonSTelephoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(31, rep);
+  public XTN insertContactPersonSTelephoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(31, rep);
   }
 
 
@@ -3120,8 +3111,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertNk131_ContactPersonSTelephoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(31, rep);
+  public XTN insertNk131_ContactPersonSTelephoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(31, rep);
   }
 
 
@@ -3132,8 +3123,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removeContactPersonSTelephoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(31, rep);
+  public XTN removeContactPersonSTelephoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(31, rep);
   }
 
 
@@ -3144,16 +3135,16 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removeNk131_ContactPersonSTelephoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(31, rep);
+  public XTN removeNk131_ContactPersonSTelephoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(31, rep);
   }
 
 
   /**
    * Returns all repetitions of Contact Person's Address (NK1-32).
    */
-  public XAD_ELR[] getContactPersonSAddress() {
-    XAD_ELR[] retVal = this.getTypedField(32, new XAD_ELR[0]);
+  public XAD[] getContactPersonSAddress() {
+    XAD[] retVal = this.getTypedField(32, new XAD[0]);
     return retVal;
   }
 
@@ -3161,8 +3152,8 @@ public class NK1 extends AbstractSegment {
   /**
    * Returns all repetitions of Contact Person's Address (NK1-32).
    */
-  public XAD_ELR[] getNk132_ContactPersonSAddress() {
-    XAD_ELR[] retVal = this.getTypedField(32, new XAD_ELR[0]);
+  public XAD[] getNk132_ContactPersonSAddress() {
+    XAD[] retVal = this.getTypedField(32, new XAD[0]);
     return retVal;
   }
 
@@ -3183,8 +3174,8 @@ public class NK1 extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XAD_ELR getContactPersonSAddress(int rep) {
-    XAD_ELR retVal = this.getTypedField(32, rep);
+  public XAD getContactPersonSAddress(int rep) {
+    XAD retVal = this.getTypedField(32, rep);
     return retVal;
   }
 
@@ -3194,8 +3185,8 @@ public class NK1 extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XAD_ELR getNk132_ContactPersonSAddress(int rep) {
-    XAD_ELR retVal = this.getTypedField(32, rep);
+  public XAD getNk132_ContactPersonSAddress(int rep) {
+    XAD retVal = this.getTypedField(32, rep);
     return retVal;
   }
 
@@ -3216,8 +3207,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR insertContactPersonSAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.insertRepetition(32, rep);
+  public XAD insertContactPersonSAddress(int rep) throws HL7Exception {
+    return (XAD) super.insertRepetition(32, rep);
   }
 
 
@@ -3228,8 +3219,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR insertNk132_ContactPersonSAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.insertRepetition(32, rep);
+  public XAD insertNk132_ContactPersonSAddress(int rep) throws HL7Exception {
+    return (XAD) super.insertRepetition(32, rep);
   }
 
 
@@ -3240,8 +3231,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR removeContactPersonSAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.removeRepetition(32, rep);
+  public XAD removeContactPersonSAddress(int rep) throws HL7Exception {
+    return (XAD) super.removeRepetition(32, rep);
   }
 
 
@@ -3252,8 +3243,8 @@ public class NK1 extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR removeNk132_ContactPersonSAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.removeRepetition(32, rep);
+  public XAD removeNk132_ContactPersonSAddress(int rep) throws HL7Exception {
+    return (XAD) super.removeRepetition(32, rep);
   }
 
 
@@ -4025,9 +4016,9 @@ public class NK1 extends AbstractSegment {
       case 2:
         return new CWE_ELR(getMessage());
       case 3:
-        return new XAD_ELR(getMessage());
+        return new XAD(getMessage());
       case 4:
-        return new XTN_ELR(getMessage());
+        return new XTN(getMessage());
       case 5:
         return new XTN(getMessage());
       case 6:
@@ -4043,7 +4034,7 @@ public class NK1 extends AbstractSegment {
       case 11:
         return new CX(getMessage());
       case 12:
-        return new XON_ELR(getMessage());
+        return new XON(getMessage());
       case 13:
         return new CWE(getMessage());
       case 14:
@@ -4079,9 +4070,9 @@ public class NK1 extends AbstractSegment {
       case 29:
         return new XPN_ELR(getMessage());
       case 30:
-        return new XTN_ELR(getMessage());
+        return new XTN(getMessage());
       case 31:
-        return new XAD_ELR(getMessage());
+        return new XAD(getMessage());
       case 32:
         return new CX(getMessage());
       case 33:

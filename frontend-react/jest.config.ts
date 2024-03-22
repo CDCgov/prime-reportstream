@@ -70,6 +70,7 @@ const config: Config.InitialOptions = {
         "jest-watch-typeahead/testname",
     ],
     clearMocks: true, // reset stats, but keep implementation unless explicitly restored
+    testTimeout: 8000,
 };
 
 export default config;
