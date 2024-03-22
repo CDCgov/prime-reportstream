@@ -5,7 +5,6 @@ const config: StorybookConfig = {
     stories: [
         "../src/**/*.stories.mdx",
         "../src/**/*.stories.@(js|jsx|ts|tsx)",
-        "./UtilizedUSWDSComponents/*.stories.@(js|jsx|ts|tsx)",
     ],
     addons: [
         "storybook-addon-react-router-v6",
@@ -47,6 +46,12 @@ const config: StorybookConfig = {
     },
     docs: {
         autodocs: "tag",
+    },
+    refs: {
+        "react-uswds": {
+            title: "React USWDS",
+            url: "https://trussworks.github.io/react-uswds",
+        },
     },
 };
 
