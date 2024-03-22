@@ -37,7 +37,6 @@ It is possible that an observation may not contain information intended to conve
 <br>1.) [LOINC terms for SARS-CoV-2 AOE questions](https://loinc.org/sars-cov-2-and-covid-19/)<br>
 2.) [Public health laboratory ask at order entry panel](https://loinc.org/81959-9)<br>
 
-The Condition Code System for any mappings added ad-hoc (included the AOEs) should be labled as "ReportStream" since they do not come from any standardized ValueSet.
 
 ## Updating RCTC valuesets
 
@@ -87,7 +86,7 @@ options:
 ## Updating the table manually
 
 In the event that an updated to the RCTC introduces a new valueset, or we need to map a code that does not exists in the RCTC such as a local code or AOE, we will need to update the table manually for the time being. This is accomplished by downloading the table locally to a CSV
-file and then add or remove rows as needed.
+file and then add or remove rows as needed. The Condition Code System for any mappings added ad-hoc (included the AOEs) should be labled as "ReportStream" since they do not come from any standardized ValueSet.
 
 *********Important, ensure that when editing the file locally, entries containing longer codes do not get converted to a different format (If editing in excel, it will attempt to use scientific notation for longer numeric values)*********
 
@@ -193,7 +192,7 @@ The `Value Source` column needs to be manually entered based on data source belo
     - [LOINC General](https://loinc.org/81959-9)
     - [LOINC COVID](https://loinc.org/sars-cov-2-and-covid-19/#aoe)
 
-#### Reprotable Conditions Trigger Codes (RCTC)
+#### Reportable Conditions Trigger Codes (RCTC)
 We need to source data from the following spreadsheets:
 - Organism-Substance
 - Lab Order Test Name
@@ -207,3 +206,9 @@ spreadsheet using its code/OID. The resulting row is then mapped to the appropri
 Either copy the values from the website and map them into the appropriate columns  
 -OR-  
 Sign up for an account, download the CSV, and map the data from it
+
+## How to map condition to LOINC/SNOMED code not found in RCTC and not an AOE
+
+The RCTC is frequently updated and should contain the majority of codes that we receive. In the event we need to map a Lab Developed Test (LDT) or a LOINC/SNOMED code that is not represented in the RCTC
+we will need to determine what standardized SNOMED condition code it should be mapped to. In some cases this will be obvious and we can use our best judgment (i.e. a test for Flu should be mapped to Influenza, a test for chlamydia should be mapped to chlmydia etc.).
+In cases where the condition is not obvious we should check with the sender (this will usually be accomplished in the sender onboarding as described in [sender.md](docs/onboarding-users/senders.md)). The sender's assertion of the appropriate condition the code is mapped to should be validated with a receiving STLT.
