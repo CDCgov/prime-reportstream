@@ -265,7 +265,7 @@ function TableFilters({
         [
             filterManager,
             filterReset,
-            initialService.name,
+            initialService?.name,
             searchReset,
             setSearchTerm,
             setService,
