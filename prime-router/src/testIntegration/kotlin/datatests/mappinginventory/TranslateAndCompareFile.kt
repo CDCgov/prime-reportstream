@@ -31,6 +31,7 @@ fun verifyHL7ToFHIRToHL7Mapping(
     skipHl7ToFhir: Boolean = false,
     skipFhirToHl7: Boolean = false,
     skipHl7ToHl7: Boolean = false,
+    additionalProfiles: List<String> = emptyList(),
 ): CompareData.Result {
     if (!skipHl7ToFhir) {
         val hl7ToFhirConfig = TranslationTests.TestConfig(
@@ -43,7 +44,8 @@ fun verifyHL7ToFHIRToHL7Mapping(
             true,
             null,
             null,
-            null
+            null,
+            additionalProfiles = additionalProfiles
         )
         val hl7ToFhirResult = TranslationTests().FileConversionTest(hl7ToFhirConfig).runTest()
         if (!hl7ToFhirResult.passed) {
