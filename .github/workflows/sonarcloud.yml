@@ -66,7 +66,7 @@ jobs:
 
       - name: Gradle Validation
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: gradle/wrapper-validation-action@699bb18358f12c5b78b37bb0111d3a0e2276e0e2
+        uses: gradle/wrapper-validation-action@b231772637bb498f11fdbc86052b6e8a8dc9fc92
 
       - name: Spin up build containers
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
