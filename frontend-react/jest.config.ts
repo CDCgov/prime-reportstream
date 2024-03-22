@@ -51,6 +51,7 @@ const config: Config.InitialOptions = {
         "^.*\\.mdx": "<rootDir>/src/__mocks__/mdxFrontmatterMock.tsx",
         "^react-helmet-async$":
             "<rootDir>/src/__mocks__/reactHelmetAsyncMock.tsx",
+        "^uuid$": require.resolve("uuid"),
     },
     moduleFileExtensions: [
         "web.js",
