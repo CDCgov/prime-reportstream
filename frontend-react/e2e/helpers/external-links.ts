@@ -1,6 +1,12 @@
-import { expect, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 
-export async function clickOnConnect(
+export const CONNECT_URL =
+    "https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957";
+export const SIMPLEREPORT = "https://www.simplereport.gov/";
+export const RADX_MARS =
+    "https://www.nibib.nih.gov/covid-19/radx-tech-program/mars";
+export const MAKE_MY_TEST_COUNT = "https://learn.makemytestcount.org/";
+export async function clickOnExternalLink(
     locator: string,
     linkName: string,
     page: Page,
@@ -10,8 +16,5 @@ export async function clickOnConnect(
 
     const newTab = await newTabPromise;
     await newTab.waitForLoadState();
-    await expect(newTab).toHaveURL(
-        "https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957",
-    );
-    expect(newTab.getByText("Connect with ReportStream")).toBeTruthy();
+    return newTab;
 }
