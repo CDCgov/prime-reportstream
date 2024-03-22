@@ -107,7 +107,8 @@ function TableFilters({
         resultLength: resultLength,
         activeFilters: [currentServiceSelect],
     });
-    const [reset, setReset] = useState(0);
+    const [filterReset, setFilterReset] = useState(0);
+    const [searchReset, setSearchReset] = useState(0);
     const updateRange = useCallback(
         (from: string, to: string) => {
             filterManager.updateRange({
@@ -250,7 +251,8 @@ function TableFilters({
     const resetHandler = useCallback(
         (e: FormEvent) => {
             e.preventDefault();
-            setReset(reset + 1);
+            setFilterReset(filterReset + 1);
+            setSearchReset(searchReset + 1);
             setRangeFrom(undefined);
             setRangeTo(undefined);
             setStartTime(DEFAULT_FROM_TIME);
@@ -260,12 +262,21 @@ function TableFilters({
             setService?.(initialService.name);
             filterManager.resetAll();
         },
-        [filterManager, initialService.name, reset, setSearchTerm, setService],
+        [
+            filterManager,
+            filterReset,
+            initialService.name,
+            searchReset,
+            setSearchTerm,
+            setService,
+        ],
     );
 
     const submitHandler = useCallback(
         (e: FormEvent) => {
             e.preventDefault();
+            setSearchTerm("");
+            setSearchReset(searchReset + 1);
 
             setService?.(currentServiceSelect);
             if (
@@ -283,6 +294,8 @@ function TableFilters({
             currentServiceSelect,
             filterDetails.rangeFromWithTime,
             filterDetails.rangeToWithTime,
+            searchReset,
+            setSearchTerm,
             setService,
         ],
     );
@@ -290,9 +303,11 @@ function TableFilters({
     return (
         <div className={styles.TableFilters}>
             <TableFilterSearch
-                reset={reset}
-                setSearchTerm={setSearchTerm}
+                filterReset={filterReset}
                 resetHandler={resetHandler}
+                searchReset={searchReset}
+                setFilterReset={setFilterReset}
+                setSearchTerm={setSearchTerm}
             />
 
             <section
@@ -306,7 +321,7 @@ function TableFilters({
                     ref={formRef}
                     onSubmit={submitHandler}
                     onReset={resetHandler}
-                    key={reset}
+                    key={filterReset}
                     autoComplete="off"
                     data-testid="filter-form"
                 >
