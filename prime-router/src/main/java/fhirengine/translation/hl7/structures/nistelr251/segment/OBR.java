@@ -38,21 +38,10 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.CQ;
-import ca.uhn.hl7v2.model.v251.datatype.CWE;
-import ca.uhn.hl7v2.model.v251.datatype.ID;
-import ca.uhn.hl7v2.model.v251.datatype.IS;
-import ca.uhn.hl7v2.model.v251.datatype.MOC;
-import ca.uhn.hl7v2.model.v251.datatype.NDL;
-import ca.uhn.hl7v2.model.v251.datatype.NM;
-import ca.uhn.hl7v2.model.v251.datatype.SI;
-import ca.uhn.hl7v2.model.v251.datatype.SPS;
-import ca.uhn.hl7v2.model.v251.datatype.ST;
-import ca.uhn.hl7v2.model.v251.datatype.TQ;
-import ca.uhn.hl7v2.model.v251.datatype.TS;
-import ca.uhn.hl7v2.model.v251.datatype.XCN;
+import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.CWE_ELR;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.PRL_ELR;
 
 
 /**
@@ -60,13 +49,13 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * This segment has the following fields:</p>
  * <ul>
  * <li>OBR-1: Set ID - OBR (SI) <b> </b>
- * <li>OBR-2: Placer Order Number (EI_ELR) <b>optional </b>
- * <li>OBR-3: Filler Order Number (EI_ELR) <b> </b>
+ * <li>OBR-2: Placer Order Number (EI) <b>optional </b>
+ * <li>OBR-3: Filler Order Number (EI) <b> </b>
  * <li>OBR-4: Universal Service Identifier (CWE_ELR) <b> </b>
  * <li>OBR-5: Priority - OBR (ID) <b>optional repeating</b>
  * <li>OBR-6: Requested Date/Time (TS) <b>optional repeating</b>
- * <li>OBR-7: Observation Date/Time (TS_ELR) <b> </b>
- * <li>OBR-8: Observation End Date/Time (TS_ELR) <b>optional </b>
+ * <li>OBR-7: Observation Date/Time (TS) <b> </b>
+ * <li>OBR-8: Observation End Date/Time (TS) <b>optional </b>
  * <li>OBR-9: Collection Volume (CQ) <b>optional repeating</b>
  * <li>OBR-10: Collector Identifier (XCN) <b>optional repeating</b>
  * <li>OBR-11: Specimen Action Code (ID) <b>optional </b>
@@ -74,23 +63,23 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * <li>OBR-13: Relevant Clinical Information (ST) <b>optional </b>
  * <li>OBR-14: Specimen Received Date/Time (TS) <b>optional repeating</b>
  * <li>OBR-15: Specimen Source (SPS) <b>optional repeating</b>
- * <li>OBR-16: Ordering Provider (XCN_ELR) <b>optional repeating</b>
- * <li>OBR-17: Order Callback Phone Number (XTN_ELR) <b>optional repeating</b>
+ * <li>OBR-16: Ordering Provider (XCN) <b>optional repeating</b>
+ * <li>OBR-17: Order Callback Phone Number (XTN) <b>optional repeating</b>
  * <li>OBR-18: Placer Field 1 (ST) <b>optional </b>
  * <li>OBR-19: Placer Field 2 (ST) <b>optional </b>
  * <li>OBR-20: Filler Field 1 (ST) <b>optional </b>
  * <li>OBR-21: Filler Field 2 (ST) <b>optional </b>
- * <li>OBR-22: Results Rpt/Status Chng - Date/Time (TS_ELR) <b> </b>
+ * <li>OBR-22: Results Rpt/Status Chng - Date/Time (TS) <b> </b>
  * <li>OBR-23: Charge to Practice (MOC) <b>optional </b>
  * <li>OBR-24: Diagnostic Serv Sect ID (ID) <b>optional </b>
  * <li>OBR-25: Result Status (ID) <b> </b>
  * <li>OBR-26: Parent Result (PRL_ELR) <b>optional </b>
  * <li>OBR-27: Quantity/Timing (TQ) <b>optional repeating</b>
  * <li>OBR-28: Result Copies To (XCN) <b>optional repeating</b>
- * <li>OBR-29: Parent (EIP_ELR) <b>optional </b>
+ * <li>OBR-29: Parent (EIP) <b>optional </b>
  * <li>OBR-30: Transportation Mode (ID) <b>optional repeating</b>
  * <li>OBR-31: Reason for Study (CWE_ELR) <b>optional repeating</b>
- * <li>OBR-32: Principal Result Interpreter (NDL_ELR) <b>optional </b>
+ * <li>OBR-32: Principal Result Interpreter (NDL) <b>optional </b>
  * <li>OBR-33: Assistant Result Interpreter (NDL) <b>optional repeating</b>
  * <li>OBR-34: Technician (NDL) <b>optional repeating</b>
  * <li>OBR-35: Transcriptionist (NDL) <b>optional repeating</b>
@@ -125,13 +114,13 @@ public class OBR extends AbstractSegment {
   private void init(ModelClassFactory factory) {
     try {
       this.add(SI.class, true, 1, 0, new Object[]{getMessage()}, "Set ID - OBR");
-      this.add(EI_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Placer Order Number");
-      this.add(EI_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Filler Order Number");
+      this.add(EI.class, false, 1, 0, new Object[]{getMessage()}, "Placer Order Number");
+      this.add(EI.class, true, 1, 0, new Object[]{getMessage()}, "Filler Order Number");
       this.add(CWE_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Universal Service Identifier");
       this.add(ID.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Priority - OBR");
       this.add(TS.class, false, 0, 0, new Object[]{getMessage()}, "Requested Date/Time");
-      this.add(TS_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Observation Date/Time");
-      this.add(TS_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Observation End Date/Time");
+      this.add(TS.class, true, 1, 0, new Object[]{getMessage()}, "Observation Date/Time");
+      this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Observation End Date/Time");
       this.add(CQ.class, false, 0, 0, new Object[]{getMessage()}, "Collection Volume");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Collector Identifier");
       this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(65)}, "Specimen Action Code");
@@ -139,23 +128,23 @@ public class OBR extends AbstractSegment {
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Relevant Clinical Information");
       this.add(TS.class, false, 0, 0, new Object[]{getMessage()}, "Specimen Received Date/Time");
       this.add(SPS.class, false, 0, 0, new Object[]{getMessage()}, "Specimen Source");
-      this.add(XCN_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Ordering Provider");
-      this.add(XTN_ELR.class, false, 2, 0, new Object[]{getMessage()}, "Order Callback Phone Number");
+      this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Ordering Provider");
+      this.add(XTN.class, false, 2, 0, new Object[]{getMessage()}, "Order Callback Phone Number");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Placer Field 1");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Placer Field 2");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Filler Field 1");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Filler Field 2");
-      this.add(TS_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Results Rpt/Status Chng - Date/Time");
+      this.add(TS.class, true, 1, 0, new Object[]{getMessage()}, "Results Rpt/Status Chng - Date/Time");
       this.add(MOC.class, false, 1, 0, new Object[]{getMessage()}, "Charge to Practice");
       this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(74)}, "Diagnostic Serv Sect ID");
       this.add(ID.class, true, 1, 0, new Object[]{getMessage(), Integer.valueOf(123)}, "Result Status");
       this.add(PRL_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Parent Result");
       this.add(TQ.class, false, 0, 0, new Object[]{getMessage()}, "Quantity/Timing");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Result Copies To");
-      this.add(EIP_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Parent");
+      this.add(EIP.class, false, 1, 0, new Object[]{getMessage()}, "Parent");
       this.add(ID.class, false, 0, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Transportation Mode");
       this.add(CWE_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Reason for Study");
-      this.add(NDL_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Principal Result Interpreter");
+      this.add(NDL.class, false, 1, 0, new Object[]{getMessage()}, "Principal Result Interpreter");
       this.add(NDL.class, false, -1, 0, new Object[]{getMessage()}, "Assistant Result Interpreter");
       this.add(NDL.class, false, -1, 0, new Object[]{getMessage()}, "Technician");
       this.add(NDL.class, false, -1, 0, new Object[]{getMessage()}, "Transcriptionist");
@@ -203,8 +192,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-2: "Placer Order Number" - creates it if necessary
    */
-  public EI_ELR getPlacerOrderNumber() {
-    EI_ELR retVal = this.getTypedField(2, 0);
+  public EI getPlacerOrderNumber() {
+    EI retVal = this.getTypedField(2, 0);
     return retVal;
   }
 
@@ -212,8 +201,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-2: "Placer Order Number" - creates it if necessary
    */
-  public EI_ELR getObr2_PlacerOrderNumber() {
-    EI_ELR retVal = this.getTypedField(2, 0);
+  public EI getObr2_PlacerOrderNumber() {
+    EI retVal = this.getTypedField(2, 0);
     return retVal;
   }
 
@@ -222,8 +211,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-3: "Filler Order Number" - creates it if necessary
    */
-  public EI_ELR getFillerOrderNumber() {
-    EI_ELR retVal = this.getTypedField(3, 0);
+  public EI getFillerOrderNumber() {
+    EI retVal = this.getTypedField(3, 0);
     return retVal;
   }
 
@@ -231,8 +220,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-3: "Filler Order Number" - creates it if necessary
    */
-  public EI_ELR getObr3_FillerOrderNumber() {
-    EI_ELR retVal = this.getTypedField(3, 0);
+  public EI getObr3_FillerOrderNumber() {
+    EI retVal = this.getTypedField(3, 0);
     return retVal;
   }
 
@@ -476,8 +465,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-7: "Observation Date/Time" - creates it if necessary
    */
-  public TS_ELR getObservationDateTime() {
-    TS_ELR retVal = this.getTypedField(7, 0);
+  public TS getObservationDateTime() {
+    TS retVal = this.getTypedField(7, 0);
     return retVal;
   }
 
@@ -485,8 +474,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-7: "Observation Date/Time" - creates it if necessary
    */
-  public TS_ELR getObr7_ObservationDateTime() {
-    TS_ELR retVal = this.getTypedField(7, 0);
+  public TS getObr7_ObservationDateTime() {
+    TS retVal = this.getTypedField(7, 0);
     return retVal;
   }
 
@@ -495,8 +484,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-8: "Observation End Date/Time" - creates it if necessary
    */
-  public TS_ELR getObservationEndDateTime() {
-    TS_ELR retVal = this.getTypedField(8, 0);
+  public TS getObservationEndDateTime() {
+    TS retVal = this.getTypedField(8, 0);
     return retVal;
   }
 
@@ -504,8 +493,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-8: "Observation End Date/Time" - creates it if necessary
    */
-  public TS_ELR getObr8_ObservationEndDateTime() {
-    TS_ELR retVal = this.getTypedField(8, 0);
+  public TS getObr8_ObservationEndDateTime() {
+    TS retVal = this.getTypedField(8, 0);
     return retVal;
   }
 
@@ -1002,8 +991,8 @@ public class OBR extends AbstractSegment {
   /**
    * Returns all repetitions of Ordering Provider (OBR-16).
    */
-  public XCN_ELR[] getOrderingProvider() {
-    XCN_ELR[] retVal = this.getTypedField(16, new XCN_ELR[0]);
+  public XCN[] getOrderingProvider() {
+    XCN[] retVal = this.getTypedField(16, new XCN[0]);
     return retVal;
   }
 
@@ -1011,8 +1000,8 @@ public class OBR extends AbstractSegment {
   /**
    * Returns all repetitions of Ordering Provider (OBR-16).
    */
-  public XCN_ELR[] getObr16_OrderingProvider() {
-    XCN_ELR[] retVal = this.getTypedField(16, new XCN_ELR[0]);
+  public XCN[] getObr16_OrderingProvider() {
+    XCN[] retVal = this.getTypedField(16, new XCN[0]);
     return retVal;
   }
 
@@ -1033,8 +1022,8 @@ public class OBR extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XCN_ELR getOrderingProvider(int rep) {
-    XCN_ELR retVal = this.getTypedField(16, rep);
+  public XCN getOrderingProvider(int rep) {
+    XCN retVal = this.getTypedField(16, rep);
     return retVal;
   }
 
@@ -1044,8 +1033,8 @@ public class OBR extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XCN_ELR getObr16_OrderingProvider(int rep) {
-    XCN_ELR retVal = this.getTypedField(16, rep);
+  public XCN getObr16_OrderingProvider(int rep) {
+    XCN retVal = this.getTypedField(16, rep);
     return retVal;
   }
 
@@ -1066,8 +1055,8 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XCN_ELR insertOrderingProvider(int rep) throws HL7Exception {
-    return (XCN_ELR) super.insertRepetition(16, rep);
+  public XCN insertOrderingProvider(int rep) throws HL7Exception {
+    return (XCN) super.insertRepetition(16, rep);
   }
 
 
@@ -1078,8 +1067,8 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XCN_ELR insertObr16_OrderingProvider(int rep) throws HL7Exception {
-    return (XCN_ELR) super.insertRepetition(16, rep);
+  public XCN insertObr16_OrderingProvider(int rep) throws HL7Exception {
+    return (XCN) super.insertRepetition(16, rep);
   }
 
 
@@ -1090,8 +1079,8 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XCN_ELR removeOrderingProvider(int rep) throws HL7Exception {
-    return (XCN_ELR) super.removeRepetition(16, rep);
+  public XCN removeOrderingProvider(int rep) throws HL7Exception {
+    return (XCN) super.removeRepetition(16, rep);
   }
 
 
@@ -1102,16 +1091,16 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XCN_ELR removeObr16_OrderingProvider(int rep) throws HL7Exception {
-    return (XCN_ELR) super.removeRepetition(16, rep);
+  public XCN removeObr16_OrderingProvider(int rep) throws HL7Exception {
+    return (XCN) super.removeRepetition(16, rep);
   }
 
 
   /**
    * Returns all repetitions of Order Callback Phone Number (OBR-17).
    */
-  public XTN_ELR[] getOrderCallbackPhoneNumber() {
-    XTN_ELR[] retVal = this.getTypedField(17, new XTN_ELR[0]);
+  public XTN[] getOrderCallbackPhoneNumber() {
+    XTN[] retVal = this.getTypedField(17, new XTN[0]);
     return retVal;
   }
 
@@ -1119,8 +1108,8 @@ public class OBR extends AbstractSegment {
   /**
    * Returns all repetitions of Order Callback Phone Number (OBR-17).
    */
-  public XTN_ELR[] getObr17_OrderCallbackPhoneNumber() {
-    XTN_ELR[] retVal = this.getTypedField(17, new XTN_ELR[0]);
+  public XTN[] getObr17_OrderCallbackPhoneNumber() {
+    XTN[] retVal = this.getTypedField(17, new XTN[0]);
     return retVal;
   }
 
@@ -1141,8 +1130,8 @@ public class OBR extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getOrderCallbackPhoneNumber(int rep) {
-    XTN_ELR retVal = this.getTypedField(17, rep);
+  public XTN getOrderCallbackPhoneNumber(int rep) {
+    XTN retVal = this.getTypedField(17, rep);
     return retVal;
   }
 
@@ -1152,8 +1141,8 @@ public class OBR extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getObr17_OrderCallbackPhoneNumber(int rep) {
-    XTN_ELR retVal = this.getTypedField(17, rep);
+  public XTN getObr17_OrderCallbackPhoneNumber(int rep) {
+    XTN retVal = this.getTypedField(17, rep);
     return retVal;
   }
 
@@ -1174,8 +1163,8 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertOrderCallbackPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(17, rep);
+  public XTN insertOrderCallbackPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(17, rep);
   }
 
 
@@ -1186,8 +1175,8 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertObr17_OrderCallbackPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(17, rep);
+  public XTN insertObr17_OrderCallbackPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(17, rep);
   }
 
 
@@ -1198,8 +1187,8 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removeOrderCallbackPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(17, rep);
+  public XTN removeOrderCallbackPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(17, rep);
   }
 
 
@@ -1210,8 +1199,8 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removeObr17_OrderCallbackPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(17, rep);
+  public XTN removeObr17_OrderCallbackPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(17, rep);
   }
 
 
@@ -1295,8 +1284,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-22: "Results Rpt/Status Chng - Date/Time" - creates it if necessary
    */
-  public TS_ELR getResultsRptStatusChngDateTime() {
-    TS_ELR retVal = this.getTypedField(22, 0);
+  public TS getResultsRptStatusChngDateTime() {
+    TS retVal = this.getTypedField(22, 0);
     return retVal;
   }
 
@@ -1304,8 +1293,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-22: "Results Rpt/Status Chng - Date/Time" - creates it if necessary
    */
-  public TS_ELR getObr22_ResultsRptStatusChngDateTime() {
-    TS_ELR retVal = this.getTypedField(22, 0);
+  public TS getObr22_ResultsRptStatusChngDateTime() {
+    TS retVal = this.getTypedField(22, 0);
     return retVal;
   }
 
@@ -1606,8 +1595,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-29: "Parent" - creates it if necessary
    */
-  public EIP_ELR getOBRParent() {
-    EIP_ELR retVal = this.getTypedField(29, 0);
+  public EIP getOBRParent() {
+    EIP retVal = this.getTypedField(29, 0);
     return retVal;
   }
 
@@ -1615,8 +1604,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-29: "Parent" - creates it if necessary
    */
-  public EIP_ELR getObr29_Parent() {
-    EIP_ELR retVal = this.getTypedField(29, 0);
+  public EIP getObr29_Parent() {
+    EIP retVal = this.getTypedField(29, 0);
     return retVal;
   }
 
@@ -1841,8 +1830,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-32: "Principal Result Interpreter" - creates it if necessary
    */
-  public NDL_ELR getPrincipalResultInterpreter() {
-    NDL_ELR retVal = this.getTypedField(32, 0);
+  public NDL getPrincipalResultInterpreter() {
+    NDL retVal = this.getTypedField(32, 0);
     return retVal;
   }
 
@@ -1850,8 +1839,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-32: "Principal Result Interpreter" - creates it if necessary
    */
-  public NDL_ELR getObr32_PrincipalResultInterpreter() {
-    NDL_ELR retVal = this.getTypedField(32, 0);
+  public NDL getObr32_PrincipalResultInterpreter() {
+    NDL retVal = this.getTypedField(32, 0);
     return retVal;
   }
 
@@ -3452,9 +3441,9 @@ public class OBR extends AbstractSegment {
       case 0:
         return new SI(getMessage());
       case 1:
-        return new EI_ELR(getMessage());
+        return new EI(getMessage());
       case 2:
-        return new EI_ELR(getMessage());
+        return new EI(getMessage());
       case 3:
         return new CWE_ELR(getMessage());
       case 4:
@@ -3462,9 +3451,9 @@ public class OBR extends AbstractSegment {
       case 5:
         return new TS(getMessage());
       case 6:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 7:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 8:
         return new CQ(getMessage());
       case 9:
@@ -3480,9 +3469,9 @@ public class OBR extends AbstractSegment {
       case 14:
         return new SPS(getMessage());
       case 15:
-        return new XCN_ELR(getMessage());
+        return new XCN(getMessage());
       case 16:
-        return new XTN_ELR(getMessage());
+        return new XTN(getMessage());
       case 17:
         return new ST(getMessage());
       case 18:
@@ -3492,7 +3481,7 @@ public class OBR extends AbstractSegment {
       case 20:
         return new ST(getMessage());
       case 21:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 22:
         return new MOC(getMessage());
       case 23:
@@ -3506,13 +3495,13 @@ public class OBR extends AbstractSegment {
       case 27:
         return new XCN(getMessage());
       case 28:
-        return new EIP_ELR(getMessage());
+        return new EIP(getMessage());
       case 29:
         return new ID(getMessage(), 0);
       case 30:
         return new CWE_ELR(getMessage());
       case 31:
-        return new NDL_ELR(getMessage());
+        return new NDL(getMessage());
       case 32:
         return new NDL(getMessage());
       case 33:

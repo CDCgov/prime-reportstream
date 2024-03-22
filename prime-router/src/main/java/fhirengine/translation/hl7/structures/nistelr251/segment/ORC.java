@@ -38,16 +38,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.CNE;
-import ca.uhn.hl7v2.model.v251.datatype.CWE;
-import ca.uhn.hl7v2.model.v251.datatype.EIP;
-import ca.uhn.hl7v2.model.v251.datatype.ID;
-import ca.uhn.hl7v2.model.v251.datatype.PL;
-import ca.uhn.hl7v2.model.v251.datatype.TQ;
-import ca.uhn.hl7v2.model.v251.datatype.TS;
-import ca.uhn.hl7v2.model.v251.datatype.XCN;
+import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
 
 
 /**
@@ -55,9 +47,9 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * This segment has the following fields:</p>
  * <ul>
  * <li>ORC-1: Order Control (ID) <b> </b>
- * <li>ORC-2: Placer Order Number (EI_ELR) <b>optional </b>
- * <li>ORC-3: Filler Order Number (EI_ELR) <b> </b>
- * <li>ORC-4: Placer Group Number (EI_ELR) <b>optional </b>
+ * <li>ORC-2: Placer Order Number (EI) <b>optional </b>
+ * <li>ORC-3: Filler Order Number (EI) <b> </b>
+ * <li>ORC-4: Placer Group Number (EI) <b>optional </b>
  * <li>ORC-5: Order Status (ID) <b>optional </b>
  * <li>ORC-6: Response Flag (ID) <b>optional </b>
  * <li>ORC-7: Quantity/Timing (TQ) <b>optional repeating</b>
@@ -65,19 +57,19 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * <li>ORC-9: Date/Time of Transaction (TS) <b>optional </b>
  * <li>ORC-10: Entered By (XCN) <b>optional repeating</b>
  * <li>ORC-11: Verified By (XCN) <b>optional repeating</b>
- * <li>ORC-12: Ordering Provider (XCN_ELR) <b>optional repeating</b>
+ * <li>ORC-12: Ordering Provider (XCN) <b>optional repeating</b>
  * <li>ORC-13: Enterer's Location (PL) <b>optional </b>
- * <li>ORC-14: Call Back Phone Number (XTN_ELR) <b>optional repeating</b>
+ * <li>ORC-14: Call Back Phone Number (XTN) <b>optional repeating</b>
  * <li>ORC-15: Order Effective Date/Time (TS) <b>optional </b>
  * <li>ORC-16: Order Control Code Reason (CWE) <b>optional </b>
  * <li>ORC-17: Entering Organization (CWE) <b>optional </b>
  * <li>ORC-18: Entering Device (CWE) <b>optional </b>
  * <li>ORC-19: Action By (XCN) <b>optional repeating</b>
  * <li>ORC-20: Advanced Beneficiary Notice Code (CWE) <b>optional repeating</b>
- * <li>ORC-21: Ordering Facility Name (XON_ELR) <b> </b>
- * <li>ORC-22: Ordering Facility Address (XAD_ELR) <b> </b>
- * <li>ORC-23: Ordering Facility Phone Number (XTN_ELR) <b> repeating</b>
- * <li>ORC-24: Ordering Provider Address (XAD_ELR) <b>optional repeating</b>
+ * <li>ORC-21: Ordering Facility Name (XON) <b> </b>
+ * <li>ORC-22: Ordering Facility Address (XAD) <b> </b>
+ * <li>ORC-23: Ordering Facility Phone Number (XTN) <b> repeating</b>
+ * <li>ORC-24: Ordering Provider Address (XAD) <b>optional repeating</b>
  * <li>ORC-25: Order Status Modifier (CWE) <b>optional </b>
  * <li>ORC-26: Advanced Beneficiary Notice Override Reason (CWE) <b>optional repeating</b>
  * <li>ORC-27: Filler's Expected Availability Date/Time (TS) <b>optional </b>
@@ -101,9 +93,9 @@ public class ORC extends AbstractSegment {
   private void init(ModelClassFactory factory) {
     try {
       this.add(ID.class, true, 1, 0, new Object[]{getMessage(), Integer.valueOf(119)}, "Order Control");
-      this.add(EI_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Placer Order Number");
-      this.add(EI_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Filler Order Number");
-      this.add(EI_ELR.class, false, 1, 0, new Object[]{getMessage()}, "Placer Group Number");
+      this.add(EI.class, false, 1, 0, new Object[]{getMessage()}, "Placer Order Number");
+      this.add(EI.class, true, 1, 0, new Object[]{getMessage()}, "Filler Order Number");
+      this.add(EI.class, false, 1, 0, new Object[]{getMessage()}, "Placer Group Number");
       this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(38)}, "Order Status");
       this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(121)}, "Response Flag");
       this.add(TQ.class, false, 0, 0, new Object[]{getMessage()}, "Quantity/Timing");
@@ -111,19 +103,19 @@ public class ORC extends AbstractSegment {
       this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of Transaction");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Entered By");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Verified By");
-      this.add(XCN_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Ordering Provider");
+      this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Ordering Provider");
       this.add(PL.class, false, 1, 0, new Object[]{getMessage()}, "Enterer's Location");
-      this.add(XTN_ELR.class, false, 2, 0, new Object[]{getMessage()}, "Call Back Phone Number");
+      this.add(XTN.class, false, 2, 0, new Object[]{getMessage()}, "Call Back Phone Number");
       this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Order Effective Date/Time");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Order Control Code Reason");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Entering Organization");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Entering Device");
       this.add(XCN.class, false, -1, 0, new Object[]{getMessage()}, "Action By");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Advanced Beneficiary Notice Code");
-      this.add(XON_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Ordering Facility Name");
-      this.add(XAD_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Ordering Facility Address");
-      this.add(XTN_ELR.class, true, -1, 0, new Object[]{getMessage()}, "Ordering Facility Phone Number");
-      this.add(XAD_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Ordering Provider Address");
+      this.add(XON.class, true, 1, 0, new Object[]{getMessage()}, "Ordering Facility Name");
+      this.add(XAD.class, true, 1, 0, new Object[]{getMessage()}, "Ordering Facility Address");
+      this.add(XTN.class, true, -1, 0, new Object[]{getMessage()}, "Ordering Facility Phone Number");
+      this.add(XAD.class, false, -1, 0, new Object[]{getMessage()}, "Ordering Provider Address");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Order Status Modifier");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Advanced Beneficiary Notice Override Reason");
       this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Filler's Expected Availability Date/Time");
@@ -160,8 +152,8 @@ public class ORC extends AbstractSegment {
    * Returns
    * ORC-2: "Placer Order Number" - creates it if necessary
    */
-  public EI_ELR getPlacerOrderNumber() {
-    EI_ELR retVal = this.getTypedField(2, 0);
+  public EI getPlacerOrderNumber() {
+    EI retVal = this.getTypedField(2, 0);
     return retVal;
   }
 
@@ -169,8 +161,8 @@ public class ORC extends AbstractSegment {
    * Returns
    * ORC-2: "Placer Order Number" - creates it if necessary
    */
-  public EI_ELR getOrc2_PlacerOrderNumber() {
-    EI_ELR retVal = this.getTypedField(2, 0);
+  public EI getOrc2_PlacerOrderNumber() {
+    EI retVal = this.getTypedField(2, 0);
     return retVal;
   }
 
@@ -179,8 +171,8 @@ public class ORC extends AbstractSegment {
    * Returns
    * ORC-3: "Filler Order Number" - creates it if necessary
    */
-  public EI_ELR getFillerOrderNumber() {
-    EI_ELR retVal = this.getTypedField(3, 0);
+  public EI getFillerOrderNumber() {
+    EI retVal = this.getTypedField(3, 0);
     return retVal;
   }
 
@@ -188,8 +180,8 @@ public class ORC extends AbstractSegment {
    * Returns
    * ORC-3: "Filler Order Number" - creates it if necessary
    */
-  public EI_ELR getOrc3_FillerOrderNumber() {
-    EI_ELR retVal = this.getTypedField(3, 0);
+  public EI getOrc3_FillerOrderNumber() {
+    EI retVal = this.getTypedField(3, 0);
     return retVal;
   }
 
@@ -198,8 +190,8 @@ public class ORC extends AbstractSegment {
    * Returns
    * ORC-4: "Placer Group Number" - creates it if necessary
    */
-  public EI_ELR getPlacerGroupNumber() {
-    EI_ELR retVal = this.getTypedField(4, 0);
+  public EI getPlacerGroupNumber() {
+    EI retVal = this.getTypedField(4, 0);
     return retVal;
   }
 
@@ -207,8 +199,8 @@ public class ORC extends AbstractSegment {
    * Returns
    * ORC-4: "Placer Group Number" - creates it if necessary
    */
-  public EI_ELR getOrc4_PlacerGroupNumber() {
-    EI_ELR retVal = this.getTypedField(4, 0);
+  public EI getOrc4_PlacerGroupNumber() {
+    EI retVal = this.getTypedField(4, 0);
     return retVal;
   }
 
@@ -616,8 +608,8 @@ public class ORC extends AbstractSegment {
   /**
    * Returns all repetitions of Ordering Provider (ORC-12).
    */
-  public XCN_ELR[] getOrderingProvider() {
-    XCN_ELR[] retVal = this.getTypedField(12, new XCN_ELR[0]);
+  public XCN[] getOrderingProvider() {
+    XCN[] retVal = this.getTypedField(12, new XCN[0]);
     return retVal;
   }
 
@@ -625,8 +617,8 @@ public class ORC extends AbstractSegment {
   /**
    * Returns all repetitions of Ordering Provider (ORC-12).
    */
-  public XCN_ELR[] getOrc12_OrderingProvider() {
-    XCN_ELR[] retVal = this.getTypedField(12, new XCN_ELR[0]);
+  public XCN[] getOrc12_OrderingProvider() {
+    XCN[] retVal = this.getTypedField(12, new XCN[0]);
     return retVal;
   }
 
@@ -647,8 +639,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XCN_ELR getOrderingProvider(int rep) {
-    XCN_ELR retVal = this.getTypedField(12, rep);
+  public XCN getOrderingProvider(int rep) {
+    XCN retVal = this.getTypedField(12, rep);
     return retVal;
   }
 
@@ -658,8 +650,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XCN_ELR getOrc12_OrderingProvider(int rep) {
-    XCN_ELR retVal = this.getTypedField(12, rep);
+  public XCN getOrc12_OrderingProvider(int rep) {
+    XCN retVal = this.getTypedField(12, rep);
     return retVal;
   }
 
@@ -680,8 +672,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XCN_ELR insertOrderingProvider(int rep) throws HL7Exception {
-    return (XCN_ELR) super.insertRepetition(12, rep);
+  public XCN insertOrderingProvider(int rep) throws HL7Exception {
+    return (XCN) super.insertRepetition(12, rep);
   }
 
 
@@ -692,8 +684,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XCN_ELR insertOrc12_OrderingProvider(int rep) throws HL7Exception {
-    return (XCN_ELR) super.insertRepetition(12, rep);
+  public XCN insertOrc12_OrderingProvider(int rep) throws HL7Exception {
+    return (XCN) super.insertRepetition(12, rep);
   }
 
 
@@ -704,8 +696,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XCN_ELR removeOrderingProvider(int rep) throws HL7Exception {
-    return (XCN_ELR) super.removeRepetition(12, rep);
+  public XCN removeOrderingProvider(int rep) throws HL7Exception {
+    return (XCN) super.removeRepetition(12, rep);
   }
 
 
@@ -716,8 +708,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XCN_ELR removeOrc12_OrderingProvider(int rep) throws HL7Exception {
-    return (XCN_ELR) super.removeRepetition(12, rep);
+  public XCN removeOrc12_OrderingProvider(int rep) throws HL7Exception {
+    return (XCN) super.removeRepetition(12, rep);
   }
 
 
@@ -743,8 +735,8 @@ public class ORC extends AbstractSegment {
   /**
    * Returns all repetitions of Call Back Phone Number (ORC-14).
    */
-  public XTN_ELR[] getCallBackPhoneNumber() {
-    XTN_ELR[] retVal = this.getTypedField(14, new XTN_ELR[0]);
+  public XTN[] getCallBackPhoneNumber() {
+    XTN[] retVal = this.getTypedField(14, new XTN[0]);
     return retVal;
   }
 
@@ -752,8 +744,8 @@ public class ORC extends AbstractSegment {
   /**
    * Returns all repetitions of Call Back Phone Number (ORC-14).
    */
-  public XTN_ELR[] getOrc14_CallBackPhoneNumber() {
-    XTN_ELR[] retVal = this.getTypedField(14, new XTN_ELR[0]);
+  public XTN[] getOrc14_CallBackPhoneNumber() {
+    XTN[] retVal = this.getTypedField(14, new XTN[0]);
     return retVal;
   }
 
@@ -774,8 +766,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getCallBackPhoneNumber(int rep) {
-    XTN_ELR retVal = this.getTypedField(14, rep);
+  public XTN getCallBackPhoneNumber(int rep) {
+    XTN retVal = this.getTypedField(14, rep);
     return retVal;
   }
 
@@ -785,8 +777,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getOrc14_CallBackPhoneNumber(int rep) {
-    XTN_ELR retVal = this.getTypedField(14, rep);
+  public XTN getOrc14_CallBackPhoneNumber(int rep) {
+    XTN retVal = this.getTypedField(14, rep);
     return retVal;
   }
 
@@ -807,8 +799,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertCallBackPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(14, rep);
+  public XTN insertCallBackPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(14, rep);
   }
 
 
@@ -819,8 +811,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertOrc14_CallBackPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(14, rep);
+  public XTN insertOrc14_CallBackPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(14, rep);
   }
 
 
@@ -831,8 +823,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removeCallBackPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(14, rep);
+  public XTN removeCallBackPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(14, rep);
   }
 
 
@@ -843,8 +835,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removeOrc14_CallBackPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(14, rep);
+  public XTN removeOrc14_CallBackPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(14, rep);
   }
 
 
@@ -1144,8 +1136,8 @@ public class ORC extends AbstractSegment {
    * Returns
    * ORC-21: "Ordering Facility Name" - creates it if necessary
    */
-  public XON_ELR getOrderingFacilityName() {
-    XON_ELR retVal = this.getTypedField(21, 0);
+  public XON getOrderingFacilityName() {
+    XON retVal = this.getTypedField(21, 0);
     return retVal;
   }
 
@@ -1153,8 +1145,8 @@ public class ORC extends AbstractSegment {
    * Returns
    * ORC-21: "Ordering Facility Name" - creates it if necessary
    */
-  public XON_ELR getOrc21_OrderingFacilityName() {
-    XON_ELR retVal = this.getTypedField(21, 0);
+  public XON getOrc21_OrderingFacilityName() {
+    XON retVal = this.getTypedField(21, 0);
     return retVal;
   }
 
@@ -1163,8 +1155,8 @@ public class ORC extends AbstractSegment {
    * Returns
    * ORC-22: "Ordering Facility Address" - creates it if necessary
    */
-  public XAD_ELR getOrderingFacilityAddress() {
-    XAD_ELR retVal = this.getTypedField(22, 0);
+  public XAD getOrderingFacilityAddress() {
+    XAD retVal = this.getTypedField(22, 0);
     return retVal;
   }
 
@@ -1172,8 +1164,8 @@ public class ORC extends AbstractSegment {
    * Returns
    * ORC-22: "Ordering Facility Address" - creates it if necessary
    */
-  public XAD_ELR getOrc22_OrderingFacilityAddress() {
-    XAD_ELR retVal = this.getTypedField(22, 0);
+  public XAD getOrc22_OrderingFacilityAddress() {
+    XAD retVal = this.getTypedField(22, 0);
     return retVal;
   }
 
@@ -1181,8 +1173,8 @@ public class ORC extends AbstractSegment {
   /**
    * Returns all repetitions of Ordering Facility Phone Number (ORC-23).
    */
-  public XTN_ELR[] getOrderingFacilityPhoneNumber() {
-    XTN_ELR[] retVal = this.getTypedField(23, new XTN_ELR[0]);
+  public XTN[] getOrderingFacilityPhoneNumber() {
+    XTN[] retVal = this.getTypedField(23, new XTN[0]);
     return retVal;
   }
 
@@ -1190,8 +1182,8 @@ public class ORC extends AbstractSegment {
   /**
    * Returns all repetitions of Ordering Facility Phone Number (ORC-23).
    */
-  public XTN_ELR[] getOrc23_OrderingFacilityPhoneNumber() {
-    XTN_ELR[] retVal = this.getTypedField(23, new XTN_ELR[0]);
+  public XTN[] getOrc23_OrderingFacilityPhoneNumber() {
+    XTN[] retVal = this.getTypedField(23, new XTN[0]);
     return retVal;
   }
 
@@ -1212,8 +1204,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getOrderingFacilityPhoneNumber(int rep) {
-    XTN_ELR retVal = this.getTypedField(23, rep);
+  public XTN getOrderingFacilityPhoneNumber(int rep) {
+    XTN retVal = this.getTypedField(23, rep);
     return retVal;
   }
 
@@ -1223,8 +1215,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XTN_ELR getOrc23_OrderingFacilityPhoneNumber(int rep) {
-    XTN_ELR retVal = this.getTypedField(23, rep);
+  public XTN getOrc23_OrderingFacilityPhoneNumber(int rep) {
+    XTN retVal = this.getTypedField(23, rep);
     return retVal;
   }
 
@@ -1245,8 +1237,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertOrderingFacilityPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(23, rep);
+  public XTN insertOrderingFacilityPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(23, rep);
   }
 
 
@@ -1257,8 +1249,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR insertOrc23_OrderingFacilityPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.insertRepetition(23, rep);
+  public XTN insertOrc23_OrderingFacilityPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.insertRepetition(23, rep);
   }
 
 
@@ -1269,8 +1261,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removeOrderingFacilityPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(23, rep);
+  public XTN removeOrderingFacilityPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(23, rep);
   }
 
 
@@ -1281,16 +1273,16 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XTN_ELR removeOrc23_OrderingFacilityPhoneNumber(int rep) throws HL7Exception {
-    return (XTN_ELR) super.removeRepetition(23, rep);
+  public XTN removeOrc23_OrderingFacilityPhoneNumber(int rep) throws HL7Exception {
+    return (XTN) super.removeRepetition(23, rep);
   }
 
 
   /**
    * Returns all repetitions of Ordering Provider Address (ORC-24).
    */
-  public XAD_ELR[] getOrderingProviderAddress() {
-    XAD_ELR[] retVal = this.getTypedField(24, new XAD_ELR[0]);
+  public XAD[] getOrderingProviderAddress() {
+    XAD[] retVal = this.getTypedField(24, new XAD[0]);
     return retVal;
   }
 
@@ -1298,8 +1290,8 @@ public class ORC extends AbstractSegment {
   /**
    * Returns all repetitions of Ordering Provider Address (ORC-24).
    */
-  public XAD_ELR[] getOrc24_OrderingProviderAddress() {
-    XAD_ELR[] retVal = this.getTypedField(24, new XAD_ELR[0]);
+  public XAD[] getOrc24_OrderingProviderAddress() {
+    XAD[] retVal = this.getTypedField(24, new XAD[0]);
     return retVal;
   }
 
@@ -1320,8 +1312,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XAD_ELR getOrderingProviderAddress(int rep) {
-    XAD_ELR retVal = this.getTypedField(24, rep);
+  public XAD getOrderingProviderAddress(int rep) {
+    XAD retVal = this.getTypedField(24, rep);
     return retVal;
   }
 
@@ -1331,8 +1323,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public XAD_ELR getOrc24_OrderingProviderAddress(int rep) {
-    XAD_ELR retVal = this.getTypedField(24, rep);
+  public XAD getOrc24_OrderingProviderAddress(int rep) {
+    XAD retVal = this.getTypedField(24, rep);
     return retVal;
   }
 
@@ -1353,8 +1345,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR insertOrderingProviderAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.insertRepetition(24, rep);
+  public XAD insertOrderingProviderAddress(int rep) throws HL7Exception {
+    return (XAD) super.insertRepetition(24, rep);
   }
 
 
@@ -1365,8 +1357,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR insertOrc24_OrderingProviderAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.insertRepetition(24, rep);
+  public XAD insertOrc24_OrderingProviderAddress(int rep) throws HL7Exception {
+    return (XAD) super.insertRepetition(24, rep);
   }
 
 
@@ -1377,8 +1369,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR removeOrderingProviderAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.removeRepetition(24, rep);
+  public XAD removeOrderingProviderAddress(int rep) throws HL7Exception {
+    return (XAD) super.removeRepetition(24, rep);
   }
 
 
@@ -1389,8 +1381,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public XAD_ELR removeOrc24_OrderingProviderAddress(int rep) throws HL7Exception {
-    return (XAD_ELR) super.removeRepetition(24, rep);
+  public XAD removeOrc24_OrderingProviderAddress(int rep) throws HL7Exception {
+    return (XAD) super.removeRepetition(24, rep);
   }
 
 
@@ -1624,11 +1616,11 @@ public class ORC extends AbstractSegment {
       case 0:
         return new ID(getMessage(), 119);
       case 1:
-        return new EI_ELR(getMessage());
+        return new EI(getMessage());
       case 2:
-        return new EI_ELR(getMessage());
+        return new EI(getMessage());
       case 3:
-        return new EI_ELR(getMessage());
+        return new EI(getMessage());
       case 4:
         return new ID(getMessage(), 38);
       case 5:
@@ -1644,11 +1636,11 @@ public class ORC extends AbstractSegment {
       case 10:
         return new XCN(getMessage());
       case 11:
-        return new XCN_ELR(getMessage());
+        return new XCN(getMessage());
       case 12:
         return new PL(getMessage());
       case 13:
-        return new XTN_ELR(getMessage());
+        return new XTN(getMessage());
       case 14:
         return new TS(getMessage());
       case 15:
@@ -1662,13 +1654,13 @@ public class ORC extends AbstractSegment {
       case 19:
         return new CWE(getMessage());
       case 20:
-        return new XON_ELR(getMessage());
+        return new XON(getMessage());
       case 21:
-        return new XAD_ELR(getMessage());
+        return new XAD(getMessage());
       case 22:
-        return new XTN_ELR(getMessage());
+        return new XTN(getMessage());
       case 23:
-        return new XAD_ELR(getMessage());
+        return new XAD(getMessage());
       case 24:
         return new CWE(getMessage());
       case 25:

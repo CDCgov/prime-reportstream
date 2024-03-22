@@ -4406,14 +4406,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trussworks/react-uswds@npm:^6.2.0":
-  version: 6.2.0
-  resolution: "@trussworks/react-uswds@npm:6.2.0"
+"@trussworks/react-uswds@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@trussworks/react-uswds@npm:9.0.0"
   peerDependencies:
     "@uswds/uswds": ^3.7.1
+    focus-trap-react: ^10.2.3
     react: ^16.x || ^17.x || ^18.x
     react-dom: ^16.x || ^17.x || ^18.x
-  checksum: 88c2c5875f9d7678522d054e938212ef0084141aae534fef686b05ccd843973b0d7dd55892dffaac440d2181b0d2671247f72c1a316cb735feeb047149175931
+  checksum: 2e2d310c69a6dc2e92d48830537ad1873b45a4f0cfab81ccfa180ec2cae55c4b61153397c4956295dfd2cdad7b8a5156b69eb3c5464b0bba213fc386564c4993
   languageName: node
   linkType: hard
 
@@ -5344,15 +5345,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uswds/uswds@npm:3.4.1":
-  version: 3.4.1
-  resolution: "@uswds/uswds@npm:3.4.1"
+"@uswds/uswds@npm:3.7.1":
+  version: 3.7.1
+  resolution: "@uswds/uswds@npm:3.7.1"
   dependencies:
-    classlist-polyfill: 1.0.3
+    classlist-polyfill: 1.2.0
     object-assign: 4.1.1
     receptor: 1.0.0
     resolve-id-refs: 0.1.0
-  checksum: eb78953490a7c7d21b18dd22e813ae462ac6d931483d09141eb05addee4e3c24b3ca2aa58a18d25835e27a5e1c717c4e0d3749eaaed49d3f4ebe5149e6286432
+  checksum: 32fd6b507f87cfa5d652a9a9647077ed6b30e07d66100d6b7b94ebb737ffa4df549527ae3c96f83e34a6e03ae0f06649deae957592776c758dbe6ba6bb72d9a3
   languageName: node
   linkType: hard
 
@@ -6635,10 +6636,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classlist-polyfill@npm:1.0.3":
-  version: 1.0.3
-  resolution: "classlist-polyfill@npm:1.0.3"
-  checksum: 287125901a08f3d2d0d397f38f7446f0804b1fb0eeabeea978e69268332e6f308da2fd15bfe073fb8d11e34f23d891e17298c52b348ade0308cf2a3eb118d394
+"classlist-polyfill@npm:1.2.0":
+  version: 1.2.0
+  resolution: "classlist-polyfill@npm:1.2.0"
+  checksum: 43ff10af5e75d0347f820d77536a12f981adbf5be9c0ff5c3c4823693c8daacf8aa487eac1a9704b73f4dd74d811e5145b4465fe606926351cdfca5bb9b0914e
   languageName: node
   linkType: hard
 
@@ -9043,6 +9044,29 @@ __metadata:
     lodash.isplainobject: ^4.0.6
     lodash.isstring: ^4.0.1
   checksum: 9d14c071b6bd4547a46124d9b8d82e76257b9fc6bff0f38a9abe49dc9ad0a17c21f59d19329c3f23e90cdf66d0198c464902b171a01e73a3438868aa68b61735
+  languageName: node
+  linkType: hard
+
+"focus-trap-react@npm:^10.2.3":
+  version: 10.2.3
+  resolution: "focus-trap-react@npm:10.2.3"
+  dependencies:
+    focus-trap: ^7.5.4
+    tabbable: ^6.2.0
+  peerDependencies:
+    prop-types: ^15.8.1
+    react: ">=16.3.0"
+    react-dom: ">=16.3.0"
+  checksum: 5efbde5af1cdd5873b1a58f04832099b10f4acdaab6d144f03b7414c77f71e54b68907e790349043d8faa89375c85186b6565b3b35d8e1c98efff8fece301c70
+  languageName: node
+  linkType: hard
+
+"focus-trap@npm:^7.5.4":
+  version: 7.5.4
+  resolution: "focus-trap@npm:7.5.4"
+  dependencies:
+    tabbable: ^6.2.0
+  checksum: 9589ae0c8ad2f0bb0610c23e949571ef956424f1e7f7e1981c0d95ce518ea97b8bdd3d43b68c6113cbbcf35c9d36d521ffc2841610f7d5cc1746e2aa84faf578
   languageName: node
   linkType: hard
 
@@ -14068,7 +14092,7 @@ __metadata:
     "@testing-library/jest-dom": ^6.4.2
     "@testing-library/react": ^14.2.1
     "@testing-library/user-event": ^14.5.2
-    "@trussworks/react-uswds": ^6.2.0
+    "@trussworks/react-uswds": ^9.0.0
     "@types/dompurify": ^3.0.5
     "@types/dotenv-flow": ^3
     "@types/downloadjs": ^1.4.6
@@ -14085,7 +14109,7 @@ __metadata:
     "@types/sanitize-html": ^2.11.0
     "@typescript-eslint/eslint-plugin": ^7.3.1
     "@typescript-eslint/parser": ^7.3.1
-    "@uswds/uswds": 3.4.1
+    "@uswds/uswds": 3.7.1
     "@vitejs/plugin-react": ^4.2.1
     autoprefixer: ^10.4.18
     axios: ^1.6.8
@@ -14116,6 +14140,7 @@ __metadata:
     eslint-plugin-storybook: ^0.8.0
     eslint-plugin-testing-library: ^6.2.0
     export-to-csv-fix-source-map: ^0.2.1
+    focus-trap-react: ^10.2.3
     history: ^5.3.0
     html-to-text: ^9.0.5
     husky: ^9.0.11
@@ -15820,6 +15845,13 @@ __metadata:
   version: 2.0.17
   resolution: "synchronous-promise@npm:2.0.17"
   checksum: 7b1342c93741f3f92ebde1edf5d6ce8dde2278de948d84e9bd85e232c16c0d77c90c4940f9975be3effcb20f047cfb0f16fa311c3b4e092c22f3bf2889fb0fb4
+  languageName: node
+  linkType: hard
+
+"tabbable@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "tabbable@npm:6.2.0"
+  checksum: f8440277d223949272c74bb627a3371be21735ca9ad34c2570f7e1752bd646ccfc23a9d8b1ee65d6561243f4134f5fbbf1ad6b39ac3c4b586554accaff4a1300
   languageName: node
   linkType: hard
 
