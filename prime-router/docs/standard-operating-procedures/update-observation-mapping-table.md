@@ -47,6 +47,10 @@ In order to update the table automatically using the VSAC API you will need a UM
 2.) Click on "Request a UMLS License" under "How to Use VSAC"
 3.) Login with an identity provider
 4.) Get apikey from profile to populate parameter -k in commands below
+    a.) Navigate to https://uts.nlm.nih.gov/uts/
+    b.) Select "My Profile" in top right
+    c.) Copy value from "API KEY"
+    
 
 ### Updating all RCTC valuesets from the Value Set Authority Center (VSAC)
 Use ./prime lookuptables update-mapping CLI command to update all RCTC value sets from the VSAC. Be sure to select yes when prompted to write the table or output a new local csv.
