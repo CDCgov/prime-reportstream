@@ -34,7 +34,11 @@ test.describe("Daily Data page", () => {
             test.beforeEach(async ({ page }) => {
                 await selectTestOrg(page);
                 await dailyData.goto(page);
-                await waitForAPIResponse(page, "/api/waters/org/");
+                const response = await waitForAPIResponse(
+                    page,
+                    "/api/waters/org/",
+                );
+                expect(response).toBe(200);
             });
 
             test("has correct title", async ({ page }) => {
@@ -76,7 +80,8 @@ test.describe("Daily Data page", () => {
 
         test.beforeEach(async ({ page }) => {
             await dailyData.goto(page);
-            await waitForAPIResponse(page, "/api/waters/org/");
+            const response = await waitForAPIResponse(page, "/api/waters/org/");
+            expect(response).toBe(200);
         });
 
         test("has correct title", async ({ page }) => {
@@ -111,7 +116,8 @@ test.describe("Daily Data page", () => {
 
         test.beforeEach(async ({ page }) => {
             await dailyData.goto(page);
-            await waitForAPIResponse(page, "/api/waters/org/");
+            const response = await waitForAPIResponse(page, "/api/waters/org/");
+            expect(response).toBe(200);
         });
 
         test("has correct title", async ({ page }) => {
