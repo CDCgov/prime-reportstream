@@ -14190,7 +14190,6 @@ __metadata:
     vite: ^5.1.6
     vite-plugin-checker: ^0.6.4
     vite-plugin-svgr: ^4.2.0
-    vite-plugin-turbosnap: ^1.0.3
     web-vitals: ^3.4.0
   languageName: unknown
   linkType: soft
@@ -16921,13 +16920,6 @@ __metadata:
   peerDependencies:
     vite: ^2.6.0 || 3 || 4 || 5
   checksum: 8202c0b25c7aa547825c2a73c7ea3702bd13dadb12634a8c2ea4e4c701164d8718632a391deff5fdc53877a09ec3668843b521a3e7ca8083e040e5e4f7e53ecb
-  languageName: node
-  linkType: hard
-
-"vite-plugin-turbosnap@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "vite-plugin-turbosnap@npm:1.0.3"
-  checksum: a66d09ecafef293e78a2bfceed133c3436556f8407c55be2796b5ed6ff6f80a85e1961e67382aa4e3a971f03fa33d7ee318706acc5a6c289bb7ce6a1a49293bc
   languageName: node
   linkType: hard
 

@@ -1,6 +1,5 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import remarkToc from "remark-mdx-toc";
-import turbosnap from "vite-plugin-turbosnap";
 
 const config: StorybookConfig = {
     stories: [
@@ -35,14 +34,6 @@ const config: StorybookConfig = {
         config.plugins = config.plugins?.filter(
             (x: any, i) => x.name !== "@mdx-js/rollup",
         );
-
-        if (configType === "PRODUCTION") {
-            config.plugins?.push(
-                turbosnap({
-                    rootDir: config.root ?? process.cwd(),
-                }),
-            );
-        }
 
         return {
             ...config,
