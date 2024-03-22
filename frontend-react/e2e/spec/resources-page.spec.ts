@@ -8,7 +8,8 @@ test.describe.skip("Developer Resources page", () => {
     });
 
     test("should have correct title", async ({ page }) => {
-        await resources.onLoad(page);
+        await expect(page).toHaveURL(/developer-resources/);
+        await expect(page).toHaveTitle(/Developer resources/);
     });
 
     // TODO: Fix

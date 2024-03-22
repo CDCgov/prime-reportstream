@@ -162,10 +162,6 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header"
 
 # SFT
-- id: "software-binary-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id"
-- id: "source-software-description"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-description"
 - id: "software-install-date"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date"
 - id: "software-vendor-org"

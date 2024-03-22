@@ -248,7 +248,7 @@ class SubmissionFunctionTests : Logging {
         val mockDatabaseAccess = mockkClass(HistoryDatabaseAccess::class)
 
         every {
-            mockDatabaseAccess.fetchActions<SubmissionHistory>(
+            mockDatabaseAccess.fetchActionsForSubmissions<SubmissionHistory>(
                 any(),
                 any(),
                 any(),
