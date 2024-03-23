@@ -4,6 +4,7 @@ resource "azurerm_public_ip" "nat_gateway_ip" {
   resource_group_name = var.resource_group
   allocation_method   = "Static"
   sku                 = "Standard"
+  zones               = ["1", "2", "3"]
 
   lifecycle {
     prevent_destroy = false
