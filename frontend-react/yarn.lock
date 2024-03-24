@@ -4848,10 +4848,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mdx@npm:^2.0.0, @types/mdx@npm:^2.0.11":
+"@types/mdx@npm:^2.0.0":
   version: 2.0.11
   resolution: "@types/mdx@npm:2.0.11"
   checksum: 4199e8d58f0a40be908fe8148959a4e9779f94339f83327495dd5a6609fc82cd5f6ff7391bf6077d7d2ca73cedec3557a51cac5044f0d6f2ae37e40019813dfe
+  languageName: node
+  linkType: hard
+
+"@types/mdx@npm:^2.0.12":
+  version: 2.0.12
+  resolution: "@types/mdx@npm:2.0.12"
+  checksum: 4626ba6886e33942d2380c3c5044945d94e41a8ff0893663bcf383ce3f29be381c4a72c6bc3088aa58ca3f99afa792700bf568be63111b05587f6e4c70f8a4b8
   languageName: node
   linkType: hard
 
@@ -14100,7 +14107,7 @@ __metadata:
     "@types/html-to-text": ^9.0.4
     "@types/jest": ^29.5.12
     "@types/lodash": ^4.17.0
-    "@types/mdx": ^2.0.11
+    "@types/mdx": ^2.0.12
     "@types/node": ^18.18.7
     "@types/react": 18.2.55
     "@types/react-dom": ^18.2.22
