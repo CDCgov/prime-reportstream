@@ -37,7 +37,6 @@ import ca.uhn.hl7v2.model.DataTypeException;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.model.primitive.NULLDT;
-import ca.uhn.hl7v2.model.v251.datatype.ST;
 import ca.uhn.hl7v2.model.v251.datatype.*;
 
 /**
@@ -75,7 +74,7 @@ public class XPN_ELR extends AbstractComposite {
 
   private void init() {
     data = new Type[14];
-    data[0] = new FN_ELR(getMessage());
+    data[0] = new FN(getMessage());
     data[1] = new ST(getMessage());
     data[2] = new ST(getMessage());
     data[3] = new ST(getMessage());
@@ -119,8 +118,8 @@ public class XPN_ELR extends AbstractComposite {
    * Returns Family Name (component 1).  This is a convenience method that saves you from
    * casting and handling an exception.
    */
-  public FN_ELR getFamilyName() {
-    return getTyped(0, FN_ELR.class);
+  public FN getFamilyName() {
+    return getTyped(0, FN.class);
   }
 
 
@@ -128,8 +127,8 @@ public class XPN_ELR extends AbstractComposite {
    * Returns Family Name (component 1).  This is a convenience method that saves you from
    * casting and handling an exception.
    */
-  public FN_ELR getXpn1_FamilyName() {
-    return getTyped(0, FN_ELR.class);
+  public FN getXpn1_FamilyName() {
+    return getTyped(0, FN.class);
   }
 
 
