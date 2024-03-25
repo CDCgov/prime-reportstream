@@ -411,6 +411,11 @@ function usePagination<T>({
             if (!requestConfig) {
                 return;
             }
+            // Search terms can either be fileName string or a UUID,
+            // and we need to know since we have to query the API by
+            // that specific query param. All reportId(s) are UUIDs, so
+            // if the searchTerm is a UUID, assume reportId, otherwise
+            // assume fileName
             const searchParam = searchTerm
                 ? uuidValidate(searchTerm)
                     ? { reportId: searchTerm }
