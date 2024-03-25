@@ -10,6 +10,7 @@ interface TableFilterSearchProps {
     filterReset: number;
     resetHandler: (e: FormEvent<Element>) => void;
     searchReset: number;
+    setCurrentServiceSelect: React.Dispatch<React.SetStateAction<string>>;
     setFilterReset: React.Dispatch<React.SetStateAction<number>>;
     setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -18,11 +19,13 @@ function TableFilterSearch({
     filterReset,
     resetHandler,
     searchReset,
+    setCurrentServiceSelect,
     setFilterReset,
     setSearchTerm,
 }: TableFilterSearchProps) {
     const submitHandler = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setCurrentServiceSelect("");
         setFilterReset(filterReset + 1);
         const searchField = e.currentTarget.elements.namedItem(
             "search",
@@ -47,7 +50,7 @@ function TableFilterSearch({
                 <Search
                     key={searchReset}
                     onSubmit={submitHandler}
-                    className="margin-right-205"
+                    className="margin-right-205 height-5"
                 />
                 <Button
                     onClick={resetHandler}

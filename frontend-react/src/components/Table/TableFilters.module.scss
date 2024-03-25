@@ -3,8 +3,6 @@
 $column-gutter: 2rem;
 
 .TableFilters {
-    
-
     :global {
         .filter-container {
             padding: 2rem;
@@ -71,8 +69,16 @@ $column-gutter: 2rem;
             }
         }
 
-        .file-search-container #search-field {
-          width: 600px;
+        .file-search-container {
+            // Overrides for search field
+            & .usa-button {
+                height: 40px;
+            }
+
+            & #search-field {
+                height: 40px;
+                width: 600px;
+            }
         }
     }
 }

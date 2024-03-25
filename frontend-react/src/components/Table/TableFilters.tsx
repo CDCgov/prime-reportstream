@@ -308,6 +308,7 @@ function TableFilters({
                 searchReset={searchReset}
                 setFilterReset={setFilterReset}
                 setSearchTerm={setSearchTerm}
+                setCurrentServiceSelect={setCurrentServiceSelect}
             />
 
             <section
@@ -353,6 +354,9 @@ function TableFilters({
                                 }}
                                 defaultValue={currentServiceSelect}
                             >
+                                <option disabled key={""} value={""}>
+                                    {""}
+                                </option>
                                 {receivers?.map((receiver) => (
                                     <option
                                         key={receiver.value}
