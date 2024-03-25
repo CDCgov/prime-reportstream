@@ -605,11 +605,18 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         txn: DataAccessTransaction? = null,
     ): ReportFile? {
         val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.select(REPORT_FILE.asterisk())
+        return ctx.select(REPORT_FILE.REPORT_ID, REPORT_FILE.ACTION_ID, REPORT_FILE.NEXT_ACTION,
+            REPORT_FILE.NEXT_ACTION_AT, ACTION.SENDING_ORG, ACTION.SENDING_ORG_CLIENT,
+            REPORT_FILE.RECEIVING_ORG, REPORT_FILE.RECEIVING_ORG_SVC, REPORT_FILE.TRANSPORT_PARAMS,
+            REPORT_FILE.TRANSPORT_RESULT, REPORT_FILE.SCHEMA_NAME, REPORT_FILE.SCHEMA_TOPIC,
+            REPORT_FILE.BODY_URL, REPORT_FILE.EXTERNAL_NAME, REPORT_FILE.BODY_FORMAT,
+            REPORT_FILE.BLOB_DIGEST, REPORT_FILE.ITEM_COUNT, REPORT_FILE.WIPED_AT,
+            REPORT_FILE.CREATED_AT, REPORT_FILE.DOWNLOADED_BY, REPORT_FILE.ITEM_COUNT_BEFORE_QUAL_FILTER)
             .from(REPORT_FILE)
             .join(ACTION)
             .on(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
-            .where(REPORT_FILE.ACTION_ID.eq(actionId))
+            .where(ACTION.ACTION_ID.eq(actionId))
+            .and(REPORT_FILE.RECEIVING_ORG.isNotNull())
             .fetchOne()
             ?.into(ReportFile::class.java)
     }
