@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
@@ -41,8 +42,12 @@ class DatabaseDeliveryAccess(
         organization: String,
         orgService: String?,
     ): Condition {
-        var filter = ACTION.ACTION_NAME.eq(TaskAction.batch)
-            .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
+        var filter = (
+            ACTION.ACTION_NAME.eq(TaskAction.batch)
+            .or(ACTION.ACTION_NAME.eq(TaskAction.send).and(REPORT_FILE.SCHEMA_TOPIC.eq(Topic.ELR_ELIMS)))
+            )
+
+        filter = filter.and(REPORT_FILE.RECEIVING_ORG.eq(organization))
 
         if (orgService != null) {
             filter = filter.and(REPORT_FILE.RECEIVING_ORG_SVC.eq(orgService))
