@@ -36,10 +36,6 @@ source:
       valueOf: segments/MSH/datatypes/HD/Source
       expressionType: resource
       specs: MSH.24
-    - condition: $msh24 NULL && $msh3 NULL
-      valueOf: segments/MSH/segments/SFT/Source
-      expressionType: resource
-      specs: SFT
 
 
 sender:

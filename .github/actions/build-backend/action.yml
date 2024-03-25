@@ -68,7 +68,7 @@ runs:
       run: tar -czvf prime-router-build.tar.gz build
 
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action/linux@b25bb152254577182a8cc192fe0c5147554a1171
+      uses: EnricoMi/publish-unit-test-result-action/linux@30eadd5010312f995f0d3b3cff7fe2984f69409e
       if: >
         always() &&
         github.event.sender.login != 'dependabot[bot]' &&
@@ -120,7 +120,7 @@ runs:
       shell: bash
 
     - name: Publish Integration Test Results
-      uses: EnricoMi/publish-unit-test-result-action/linux@b25bb152254577182a8cc192fe0c5147554a1171
+      uses: EnricoMi/publish-unit-test-result-action/linux@30eadd5010312f995f0d3b3cff7fe2984f69409e
       if: >
         always() &&
         github.event.sender.login != 'dependabot[bot]' &&
