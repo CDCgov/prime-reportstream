@@ -6627,9 +6627,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^11.1.0":
-  version: 11.1.0
-  resolution: "chromatic@npm:11.1.0"
+"chromatic@npm:^11.2.0":
+  version: 11.2.0
+  resolution: "chromatic@npm:11.2.0"
   peerDependencies:
     "@chromatic-com/cypress": ^0.*.* || ^1.0.0
     "@chromatic-com/playwright": ^0.*.* || ^1.0.0
@@ -6642,7 +6642,7 @@ __metadata:
     chroma: dist/bin.js
     chromatic: dist/bin.js
     chromatic-cli: dist/bin.js
-  checksum: 1fbc1090879b5c5d4b055a7d423d2dfb1fe4beaed45a9b65e1368baa276ece50fcef094fb45039a32d0df6bd436cc4d998906b3534dada05e6ca814a59ad7af5
+  checksum: 3747fbc8c297e75c59dda0226282cff052bcb91f9874676b7e468e94643f956fc4b437450ecfb1812176d3c483b51ceb47d88249fd1f7c09cfb21cd76065716d
   languageName: node
   linkType: hard
 
@@ -8244,9 +8244,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest-dom@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "eslint-plugin-jest-dom@npm:5.1.0"
+"eslint-plugin-jest-dom@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "eslint-plugin-jest-dom@npm:5.2.0"
   dependencies:
     "@babel/runtime": ^7.16.3
     requireindex: ^1.2.0
@@ -8256,7 +8256,7 @@ __metadata:
   peerDependenciesMeta:
     "@testing-library/dom":
       optional: true
-  checksum: bd190a5501b9f5bb6ac9057fbee124d54d3854f992e13a7415aba5d34ecedd0c7362263d6b8e956549d76c40008b70232da84476200b5762c4162021e3af052c
+  checksum: 1a0c785b1145e492c072edec93be3dbcbe2f4610bb7f76a70fd50aff25ff65deab3e7a063ca1d48723508feef6c29daef58ebd5fad9a4648425def7795c3d3a3
   languageName: node
   linkType: hard
 
@@ -8304,9 +8304,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-playwright@npm:^1.5.2":
-  version: 1.5.2
-  resolution: "eslint-plugin-playwright@npm:1.5.2"
+"eslint-plugin-playwright@npm:^1.5.4":
+  version: 1.5.4
+  resolution: "eslint-plugin-playwright@npm:1.5.4"
   dependencies:
     globals: ^13.23.0
   peerDependencies:
@@ -8315,7 +8315,7 @@ __metadata:
   peerDependenciesMeta:
     eslint-plugin-jest:
       optional: true
-  checksum: 802ffeffd2fc4a05bc2a0bc759ba7c1111b686812436d355b327a044a17c0c3de9fccfbc5deabad906ec00f82039670cb75a4027b6cc64008283aa8c66b3604b
+  checksum: 19de3f20358c28d0dbbc71c30a18f1dc4a333a1fa93e5b19ea693a992b124dfd079dc4bfad51fb58495436f32b4e3f5c8aaba8322b3d502b68012f34e381bc38
   languageName: node
   linkType: hard
 
@@ -12648,9 +12648,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"msw@npm:^2.2.8":
-  version: 2.2.8
-  resolution: "msw@npm:2.2.8"
+"msw@npm:^2.2.10":
+  version: 2.2.10
+  resolution: "msw@npm:2.2.10"
   dependencies:
     "@bundled-es-modules/cookie": ^2.0.0
     "@bundled-es-modules/statuses": ^1.0.1
@@ -12676,7 +12676,7 @@ __metadata:
       optional: true
   bin:
     msw: cli/index.js
-  checksum: 5ad881ce98622f5ce905692836b46aeef3d93336bbd605e177fff9b3c668b685c73c54fb9f51b35a0940f6c9b39e1095851d8e9da9ba38136adf8c5c269d869e
+  checksum: edb7335acb9d856c0af7e53a808bd585377f88bbc1f81d2dd01ef15db67b4bf3e8a96e1dc90c76d626551d86e05a0d465b9c8126a0d39af9df8894b80ea30fc0
   languageName: node
   linkType: hard
 
@@ -14062,7 +14062,7 @@ __metadata:
     browserslist: ^4.23.0
     browserslist-useragent-regexp: ^4.1.1
     camelcase: ^6.3.0
-    chromatic: ^11.1.0
+    chromatic: ^11.2.0
     classnames: ^2.5.1
     cross-env: ^7.0.3
     date-fns: ^3.6.0
@@ -14075,9 +14075,9 @@ __metadata:
     eslint-import-resolver-typescript: ^3.6.1
     eslint-plugin-import: ^2.29.1
     eslint-plugin-jest: ^27.9.0
-    eslint-plugin-jest-dom: ^5.1.0
+    eslint-plugin-jest-dom: ^5.2.0
     eslint-plugin-jsx-a11y: ^6.8.0
-    eslint-plugin-playwright: ^1.5.2
+    eslint-plugin-playwright: ^1.5.4
     eslint-plugin-react: ^7.34.1
     eslint-plugin-react-hooks: ^4.6.0
     eslint-plugin-react-refresh: ^0.4.6
@@ -14096,7 +14096,7 @@ __metadata:
     lint-staged: ^15.2.2
     lodash: ^4.17.21
     mockdate: ^3.0.5
-    msw: ^2.2.8
+    msw: ^2.2.10
     msw-storybook-addon: ^1.10.0
     npm-run-all: ^4.1.5
     otpauth: ^9.2.2
