@@ -2,7 +2,6 @@ import { expect, test } from "@playwright/test";
 
 import { selectTestOrg, TEST_ORG_IGNORE } from "../helpers/utils";
 import * as submissionHistory from "../pages/submission-history";
-import * as submissions from "../pages/submission-history";
 import { openReportIdDetailPage } from "../pages/submission-history";
 
 test.describe("Submission history page", () => {
@@ -35,11 +34,11 @@ test.describe("Submission history page", () => {
         test.describe("with org selected", () => {
             test.beforeEach(async ({ page }) => {
                 await selectTestOrg(page);
-                await submissions.mockGetSubmissionsResponse(
+                await submissionHistory.mockGetSubmissionsResponse(
                     page,
                     TEST_ORG_IGNORE,
                 );
-                await submissions.mockGetReportHistoryResponse(page);
+                await submissionHistory.mockGetReportHistoryResponse(page);
                 // abort all app insight calls
                 await page.route("**/v2/track", (route) => route.abort());
                 await submissionHistory.goto(page);
@@ -177,8 +176,11 @@ test.describe("Submission history page", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
-            await submissions.mockGetSubmissionsResponse(page, TEST_ORG_IGNORE);
-            await submissions.mockGetReportHistoryResponse(page);
+            await submissionHistory.mockGetSubmissionsResponse(
+                page,
+                TEST_ORG_IGNORE,
+            );
+            await submissionHistory.mockGetReportHistoryResponse(page);
             await submissionHistory.goto(page);
         });
 
