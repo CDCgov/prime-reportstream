@@ -78,8 +78,7 @@
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        - "%resource.where(code.coding.code in ('85478-6' | '85477-8' | '94500-6')).exists()\
-      \ and %resource.where(value.coding.code in ('260373001')).exists()"
+        - "(%resource.interpretation.coding.code = 'A' and %resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('6142004' | '541131000124102' | '840539006')))"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
