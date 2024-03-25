@@ -1,0 +1,5 @@
+elements:
+
+  - name: string
+    value: [ '%resource' ]
+    hl7Spec: [ '%{stField}' ]

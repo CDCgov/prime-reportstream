@@ -229,11 +229,13 @@ abstract class HistoryDatabaseAccess(
     ): Condition {
         var filter = this.organizationFilter(organization, orgService)
 
-        var statusList = receivingOrgSvcStatus?.map { it.name.lowercase() }
-        filter = filter.and(
+        if (receivingOrgSvcStatus != null) {
+            var statusList = receivingOrgSvcStatus.map { it.name.lowercase() }
+            filter = filter.and(
                 DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
                     .`in`(statusList)
             )
+        }
 
         if (reportId != null) {
             filter = filter.and(REPORT_FILE.REPORT_ID.eq(reportId))
