@@ -7601,10 +7601,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.0.10":
-  version: 3.0.10
-  resolution: "dompurify@npm:3.0.10"
-  checksum: d43bc2e454e17c86bd95c476462eaa7424014cb8851e901af25596b57ae6475d801f1c1ab39d0c4bf6f572fb236076d29a09043eb0d459535d30938de57851f9
+"dompurify@npm:^3.0.11":
+  version: 3.0.11
+  resolution: "dompurify@npm:3.0.11"
+  checksum: aefb86fbaa2cc6acda1a75ea918f69043689cb726f2932e5c1c3c85904255fd145230d66f0a9493ed27d64d035e990f3a767d99d73b1ae7c0b297782be230658
   languageName: node
   linkType: hard
 
@@ -14067,7 +14067,7 @@ __metadata:
     cross-env: ^7.0.3
     date-fns: ^3.6.0
     date-fns-tz: ^2.0.0
-    dompurify: ^3.0.10
+    dompurify: ^3.0.11
     dotenv-flow: ^4.1.0
     downloadjs: ^1.4.7
     eslint: ^8.57.0
@@ -14129,7 +14129,7 @@ __metadata:
     ts-node: ^10.9.2
     tslib: ^2.6.2
     typescript: ^5.4.2
-    undici: ^6.9.0
+    undici: ^6.10.1
     use-deep-compare-effect: ^1.8.1
     vite: ^5.2.6
     vite-plugin-checker: ^0.6.4
