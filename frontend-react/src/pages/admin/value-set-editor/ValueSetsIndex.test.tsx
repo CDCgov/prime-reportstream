@@ -99,7 +99,7 @@ describe("ValueSetsIndex tests", () => {
                     data: fakeMeta,
                 }) as UseValueSetsMetaResult,
         );
-        mockUseValueSetsTable = vi.fn(() => {
+        mockUseValueSetsTable = vi.fn<any, any>(() => {
             throw new RSNetworkError(
                 new AxiosError("Test", "404", undefined, {}, {
                     status: 404,

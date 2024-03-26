@@ -19,6 +19,6 @@
         "noImplicitAny": true,
         "inlineSourceMap": true
     },
-    "include": ["./src", "./e2e"],
+    "include": ["./src", "./e2e", "./__mocks__"],
     "references": [{ "path": "./tsconfig.node.json" }]
 }

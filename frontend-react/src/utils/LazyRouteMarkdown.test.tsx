@@ -6,10 +6,10 @@ import * as md from "./__mocks__/markdown-example.mdx";
 import { lazyRouteMarkdown } from "./LazyRouteMarkdown";
 import { AppConfig } from "../config";
 
-jest.mock("../contexts/Session/index", () => {
+vi.mock("../contexts/Session/index", () => {
     return {
         __esModule: true,
-        useSessionContext: jest.fn().mockReturnValue({
+        useSessionContext: vi.fn().mockReturnValue({
             config: {
                 PAGE_META: {
                     defaults: {
@@ -23,6 +23,14 @@ jest.mock("../contexts/Session/index", () => {
                 },
             },
         }),
+    };
+});
+
+vi.mock("react-helmet-async", () => {
+    return {
+        Helmet: ({ children }: any) => {
+            return children;
+        },
     };
 });
 

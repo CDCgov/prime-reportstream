@@ -152,7 +152,13 @@ export default defineConfig(async ({ mode }) => {
                 all: false,
                 reporter: ["clover", "json", "lcov", "text"],
             },
-            clearMocks: true, // TODO: re-evalulate this setting
+            clearMocks: true, // TODO: re-evalulate this setting,
+            server: {
+                deps: {
+                    // Allows for mocking peer dependencies these libraries import
+                    inline: ["@trussworks/react-uswds"],
+                },
+            },
         },
         resolve: {
             alias: {
