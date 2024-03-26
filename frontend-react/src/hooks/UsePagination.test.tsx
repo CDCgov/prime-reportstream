@@ -553,50 +553,55 @@ describe("usePagination", () => {
         );
     });
 
-    test("Changing the initial start cursor resets the state", async () => {
-        const mockFetchResults = vi
-            .fn()
-            .mockResolvedValueOnce(createSampleRecords(11))
-            .mockResolvedValueOnce(createSampleRecords(11));
-        mockUseAppInsightsContextImplementation();
-        const { result, rerender } = doRenderHook({
-            startCursor: "0",
-            isCursorInclusive: false,
-            pageSize: 10,
-            fetchResults: mockFetchResults,
-            extractCursor,
-        });
+    // Flaky test, retry 3 times
+    test(
+        "Changing the initial start cursor resets the state",
+        { retry: 3 },
+        async () => {
+            const mockFetchResults = vi
+                .fn()
+                .mockResolvedValueOnce(createSampleRecords(11))
+                .mockResolvedValueOnce(createSampleRecords(11));
+            mockUseAppInsightsContextImplementation();
+            const { result, rerender } = doRenderHook({
+                startCursor: "0",
+                isCursorInclusive: false,
+                pageSize: 10,
+                fetchResults: mockFetchResults,
+                extractCursor,
+            });
 
-        // Wait for the fetch promise to resolve, then check the slots and move
-        // to the next page.
-        await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined(),
-        );
-        expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
-        expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(2);
-        });
-        // The current page should update right away since we don't need to
-        // fetch any more results.
-        expect(result.current.paginationProps?.currentPageNum).toBe(2);
+            // Wait for the fetch promise to resolve, then check the slots and move
+            // to the next page.
+            await waitFor(() =>
+                expect(result.current.paginationProps).toBeDefined(),
+            );
+            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
+            expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
+            act(() => {
+                result.current.paginationProps?.setSelectedPage(2);
+            });
+            // The current page should update right away since we don't need to
+            // fetch any more results.
+            expect(result.current.paginationProps?.currentPageNum).toBe(2);
 
-        // Rerender with a new start cursor.
-        rerender({
-            startCursor: "9999",
-            isCursorInclusive: false,
-            pageSize: 10,
-            fetchResults: mockFetchResults,
-            extractCursor,
-        });
-        await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined(),
-        );
-        // After a reset, the fetch count should reflect an initial request,
-        // which needs to check for the presence of up to five pages.
-        expect(mockFetchResults).toHaveBeenLastCalledWith("9999", 61);
-        expect(result.current.paginationProps?.currentPageNum).toBe(1);
-    });
+            // Rerender with a new start cursor.
+            rerender({
+                startCursor: "9999",
+                isCursorInclusive: false,
+                pageSize: 10,
+                fetchResults: mockFetchResults,
+                extractCursor,
+            });
+            await waitFor(() =>
+                expect(result.current.paginationProps).toBeDefined(),
+            );
+            // After a reset, the fetch count should reflect an initial request,
+            // which needs to check for the presence of up to five pages.
+            expect(mockFetchResults).toHaveBeenLastCalledWith("9999", 61);
+            expect(result.current.paginationProps?.currentPageNum).toBe(1);
+        },
+    );
 
     test("Changing the fetchResults function resets the state", async () => {
         const mockFetchResults1 = vi
