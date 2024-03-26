@@ -254,4 +254,4 @@ elements:
     schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
     resourceIndex: noteIndex
     constants:
-      hl7NotePath: '%{hl7ObservationPath}'
+      hl7NotePath: '%{hl7SegmentGroup}'

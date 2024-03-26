@@ -10,7 +10,7 @@ import { FacilityResource } from "../../../config/endpoints/dataDashboard";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
-import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
@@ -61,14 +61,13 @@ describe("useOrganizationReceiversFeed", () => {
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
 
-    describe("useOrganizationReceiversFeed without data", () => {
+    describe("useOrganizationReceivers without data", () => {
         function setup() {
             // Mock our receiverServices feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
-                activeService: undefined,
+            mockUseOrganizationReceivers.mockReturnValue({
+                allReceivers: [],
+                activeReceivers: [],
                 isLoading: false,
-                data: [],
-                setActiveService: () => void 0,
                 isDisabled: false,
             } as any);
 
@@ -116,12 +115,10 @@ describe("useOrganizationReceiversFeed", () => {
 describe("FacilitiesProvidersTable", () => {
     describe("with receiver services and data", () => {
         function setup() {
-            mockUseOrganizationReceiversFeed.mockReturnValue({
-                activeService: mockActiveReceiver,
+            mockUseOrganizationReceivers.mockReturnValue({
+                allReceivers: [mockActiveReceiver],
+                activeReceivers: [mockActiveReceiver],
                 isLoading: false,
-                data: mockReceivers,
-                setActiveService: () => void 0,
-                isDisabled: false,
             } as any);
 
             // Mock our SessionProvider's data

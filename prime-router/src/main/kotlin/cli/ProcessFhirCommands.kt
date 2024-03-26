@@ -19,7 +19,9 @@ import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
@@ -89,13 +91,12 @@ class ProcessFhirCommands : CliktCommand(
      */
     private val receiverSchema by option(
         "-r", "--receiver-schema", help = "Receiver schema location. Required for HL7 output."
-    ).file()
+    )
 
     /**
      * Sender schema location
      */
     private val senderSchema by option("-s", "--sender-schema", help = "Sender schema location")
-        .file()
 
     private val hl7DiffHelper = HL7DiffHelper()
 
@@ -156,15 +157,11 @@ class ProcessFhirCommands : CliktCommand(
                 // for that from a receiver schema.
                 throw CliktError(" You must specify a receiver schema using --receiver-schema.")
 
-            !receiverSchema!!.canRead() ->
-                throw CliktError("Unable to read schema file ${receiverSchema!!.absolutePath}.")
-
             else -> {
                 val bundle = applySenderTransforms(fhirMessage)
                 FhirToHl7Converter(
-                    receiverSchema!!.name,
-                    // TODO: #10510
-                    "",
+                    receiverSchema!!,
+                    BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().blobEnvVar),
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
                         config = HL7TranslationConfig(
@@ -178,9 +175,9 @@ class ProcessFhirCommands : CliktCommand(
                             ),
                             null
                         ),
-                        translationFunctions = CustomTranslationFunctions()
+                        translationFunctions = CustomTranslationFunctions(),
                     )
-                ).convert(bundle)
+                ).process(bundle)
             }
         }
     }
@@ -234,7 +231,12 @@ class ProcessFhirCommands : CliktCommand(
             val msh = message.get("MSH") as Segment
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
         }
-        return Pair(HL7toFhirTranslator.getInstance().translate(message), message)
+        val hl7profile = HL7Reader.getMessageProfile(message.toString())
+        // search hl7 profile map and create translator with config path if found
+        return when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
+            null -> Pair(HL7toFhirTranslator().translate(message), message)
+            else -> Pair(HL7toFhirTranslator(configPath).translate(message), message)
+        }
     }
 
     /**
@@ -244,12 +246,7 @@ class ProcessFhirCommands : CliktCommand(
     private fun applySenderTransforms(bundle: Bundle): Bundle {
         return when {
             senderSchema != null -> {
-                if (!senderSchema!!.canRead()) {
-                    throw CliktError("Unable to read schema file ${senderSchema!!.absolutePath}.")
-                } else {
-                    // TODO: #10510
-                    FhirTransformer(senderSchema!!.toURI().toString(), "").transform(bundle)
-                }
+                FhirTransformer(senderSchema!!).process(bundle)
             }
             else -> bundle
         }
@@ -265,15 +262,9 @@ class ProcessFhirCommands : CliktCommand(
 
         return when {
             receiverSchema != null -> {
-                if (!receiverSchema!!.canRead()) {
-                    throw CliktError("Unable to read schema file ${receiverSchema!!.absolutePath}.")
-                } else {
-                    // TODO: #10510
-                    FhirTransformer(
-                        receiverSchema!!.toURI().toString(),
-                        ""
-                    ).transform(enrichedBundle)
-                }
+                FhirTransformer(
+                    receiverSchema!!
+                ).process(enrichedBundle)
             }
             else -> enrichedBundle
         }
@@ -285,9 +276,7 @@ class ProcessFhirCommands : CliktCommand(
     private fun applyEnrichmentSchemas(bundle: Bundle): Bundle {
         if (!enrichmentSchemaNames.isNullOrEmpty()) {
             enrichmentSchemaNames!!.split(",").forEach { currentEnrichmentSchemaName ->
-                val fileNamePieces = currentEnrichmentSchemaName.split(".")
-                // TODO: #10510
-                FhirTransformer(fileNamePieces.first(), "").transform(bundle)
+                FhirTransformer(currentEnrichmentSchemaName).process(bundle)
             }
         }
         return bundle

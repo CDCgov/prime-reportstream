@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import { userEvent } from "@testing-library/user-event";
+import userEvent from "@testing-library/user-event";
 
 import DataDashboardTable from "./DataDashboardTable";
 import {
@@ -14,9 +14,10 @@ import {
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverDeliveries";
-import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
+import { selectDatesFromRange } from "../../../utils/TestUtils";
 
 const mockReceiverServices = receiverServicesGenerator(5);
 const mockActiveReceiver = mockReceiverServices[0];
@@ -52,15 +53,15 @@ describe("DataDashboardTable", () => {
     afterEach(() => dataDashboardServer.resetHandlers());
     afterAll(() => dataDashboardServer.close());
 
-    describe("useOrganizationReceiversFeed without data", () => {
+    describe("useOrganizationReceivers without data", () => {
         function setup() {
             mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
-                activeService: undefined,
+            mockUseOrganizationReceivers.mockReturnValue({
+                allReceivers: [],
+                activeReceivers: [],
                 isLoading: false,
-                data: [],
-                setActiveService: () => void 0,
+                isDisabled: false,
             } as any);
 
             // Mock our SessionProvider's data
@@ -109,11 +110,22 @@ describe("DataDashboardTableWithPagination", () => {
         describe("with multiple receiver services and data", () => {
             function setup() {
                 mockAppInsightsContextReturnValue();
-                mockUseOrganizationReceiversFeed.mockReturnValue({
-                    activeService: mockActiveReceiver,
+                mockUseOrganizationReceivers.mockReturnValue({
+                    allReceivers: [
+                        mockActiveReceiver,
+                        mockActiveReceiver,
+                        mockActiveReceiver,
+                        mockActiveReceiver,
+                        mockActiveReceiver,
+                    ],
+                    activeReceivers: [
+                        mockActiveReceiver,
+                        mockActiveReceiver,
+                        mockActiveReceiver,
+                        mockActiveReceiver,
+                        mockActiveReceiver,
+                    ],
                     isLoading: false,
-                    data: mockReceiverServices,
-                    setActiveService: () => void 0,
                 } as any);
 
                 const mockUseReceiverDeliveriesCallback = {
@@ -167,14 +179,15 @@ describe("DataDashboardTableWithPagination", () => {
             describe("TableFilter", () => {
                 test("Clicking on filter invokes the trackAppInsightEvent", async () => {
                     setup();
+                    await selectDatesFromRange("20", "23");
                     await userEvent.click(screen.getByText("Filter"));
 
                     expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
                         name: "Data Dashboard | Table Filter",
                         properties: {
                             tableFilter: {
-                                endRange: "3000-01-01T23:59:59.999Z",
-                                startRange: "2000-01-01T00:00:00.000Z",
+                                endRange: "3000-01-23T23:59:59.999Z",
+                                startRange: "2000-01-20T00:00:00.000Z",
                             },
                         },
                     });
@@ -185,10 +198,11 @@ describe("DataDashboardTableWithPagination", () => {
         describe("with one active receiver service", () => {
             function setup() {
                 mockAppInsightsContextReturnValue();
-                mockUseOrganizationReceiversFeed.mockReturnValue({
-                    activeService: mockActiveReceiver,
-                    data: receiverServicesGenerator(1),
-                    setActiveService: () => void 0,
+                mockUseOrganizationReceivers.mockReturnValue({
+                    allReceivers: [mockActiveReceiver],
+                    activeReceivers: [mockActiveReceiver],
+                    isLoading: false,
+                    isDisabled: false,
                 } as any);
 
                 const mockUseReceiverDeliveriesCallback = {
@@ -226,11 +240,11 @@ describe("DataDashboardTableWithPagination", () => {
             function setup() {
                 mockAppInsightsContextReturnValue();
                 // Mock our receiver services feed data
-                mockUseOrganizationReceiversFeed.mockReturnValue({
-                    activeService: undefined,
+                mockUseOrganizationReceivers.mockReturnValue({
+                    allReceivers: [],
+                    activeReceivers: [],
                     isLoading: false,
-                    data: [],
-                    setActiveService: () => void 0,
+                    isDisabled: false,
                 } as any);
 
                 // Mock our SessionProvider's data
@@ -278,12 +292,11 @@ describe("DataDashboardTableWithPagination", () => {
         function setup() {
             mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
-                activeService: undefined,
+            mockUseOrganizationReceivers.mockReturnValue({
+                allReceivers: [],
+                activeReceivers: [],
                 isLoading: false,
                 isDisabled: true,
-                data: [],
-                setActiveService: () => void 0,
             } as any);
 
             // Mock our SessionProvider's data

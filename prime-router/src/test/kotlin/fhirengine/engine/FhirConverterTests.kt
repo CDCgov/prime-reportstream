@@ -2,7 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
-import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -24,9 +24,11 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.ObservationMappingConstants
-import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.utils.CompareFhirData
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.LookupTable
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -155,7 +157,7 @@ class FhirConverterTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.transform(any()) } returnsArgument (0)
+        every { transformer.process(any()) } returnsArgument (0)
 
         // act
         accessSpy.transact { txn ->
@@ -166,7 +168,7 @@ class FhirConverterTests {
         verify(exactly = 1) {
             engine.getContentFromHL7(any(), any())
             actionHistory.trackExistingInputReport(any())
-            transformer.transform(any())
+            transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any(), any())
         }
@@ -209,7 +211,7 @@ class FhirConverterTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.transform(any()) } returnsArgument (0)
+        every { transformer.process(any()) } returnsArgument (0)
 
         // act
         accessSpy.transact { txn ->
@@ -220,7 +222,7 @@ class FhirConverterTests {
         verify(exactly = 1) {
             engine.getContentFromFHIR(any(), any())
             actionHistory.trackExistingInputReport(any())
-            transformer.transform(any())
+            transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any(), any())
         }
@@ -271,6 +273,44 @@ class FhirConverterTests {
     }
 
     @Test
+    fun `test getContentFromHL7 alternate profile`() {
+        val testProfile = HL7Reader.Companion.MessageProfile("ORU", "PHLabReport-NoAck")
+
+        val actionLogger = spyk(ActionLogger())
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val message = spyk(
+            FhirConvertQueueMessage(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR
+            )
+        )
+
+        every { message.downloadContent() }
+            .returns(validHl7)
+
+        val bundles = engine.getContentFromHL7(message, actionLogger)
+
+        mockkClass(HL7Reader::class)
+        mockkObject(HL7Reader.Companion)
+        every { HL7Reader.Companion.profileDirectoryMap[testProfile] } returns "./metadata/test_fhir_mapping"
+
+        val bundles2 = engine.getContentFromHL7(message, actionLogger)
+
+        // the test fhir mappings produce far fewer entries than the production ones
+        assertThat(bundles2).isNotEmpty()
+        val result = CompareData.Result()
+        CompareFhirData().compare(
+            FhirTranscoder.encode(bundles[0]).byteInputStream(),
+            FhirTranscoder.encode(bundles2[0]).byteInputStream(),
+            result
+        )
+        assertThat(result.passed).isFalse()
+    }
+
+    @Test
     fun `test getContentFromFHIR`() {
         val actionLogger = spyk(ActionLogger())
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
@@ -296,12 +336,16 @@ class FhirConverterTests {
     fun `test getTransformerFromSchema`() {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
 
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         assertThat(
             engine.getTransformerFromSchema("")
         ).isNull()
 
         assertThat(
-            engine.getTransformerFromSchema("fhir_sender_transforms/classpath_sample_schema")
+            engine.getTransformerFromSchema("classpath:/fhir_sender_transforms/classpath_sample_schema.yml")
         ).isNotNull()
     }
 
@@ -337,7 +381,7 @@ class FhirConverterTests {
             .returns(Unit) andThenThrows (RuntimeException())
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.transform(any()) } returnsArgument (0)
+        every { transformer.process(any()) } returnsArgument (0)
 
         // act
         assertThrows<RuntimeException> {
@@ -352,7 +396,7 @@ class FhirConverterTests {
             actionHistory.trackExistingInputReport(any())
         }
         verify(exactly = 2) {
-            transformer.transform(any())
+            transformer.process(any())
             BlobAccess.Companion.uploadBlob(any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
         }
@@ -424,7 +468,7 @@ class FhirConverterTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.transform(any()) } returnsArgument (0)
+        every { transformer.process(any()) } returnsArgument (0)
 
         // act
         accessSpy.transact { txn ->
@@ -448,7 +492,7 @@ class FhirConverterTests {
         verify(exactly = 1) {
             engine.getContentFromFHIR(any(), any())
             actionHistory.trackExistingInputReport(any())
-            transformer.transform(any())
+            transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), FhirTranscoder.encode(bundle).toByteArray(), any())
         }
@@ -511,7 +555,7 @@ class FhirConverterTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.transform(any()) } returnsArgument (0)
+        every { transformer.process(any()) } returnsArgument (0)
 
         // act
         accessSpy.transact { txn ->
@@ -522,7 +566,7 @@ class FhirConverterTests {
         verify(exactly = 1) {
             engine.getContentFromFHIR(any(), any())
             actionHistory.trackExistingInputReport(any())
-            transformer.transform(any())
+            transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), fhirData.toByteArray(), any())
             actionLogger.warn(
@@ -547,23 +591,5 @@ class FhirConverterTests {
                 }
             )
         }
-    }
-
-    // TODO: #10510
-    @Test
-    fun `test convertRelativeSchemaPathToUri`() {
-        assertThat(BaseEngine.convertRelativeSchemaPathToUri("")).isEqualTo("")
-        assertThat(
-            BaseEngine
-                .convertRelativeSchemaPathToUri("classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml")
-        ).isEqualTo(
-            "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
-        )
-        assertThat(
-            BaseEngine
-                .convertRelativeSchemaPathToUri("metadata/hl7_mapping/ORU_R01/ORU_R01-base")
-        ).isEqualTo(
-            "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
-        )
     }
 }

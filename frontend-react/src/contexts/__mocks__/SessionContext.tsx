@@ -1,4 +1,4 @@
-import { mockRsconsole } from "../../utils/console/__mocks__/console";
+import { mockRsconsole } from "../../utils/console/__mocks__/rsconsole";
 import * as SessionContextModule from "../Session";
 
 export const mockSessionContext = vi.spyOn(

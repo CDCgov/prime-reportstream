@@ -5,6 +5,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
@@ -12,6 +13,8 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhir
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkClass
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
@@ -26,6 +29,10 @@ import tech.tablesaw.api.Table
 class LookupTableValueSetTests {
     @Test
     fun `test read extended FHIR Transform from file`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
         val testTable = Table.create(
             "lookuptable",
             StringColumn.create("key", "abc123", "def456"),
@@ -40,15 +47,16 @@ class LookupTableValueSetTests {
 
         assertThat(
             fhirTransformSchemaFromFile(
-                "lookup_value_set",
-                "src/test/resources/fhir_sender_transforms",
+                "classpath:/fhir_sender_transforms/lookup_value_set.yml",
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             ).isValid()
         ).isTrue()
 
         assertFailure {
             fhirTransformSchemaFromFile(
-                "invalid_lookup_value_set",
-                "src/test/resources/fhir_sender_transforms",
+                "classpath:/fhir_sender_transforms/invalid_lookup_value_set.yml",
+
+                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
             )
         }
         unmockkAll()
@@ -102,7 +110,7 @@ class LookupTableValueSetTests {
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        FhirTransformer(schema).transform(bundle)
+        FhirTransformer(schema).process(bundle)
 
         assertThat(resource.name[0].text).isEqualTo("ghi789")
         assertThat(resource2.name[0].text).isEqualTo("")

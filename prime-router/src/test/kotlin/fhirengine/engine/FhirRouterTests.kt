@@ -8,7 +8,9 @@ import assertk.assertions.hasClass
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isFalse
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -37,6 +39,11 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.ConditionSummary
+import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
+import gov.cdc.prime.router.azure.observability.event.ObservationSummary
+import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -47,6 +54,7 @@ import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -157,6 +165,8 @@ class FhirRouterTests {
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
     private val actionHistory = ActionHistory(TaskAction.route)
+    private val azureEventService = InMemoryAzureEventService()
+    private val reportServiceMock = mockk<ReportService>()
 
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
@@ -366,8 +376,16 @@ class FhirRouterTests {
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
-        return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).build(TaskAction.route)
+        every { reportServiceMock.getSenderName(any()) } returns "sendingOrg.sendingOrgClient"
+
+        return FHIREngine.Builder()
+            .metadata(metadata)
+            .settingsProvider(settings)
+            .databaseAccess(accessSpy)
+            .blobAccess(blobMock)
+            .azureEventService(azureEventService)
+            .reportService(reportServiceMock)
+            .build(TaskAction.route)
     }
 
     /**
@@ -394,6 +412,7 @@ class FhirRouterTests {
         actionHistory.reportsIn.clear()
         actionHistory.reportsOut.clear()
         actionHistory.actionLogs.clear()
+        azureEventService.clear()
         clearAllMocks()
     }
 
@@ -1409,6 +1428,44 @@ class FhirRouterTests {
             assertThat(actionHistory.actionLogs).isEmpty()
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
+
+            val reportId = (messages.first() as ReportPipelineMessage).reportId
+            val expectedAzureEvents = listOf(
+                ReportAcceptedEvent(
+                    message.reportId,
+                    message.topic,
+                    "sendingOrg.sendingOrgClient",
+                    listOf(
+                        ObservationSummary(
+                            listOf(
+                                ConditionSummary("6142004", "Influenza (disorder)"),
+                                ConditionSummary("Some Condition Code", "Condition Name")
+                            )
+                        )
+                    ),
+                    1945
+                ),
+                ReportRouteEvent(
+                    message.reportId,
+                    reportId,
+                    message.topic,
+                    "sendingOrg.sendingOrgClient",
+                    orgWithMappedConditionFilter.receivers.first().fullName,
+                    listOf(
+                        ObservationSummary(
+                            listOf(
+                                ConditionSummary("6142004", "Influenza (disorder)"),
+                                ConditionSummary("Some Condition Code", "Condition Name")
+                            )
+                        )
+                    ),
+                    1945
+                )
+            )
+
+            val actualEvents = azureEventService.getEvents()
+            assertThat(actualEvents).hasSize(2)
+            assertThat(actualEvents).isEqualTo(expectedAzureEvents)
         }
 
         // assert
@@ -1519,6 +1576,55 @@ class FhirRouterTests {
             assertThat(messages).isEmpty()
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
+
+            val azureEvents = azureEventService.getEvents()
+            val expectedAcceptedEvent = ReportAcceptedEvent(
+                message.reportId,
+                message.topic,
+                "sendingOrg.sendingOrgClient",
+                listOf(
+                    ObservationSummary(
+                        ConditionSummary(
+                            "840539006",
+                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        )
+                    ),
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY
+                ),
+                36942
+            )
+            val expectedRoutedEvent = ReportRouteEvent(
+                message.reportId,
+                UUID.randomUUID(),
+                message.topic,
+                "sendingOrg.sendingOrgClient",
+                null,
+                listOf(
+                    ObservationSummary(
+                        ConditionSummary(
+                            "840539006",
+                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        )
+                    ),
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY
+                ),
+                36942
+            )
+            assertThat(azureEvents).hasSize(2)
+            assertThat(azureEvents.first())
+                .isEqualTo(expectedAcceptedEvent)
+            assertThat(azureEvents[1])
+                .isInstanceOf<ReportRouteEvent>()
+                .isEqualToIgnoringGivenProperties(
+                    expectedRoutedEvent,
+                    ReportRouteEvent::reportId // unable to access generated report ID since no message is generated
+                )
         }
 
         // assert

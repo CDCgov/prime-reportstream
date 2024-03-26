@@ -52,7 +52,7 @@ export const showToast = (
 
 export const useToast = () => useContext(ToastContext);
 
-export function ToastProvider({ children }: PropsWithChildren) {
+function ToastProvider({ children }: PropsWithChildren) {
     const { rsConsole } = useSessionContext();
     const fn = useCallback(
         (

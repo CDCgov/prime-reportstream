@@ -1,4 +1,5 @@
 import { SeverityLevel } from "@microsoft/applicationinsights-web";
+import type { IIdleTimerProps } from "react-idle-timer";
 
 import type { ConsoleLevel } from "../utils/console";
 
@@ -34,6 +35,26 @@ const config = {
         assert: SeverityLevel.Error,
         trace: SeverityLevel.Warning,
     } as Record<ConsoleLevel, SeverityLevel>,
+    IDLE_TIMERS: {
+        timeout: import.meta.env.VITE_IDLE_TIMEOUT ?? 1000 * 60 * 15, // 15 minutes
+        debounce: 500,
+        crossTab: true,
+        syncTimers: 200,
+        leaderElection: true,
+    } as IIdleTimerProps,
+    PAGE_META: {
+        defaults: {
+            title: import.meta.env.VITE_TITLE,
+            description: import.meta.env.VITE_DESCRIPTION,
+            openGraph: {
+                image: {
+                    src: import.meta.env.VITE_OPENGRAPH_DEFAULT_IMAGE_SRC,
+                    altText: import.meta.env
+                        .VITE_OPENGRAPH_DEFAULT_IMAGE_ALTTEXT,
+                },
+            },
+        },
+    },
 } as const;
 
 export type AppConfig = typeof config;

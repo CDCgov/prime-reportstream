@@ -74,9 +74,7 @@ export const featureFlagReducer = (
     }
 };
 
-export const FeatureFlagProvider = ({
-    children,
-}: PropsWithChildren<object>) => {
+const FeatureFlagProvider = ({ children }: PropsWithChildren<object>) => {
     // reducer manages per user feature flags only
     const [{ featureFlags }, dispatch] = useReducer(featureFlagReducer, {
         featureFlags: getSavedFeatureFlags(),
@@ -116,3 +114,5 @@ export const FeatureFlagProvider = ({
 // an extra level of indirection here to allow for generic typing of the returned fetch function
 export const useFeatureFlags = (): FeatureFlagContextValues =>
     useContext(FeatureFlagContext);
+
+export default FeatureFlagProvider;

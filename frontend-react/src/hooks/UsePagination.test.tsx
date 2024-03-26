@@ -237,6 +237,7 @@ describe("processResultsReducer", () => {
                 7: "60",
             },
             finalPageNum: undefined,
+            resultLength: 61,
         });
     });
 
@@ -266,6 +267,7 @@ describe("processResultsReducer", () => {
                 3: "20",
             },
             finalPageNum: 3,
+            resultLength: 30,
         });
     });
 
@@ -305,6 +307,7 @@ describe("processResultsReducer", () => {
                 7: "61",
             },
             finalPageNum: undefined,
+            resultLength: 61,
         });
     });
 });
@@ -455,7 +458,12 @@ describe("usePagination", () => {
         await waitFor(() =>
             expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61),
         );
-        expect(result.current.paginationProps).toBeUndefined();
+        expect(result.current.paginationProps).toMatchObject({
+            currentPageNum: 0,
+            isPaginationLoading: false,
+            resultLength: 0,
+            slots: [],
+        });
         expect(result.current.currentPageResults).toStrictEqual([]);
     });
 

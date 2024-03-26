@@ -1,17 +1,33 @@
-import { Button, DateRangePicker } from "@trussworks/react-uswds";
-import { FormEvent, useCallback, useRef, useState } from "react";
+import {
+    Button,
+    DateRangePicker,
+    Icon,
+    Select,
+    TimePicker,
+    Tooltip,
+} from "@trussworks/react-uswds";
+import { format, isValid, parse } from "date-fns";
+import {
+    Dispatch,
+    FormEvent,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 
-import "./TableFilters.css";
-
+import styles from "./TableFilters.module.scss";
+import TableFilterStatus, { TableFilterData } from "./TableFilterStatus";
+import { RSReceiver } from "../../config/endpoints/settings";
 import {
     CursorActionType,
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import {
-    FALLBACK_FROM,
-    FALLBACK_FROM_STRING,
-    FALLBACK_TO,
-    FALLBACK_TO_STRING,
+    DEFAULT_FROM_TIME,
+    DEFAULT_TO_TIME,
     getEndOfDay,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
@@ -23,17 +39,22 @@ export enum StyleClass {
 }
 
 export enum TableFilterDateLabel {
-    START_DATE = "From (Start Range):",
-    END_DATE = "Until (End Range):",
+    START_DATE = "From",
+    END_DATE = "To",
 }
 
 interface TableFilterProps {
-    startDateLabel: string;
-    endDateLabel: string;
-    showDateHints?: boolean;
-    filterManager: FilterManager;
     cursorManager?: CursorManager;
+    endDateLabel: string;
+    filterManager: FilterManager;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
+    receivers: { value: string; label: string }[];
+    setService?: Dispatch<SetStateAction<string | undefined>>;
+    showDateHints?: boolean;
+    startDateLabel: string;
+    initialService: RSReceiver;
+    resultLength?: number;
+    isPaginationLoading?: boolean;
 }
 
 // using a regex to check for format because of different browsers' implementations of Date
@@ -56,22 +77,33 @@ export function isValidDateString(dateStr?: string) {
  * and will use the context to get these values.
  */
 function TableFilters({
-    startDateLabel,
-    endDateLabel,
-    showDateHints,
-    filterManager,
     cursorManager,
+    endDateLabel,
+    filterManager,
     onFilterClick,
+    receivers,
+    setService,
+    showDateHints,
+    startDateLabel,
+    initialService,
+    resultLength,
+    isPaginationLoading,
 }: TableFilterProps) {
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
-    const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
-    const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO);
-    const isFilterEnabled = Boolean(
-        rangeFrom && rangeTo && rangeFrom < rangeTo,
-    );
+    const [rangeFrom, setRangeFrom] = useState<Date | undefined>(undefined);
+    const [rangeTo, setRangeTo] = useState<Date | undefined>(undefined);
     const formRef = useRef<HTMLFormElement>(null);
-
+    const [startTime, setStartTime] = useState(DEFAULT_FROM_TIME);
+    const [endTime, setEndTime] = useState(DEFAULT_TO_TIME);
+    const [currentServiceSelect, setCurrentServiceSelect] = useState<string>(
+        initialService?.name,
+    );
+    const [filterStatus, setFilterStatus] = useState<TableFilterData>({
+        resultLength: resultLength,
+        activeFilters: [currentServiceSelect],
+    });
+    const [reset, setReset] = useState(0);
     const updateRange = useCallback(
         (from: string, to: string) => {
             filterManager.updateRange({
@@ -86,6 +118,104 @@ function TableFilters({
         },
         [cursorManager, filterManager],
     );
+
+    const filterDetails = useMemo(() => {
+        // Handle edge case of JUST a receiver being selected
+        if (
+            currentServiceSelect &&
+            !rangeFrom &&
+            !rangeTo &&
+            startTime === DEFAULT_FROM_TIME &&
+            endTime === DEFAULT_TO_TIME
+        ) {
+            return {
+                isFilterDisabled: false,
+                rangeFromWithTime: undefined,
+                rangeToWithTime: undefined,
+            };
+        }
+
+        // Early return if rangeFrom or rangeTo are not provided
+        if (!rangeFrom || !rangeTo) {
+            return {
+                isFilterDisabled: true,
+                rangeFromWithTime: undefined,
+                rangeToWithTime: undefined,
+            };
+        }
+
+        const [startHours, startMinutes] = startTime.split(":").map(Number);
+        const [endHours, endMinutes] = endTime.split(":").map(Number);
+
+        const rangeFromWithTime = new Date(
+            rangeFrom.setHours(startHours, startMinutes, 0, 0),
+        ).toISOString();
+        const rangeToWithTime = new Date(
+            rangeTo.setHours(endHours, endMinutes, 0, 0),
+        ).toISOString();
+
+        const isFilterDisabled = Boolean(
+            new Date(rangeFromWithTime) > new Date(rangeToWithTime),
+        );
+
+        return { isFilterDisabled, rangeFromWithTime, rangeToWithTime };
+    }, [currentServiceSelect, endTime, rangeFrom, rangeTo, startTime]);
+
+    useEffect(() => {
+        // These variable and the logic below are for a specific use case:
+        // We do NOT want to show the time range portion of the FilterStatus
+        // when a user didn't manipulate both the Start time and End time.
+        // However, to our controlled components, our input is always applied,
+        // so we have to access the inputs via an uncontrolled method to see if
+        // a user manipulated them or now.
+        const startTimeElm = formRef?.current?.querySelector(
+            "#start-time",
+        ) as HTMLInputElement | null;
+        const endTimeElm = formRef?.current?.querySelector(
+            "#end-time",
+        ) as HTMLInputElement | null;
+
+        if (isPaginationLoading === false)
+            // This piece of code outputs into activeFilters a human readable
+            // filter array for us to display on the FE, with protections against
+            // undefined
+            // Example Output: "elr, 03/04/24-03/07/24, 12:02am-04:25pm"
+
+            setFilterStatus({
+                resultLength: resultLength,
+                activeFilters: [
+                    currentServiceSelect,
+                    [
+                        ...(rangeFrom && isValid(rangeFrom)
+                            ? [format(rangeFrom, "MM/dd/yy")]
+                            : []),
+                        ...(rangeTo && isValid(rangeTo)
+                            ? [format(rangeTo, "MM/dd/yy")]
+                            : []),
+                    ].join("–"),
+                    [
+                        ...(!!startTimeElm?.value || !!endTimeElm?.value
+                            ? [
+                                  format(
+                                      parse(startTime, "HH:mm", new Date()),
+                                      "hh:mm a",
+                                  ),
+                                  format(
+                                      parse(endTime, "HH:mm", new Date()),
+                                      "hh:mm a",
+                                  ),
+                              ]
+                            : []),
+                    ]
+                        .join("–")
+                        .toLowerCase()
+                        .split(" ")
+                        .join(""),
+                ],
+            });
+        // We ONLY want to update the TableFilterStatus when loading is complete
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [resultLength]);
 
     /* Pushes local state to context and resets cursor to page 1 */
     const applyToFilterManager = useCallback(
@@ -102,104 +232,201 @@ function TableFilters({
     const resetHandler = useCallback(
         (e: FormEvent) => {
             e.preventDefault();
-            if (formRef.current) {
-                /*
-                 * can't use refs with DateRangePicker, so we go through
-                 * form. we set values manaully and also manually have to
-                 * invoke an input event (programatic value setting doesn't
-                 * trigger). the input event will allow DateRangePicker to
-                 * properly update internal state while we update the
-                 * filtermanager with our manual reset values.
-                 */
-                const startDateEle = formRef.current.elements.namedItem(
-                    "start-date",
-                ) as HTMLInputElement;
-                const endDateEle = formRef.current.elements.namedItem(
-                    "end-date",
-                ) as HTMLInputElement;
-
-                startDateEle.value = FALLBACK_FROM_STRING;
-                startDateEle.dispatchEvent(
-                    new InputEvent("input", {
-                        bubbles: true,
-                    }),
-                );
-                endDateEle.value = FALLBACK_TO_STRING;
-                endDateEle.dispatchEvent(
-                    new InputEvent("input", {
-                        bubbles: true,
-                    }),
-                );
-
-                applyToFilterManager(FALLBACK_FROM, FALLBACK_TO);
-            }
+            setReset(reset + 1);
+            setRangeFrom(undefined);
+            setRangeTo(undefined);
+            setStartTime(DEFAULT_FROM_TIME);
+            setEndTime(DEFAULT_TO_TIME);
+            setCurrentServiceSelect(initialService.name);
+            setService?.(initialService.name);
+            filterManager.resetAll();
         },
-        [applyToFilterManager],
+        [filterManager, initialService?.name, reset, setService],
     );
 
     const submitHandler = useCallback(
         (e: FormEvent) => {
             e.preventDefault();
-            applyToFilterManager(rangeFrom, rangeTo);
+
+            setService?.(currentServiceSelect);
+            if (
+                filterDetails.rangeFromWithTime &&
+                filterDetails.rangeToWithTime
+            ) {
+                applyToFilterManager(
+                    filterDetails.rangeFromWithTime,
+                    filterDetails.rangeToWithTime,
+                );
+            }
         },
-        [applyToFilterManager, rangeFrom, rangeTo],
+        [
+            applyToFilterManager,
+            currentServiceSelect,
+            filterDetails.rangeFromWithTime,
+            filterDetails.rangeToWithTime,
+            setService,
+        ],
     );
 
     return (
-        <div data-testid="filter-container" className={StyleClass.CONTAINER}>
-            <form
-                className="grid-row display-flex flex-align-end"
-                ref={formRef}
-                onSubmit={submitHandler}
-                onReset={resetHandler}
+        <>
+            <section
+                data-testid="filter-container"
+                className={styles.TableFilters}
             >
-                <DateRangePicker
-                    className={StyleClass.DATE_CONTAINER}
-                    startDateLabel={startDateLabel}
-                    startDateHint={showDateHints ? "mm/dd/yyyy" : ""}
-                    startDatePickerProps={{
-                        id: "start-date",
-                        name: "start-date-picker",
-                        onChange: (val?: string) => {
-                            if (isValidDateString(val)) {
-                                setRangeFrom(new Date(val!).toISOString());
-                            } else {
-                                setRangeFrom("");
-                            }
-                        },
-                        defaultValue: rangeFrom,
-                    }}
-                    endDateLabel={endDateLabel}
-                    endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
-                    endDatePickerProps={{
-                        id: "end-date",
-                        name: "end-date-picker",
-                        onChange: (val?: string) => {
-                            if (isValidDateString(val)) {
-                                setRangeTo(
-                                    getEndOfDay(new Date(val!)).toISOString(),
-                                );
-                            } else {
-                                setRangeTo("");
-                            }
-                        },
-                        defaultValue: rangeTo,
-                    }}
-                />
-                <div className="button-container">
-                    <div className={StyleClass.DATE_CONTAINER}>
-                        <Button disabled={!isFilterEnabled} type={"submit"}>
-                            Filter
-                        </Button>
+                <p className="text-bold margin-top-0">
+                    View data from a specific receiver or date and time range
+                </p>
+                <form
+                    ref={formRef}
+                    onSubmit={submitHandler}
+                    onReset={resetHandler}
+                    key={reset}
+                    autoComplete="off"
+                    data-testid="filter-form"
+                >
+                    <div className="grid-row">
+                        <div className="grid-col filter-column__one">
+                            <label
+                                id="receiver-label"
+                                data-testid="label"
+                                className="usa-label"
+                                htmlFor="receiver-dropdown"
+                            >
+                                Receiver{" "}
+                                <Tooltip
+                                    className="fixed-tooltip text-sub"
+                                    position="right"
+                                    label={
+                                        "Your connection could have multiple receivers, such as one specific to COVID."
+                                    }
+                                >
+                                    <Icon.Help />
+                                </Tooltip>
+                            </label>
+                            <Select
+                                key={receivers.length}
+                                id="receiver-dropdown"
+                                name="receiver-dropdown"
+                                onChange={(e) => {
+                                    setCurrentServiceSelect(e.target.value);
+                                }}
+                                defaultValue={currentServiceSelect}
+                            >
+                                {receivers?.map((receiver) => (
+                                    <option
+                                        key={receiver.value}
+                                        value={receiver.value}
+                                    >
+                                        {receiver.value}
+                                    </option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="grid-col-auto filter-column__two">
+                            <DateRangePicker
+                                className={StyleClass.DATE_CONTAINER}
+                                startDateLabel={startDateLabel}
+                                startDateHint={
+                                    showDateHints ? "mm/dd/yyyy" : ""
+                                }
+                                startDatePickerProps={{
+                                    id: "start-date",
+                                    name: "start-date-picker",
+                                    onChange: (val?: string) => {
+                                        if (isValidDateString(val)) {
+                                            setRangeFrom(new Date(val!));
+                                        } else {
+                                            setRangeFrom(undefined);
+                                        }
+                                    },
+                                }}
+                                endDateLabel={endDateLabel}
+                                endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
+                                endDatePickerProps={{
+                                    id: "end-date",
+                                    name: "end-date-picker",
+                                    onChange: (val?: string) => {
+                                        if (isValidDateString(val)) {
+                                            setRangeTo(
+                                                getEndOfDay(new Date(val!)),
+                                            );
+                                        } else {
+                                            setRangeTo(undefined);
+                                        }
+                                    },
+                                }}
+                            />
+                            <div className="grid-row">
+                                <div className="grid-row flex-column">
+                                    <TimePicker
+                                        hint="hh:mm"
+                                        id="start-time"
+                                        label="Start time"
+                                        name="start-time"
+                                        step={1}
+                                        onChange={(input) => {
+                                            if (input) {
+                                                setStartTime(input);
+                                            } else {
+                                                setStartTime(DEFAULT_FROM_TIME);
+                                            }
+                                        }}
+                                    />
+                                    <p className="usa-hint usa-hint__default">
+                                        Default: 12:00am
+                                    </p>
+                                </div>
+                                <div className="grid-row flex-column">
+                                    <TimePicker
+                                        hint="hh:mm"
+                                        id="end-time"
+                                        label="End time"
+                                        name="end-time"
+                                        step={1}
+                                        onChange={(input) => {
+                                            if (input) {
+                                                setEndTime(input);
+                                            } else {
+                                                setEndTime(DEFAULT_TO_TIME);
+                                            }
+                                        }}
+                                    />
+                                    <p className="usa-hint usa-hint__default">
+                                        Default: 11:59pm
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid-col-fill filter-column__three">
+                            <div className="button-container">
+                                <div>
+                                    <Button
+                                        className="margin-right-205"
+                                        disabled={
+                                            filterDetails.isFilterDisabled
+                                        }
+                                        type={"submit"}
+                                    >
+                                        Apply
+                                    </Button>
+                                    <Button
+                                        type={"reset"}
+                                        name="clear-button"
+                                        unstyled
+                                    >
+                                        Reset
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className={StyleClass.DATE_CONTAINER}>
-                        <Button type={"reset"} name="clear-button" unstyled>
-                            Clear
-                        </Button>
-                    </div>
-                </div>
-            </form>
-        </div>
+                </form>
+            </section>
+            {isPaginationLoading === false && (
+                <TableFilterStatus filterStatus={filterStatus} />
+            )}
+        </>
     );
 }
 

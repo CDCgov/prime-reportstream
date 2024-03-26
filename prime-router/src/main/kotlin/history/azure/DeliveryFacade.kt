@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.history.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -9,6 +10,7 @@ import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import java.time.OffsetDateTime
+import java.util.*
 
 /**
  * Deliveries API
@@ -31,6 +33,9 @@ class DeliveryFacade(
      * @param since is the OffsetDateTime minimum date to get results for.
      * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize Int of items to return per page.
+     * @param reportIdStr is the reportId to get results for.
+     * @param fileName is the fileName to get results for.
+     * @param receivingOrgSvcStatus is the customer status of the receiving organization's service.
      *
      * @return a List of Actions
      */
@@ -43,6 +48,9 @@ class DeliveryFacade(
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         pageSize: Int,
+        reportIdStr: String?,
+        fileName: String?,
+        receivingOrgSvcStatus: List<CustomerStatus>?,
     ): List<DeliveryHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."
@@ -54,7 +62,14 @@ class DeliveryFacade(
             "End date must be after start date."
         }
 
-        return dbDeliveryAccess.fetchActions(
+        var reportId: UUID?
+        try {
+            reportId = if (reportIdStr != null) UUID.fromString(reportIdStr) else null
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Invalid format for report ID: $reportIdStr")
+        }
+
+        return dbDeliveryAccess.fetchActionsForDeliveries(
             organization,
             receivingOrgSvc,
             sortDir,
@@ -64,7 +79,10 @@ class DeliveryFacade(
             until,
             pageSize,
             true,
-            DeliveryHistory::class.java
+            DeliveryHistory::class.java,
+            reportId,
+            fileName,
+            receivingOrgSvcStatus
         )
     }
 

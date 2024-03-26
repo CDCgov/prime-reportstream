@@ -12,10 +12,10 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
-import com.jcraft.jsch.Logger
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import org.apache.commons.lang3.exception.ExceptionUtils
+import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
 import java.util.Date
 import ca.uhn.hl7v2.model.v251.message.ORU_R01 as v251_ORU_R01
@@ -97,7 +97,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             }
 
             // if it was able to parse the message through one of the models, then we do not want to log it as an error
-            val parseLogLevel = if (parseError.size == messageModelsToTry.size) Logger.ERROR else Logger.WARN
+            val parseLogLevel = if (parseError.size == messageModelsToTry.size) Level.ERROR else Level.WARN
             parseError.forEach { currentError ->
                 logHL7ParseFailure(currentError, messages.isEmpty(), parseLogLevel)
             }
@@ -163,13 +163,9 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     private fun logHL7ParseFailure(
         exception: Hl7InputStreamMessageStringIterator.ParseFailureError,
         isError: Boolean = true,
-        logLevel: Int = Logger.ERROR,
+        logLevel: Level = Level.ERROR,
     ) {
-        if (logLevel == Logger.ERROR) {
-            logger.error("Failed to parse message", exception)
-        } else {
-            logger.warn("Failed to parse message", exception)
-        }
+        logger.log(logLevel, "Failed to parse message: ${exception.message}")
 
         // Get the exception root cause and log it accordingly
         when (val rootCause = ExceptionUtils.getRootCause(exception)) {
@@ -200,6 +196,12 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     }
 
     companion object {
+        // map of HL7 message profiles: maps profile to configuration directory path
+        val profileDirectoryMap: Map<MessageProfile, String> = emptyMap()
+
+        // data class to uniquely identify a message profile
+        data class MessageProfile(val typeID: String, val profileID: String)
+
         /**
          * Get the [message] timestamp from MSH-7.
          * @return the timestamp or null if not specified
@@ -222,6 +224,21 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 is v251_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 else -> ""
             }
+        }
+
+        /**
+         * Get the profile of the [rawmessage]
+         * If there are multiple HL7 messages the first message's data will be returned
+         * @param rawmessage string representative of hl7 messages
+         * @return the message profile, or null if there is no message
+         */
+        fun getMessageProfile(rawmessage: String): MessageProfile? {
+            val iterator = Hl7InputStreamMessageIterator(rawmessage.byteInputStream())
+            if (!iterator.hasNext()) return null
+            val hl7message = iterator.next()
+            val msh9 = Terser(hl7message).get("MSH-9")
+            val msh21 = Terser(hl7message).get("MSH-21")
+            return MessageProfile(msh9 ?: "", msh21 ?: "")
         }
 
         /**

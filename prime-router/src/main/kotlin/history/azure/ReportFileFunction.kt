@@ -2,6 +2,7 @@ package gov.cdc.prime.router.history.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -101,6 +102,12 @@ abstract class ReportFileFunction(
             logger.info(
                 "Authorized request by org ${claims.scopes} to getListByOrg on organization $userOrgName."
             )
+
+            if (HistoryApiParameters(request.queryParameters).reportId != null &&
+                HistoryApiParameters(request.queryParameters).fileName != null
+            ) {
+                return HttpUtilities.badRequestResponse(request, "Either reportId or fileName can be provided")
+            }
 
             return HttpUtilities.okResponse(request, this.historyAsJson(request.queryParameters, userOrgName))
         } catch (e: IllegalArgumentException) {
@@ -214,6 +221,9 @@ abstract class ReportFileFunction(
      * @property until is the OffsetDateTime that dictates how recently returned results date.
      * @property pageSize is an Integer used for setting the number of results per page.
      * @property showFailed whether to include actions that failed to be sent.
+     * @property reportId is the reportId to get results for.
+     * @property fileName is the fileName to get results for.
+     * @property receivingOrgSvcStatus is the customer status of the receiver to get results for.
      */
     data class HistoryApiParameters(
         val sortDir: HistoryDatabaseAccess.SortDir,
@@ -223,6 +233,9 @@ abstract class ReportFileFunction(
         val until: OffsetDateTime?,
         val pageSize: Int,
         val showFailed: Boolean,
+        val reportId: String?,
+        val fileName: String?,
+        val receivingOrgSvcStatus: List<CustomerStatus>?,
     ) {
         constructor(query: Map<String, String>) : this(
             sortDir = extractSortDir(query),
@@ -231,7 +244,10 @@ abstract class ReportFileFunction(
             since = extractDateTime(query, "since"),
             until = extractDateTime(query, "until"),
             pageSize = extractPageSize(query),
-            showFailed = extractShowFailed(query)
+            showFailed = extractShowFailed(query),
+            reportId = query["reportId"],
+            fileName = query["fileName"],
+            receivingOrgSvcStatus = extractReceivingOrgSvcStatus(query),
         )
 
         companion object {
@@ -300,6 +316,10 @@ abstract class ReportFileFunction(
              */
             fun extractShowFailed(query: Map<String, String>): Boolean {
                 return query["showfailed"]?.toBoolean() ?: false
+            }
+
+            fun extractReceivingOrgSvcStatus(query: Map<String, String>): List<CustomerStatus>? {
+                return query["receivingOrgSvcStatus"]?.split(",")?.map { CustomerStatus.valueOf(it) }
             }
         }
     }

@@ -14,12 +14,13 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.ReportCreatedEvent
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import gov.cdc.prime.router.fhirengine.utils.addMappedCondition
+import gov.cdc.prime.router.fhirengine.utils.addMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
@@ -38,8 +39,8 @@ class FHIRConverter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    private val azureEventService: AzureEventService = AzureEventService(),
-) : FHIREngine(metadata, settings, db, blob) {
+    azureEventService: AzureEventService = AzureEventServiceImpl(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
 
@@ -91,11 +92,11 @@ class FHIRConverter(
             )
             return fhirBundles.mapIndexed { bundleIndex, bundle ->
                 // conduct FHIR Transform
-                transformer?.transform(bundle)
+                transformer?.process(bundle)
 
                 // 'stamp' observations with their condition code
                 bundle.getObservations().forEach {
-                    it.addMappedCondition(metadata).run {
+                    it.addMappedConditions(metadata).run {
                         actionLogger.getItemLogger(bundleIndex + 1, it.id)
                             .setReportId(queueMessage.reportId)
                             .warn(this)
@@ -181,10 +182,8 @@ class FHIRConverter(
      * transformer in tests.
      */
     fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
-        // TODO: #10510
-        val convertedSchemaName = convertRelativeSchemaPathToUri(schemaName)
-        return if (convertedSchemaName.isNotBlank()) {
-            FhirTransformer(convertedSchemaName, "")
+        return if (schemaName.isNotBlank()) {
+            FhirTransformer(schemaName)
         } else {
             null
         }
@@ -203,7 +202,9 @@ class FHIRConverter(
         // create the hl7 reader
         val hl7Reader = HL7Reader(actionLogger)
         // get the hl7 from the blob store
-        val hl7messages = hl7Reader.getMessages(queueMessage.downloadContent())
+        val hl7rawmessages = queueMessage.downloadContent()
+        val hl7profile = HL7Reader.getMessageProfile(hl7rawmessages)
+        val hl7messages = hl7Reader.getMessages(hl7rawmessages)
 
         val bundles = if (actionLogger.hasErrors()) {
             val errMessage = actionLogger.errors.joinToString("\n") { it.detail.message }
@@ -212,8 +213,14 @@ class FHIRConverter(
             emptyList()
         } else {
             // use fhir transcoder to turn hl7 into FHIR
-            hl7messages.map {
-                HL7toFhirTranslator.getInstance().translate(it)
+            // search hl7 profile map and create translator with config path if found
+            when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
+                null -> hl7messages.map {
+                    HL7toFhirTranslator().translate(it)
+                }
+                else -> hl7messages.map {
+                    HL7toFhirTranslator(configPath).translate(it)
+                }
             }
         }
 
