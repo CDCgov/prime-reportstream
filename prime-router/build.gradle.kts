@@ -925,7 +925,7 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
-    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.27.0")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.0")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")

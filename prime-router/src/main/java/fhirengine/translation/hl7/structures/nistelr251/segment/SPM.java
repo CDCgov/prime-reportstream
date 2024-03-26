@@ -38,16 +38,10 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
-import ca.uhn.hl7v2.model.v251.datatype.CQ;
-import ca.uhn.hl7v2.model.v251.datatype.CWE;
-import ca.uhn.hl7v2.model.v251.datatype.EIP;
-import ca.uhn.hl7v2.model.v251.datatype.ID;
-import ca.uhn.hl7v2.model.v251.datatype.NM;
-import ca.uhn.hl7v2.model.v251.datatype.SI;
-import ca.uhn.hl7v2.model.v251.datatype.ST;
-import ca.uhn.hl7v2.model.v251.datatype.TS;
+import ca.uhn.hl7v2.model.v251.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.CQ_ELR;
+import fhirengine.translation.hl7.structures.nistelr251.datatype.CWE_ELR;
 
 
 /**
@@ -55,7 +49,7 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * This segment has the following fields:</p>
  * <ul>
  * <li>SPM-1: Set ID - SPM (SI) <b> </b>
- * <li>SPM-2: Specimen ID (EIP_ELR) <b> </b>
+ * <li>SPM-2: Specimen ID (EIP) <b> </b>
  * <li>SPM-3: Specimen Parent IDs (EIP) <b>optional repeating</b>
  * <li>SPM-4: Specimen Type (CWE_ELR) <b> </b>
  * <li>SPM-5: Specimen Type Modifier (CWE_ELR) <b>optional repeating</b>
@@ -70,8 +64,8 @@ import fhirengine.translation.hl7.structures.nistelr251.datatype.*;
  * <li>SPM-14: Specimen Description (ST) <b>optional repeating</b>
  * <li>SPM-15: Specimen Handling Code (CWE) <b>optional repeating</b>
  * <li>SPM-16: Specimen Risk Code (CWE) <b>optional repeating</b>
- * <li>SPM-17: Specimen Collection Date/Time (DR_ELR) <b> </b>
- * <li>SPM-18: Specimen Received Date/Time (TS_ELR) <b> </b>
+ * <li>SPM-17: Specimen Collection Date/Time (DR) <b> </b>
+ * <li>SPM-18: Specimen Received Date/Time (TS) <b> </b>
  * <li>SPM-19: Specimen Expiration Date/Time (TS) <b>optional </b>
  * <li>SPM-20: Specimen Availability (ID) <b>optional </b>
  * <li>SPM-21: Specimen Reject Reason (CWE_ELR) <b>optional repeating</b>
@@ -99,7 +93,7 @@ public class SPM extends AbstractSegment {
   private void init(ModelClassFactory factory) {
     try {
       this.add(SI.class, true, 1, 0, new Object[]{getMessage()}, "Set ID - SPM");
-      this.add(EIP_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Specimen ID");
+      this.add(EIP.class, true, 1, 0, new Object[]{getMessage()}, "Specimen ID");
       this.add(EIP.class, false, -1, 0, new Object[]{getMessage()}, "Specimen Parent IDs");
       this.add(CWE_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Specimen Type");
       this.add(CWE_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Specimen Type Modifier");
@@ -114,8 +108,8 @@ public class SPM extends AbstractSegment {
       this.add(ST.class, false, -1, 0, new Object[]{getMessage()}, "Specimen Description");
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Specimen Handling Code");
       this.add(CWE.class, false, -1, 0, new Object[]{getMessage()}, "Specimen Risk Code");
-      this.add(DR_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Specimen Collection Date/Time");
-      this.add(TS_ELR.class, true, 1, 0, new Object[]{getMessage()}, "Specimen Received Date/Time");
+      this.add(DR.class, true, 1, 0, new Object[]{getMessage()}, "Specimen Collection Date/Time");
+      this.add(TS.class, true, 1, 0, new Object[]{getMessage()}, "Specimen Received Date/Time");
       this.add(TS.class, false, 1, 0, new Object[]{getMessage()}, "Specimen Expiration Date/Time");
       this.add(ID.class, false, 1, 0, new Object[]{getMessage(), 136}, "Specimen Availability");
       this.add(CWE_ELR.class, false, -1, 0, new Object[]{getMessage()}, "Specimen Reject Reason");
@@ -156,8 +150,8 @@ public class SPM extends AbstractSegment {
    * Returns
    * SPM-2: "Specimen ID" - creates it if necessary
    */
-  public EIP_ELR getSpecimenID() {
-    EIP_ELR retVal = this.getTypedField(2, 0);
+  public EIP getSpecimenID() {
+    EIP retVal = this.getTypedField(2, 0);
     return retVal;
   }
 
@@ -165,8 +159,8 @@ public class SPM extends AbstractSegment {
    * Returns
    * SPM-2: "Specimen ID" - creates it if necessary
    */
-  public EIP_ELR getSpm2_SpecimenID() {
-    EIP_ELR retVal = this.getTypedField(2, 0);
+  public EIP getSpm2_SpecimenID() {
+    EIP retVal = this.getTypedField(2, 0);
     return retVal;
   }
 
@@ -1153,8 +1147,8 @@ public class SPM extends AbstractSegment {
    * Returns
    * SPM-17: "Specimen Collection Date/Time" - creates it if necessary
    */
-  public DR_ELR getSpecimenCollectionDateTime() {
-    DR_ELR retVal = this.getTypedField(17, 0);
+  public DR getSpecimenCollectionDateTime() {
+    DR retVal = this.getTypedField(17, 0);
     return retVal;
   }
 
@@ -1162,8 +1156,8 @@ public class SPM extends AbstractSegment {
    * Returns
    * SPM-17: "Specimen Collection Date/Time" - creates it if necessary
    */
-  public DR_ELR getSpm17_SpecimenCollectionDateTime() {
-    DR_ELR retVal = this.getTypedField(17, 0);
+  public DR getSpm17_SpecimenCollectionDateTime() {
+    DR retVal = this.getTypedField(17, 0);
     return retVal;
   }
 
@@ -1172,8 +1166,8 @@ public class SPM extends AbstractSegment {
    * Returns
    * SPM-18: "Specimen Received Date/Time" - creates it if necessary
    */
-  public TS_ELR getSpecimenReceivedDateTime() {
-    TS_ELR retVal = this.getTypedField(18, 0);
+  public TS getSpecimenReceivedDateTime() {
+    TS retVal = this.getTypedField(18, 0);
     return retVal;
   }
 
@@ -1181,8 +1175,8 @@ public class SPM extends AbstractSegment {
    * Returns
    * SPM-18: "Specimen Received Date/Time" - creates it if necessary
    */
-  public TS_ELR getSpm18_SpecimenReceivedDateTime() {
-    TS_ELR retVal = this.getTypedField(18, 0);
+  public TS getSpm18_SpecimenReceivedDateTime() {
+    TS retVal = this.getTypedField(18, 0);
     return retVal;
   }
 
@@ -1582,7 +1576,7 @@ public class SPM extends AbstractSegment {
       case 0:
         return new SI(getMessage());
       case 1:
-        return new EIP_ELR(getMessage());
+        return new EIP(getMessage());
       case 2:
         return new EIP(getMessage());
       case 3:
@@ -1612,9 +1606,9 @@ public class SPM extends AbstractSegment {
       case 15:
         return new CWE(getMessage());
       case 16:
-        return new DR_ELR(getMessage());
+        return new DR(getMessage());
       case 17:
-        return new TS_ELR(getMessage());
+        return new TS(getMessage());
       case 18:
         return new TS(getMessage());
       case 19:
