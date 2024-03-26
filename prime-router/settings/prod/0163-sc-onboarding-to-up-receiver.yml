@@ -78,7 +78,8 @@
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        - "(%resource.interpretation.coding.code = 'A' and %resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('6142004' | '541131000124102' | '840539006')).exists())"
+        - "(%resource.interpretation.coding.code = 'A' and %resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists()) or \
+        (%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('6142004' | '541131000124102')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
