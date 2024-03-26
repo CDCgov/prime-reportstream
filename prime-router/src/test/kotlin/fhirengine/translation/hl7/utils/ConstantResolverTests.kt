@@ -8,9 +8,9 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import assertk.assertions.isNotSameAs
+import assertk.assertions.isNotSameInstanceAs
 import assertk.assertions.isNull
-import assertk.assertions.isSameAs
+import assertk.assertions.isSameInstanceAs
 import assertk.assertions.isTrue
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.Metadata
@@ -60,11 +60,11 @@ class ConstantResolverTests {
         // Check that a new context is returned
         var context2 = CustomContext.addConstant("anotherconst", "'value'", context)
         assertThat(context2).isNotNull()
-        assertThat(context2).isNotSameAs(context) // Test the reference is different
+        assertThat(context2).isNotSameInstanceAs(context) // Test the reference is different
 
         context2 = CustomContext.addConstants(mapOf(), context)
         assertThat(context2).isNotNull()
-        assertThat(context2).isSameAs(context)
+        assertThat(context2).isSameInstanceAs(context)
     }
 
     @Test
