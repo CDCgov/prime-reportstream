@@ -136,6 +136,10 @@ TEST_RECEIVER_TOTP_CODE=""
 _Check with an Okta administrator on the usage of the TOTP code_
 
 ```bash
+npx playwright install # Installs supported default browsers
+
+npx playwright install-deps # Installs system dependencies
+
 yarn run test:e2e-ui # Runs a local instance of Playwright UI where you can view and run the e2e tests
 
 CI=true yarn run test:e2e-ui # Runs a local instance of Playwright UI that mimics Github integration

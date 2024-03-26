@@ -43,7 +43,7 @@ runs:
       run: ./gradlew ktlintCheck
       shell: bash
 
-    - uses: gradle/wrapper-validation-action@699bb18358f12c5b78b37bb0111d3a0e2276e0e2
+    - uses: gradle/wrapper-validation-action@b231772637bb498f11fdbc86052b6e8a8dc9fc92
 
     - name: Spin up build containers
       working-directory: prime-router
@@ -68,7 +68,7 @@ runs:
       run: tar -czvf prime-router-build.tar.gz build
 
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action/linux@b25bb152254577182a8cc192fe0c5147554a1171
+      uses: EnricoMi/publish-unit-test-result-action/linux@30eadd5010312f995f0d3b3cff7fe2984f69409e
       if: >
         always() &&
         github.event.sender.login != 'dependabot[bot]' &&
@@ -120,7 +120,7 @@ runs:
       shell: bash
 
     - name: Publish Integration Test Results
-      uses: EnricoMi/publish-unit-test-result-action/linux@b25bb152254577182a8cc192fe0c5147554a1171
+      uses: EnricoMi/publish-unit-test-result-action/linux@30eadd5010312f995f0d3b3cff7fe2984f69409e
       if: >
         always() &&
         github.event.sender.login != 'dependabot[bot]' &&
