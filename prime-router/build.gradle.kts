@@ -919,7 +919,7 @@ dependencies {
     // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.17.2")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
-    implementation("io.swagger:swagger-annotations:1.6.13")
+    implementation("io.swagger:swagger-annotations:1.6.14")
     implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.20")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
