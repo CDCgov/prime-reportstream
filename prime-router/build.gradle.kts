@@ -817,7 +817,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.1.0")
-    implementation("com.microsoft.azure:applicationinsights-core:3.5.0")
+    implementation("com.microsoft.azure:applicationinsights-core:3.5.1")
     implementation("com.azure:azure-core:1.47.0")
     implementation("com.azure:azure-core-http-netty:1.14.1")
     implementation("com.azure:azure-storage-blob:12.25.2") {
