@@ -604,10 +604,10 @@ extension:
         url:
           type: SYSTEM_URL
           value: studentStatus
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-          specs: PD1.5
+        valueString:
+          type: STRING
+          valueOf: PD1.5
+          expressionType: HL7Spec
     - condition: $pd16 NOT_NULL
       vars:
         pd16: STRING_ALL, PD1.6
@@ -617,10 +617,10 @@ extension:
         url:
           type: SYSTEM_URL
           value: patient-disability
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-          specs: PD1.6
+        valueString:
+          type: STRING
+          valueOf: PD1.6
+          expressionType: HL7Spec
     - condition: $pd17 NOT_NULL
       vars:
         pd17: STRING_ALL, PD1.7
@@ -630,10 +630,10 @@ extension:
         url:
           type: SYSTEM_URL
           value: livingWill
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-          specs: PD1.7
+        valueString:
+          type: STRING
+          valueOf: PD1.7
+          expressionType: HL7Spec
     #Mapping inventory for XON[string]
     - expressionType: nested
       generateList: true
