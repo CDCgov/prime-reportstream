@@ -40,6 +40,8 @@ _endpoint:
           value: "unknown"
 
 receiver:
+  vars:
+    msh6: MSH.6
   expressionType: nested
   expressions:
     - condition: $msh6 NOT_NULL
@@ -48,12 +50,6 @@ receiver:
       valueOf: datatypes/HD/Organization
       constants:
         hdOrganizationHL7Field: MSH.6
-    - condition: $msh6 NULL && $msh23 NOT_NULL
-      expressionType: reference
-      specs: $msh23
-      valueOf: datatypes/XON/Organization
-      constants:
-        XONHL7Field: MSH.23
 
 
 extension:
