@@ -154,31 +154,15 @@ identifier:
   expressionType: nested
   generateList: true
   expressions:
-    - condition: $pid2 NOT_NULL
-      expressionType: resource
-      specs: PID.2
-      valueOf: datatypes/CX/Identifier
-      vars:
-        pid2: STRING_ALL, PID.2
-      constants:
-        CXIdentifierField: PID.2
     - condition: $pid3 NOT_NULL
       expressionType: resource
       specs: PID.3 *
-      valueOf: datatypes/CX/Identifier
+      valueOf: ../../datatypes/CX/Identifier
       generateList: true
       vars:
         pid3: STRING_ALL, PID.3
       constants:
         CXIdentifierField: PID.3
-    - condition: $pid4 NOT_NULL
-      expressionType: resource
-      specs: PID.4
-      valueOf: datatypes/CX/Identifier
-      vars:
-        pid4: STRING_ALL, PID.4
-      constants:
-        CXIdentifierField: PID.4
 
 name:
   expressionType: nested
@@ -188,20 +172,11 @@ name:
       expressionType: resource
       generateList: true
       specs: PID.5 *
-      valueOf: datatypes/XPN/HumanName
+      valueOf: datatypes/XPN_ELR/HumanName
       vars:
         pid5: STRING_ALL, PID.5
       constants:
         hl7Use: patient-name
-    - condition: $pid9 NOT_NULL
-      generateList: true
-      expressionType: resource
-      specs: PID.9 *
-      valueOf: datatypes/XPN/HumanName
-      vars:
-        pid9: STRING_ALL, PID.9
-      constants:
-        hl7Use: patient-alias
 
 birthDate:
   type: DATE
@@ -248,7 +223,7 @@ gender:
 
 address:
   condition: $pid11 NOT_NULL
-  valueOf: datatypes/XAD/Address
+  valueOf: ../../datatypes/XAD/Address
   generateList: true
   expressionType: resource
   specs: PID.11 *
@@ -260,7 +235,7 @@ telecom:
   generateList: true
   expressions:
     - condition: $pid13 NOT_NULL
-      valueOf: datatypes/XTN/ContactPoint
+      valueOf: ../../datatypes/XTN/ContactPoint
       generateList: true
       expressionType: resource
       specs: PID.13 *
@@ -269,7 +244,7 @@ telecom:
       constants:
         useCode: home
     - condition: $pid14 NOT_NULL
-      valueOf: datatypes/XTN/ContactPoint
+      valueOf: ../../datatypes/XTN/ContactPoint
       generateList: true
       expressionType: resource
       specs: PID.14 *
@@ -277,15 +252,6 @@ telecom:
         pid14: STRING_ALL, PID.14
       constants:
         useCode: work
-    - condition: $pid40 NOT_NULL
-      valueOf: datatypes/XTN/ContactPoint
-      generateList: true
-      expressionType: resource
-      specs: PID.40 *
-      vars:
-        pid40: STRING_ALL, PID.40
-      constants:
-        hl7v2Field: PID.40
 
 communication:
   expressionType: nested
@@ -294,7 +260,7 @@ communication:
     pid15: STRING_ALL, PID.15
   expressionsMap:
     language:
-      valueOf: datatypes/CWE/CodeableConcept
+      valueOf: ../../datatypes/CWE/CodeableConcept
       expressionType: resource
       specs: PID.15
 
@@ -302,7 +268,7 @@ maritalStatus:
   condition: $pid16 NOT_NULL
   vars:
     pid16: STRING_ALL, PID.16
-  valueOf: datatypes/CWE/CodeableConcept
+  valueOf: ../../datatypes/CWE/CodeableConcept
   expressionType: resource
   specs: PID.16
 
@@ -315,7 +281,7 @@ link:
   generateList: true
   expressionsMap:
     other:
-      valueOf: datatypes/CX/RelatedPerson-mother
+      valueOf: ../../datatypes/CX/RelatedPerson-mother
       expressionType: reference
     type:
       type: STRING
@@ -411,7 +377,7 @@ meta:
           type: SYSTEM_URL
           value: last-updated-facility-namespace-id
         valueReference:
-          valueOf: datatypes/HD/Organization
+          valueOf: ../../datatypes/HD/Organization
           expressionType: reference
           specs: PID.34
 
@@ -454,7 +420,7 @@ extension:
           type: SYSTEM_URL
           value: mothersMaidenName
         valueHumanName:
-          valueOf: datatypes/XPN/HumanName
+          valueOf: datatypes/XPN_ELR/HumanName
           expressionType: resource
     - condition: $pid10 NOT_NULL
       expressionType: nested
@@ -467,7 +433,7 @@ extension:
           type: SYSTEM_URL
           value: race
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
           specs: CWE
     - condition: $pid17 NOT_NULL
@@ -480,7 +446,7 @@ extension:
           type: SYSTEM_URL
           value: religion
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: PID.17
     - condition: $pid22 NOT_NULL
@@ -494,7 +460,7 @@ extension:
           type: SYSTEM_URL
           value: ethnic-group
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
     - condition: $pid23 NOT_NULL
       expressionType: nested
@@ -533,7 +499,7 @@ extension:
               type: SYSTEM_URL
               value: code
             valueCodeableConcept:
-              valueOf: datatypes/CWE/CodeableConcept
+              valueOf: ../../datatypes/CWE/CodeableConcept
               expressionType: resource
     - expressionType: nested
       condition: $pid39 NOT_NULL
@@ -555,7 +521,7 @@ extension:
               type: SYSTEM_URL
               value: code
             valueCodeableConcept:
-              valueOf: datatypes/CWE/CodeableConcept
+              valueOf: ../../datatypes/CWE/CodeableConcept
               expressionType: resource
     - condition: $pid27 NOT_NULL
       vars:
@@ -567,31 +533,9 @@ extension:
           type: SYSTEM_URL
           value: veteran-military-status
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: PID.27
-    - expressionType: nested
-      condition: $pid28 NOT_NULL
-      generateList: true
-      vars:
-        pid28: STRING_ALL, PID.28
-      constants:
-        hl7v2Field: PID.28
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: patient-nationality
-        extension:
-          generateList: true
-          expressionType: nested
-          expressionsMap:
-            url:
-              type: SYSTEM_URL
-              value: code
-            valueCodeableConcept:
-              valueOf: datatypes/CWE/CodeableConcept
-              expressionType: resource
-              specs: PID.28
     - condition: $pid31 NOT_NULL
       vars:
         pid31: STRING_ALL, PID.31
@@ -628,7 +572,7 @@ extension:
                   type: STRING
                   value: species
                 valueCodeableConcept:
-                  valueOf: datatypes/CWE/CodeableConcept
+                  valueOf: datatypes/CWE_ELR/CodeableConcept
                   expressionType: resource
                   specs: PID.35
             - condition: $pid36 NOT_NULL
@@ -638,7 +582,7 @@ extension:
                   type: STRING
                   value: breed
                 valueCodeableConcept:
-                  valueOf: datatypes/CWE/CodeableConcept
+                  valueOf: ../../datatypes/CWE/CodeableConcept
                   expressionType: resource
                   specs: PID.36
             - condition: $pid37 NOT_NULL
