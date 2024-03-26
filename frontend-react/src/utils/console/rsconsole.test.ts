@@ -12,7 +12,7 @@ import { ConsoleLevel, RSConsole } from "./index";
 const message = "hello there";
 const obj = { hello: "there" };
 const defaultProperties = {
-    location: "http://localhost/",
+    location: "http://localhost:3000/",
 };
 const reportableConsoleLevels: ConsoleLevel[] = [
     "assert",
@@ -38,6 +38,7 @@ describe("RSConsole", () => {
     afterAll(() => {
         mockConsole.mockRestoreAll();
     });
+    afterEach(() => void vi.clearAllMocks());
     describe("when calling info", () => {
         test("calls console.info and trackTrace with the correct message and severity level", () => {
             const rsConsole = new RSConsole({
