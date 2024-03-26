@@ -42,6 +42,7 @@ class DatabaseDeliveryAccess(
         organization: String,
         orgService: String?,
     ): Condition {
+//        This is a temporary fix to make the daily data page show data for reports routed through the ELR ELIMS topic since reports routed through the ELR-ELIMS topic skip the batch step. There are plans to have a dashboard for receivers that works for all messages routed through RS.
         var filter = (
             ACTION.ACTION_NAME.eq(TaskAction.batch)
             .or(ACTION.ACTION_NAME.eq(TaskAction.send).and(REPORT_FILE.SCHEMA_TOPIC.eq(Topic.ELR_ELIMS)))
