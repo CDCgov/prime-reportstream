@@ -1,8 +1,6 @@
 ## Context
 
-Each step in both the Universal Pipeline has built in logic that retries the function five times
-before moving the failing message to a poison queue. The exceptions to this rule are the "Receive" step which has no retry logic
-and the "Send" step which has custom retry logic. More information on retry logic for the send step can be found in the Universal Pipeline [send step documentation](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/universal-pipeline/send.md)
+Each step in both the Universal Pipeline has built in logic that retries the function five times before moving the failing message to a poison queue. The exceptions to this rule are the "Receive" step which has no retry logic and the "Send" step which has custom retry logic. More information on retry logic for the send step can be found in the Universal Pipeline [send step documentation](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/universal-pipeline/send.md)
 
 ## Poison Queues
 ![Azure-queues](Azure-queues.png)
@@ -26,4 +24,9 @@ Be sure to select the queue that matches the pipeline step that the messages fai
 
 ## Resending messages that are no longer in the poison queue or that cannot be remediated within the 7 day window.
 
-At this time the only remediation option available is to manually re-send the original received message through the pipeline either locally or through the desired environment. The issue causing the message to fail must have been remediated or a new message created/obtained with the issue resolved (i.e. if the issue was a problem with the message format received from the sender, it may be necessary to inform the sender of the issue and have them re-send the data in the correct format.) 
+At this time the only remediation option available is to manually re-send the original received message through the pipeline either locally or through the desired environment. The issue causing the message to fail must have been remediated or a new message created/obtained with the issue resolved (i.e. if the issue was a problem with the message format received from the sender, it may be necessary to inform the sender of the issue and have them re-send the data in the correct format.)
+
+### Common poison queue issues needing manual remediation
+
+1.) Large file size causing fhir-convert timeout <br>
+    This issue occurs when a received FHIR message is so large that the amount of time needed to complete the fhir-convert step is greater than the 30 min timeout on the Azure function. These messages must be manually split into multiple smaller messages and then resent through the pipeline.
