@@ -1,10 +1,10 @@
+import { Security, useOktaAuth } from "@okta/okta-react";
 import { render, screen } from "@testing-library/react";
-import { PropsWithChildren } from "react";
 import App from "./App";
 import { configFixture } from "./contexts/Session/useSessionContext.fixtures";
 
 function MockComponent({ children }: any) {
-    return <div data-testid="app">{children}</div>;
+    return <>{children}</>;
 }
 
 vi.mock("rest-hooks", () => {
@@ -66,14 +66,20 @@ vi.mock("./utils/BrowserUtils", () => {
 vi.mock("react-router-dom", () => {
     return {
         createBrowserRouter: vi.fn(),
-        RouterProvider: MockComponent,
+        RouterProvider: () => <div data-testid="app" />,
     };
 });
 vi.mock("./components/RSErrorBoundary", () => {
     return {
-        AppErrorBoundary: ({ children }: PropsWithChildren) => children,
+        AppErrorBoundary: MockComponent,
+        default: MockComponent,
     };
 });
+
+const _mockUseOktaAuth = vi
+    .mocked(useOktaAuth)
+    .mockReturnValue({ authState: {} } as any);
+const _mockSecurity = vi.mocked(Security).mockImplementation(MockComponent);
 
 describe("App component", () => {
     test("renders without error", () => {

@@ -48,6 +48,7 @@ export interface AppProps {
  */
 const AuthStateGate = ({ children }: PropsWithChildren) => {
     const { authState } = useOktaAuth();
+
     if (!authState) return null;
     return children;
 };
@@ -133,6 +134,7 @@ function App({ config, routes }: AppProps) {
                     oktaAuth={oktaAuthRef.current}
                 >
                     <AuthStateGate>
+                        <div className="a"></div>
                         <QueryClientProvider client={appQueryClient}>
                             <SessionProvider
                                 config={config}
