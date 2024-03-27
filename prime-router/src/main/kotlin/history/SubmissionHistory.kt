@@ -11,6 +11,8 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
@@ -29,8 +31,17 @@ import java.time.OffsetDateTime
  * @property reportItemCount number of tests (data rows) contained in the report
  * @property sendingOrg the name of the organization that sent this submission
  * @property httpStatus response code for the user fetching this submission
+ * @property bodyUrl url used for generating the filename
+ * @property schemaName schema used for generating the filename
+ * @property bodyFormat filetype, used for generating the filename
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder(
+    value = [
+        "submissionId", "timestamp", "createdAt", "sender",
+        "id", "topic", "reportItemCount", "fileName", "fileType"
+    ]
+)
 open class SubmissionHistory(
     @JsonProperty("submissionId")
     actionId: Long,
@@ -49,6 +60,12 @@ open class SubmissionHistory(
     val httpStatus: Int? = null,
     @JsonIgnore
     val sendingOrgClient: String? = "",
+    @JsonIgnore
+    val bodyUrl: String? = null,
+    @JsonIgnore
+    val schemaName: String? = null,
+    @JsonProperty("fileType")
+    val bodyFormat: String? = null,
 ) : ReportHistory(
     actionId,
     createdAt,
@@ -57,6 +74,23 @@ open class SubmissionHistory(
     schemaTopic,
     itemCount,
 ) {
+    /**
+     * The actual download path for the file.
+     */
+    val fileName: String
+        get() {
+            if (this.reportId != null && this.schemaName != null && this.bodyFormat != null) {
+                return Report.formExternalFilename(
+                    this.bodyUrl,
+                    ReportId.fromString(this.reportId),
+                    this.schemaName,
+                    Report.Format.safeValueOf(this.bodyFormat),
+                    this.createdAt
+                )
+            }
+            return ""
+        }
+
     /**
      * The sender of the input report.
      */
@@ -108,7 +142,11 @@ class DetailedSubmissionHistory(
     null,
     null,
     null,
-    httpStatus
+    httpStatus,
+    "",
+    "",
+    "",
+    ""
 ) {
     /**
      * Alias for the reportId
