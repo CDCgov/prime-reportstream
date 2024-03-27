@@ -1,9 +1,15 @@
 import { AppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { OktaAuth } from "@okta/okta-auth-js";
-import { Security } from "@okta/okta-react";
+import { Security, useOktaAuth } from "@okta/okta-react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Suspense, useCallback, useMemo, useRef } from "react";
+import {
+    PropsWithChildren,
+    Suspense,
+    useCallback,
+    useMemo,
+    useRef,
+} from "react";
 import { HelmetProvider } from "react-helmet-async";
 import {
     createBrowserRouter,
@@ -35,6 +41,16 @@ export interface AppProps {
     routes: RouteObject[];
     config: AppConfig;
 }
+
+/**
+ *
+ * Prevents children from rendering until authState is initialized
+ */
+const AuthStateGate = ({ children }: PropsWithChildren) => {
+    const { authState } = useOktaAuth();
+    if (!authState) return null;
+    return children;
+};
 
 /**
  * App entrypoint that bootstraps all needed systems.
@@ -116,39 +132,46 @@ function App({ config, routes }: AppProps) {
                     restoreOriginalUri={restoreOriginalUri}
                     oktaAuth={oktaAuthRef.current}
                 >
-                    <QueryClientProvider client={appQueryClient}>
-                        <SessionProvider config={config} rsConsole={rsConsole}>
-                            <HelmetProvider>
-                                <AuthorizedFetchProvider>
-                                    <FeatureFlagProvider>
-                                        <NetworkErrorBoundary
-                                            fallbackComponent={Fallback}
-                                        >
-                                            <CacheProvider>
-                                                <ToastProvider>
-                                                    <DAPScript
-                                                        pathname={
-                                                            location.pathname
-                                                        }
-                                                    />
-                                                    <Suspense>
-                                                        <RouterProvider
-                                                            router={
-                                                                routerRef.current
+                    <AuthStateGate>
+                        <QueryClientProvider client={appQueryClient}>
+                            <SessionProvider
+                                config={config}
+                                rsConsole={rsConsole}
+                            >
+                                <HelmetProvider>
+                                    <AuthorizedFetchProvider>
+                                        <FeatureFlagProvider>
+                                            <NetworkErrorBoundary
+                                                fallbackComponent={Fallback}
+                                            >
+                                                <CacheProvider>
+                                                    <ToastProvider>
+                                                        <DAPScript
+                                                            pathname={
+                                                                location.pathname
                                                             }
                                                         />
-                                                    </Suspense>
-                                                    <ReactQueryDevtools
-                                                        initialIsOpen={false}
-                                                    />
-                                                </ToastProvider>
-                                            </CacheProvider>
-                                        </NetworkErrorBoundary>
-                                    </FeatureFlagProvider>
-                                </AuthorizedFetchProvider>
-                            </HelmetProvider>
-                        </SessionProvider>
-                    </QueryClientProvider>
+                                                        <Suspense>
+                                                            <RouterProvider
+                                                                router={
+                                                                    routerRef.current
+                                                                }
+                                                            />
+                                                        </Suspense>
+                                                        <ReactQueryDevtools
+                                                            initialIsOpen={
+                                                                false
+                                                            }
+                                                        />
+                                                    </ToastProvider>
+                                                </CacheProvider>
+                                            </NetworkErrorBoundary>
+                                        </FeatureFlagProvider>
+                                    </AuthorizedFetchProvider>
+                                </HelmetProvider>
+                            </SessionProvider>
+                        </QueryClientProvider>
+                    </AuthStateGate>
                 </Security>
             </AppInsightsContext.Provider>
         </AppErrorBoundary>

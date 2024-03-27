@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { PropsWithChildren } from "react";
 import App from "./App";
 import { configFixture } from "./contexts/Session/useSessionContext.fixtures";
 
@@ -70,8 +71,7 @@ vi.mock("react-router-dom", () => {
 });
 vi.mock("./components/RSErrorBoundary", () => {
     return {
-        __esModule: true,
-        default: MockComponent,
+        AppErrorBoundary: ({ children }: PropsWithChildren) => children,
     };
 });
 
