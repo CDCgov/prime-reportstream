@@ -37,11 +37,23 @@ It is possible that an observation may not contain information intended to conve
 <br>1.) [LOINC terms for SARS-CoV-2 AOE questions](https://loinc.org/sars-cov-2-and-covid-19/)<br>
 2.) [Public health laboratory ask at order entry panel](https://loinc.org/81959-9)<br>
 
+## Updating the table 
+There are two ways to update the table.
 
-## Updating RCTC valuesets
+1.) Automatically using the Value Set Authority Center (VSAC) API <br>
+2.) Manually by downloading and manipulated the table locally
+
+In the event that an update to the RCTC introduces a new valueset, or we need to map a code that does not exist in the RCTC such as a local code or AOE, we will need to update the table manually for the time being. This is accomplished by downloading the table locally to a CSV
+file and then add or remove rows as needed. The Condition Code System for any mappings added ad-hoc (included the AOEs) should be labled as "ReportStream" since they do not come from any standardized ValueSet.
+
+*********Important, ensure that when editing the file locally, entries containing longer codes do not get converted to a different format (If editing in excel, it will attempt to use scientific notation for longer numeric values)*********
+
+All tables should be updated in staging first using any of the below methods and smoke tests run against staging prior to pushing changes to production. In order to run the smoke tests use the ./prime test CLI command. Steps to run this tests against the staging environment can be found in the "Deployment Process" document pinned to the top to #prime-reportstream-deployment channel or in the [running-tests document](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/getting-started/running-tests.md). In order to run any commands against the remote environments, you will first need to run the ./prime login --env <prod-or-staging> CLI command to obtain an access token.
+
+### Updating RCTC valuesets
 
 The RCTC valuesets are updated regularly. These valuesets are stored in the Value Set Authority Center (VSAC) and can be accessed via an [API](https://www.nlm.nih.gov/vsac/support/usingvsac/vsacsvsapiv2.html).
-In order to update the table automatically using the VSAC API you will need a UMLS license (free). To obtain a liscense follow these steps: <br>
+In order to update the table automatically using the VSAC API you will need a UMLS license (free). To obtain a license follow these steps: <br>
 
 1.) Visit the [VSAC Support Center](https://www.nlm.nih.gov/vsac/support/index.html)
 2.) Click on "Request a UMLS License" under "How to Use VSAC"
@@ -50,10 +62,9 @@ In order to update the table automatically using the VSAC API you will need a UM
     a.) Navigate to https://uts.nlm.nih.gov/uts/
     b.) Select "My Profile" in top right
     c.) Copy value from "API KEY"
-    
 
 ### Updating all RCTC valuesets from the Value Set Authority Center (VSAC)
-Use ./prime lookuptables update-mapping CLI command to update all RCTC value sets from the VSAC. Be sure to select yes when prompted to write the table or output a new local csv.
+Use ./prime lookuptables update-mapping CLI command to update all RCTC value sets from the VSAC. Be sure to select yes when prompted to write the table or output a new local csv. In order to run the commands against a remote environment (Prod or Staging) you will first need to run the ./prime login --env <prod-or-staging>  CLI command to obtain a token to access the remote environment.
 
 Example:
 ```
@@ -70,7 +81,7 @@ options:
 ```
 
 ### Update one of more specific valueset(S) from the Value Set Authority Center(VSAC)
-To update only specific valuesets in the table include the -d parameter and provide a comma sperated list of OIDs. This will add new values from only the specified valuesets.
+To update only specific valuesets in the table include the -d parameter and provide a comma separated list of OIDs. This will add new values from only the specified valuesets. 
 
 Example:
 ```
@@ -86,16 +97,9 @@ options:
 -d, --OID                 Provide a comma-separated list of OIDs to update   
 ```
 
-## Updating the table manually
+### Downloading the active table manually
 
-In the event that an updated to the RCTC introduces a new valueset, or we need to map a code that does not exists in the RCTC such as a local code or AOE, we will need to update the table manually for the time being. This is accomplished by downloading the table locally to a CSV
-file and then add or remove rows as needed. The Condition Code System for any mappings added ad-hoc (included the AOEs) should be labled as "ReportStream" since they do not come from any standardized ValueSet.
-
-*********Important, ensure that when editing the file locally, entries containing longer codes do not get converted to a different format (If editing in excel, it will attempt to use scientific notation for longer numeric values)*********
-
-### Downloading the active table
-
-When the table needs to be updated manually you should first download the active table locally before updating using the ./prime lookuptables CLI command.
+When the table needs to be updated manually you should first download the active table locally before updating using the ./prime lookuptables CLI command. 
 
 Example
 ```
@@ -110,6 +114,10 @@ options:
   -v, --version=<int>       The version of the table to get
   -h, --help                Show this message and exit
 ```
+
+## Finding the active version of a table
+
+Table versions can be found by looking in the "Lookup Table Version" table in staging or prod Metabase. The active version of a table will have the value "true" in the "Is Active" column of the table.  
 
 ### Uploading new table manually
 
@@ -210,8 +218,12 @@ Either copy the values from the website and map them into the appropriate column
 -OR-  
 Sign up for an account, download the CSV, and map the data from it
 
-## How to map condition to LOINC/SNOMED code not found in RCTC and not an AOE
+## Sender Onboarding
+
+As part of sender onboarding we will need to check the list of codes that the sender will be sending against the list of codes that are mapped in the observation-mapping table. In order to accomplish this we will need the list of LOINC/SNOMED order and result codes the sender will be sending (also known as a "compendium") in a CSV file. Information on this process can be found in [senders.md](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/senders.md)
+
+### How to map condition to LOINC/SNOMED code not found in RCTC and not an AOE
 
 The RCTC is frequently updated and should contain the majority of codes that we receive. In the event we need to map a Lab Developed Test (LDT) or a LOINC/SNOMED code that is not represented in the RCTC
 we will need to determine what standardized SNOMED condition code it should be mapped to. In some cases this will be obvious and we can use our best judgment (i.e. a test for Flu should be mapped to Influenza, a test for chlamydia should be mapped to chlmydia etc.).
-In cases where the condition is not obvious we should check with the sender (this will usually be accomplished in the sender onboarding as described in [sender.md](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/senders.md)). The sender's assertion of the appropriate condition the code is mapped to should be validated with a receiving STLT.
+In cases where the condition is not obvious we should check with the sender (this will usually be accomplished in the sender onboarding as described in [sender.md](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/sender-onboarding/senders.md)). The sender's assertion of the appropriate condition the code is mapped to should be validated with a receiving STLT.
