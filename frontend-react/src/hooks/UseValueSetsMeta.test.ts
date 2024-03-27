@@ -5,7 +5,7 @@ import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables } from "../config/endpoints/lookupTables";
 import { renderHook } from "../utils/CustomRenderUtils";
 
-//jest.mock("../contexts/Session/useSessionContext")
+//vi.mock("../contexts/Session/useSessionContext")
 
 describe("useValueSetsMeta", () => {
     const renderWithAppWrapper = (tableName?: LookupTables) =>

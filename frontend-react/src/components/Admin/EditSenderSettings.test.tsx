@@ -11,9 +11,9 @@ import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../../contexts/Session/useSessionContext",
-);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 const mockData: OrgSenderSettingsResource = new TestResponse(
     ResponseType.SENDER_SETTINGS,

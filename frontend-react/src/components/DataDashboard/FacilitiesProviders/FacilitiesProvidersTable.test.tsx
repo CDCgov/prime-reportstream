@@ -13,9 +13,9 @@ import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizatio
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../../../contexts/Session/useSessionContext",
-);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
+>("../../../contexts/Session/useSessionContext");
 
 const mockData: FacilityResource[] = [
     {

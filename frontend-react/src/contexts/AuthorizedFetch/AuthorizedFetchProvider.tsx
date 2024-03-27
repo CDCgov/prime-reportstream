@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import { createContext, PropsWithChildren, useCallback } from "react";
 
 import { AxiosOptionsWithSegments, RSEndpoint } from "../../config/endpoints";
-import useAppInsightsContext from "../../hooks/useAppInsightsContext";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import { RSNetworkError } from "../../utils/RSNetworkError";
 import useSessionContext from "../Session/useSessionContext";
 
@@ -16,7 +16,6 @@ export type IAuthorizedFetchContext<T = any> = AuthorizedFetcher<T>;
 export const AuthorizedFetchContext = createContext<IAuthorizedFetchContext>(
     () => Promise.reject("fetcher uninitialized"),
 );
-
 const AuthorizedFetchProvider = ({
     children,
 }: PropsWithChildren<{ initializedOverride?: boolean }>) => {

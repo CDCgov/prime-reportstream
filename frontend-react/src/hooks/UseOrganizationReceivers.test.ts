@@ -6,9 +6,9 @@ import { dummyReceivers, orgServer } from "../__mocks__/OrganizationMockServer";
 import { renderHook } from "../utils/CustomRenderUtils";
 import { MemberType } from "../utils/OrganizationUtils";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../contexts/Session/useSessionContext",
-);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../contexts/Session/__mocks__/useSessionContext")
+>("../contexts/Session/useSessionContext");
 
 describe("useOrganizationReceivers", () => {
     beforeAll(() => {

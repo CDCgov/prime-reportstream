@@ -4,9 +4,9 @@ import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 import { Organizations } from "../../UseAdminSafeOrganizationName";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../../../contexts/Session/useSessionContext",
-);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
+>("../../../contexts/Session/useSessionContext");
 
 describe("useReportsList", () => {
     describe("when requesting as a receiver", () => {

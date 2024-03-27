@@ -12,7 +12,7 @@ import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
-import useAppInsightsContext from "../../hooks/useAppInsightsContext";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
 import Alert from "../../shared/Alert/Alert";
 import { FeatureName } from "../../utils/FeatureName";

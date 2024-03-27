@@ -8,9 +8,9 @@ import {
 } from "./CompareJsonModal";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../../contexts/Session/useSessionContext",
-);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 describe("ConfirmSaveSettingModal", () => {
     const VALID_JSON = JSON.stringify({ a: 1 });

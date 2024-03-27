@@ -9,6 +9,9 @@ import {
 } from "../../../utils/OrganizationUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
+>("../../../contexts/Session/useSessionContext");
 const mockGetUser = vi.fn();
 
 const currentDate = new Date();

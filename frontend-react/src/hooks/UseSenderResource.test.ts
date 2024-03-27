@@ -5,9 +5,9 @@ import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
 import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import { MembershipSettings, MemberType } from "../utils/OrganizationUtils";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../contexts/Session/useSessionContext",
-);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../contexts/Session/__mocks__/useSessionContext")
+>("../contexts/Session/useSessionContext");
 
 describe("useSenderResource", () => {
     beforeAll(() => {

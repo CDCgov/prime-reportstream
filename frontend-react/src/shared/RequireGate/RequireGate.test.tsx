@@ -6,7 +6,13 @@ import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { PERMISSIONS } from "../../utils/UsefulTypes";
 
+vi.mock("../../contexts/FeatureFlag/useFeatureFlags");
+
+const mockFeatureFlagContext = vi.mocked(useFeatureFlags);
 const mockUseNavigate = vi.fn();
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 vi.mock("react-router", async (importActual) => ({
     ...(await importActual<typeof import("react-router")>()),

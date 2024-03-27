@@ -3,13 +3,8 @@ import { userEvent } from "@testing-library/user-event";
 
 import ReportDetailsTable from "./ReportDetailsTable";
 import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
-import {
-    mockAppInsights,
-    mockAppInsightsContextReturnValue,
-} from "../../../contexts/__mocks__/AppInsightsContext";
-
 import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import useAppInsightsContext from "../../../hooks/useAppInsightsContext";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { selectDatesFromRange } from "../../../utils/TestUtils";
 

@@ -8,14 +8,13 @@ import Spinner from "../../components/Spinner";
 import { PaginationProps } from "../../components/Table/Pagination";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import { TableFilterDateLabel } from "../../components/Table/TableFilters";
-import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import useFilterManager, {
     FilterManager,
     FilterManagerDefaults,
 } from "../../hooks/filters/UseFilterManager";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
-import useAppInsightsContext from "../../hooks/useAppInsightsContext";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import usePagination from "../../hooks/UsePagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { EventName } from "../../utils/AppInsights";

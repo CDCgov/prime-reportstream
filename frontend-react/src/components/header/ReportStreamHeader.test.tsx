@@ -1,8 +1,8 @@
 import { screen, waitFor } from "@testing-library/react";
 
 import ReportStreamHeader from "./ReportStreamHeader";
-import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import type { RSSessionContext } from "../../contexts/Session";
+import { RSSessionContext } from "../../contexts/Session/SessionProvider";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 const mockUseSessionContext = vi.mocked(useSessionContext);

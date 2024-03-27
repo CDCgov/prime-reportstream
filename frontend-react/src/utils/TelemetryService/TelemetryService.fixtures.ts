@@ -1,11 +1,11 @@
-export const mockAppInsights = {
-    trackEvent: jest.fn(),
-    trackTrace: jest.fn(),
-    trackException: jest.fn(),
+export const appInsightsFixture = {
+    trackEvent: vi.fn(),
+    trackTrace: vi.fn(),
+    trackException: vi.fn(),
     customProperties: {},
     properties: {
         context: {
-            getSessionId: jest.fn().mockReturnValue("test"),
+            getSessionId: vi.fn().mockReturnValue("test"),
             client: {},
             user: {},
         },

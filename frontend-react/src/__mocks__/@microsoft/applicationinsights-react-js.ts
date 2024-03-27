@@ -1,7 +1,6 @@
-import { mockAppInsights } from "../../utils/TelemetryService/TelemetryService.fixtures";
+import { appInsightsFixture } from "../../utils/TelemetryService/TelemetryService.fixtures";
 
 module.exports = {
-    __esModule: true,
-    ...jest.requireActual("@microsoft/applicationinsights-react-js"),
-    useAppInsightsContext: jest.fn().mockReturnValue(mockAppInsights),
+    ...(await vi.importActual("@microsoft/applicationinsights-react-js")),
+    useAppInsightsContext: vi.fn().mockReturnValue(appInsightsFixture),
 };

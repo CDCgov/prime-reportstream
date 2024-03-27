@@ -23,7 +23,7 @@ import { USLink } from "../../components/USLink";
 import config from "../../config";
 import useSessionContext from "../../contexts/Session/useSessionContext";
 import { useToast } from "../../contexts/Toast";
-import useAppInsightsContext from "../../hooks/useAppInsightsContext";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {

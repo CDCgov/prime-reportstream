@@ -27,11 +27,7 @@ const Filler = () => (
     </>
 );
 const RouteComponent = () => (
-    <SessionProvider
-        oktaAuth={{} as any}
-        restoreOriginalUri={() => void 0}
-        config={config}
-    >
+    <SessionProvider config={config}>
         <MainLayoutBase />
     </SessionProvider>
 );

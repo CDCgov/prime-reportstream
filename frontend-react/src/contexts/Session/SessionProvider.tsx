@@ -18,9 +18,10 @@ import {
 import { IIdleTimerProps, useIdleTimer } from "react-idle-timer";
 import type { AppConfig } from "../../config";
 import site from "../../content/site.json";
-import useAppInsightsContext from "../../hooks/useAppInsightsContext";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import { updateApiSessions } from "../../network/Apis";
 import { EventName } from "../../utils/AppInsights";
+import { isUseragentPreferred } from "../../utils/BrowserUtils";
 import {
     MembershipSettings,
     membershipsFromToken,
@@ -250,6 +251,13 @@ function SessionProvider({ children, config }: SessionProviderProps) {
             aiReactPlugin.properties.context.user.clearAuthenticatedUserContext();
         }
     }, [authState?.idToken, aiReactPlugin]);
+
+    // Mark that user agent is outdated on telemetry for filtering
+    useEffect(() => {
+        if (!isUseragentPreferred(window.navigator.userAgent))
+            aiReactPlugin.customProperties.isUserAgentOutdated = true;
+        else aiReactPlugin.customProperties.isUserAgentOutdated = undefined;
+    }, [aiReactPlugin]);
 
     if (!authState) return null;
 

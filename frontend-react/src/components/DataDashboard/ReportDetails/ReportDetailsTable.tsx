@@ -4,7 +4,7 @@ import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
 import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
-import useAppInsightsContext from "../../../hooks/useAppInsightsContext";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
 import { EventName } from "../../../utils/AppInsights";
 import { FeatureName } from "../../../utils/FeatureName";
 import DataDashboardTableFilters from "../DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";

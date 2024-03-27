@@ -13,9 +13,9 @@ import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MemberType } from "../../utils/OrganizationUtils";
 
-const { mockSessionContentReturnValue } = await vi.importMock(
-    "../../contexts/Session/useSessionContext",
-);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
 
@@ -93,10 +93,6 @@ describe("ManagePublicKey", () => {
                 isUserTransceiver: false,
             } as any,
         });
-    });
-
-    afterEach(() => {
-        vi.resetAllMocks();
     });
 
     describe("when the Organization has more than one Sender", () => {

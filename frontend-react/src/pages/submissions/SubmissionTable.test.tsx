@@ -7,9 +7,9 @@ import SubmissionsResource from "../../resources/SubmissionsResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MemberType } from "../../utils/OrganizationUtils";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../../contexts/Session/useSessionContext",
-);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 describe("SubmissionTable", () => {
     test("renders a placeholder", async () => {

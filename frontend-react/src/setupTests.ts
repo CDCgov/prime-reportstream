@@ -20,9 +20,11 @@ beforeAll(() => {
     vi.mock("@microsoft/applicationinsights-react-js");
     vi.mock("@okta/okta-react");
     vi.mock("./contexts/Session/useSessionContext");
+    vi.mock("./hooks/UseAppInsightsContext");
     vi.stubGlobal("scrollTo", vi.fn());
     vi.mock("./oktaConfig");
     vi.mock("focus-trap-react");
+    vi.mock("./contexts/FeatureFlag/useFeatureFlags");
 });
 
 afterAll(() => cleanup());

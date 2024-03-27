@@ -5,9 +5,9 @@ import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer"
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../../../contexts/Session/useSessionContext",
-);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
+>("../../../contexts/Session/useSessionContext");
 
 describe("useReceiverDeliveries", () => {
     beforeAll(() => dataDashboardServer.listen());

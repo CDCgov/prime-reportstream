@@ -1,47 +1,13 @@
-import { SeverityLevel } from "@microsoft/applicationinsights-web";
-import { mockRsconsole } from "../../../utils/rsConsole/rsConsole.fixtures";
 import type { RSSessionContext } from "../SessionProvider";
+import { contextFixture } from "../useSessionContext.fixtures";
 
-const useSessionContext = jest.fn().mockReturnValue({
-    oktaAuth: {} as any,
-    authState: {},
-    logout: () => void 0,
-    user: {
-        isUserAdmin: false,
-        isUserSender: false,
-        isUserReceiver: false,
-    } as any,
-    setActiveMembership: () => void 0,
-    config: {
-        AI_CONSOLE_SEVERITY_LEVELS: {
-            info: SeverityLevel.Information,
-            warn: SeverityLevel.Warning,
-            error: SeverityLevel.Error,
-            debug: SeverityLevel.Verbose,
-            assert: SeverityLevel.Error,
-            trace: SeverityLevel.Warning,
-        },
-    } as any,
-    site: {} as any,
-    rsConsole: mockRsconsole as any,
-});
+const useSessionContext = vi.fn(() => contextFixture);
 
 export function mockSessionContentReturnValue(
     impl?: Partial<RSSessionContext>,
-) {
+): () => RSSessionContext {
     return useSessionContext.mockReturnValue({
-        oktaAuth: {} as any,
-        authState: {},
-        logout: () => void 0,
-        user: {
-            isUserAdmin: false,
-            isUserSender: false,
-            isUserReceiver: false,
-        } as any,
-        setActiveMembership: () => void 0,
-        config: {} as any,
-        site: {} as any,
-        rsConsole: mockRsconsole as any,
+        ...(contextFixture as any),
         ...impl,
     });
 }

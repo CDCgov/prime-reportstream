@@ -15,7 +15,7 @@ import { WatersResponse } from "../../config/endpoints/waters";
 import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import useAppInsightsContext from "../../hooks/useAppInsightsContext";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import useSenderResource from "../../hooks/UseSenderResource";
 import { EventName } from "../../utils/AppInsights";

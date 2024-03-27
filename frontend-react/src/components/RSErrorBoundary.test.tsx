@@ -6,9 +6,9 @@ import { renderApp } from "../utils/CustomRenderUtils";
 import { mockRsconsole } from "../utils/rsConsole/rsConsole.fixtures";
 import { RSNetworkError } from "../utils/RSNetworkError";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../contexts/Session/useSessionContext",
-);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../contexts/Session/__mocks__/useSessionContext")
+>("../contexts/Session/useSessionContext");
 const rsError = new RSNetworkError(new AxiosError("rsnetwork error test"));
 
 // Dummy components for testing

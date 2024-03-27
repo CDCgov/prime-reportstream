@@ -3,34 +3,25 @@ import { fireEvent, render, screen } from "@testing-library/react";
 
 import { useContext } from "react";
 import SessionProvider, { SessionContext } from "./SessionProvider";
-import { AppConfig } from "../../config";
+import { configFixture } from "./useSessionContext.fixtures";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
+import { isUseragentPreferred } from "../../utils/BrowserUtils";
 import { MemberType } from "../../utils/OrganizationUtils";
 
-jest.mock("../../utils/PermissionsUtils");
+vi.mock("../../utils/PermissionsUtils");
+vi.mock("../../utils/BrowserUtils", () => {
+    return {
+        isUseragentPreferred: vi.fn(),
+    };
+});
+vi.mock("../../utils/TelemetryService/TelemetryService");
 
-const mockUseOktaAuth = jest.mocked(useOktaAuth);
+const mockUseOktaAuth = vi.mocked(useOktaAuth);
 
-const config = {
-    AI_CONSOLE_SEVERITY_LEVELS: {} as any,
-    AI_REPORTABLE_CONSOLE_LEVELS: [],
-    API_ROOT: "" as any,
-    DEFAULT_FEATURE_FLAGS: "" as any,
-    IS_PREVIEW: false,
-    OKTA_CLIENT_ID: "",
-    OKTA_URL: "",
-    RS_API_URL: "",
-    IDLE_TIMERS: {
-        timeout: 1000 * 60 * 15,
-        debounce: 500,
-        onIdle: jest.fn(),
-    },
-    MODE: "test",
-    APPLICATION_INSIGHTS: {} as any,
-    OKTA_AUTH: {} as any,
-    OKTA_WIDGET: {} as any,
-} as const satisfies AppConfig;
-
-const mockOnIdle = config.IDLE_TIMERS.onIdle;
+const mockOnIdle = configFixture.IDLE_TIMERS.onIdle;
+const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
+const mockReactPlugin = mockUseAppInsightsContext();
+const mockIsUseragentPreferred = vi.mocked(isUseragentPreferred);
 
 describe("SessionContext", () => {
     describe("SessionContext admin hard check", () => {
@@ -58,7 +49,7 @@ describe("SessionContext", () => {
                 },
             } as any);
             render(
-                <SessionProvider key={1} config={{ ...config }}>
+                <SessionProvider key={1} config={{ ...configFixture }}>
                     <TestComponent key={1} />
                 </SessionProvider>,
             );
@@ -75,7 +66,7 @@ describe("SessionContext", () => {
             } as any);
             render(
                 <div>
-                    <SessionProvider key={2} config={{ ...config }}>
+                    <SessionProvider key={2} config={{ ...configFixture }}>
                         <TestComponent key={2} />
                     </SessionProvider>
                 </div>,
@@ -87,20 +78,22 @@ describe("SessionContext", () => {
     describe("idle timer", () => {
         function setup() {
             render(
-                <SessionProvider config={{ ...config }}>Test</SessionProvider>,
+                <SessionProvider config={{ ...configFixture }}>
+                    Test
+                </SessionProvider>,
             );
         }
         beforeEach(() => {
-            jest.useFakeTimers();
+            vi.useFakeTimers();
         });
         afterEach(() => {
-            jest.useRealTimers();
+            vi.useRealTimers();
         });
         test("Idle timer does not trigger before configured time", () => {
             const testPeriods = [
-                config.IDLE_TIMERS.timeout / 3,
-                (config.IDLE_TIMERS.timeout / 3) * 2,
-                config.IDLE_TIMERS.timeout - 1000 * 60,
+                configFixture.IDLE_TIMERS.timeout / 3,
+                (configFixture.IDLE_TIMERS.timeout / 3) * 2,
+                configFixture.IDLE_TIMERS.timeout - 1000 * 60,
             ];
             const start = Date.now();
             setup();
@@ -108,7 +101,7 @@ describe("SessionContext", () => {
             expect(mockOnIdle).not.toHaveBeenCalled();
 
             for (const timePeriod of testPeriods) {
-                jest.setSystemTime(start + timePeriod);
+                vi.setSystemTime(start + timePeriod);
                 fireEvent.focus(document);
                 expect(mockOnIdle).not.toHaveBeenCalled();
             }
@@ -119,9 +112,35 @@ describe("SessionContext", () => {
             setup();
 
             expect(mockOnIdle).not.toHaveBeenCalled();
-            jest.setSystemTime(start + config.IDLE_TIMERS.timeout);
+            vi.setSystemTime(start + configFixture.IDLE_TIMERS.timeout);
             fireEvent.focus(document);
             expect(mockOnIdle).toHaveBeenCalled();
+        });
+    });
+
+    describe("telemetry custom properties", () => {
+        function setup(isUseragentPreferred = true) {
+            mockIsUseragentPreferred.mockReturnValue(isUseragentPreferred);
+            render(
+                <SessionProvider config={{ ...configFixture }}>
+                    Test
+                </SessionProvider>,
+            );
+        }
+        describe("isUserAgentOutdated", () => {
+            test("undefined when regex test passes", () => {
+                setup();
+                expect(
+                    mockReactPlugin.customProperties.isUserAgentOutdated,
+                ).toBe(undefined);
+            });
+
+            test("true when test fails", () => {
+                setup(false);
+                expect(
+                    mockReactPlugin.customProperties.isUserAgentOutdated,
+                ).toBe(true);
+            });
         });
     });
 });

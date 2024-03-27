@@ -13,7 +13,7 @@ import {
 } from "../../__mocks__/validation";
 import { RSSender } from "../../config/endpoints/settings";
 import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
-import useAppInsightsContext from "../../hooks/useAppInsightsContext";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
 import * as useSenderResourceExports from "../../hooks/UseSenderResource";
@@ -25,10 +25,10 @@ import {
     Format,
 } from "../../utils/TemporarySettingsAPITypes";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../../contexts/Session/useSessionContext",
-);
-const mockUseAppInsightsContext = jest.mocked(useAppInsightsContext);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
+const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
 const mockAppInsights = mockUseAppInsightsContext();
 
 describe("FileHandlerFileUploadStep", () => {

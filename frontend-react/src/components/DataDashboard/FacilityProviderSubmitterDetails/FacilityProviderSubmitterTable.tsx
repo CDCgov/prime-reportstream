@@ -3,7 +3,7 @@ import { SenderTypeDetailResource } from "../../../config/endpoints/dataDashboar
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
-import useAppInsightsContext from "../../../hooks/useAppInsightsContext";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
 import Table from "../../../shared/Table/Table";
 import { EventName } from "../../../utils/AppInsights";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";

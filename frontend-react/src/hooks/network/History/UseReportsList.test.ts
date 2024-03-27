@@ -3,9 +3,9 @@ import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../../../contexts/Session/useSessionContext",
-);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
+>("../../../contexts/Session/useSessionContext");
 
 describe("useReportsList", () => {
     beforeAll(() => deliveryServer.listen());

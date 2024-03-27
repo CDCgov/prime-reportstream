@@ -3,7 +3,7 @@ import { OktaAuth } from "@okta/okta-auth-js";
 import { Security } from "@okta/okta-react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Suspense, useCallback, useEffect, useRef } from "react";
+import { Suspense, useCallback, useRef } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import {
     createBrowserRouter,
@@ -21,7 +21,6 @@ import ToastProvider from "./contexts/Toast";
 import { appQueryClient } from "./network/QueryClients";
 import { ErrorPage } from "./pages/error/ErrorPage";
 import DAPScript from "./shared/DAPScript/DAPScript";
-import { isUseragentPreferred } from "./utils/BrowserUtils";
 import { permissionCheck } from "./utils/PermissionsUtils";
 import {
     createTelemetryService,
@@ -58,16 +57,6 @@ function App({ config, routes }: AppProps) {
     if (!routerRef.current) routerRef.current = createBrowserRouter(routes);
 
     const Fallback = useCallback(() => <ErrorPage type="page" />, []);
-
-    // Mark that user agent is outdated on telemetry for filtering
-    useEffect(() => {
-        if (!isUseragentPreferred(window.navigator.userAgent))
-            aiReactPluginRef.current.customProperties.isUserAgentOutdated =
-                true;
-        else
-            aiReactPluginRef.current.customProperties.isUserAgentOutdated =
-                undefined;
-    }, [aiReactPluginRef]);
 
     const restoreOriginalUri = useCallback(
         /**
