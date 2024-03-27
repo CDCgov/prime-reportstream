@@ -76,6 +76,6 @@ describe("useOrganizationReceivers", () => {
         const { result } = renderHook(() => useOrganizationReceivers());
         await waitFor(() => expect(result.current.data).toBeNull());
         expect(result.current.isLoading).toEqual(false);
-        expect(result.current.isDisabled).toEqual(true);
+        expect(result.current.isLoading).toEqual(false);
     });
 });

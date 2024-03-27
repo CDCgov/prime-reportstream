@@ -8,8 +8,8 @@ import Table from "../../../shared/Table/Table";
 import { EventName } from "../../../utils/AppInsights";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
-import TableFilters from "../../Table/TableFilters";
 import { USLink } from "../../USLink";
+import DataDashboardTableFilters from "../DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
@@ -94,7 +94,7 @@ function FacilityProviderSubmitterTable(
         <div className={styles.FacilityProviderSubmitterTable}>
             <section id="facilities">
                 <h2>Your available reports including {props.senderTypeName}</h2>
-                <TableFilters
+                <DataDashboardTableFilters
                     startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}

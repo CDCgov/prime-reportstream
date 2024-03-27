@@ -175,6 +175,19 @@ const config = {
             },
         },
     } satisfies WidgetOptions,
+    PAGE_META: {
+        defaults: {
+            title: import.meta.env.VITE_TITLE,
+            description: import.meta.env.VITE_DESCRIPTION,
+            openGraph: {
+                image: {
+                    src: import.meta.env.VITE_OPENGRAPH_DEFAULT_IMAGE_SRC,
+                    altText: import.meta.env
+                        .VITE_OPENGRAPH_DEFAULT_IMAGE_ALTTEXT,
+                },
+            },
+        },
+    },
 } as const;
 
 export type AppConfig = typeof config;

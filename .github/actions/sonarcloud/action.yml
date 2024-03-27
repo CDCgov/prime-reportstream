@@ -12,7 +12,6 @@ inputs:
 runs:
   using: composite
   steps:
-
     - name: Run Default SonarCloud Scan
       if: inputs.scan-level == 'default'
       uses: sonarsource/sonarcloud-github-action@49e6cd3b187936a73b8280d59ffd9da69df63ec9
@@ -21,7 +20,7 @@ runs:
         SONAR_TOKEN: ${{ inputs.sonar-token }}
       with:
         args: >
-          -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*
+          -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*,prime-router/src/main/java/**
           -Dsonar.cpd.exclusions=frontend-react/**/*.test.*,prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
           -Dsonar.sources=frontend-react/src,prime-router/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
@@ -29,6 +28,7 @@ runs:
           -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
           -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
+          -Dsonar.exclusions=prime-router/src/main/java/**
 
     - name: Run Frontend SonarCloud Scan
       if: inputs.scan-level == 'frontend'
@@ -46,6 +46,7 @@ runs:
           -Dsonar.organization=cdcgov
           -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
           -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
+          -Dsonar.exclusions=prime-router/src/main/java/**
 
     - name: Run Backend SonarCloud Scan
       if: inputs.scan-level == 'backend'
@@ -55,8 +56,9 @@ runs:
         SONAR_TOKEN: ${{ inputs.sonar-token }}
       with:
         args: >
-          -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
-          -Dsonar.cpd.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
+          -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**,prime-router/src/main/java/**
+          -Dsonar.cpd.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**,prime-router/src/main/java/**
+          -Dsonar.exclusions=prime-router/src/main/java/**
           -Dsonar.sources=prime-router/src,frontend-react/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov

@@ -293,6 +293,8 @@ fun main(args: Array<String>) = RouterCli()
         ProcessFhirCommands(),
         FhirPathCommand(),
         ConvertValuesetsYamlToCSV(),
-        ProcessHl7Commands()
+        ProcessHl7Commands(),
+        ValidateTranslationSchemaCommand(),
+        SyncTranslationSchemaCommand()
     )
     .main(args)

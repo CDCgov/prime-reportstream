@@ -7,7 +7,7 @@ import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHoo
 import useAppInsightsContext from "../../../hooks/useAppInsightsContext";
 import { EventName } from "../../../utils/AppInsights";
 import { FeatureName } from "../../../utils/FeatureName";
-import TableFilters from "../../Table/TableFilters";
+import DataDashboardTableFilters from "../DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
@@ -43,7 +43,7 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
         <div className={styles.ReportDetailsTable}>
             <section id="facilities">
                 <h2>Facilities & Providers included in this report</h2>
-                <TableFilters
+                <DataDashboardTableFilters
                     startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}

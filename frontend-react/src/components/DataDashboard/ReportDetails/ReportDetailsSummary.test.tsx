@@ -9,10 +9,7 @@ import {
 } from "../../../utils/OrganizationUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 
-const { mockSessionContentReturnValue } = jest.requireMock(
-    "../../../contexts/Session/useSessionContext",
-);
-const mockGetUser = jest.fn();
+const mockGetUser = vi.fn();
 
 const currentDate = new Date();
 const futureDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
@@ -85,7 +82,10 @@ describe("ReportDetailsSummary", () => {
     test("Does not display the download button if the date has expired", () => {
         renderApp(
             <ReportDetailsSummary
-                report={{ ...DEFAULT_RSDELIVERY, expires: pastDate.toString() }}
+                report={{
+                    ...DEFAULT_RSDELIVERY,
+                    expires: pastDate.toISOString(),
+                }}
             />,
         );
 

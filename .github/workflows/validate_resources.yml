@@ -103,7 +103,7 @@ jobs:
       - name: Check Out Changes
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
+      - uses: azure/login@8c334a195cbb38e46038007b304988d888bf676a
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
@@ -120,3 +120,40 @@ jobs:
               az postgres server update -g prime-data-hub-${{ matrix.env_name }} -n pdh${{ matrix.env_name }}-pgsql-replica --sku-name GP_Gen5_4
             fi
           shell: bash
+
+  vpn_validation:
+    name: VPN Validation
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      max-parallel: 2
+      matrix:
+        env_name: [ prod, staging, demo1, demo2, demo3 ]
+    environment: ${{ matrix.env_name }}
+    concurrency: ${{ matrix.env_name }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - uses: azure/login@8c334a195cbb38e46038007b304988d888bf676a
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Fetch VPN DNS IP
+        id: fetch_vpn_ip
+        shell: bash
+        run: |
+          DNS_IP=$(az container show -g prime-data-hub-${{ matrix.env_name }} \
+          --name pdh${{ matrix.env_name }}-dns --query 'ipAddress.ip' -o tsv)
+          echo "dns_ip=$DNS_IP" >> $GITHUB_OUTPUT
+
+      - name: Connect to VPN
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ matrix.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          dns-ip: ${{ steps.fetch_vpn_ip.outputs.dns_ip }}

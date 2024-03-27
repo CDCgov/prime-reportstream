@@ -1,15 +1,14 @@
 import { expect, test } from "@playwright/test";
-
+import * as support from "../pages/support";
 // eslint-disable-next-line playwright/no-skipped-test
 test.describe.skip("Support page", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto("/support", {
-            waitUntil: "domcontentloaded",
-        });
+        await support.goto(page);
     });
 
     test("should have correct title", async ({ page }) => {
-        await expect(page).toHaveTitle(/Support/);
+        await expect(page).toHaveURL(/support/);
+        await expect(page).toHaveTitle(/ReportStream support/);
     });
 
     test("Card navigation", () => {

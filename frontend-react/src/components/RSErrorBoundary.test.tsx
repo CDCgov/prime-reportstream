@@ -41,7 +41,7 @@ describe("RSErrorBoundary", () => {
             ),
         ).toBeInTheDocument();
         expect(mockRsconsole._error).toHaveBeenCalledTimes(1);
-        expect(mockRsconsole._error.mock.lastCall[0].args[0]).toStrictEqual(
+        expect(mockRsconsole._error.mock.lastCall?.[0].args[0]).toStrictEqual(
             rsError,
         );
     });

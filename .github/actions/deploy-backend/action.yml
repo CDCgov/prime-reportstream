@@ -96,7 +96,7 @@ runs:
       shell: bash
       run: echo "USE_DCT=true" >> $GITHUB_ENV
 
-    - uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe
+    - uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router
@@ -125,12 +125,20 @@ runs:
           az acr login --name ${{ env.ACR_NAME }}
         shell: bash
 
-    - uses: Azure/get-keyvault-secrets@c2b531e47fab4ca7cd8df09d44a65256651bf46e
-      if: env.USE_DCT == 'true'
-      with:
-        keyvault: ${{ env.KEY_VAULT }}
-        secrets: ${{ env.KEY_NAME }}  # comma separated list of secret keys that need to be fetched from the Key Vault 
+    - name: 'Get secrets'
       id: key-vault
+      if: env.USE_DCT == 'true'
+      working-directory: prime-router
+      shell: bash
+      run: |
+        secrets=${{ env.KEY_NAME }}
+        for secret_get in ${secrets_get[@]}
+        do
+          value=$(az keyvault secret show --name $secret_get --vault-name ${{ env.KEY_VAULT }} --query value --output tsv)
+          echo "::add-mask::$value"
+          echo "$secret_get=$value" >> $GITHUB_OUTPUT
+        done
+        
 
     - name: Create ssl key file
       if: env.USE_DCT == 'true'
@@ -233,7 +241,7 @@ runs:
           --action Allow \
           --ip-address $RUNNER_IP \
           --priority 750 \
-          > /dev/null
+          -o none
       shell: bash
 
     - name: Pre-deploy image details
@@ -263,7 +271,8 @@ runs:
       run: |
         az functionapp config container set -n ${{ env.FUNCTION_APP }} \
         -g ${{ env.RESOURCE_GROUP }} --slot candidate \
-        --image ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}
+        --image ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }} \
+        --only-show-errors -o none
       shell: bash
 
     - name: Pre-swap image details
@@ -278,15 +287,19 @@ runs:
       shell: bash
 
     - name: Promote candidate slot
-      id: promote-candidate
-      working-directory: operations
-      run: |
-        make \
-          TF_ENV=${{ env.TERRAFORM_ENV }} \
-          AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
-          AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
-          zdd-promote-slot
-      shell: bash
+      uses: ./.github/actions/retry
+      with:
+        timeout_minutes: 30
+        max_attempts: 3
+        retry_wait_seconds: 30
+        command: |
+          cd operations
+          make \
+            TF_ENV=${{ env.TERRAFORM_ENV }} \
+            AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
+            AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
+            zdd-promote-slot
+        shell: bash
 
     - name: Post-swap image details
       run: |
@@ -320,7 +333,7 @@ runs:
 
     - name: Validate function app checksum
       if: inputs.checksum-validation == 'true'
-      uses: JosiahSiegel/checksum-validate-action@f14bb2ae5ca3cb0b61ba697885cb501368242d93
+      uses: JosiahSiegel/checksum-validate-action@ebdf8c12c00912d18de93c483b935d51582f9236
       with:
         key: backend
         validate: true
@@ -336,5 +349,5 @@ runs:
         -n ${{ env.FUNCTION_APP }} \
         --slot candidate \
         --rule-name GitHubActionIPV4 \
-        > /dev/null 
+        -o none
       shell: bash

@@ -7,6 +7,12 @@ on:
   push:
     branches:
       - master
+  merge_group:
+    types:
+      - checks_requested
+    branches:
+      - master
+
 env:
   # These are for CI and not credentials of any system
   DB_USER: prime
@@ -54,6 +60,7 @@ jobs:
           version: ${{ github.run_id }}
           upload-build: false
           run-integration-tests: true
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Generate New Schema Docs
         run: |

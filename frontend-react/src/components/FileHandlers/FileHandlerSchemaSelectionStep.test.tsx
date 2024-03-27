@@ -10,23 +10,24 @@ import { FileType } from "../../utils/TemporarySettingsAPITypes";
 describe("FileHandlerSchemaSelectionStep", () => {
     const DEFAULT_PROPS = {
         ...INITIAL_STATE,
-        onSchemaChange: jest.fn(),
-        onPrevStepClick: jest.fn(),
-        onNextStepClick: jest.fn(),
+        onSchemaChange: vi.fn(),
+        onPrevStepClick: vi.fn(),
+        onNextStepClick: vi.fn(),
     };
 
     describe("when the schemas are still loading", () => {
         function setup() {
-            jest.spyOn(
-                UseSenderSchemaOptionsExports,
-                "default",
-            ).mockReturnValue({
+            vi.spyOn(UseSenderSchemaOptionsExports, "default").mockReturnValue({
                 data: [],
                 isLoading: true,
             } as any);
 
             renderApp(<FileHandlerSchemaSelectionStep {...DEFAULT_PROPS} />);
         }
+
+        afterEach(() => {
+            vi.resetAllMocks();
+        });
 
         test("renders the loading text", () => {
             setup();
@@ -35,13 +36,10 @@ describe("FileHandlerSchemaSelectionStep", () => {
     });
 
     describe("when the schemas have been loaded", () => {
-        const onSchemaChangeSpy = jest.fn();
+        const onSchemaChangeSpy = vi.fn();
 
         function setup() {
-            jest.spyOn(
-                UseSenderSchemaOptionsExports,
-                "default",
-            ).mockReturnValue({
+            vi.spyOn(UseSenderSchemaOptionsExports, "default").mockReturnValue({
                 data: [
                     {
                         value: "csv",
@@ -64,6 +62,10 @@ describe("FileHandlerSchemaSelectionStep", () => {
                 />,
             );
         }
+
+        afterEach(() => {
+            vi.resetAllMocks();
+        });
 
         test("renders the options", () => {
             setup();

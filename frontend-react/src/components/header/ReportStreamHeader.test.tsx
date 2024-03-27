@@ -1,11 +1,11 @@
 import { screen, waitFor } from "@testing-library/react";
 
 import ReportStreamHeader from "./ReportStreamHeader";
-import { RSSessionContext } from "../../contexts/Session/SessionProvider";
-import useSessionContext from "../../contexts/Session/useSessionContext";
+import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
+import type { RSSessionContext } from "../../contexts/Session";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-const mockUseSessionContext = jest.mocked(useSessionContext);
+const mockUseSessionContext = vi.mocked(useSessionContext);
 
 describe("SignInOrUser", () => {
     // Every set of users should have access to the following Navbar items

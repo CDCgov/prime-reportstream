@@ -1,5 +1,5 @@
 // AutoUpdateFileChromatic
-import { withRouter } from "storybook-addon-react-router-v6";
+import { withRouter } from "storybook-addon-remix-react-router";
 
 import { MainLayoutBase } from "./MainLayout";
 import config from "../../config";
@@ -27,7 +27,11 @@ const Filler = () => (
     </>
 );
 const RouteComponent = () => (
-    <SessionProvider config={config}>
+    <SessionProvider
+        oktaAuth={{} as any}
+        restoreOriginalUri={() => void 0}
+        config={config}
+    >
         <MainLayoutBase />
     </SessionProvider>
 );

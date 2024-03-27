@@ -6,7 +6,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
-import assertk.assertions.isNotSameAs
+import assertk.assertions.isNotSameInstanceAs
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
@@ -97,7 +97,7 @@ class FhirTransformerTests {
         val transformer = FhirTransformer(FhirTransformSchema())
 
         val value = transformer.getValue(element, bundle, bundle, customContext)
-        assertThat(value).isNotSameAs(diagnosticReport.issued)
+        assertThat(value).isNotSameInstanceAs(diagnosticReport.issued)
     }
 
     @Test
@@ -871,8 +871,7 @@ class FhirTransformerTests {
         val bundle = messages[0]
 
         val childSchema = ConfigSchemaReader.fromFile(
-            "test_extension_schema",
-            "src/test/resources/fhir_sender_transforms",
+            "classpath:/fhir_sender_transforms/test_extension_schema.yml",
             schemaClass = FhirTransformSchema::class.java,
             blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
         )

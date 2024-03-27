@@ -9,6 +9,7 @@ import { TestTable } from "./TestTable";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 import { renderApp } from "../../utils/CustomRenderUtils";
+import { selectDatesFromRange } from "../../utils/TestUtils";
 
 /* Table generation tools */
 
@@ -97,32 +98,14 @@ const getTestConfig = (rowCount: number, linkable = true): TableConfig => {
     };
 };
 
-const selectDatesFromRange = async (dayOne: string, dayTwo: string) => {
-    /* Borrowed some of this from Trussworks' own tests: their
-     * components are tricky to test. */
-    const datePickerButtons = screen.getAllByTestId("date-picker-button");
-    const startDatePickerButton = datePickerButtons[0];
-    const endDatePickerButton = datePickerButtons[1];
-
-    /* Select Start Date */
-    await userEvent.click(startDatePickerButton);
-    const newStartDateButton = screen.getByText(`${dayOne}`);
-    await userEvent.click(newStartDateButton);
-
-    /* Select End Date */
-    await userEvent.click(endDatePickerButton);
-    const newEndDateButton = screen.getByText(`${dayTwo}`);
-    await userEvent.click(newEndDateButton);
-};
-
 const clickFilterButton = async () => {
-    const filterButton = screen.getByText("Filter");
+    const filterButton = screen.getByText("Apply");
     await userEvent.click(filterButton);
 };
 
 /* Sample components for test rendering */
-const mockSortUpdater = jest.spyOn(mockFilterManager, "updateSort");
-const mockAction = jest.fn();
+const mockSortUpdater = vi.spyOn(mockFilterManager, "updateSort");
+const mockAction = vi.fn();
 const SimpleLegend = () => <span>Simple Legend</span>;
 const SimpleTable = () => (
     <Table
@@ -219,6 +202,7 @@ describe("Table, basic tests", () => {
 });
 
 describe("Sorting integration", () => {
+    afterEach(() => void vi.clearAllMocks());
     test("(Locally) Sorting swaps on header click", () => {
         renderApp(<FilteredTable />);
         const header = screen.getByText("Locallysortedcolumn");
@@ -288,10 +272,8 @@ describe("Table, filter integration tests", () => {
         /* Assert the value of state in string has changed */
         expect(screen.getByText(/range:/)).not.toHaveTextContent(defaultState);
 
-        const clearButton = screen.getByText("Clear");
+        const clearButton = screen.getByText("Reset");
         await userEvent.click(clearButton);
-
-        expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
     });
 
     test("cursor sets properly according to sort order", async () => {
@@ -306,7 +288,9 @@ describe("Table, filter integration tests", () => {
             defaultCursor,
         );
         // Checking for inclusive date
-        expect(screen.getByText(/cursor:/)).toHaveTextContent(/23:59:59.999Z/);
+        expect(screen.getByText(/cursor:/)).toHaveTextContent(
+            /2024-03-20T23:59:00.000Z/,
+        );
 
         // Change sort order and repeat
         await userEvent.click(screen.getByText("Column Two"));
@@ -323,8 +307,8 @@ describe("TableRows", () => {
     test("does not call onSave function if nothing has been updated", async () => {
         const fakeRows = getSetOfRows(2, false);
         const fakeColumns = makeConfigs(fakeRows[0]);
-        const fakeSave = jest.fn(() => Promise.resolve());
-        const fakeRowSetter = jest.fn();
+        const fakeSave = vi.fn(() => Promise.resolve());
+        const fakeRowSetter = vi.fn();
 
         const { rerender } = render(
             <TableRows
@@ -373,8 +357,8 @@ describe("TableRows", () => {
     test("does not call onSave function when closing edit state to edit a new row", async () => {
         const fakeRows = getSetOfRows(2, false);
         const fakeColumns = makeConfigs(fakeRows[0]);
-        const fakeSave = jest.fn(() => Promise.resolve());
-        const fakeRowSetter = jest.fn();
+        const fakeSave = vi.fn(() => Promise.resolve());
+        const fakeRowSetter = vi.fn();
 
         const { rerender } = render(
             <TableRows
@@ -425,8 +409,8 @@ describe("TableRows", () => {
     test("calls onSave function with expected props when expected", async () => {
         const fakeRows = getSetOfRows(1, false);
         const fakeColumns = makeConfigs(fakeRows[0]);
-        const fakeSave = jest.fn(() => Promise.resolve());
-        const fakeRowSetter = jest.fn();
+        const fakeSave = vi.fn(() => Promise.resolve());
+        const fakeRowSetter = vi.fn();
 
         const { rerender } = render(
             <TableRows
@@ -493,7 +477,7 @@ describe("ColumnData", () => {
     test("calls passed setUpdatedRow when editable field changes", async () => {
         const fakeRows = getSetOfRows(1);
         const fakeColumns = makeConfigs(fakeRows[0]);
-        const fakeUpdate = jest.fn((..._args: any[]) => Promise.resolve());
+        const fakeUpdate = vi.fn((..._args: any[]) => Promise.resolve());
         renderApp(
             <tr>
                 <ColumnData

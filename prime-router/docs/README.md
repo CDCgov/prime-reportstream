@@ -2,7 +2,7 @@
 
 ### Table of Contents
 
-- [Getting Started as a ReportStream Developer](./getting-started)
+- [Getting Started as a ReportStream Developer](./getting-started/README.md)
 - [Proposals and Technical Design Documentation](./design)
 - [ReportStream Universal Pipeline](./universal-pipeline)
 - [Onboarding New Organizations to the Universal Pipeline](./onboarding-users)

@@ -9,8 +9,8 @@ import {
 } from "../../utils/__mocks__/SessionStorageTools";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-jest.mock("../../config", () => {
-    const originalModule = jest.requireActual("../../config");
+vi.mock("../../config", async (importActual) => {
+    const originalModule = await importActual<typeof import("../../config")>();
     return {
         ...originalModule,
         default: {
@@ -21,7 +21,7 @@ jest.mock("../../config", () => {
     };
 });
 
-const providerValueMonitor = jest.fn();
+const providerValueMonitor = vi.fn();
 
 const DummyFeatureFlagConsumer = () => {
     const values = useFeatureFlags();

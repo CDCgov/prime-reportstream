@@ -1,9 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 import * as externalLinks from "../helpers/external-links";
+import { CONNECT_URL } from "../helpers/external-links";
 import { scrollToFooter, scrollToTop } from "../helpers/utils";
 import * as gettingStarted from "../pages/getting-started";
 import * as header from "../pages/header";
+import * as homepage from "../pages/homepage";
 import * as managingYourConnection from "../pages/managing-your-connection";
 import * as ourNetwork from "../pages/our-network";
 import * as security from "../pages/security";
@@ -11,9 +13,7 @@ import * as support from "../pages/support";
 
 test.describe("Homepage", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto("/", {
-            waitUntil: "domcontentloaded",
-        });
+        await homepage.goto(page);
     });
 
     test("has correct title", async ({ page }) => {
@@ -55,16 +55,26 @@ test.describe("Homepage", () => {
     test('opens the "Connect with ReportStream" tab within header', async ({
         page,
     }) => {
-        await externalLinks.clickOnConnect("header", "Connect with us", page);
+        const newTab = await externalLinks.clickOnExternalLink(
+            "header",
+            "Connect with us",
+            page,
+        );
 
+        await expect(newTab).toHaveURL(CONNECT_URL);
         expect(true).toBe(true);
     });
 
     test('opens the "Connect with ReportStream" tab within footer', async ({
         page,
     }) => {
-        await externalLinks.clickOnConnect("footer", "Connect now", page);
+        const newTab = await externalLinks.clickOnExternalLink(
+            "footer",
+            "Connect now",
+            page,
+        );
 
+        await expect(newTab).toHaveURL(CONNECT_URL);
         expect(true).toBe(true);
     });
 
@@ -125,7 +135,7 @@ test.describe("Homepage", () => {
         expect(true).toBe(true);
     });
 
-    test("has clickable Where were live map", async ({ page }) => {
+    test("is clickable Where were live map", async ({ page }) => {
         // Trigger map click and go to our network page
         await ourNetwork.clickOnLiveMap(page);
         // Go back to the homepage
@@ -137,7 +147,11 @@ test.describe("Homepage", () => {
     test("explicit scroll to footer and then scroll to top", async ({
         page,
     }) => {
+        await expect(page.locator("footer")).not.toBeInViewport();
         await scrollToFooter(page);
+        await expect(page.locator("footer")).toBeInViewport();
+        await expect(page.getByTestId("govBanner")).not.toBeInViewport();
         await scrollToTop(page);
+        await expect(page.getByTestId("govBanner")).toBeInViewport();
     });
 });

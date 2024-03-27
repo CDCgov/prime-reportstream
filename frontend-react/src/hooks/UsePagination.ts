@@ -114,6 +114,8 @@ export interface PaginationState<T> {
     pageSize: number;
     // Optional set of parameters for requesting a new batch of results.
     requestConfig?: RequestConfig;
+    // Total number of results
+    resultLength?: number;
 }
 
 enum PaginationActionType {
@@ -157,11 +159,12 @@ export function processResultsReducer<T>(
         pageCursorMap,
         pageResultsMap,
     } = state;
-
     // Determine the number of whole pages we requested data for. Ignoring the
     // remainder accounts for a dangling result, which we use as an indicator of
     // a subsequent page.
     const numTargetWholePages = Math.floor(numResults / pageSize);
+    const resultLength =
+        cursorPageNum === 1 ? results.length : state.resultLength;
     let finalPageNum;
 
     const resultPages = chunk(results, pageSize);
@@ -213,6 +216,7 @@ export function processResultsReducer<T>(
         finalPageNum,
         pageResultsMap,
         pageCursorMap,
+        resultLength,
     };
 }
 
@@ -443,6 +447,16 @@ function usePagination<T>({
             slots: getSlots(state.currentPageNum, state.finalPageNum),
             setSelectedPage,
             currentPageNum: state.currentPageNum,
+            resultLength: state.resultLength,
+            isPaginationLoading: state.isLoading,
+        };
+    } else {
+        paginationProps = {
+            slots: [],
+            setSelectedPage,
+            currentPageNum: 0,
+            resultLength: state.resultLength,
+            isPaginationLoading: state.isLoading,
         };
     }
 

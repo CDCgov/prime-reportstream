@@ -3,8 +3,9 @@ import { useCallback } from "react";
 
 import { Organizations } from "./UseAdminSafeOrganizationName";
 import { RSReceiver, servicesEndpoints } from "../config/endpoints/settings";
-import useAuthorizedFetch from "../contexts/AuthorizedFetch/useAuthorizedFetch";
-import useSessionContext from "../contexts/Session/useSessionContext";
+import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
+import { useSessionContext } from "../contexts/Session";
+import { CustomerStatusType } from "../utils/DataDashboardUtils";
 
 const { receivers } = servicesEndpoints;
 
@@ -25,11 +26,23 @@ export const useOrganizationReceivers = () => {
         }
         return null;
     }, [isAdmin, authorizedFetch, parsedName]);
+    const useSuspenseQueryResult = useSuspenseQuery({
+        queryKey: [receivers.queryKey, activeMembership],
+        queryFn: memoizedDataFetch,
+    });
+
+    const { data } = useSuspenseQueryResult;
+    const allReceivers = (data ?? []).sort((a, b) =>
+        a.name.localeCompare(b.name),
+    );
+    const activeReceivers = allReceivers.filter(
+        (receiver) => receiver.customerStatus !== CustomerStatusType.INACTIVE,
+    );
+
     return {
-        ...useSuspenseQuery({
-            queryKey: [receivers.queryKey, activeMembership],
-            queryFn: memoizedDataFetch,
-        }),
+        ...useSuspenseQueryResult,
+        allReceivers: allReceivers,
+        activeReceivers: activeReceivers,
         isDisabled: isAdmin,
     };
 };
