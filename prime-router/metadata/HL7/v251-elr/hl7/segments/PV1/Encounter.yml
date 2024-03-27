@@ -14,7 +14,6 @@ resourceType: Encounter
 # PV2.30 - 37
 # PV2.39
 # PV2.41-49
-# PV1.52 is in the inventory and NIST, but is NULLDT in the HAPI structure
 # PV1.20 is not mapped because there is no mapping for the FC datatype
 
 id:
@@ -54,10 +53,10 @@ _class:
         url:
           type: SYSTEM_URL
           value: pv1-2-patient-class
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-          specs: PV1.2
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.2
 
 location:
   generateList: true
@@ -69,7 +68,7 @@ location:
       condition: $pv13 NOT_NULL
       expressionsMap:
         location:
-          valueOf: datatypes/PL/Location
+          valueOf: ../../datatypes/PL/Location
           expressionType: reference
           specs: PV1.3
         status:
@@ -100,7 +99,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: datatypes/PL/Location
+          valueOf: ../../datatypes/PL/Location
           specs: PV1.6
         status:
           type: STRING
@@ -122,7 +121,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: datatypes/PL/Location
+          valueOf: ../../datatypes/PL/Location
           specs: PV1.11
         status:
           type: STRING
@@ -154,7 +153,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: datatypes/PL/Location
+          valueOf: ../../datatypes/PL/Location
           specs: PV1.42
         status:
           type: STRING
@@ -178,7 +177,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: datatypes/PL/Location
+          valueOf: ../../datatypes/PL/Location
           specs: PV1.43
         status:
           type: STRING
@@ -251,7 +250,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -280,7 +279,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -309,7 +308,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -338,7 +337,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -356,6 +355,35 @@ participant:
             text:
               type: STRING
               value: "admitter"
+    - vars:
+        pv152: STRING_ALL, PV1.52
+      condition: $pv152 NOT_NULL
+      expressionType: nested
+      constants:
+        XCNHL7Field: PV1.52
+      specs: PV1.52 *
+      generateList: true
+      expressionsMap:
+        individual:
+          expressionType: reference
+          valueOf: ../../datatypes/XCN/Practitioner
+        type:
+          expressionType: nested
+          generateList: true
+          expressionsMap:
+            coding:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                code:
+                  type: STRING
+                  value: "PART"
+                system:
+                  type: STRING
+                  value: "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"
+            text:
+              type: STRING
+              value: "Participation"
     - vars:
         pv213: STRING_ALL, PV2.13
       condition: $pv213 NOT_NULL
@@ -388,19 +416,16 @@ participant:
 
 type:
   vars:
-    pv14: STRING_ALL, PV1.4
+    pv14: PV1.4
   condition: $pv14 NOT_NULL
-  valueOf: datatypes/CWE/CodeableConcept
-  generateList: true
-  expressionType: resource
-  specs: PV1.4
+  type: STRING
+  valueOf: PV1.4
+  expressionType: HL7Spec
 
 hospitalization:
   vars:
     pv15: STRING_ALL, PV1.5
-    pv113: STRING_ALL, PV1.13
     pv114: STRING_ALL, PV1.14
-    pv116: STRING_ALL, PV1.16
     pv136: STRING_ALL, PV1.36
     pv137: STRING_ALL, PV1.37
     pv138: STRING_ALL, PV1.38
@@ -410,47 +435,36 @@ hospitalization:
     preAdmissionIdentifier:
       condition: $pv15 NOT_NULL
       expressionType: resource
-      valueOf: datatypes/CX/Identifier
+      valueOf: ../../datatypes/CX/Identifier
       specs: PV1.5
-    reAdmission:
-      condition: $pv113 NOT_NULL
-      expressionType: resource
-      valueOf: datatypes/CWE/CodeableConcept
-      specs: PV1.13
     admitSource:
       condition: $pv114 NOT_NULL
-      expressionType: resource
-      valueOf: datatypes/CWE/CodeableConcept
-      specs: PV1.14
-    specialCourtesy:
-      condition: $pv116 NOT_NULL
-      generateList: true
-      expressionType: resource
-      valueOf: datatypes/CWE/CodeableConcept
-      specs: PV1.16 *
+      type: STRING
+      valueOf: PV1.14
+      expressionType: HL7Spec
     dischargeDisposition:
       condition: $pv136 NOT_NULL
-      expressionType: resource
-      valueOf: datatypes/CWE/CodeableConcept
-      specs: PV1.36
+      type: STRING
+      valueOf: PV1.36
+      expressionType: HL7Spec
     destination:
       condition: $pv137 NOT_NULL
       expressionType: reference
-      valueOf: datatypes/DLD/Location
+      valueOf: ../../datatypes/DLD/Location
       specs: PV1.37
     dietPreference:
       condition: $pv138 NOT_NULL
       expressionType: resource
-      valueOf: datatypes/CWE/CodeableConcept
+      valueOf: ../../datatypes/CWE/CodeableConcept
       specs: PV1.38
 
 serviceType:
   condition: $pv110 NOT_NULL
-  valueOf: datatypes/CWE/CodeableConcept
-  expressionType: resource
-  specs: PV1.10
   vars:
-    pv110: STRING_ALL, PV1.10
+    pv110: PV1.10
+  type: STRING
+  valueOf: PV1.10
+  expressionType: HL7Spec
 
 identifier:
   expressionType: nested
@@ -460,7 +474,7 @@ identifier:
         pv119: STRING_ALL, PV1.19
       condition: $pv119 NOT_NULL
       expressionType: resource
-      valueOf: datatypes/CX/Identifier
+      valueOf: ../../datatypes/CX/Identifier
       specs: PV1.19 *
       generateList: true
       constants:
@@ -474,7 +488,7 @@ identifier:
       expressionType: resource
       specs: PV1.50 *
       generateList: true
-      valueOf: datatypes/CX/Identifier
+      valueOf: ../../datatypes/CX/Identifier
       constants:
         CXIdentifierField: PV1.50
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -521,11 +535,6 @@ period:
               type: STRING
               valueOf: PV1.45
               expressionType: HL7Spec
-
-episodeOfCare:
-  expressionType: reference
-  valueOf: segments/PV1/EpisodeOfCare
-  specs: $BASE_VALUE
 
 reasonCode:
   expressionType: nested
