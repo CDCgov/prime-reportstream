@@ -21,8 +21,8 @@ const timeRegex = /\d{1,2}:\d{2}/;
 const mockData: ActionDetailsResource = new TestResponse(
     ResponseType.ACTION_DETAIL,
 ).data;
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
+vi.mock("rest-hooks", async (importActual) => ({
+    ...(await importActual<typeof import("rest-hooks")>()),
     useResource: () => {
         return mockData;
     },
