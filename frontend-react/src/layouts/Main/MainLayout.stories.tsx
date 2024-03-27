@@ -27,7 +27,7 @@ const Filler = () => (
     </>
 );
 const RouteComponent = () => (
-    <SessionProvider config={config}>
+    <SessionProvider config={config} rsConsole={{} as any}>
         <MainLayoutBase />
     </SessionProvider>
 );

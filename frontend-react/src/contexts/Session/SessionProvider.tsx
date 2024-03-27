@@ -55,9 +55,14 @@ export const SessionContext = createContext<RSSessionContext>(null as any);
 
 export interface SessionProviderProps extends PropsWithChildren {
     config: AppConfig;
+    rsConsole: RSConsole;
 }
 
-function SessionProvider({ children, config }: SessionProviderProps) {
+function SessionProvider({
+    children,
+    config,
+    rsConsole,
+}: SessionProviderProps) {
     const { authState, oktaAuth } = useOktaAuth();
     const aiReactPlugin = useAppInsightsContext();
 
@@ -79,22 +84,6 @@ function SessionProvider({ children, config }: SessionProviderProps) {
 
         return { ...actualMembership, ...(_activeMembership ?? {}) };
     }, [authState, _activeMembership]);
-
-    const rsConsole = useMemo(
-        () =>
-            new RSConsole({
-                ai: aiReactPlugin,
-                consoleSeverityLevels: config.AI_CONSOLE_SEVERITY_LEVELS,
-                reportableConsoleLevels: config.AI_REPORTABLE_CONSOLE_LEVELS,
-                env: config.MODE,
-            }),
-        [
-            aiReactPlugin,
-            config.AI_CONSOLE_SEVERITY_LEVELS,
-            config.AI_REPORTABLE_CONSOLE_LEVELS,
-            config.MODE,
-        ],
-    );
 
     const logout = useCallback(async () => {
         try {

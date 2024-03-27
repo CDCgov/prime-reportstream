@@ -2,9 +2,45 @@ import { PropsWithChildren, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import Spinner from "./Spinner";
+import { AppConfig } from "../config";
 import useSessionContext from "../contexts/Session/useSessionContext";
 import { ErrorPage } from "../pages/error/ErrorPage";
+import type { RSConsole } from "../utils/rsConsole/rsConsole";
 import { isRSNetworkError } from "../utils/RSNetworkError";
+
+export interface AppErrorBoundaryProps extends PropsWithChildren {
+    rsConsole: RSConsole;
+    config: AppConfig;
+}
+
+export function AppErrorBoundary({
+    rsConsole,
+    config,
+    ...props
+}: AppErrorBoundaryProps) {
+    return (
+        <ErrorBoundary
+            fallback={<ErrorPage type="message" />}
+            onError={(exception, info) => {
+                if (!isRSNetworkError(exception)) {
+                    console.warn(
+                        "Please work to migrate all non RSError throws to use an RSError object.",
+                    );
+                }
+                // React will always console.error all errors, regardless of boundary,
+                // so just emit the telemetry.
+                rsConsole._error(
+                    {
+                        args: [exception, info.componentStack],
+                        location: window.location.href,
+                    },
+                    config.AI_CONSOLE_SEVERITY_LEVELS.error,
+                );
+            }}
+            {...props}
+        />
+    );
+}
 
 /** Wrap components with this error boundary to catch errors thrown */
 function RSErrorBoundary(props: PropsWithChildren) {

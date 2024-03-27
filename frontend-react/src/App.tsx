@@ -3,7 +3,7 @@ import { OktaAuth } from "@okta/okta-auth-js";
 import { Security } from "@okta/okta-react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Suspense, useCallback, useRef } from "react";
+import { Suspense, useCallback, useMemo, useRef } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import {
     createBrowserRouter,
@@ -12,7 +12,7 @@ import {
 } from "react-router-dom";
 import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
 
-import RSErrorBoundary from "./components/RSErrorBoundary";
+import { AppErrorBoundary } from "./components/RSErrorBoundary";
 import { AppConfig } from "./config";
 import AuthorizedFetchProvider from "./contexts/AuthorizedFetch/AuthorizedFetchProvider";
 import FeatureFlagProvider from "./contexts/FeatureFlag/FeatureFlagProvider";
@@ -22,6 +22,7 @@ import { appQueryClient } from "./network/QueryClients";
 import { ErrorPage } from "./pages/error/ErrorPage";
 import DAPScript from "./shared/DAPScript/DAPScript";
 import { permissionCheck } from "./utils/PermissionsUtils";
+import { RSConsole } from "./utils/rsConsole/rsConsole";
 import {
     createTelemetryService,
     ReactPlugin,
@@ -93,15 +94,30 @@ function App({ config, routes }: AppProps) {
         [],
     );
 
+    const rsConsole = useMemo(
+        () =>
+            new RSConsole({
+                ai: aiReactPluginRef.current,
+                consoleSeverityLevels: config.AI_CONSOLE_SEVERITY_LEVELS,
+                reportableConsoleLevels: config.AI_REPORTABLE_CONSOLE_LEVELS,
+                env: config.MODE,
+            }),
+        [
+            config.AI_CONSOLE_SEVERITY_LEVELS,
+            config.AI_REPORTABLE_CONSOLE_LEVELS,
+            config.MODE,
+        ],
+    );
+
     return (
-        <RSErrorBoundary>
+        <AppErrorBoundary config={config} rsConsole={rsConsole}>
             <AppInsightsContext.Provider value={aiReactPluginRef.current}>
                 <Security
                     restoreOriginalUri={restoreOriginalUri}
                     oktaAuth={oktaAuthRef.current}
                 >
                     <QueryClientProvider client={appQueryClient}>
-                        <SessionProvider config={config}>
+                        <SessionProvider config={config} rsConsole={rsConsole}>
                             <HelmetProvider>
                                 <AuthorizedFetchProvider>
                                     <FeatureFlagProvider>
@@ -135,7 +151,7 @@ function App({ config, routes }: AppProps) {
                     </QueryClientProvider>
                 </Security>
             </AppInsightsContext.Provider>
-        </RSErrorBoundary>
+        </AppErrorBoundary>
     );
 }
 

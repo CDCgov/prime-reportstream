@@ -49,7 +49,11 @@ describe("SessionContext", () => {
                 },
             } as any);
             render(
-                <SessionProvider key={1} config={{ ...configFixture }}>
+                <SessionProvider
+                    key={1}
+                    config={{ ...configFixture }}
+                    rsConsole={{} as any}
+                >
                     <TestComponent key={1} />
                 </SessionProvider>,
             );
@@ -66,7 +70,11 @@ describe("SessionContext", () => {
             } as any);
             render(
                 <div>
-                    <SessionProvider key={2} config={{ ...configFixture }}>
+                    <SessionProvider
+                        key={2}
+                        config={{ ...configFixture }}
+                        rsConsole={{} as any}
+                    >
                         <TestComponent key={2} />
                     </SessionProvider>
                 </div>,
@@ -78,7 +86,10 @@ describe("SessionContext", () => {
     describe("idle timer", () => {
         function setup() {
             render(
-                <SessionProvider config={{ ...configFixture }}>
+                <SessionProvider
+                    config={{ ...configFixture }}
+                    rsConsole={{} as any}
+                >
                     Test
                 </SessionProvider>,
             );
@@ -122,7 +133,10 @@ describe("SessionContext", () => {
         function setup(isUseragentPreferred = true) {
             mockIsUseragentPreferred.mockReturnValue(isUseragentPreferred);
             render(
-                <SessionProvider config={{ ...configFixture }}>
+                <SessionProvider
+                    config={{ ...configFixture }}
+                    rsConsole={{} as any}
+                >
                     Test
                 </SessionProvider>,
             );

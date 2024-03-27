@@ -7,13 +7,13 @@ import type { TestLogin } from "./rs-test";
 async function logIntoOkta(page: Page, login: TestLogin) {
     const totp = new TOTP({ secret: login.totpCode });
 
-    // fulfill GA request so that we don't log to it and alter the metrics
+    // block GA
     await page.route("https://www.google-analytics.com/**", (route) =>
-        route.fulfill({ status: 204, body: "" }),
+        route.abort("blockedbyclient"),
     );
 
-    // abort all app insight calls
-    await page.route("**/v2/track", (route) => route.abort());
+    // block AI
+    await page.route("**/v2/track", (route) => route.abort("blockedbyclient"));
 
     await page.goto("/login", {
         waitUntil: "domcontentloaded",
