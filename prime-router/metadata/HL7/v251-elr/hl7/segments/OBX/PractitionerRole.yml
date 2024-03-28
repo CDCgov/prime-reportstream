@@ -12,7 +12,7 @@ practitioner:
 
 organization:
   condition: $roleOrg NOT_NULL
-  valueOf: datatypes/XON_ELR/Organization
+  valueOf: ../../datatypes/XON/Organization
   expressionType: reference
   specs: $OBXPractitionerRoleOrganization
   vars:

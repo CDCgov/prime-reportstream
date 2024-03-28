@@ -70,15 +70,11 @@ resources:
     repeats: true
     isReferenced: true
 
-  #  PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN.SPECIMEN_OBSERVATION.OBX provides access for v2.7
-  #  PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN.OBX provides access for v2.5.1
   - resourceName: SpecimenObservation
-    segment: .SPECIMEN.SPECIMEN_OBSERVATION.OBX
+    segment: .SPECIMEN.OBX
     group: PATIENT_RESULT.ORDER_OBSERVATION
     resourcePath: segments/OBX/Observation
     repeats: true
-    additionalSegments:
-      - ORDER_OBSERVATION.SPECIMEN.OBX
 
   - resourceName: ServiceRequest
     segment: .OBR

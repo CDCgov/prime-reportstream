@@ -156,7 +156,7 @@ extension:
           value: orc-21-ordering-facility-name
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XON_ELR/Organization
+          valueOf: ../../datatypes/XON/Organization
     - expressionType: nested
       vars:
         orc22: STRING_ALL, ORC.22

@@ -382,7 +382,7 @@ performer:
         obx23: STRING_ALL, obx23
         XADAddress: OBX.24
       condition: $obx25 NULL && ($obx23 NOT_NULL || XADAddress NOT_NULL)
-      valueOf: datatypes/XON_ELR/Organization
+      valueOf: ../../datatypes/XON/Organization
       specs: OBX.23
       constants:
         XONHL7Field: OBX.25

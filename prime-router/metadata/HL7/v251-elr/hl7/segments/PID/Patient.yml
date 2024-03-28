@@ -68,7 +68,7 @@ contact:
     organization:
       condition: $XONOrganization NOT_NULL || $XPNContactName NOT_NULL || $XPNContactTelecom NOT_NULL || $XADContactAddress NOT_NULL
       expressionType: reference
-      valueOf: datatypes/XON_ELR/Organization
+      valueOf: ../../datatypes/XON/Organization
       specs: NK1.13
       vars:
         XONOrganization: NK1.13
@@ -314,7 +314,7 @@ generalPractitioner_Organization:
   specs: PD1.3 *
   vars:
     pd13: STRING_ALL, PD1.3
-  valueOf: datatypes/XON_ELR/Organization
+  valueOf: ../../datatypes/XON/Organization
   expressionType: reference
 
 extension:
