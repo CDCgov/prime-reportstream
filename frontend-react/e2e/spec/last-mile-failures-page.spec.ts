@@ -49,7 +49,7 @@ test.describe("Last Mile Failure page", () => {
                     .nth(0)
                     .locator("td")
                     .nth(0),
-            ).toHaveText("Tue, 2/20/2024, 9:35 PM");
+            ).toHaveText("Tue, 2/20/2024, 3:35 PM");
         });
 
         test("table column 'ReportId' will open a modal with report details", async ({
