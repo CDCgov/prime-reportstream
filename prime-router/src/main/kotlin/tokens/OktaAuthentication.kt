@@ -155,7 +155,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         try {
             val accessToken = AuthenticatedClaims.getAccessToken(request)
             if (accessToken.isNullOrEmpty()) {
-                logger.error("Missing or bad format 'Authorization: Bearer <tok>' header. Not authenticated.")
+                logger.error("BUZZ Missing or bad format 'Authorization: Bearer <tok>' header. Not authenticated.")
                 return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
             }
             val claims = if (AuthenticatedClaims.isLocal(accessToken)) {

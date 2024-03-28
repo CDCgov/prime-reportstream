@@ -213,7 +213,7 @@ class AuthenticatedClaims : Logging {
             }
 
             if (accessToken.isNullOrEmpty()) {
-                logger.error("Missing or bad format 'Authorization: Bearer <tok>' header. Not authenticated.")
+                logger.error("FOOO Missing or bad format 'Authorization: Bearer <tok>' header. Not authenticated.")
                 return null
             }
 

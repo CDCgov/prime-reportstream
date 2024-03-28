@@ -276,7 +276,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
     fun authenticate(accessToken: String, lookup: ReportStreamSecretFinder): AuthenticatedClaims? {
         try {
             if (accessToken.isNullOrEmpty()) {
-                logger.error("Missing or bad format 'Authorization: Bearer <tok>' header. Not authenticated.")
+                logger.error("BAR Missing or bad format 'Authorization: Bearer <tok>' header. Not authenticated.")
                 return null
             }
             val secret = lookup.getReportStreamTokenSigningSecret()
