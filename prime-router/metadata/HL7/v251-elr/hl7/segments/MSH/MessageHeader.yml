@@ -7,13 +7,13 @@ id:
 
 eventCoding:
   expressionType: resource
-  valueOf: datatypes/MSG/Coding
+  valueOf: ../../datatypes/MSG/Coding
   specs: MSH.9
   required: true
 
 meta:
   expressionType: resource
-  valueOf: datatypes/PT/Meta
+  valueOf: ../../datatypes/PT/Meta
   specs: MSH.11
   vars:
     metaSecurity: STRING, MSH.8
@@ -32,7 +32,7 @@ source:
 
 sender:
   condition: $msh4 NOT_NULL || $organizationCountry NOT_NULL
-  valueOf: datatypes/HD/Organization
+  valueOf: ../../datatypes/HD/Organization
   expressionType: reference
   generateList: true
   specs: MSH.4
@@ -60,7 +60,7 @@ destination:
       expressionsMap:
         receiver:
           expressionType: reference
-          valueOf: datatypes/HD/Organization
+          valueOf: ../../datatypes/HD/Organization
           specs: MSH.6
 
 language:

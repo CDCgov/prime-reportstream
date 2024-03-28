@@ -67,7 +67,7 @@ relationship:
   expressionType: nested
   generateList: true
   expressions:
-    - valueOf: datatypes/CWE/CodeableConcept
+    - valueOf: datatypes/CWE_ELR/CodeableConcept
       expressionType: resource
       condition: $nk1-3 NOT_NULL
       vars:

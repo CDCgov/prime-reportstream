@@ -106,7 +106,7 @@ identifier:
         code: "FGN"
         hl7v2Field: ORC.4
     - condition: $orc33 NOT_NULL
-      valueOf: datatypes/CX/Identifier
+      valueOf: ../../datatypes/CX/Identifier
       expressionType: resource
       specs: ORC.33 *
       generateList: true
@@ -167,7 +167,7 @@ requester:
       expressions:
         - expressionType: reference
           condition: $orc12 NOT_NULL
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/XCN/Practitioner
           specs: ORC.12
           vars:
             XADAddress: ORC.24

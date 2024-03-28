@@ -32,7 +32,7 @@ identifier:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         hl7v2Field: OBR.2
     - condition: $orc3 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: ../../datatypes/EI/Identifier
       expressionType: resource
       specs: ORC.3
       constants:
@@ -40,7 +40,7 @@ identifier:
         code: "FILL"
         display: "Filler Identifier"
     - condition: $orc3 NULL && $obr3 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: ../../datatypes/EI/Identifier
       expressionType: resource
       specs: OBR.3
       constants:
@@ -55,7 +55,7 @@ identifier:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "PGN"
     - condition: $orc4 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: ../../datatypes/EI/Identifier
       expressionType: resource
       specs: ORC.4
       constants:

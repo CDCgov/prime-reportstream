@@ -32,7 +32,7 @@ agent:
                   type: SYSTEM_URL
                   valueOf: "http://terminology.hl7.org/CodeSystem/provenance-participant-type"
         who:
-          valueOf: datatypes/HD/Organization
+          valueOf: ../../datatypes/HD/Organization
           expressionType: reference
           specs: MSH.4
 

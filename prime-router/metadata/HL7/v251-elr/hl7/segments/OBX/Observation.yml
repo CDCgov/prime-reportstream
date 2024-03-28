@@ -175,7 +175,7 @@ valueRatio:
     obx53: STRING, OBX.5.3
     CWERangeUnits: OBX.6
   condition: $obx2 EQUALS SN && ($obx53 EQUALS / || $obx53 EQUALS :)
-  valueOf: datatypes/SN/Ratio
+  valueOf: ../../datatypes/SN/Ratio
   expressionType: resource
   specs: OBX.5
 
@@ -330,7 +330,7 @@ method:
   vars:
     obx17: STRING_ALL, OBX.17
   condition: $obx17 NOT_NuLL
-  valueOf: datatypes/CWE/CodeableConcept
+  valueOf: datatypes/CWE_ELR/CodeableConcept
   expressionType: resource
   specs: OBX.17
 
@@ -464,7 +464,7 @@ extension:
           specs: OBX.5
     - expressionType: resource
       condition: $obx2 EQUALS SN
-      valueOf: datatypes/SN/ExtensionSN
+      valueOf: ../../datatypes/SN/ExtensionSN
       specs: OBX.5
     - expressionType: resource
       valueOf: segments/OBX/OBXExtension

@@ -19,7 +19,7 @@ collection:
         dateTimeIn: OBR.7
         dateTimeOut: OBR.8
       expressions:
-        - valueOf: datatypes/DR/Period
+        - valueOf: ../../datatypes/DR/Period
           expressionType: resource
     collectedDateTime:
       expressionType: nested

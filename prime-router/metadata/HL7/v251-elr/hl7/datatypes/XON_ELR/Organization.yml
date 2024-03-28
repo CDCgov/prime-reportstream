@@ -169,7 +169,7 @@ extension:
           expressionType: HL7Spec
           valueOf: XON.9
     - expressionType: resource
-      valueOf: datatypes/XON/XONExtension
+      valueOf: ../../datatypes/XON/XONExtension
     - generateList: true
       expressionType: nested
       condition: $XONHL7Field NOT_NULL

@@ -59,7 +59,7 @@ contact:
       generateList: true
       expressions:
         - condition: $nk15 NOT_NULL
-          valueOf: datatypes/XTN/ContactPoint
+          valueOf: ../../datatypes/XTN/ContactPoint
           generateList: true
           expressionType: resource
           specs: NK1.5 *
@@ -314,7 +314,7 @@ generalPractitioner_Organization:
   specs: PD1.3 *
   vars:
     pd13: STRING_ALL, PD1.3
-  valueOf: datatypes/XON/Organization
+  valueOf: datatypes/XON_ELR/Organization
   expressionType: reference
 
 extension:

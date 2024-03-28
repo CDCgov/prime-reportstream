@@ -88,7 +88,7 @@ extension:
           value: MSH.19
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/CWE/CodeableConcept
           specs: MSH.19
     - vars:
         msh20: MSH.20
@@ -113,5 +113,5 @@ extension:
           type: STRING
           value: MSH.21
         valueIdentifier:
-          valueOf: datatypes/EI/Identifier
+          valueOf: ../../datatypes/EI/Identifier
           expressionType: resource

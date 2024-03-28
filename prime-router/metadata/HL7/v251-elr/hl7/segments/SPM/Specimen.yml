@@ -103,7 +103,7 @@ collection:
         spm17: SPM.17
       expressions:
         - condition: $end NOT_NULL
-          valueOf: datatypes/DR/Period
+          valueOf: ../../datatypes/DR/Period
           expressionType: resource
           specs: SPM.17
           vars:

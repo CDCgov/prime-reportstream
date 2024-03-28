@@ -34,7 +34,7 @@ extension:
           value: cwe-organization
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/CWE/CodeableConcept
           specs: $BASE_VALUE
     - generateList: true
       expressionType: nested
