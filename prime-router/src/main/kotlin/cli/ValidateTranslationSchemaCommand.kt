@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.enum
@@ -79,6 +80,10 @@ class ValidateTranslationSchemaCommand :
             """.trimIndent()
 
             echo(output)
+            // This will cause the command to exit with code 1 to indicate it failed
+            if (!allPassed) {
+                throw CliktError("Validation failed")
+            }
         } else {
             echo(
                 "No schemas were found in ${schemaType.directory}," +

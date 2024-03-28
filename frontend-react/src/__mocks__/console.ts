@@ -1,29 +1,29 @@
 /* eslint-disable no-console */
 export const mockConsole = {
-    warn: jest.spyOn(console, "warn"),
-    error: jest.spyOn(console, "error"),
-    log: jest.spyOn(console, "log"),
-    assert: jest.spyOn(console, "assert"),
-    debug: jest.spyOn(console, "debug"),
-    info: jest.spyOn(console, "info"),
-    trace: jest.spyOn(console, "trace"),
+    warn: vi.spyOn(console, "warn"),
+    error: vi.spyOn(console, "error"),
+    log: vi.spyOn(console, "log"),
+    assert: vi.spyOn(console, "assert"),
+    debug: vi.spyOn(console, "debug"),
+    info: vi.spyOn(console, "info"),
+    trace: vi.spyOn(console, "trace"),
     mockResetAll() {
-        jest.mocked(console.assert).mockReset();
-        jest.mocked(console.debug).mockReset();
-        jest.mocked(console.error).mockReset();
-        jest.mocked(console.info).mockReset();
-        jest.mocked(console.log).mockReset();
-        jest.mocked(console.trace).mockReset();
-        jest.mocked(console.warn).mockReset();
+        vi.mocked(console.assert).mockReset();
+        vi.mocked(console.debug).mockReset();
+        vi.mocked(console.error).mockReset();
+        vi.mocked(console.info).mockReset();
+        vi.mocked(console.log).mockReset();
+        vi.mocked(console.trace).mockReset();
+        vi.mocked(console.warn).mockReset();
     },
     mockRestoreAll() {
-        jest.mocked(console.assert).mockRestore();
-        jest.mocked(console.debug).mockRestore();
-        jest.mocked(console.error).mockRestore();
-        jest.mocked(console.info).mockRestore();
-        jest.mocked(console.log).mockRestore();
-        jest.mocked(console.trace).mockRestore();
-        jest.mocked(console.warn).mockRestore();
+        vi.mocked(console.assert).mockRestore();
+        vi.mocked(console.debug).mockRestore();
+        vi.mocked(console.error).mockRestore();
+        vi.mocked(console.info).mockRestore();
+        vi.mocked(console.log).mockRestore();
+        vi.mocked(console.trace).mockRestore();
+        vi.mocked(console.warn).mockRestore();
     },
     mockImplementationAll() {
         this.assert.mockReturnValue(undefined);

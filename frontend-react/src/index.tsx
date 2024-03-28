@@ -1,3 +1,4 @@
+import { OktaAuth } from "@okta/okta-auth-js";
 import { lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router";
@@ -5,10 +6,12 @@ import { RouterProvider } from "react-router";
 import { createRouter } from "./AppRouter";
 import config from "./config";
 import AppInsightsContextProvider from "./contexts/AppInsights";
-import { OKTA_AUTH } from "./oktaConfig";
+import { oktaAuthConfig } from "./oktaConfig";
 import { aiConfig, createTelemetryService } from "./TelemetryService";
 
 import "./global.scss";
+
+const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const appInsights = createTelemetryService(aiConfig);
 const router = createRouter(

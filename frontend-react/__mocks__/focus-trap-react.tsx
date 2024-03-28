@@ -1,8 +1,9 @@
 import type * as FocusTrapType from "focus-trap-react";
-import { ComponentType } from "react";
+import React from "react";
+import { vi } from "vitest";
 
-const FocusTrap =
-    jest.requireActual<ComponentType<FocusTrapType.Props>>("focus-trap-react");
+const FocusTrap = (await vi.importActual("focus-trap-react"))
+    .default as React.ComponentType<FocusTrapType.Props>;
 
 /**
  * Override displayCheck for testing. See: https://github.com/focus-trap/tabbable#testing-in-jsdom
@@ -18,5 +19,4 @@ const FixedComponent = ({
     };
     return <FocusTrap {...props} focusTrapOptions={fixedOptions} />;
 };
-
-module.exports = FixedComponent;
+export default FixedComponent;

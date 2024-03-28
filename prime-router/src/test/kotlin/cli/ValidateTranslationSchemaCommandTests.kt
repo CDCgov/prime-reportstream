@@ -55,6 +55,7 @@ class ValidateTranslationSchemaCommandTests {
             
         """.trimIndent()
         )
+        assertThat(result.statusCode).isEqualTo(1)
     }
 
     @Test
@@ -97,6 +98,7 @@ class ValidateTranslationSchemaCommandTests {
             
         """.trimIndent()
         )
+        assertThat(result.statusCode).isEqualTo(0)
     }
 
     @Test
@@ -116,6 +118,7 @@ class ValidateTranslationSchemaCommandTests {
                 "No schemas were found in fhir_transforms," +
                     " please make sure that you have the correct configuration\n"
             )
+        assertThat(result.statusCode).isEqualTo(0)
     }
 
     @Test
@@ -130,5 +133,6 @@ class ValidateTranslationSchemaCommandTests {
 Error: invalid value for -s: invalid choice: CSV. (choose from FHIR, HL7)
 """
             )
+        assertThat(result.statusCode).isEqualTo(1)
     }
 }

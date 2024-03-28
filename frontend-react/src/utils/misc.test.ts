@@ -63,7 +63,7 @@ test("getErrorDetailFromResponse test", async () => {
 
 const objResource: OrgSettingsBaseResource = {
     name: "test setting",
-    url: "http://localhost",
+    url: "http://localhost:3000",
     pk: () => "10101",
     version: 5,
     createdBy: "test@example.com",

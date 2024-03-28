@@ -14,9 +14,4 @@ cd frontend-react
 
 ./scripts/approuter-check.sh
 
-# automatically stage dedupe changes (also ensures up-to-date lockfile)
-yarn dedupe
-git add yarn.lock
-
 yarn lint-staged
-yarn test -o --silent

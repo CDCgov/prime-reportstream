@@ -22,8 +22,8 @@ import { selectDatesFromRange } from "../../../utils/TestUtils";
 const mockReceiverServices = receiverServicesGenerator(5);
 const mockActiveReceiver = mockReceiverServices[0];
 
-jest.mock("../../../TelemetryService", () => ({
-    ...jest.requireActual("../../../TelemetryService"),
+vi.mock("../../../TelemetryService", async (importActual) => ({
+    ...(await importActual<typeof import("../../../TelemetryService")>()),
     getAppInsights: () => mockAppInsights,
 }));
 

@@ -9,7 +9,7 @@ import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOpti
 import { renderHook } from "../../utils/CustomRenderUtils";
 import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
 
-const mockCallbackFn = jest.fn();
+const mockCallbackFn = vi.fn();
 
 describe("useWatersUploader", () => {
     beforeAll(() => watersServer.listen());

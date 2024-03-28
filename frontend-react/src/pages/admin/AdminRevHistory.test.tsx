@@ -45,28 +45,33 @@ const fakeRows: SettingRevision[] = [
 ];
 
 // router path
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
+vi.mock("react-router-dom", async (importActual) => ({
+    ...(await importActual<typeof import("react-router-dom")>()),
     useParams: () => ({ org: "ignore", settingType: "organization" }),
 }));
 
 // replace this call to return our mock data
-jest.mock("../../network/api/Organizations/SettingRevisions", () => {
-    return {
-        ...jest.requireActual(
-            "../../network/api/Organizations/SettingRevisions",
-        ),
-        useSettingRevisionEndpointsQuery: (_params: SettingRevisionParams) => {
-            // The results set (data, isLoading, error) needs to match what the component
-            // expects to get back from the call to useSettingRevisionEndpointsQuery()
-            return {
-                data: fakeRows,
-                isError: false,
-                isLoading: false,
-            };
-        },
-    };
-});
+vi.mock(
+    "../../network/api/Organizations/SettingRevisions",
+    async (importActual) => {
+        return {
+            ...(await importActual<
+                typeof import("../../network/api/Organizations/SettingRevisions")
+            >()),
+            useSettingRevisionEndpointsQuery: (
+                _params: SettingRevisionParams,
+            ) => {
+                // The results set (data, isLoading, error) needs to match what the component
+                // expects to get back from the call to useSettingRevisionEndpointsQuery()
+                return {
+                    data: fakeRows,
+                    isError: false,
+                    isLoading: false,
+                };
+            },
+        };
+    },
+);
 
 describe("AdminRevHistory", () => {
     test("Renders with no errors", async () => {
