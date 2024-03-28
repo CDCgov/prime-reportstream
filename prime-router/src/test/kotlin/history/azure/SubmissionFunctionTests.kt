@@ -333,13 +333,13 @@ class SubmissionFunctionTests : Logging {
         return httpRequestMessage
     }
 
- //    @Test
- //    fun `test access user can view their organization's submission history`() {
- //        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
- //        val httpRequestMessage = setupHttpRequestMessageForTesting()
- //        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
- //        assertThat(response.status).isEqualTo(HttpStatus.OK)
- //    }
+     @Test
+     fun `test access user can view their organization's submission history`() {
+         val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+         val httpRequestMessage = setupHttpRequestMessageForTesting()
+         val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
+         assertThat(response.status).isEqualTo(HttpStatus.OK)
+     }
 
     @Test
     fun `test access user cannot view another organization's submission history`() {
