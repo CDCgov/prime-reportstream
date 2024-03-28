@@ -148,8 +148,8 @@ class SubmissionFunctionTests : Logging {
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
                             topic = "covid-19",
                             reportItemCount = 3,
-                            fileName="None-a2cf1c46-7689-4819-98de-520b5007e45f-20211130163654.csv",
-                            fileType="CSV"
+                            fileName = "None-a2cf1c46-7689-4819-98de-520b5007e45f-20211130163654.csv",
+                            fileType = "CSV"
                         ),
                         ExpectedSubmissionList(
                             submissionId = 7,
@@ -160,8 +160,8 @@ class SubmissionFunctionTests : Logging {
                             id = null,
                             topic = null,
                             reportItemCount = null,
-                            fileName="",
-                            fileType=""
+                            fileName = "",
+                            fileType = ""
                         )
                     )
                 ),
