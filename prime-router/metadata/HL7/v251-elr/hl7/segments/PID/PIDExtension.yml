@@ -29,7 +29,7 @@ extension:
           type: STRING
           value: PID.18
         valueIdentifier:
-          valueOf: ../../datatypes/CX/Identifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/CX/Identifier
           expressionType: resource
           constants:
             CXIdentifierField: PID.18
@@ -81,5 +81,5 @@ extension:
           type: STRING
           value: PID.38
         valueCodeableConcept:
-          valueOf: ../../datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           expressionType: resource

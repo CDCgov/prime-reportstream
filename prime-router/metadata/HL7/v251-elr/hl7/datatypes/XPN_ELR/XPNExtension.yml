@@ -85,7 +85,7 @@ extension:
           type: STRING
           value: XPN.9
         valueCodeableConcept:
-          valueOf: ../../datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: XPN.9
     - expressionType: nested

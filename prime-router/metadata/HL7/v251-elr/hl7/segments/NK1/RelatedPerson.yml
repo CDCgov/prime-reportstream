@@ -80,7 +80,7 @@ address:
   expressionType: nested
   generateList: true
   expressions:
-    - valueOf: ../../datatypes/XAD/Address
+    - valueOf: ../../datatypes/v251/hl7/datatypes/XAD/Address
       generateList: true
       expressionType: resource
       condition: $nk1-4 NOT_NULL
@@ -89,7 +89,7 @@ address:
       specs: NK1.4 *
       constants:
         hl7v2Field: "NK1.4"
-    - valueOf: ../../datatypes/XAD/Address
+    - valueOf: ../../datatypes/v251/hl7/datatypes/XAD/Address
       generateList: true
       expressionType: resource
       condition: $nk1-32 NOT_NULL
@@ -104,7 +104,7 @@ telecom:
   generateList: true
   expressions:
     - condition: $valueIn NOT_NULL
-      valueOf: ../../datatypes/XTN/ContactPoint
+      valueOf: ../../datatypes/v251/hl7/datatypes/XTN/ContactPoint
       generateList: true
       expressionType: resource
       specs: NK1.5 *
@@ -113,7 +113,7 @@ telecom:
       constants:
         hl7v2Field: "NK1.5"
     - condition: $valueIn NOT_NULL
-      valueOf: ../../datatypes/XTN/ContactPoint
+      valueOf: ../../datatypes/v251/hl7/datatypes/XTN/ContactPoint
       generateList: true
       expressionType: resource
       specs: NK1.31 *
@@ -129,7 +129,7 @@ communication:
   condition: $nk1-20 NOT_NULL
   expressionsMap:
     language:
-      valueOf: ../../datatypes/CWE/CodeableConcept
+      valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
       expressionType: resource
       specs: NK1.20
 

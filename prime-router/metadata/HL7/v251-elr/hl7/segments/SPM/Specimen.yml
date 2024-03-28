@@ -11,7 +11,7 @@ identifier:
   expressionType: nested
   expressions:
     - condition: $spm21 NOT_NULL
-      valueOf: ../../datatypes/EIP/Identifier-PlacerAssignedIdentifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EIP/Identifier-PlacerAssignedIdentifier
       expressionType: resource
       specs: SPM.2
       vars:
@@ -20,7 +20,7 @@ identifier:
         hl7v2Component: SPM.2.1
         backupExtension: "filler-assigned-identifier"
     - condition: $spm22 NOT_NULL
-      valueOf: ../../datatypes/EIP/Identifier-FillerAssignedIdentifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EIP/Identifier-FillerAssignedIdentifier
       expressionType: resource
       specs: SPM.2
       vars:
@@ -58,7 +58,7 @@ container:
           expressionType: resource
           specs: SPM.6 *
     type:
-      valueOf: ../../datatypes/CWE/CodeableConcept
+      valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
       expressionType: resource
       specs: SPM.27
 
@@ -94,7 +94,7 @@ collection:
           valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
     quantity:
-      valueOf: ../../datatypes/CQ/Quantity
+      valueOf: ../../datatypes/v251/hl7/datatypes/CQ/Quantity
       expressionType: resource
       specs: SPM.12
     collectedPeriod:
@@ -103,7 +103,7 @@ collection:
         spm17: SPM.17
       expressions:
         - condition: $end NOT_NULL
-          valueOf: ../../datatypes/DR/Period
+          valueOf: ../../datatypes/v251/hl7/datatypes/DR/Period
           expressionType: resource
           specs: SPM.17
           vars:
@@ -224,7 +224,7 @@ condition:
   vars:
     spm24: SPM.24
   condition: $spm24 NOT_NULL
-  valueOf: ../../datatypes/CWE/CodeableConcept
+  valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
   expressionType: resource
   generateList: true
   specs: SPM.24 *

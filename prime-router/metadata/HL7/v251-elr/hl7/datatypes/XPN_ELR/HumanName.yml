@@ -6,7 +6,7 @@ family:
   expressionType: HL7Spec
 _family:
   expressionType: resource
-  valueOf: ../../datatypes/FN/ExtensionHumanName-family
+  valueOf: ../../datatypes/v251/hl7/datatypes/FN/ExtensionHumanName-family
   specs: XPN.1
 
 given:
@@ -51,7 +51,7 @@ period_1:
     end: String, XPN.10.2
   condition: $xpn12 NULL && $xpn13 NULL
   expressionType: resource
-  valueOf: ../../datatypes/DR/Period
+  valueOf: ../../datatypes/v251/hl7/datatypes/DR/Period
 
 extension_AssemblyOrder:
   vars:

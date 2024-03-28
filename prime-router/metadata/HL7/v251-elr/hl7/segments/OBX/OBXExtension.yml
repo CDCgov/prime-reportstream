@@ -89,7 +89,7 @@ extension:
           type: STRING
           value: OBX.17
         valueCodeableConcept:
-          valueOf: ../../datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           expressionType: resource
     - expressionType: nested
       vars:

@@ -54,7 +54,7 @@ identifier:
     orc33: STRING_ALL, ORC.33
   expressions:
     - condition: $orc2 NOT_NULL
-      valueOf: ../../datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: ORC.2
       constants:
@@ -63,7 +63,7 @@ identifier:
         display: "Placer Identifier"
         hl7v2Field: ORC.2
     - condition: $orc2 NULL && $obr2 NOT_NULL
-      valueOf: ../../datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: OBR.2
       constants:
@@ -72,7 +72,7 @@ identifier:
         display: "Placer Identifier"
         hl7v2Field: OBR.2
     - condition: $orc3 NOT_NULL
-      valueOf: ../../datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: ORC.3
       constants:
@@ -81,7 +81,7 @@ identifier:
         display: "Filler Identifier"
         hl7v2Field: ORC.3
     - condition: $orc3 NULL && $obr3 NOT_NULL
-      valueOf: ../../datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: OBR.3
       constants:
@@ -90,7 +90,7 @@ identifier:
         display: "Filler Identifier"
         hl7v2Field: OBR.3
     - condition: $orc4 NOT_NULL
-      valueOf: ../../datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: ORC.4
       constants:
@@ -98,7 +98,7 @@ identifier:
         code: "PGN"
         hl7v2Field: ORC.4
     - condition: $orc4 NOT_NULL
-      valueOf: ../../datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: ORC.4
       constants:
@@ -106,7 +106,7 @@ identifier:
         code: "FGN"
         hl7v2Field: ORC.4
     - condition: $orc33 NOT_NULL
-      valueOf: ../../datatypes/CX/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/CX/Identifier
       expressionType: resource
       specs: ORC.33 *
       generateList: true
@@ -167,7 +167,7 @@ requester:
       expressions:
         - expressionType: reference
           condition: $orc12 NOT_NULL
-          valueOf: ../../datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
           specs: ORC.12
           vars:
             XADAddress: ORC.24
@@ -175,7 +175,7 @@ requester:
             XCNHL7Field: ORC.12
         - expressionType: reference
           condition: $orc12 NULL && $obr16 NOT_NULL
-          valueOf: ../../datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
           specs: OBR.16
           vars:
             XADAddress: ORC.24
@@ -200,7 +200,7 @@ _requester:
               type: SYSTEM_URL
               value: callback-number
             valueContactPoint:
-              valueOf: ../../datatypes/XTN/ContactPoint
+              valueOf: ../../datatypes/v251/hl7/datatypes/XTN/ContactPoint
               expressionType: resource
               constants:
                 hl7v2Field: ORC.14
@@ -216,7 +216,7 @@ _requester:
               type: SYSTEM_URL
               value: callback-number
             valueContactPoint:
-              valueOf: ../../datatypes/XTN/ContactPoint
+              valueOf: ../../datatypes/v251/hl7/datatypes/XTN/ContactPoint
               expressionType: resource
               constants:
                 hl7v2Field: OBR.17
@@ -226,7 +226,7 @@ locationCode:
     orc29: STRING_ALL, ORC.29
   condition: $orc29 NOT_NULL
   expressionType: resource
-  valueOf: ../../datatypes/CWE/CodeableConcept
+  valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
   specs: ORC.29
 
 reasonCode:
@@ -246,7 +246,7 @@ orderDetail:
       vars:
         obr46: STRING_ALL, OBR.46
       condition: $obr46 NOT_NULL
-      valueOf: ../../datatypes/CWE/CodeableConcept
+      valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
       specs: OBR.46 *
       generateList: true
       constants:
@@ -255,7 +255,7 @@ orderDetail:
       vars:
         obr47: STRING_ALL, OBR.47
       condition: $obr47 NOT_NULL
-      valueOf: ../../datatypes/CWE/CodeableConcept
+      valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
       specs: OBR.47 *
       generateList: true
       constants:
@@ -299,7 +299,7 @@ extension:
           value: status-modifier
         valueCodeableConcept:
           expressionType: resource
-          valueOf: ../../datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           specs: ORC.25
     # ORC data
     - expressionType: resource

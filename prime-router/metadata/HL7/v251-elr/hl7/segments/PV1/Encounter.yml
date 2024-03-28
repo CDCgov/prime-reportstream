@@ -68,7 +68,7 @@ location:
       condition: $pv13 NOT_NULL
       expressionsMap:
         location:
-          valueOf: ../../datatypes/PL/Location
+          valueOf: ../../datatypes/v251/hl7/datatypes/PL/Location
           expressionType: reference
           specs: PV1.3
         status:
@@ -99,7 +99,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: ../../datatypes/PL/Location
+          valueOf: ../../datatypes/v251/hl7/datatypes/PL/Location
           specs: PV1.6
         status:
           type: STRING
@@ -121,7 +121,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: ../../datatypes/PL/Location
+          valueOf: ../../datatypes/v251/hl7/datatypes/PL/Location
           specs: PV1.11
         status:
           type: STRING
@@ -153,7 +153,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: ../../datatypes/PL/Location
+          valueOf: ../../datatypes/v251/hl7/datatypes/PL/Location
           specs: PV1.42
         status:
           type: STRING
@@ -177,7 +177,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: ../../datatypes/PL/Location
+          valueOf: ../../datatypes/v251/hl7/datatypes/PL/Location
           specs: PV1.43
         status:
           type: STRING
@@ -218,7 +218,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: ../../datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -247,7 +247,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: ../../datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -276,7 +276,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: ../../datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -305,7 +305,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: ../../datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -334,7 +334,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: ../../datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -374,7 +374,7 @@ hospitalization:
     preAdmissionIdentifier:
       condition: $pv15 NOT_NULL
       expressionType: resource
-      valueOf: ../../datatypes/CX/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/CX/Identifier
       specs: PV1.5
     admitSource:
       condition: $pv114 NOT_NULL
@@ -389,12 +389,12 @@ hospitalization:
     destination:
       condition: $pv137 NOT_NULL
       expressionType: reference
-      valueOf: ../../datatypes/DLD/Location
+      valueOf: ../../datatypes/v251/hl7/datatypes/DLD/Location
       specs: PV1.37
     dietPreference:
       condition: $pv138 NOT_NULL
       expressionType: resource
-      valueOf: ../../datatypes/CWE/CodeableConcept
+      valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
       specs: PV1.38
 
 serviceType:
@@ -413,7 +413,7 @@ identifier:
         pv119: STRING_ALL, PV1.19
       condition: $pv119 NOT_NULL
       expressionType: resource
-      valueOf: ../../datatypes/CX/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/CX/Identifier
       specs: PV1.19 *
       generateList: true
       constants:
@@ -427,7 +427,7 @@ identifier:
       expressionType: resource
       specs: PV1.50 *
       generateList: true
-      valueOf: ../../datatypes/CX/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/CX/Identifier
       constants:
         CXIdentifierField: PV1.50
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -489,7 +489,7 @@ extension:
           value: admission-level-of-care
         valueCodeableConcept:
           expressionType: resource
-          valueOf: ../../datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           specs: PV2.40
     #    # PV1 Data
     - expressionType: resource

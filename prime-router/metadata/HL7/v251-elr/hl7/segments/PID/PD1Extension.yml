@@ -69,7 +69,7 @@ extension:
           type: STRING
           value: PD1.10
         valueIdentifier:
-          valueOf: ../../datatypes/CX/Identifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/CX/Identifier
           expressionType: resource
           constants:
             CXIdentifierField: PD1.10
@@ -83,7 +83,7 @@ extension:
           type: STRING
           value: PD1.11
         valueCodeableConcept:
-          valueOf: ../../datatypes/CE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CE/CodeableConcept
           expressionType: resource
     - expressionType: nested
       condition: $pd112 NOT_NULL
@@ -120,7 +120,7 @@ extension:
           type: STRING
           value: PD1.14
         valueReference:
-          valueOf: ../../datatypes/XON/Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
           expressionType: reference
     - expressionType: nested
       specs: PD1.15 *
@@ -133,7 +133,7 @@ extension:
           type: STRING
           value: PD1.15
         valueCodeableConcept:
-          valueOf: ../../datatypes/CE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CE/CodeableConcept
           expressionType: resource
     - expressionType: nested
       condition: $pd116 NOT_NULL
