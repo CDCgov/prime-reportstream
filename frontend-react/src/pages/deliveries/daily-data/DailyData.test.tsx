@@ -32,8 +32,8 @@ const mockUsePagination = {
 const mockReceivers = receiversGenerator(5);
 const mockActiveReceiver = mockReceivers[0];
 
-jest.mock("../../../hooks/UsePagination", () => ({
-    ...jest.requireActual("../../../hooks/UsePagination"),
+vi.mock("../../../hooks/UsePagination", async (importActual) => ({
+    ...(await importActual<typeof import("../../../hooks/UsePagination")>()),
     default: () => {
         return {
             ...mockUsePagination,

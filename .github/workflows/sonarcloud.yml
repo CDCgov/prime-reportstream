@@ -48,7 +48,7 @@ jobs:
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@20576b4b9ed46d41e2d45a2256e5e2316dde6834
+        uses: tj-actions/changed-files@2d756ea4c53f7f6b397767d8723b3a10a9f35bf2
         with:
           files_yaml: |
             frontend:
@@ -108,7 +108,7 @@ jobs:
 
       - name: Frontend Coverage
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        run: yarn jest --coverage --silent --maxWorkers=100%
+        run: yarn run test:ci
         working-directory: frontend-react
 
       - name: Run SonarCloud Scan master or full
