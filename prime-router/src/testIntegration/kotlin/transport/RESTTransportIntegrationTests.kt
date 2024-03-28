@@ -529,6 +529,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             "validationActive" to "true",
             "msgType" to "HL7",
             "RecordId" to "header.reportFile.reportId",
+            "ActionId" to "header.reportFile.actionId",
             "senderLabName" to "CDC PRIME REPORTSTREAM",
             "sourceLabName" to "CDC PRIME REPORTSTREAM"
         )

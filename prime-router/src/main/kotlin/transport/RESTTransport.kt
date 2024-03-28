@@ -65,7 +65,9 @@ import javax.net.ssl.SSLContext
  * A REST transport that will get an authentication token from the authTokenUrl
  * and POST HL7 to the reportUrl
  */
-class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
+class RESTTransport(
+    private val httpClient: HttpClient? = null,
+) : ITransport {
     /**
      * Send the content on the specific transport. Return retry information, if needed. Null, if not.
      *
@@ -87,6 +89,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 
         val restTransportInfo = transportType as RESTTransportType
         val reportId = "${header.reportFile.reportId}"
+        val actionId = header.reportFile.actionId
         val receiver = header.receiver ?: error("No receiver defined for report $reportId")
         val reportContent: ByteArray = header.content ?: error("No content for report $reportId")
         // get the file name from blob url, or create one from the report metadata
@@ -113,6 +116,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         var (httpHeaders, bearerTokens: BearerTokens?) = getOAuthToken(
                             restTransportInfo,
                             reportId,
+                            actionId,
                             jksCredential,
                             credential,
                             logger
@@ -280,15 +284,19 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     suspend fun getOAuthToken(
         restTransportInfo: RESTTransportType,
         reportId: String,
+        actionId: Long,
         jksCredential: UserJksCredential?,
         credential: RestCredential,
         logger: Logger,
     ): Pair<Map<String, String>, BearerTokens?> {
-        var httpHeaders = restTransportInfo.headers.mapValues {
-            if (it.value == "header.reportFile.reportId") {
-                reportId
-            } else {
-                it.value
+        var httpHeaders = restTransportInfo.headers.mapValues { entry ->
+            when (entry.value) {
+                "header.reportFile.reportId" -> reportId
+                "header.reportFile.actionId" -> {
+                    logger.info("Setting actionId header")
+                    actionId.toString()
+                }
+                else -> entry.value
             }
         }
         val tokenClient = httpClient ?: createDefaultHttpClient(jksCredential, null)
