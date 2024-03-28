@@ -38,7 +38,7 @@ import java.time.OffsetDateTime
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(
     value = [
-        "submissionId", "timestamp", "createdAt", "sender",
+        "submissionId", "timestamp", "sender", "httpStatus",
         "id", "topic", "reportItemCount", "fileName", "fileType"
     ]
 )
@@ -63,9 +63,9 @@ open class SubmissionHistory(
     @JsonIgnore
     val bodyUrl: String? = null,
     @JsonIgnore
-    val schemaName: String? = null,
+    val schemaName: String,
     @JsonProperty("fileType")
-    val bodyFormat: String? = null,
+    val bodyFormat: String,
 ) : ReportHistory(
     actionId,
     createdAt,
@@ -79,7 +79,7 @@ open class SubmissionHistory(
      */
     val fileName: String
         get() {
-            if (this.reportId != null && this.schemaName != null && this.bodyFormat != null) {
+            if (this.reportId != null) {
                 return Report.formExternalFilename(
                     this.bodyUrl,
                     ReportId.fromString(this.reportId),

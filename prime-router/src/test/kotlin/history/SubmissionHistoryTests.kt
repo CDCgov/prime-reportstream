@@ -264,8 +264,8 @@ class SubmissionHistoryTests {
             null,
             "",
             null,
-            null,
-            null
+            "",
+            "",
         ).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(createdAt).isNotNull()
@@ -276,8 +276,8 @@ class SubmissionHistoryTests {
             assertThat(topic).isNull()
             assertThat(reportItemCount).isNull()
             assertThat(bodyUrl).isNull()
-            assertThat(schemaName).isNull()
-            assertThat(bodyFormat).isNull()
+            assertThat(schemaName).isEqualTo("")
+            assertThat(bodyFormat).isEqualTo("")
         }
         SubmissionHistory(
             1,
