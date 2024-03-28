@@ -60,7 +60,7 @@ const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
             sortable: true,
             transform: transformDate,
         },
-        { dataAttr: "externalName", columnHeader: "File" },
+        { dataAttr: "fileName", columnHeader: "File" },
         { dataAttr: "reportItemCount", columnHeader: "Records" },
         {
             dataAttr: "httpStatus",

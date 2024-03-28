@@ -7,6 +7,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-elr-elims",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812520,
@@ -16,6 +19,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-etor-ti",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812511,
@@ -25,6 +31,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-full-elr",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812497,
@@ -34,6 +43,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812484,
@@ -43,6 +55,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812476,
@@ -52,6 +67,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812472,
@@ -61,6 +79,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812471,
@@ -70,6 +91,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812470,
@@ -79,6 +103,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812457,
@@ -88,6 +115,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-hl7",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812454,
@@ -97,6 +127,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812441,
@@ -106,6 +139,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-strac",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812430,
@@ -115,6 +151,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 100,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812429,
@@ -124,6 +163,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812428,
@@ -133,6 +175,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812427,
@@ -142,6 +187,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812426,
@@ -151,6 +199,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812424,
@@ -160,6 +211,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.temporary_submission_auth_test1",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812421,
@@ -169,6 +223,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.temporary_sender_auth_test",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812419,
@@ -178,6 +235,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.temporary_sender_auth_test",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812413,
@@ -187,6 +247,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 10,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812412,
@@ -196,6 +259,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 10,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812411,
@@ -205,6 +271,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 10,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812410,
@@ -214,6 +283,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 10,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3812409,
@@ -223,6 +295,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 10,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811366,
@@ -232,6 +307,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-elr-elims",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811335,
@@ -241,6 +319,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-etor-ti",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811326,
@@ -250,6 +331,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-full-elr",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811312,
@@ -259,6 +343,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811294,
@@ -268,6 +355,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811293,
@@ -277,6 +367,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811285,
@@ -286,6 +379,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811283,
@@ -295,6 +391,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811281,
@@ -304,6 +403,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811279,
@@ -313,6 +415,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811203,
@@ -322,6 +427,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-hl7",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811182,
@@ -331,6 +439,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3811106,
@@ -340,6 +451,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-strac",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810781,
@@ -349,6 +463,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 100,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810776,
@@ -358,6 +475,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810775,
@@ -367,6 +487,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810774,
@@ -376,6 +499,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810773,
@@ -385,6 +511,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810771,
@@ -394,6 +523,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.temporary_submission_auth_test1",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810768,
@@ -403,6 +535,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.temporary_sender_auth_test",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810766,
@@ -412,6 +547,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.temporary_sender_auth_test",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810607,
@@ -421,6 +559,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 10,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810606,
@@ -430,6 +571,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 10,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810605,
@@ -439,6 +583,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 10,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810604,
@@ -448,6 +595,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 10,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3810603,
@@ -457,6 +607,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 10,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3809480,
@@ -466,6 +619,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-elr-elims",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3809463,
@@ -475,6 +631,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-etor-ti",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3809454,
@@ -484,6 +643,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-full-elr",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3809440,
@@ -493,6 +655,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3809427,
@@ -502,6 +667,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3809419,
@@ -511,6 +679,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3809415,
@@ -520,6 +691,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3809414,
@@ -529,6 +703,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3809413,
@@ -538,6 +715,9 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
     {
         submissionId: 3809337,
@@ -547,5 +727,8 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-hl7",
+        fileName:
+            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileType: "HL7",
     },
 ];

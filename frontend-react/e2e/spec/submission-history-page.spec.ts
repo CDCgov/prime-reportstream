@@ -107,6 +107,19 @@ test.describe("Submission history page", () => {
                 ).toHaveText("3/7/2024, 6:00:22 PM");
             });
 
+            test("table column 'File' has expected data", async ({ page }) => {
+                await expect(
+                    page
+                        .locator(".usa-table tbody")
+                        .locator("tr")
+                        .nth(0)
+                        .locator("td")
+                        .nth(2),
+                ).toHaveText(
+                    "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+                );
+            });
+
             test("table column 'Records' has expected data", async ({
                 page,
             }) => {
