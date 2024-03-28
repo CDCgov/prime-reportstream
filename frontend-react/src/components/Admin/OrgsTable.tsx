@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { useResource } from "rest-hooks";
 
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import Table from "../../shared/Table/Table";
 import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";

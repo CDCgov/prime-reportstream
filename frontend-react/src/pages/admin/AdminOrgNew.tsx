@@ -9,7 +9,7 @@ import {
     TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
 import Spinner from "../../components/Spinner";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
 import OrganizationResource from "../../resources/OrganizationResource";
 import { getErrorDetailFromResponse } from "../../utils/misc";

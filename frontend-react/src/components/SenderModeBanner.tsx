@@ -3,7 +3,7 @@ import { ReactElement } from "react";
 
 import { withCatchAndSuspense } from "./RSErrorBoundary";
 import { USLink } from "./USLink";
-import { useSessionContext } from "../contexts/Session";
+import useSessionContext from "../contexts/Session/useSessionContext";
 import useSenderResource from "../hooks/UseSenderResource";
 import { MemberType } from "../utils/OrganizationUtils";
 

@@ -5,8 +5,8 @@ import {
     dataDashboardEndpoints,
     RSReceiverDeliveryResponse,
 } from "../../../config/endpoints/dataDashboard";
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
-import { useSessionContext } from "../../../contexts/Session";
+import useAuthorizedFetch from "../../../contexts/AuthorizedFetch/useAuthorizedFetch";
+import useSessionContext from "../../../contexts/Session/useSessionContext";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../filters/UseFilterManager";

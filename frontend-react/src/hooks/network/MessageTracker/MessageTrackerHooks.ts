@@ -6,7 +6,7 @@ import {
     messageTrackerEndpoints,
     RSMessageDetail,
 } from "../../../config/endpoints/messageTracker";
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
+import useAuthorizedFetch from "../../../contexts/AuthorizedFetch/useAuthorizedFetch";
 
 const { search, getMessageDetails } = messageTrackerEndpoints;
 

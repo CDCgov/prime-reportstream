@@ -8,8 +8,8 @@ import {
     ValueSet,
     ValueSetRow,
 } from "../config/endpoints/lookupTables";
-import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
-import { useSessionContext } from "../contexts/Session";
+import useAuthorizedFetch from "../contexts/AuthorizedFetch/useAuthorizedFetch";
+import useSessionContext from "../contexts/Session/useSessionContext";
 import { RSNetworkError } from "../utils/RSNetworkError";
 
 const { getTableData, getTableList, updateTable, activateTable } =

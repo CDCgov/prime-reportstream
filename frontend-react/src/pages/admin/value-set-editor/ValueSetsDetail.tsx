@@ -23,7 +23,7 @@ import {
     LookupTable,
     ValueSetRow,
 } from "../../../config/endpoints/lookupTables";
-import { useSessionContext } from "../../../contexts/Session";
+import useSessionContext from "../../../contexts/Session/useSessionContext";
 import {
     useValueSetActivation,
     useValueSetsMeta,

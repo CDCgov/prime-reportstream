@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 
 import { HTTPMethods, RSEndpoint } from "../../config/endpoints";
-import { useAuthorizedFetch } from "../../contexts/AuthorizedFetch";
+import useAuthorizedFetch from "../../contexts/AuthorizedFetch/useAuthorizedFetch";
 import { RSNetworkError } from "../../utils/RSNetworkError";
 
 /**

@@ -7,12 +7,15 @@ import {
     receiversGenerator,
 } from "../../../__mocks__/OrganizationMockServer";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
 import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
+
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
+>("../../../contexts/Session/useSessionContext");
 
 const mockData: FacilityResource[] = [
     {

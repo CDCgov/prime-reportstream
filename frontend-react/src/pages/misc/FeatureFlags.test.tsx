@@ -1,8 +1,8 @@
 import { fireEvent, screen } from "@testing-library/react";
 
 import { FeatureFlagsPage } from "./FeatureFlags";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
-import { FeatureFlagActionType } from "../../contexts/FeatureFlag";
+import { FeatureFlagActionType } from "../../contexts/FeatureFlag/FeatureFlagProvider";
+import useFeatureFlags from "../../contexts/FeatureFlag/useFeatureFlags";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 vi.mock("../../config", async (importActual) => {
@@ -16,6 +16,8 @@ vi.mock("../../config", async (importActual) => {
         __esModule: true,
     };
 });
+
+const mockFeatureFlagContext = vi.mocked(useFeatureFlags);
 
 describe("FeatureFlags", () => {
     test("displays a list of current feature flags", () => {

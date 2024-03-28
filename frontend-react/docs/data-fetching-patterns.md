@@ -75,13 +75,13 @@ export interface ValueSetsMetaResponse {
     valueSetMeta: LookupTable;
 }
 export const useValueSetsMeta = (
-    dataTableName: string = LookupTables.VALUE_SET
+    dataTableName: string = LookupTables.VALUE_SET,
 ): ValueSetsMetaResponse => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<LookupTable[]>();
 
     // get all lookup tables in order to get metadata
     const { data: tableData } = rsUseQuery([getTableList.queryKey], () =>
-        authorizedFetch(getTableList)
+        authorizedFetch(getTableList),
     );
 
     const tableMeta = findTableMetaByName(tableData, dataTableName);
@@ -233,7 +233,7 @@ The first part there is easier to understand, so let's start there. Here is the 
 ```typescript
 function createTypeWrapperForAuthorizedFetch(
     oktaToken: Partial<AccessToken>,
-    activeMembership: MembershipSettings
+    activeMembership: MembershipSettings,
 ) {
     const authHeaders = {
         "authentication-type": "okta",
@@ -243,7 +243,7 @@ function createTypeWrapperForAuthorizedFetch(
 
     return async function <T>(
         EndpointConfig: RSEndpoint,
-        options: Partial<AxiosOptionsWithSegments> = {}
+        options: Partial<AxiosOptionsWithSegments> = {},
     ): Promise<T> {
         const headerOverrides = options?.headers || {};
         const headers = { ...authHeaders, ...headerOverrides };
@@ -267,16 +267,16 @@ from UseCreateFetch:
 ```typescript
 export const useCreateFetch = (
     oktaToken: Partial<AccessToken>,
-    activeMembership: MembershipSettings
+    activeMembership: MembershipSettings,
 ): AuthorizedFetchTypeWrapper => {
     const generator = useCallback(
         () =>
             // THIS FUNCTION IS WHAT WILL TAKE THE GENERIC TYPE
             auxExports.createTypeWrapperForAuthorizedFetch(
                 oktaToken as Partial<AccessToken>,
-                activeMembership as MembershipSettings
+                activeMembership as MembershipSettings,
             ),
-        [oktaToken, activeMembership]
+        [oktaToken, activeMembership],
     );
 
     return generator;
