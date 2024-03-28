@@ -2,7 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 
 import ReportStreamHeader from "./ReportStreamHeader";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import { RSSessionContext } from "../../contexts/Session";
+import type { RSSessionContext } from "../../contexts/Session";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("SignInOrUser", () => {
