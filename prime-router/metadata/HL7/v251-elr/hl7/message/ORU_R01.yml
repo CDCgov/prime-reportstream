@@ -97,10 +97,3 @@ resources:
     repeats: true
     additionalSegments:
       - .ORC
-
-  - resourceName: Device
-    segment: .PATIENT.PATIENT_OBSERVATION.PRT
-    group: PATIENT_RESULT
-    resourcePath: segments/PRT/Device
-
-# TODO Add more segments as we develop them

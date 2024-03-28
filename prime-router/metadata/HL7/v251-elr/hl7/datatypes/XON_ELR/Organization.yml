@@ -33,7 +33,7 @@ identifier:
       valueOf: XON.10
     type:
       condition: $xon7 NOT_NULL
-      valueOf: datatype/CodeableConcept_var
+      valueOf: ../../datatype/CodeableConcept_var
       expressionType: resource
       vars:
         code: String, XON.7
@@ -67,7 +67,7 @@ identifier:
       condition: $xon6 NOT_NULL
       generateList: true
       expressionType: resource
-      valueOf: datatypes/HD/ExtensionAssigningAuthority
+      valueOf: ../../datatypes/HD/ExtensionAssigningAuthority
       specs: XON.6
     extension_4-location:
       condition: $xon8 NOT_NULL
@@ -81,19 +81,19 @@ identifier:
           value: identifier-location
         valueReference:
           expressionType: reference
-          valueOf: datatypes/HD/Location
+          valueOf: ../../datatypes/HD/Location
           specs: XON.8
 
 address:
   condition: $XADAddress NOT_NULL
-  valueOf: datatypes/XAD/Address
+  valueOf: ../../datatypes/XAD/Address
   expressionType: resource
   specs: $XADAddress
 
 telecom:
   expressionType: resource
   condition: $XTNTelecom NOT_NULL
-  valueOf: datatypes/XTN/ContactPoint
+  valueOf: ../../datatypes/XTN/ContactPoint
   generateList: true
   specs: $XTNTelecom *
 
@@ -109,13 +109,13 @@ contact:
       valueOf: datatypes/XPN_ELR/HumanName
     telecom:
       condition: $XPNContactTelecom NOT_NULL
-      valueOf: datatypes/XTN/ContactPoint
+      valueOf: ../../datatypes/XTN/ContactPoint
       generateList: true
       expressionType: resource
       specs: $XPNContactTelecom *
     address:
       condition: $XADContactAddress NOT_NULL
-      valueOf: datatypes/XAD/Address
+      valueOf: ../../datatypes/XAD/Address
       generateList: true
       expressionType: resource
       specs: $XADContactAddress *
@@ -132,13 +132,10 @@ extension:
         url:
           type: SYSTEM_URL
           value: organization-name-type
-        valueCoding:
-          valueOf: datatypes/CWE/Coding
-          generateList: true
-          expressionType: resource
-          specs: XON.2
-          constants:
-            hl7v2Field: XON.2
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XON.2
     - generateList: true
       expressionType: nested
       condition: $hl7v2Field NOT_NULL
