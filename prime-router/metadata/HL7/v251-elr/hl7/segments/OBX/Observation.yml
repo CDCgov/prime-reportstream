@@ -12,6 +12,7 @@ resourceType: Observation
 # Not implementing OBX.27 not in mapping not in NIST
 # Not implementing OBX.28 not in mapping not in NIST
 # Not implementing OBX.29 not in mapping not in NIST
+# Not implementing OBX.30 not in mapping not in NIST
 # Not implementing OBX.31 not in mapping not in NIST
 # Not implementing OBX.32 not in mapping not in NIST
 # Not implementing OBX.33 as it's not in the NIST spec the logic in the inventory cannot be implemented in the library
@@ -449,18 +450,6 @@ extension:
                   type: STRING
                   valueOf: $obx19
                   expressionType: HL7Spec
-    - expressionType: nested
-      vars:
-        obx30: STRING_ALL, OBX.30
-      condition: $obx30 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: observation-sub-type
-        valueCode:
-          type: STRING
-          expressionType: HL7Spec
-          specs: OBX.30
     - expressionType: nested
       vars:
         obx54: STRING, OBX.5.4
