@@ -153,7 +153,29 @@ class SubmissionsFacade(
         action: Action,
         request: HttpRequestMessage<String?>,
     ): Boolean {
-        return claims.authorizedForSendOrReceive(action.sendingOrg, null, request)
+        val senderAuthorized = claims.authorizedForSendOrReceive(action.sendingOrg, null, request)
+
+        if (senderAuthorized) {
+            // if the sender is authorized, no need to check the receivers.  This is equivalent to a short-circuited "or" statement.
+            return true
+        }
+
+        val receivingOrgs = receivingOrgsForAction(action)
+
+        return receivingOrgs.any { claims.authorizedForSendOrReceive(it, null, request) }
+    }
+
+    private fun receivingOrgsForAction(action: Action): Set<String?> {
+        val report = fetchReportForActionId(action.actionId)
+
+        val relatedActions = dbSubmissionAccess.fetchRelatedActions(
+            report!!.reportId,
+            DetailedSubmissionHistory::class.java
+        )
+
+        return relatedActions.filter { it.actionName == TaskAction.send }
+            .flatMap { it.reports!! }
+            .map { it.receivingOrg }.toSet()
     }
 
     companion object {
