@@ -1,0 +1,23 @@
+extends: classpath:/metadata/hl7_mapping/resources/MessageHeader/MSH.yml
+elements:
+
+  #  MSH.10 is mapped via MSHExtension.yml
+  - name: message-control-id
+    condition: false
+
+  # Remaining fields are deprecated in NIST
+  - name: responsible
+    condition: false
+
+  - name: receiving-responsible-organization
+    condition: false
+
+  - name: sending-network-address-from-source
+    condition: false
+
+  - name: receiving-network-address
+    condition: false
+
+  - name: msh-extension-values
+    condition: false
+
