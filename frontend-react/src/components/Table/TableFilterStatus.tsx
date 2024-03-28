@@ -9,7 +9,7 @@ interface TableFilterStatusProps {
 
 function TableFilterStatus({ filterStatus }: TableFilterStatusProps) {
     return (
-        <div className="margin-left-2">
+        <div data-testid="filter-status" className="margin-left-2">
             <p className="display-inline">
                 Showing
                 {` (${filterStatus.resultLength ?? 0}) ${filterStatus.resultLength === 1 ? "result" : "results"} `}

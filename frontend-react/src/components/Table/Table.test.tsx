@@ -272,8 +272,8 @@ describe("Table, filter integration tests", () => {
         /* Assert the value of state in string has changed */
         expect(screen.getByText(/range:/)).not.toHaveTextContent(defaultState);
 
-        const clearButton = screen.getByText("Reset");
-        await userEvent.click(clearButton);
+        const clearButton = screen.getAllByText("Reset");
+        await userEvent.click(clearButton[0]);
     });
 
     test("cursor sets properly according to sort order", async () => {

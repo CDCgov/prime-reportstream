@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 
 import Table, { ColumnConfig, TableConfig } from "./Table";
 import TableFilters, { TableFilterDateLabel } from "./TableFilters";
@@ -46,7 +46,7 @@ export const TestTable = ({
         hasPrev,
         update: updateCursors,
     } = useCursorManager(filterManager.rangeSettings.to);
-
+    const [searchTerm, setSearchTerm] = useState("");
     /* Ensure there's at least 1 more cursor in the cursorMap
      * to test the Next/Prev buttons. In a real application
      * the effect would call addNextCursor when the API response
@@ -67,7 +67,7 @@ export const TestTable = ({
             case "DESC":
                 return [dummyRowTwo, testDataRowOne];
         }
-    }, [filterManager.sortSettings.order]);
+    }, [filterManager.sortSettings.order, searchTerm]);
 
     const testTransform = (v: string) => {
         if (v === "transform this") {
@@ -134,6 +134,10 @@ export const TestTable = ({
         method: editable ? undefined : sampleCallback,
     };
 
+    const handleSearchTerm = (searchTerm: string) => {
+        setSearchTerm(searchTerm);
+    };
+
     return (
         <>
             <StateTestRendering />
@@ -152,6 +156,10 @@ export const TestTable = ({
                     update: updateCursors,
                 }}
                 initialService={mockActiveReceiver}
+                setSearchTerm={
+                    handleSearchTerm as Dispatch<SetStateAction<string>>
+                }
+                searchTerm={""}
             />
             <Table
                 title={"Test Table Title"}

@@ -456,7 +456,7 @@ describe("usePagination", () => {
         // The request on the first page should check for the presence of up to
         // seven pages.
         await waitFor(() =>
-            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61),
+            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {}),
         );
         expect(result.current.paginationProps).toMatchObject({
             currentPageNum: 0,
@@ -481,7 +481,7 @@ describe("usePagination", () => {
         // The request on the first page should check for the presence of up to
         // seven pages.
         await waitFor(() =>
-            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61),
+            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {}),
         );
         await waitFor(() =>
             expect(result.current.paginationProps?.currentPageNum).toBe(1),
@@ -532,7 +532,7 @@ describe("usePagination", () => {
                 result.current.paginationProps?.currentPageNum,
             ).toBeGreaterThan(1),
         );
-        expect(mockFetchResults).toHaveBeenLastCalledWith("60", 21);
+        expect(mockFetchResults).toHaveBeenLastCalledWith("60", 21, {});
         expect(result.current.paginationProps?.currentPageNum).toBe(6);
         expect(result.current.paginationProps?.slots).toStrictEqual([
             1,
@@ -576,7 +576,7 @@ describe("usePagination", () => {
             await waitFor(() =>
                 expect(result.current.paginationProps).toBeDefined(),
             );
-            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
+            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {});
             expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
             act(() => {
                 result.current.paginationProps?.setSelectedPage(2);
@@ -598,7 +598,7 @@ describe("usePagination", () => {
             );
             // After a reset, the fetch count should reflect an initial request,
             // which needs to check for the presence of up to five pages.
-            expect(mockFetchResults).toHaveBeenLastCalledWith("9999", 61);
+            expect(mockFetchResults).toHaveBeenLastCalledWith("9999", 61, {});
             expect(result.current.paginationProps?.currentPageNum).toBe(1);
         },
     );
@@ -643,7 +643,7 @@ describe("usePagination", () => {
             ).toBeDefined(),
         );
         // The initial request should check for the presence of up to five pages.
-        expect(mockFetchResults2).toHaveBeenLastCalledWith("1", 61);
+        expect(mockFetchResults2).toHaveBeenLastCalledWith("1", 61, {});
         expect(result.current.paginationProps?.currentPageNum).toBe(1);
     });
 
@@ -667,7 +667,7 @@ describe("usePagination", () => {
         await waitFor(() =>
             expect(result.current.paginationProps).toBeDefined(),
         );
-        expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
+        expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {});
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
         expect(mockTrackEvent).not.toHaveBeenCalled();
 
