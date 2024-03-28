@@ -31,7 +31,7 @@ identifier:
 
 parent:
   condition: $spm3 NOT_NULL
-  valueOf: ../../segments/SPM/EIP/Specimen
+  valueOf: segments/SPM/EIP/Specimen
   expressionType: reference
   vars:
     spm3: SPM.3
