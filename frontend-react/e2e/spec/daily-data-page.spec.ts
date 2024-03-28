@@ -69,6 +69,9 @@ test.describe("Daily Data page", () => {
                 await expect(page.locator(".usa-table th").nth(4)).toHaveText(
                     /Filename/,
                 );
+                await expect(page.locator(".usa-table th").nth(5)).toHaveText(
+                    /Receiver/,
+                );
             });
 
             test("table has pagination", async ({ page }) => {
@@ -101,14 +104,24 @@ test.describe("Daily Data page", () => {
         });
 
         test("table has correct headers", async ({ page }) => {
-            const table = page.locator("table");
-            await expect(table.getByText(/Report ID/)).toBeAttached();
-            await expect(table.getByText(/Time received/)).toBeAttached();
-            await expect(
-                table.getByText(/File available until/),
-            ).toBeAttached();
-            await expect(table.getByText(/Items/)).toBeAttached();
-            await expect(table.getByText(/Filename/)).toBeAttached();
+            await expect(page.locator(".usa-table th").nth(0)).toHaveText(
+                /Report ID/,
+            );
+            await expect(page.locator(".usa-table th").nth(1)).toHaveText(
+                /Time received/,
+            );
+            await expect(page.locator(".usa-table th").nth(2)).toHaveText(
+                /File available until/,
+            );
+            await expect(page.locator(".usa-table th").nth(3)).toHaveText(
+                /Items/,
+            );
+            await expect(page.locator(".usa-table th").nth(4)).toHaveText(
+                /Filename/,
+            );
+            await expect(page.locator(".usa-table th").nth(5)).toHaveText(
+                /Receiver/,
+            );
         });
 
         test("table has pagination", async ({ page }) => {
