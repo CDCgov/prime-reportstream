@@ -113,6 +113,13 @@ components:
         externalName:
           description: custom report name if one was specified by the sender
           type: string
+        fileName:
+          description: the filename for the delivered report
+          type: string
+        fileType:
+          description: format in which the report was originally sent
+          type: string
+          enum: [ INTERNAL, CSV, CSV_SINGLE, HL7, HL7_BATCH, FHIR ]
 
   securitySchemes:
     OAuth2:
