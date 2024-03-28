@@ -23,6 +23,10 @@ const mockUsePagination = {
     currentPageResults: makeDeliveryFixtureArray(10),
     paginationProps: { currentPageNum: 1, slots: [1, 2, 3, 4] },
     isLoading: false,
+    setSearchTerm: () => {
+        return;
+    },
+    searchTerm: "",
 };
 
 const mockReceivers = receiversGenerator(5);
