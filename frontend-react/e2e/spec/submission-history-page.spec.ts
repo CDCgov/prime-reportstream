@@ -104,7 +104,7 @@ test.describe("Submission history page", () => {
                         .nth(0)
                         .locator("td")
                         .nth(1),
-                ).toHaveText("3/7/2024, 6:00:22 PM");
+                ).toHaveText("3/7/2024, 12:00:22 PM");
             });
 
             test("table column 'File' has expected data", async ({ page }) => {
@@ -255,7 +255,7 @@ test.describe("Submission history page", () => {
                     .nth(0)
                     .locator("td")
                     .nth(1),
-            ).toHaveText("3/7/2024, 6:00:22 PM");
+            ).toHaveText("3/7/2024, 12:00:22 PM");
         });
 
         test("table column 'Records' has expected data", async ({ page }) => {
