@@ -1,0 +1,18 @@
+extends: classpath:/metadata/hl7_mapping/resources/Patient/PIDExtension.yml
+constants:
+  hl7PIDField: '%{hl7SegmentGroup}/PID'
+
+elements:
+  - name: patient-sex
+    hl7Spec: [ '%{hl7PIDField}-8' ]
+    value: [ '%resource.extension.where(url = "PID.8").value' ]
+
+  - name: patient-account-number
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/identifier/CX.yml
+
+  - name: identity-reliability-code
+    hl7Spec: [ '%{hl7PIDField}-32' ]
+    value: [ '%resource.extension.where(url = "PID.32").value' ]
+
+  - name: production-class-code
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml

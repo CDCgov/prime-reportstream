@@ -1,0 +1,73 @@
+extends: classpath:/metadata/hl7_mapping/resources/Patient/PID.yml
+constants:
+  hl7PIDField: '%{hl7SegmentGroup}/PID'
+
+elements:
+
+  - name: patient-identifier-list
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/identifier/CX.yml
+
+  - name: patient-name
+    schema: classpath:/metadata/hl7_mapping/v251-elr/datatypes/HumanName/XPN_ELR.yml
+
+  - name: patient-mothers-maiden-name
+    schema: classpath:/metadata/hl7_mapping/v251-elr/datatypes/HumanName/XPN_ELR.yml
+
+  - name: patient-dob
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/dateTime/DTMorDT.yml
+
+  #race
+  - name: patient-race-codeable-concept
+    schema: classpath:/metadata/hl7_mapping/v251-elr/datatypes/codeableConcept/CWE_ELR.yml
+
+  - name: patient-address
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/Address/XAD.yml
+
+  - name: phone-number-home-mobile-email
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/contactPoint/XTN.yml
+
+  - name: phone-number-business
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/contactPoint/XTN.yml
+
+  - name: patient-primary-language
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
+
+  - name: patient-marital-status
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
+
+  - name: patient-religion
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
+
+  - name: mothers-identifier
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/identifier/CX.yml
+
+  - name: patient-ethnicity
+    schema: classpath:/metadata/hl7_mapping/v251-elr/datatypes/codeableConcept/CWE_ELR.yml
+
+  - name: patient-citizenship
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
+
+  - name: patient-veteran-military-status
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
+
+  #TODO missing part of the condition?
+  - name: patient-nationality
+    condition: false
+
+  - name: patient-death-date-time
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/dateTime/DTMorDT.yml
+
+  - name: patient-last-updated-at
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/dateTime/DTMorDT.yml
+
+  - name: last-update-facility-namespace-id
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/identifier/HD.yml
+
+  - name: patient-species-identifier
+    schema: classpath:/metadata/hl7_mapping/v251-elr/datatypes/codeableConcept/CWE_ELR.yml
+
+  - name: patient-tribal-citizenship
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
+
+  - name: patient-telecommunication-information
+    condition: false
