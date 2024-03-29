@@ -21,7 +21,7 @@ describe("RSErrorBoundary", () => {
     afterAll(() => {
         mockRsconsole.error.mockRestore();
     });
-    test.only("Catches error", () => {
+    test("Catches error", () => {
         renderApp(
             <RSErrorBoundary>
                 <ThrowsRSError />
