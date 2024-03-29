@@ -10,4 +10,4 @@ elements:
       Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     required: true
-    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/MSH.yml
+    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/MessageHeader/MSH.yml

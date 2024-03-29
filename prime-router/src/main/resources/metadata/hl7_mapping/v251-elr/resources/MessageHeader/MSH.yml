@@ -19,5 +19,6 @@ elements:
     condition: false
 
   - name: msh-extension-values
-    condition: false
+    resource: '%resource.extension(%`rsext-msh-message-header`)'
+    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/MessageHeader/MSHExtension.yml
 
