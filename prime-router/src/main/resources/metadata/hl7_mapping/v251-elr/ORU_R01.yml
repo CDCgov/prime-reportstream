@@ -11,3 +11,7 @@ elements:
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     required: true
     schema: classpath:/metadata/hl7_mapping/v251-elr/resources/MessageHeader/MSH.yml
+
+  - name: software-segment
+    resource: 'Bundle.entry.resource.ofType(Provenance).where(entity.exists()).entity.what.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Device/SFT.yml

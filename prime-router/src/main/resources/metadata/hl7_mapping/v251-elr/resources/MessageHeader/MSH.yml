@@ -1,9 +1,15 @@
 extends: classpath:/metadata/hl7_mapping/resources/MessageHeader/MSH.yml
 elements:
 
+  - name: message-event-coding
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/coding/MSG.yml
+
   #  MSH.10 is mapped via MSHExtension.yml
   - name: message-control-id
     condition: false
+
+  - name: message-processing
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/meta/PT.yml
 
   # Remaining fields are deprecated in NIST
   - name: responsible
