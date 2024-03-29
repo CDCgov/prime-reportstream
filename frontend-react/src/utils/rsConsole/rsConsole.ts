@@ -22,22 +22,31 @@ export interface ConsoleTelemetryProperties {
  * methods, MESSAGES ARE REQUIRED.
  */
 export class RSConsole {
+    env: string;
+    protected _ai: ReactPlugin;
+    reportableLevels: ConsoleLevel[];
+    severityLevels: Record<ConsoleLevel, SeverityLevel>;
+
     constructor({
         ai,
-        consoleSeverityLevels,
-        reportableConsoleLevels = [],
+        severityLevels,
+        reportableLevels = [],
         env = "production",
     }: {
         ai: ReactPlugin;
-        consoleSeverityLevels: Record<ConsoleLevel, SeverityLevel>;
-        reportableConsoleLevels: ConsoleLevel[];
+        severityLevels: Record<ConsoleLevel, SeverityLevel>;
+        reportableLevels: ConsoleLevel[];
         env?: string;
     }) {
         this.log = console.log;
-        this.ai = ai;
-        this.reportableConsoleLevels = reportableConsoleLevels;
-        this.consoleSeverityLevels = consoleSeverityLevels;
+        this._ai = ai;
+        this.reportableLevels = reportableLevels;
+        this.severityLevels = severityLevels;
         this.env = env;
+    }
+
+    get ai() {
+        return this._ai;
     }
 
     /**
@@ -47,10 +56,6 @@ export class RSConsole {
         (...data: any[]): void;
         (message?: any, ...optionalParams: any[]): void;
     };
-    env: string;
-    ai: ReactPlugin;
-    reportableConsoleLevels: ConsoleLevel[];
-    consoleSeverityLevels: Record<ConsoleLevel, SeverityLevel>;
 
     _trace(
         {
@@ -127,11 +132,11 @@ export class RSConsole {
     }
 
     isReportable(consoleLevel: ConsoleLevel) {
-        return this.reportableConsoleLevels.includes(consoleLevel);
+        return this.reportableLevels.includes(consoleLevel);
     }
 
     getSeverityLevel(consoleLevel: ConsoleLevel) {
-        return this.consoleSeverityLevels[consoleLevel];
+        return this.severityLevels[consoleLevel];
     }
 
     warn(...args: [message: string, ...optionalParams: any[]]) {
@@ -156,5 +161,9 @@ export class RSConsole {
     dev(message?: any, ...optionalParams: any[]): void;
     dev(...args: any[]) {
         if (this.env === "development") console.log(...args);
+    }
+
+    updateAi(ai: ReactPlugin) {
+        this._ai = ai;
     }
 }

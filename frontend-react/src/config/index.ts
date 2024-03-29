@@ -57,22 +57,24 @@ const config = {
         disableTelemetry: !import.meta.env
             .VITE_APPLICATIONINSIGHTS_CONNECTION_STRING,
     } as const satisfies IConfiguration & IConfig,
-    // Debug ignored by default
-    AI_REPORTABLE_CONSOLE_LEVELS: [
-        "assert",
-        "error",
-        "info",
-        "trace",
-        "warn",
-    ] as ConsoleLevel[],
-    AI_CONSOLE_SEVERITY_LEVELS: {
-        info: SeverityLevel.Information,
-        warn: SeverityLevel.Warning,
-        error: SeverityLevel.Error,
-        debug: SeverityLevel.Verbose,
-        assert: SeverityLevel.Error,
-        trace: SeverityLevel.Warning,
-    } as Record<ConsoleLevel, SeverityLevel>,
+    RSCONSOLE: {
+        // Debug ignored by default
+        reportableLevels: [
+            "assert",
+            "error",
+            "info",
+            "trace",
+            "warn",
+        ] as ConsoleLevel[],
+        severityLevels: {
+            info: SeverityLevel.Information,
+            warn: SeverityLevel.Warning,
+            error: SeverityLevel.Error,
+            debug: SeverityLevel.Verbose,
+            assert: SeverityLevel.Error,
+            trace: SeverityLevel.Warning,
+        } as Record<ConsoleLevel, SeverityLevel>,
+    },
     IDLE_TIMERS: {
         timeout: import.meta.env.VITE_IDLE_TIMEOUT ?? 1000 * 60 * 15, // 15 minutes
         debounce: 500,

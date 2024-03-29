@@ -1,7 +1,7 @@
 import { lazy } from "react";
 import { Outlet, redirect, RouteObject } from "react-router";
 
-import RSErrorBoundary from "./components/RSErrorBoundary";
+import RSErrorBoundary from "./components/RSErrorBoundary/RSErrorBoundary";
 import { RequireGate } from "./shared/RequireGate/RequireGate";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";

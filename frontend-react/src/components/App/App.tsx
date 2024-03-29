@@ -1,15 +1,9 @@
 import { AppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { OktaAuth } from "@okta/okta-auth-js";
-import { Security, useOktaAuth } from "@okta/okta-react";
+import { Security } from "@okta/okta-react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import {
-    PropsWithChildren,
-    Suspense,
-    useCallback,
-    useMemo,
-    useRef,
-} from "react";
+import { Suspense, useCallback, useMemo } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import {
     createBrowserRouter,
@@ -18,70 +12,58 @@ import {
 } from "react-router-dom";
 import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
 
-import { AppErrorBoundary } from "./components/RSErrorBoundary";
-import { AppConfig } from "./config";
-import AuthorizedFetchProvider from "./contexts/AuthorizedFetch/AuthorizedFetchProvider";
-import FeatureFlagProvider from "./contexts/FeatureFlag/FeatureFlagProvider";
-import SessionProvider from "./contexts/Session/SessionProvider";
-import ToastProvider from "./contexts/Toast";
-import { appQueryClient } from "./network/QueryClients";
-import { ErrorPage } from "./pages/error/ErrorPage";
-import DAPScript from "./shared/DAPScript/DAPScript";
-import { permissionCheck } from "./utils/PermissionsUtils";
-import { RSConsole } from "./utils/rsConsole/rsConsole";
-import {
-    createTelemetryService,
-    ReactPlugin,
-} from "./utils/TelemetryService/TelemetryService";
-import { PERMISSIONS } from "./utils/UsefulTypes";
+import AuthStateGate from "./AuthStateGate";
+import { AppConfig } from "../../config";
+import AuthorizedFetchProvider from "../../contexts/AuthorizedFetch/AuthorizedFetchProvider";
+import FeatureFlagProvider from "../../contexts/FeatureFlag/FeatureFlagProvider";
+import SessionProvider from "../../contexts/Session/SessionProvider";
+import ToastProvider from "../../contexts/Toast";
+import { appQueryClient } from "../../network/QueryClients";
+import { ErrorPage } from "../../pages/error/ErrorPage";
+import DAPScript from "../../shared/DAPScript/DAPScript";
+import { permissionCheck } from "../../utils/PermissionsUtils";
+import { RSConsole } from "../../utils/rsConsole/rsConsole";
+import { createTelemetryService } from "../../utils/TelemetryService/TelemetryService";
+import { PERMISSIONS } from "../../utils/UsefulTypes";
 
 import "react-toastify/dist/ReactToastify.css";
+import RSErrorBoundary from "../RSErrorBoundary/RSErrorBoundary";
 
 export interface AppProps {
     routes: RouteObject[];
     config: AppConfig;
 }
 
-/**
- *
- * Prevents children from rendering until authState is initialized
- */
-const AuthStateGate = ({ children }: PropsWithChildren) => {
-    const { authState } = useOktaAuth();
-
-    if (!authState) return null;
-    return children;
-};
+export type AppRouter = ReturnType<typeof createBrowserRouter>;
 
 /**
- * App entrypoint that bootstraps all needed systems.
+ * App entrypoint that bootstraps all needed systems. Provides AppErrorBoundary to catch errors in
+ * children before session is initialized.
  */
 function App({ config, routes }: AppProps) {
-    // @ts-expect-error The proper typing will make the rest of function think this is possibly null, which is incorrect
-    const aiReactPluginRef = useRef<ReactPlugin>(null as ReactPlugin);
-    // @ts-expect-error The proper typing will make the rest of function think this is possibly null, which is incorrect
-    const oktaAuthRef = useRef<OktaAuth>(null as OktaAuth);
-    const routerRef = useRef<ReturnType<typeof createBrowserRouter>>(
-        // @ts-expect-error The proper typing will make the rest of function think this is possibly null, which is incorrect
-        null as RemixRouter,
+    const { reactPlugin: aiReactPlugin } = useMemo(
+        () => createTelemetryService(config.APPLICATION_INSIGHTS),
+        [config.APPLICATION_INSIGHTS],
     );
-
-    if (!aiReactPluginRef.current)
-        aiReactPluginRef.current = createTelemetryService(
-            config.APPLICATION_INSIGHTS,
-        ).reactPlugin;
-    if (!oktaAuthRef.current)
-        oktaAuthRef.current = new OktaAuth(config.OKTA_AUTH);
-    if (!routerRef.current) routerRef.current = createBrowserRouter(routes);
+    const rsConsole = useMemo(
+        () => new RSConsole({ ai: aiReactPlugin, ...config.RSCONSOLE }),
+        [aiReactPlugin, config.RSCONSOLE],
+    );
+    const oktaAuth = useMemo(
+        () => new OktaAuth(config.OKTA_AUTH),
+        [config.OKTA_AUTH],
+    );
+    const router = useMemo(() => createBrowserRouter(routes), [routes]);
 
     const Fallback = useCallback(() => <ErrorPage type="page" />, []);
-
     const restoreOriginalUri = useCallback(
         /**
          * If their destination is the home page, send them to their most relevant
          * group-type page. Otherwise, send them to their original destination.
          */
         (oktaAuth: OktaAuth, originalUri: string) => {
+            if (!router) throw new Error("Router uninitialized");
+
             const authState = oktaAuth.authStateManager.getAuthState();
             let url = originalUri;
             if (originalUri === "/") {
@@ -106,35 +88,19 @@ function App({ config, routes }: AppProps) {
              * Labeled as internal api but they can't be bothered to give us a proper
              * way to do this outside of a router context.
              */
-            void routerRef.current.navigate(url);
+            void router.navigate(url);
         },
-        [],
-    );
-
-    const rsConsole = useMemo(
-        () =>
-            new RSConsole({
-                ai: aiReactPluginRef.current,
-                consoleSeverityLevels: config.AI_CONSOLE_SEVERITY_LEVELS,
-                reportableConsoleLevels: config.AI_REPORTABLE_CONSOLE_LEVELS,
-                env: config.MODE,
-            }),
-        [
-            config.AI_CONSOLE_SEVERITY_LEVELS,
-            config.AI_REPORTABLE_CONSOLE_LEVELS,
-            config.MODE,
-        ],
+        [router],
     );
 
     return (
-        <AppErrorBoundary config={config} rsConsole={rsConsole}>
-            <AppInsightsContext.Provider value={aiReactPluginRef.current}>
+        <RSErrorBoundary rsConsole={rsConsole}>
+            <AppInsightsContext.Provider value={aiReactPlugin}>
                 <Security
                     restoreOriginalUri={restoreOriginalUri}
-                    oktaAuth={oktaAuthRef.current}
+                    oktaAuth={oktaAuth}
                 >
                     <AuthStateGate>
-                        <div className="a"></div>
                         <QueryClientProvider client={appQueryClient}>
                             <SessionProvider
                                 config={config}
@@ -155,9 +121,7 @@ function App({ config, routes }: AppProps) {
                                                         />
                                                         <Suspense>
                                                             <RouterProvider
-                                                                router={
-                                                                    routerRef.current
-                                                                }
+                                                                router={router}
                                                             />
                                                         </Suspense>
                                                         <ReactQueryDevtools
@@ -176,8 +140,19 @@ function App({ config, routes }: AppProps) {
                     </AuthStateGate>
                 </Security>
             </AppInsightsContext.Provider>
-        </AppErrorBoundary>
+        </RSErrorBoundary>
     );
 }
 
-export default App;
+/**
+ * Catch errors from app initialization (worst-case scenario of no telemetry).
+ */
+function AppWrapper(props: AppProps) {
+    return (
+        <RSErrorBoundary isGlobalConsole>
+            <App {...props} />
+        </RSErrorBoundary>
+    );
+}
+
+export default AppWrapper;

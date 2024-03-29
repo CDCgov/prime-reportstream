@@ -4,15 +4,17 @@ import { AppConfig } from "../../config";
 import { mockRsconsole } from "../../utils/rsConsole/rsConsole.fixtures";
 
 export const configFixture = {
-    AI_CONSOLE_SEVERITY_LEVELS: {
-        info: SeverityLevel.Information,
-        warn: SeverityLevel.Warning,
-        error: SeverityLevel.Error,
-        debug: SeverityLevel.Verbose,
-        assert: SeverityLevel.Error,
-        trace: SeverityLevel.Warning,
+    RSCONSOLE: {
+        severityLevels: {
+            info: SeverityLevel.Information,
+            warn: SeverityLevel.Warning,
+            error: SeverityLevel.Error,
+            debug: SeverityLevel.Verbose,
+            assert: SeverityLevel.Error,
+            trace: SeverityLevel.Warning,
+        },
+        reportableLevels: [],
     },
-    AI_REPORTABLE_CONSOLE_LEVELS: [],
     API_ROOT: "" as any,
     DEFAULT_FEATURE_FLAGS: "" as any,
     IS_PREVIEW: false,

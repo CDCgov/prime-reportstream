@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 
-import App from "./App";
 import { appRoutes } from "./AppRouter";
+import App from "./components/App/App";
 import config from "./config";
 
 import "./global.scss";

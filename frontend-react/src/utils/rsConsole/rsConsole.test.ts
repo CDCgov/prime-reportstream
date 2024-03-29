@@ -42,8 +42,8 @@ describe("RSConsole", () => {
         test("calls console.info and trackTrace with the correct message and severity level", () => {
             const rsConsole = new RSConsole({
                 ai: appInsightsFixture as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             rsConsole.info(message, obj);
 
@@ -67,8 +67,8 @@ describe("RSConsole", () => {
             test("calls console.assert and trackTrace with the correct message and severity level", () => {
                 const rsConsole = new RSConsole({
                     ai: appInsightsFixture as any,
-                    consoleSeverityLevels,
-                    reportableConsoleLevels,
+                    severityLevels: consoleSeverityLevels,
+                    reportableLevels: reportableConsoleLevels,
                 });
                 const msg = `Assertion failed: ${message}`;
 
@@ -98,8 +98,8 @@ describe("RSConsole", () => {
             test("only calls console.assert", () => {
                 const rsConsole = new RSConsole({
                     ai: appInsightsFixture as any,
-                    consoleSeverityLevels,
-                    reportableConsoleLevels,
+                    severityLevels: consoleSeverityLevels,
+                    reportableLevels: reportableConsoleLevels,
                 });
                 rsConsole.assert(true, message, obj);
 
@@ -119,8 +119,8 @@ describe("RSConsole", () => {
         test("calls console.debug and trackTrace with the correct message and severity level", () => {
             const rsConsole = new RSConsole({
                 ai: appInsightsFixture as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             // eslint-disable-next-line testing-library/no-debugging-utils
             rsConsole.debug(message, obj);
@@ -142,8 +142,8 @@ describe("RSConsole", () => {
         test("calls console.error and trackException with the correct message and severity level", () => {
             const rsConsole = new RSConsole({
                 ai: appInsightsFixture as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             const err = new Error(message);
             rsConsole.error(err, obj);
@@ -166,8 +166,8 @@ describe("RSConsole", () => {
         test("calls console.trace and trackTrace with the correct message and severity level", () => {
             const rsConsole = new RSConsole({
                 ai: appInsightsFixture as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             rsConsole.trace(message, obj);
 
@@ -188,8 +188,8 @@ describe("RSConsole", () => {
         test("calls console.warn and trackTrace with the correct message and severity level", () => {
             const rsConsole = new RSConsole({
                 ai: appInsightsFixture as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             rsConsole.warn(message, obj);
 
@@ -210,8 +210,8 @@ describe("RSConsole", () => {
         test("does not call console if non-dev env", () => {
             const rsConsole = new RSConsole({
                 ai: appInsightsFixture as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             rsConsole.dev("test");
             expect(mockConsole.log).not.toHaveBeenCalledWith("test");
@@ -219,8 +219,8 @@ describe("RSConsole", () => {
         test("does call console if dev env", () => {
             const rsConsole = new RSConsole({
                 ai: appInsightsFixture as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
                 env: "development",
             });
             rsConsole.dev("test");

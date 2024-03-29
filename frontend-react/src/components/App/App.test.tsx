@@ -1,7 +1,7 @@
 import { Security, useOktaAuth } from "@okta/okta-react";
 import { render, screen } from "@testing-library/react";
 import App from "./App";
-import { configFixture } from "./contexts/Session/useSessionContext.fixtures";
+import { configFixture } from "../../contexts/Session/useSessionContext.fixtures";
 
 function MockComponent({ children }: any) {
     return <>{children}</>;

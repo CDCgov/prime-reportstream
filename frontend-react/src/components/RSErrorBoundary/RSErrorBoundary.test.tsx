@@ -2,12 +2,12 @@ import { screen } from "@testing-library/react";
 import { AxiosError } from "axios";
 
 import RSErrorBoundary from "./RSErrorBoundary";
-import { renderApp } from "../utils/CustomRenderUtils";
-import { mockRsconsole } from "../utils/rsConsole/rsConsole.fixtures";
-import { RSNetworkError } from "../utils/RSNetworkError";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { mockRsconsole } from "../../utils/rsConsole/rsConsole.fixtures";
+import { RSNetworkError } from "../../utils/RSNetworkError";
 
 const { mockSessionContentReturnValue } = await vi.importMock<
-    typeof import("../contexts/Session/__mocks__/useSessionContext")
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
 >("../contexts/Session/useSessionContext");
 const rsError = new RSNetworkError(new AxiosError("rsnetwork error test"));
 

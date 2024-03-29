@@ -1,7 +1,7 @@
 import { Icon } from "@trussworks/react-uswds";
 import { ReactElement } from "react";
 
-import { withCatchAndSuspense } from "./RSErrorBoundary";
+import { withCatchAndSuspense } from "./RSErrorBoundary/RSErrorBoundary";
 import { USLink } from "./USLink";
 import useSessionContext from "../contexts/Session/useSessionContext";
 import useSenderResource from "../hooks/UseSenderResource";

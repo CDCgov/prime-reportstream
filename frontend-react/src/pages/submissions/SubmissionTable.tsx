@@ -3,7 +3,7 @@ import { useController } from "rest-hooks";
 
 import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
 import DataDashboardTableFilters from "../../components/DataDashboard/DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary/RSErrorBoundary";
 import Spinner from "../../components/Spinner";
 import { PaginationProps } from "../../components/Table/Pagination";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
