@@ -1,0 +1,7 @@
+extends: classpath:/metadata/hl7_mapping/resources/Device/SFT.yml
+elements:
+  - name: software-organization
+    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Organization/XON.yml
+
+  - name: software-install-date
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/dateTime/DTMorDT.yml
