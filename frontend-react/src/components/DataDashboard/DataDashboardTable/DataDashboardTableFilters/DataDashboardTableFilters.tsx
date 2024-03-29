@@ -146,7 +146,7 @@ function DataDashboardTableFilters({
     );
 
     return (
-        <div data-testid="filter-container" className={StyleClass.CONTAINER}>
+        <div data-testid="filter-container" className="filter-container">
             <form
                 className="grid-row display-flex flex-align-end"
                 ref={formRef}
