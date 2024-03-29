@@ -364,6 +364,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
     enum class MessageType {
         ORU_R01,
         ORM_O01,
+        OML_O21,
     }
 
     /**

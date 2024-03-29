@@ -146,6 +146,8 @@ const DeliveriesFilterAndTable = ({
         currentPageResults: serviceReportsList,
         paginationProps,
         isLoading,
+        setSearchTerm,
+        searchTerm,
     } = usePagination<RSDelivery>({
         startCursor,
         isCursorInclusive,
@@ -177,6 +179,8 @@ const DeliveriesFilterAndTable = ({
                 endDateLabel={TableFilterDateLabel.END_DATE}
                 showDateHints={true}
                 filterManager={filterManager}
+                setSearchTerm={setSearchTerm}
+                searchTerm={searchTerm}
                 setService={setService}
                 onFilterClick={({ from, to }: { from: string; to: string }) =>
                     appInsights?.trackEvent({
