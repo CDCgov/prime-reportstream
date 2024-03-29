@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useMemo } from "react";
 import { ErrorBoundary, ErrorBoundaryProps } from "react-error-boundary";
 import { createErrorLogger } from "./utils";
 import useSessionContext from "../../contexts/Session/useSessionContext";
@@ -8,7 +8,7 @@ import useSessionContext from "../../contexts/Session/useSessionContext";
  **/
 function RSErrorSessionBoundary(props: ErrorBoundaryProps) {
     const { rsConsole } = useSessionContext();
-    const errorHandler = useCallback(
+    const errorHandler = useMemo(
         () => createErrorLogger(rsConsole),
         [rsConsole],
     );

@@ -18,6 +18,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
 import java.util.Date
+import ca.uhn.hl7v2.model.v251.message.OML_O21 as v251_OML_O21
 import ca.uhn.hl7v2.model.v251.message.ORU_R01 as v251_ORU_R01
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
 import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
@@ -126,7 +127,9 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                         v27_ORU_R01::class.java,
                         v251_ORU_R01::class.java
                     )
-
+                    "OML" -> listOf(
+                        v251_OML_O21::class.java
+                    )
                     else -> {
                         logger.warn(
                             "$messageType did not have any mapped message model classes, using default behavior"
@@ -262,6 +265,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         fun getPatientPath(hl7Message: Message): String? {
             return when (getMessageType(hl7Message)) {
                 "ORM" -> "PATIENT"
+                "OML" -> "PATIENT"
                 "ORU" -> "PATIENT_RESULT/PATIENT"
                 else -> null
             }

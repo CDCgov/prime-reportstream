@@ -6,9 +6,6 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockRsconsole } from "../../utils/rsConsole/rsConsole.fixtures";
 import { RSNetworkError } from "../../utils/RSNetworkError";
 
-const { mockSessionContentReturnValue } = await vi.importMock<
-    typeof import("../../contexts/Session/__mocks__/useSessionContext")
->("../contexts/Session/useSessionContext");
 const rsError = new RSNetworkError(new AxiosError("rsnetwork error test"));
 
 // Dummy components for testing
@@ -20,16 +17,11 @@ describe("RSErrorBoundary", () => {
     beforeAll(() => {
         // shut up react's auto console.error
         mockRsconsole.error.mockImplementation(() => void 0);
-        mockSessionContentReturnValue({
-            config: {
-                AI_CONSOLE_SEVERITY_LEVELS: { error: 0 },
-            } as any,
-        });
     });
     afterAll(() => {
         mockRsconsole.error.mockRestore();
     });
-    test("Catches error", () => {
+    test.only("Catches error", () => {
         renderApp(
             <RSErrorBoundary>
                 <ThrowsRSError />
