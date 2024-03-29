@@ -451,7 +451,7 @@ tasks.register("testEnd2End") {
 
 tasks.register("testS2S") {
     group = rootProject.description ?: ""
-    description = "Run the end to end server t server auth tests.  Requires running a Docker instance"
+    description = "Run the server to server auth tests.  Requires running a Docker instance"
     project.extra["cliArgs"] = listOf("test", "--run", "server2serverauth")
     finalizedBy("primeCLI")
 }
@@ -856,7 +856,7 @@ dependencies {
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.2")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
-    implementation("org.json:json:20231013")
+    implementation("org.json:json:20240205")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.38.0")
     implementation("com.jcraft:jsch:0.1.55")
