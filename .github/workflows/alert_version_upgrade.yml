@@ -1,0 +1,50 @@
+name: Alert if upgrade is necessary
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "13 1 1 * *"
+
+jobs:
+  alert_stale_branches:
+    name: Alert on Stale branches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          fetch-depth: 0
+          
+      - name: check for version upgrade
+        id: PD
+        shell: pwsh
+        run: |
+            ./.github/scripts/MetabaseUpgrade/RequireVersionUpgrade.ps1 
+    
+    
+      - name: Get Version upgrade Details
+        id: VersionUpgrade
+        shell: pwsh
+        run: | 
+            echo  "${env:Versionupdates}" >> Versionupdates.json
+      
+      - name: JSON to variables
+        uses: antifree/json-to-variables@fceea3105eb6687f377bf24fc8e6e8e0e4d2945a
+        with:
+            filename: 'Versionupdates.json'
+            prefix: Schedules  
+    
+      - name: Slack Notification
+        if: steps.VersionUpgrade.outputs.upgradenecessary == 'true'
+        uses: ./.github/actions/notifications
+        with:
+            method: slack
+            title: Metabase upgrade Notification 
+            message: |
+            "Staging Metabase Version": "${{ env.VersionUpgrade_UpgradeDetails_0_StgVersion }}"
+            "Production Metabase Version": "${{ env.VersionUpgrade_UpgradeDetails_0_PrdVersion }}"
+            icon-emoji: ':bell:'
+            channel:  pagerduty-alert-dump
+            webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+            color: warning
+        
