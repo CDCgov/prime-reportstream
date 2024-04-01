@@ -22,7 +22,7 @@ elements:
     resource: '%resource.extension.where(url = "PD1.10").value'
     constants:
       cxField: '%{hl7PD1Field}-10(%{cxIndex})'
-    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/identifier/CX.yml
     resourceIndex: cxIndex
 
   - name: publicity-code
@@ -30,7 +30,7 @@ elements:
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7PD1Field}-11'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CE.yml
 
   - name: protection-indicator
     hl7Spec: [ '%{hl7PD1Field}-12' ]

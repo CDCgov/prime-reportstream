@@ -30,4 +30,4 @@ elements:
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7PD1Field}-14(%{cweIndex})'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
