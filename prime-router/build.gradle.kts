@@ -449,6 +449,13 @@ tasks.register("testEnd2End") {
     finalizedBy("primeCLI")
 }
 
+tasks.register("testEnd2EndUP") {
+    group = rootProject.description ?: ""
+    description = "Run the end to end UP tests.  Requires running a Docker instance"
+    project.extra["cliArgs"] = listOf("test", "--run", "end2end_up")
+    finalizedBy("primeCLI")
+}
+
 tasks.register("testS2S") {
     group = rootProject.description ?: ""
     description = "Run the server to server auth tests.  Requires running a Docker instance"
@@ -885,7 +892,6 @@ dependencies {
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    implementation("io.ktor:ktor-client-auth:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("io.ktor:ktor-client-encoding:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
@@ -933,8 +939,5 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter:1.19.6")
     testImplementation("org.testcontainers:postgresql:1.19.6")
 
-    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
-    testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
     implementation(kotlin("script-runtime"))
 }

@@ -33,7 +33,6 @@ import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.lastModified
 import org.json.JSONArray
@@ -153,7 +152,7 @@ abstract class SettingCommand(
         verbose("PUT $path :: $payload")
         val (response, respStr) = HttpClientUtils.putWithStringResponse(
             url = path.toString(),
-            tokens = BearerTokens(accessToken, refreshToken = ""),
+            accessToken = accessToken,
             jsonPayload = payload
         )
 
@@ -183,7 +182,7 @@ abstract class SettingCommand(
         verbose("DELETE $path")
         val (response, respStr) = HttpClientUtils.deleteWithStringResponse(
             url = path.toString(),
-            tokens = BearerTokens(accessToken, refreshToken = ""),
+            accessToken = accessToken,
         )
 
         return when (response.status) {
@@ -207,8 +206,8 @@ abstract class SettingCommand(
         val path = formPath(environment, Operation.GET, settingType, settingName)
         verbose("GET $path")
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
-            url = path.toString(),
-            tokens = BearerTokens(accessToken, refreshToken = "")
+            url = path,
+            accessToken = accessToken,
         )
 
         return if (response.status == HttpStatusCode.OK) {
@@ -233,7 +232,7 @@ abstract class SettingCommand(
         verbose("GET $path")
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path.toString(),
-            tokens = BearerTokens(accessToken, refreshToken = "")
+            accessToken = accessToken,
         )
 
         if (response.status == HttpStatusCode.OK) {
@@ -256,7 +255,7 @@ abstract class SettingCommand(
         verbose("GET $path")
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path.toString(),
-            tokens = BearerTokens(accessToken, refreshToken = ""),
+            accessToken = accessToken,
             timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
         if (response.status == HttpStatusCode.OK) {
@@ -916,7 +915,7 @@ class PutMultipleSettings : SettingCommand(
     private fun isFileUpdated(): Boolean {
         val (response, respStr) = HttpClientUtils.headWithStringResponse(
             url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "").toString(),
-            tokens = BearerTokens(oktaAccessToken, refreshToken = ""),
+            accessToken = oktaAccessToken,
             timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
 

@@ -25,7 +25,6 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Scope
-import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
@@ -1174,11 +1173,11 @@ class Server2ServerAuthTests : CoolTest() {
         val orgEndpoint = "${environment.url}/api/settings/organizations"
 
         val client = HttpClientUtils.createDefaultHttpClient(
-            BearerTokens(userToken, refreshToken = "")
+            userToken
         )
 
         val clientAdmin = HttpClientUtils.createDefaultHttpClient(
-            BearerTokens(adminToken, refreshToken = "")
+            adminToken
         )
 
         // Case: GET All Org Settings (Admin-only endpoint)

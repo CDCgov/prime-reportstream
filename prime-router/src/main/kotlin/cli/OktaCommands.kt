@@ -10,7 +10,6 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.transport.TokenInfo
-import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.isSuccess
 import org.apache.commons.codec.binary.Base64
 import java.awt.Desktop
@@ -259,7 +258,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             // Try out the token with Otka for the final confirmation
             val response = HttpClientUtils.get(
                 url = "$oktaBaseUrl$oktaUserInfoPath",
-                tokens = BearerTokens(accessTokenFile.token, refreshToken = "")
+                accessToken = accessTokenFile.token
             )
             return response.status.isSuccess()
         }
