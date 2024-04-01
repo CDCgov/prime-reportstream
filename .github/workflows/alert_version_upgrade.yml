@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push: 
     branches:
-      - feature/5763-Keep-prod-Metabase-Updated
+      - feature/5763-Keep-prod-Metabase-updated
   schedule:
     - cron: "7 13 * * Mon" 
 
