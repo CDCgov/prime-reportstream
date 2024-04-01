@@ -28,8 +28,6 @@ const filterManagerDefaults: FilterManagerDefaults = {
     },
 };
 
-interface SubmissionTableData {}
-
 interface SubmissionTableContentProps {
     filterManager: FilterManager;
     paginationProps?: PaginationProps;
