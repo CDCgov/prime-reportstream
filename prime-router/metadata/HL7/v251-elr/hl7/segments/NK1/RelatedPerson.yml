@@ -26,8 +26,11 @@ resourceType: RelatedPerson
 # Not implementing NK1.34: not in mapping, not in NIST
 # Not implementing NK1.35: not in mapping, not in NIST
 # Not implementing NK1.36: not in mapping, not in NIST
+# Not implementing NK1.37: not in mapping, not in NIST
 # Not implementing NK1.38: not in mapping, not in NIST
 # Not implementing NK1.39: not in mapping, not in NIST
+# Not implementing NK1.40: not in mapping, not in NIST
+# Not implementing NK1.41: not in mapping, not in NIST
 
 id:
   type: STRING

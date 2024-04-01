@@ -5,10 +5,8 @@ elements:
     resourceIndex: xonIndex
     constants:
       hl7XONField: '%{hl7NK1FieldPath}-13(%{xonIndex})'
-    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Organization/XON_ELR.yml
 
+  #  NK1.16 deprecated in NIST
   - name: nk1-16-birth-date
-    resource: '%resource.extension("NK1.16").value'
-    constants:
-      dtmFieldPath: '%{hl7NK1FieldPath}-16'
-    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+    condition: false

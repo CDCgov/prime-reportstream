@@ -27,5 +27,5 @@ elements:
   - name: related-person-nk1
     resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Segment`).value = "NK1" and patient.resolve().id = %resource.id)'
     condition: '%resource.patient.exists()'
-    schema: classpath:/metadata/hl7_mapping/resources/RelatedPerson/NK1.yml
+    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/RelatedPerson/NK1.yml
     resourceIndex: relatedPersonIndex
