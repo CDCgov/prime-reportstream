@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
-import DailyData from "./DailyData";
+import { DailyData } from "./DailyData";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import {
     orgServer,
