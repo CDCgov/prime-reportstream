@@ -17,7 +17,7 @@ $PrdVersion = $prdval.version.tag
 
 Write-Host "Version - " $PrdVersion
 
-if ($stgVersion -eq $PrdVersion)
+if ($stgVersion -ne $PrdVersion)
 {
     $upgradenecessary = 'true'
 
