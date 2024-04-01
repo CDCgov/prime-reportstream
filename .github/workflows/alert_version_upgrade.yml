@@ -38,7 +38,7 @@ jobs:
             prefix: Schedules  
     
       - name: Slack Notification
-        if: steps.VersionUpgrade.outputs.upgradenecessary == 'true'
+        if: ${{ env.Schedules_UpgradeDetails_0_UpgradeRequired }} == 'true'
         uses: ./.github/actions/notifications
         with:
             method: slack
