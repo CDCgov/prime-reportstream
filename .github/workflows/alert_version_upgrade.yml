@@ -22,7 +22,7 @@ jobs:
         id: PD
         shell: pwsh
         run: |
-            ./.github/scripts/MetabaseUpgrade/RequireVersionUpgrade.ps1 
+            ./.github/scripts/MetabaseUpgrade/MetabaseApi.ps1 
     
     
       - name: Get Version upgrade Details
