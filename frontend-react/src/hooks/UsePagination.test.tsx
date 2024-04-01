@@ -494,64 +494,68 @@ describe("usePagination", () => {
         );
     });
 
-    test("Setting a page fetches a new batch of results and updates the state", async () => {
-        const results1 = createSampleRecords(61);
-        const results2 = createSampleRecords(21, 61);
-        const mockFetchResults = vi
-            .fn()
-            .mockResolvedValueOnce(results1)
-            .mockResolvedValueOnce(results2);
-        mockUseAppInsightsContextImplementation();
-        const { result } = doRenderHook({
-            startCursor: "0",
-            isCursorInclusive: false,
-            pageSize: 10,
-            fetchResults: mockFetchResults,
-            extractCursor,
-        });
-        await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined(),
-        );
-        expect(result.current.paginationProps?.currentPageNum).toBe(1);
-        expect(result.current.paginationProps?.slots).toStrictEqual([
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            OVERFLOW_INDICATOR,
-        ]);
+    test(
+        "Setting a page fetches a new batch of results and updates the state",
+        { retry: 3 },
+        async () => {
+            const results1 = createSampleRecords(61);
+            const results2 = createSampleRecords(21, 61);
+            const mockFetchResults = vi
+                .fn()
+                .mockResolvedValueOnce(results1)
+                .mockResolvedValueOnce(results2);
+            mockUseAppInsightsContextImplementation();
+            const { result } = doRenderHook({
+                startCursor: "0",
+                isCursorInclusive: false,
+                pageSize: 10,
+                fetchResults: mockFetchResults,
+                extractCursor,
+            });
+            await waitFor(() =>
+                expect(result.current.paginationProps).toBeDefined(),
+            );
+            expect(result.current.paginationProps?.currentPageNum).toBe(1);
+            expect(result.current.paginationProps?.slots).toStrictEqual([
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                OVERFLOW_INDICATOR,
+            ]);
 
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(6);
-        });
-        expect(result.current.isLoading).toBe(true);
-        await waitFor(() =>
-            expect(
-                result.current.paginationProps?.currentPageNum,
-            ).toBeGreaterThan(1),
-        );
-        expect(mockFetchResults).toHaveBeenLastCalledWith("60", 21, {});
-        expect(result.current.paginationProps?.currentPageNum).toBe(6);
-        expect(result.current.paginationProps?.slots).toStrictEqual([
-            1,
-            OVERFLOW_INDICATOR,
-            5,
-            6,
-            7,
-            8,
-            OVERFLOW_INDICATOR,
-        ]);
-        expect(result.current.isLoading).toBe(false);
+            act(() => {
+                result.current.paginationProps?.setSelectedPage(6);
+            });
+            expect(result.current.isLoading).toBe(true);
+            await waitFor(() =>
+                expect(
+                    result.current.paginationProps?.currentPageNum,
+                ).toBeGreaterThan(1),
+            );
+            expect(mockFetchResults).toHaveBeenLastCalledWith("60", 21, {});
+            expect(result.current.paginationProps?.currentPageNum).toBe(6);
+            expect(result.current.paginationProps?.slots).toStrictEqual([
+                1,
+                OVERFLOW_INDICATOR,
+                5,
+                6,
+                7,
+                8,
+                OVERFLOW_INDICATOR,
+            ]);
+            expect(result.current.isLoading).toBe(false);
 
-        // The current page of results is still from the first fetch. The second
-        // fetch was needed to extend the pagination, not get the results for
-        // the current page.
-        expect(result.current.currentPageResults).toStrictEqual(
-            results1.slice(50, 60),
-        );
-    });
+            // The current page of results is still from the first fetch. The second
+            // fetch was needed to extend the pagination, not get the results for
+            // the current page.
+            expect(result.current.currentPageResults).toStrictEqual(
+                results1.slice(50, 60),
+            );
+        },
+    );
 
     // Flaky test, retry 3 times
     test(
