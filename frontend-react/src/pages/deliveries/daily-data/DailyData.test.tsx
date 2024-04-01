@@ -12,7 +12,8 @@ import {
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
@@ -31,6 +32,11 @@ const mockUsePagination = {
 
 const mockReceivers = receiversGenerator(5);
 const mockActiveReceiver = mockReceivers[0];
+
+const mockFilterManager: FilterManager = {
+    ...filterManagerFixture,
+    rangeSettings: { from: "2024-03-01", to: "2024-03-30" },
+};
 
 vi.mock("../../../hooks/UsePagination", async (importActual) => ({
     ...(await importActual<typeof import("../../../hooks/UsePagination")>()),
