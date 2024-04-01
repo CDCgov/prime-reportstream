@@ -2,12 +2,15 @@ name: Alert if upgrade is necessary
 
 on:
   workflow_dispatch:
+  push: 
+    branches:
+      - feature/5763-Keep-prod-Metabase-Updated
   schedule:
-    - cron: "13 1 1 * *"
+    - cron: "7 13 * * Mon" 
 
 jobs:
-  alert_stale_branches:
-    name: Alert on Stale branches
+  alert_version_upgrade:
+    name: Alert on Version upgrade
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
