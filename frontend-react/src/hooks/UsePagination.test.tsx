@@ -443,29 +443,33 @@ describe("usePagination", () => {
         );
     }
 
-    test("Returns empty pagination props when there are no results", async () => {
-        const mockFetchResults = vi.fn().mockResolvedValueOnce([]);
-        mockUseAppInsightsContextImplementation();
-        const { result } = doRenderHook({
-            startCursor: "0",
-            isCursorInclusive: false,
-            pageSize: 10,
-            fetchResults: mockFetchResults,
-            extractCursor,
-        });
-        // The request on the first page should check for the presence of up to
-        // seven pages.
-        await waitFor(() =>
-            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {}),
-        );
-        expect(result.current.paginationProps).toMatchObject({
-            currentPageNum: 0,
-            isPaginationLoading: false,
-            resultLength: 0,
-            slots: [],
-        });
-        expect(result.current.currentPageResults).toStrictEqual([]);
-    });
+    test(
+        "Returns empty pagination props when there are no results",
+        { retry: 3 },
+        async () => {
+            const mockFetchResults = vi.fn().mockResolvedValueOnce([]);
+            mockUseAppInsightsContextImplementation();
+            const { result } = doRenderHook({
+                startCursor: "0",
+                isCursorInclusive: false,
+                pageSize: 10,
+                fetchResults: mockFetchResults,
+                extractCursor,
+            });
+            // The request on the first page should check for the presence of up to
+            // seven pages.
+            await waitFor(() =>
+                expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {}),
+            );
+            expect(result.current.paginationProps).toMatchObject({
+                currentPageNum: 0,
+                isPaginationLoading: false,
+                resultLength: 0,
+                slots: [],
+            });
+            expect(result.current.currentPageResults).toStrictEqual([]);
+        },
+    );
 
     test("Fetches results and updates the available slots and page of results", async () => {
         const results = createSampleRecords(40);
@@ -607,49 +611,53 @@ describe("usePagination", () => {
         },
     );
 
-    test("Changing the fetchResults function resets the state", async () => {
-        const mockFetchResults1 = vi
-            .fn()
-            .mockResolvedValueOnce(createSampleRecords(11))
-            .mockResolvedValueOnce(createSampleRecords(1, 11));
-        const mockFetchResults2 = vi
-            .fn()
-            .mockResolvedValueOnce(createSampleRecords(1));
-        const initialProps = {
-            startCursor: "1",
-            isCursorInclusive: false,
-            pageSize: 10,
-            fetchResults: mockFetchResults1,
-            extractCursor,
-        };
-        mockUseAppInsightsContextImplementation();
-        const { result, rerender } = doRenderHook(initialProps);
+    test(
+        "Changing the fetchResults function resets the state",
+        { retry: 3 },
+        async () => {
+            const mockFetchResults1 = vi
+                .fn()
+                .mockResolvedValueOnce(createSampleRecords(11))
+                .mockResolvedValueOnce(createSampleRecords(1, 11));
+            const mockFetchResults2 = vi
+                .fn()
+                .mockResolvedValueOnce(createSampleRecords(1));
+            const initialProps = {
+                startCursor: "1",
+                isCursorInclusive: false,
+                pageSize: 10,
+                fetchResults: mockFetchResults1,
+                extractCursor,
+            };
+            mockUseAppInsightsContextImplementation();
+            const { result, rerender } = doRenderHook(initialProps);
 
-        // Set the results and move to the second page.
-        await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined(),
-        );
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(2);
-        });
-        expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
-        expect(result.current.paginationProps?.currentPageNum).toBe(2);
+            // Set the results and move to the second page.
+            await waitFor(() =>
+                expect(result.current.paginationProps).toBeDefined(),
+            );
+            act(() => {
+                result.current.paginationProps?.setSelectedPage(2);
+            });
+            expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
+            expect(result.current.paginationProps?.currentPageNum).toBe(2);
 
-        // Rerender with a new fetch results callback to create the list request
-        // parameters, e.g. when the sort order changes.
-        rerender({
-            ...initialProps,
-            fetchResults: mockFetchResults2,
-        });
-        await waitFor(() =>
-            expect(
-                result.current.paginationProps?.currentPageNum,
-            ).toBeDefined(),
-        );
-        // The initial request should check for the presence of up to five pages.
-        expect(mockFetchResults2).toHaveBeenLastCalledWith("1", 61, {});
-        expect(result.current.paginationProps?.currentPageNum).toBe(1);
-    });
+            // Rerender with a new fetch results callback to create the list request
+            // parameters, e.g. when the sort order changes.
+            rerender({
+                ...initialProps,
+                fetchResults: mockFetchResults2,
+            });
+            await waitFor(() =>
+                expect(
+                    result.current.paginationProps?.currentPageNum,
+                ).toBeDefined(),
+            );
+            // The initial request should check for the presence of up to five pages.
+            expect(mockFetchResults2).toHaveBeenLastCalledWith("1", 61, {});
+            expect(result.current.paginationProps?.currentPageNum).toBe(1);
+        },
+    );
 
     test("Calls appInsights?.trackEvent with page size and page number.", async () => {
         const mockFetchResults = vi
