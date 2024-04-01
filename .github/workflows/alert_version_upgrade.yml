@@ -44,8 +44,8 @@ jobs:
             method: slack
             title: Metabase upgrade Notification 
             message: |
-            "Staging Metabase Version": "${{ env.Schedules_UpgradeDetails_0_StgVersion }}"
-            "Production Metabase Version": "${{ env.Schedules_UpgradeDetails_0_PrdVersion }}"
+              "Staging Metabase Version": "${{ env.Schedules_UpgradeDetails_0_StgVersion }}"
+              "Production Metabase Version": "${{ env.Schedules_UpgradeDetails_0_PrdVersion }}"
             icon-emoji: ':bell:'
             channel:  pagerduty-alert-dump
             webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
