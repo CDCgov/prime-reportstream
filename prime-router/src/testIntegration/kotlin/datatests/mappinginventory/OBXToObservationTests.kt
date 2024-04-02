@@ -121,4 +121,14 @@ class OBXToObservationTests {
         assert(verifyHL7ToFHIRToHL7Mapping("obx/OBX-to-Observation-obx25-not-valued").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("obx/OBX-to-Observation-obx25-valued").passed)
     }
+
+    @Test
+    fun `test correctly handles OBX-18 device identifier missing values`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "obx/OBX-to-Observation-obx-18-extra-device-identifier",
+                skipHl7ToFhir = true
+            ).passed
+        )
+    }
 }
