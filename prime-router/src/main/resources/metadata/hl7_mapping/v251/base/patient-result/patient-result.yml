@@ -7,5 +7,5 @@ elements:
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = %resource.id)'
     condition: '%resource.count() > 0'
     required: true
-    schema: classpath:/metadata/hl7_mapping/v251-elr/base/patient-result/order-observation/order-observation-base.yml
+    schema: classpath:/metadata/hl7_mapping/v251/base/patient-result/order-observation/order-observation-base.yml
     resourceIndex: orderIndex
