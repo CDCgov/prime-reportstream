@@ -349,6 +349,7 @@ tasks.register<Copy>("copyApiSwaggerUI") {
 
 tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    environment("TESTCONTAINERS_HOST_OVERRIDE", "host.docker.internal")
 }
 
 tasks.processResources {
