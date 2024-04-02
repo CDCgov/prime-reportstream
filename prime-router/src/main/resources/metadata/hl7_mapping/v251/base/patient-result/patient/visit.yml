@@ -8,4 +8,4 @@ elements:
   - name: encounter-pv2
     constants:
       hl7PV2Field: '/PATIENT_RESULT(%{patientIndex})/PATIENT/VISIT/PV2'
-    schema: classpath:/metadata/hl7_mapping/resources/Encounter/PV2.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Encounter/PV2.yml
