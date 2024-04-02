@@ -10,11 +10,11 @@ elements:
       Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     required: true
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/MessageHeader/MSH.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/MessageHeader/MSH.yml
 
   - name: software-segment
     resource: 'Bundle.entry.resource.ofType(Provenance).where(entity.exists()).entity.what.resolve()'
-    schema: classpath:/metadata/hl7_mapping/resources/Device/SFT.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Device/SFT.yml
 
   - name: software-segment-legacy
     condition: false
@@ -23,4 +23,4 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Patient)'
     resourceIndex: patientIndex
     required: true
-    schema: classpath:/metadata/hl7_mapping/v251-elr/base/patient-result/patient-result.yml
+    schema: classpath:/metadata/hl7_mapping/v251/base/patient-result/patient-result.yml

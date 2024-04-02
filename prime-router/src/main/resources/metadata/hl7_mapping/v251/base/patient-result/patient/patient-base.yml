@@ -3,9 +3,6 @@ elements:
   - name: patient
     schema: classpath:/metadata/hl7_mapping/v251-elr/base/patient-result/patient/patient.yml
 
-  - name: patient-observation
-    schema: classpath:/metadata/hl7_mapping/v251-elr/base/patient-result/patient/patient-observation.yml
-
   - name: visit
     resource: 'Bundle.entry.resource.ofType(Encounter)'
     condition: '%resource.count() = 1'
