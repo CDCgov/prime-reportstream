@@ -38,7 +38,7 @@ export async function mockGetReportHistoryResponse(
 
 export async function openReportIdDetailPage(page: Page, id: string) {
     const reportDetailsPage = page;
-    await reportDetailsPage.waitForLoadState();
+    await expect(reportDetailsPage.locator("h1")).toBeAttached();
     await expect(reportDetailsPage).toHaveURL(`/submissions/${id}`);
     expect(reportDetailsPage.getByText(`Report ID:${id}`)).toBeTruthy();
 }

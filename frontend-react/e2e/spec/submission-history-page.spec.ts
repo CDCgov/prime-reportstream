@@ -89,7 +89,7 @@ test.describe("Submission history page", () => {
                     .locator("td")
                     .nth(0);
                 await expect(reportId).toContainText(id);
-                await reportId.click();
+                await reportId.getByRole("link", { name: id }).click();
 
                 await openReportIdDetailPage(page, id);
             });
@@ -113,6 +113,15 @@ test.describe("Submission history page", () => {
                         .locator(".usa-table tbody")
                         .locator("tr")
                         .nth(0)
+                        .locator("td")
+                        .nth(2),
+                ).toHaveText("myfile.hl7");
+
+                await expect(
+                    page
+                        .locator(".usa-table tbody")
+                        .locator("tr")
+                        .nth(1)
                         .locator("td")
                         .nth(2),
                 ).toHaveText(
@@ -240,7 +249,7 @@ test.describe("Submission history page", () => {
                 .locator("td")
                 .nth(0);
             await expect(reportId).toContainText(id);
-            await reportId.click();
+            await reportId.getByRole("link", { name: id }).click();
 
             await openReportIdDetailPage(page, id);
         });
