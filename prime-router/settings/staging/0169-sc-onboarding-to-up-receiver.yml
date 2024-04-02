@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --env staging --input ./settings/staging/0163-sc-onboarding-to-up-receiver.yml
+# ./prime multiple-settings set --env staging --input ./settings/staging/0169-sc-onboarding-to-up-receiver.yml
 ---
 - name: "sc-phd"
   description: "South Carolina Public Health Department"
@@ -15,9 +15,9 @@
     - name: "full-elr"
       organizationName: "sc-phd"
       topic: "full-elr"
-      customerStatus: "inactive"
+      customerStatus: "active"
       translation: !<HL7>
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/SC/SC-receiver-transform"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/SC/SC-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: null
@@ -61,25 +61,31 @@
           truncateHl7Fields: []
           customLengthHl7Fields: {}
       jurisdictionalFilter:
-        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'SC') or (Bundle.entry.resource.ofType(Patient).address.state = 'SC')"
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state\
+      \ = 'SC') or (Bundle.entry.resource.ofType(Patient).address.state = 'SC')"
       qualityFilter:
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists()\
+      \ or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or\
+      \ Bundle.entry.resource.ofType(serviceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
+        - "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists()\
+      \ or Bundle.entry.resource.ofType(Patient).telecom.exists())"
         - "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
         - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
         - "Bundle.entry.resource.ofType(Specimen).type.exists()"
-        - "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or Bundle.entry.resource.ofType(Patient).telecom.exists())"
-        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(serviceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
       routingFilter: []
       processingModeFilter: []
       reverseTheQualityFilter: false
-      conditionFilter: []
+      conditionFilter:
+        - "(%resource.interpretation.coding.code = 'A' and %resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists()) or \
+      (%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('6142004' | '541131000124102')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
       timing:
         operation: "MERGE"
-        numberPerDay: 12
+        numberPerDay: 1440
         initialTime: "01:09"
         timeZone: "EASTERN"
         maxReportCount: 100
@@ -88,9 +94,9 @@
           onlyOncePerDay: false
       description: ""
       transport: !<SFTP>
-        host: "172.17.6.20"
+        host: "sftp.dhec.sc.gov"
         port: "22"
-        filePath: "./upload"
+        filePath: "./Test"
         credentialName: null
         type: "SFTP"
       externalName: null
