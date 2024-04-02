@@ -1,0 +1,7 @@
+elements:
+
+  - name: practitioner-name
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Practitioner/CNN.yml
+    resource: '%resource.practitioner.resolve()'
+    constants:
+      hl7CNNField: '%{hl7NDLField}-1'
