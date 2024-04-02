@@ -16,7 +16,7 @@ $prdval = Invoke-RestMethod -Uri $Prdendpoint -Method Get
 $PrdVersion = $prdval.version.tag
 
 Write-Host "Version - " $PrdVersion
-
+$upgradenecessary = 'false'
 if ($stgVersion -ne $PrdVersion)
 {
     $upgradenecessary = 'true'
