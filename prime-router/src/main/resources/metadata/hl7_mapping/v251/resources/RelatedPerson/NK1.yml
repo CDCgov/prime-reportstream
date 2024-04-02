@@ -33,30 +33,6 @@ elements:
       hl7TelecomField: '%{hl7NK1FieldPath}-5'
     resourceIndex: telecomIndex
 
-  #  NK1.6 deprecated in NIST
-  - name: business-phone-number
-    condition: false
-
-  #  NK1.7 deprecated in NIST
-  - name: contact-role
-    condition: false
-
-  #  NK1.8 deprecated in NIST
-  - name: start-date
-    condition: false
-
-  #  NK1.9 deprecated in NIST
-  - name: end-date
-    condition: false
-
-  #  NK1.12 deprecated in NIST
-  - name: next-of-kin-employee-number
-    condition: false
-
-  #  NK1.15 deprecated in NIST
-  - name: administrative-sex
-    condition: false
-
   - name: primary-language
     resource: '%resource.communication.language'
     constants:
@@ -84,22 +60,6 @@ elements:
       xadField: '%{hl7NK1FieldPath}-32(%{xadIndex})'
     schema: classpath:/metadata/hl7_mapping/v251/datatypes/Address/XAD.yml
 
-  #  NK1.33 deprecated in NIST
-  - name: next-of-kin-identifier
-    condition: false
-
-  #  NK1.37 deprecated in NIST
-  - name: contact-person-ssn
-    condition: false
-
-  #  NK1.40 deprecated in NIST
-  - name: next-of-kin-telecomm-info
-    condition: false
-
-  #  NK1.41 deprecated in NIST
-  - name: contact-person-telecomm-info
-    condition: false
-
   - name: nk1-extension-values
     resource: '%resource.extension(%`rsext-nk1-related-person`)'
-    schema: classpath:/metadata/hl7_mapping/resources/RelatedPerson/NK1Extension.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/RelatedPerson/NK1Extension.yml

@@ -8,14 +8,14 @@ elements:
 
   - name: patient-identification-extensions
     resource: '%resource.extension(%`rsext-pid-patient`)'
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Patient/PIDExtension.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Patient/PIDExtension.yml
 
   - name: additional-demographics
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Patient/PD1.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Patient/PD1.yml
 
   - name: additional-demographics-extensions
     resource: '%resource.extension(%`rsext-pd1-patient-additional-demographic`)'
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Patient/PD1Extension.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Patient/PD1Extension.yml
 
   - name: patient-note
     resource: '%resource.extension(%`rsext-patient-notes`).value'
@@ -27,5 +27,5 @@ elements:
   - name: related-person-nk1
     resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Segment`).value = "NK1" and patient.resolve().id = %resource.id)'
     condition: '%resource.patient.exists()'
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/RelatedPerson/NK1.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/RelatedPerson/NK1.yml
     resourceIndex: relatedPersonIndex

@@ -1,4 +1,3 @@
-extends: classpath:/metadata/hl7_mapping/resources/Patient/PIDExtension.yml
 constants:
   hl7PIDField: '%{hl7SegmentGroup}/PID'
 
@@ -8,11 +7,28 @@ elements:
     value: [ '%resource.extension.where(url = "PID.8").value' ]
 
   - name: patient-account-number
+    resource: '%resource.extension.where(url = "PID.18").value'
+    constants:
+      cxField: '%{hl7PIDField}-18(%{cxIndex})'
     schema: classpath:/metadata/hl7_mapping/v251/datatypes/identifier/CX.yml
+    resourceIndex: cxIndex
+
+  - name: multiple-birth-indicator
+    hl7Spec: [ '%{hl7PIDField}-24' ]
+    value: [ '%resource.extension.where(url = "PID.24").value' ]
+
+  - name: multiple-birth-indicator
+    hl7Spec: [ '%{hl7PIDField}-30' ]
+    value: [ '%resource.extension.where(url = "PID.30").value',
+    ]
 
   - name: identity-reliability-code
     hl7Spec: [ '%{hl7PIDField}-32' ]
     value: [ '%resource.extension.where(url = "PID.32").value' ]
 
   - name: production-class-code
+    resource: '%resource.extension.where(url = "PID.38").value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PIDField}-38(%{cweIndex})'
     schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
