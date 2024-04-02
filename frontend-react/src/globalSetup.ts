@@ -1,11 +1,11 @@
 import process from "node:process";
 
 /**
- * Fill in needed env vars that would normally be injected via vite.
- * Won't be needed with vitest.
+ * Global setup for tests. You can fill in special-case env vars here.
+ * DO NOT USE THIS IF YOU CAN USE A .ENV FILE INSTEAD FOR ENV VARS.
  */
 function setup() {
-    process.env.VITE_BACKEND_URL = "http://localhost";
+    process.env.TZ = "UTC";
 }
 
 export default setup;

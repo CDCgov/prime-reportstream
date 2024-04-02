@@ -2,7 +2,6 @@ import {
     AccessToken,
     AuthState,
     IDToken,
-    OktaAuth,
     OktaAuthOptions,
     RefreshToken,
 } from "@okta/okta-auth-js";
@@ -20,7 +19,7 @@ const sharedConfig = {
     redirectUri: `${window.location.origin}/login/callback`,
 };
 
-const oktaAuthConfig: OktaAuthOptions = {
+const oktaAuthConfig = {
     ...sharedConfig,
     postLogoutRedirectUri: window.location.origin,
     responseMode: "fragment",
@@ -58,8 +57,7 @@ const oktaAuthConfig: OktaAuthOptions = {
 
         return Promise.resolve(finalAuthState);
     },
-};
-const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
+} satisfies OktaAuthOptions;
 
 const oktaSignInConfig: WidgetOptions = {
     ...sharedConfig,
@@ -117,4 +115,4 @@ const oktaSignInConfig: WidgetOptions = {
     },
 };
 
-export { oktaAuthConfig, oktaSignInConfig, OKTA_AUTH };
+export { oktaAuthConfig, oktaSignInConfig };
