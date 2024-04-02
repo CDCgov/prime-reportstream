@@ -1,0 +1,12 @@
+elements:
+  - name: use-code
+    value: [ '"NET"' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-14-2' ]
+
+  - name: equipment-type
+    value: [ '"Internet"' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-14-3' ]
+
+  - name: email
+    value: [ '%resource.value' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-14-4' ]
