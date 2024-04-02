@@ -1,7 +1,7 @@
 elements:
 
   - name: patient
-    schema: classpath:/metadata/hl7_mapping/v251-elr/base/patient-result/patient/patient.yml
+    schema: classpath:/metadata/hl7_mapping/v251/base/patient-result/patient/patient.yml
 
   - name: visit
     resource: 'Bundle.entry.resource.ofType(Encounter)'

@@ -16,9 +16,6 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Provenance).where(entity.exists()).entity.what.resolve()'
     schema: classpath:/metadata/hl7_mapping/v251/resources/Device/SFT.yml
 
-  - name: software-segment-legacy
-    condition: false
-
   - name: patient-result
     resource: 'Bundle.entry.resource.ofType(Patient)'
     resourceIndex: patientIndex

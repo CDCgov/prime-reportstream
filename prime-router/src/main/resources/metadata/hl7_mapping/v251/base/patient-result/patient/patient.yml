@@ -4,7 +4,7 @@ constants:
 elements:
 
   - name: patient-identification
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Patient/PID.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Patient/PID.yml
 
   - name: patient-identification-extensions
     resource: '%resource.extension(%`rsext-pid-patient`)'

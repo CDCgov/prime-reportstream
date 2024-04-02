@@ -1,7 +1,7 @@
 elements:
 
   - name: patient-base
-    schema: classpath:/metadata/hl7_mapping/v251-elr/base/patient-result/patient/patient-base.yml
+    schema: classpath:/metadata/hl7_mapping/v251/base/patient-result/patient/patient-base.yml
 
   - name: order-observation-base
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = %resource.id)'
