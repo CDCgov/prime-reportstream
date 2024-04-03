@@ -77,8 +77,8 @@ const mockData: AdmConnStatusDataType[] = [
     },
 ];
 
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
+vi.mock("rest-hooks", async (importActual) => ({
+    ...(await importActual<typeof import("rest-hooks")>()),
     useResource: () => {
         return mockData;
     },
@@ -276,8 +276,8 @@ describe("AdminReceiverDashboard tests", () => {
         expect(slices.length).toBe(totalSlices); // based on receivers x days x 12 slices/day
 
         // find a slice that is clickable. How?
-        // We can't access className in jest's virtual DOM.
-        // We can't access "aria-disabled" for the button with jest's virtual DOM.
+        // We can't access className in vi's virtual DOM.
+        // We can't access "aria-disabled" for the button with vi's virtual DOM.
         // ONLY solution is to j
         const clickableSlices = baseElement.querySelectorAll(
             `[role="button"][aria-disabled="false"]`,

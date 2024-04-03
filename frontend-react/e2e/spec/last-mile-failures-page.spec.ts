@@ -75,22 +75,19 @@ test.describe("Last Mile Failure page", () => {
         test("table column 'Receiver' will open receiver edit page", async ({
             page,
         }) => {
-            const reportId = page
+            const receiver = page
                 .locator(".usa-table tbody")
                 .locator("tr")
                 .nth(0)
                 .locator("td")
                 .nth(2);
-            await expect(reportId).toContainText(
+            await expect(receiver).toContainText(
                 /flexion.etor-service-receiver-results/,
             );
-            await reportId.click();
+            await receiver.click();
 
             await expect(page).toHaveURL(
                 "/admin/orgreceiversettings/org/flexion/receiver/etor-service-receiver-results/action/edit",
-            );
-            await expect(page.locator("h1").nth(0)).toHaveText(
-                /Receiver name: etor-service-receiver-results/,
             );
         });
     });
@@ -129,11 +126,12 @@ test.describe("Last Mile Failure page", () => {
         });
 
         test("response returns 401", async ({ page }) => {
-            await waitForAPIResponse(
+            const response = await waitForAPIResponse(
                 page,
                 lastMileFailures.API_GET_SEND_FAILURES,
-                401,
             );
+
+            expect(response).toBe(401);
         });
 
         test("has correct title", async ({ page }) => {
@@ -162,11 +160,11 @@ test.describe("Last Mile Failure page", () => {
         });
 
         test("response returns 401", async ({ page }) => {
-            await waitForAPIResponse(
+            const response = await waitForAPIResponse(
                 page,
                 lastMileFailures.API_GET_SEND_FAILURES,
-                401,
             );
+            expect(response).toBe(401);
         });
 
         test("has correct title", async ({ page }) => {

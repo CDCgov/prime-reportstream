@@ -68,7 +68,7 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
 
         // Source: https://confluence.hl7.org/display/OO/v2+Sample+Messages
         val unsupportedHL7 = """
-MSH|^~\&#|NIST EHR|NIST EHR Facility|NIST Test Lab APP|NIST Lab Facility|20130211184101-0500||OML^O21^OML_O21|NIST-LOI_5.0_1.1-NG|T|2.5.1|||AL|AL|||||
+MSH|^~\&#|NIST EHR|NIST EHR Facility|NIST Test Lab APP|NIST Lab Facility|20130211184101-0500||OML^O33^OML_O33|NIST-LOI_5.0_1.1-NG|T|2.5.1|||AL|AL|||||
 PID|1||PATID5421^^^NIST MPI^MR||Wilson^Patrice^Natasha^^^^L||19820304|F||2106-3^White^HL70005|144 East 12th Street^^Los Angeles^CA^90012^^H||^PRN^PH^^^203^2290210|||||||||N^Not Hispanic or Latino^HL70189
 NK1|1|Wilson^Phillip^Arthur^^^^L|SPO^Spouse^HL70063|144 East 12th Street^^Los Angeles^CA^90012^^H|||||||||
 ORC|NW|ORD448811^NIST EHR|||||||20120628070100|||5742200012^Radon^Nicholas^^^^^^NPI^L^^^NPI
@@ -143,9 +143,8 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         // HL7toFhirTranslator keep their individual configurations and won't cross over.
 
         // empty the stored message templates
-        for (key in HL7toFhirTranslator.Companion.messageTemplates.keys) {
-            HL7toFhirTranslator.Companion.messageTemplates.remove(key)
-        }
+        HL7toFhirTranslator.Companion.messageTemplates.clear()
+
         val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)
 

@@ -12,7 +12,7 @@ import {
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
 import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverDeliveries";
 import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
@@ -21,9 +21,10 @@ import { selectDatesFromRange } from "../../../utils/TestUtils";
 
 const mockReceiverServices = receiverServicesGenerator(5);
 const mockActiveReceiver = mockReceiverServices[0];
+const mockFilterManager = { ...filterManagerFixture };
 
-jest.mock("../../../TelemetryService", () => ({
-    ...jest.requireActual("../../../TelemetryService"),
+vi.mock("../../../TelemetryService", async (importActual) => ({
+    ...(await importActual<typeof import("../../../TelemetryService")>()),
     getAppInsights: () => mockAppInsights,
 }));
 
