@@ -769,6 +769,9 @@ task<RunSQL>("clearDB") {
 repositories {
     mavenCentral()
     maven {
+        url = uri("https://hit-nexus.nist.gov/repository/releases/")
+    }
+    maven {
         url = uri("https://jitpack.io")
         content {
             includeModule("com.github.KennethWussmann", "mock-fuel")
@@ -930,6 +933,12 @@ dependencies {
 
     // TODO: move this to a test dependency when CompareFhirData lives under src/test
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.16")
+
+    implementation("gov.nist:hl7-v2-validation:1.6.4") {
+        // These conflict with the javax.xml.transform package available in the base JDK and need to be excluded
+        exclude("xerces")
+        exclude("xml-apis")
+    }
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     // pin com.squareup.okio:okio@3.4.0
