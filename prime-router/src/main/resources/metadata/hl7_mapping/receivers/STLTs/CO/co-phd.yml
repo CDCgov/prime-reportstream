@@ -111,7 +111,8 @@
       credentialName: DEFAULT-SFTP
       type: "SFTP"
     externalName: "ELR-Secondary"
-    enrichmentSchemaNames: []
+    enrichmentSchemaNames:
+      - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
     timeZone: null
     dateTimeFormat: "OFFSET"
   - name: "full-elr-hl7"
@@ -217,6 +218,7 @@
       credentialName: DEFAULT-SFTP
       type: "SFTP"
     externalName: "ELR-Prod"
-    enrichmentSchemaNames: []
+    enrichmentSchemaNames:
+      - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
     timeZone: "MOUNTAIN"
     dateTimeFormat: "LOCAL"
