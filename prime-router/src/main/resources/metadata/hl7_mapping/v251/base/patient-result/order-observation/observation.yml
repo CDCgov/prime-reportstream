@@ -3,7 +3,7 @@ elements:
   # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve() | %resource.basedOn.resolve().supportingInfo.resolve()'
-    schema: classpath:/metadata/hl7_mapping/resources/Observation/OBX.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Observation/OBX.yml
     resourceIndex: resultIndex
     constants:
       hl7OBXField: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
