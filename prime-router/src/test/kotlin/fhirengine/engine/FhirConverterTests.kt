@@ -274,7 +274,7 @@ class FhirConverterTests {
 
     @Test
     fun `test getContentFromHL7 alternate profile`() {
-        val testProfile = HL7Reader.Companion.MessageProfile("ORU", "PHLabReport-NoAck")
+        val testProfile = HL7Reader.Companion.MessageProfile("ORU", "TestProfile")
 
         val actionLogger = spyk(ActionLogger())
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
@@ -295,6 +295,7 @@ class FhirConverterTests {
 
         mockkClass(HL7Reader::class)
         mockkObject(HL7Reader.Companion)
+        every { HL7Reader.Companion.getMessageProfile(any()) } returns testProfile
         every { HL7Reader.Companion.profileDirectoryMap[testProfile] } returns "./metadata/test_fhir_mapping"
 
         val bundles2 = engine.getContentFromHL7(message, actionLogger)
