@@ -72,7 +72,7 @@ elements:
 
   - name: parent-result
     resource: '%resource.extension.where(url = "OBR.26")'
-    schema: classpath:/metadata/hl7_mapping/v251/datatypes/extensionPRL/PRL.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/extensionPRL_ELR/PRL_ELR.yml
     constants:
       hl7PRLField: '%{obrFieldPath}-26'
 

@@ -11,7 +11,7 @@ elements:
 
   - name: order-note
     resource: '%resource.basedOn.resolve().note'
-    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/annotation/NTE.yml
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})'
