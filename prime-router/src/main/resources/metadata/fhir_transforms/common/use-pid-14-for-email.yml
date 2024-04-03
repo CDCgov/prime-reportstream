@@ -1,0 +1,5 @@
+elements:
+  - name: test-element
+    resource: 'Bundle.entry.resource.ofType(Patient).telecom.where(system = "email")'
+    bundleProperty: '%resource.use'
+    value: [ '"work"' ]

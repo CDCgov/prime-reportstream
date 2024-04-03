@@ -36,11 +36,3 @@ elements:
   - name: co-reporting-facility-id
     value: [ '"CO"' ]
     hl7Spec: [ MSH-4-2 ]
-
-  - name: phone-number-home-mobile-email
-    resource: 'Bundle.entry.resource.ofType(Patient).telecom.where(((use = "home" or use = "mobile") and system != "email") and extension(%`rsext-hl7v2Field`).exists().not())'
-
-#  - name: email
-#    condition: Bundle.entry.resource.ofType(Patient).telecom.where(system = "email").exists()
-#    resource: Bundle.entry.resource.ofType(Patient).telecom.where(system = "email")
-#    schema: classpath:/metadata/hl7_mapping/receivers/Common/use-pid-14-for-email/pid-14-email.yml
