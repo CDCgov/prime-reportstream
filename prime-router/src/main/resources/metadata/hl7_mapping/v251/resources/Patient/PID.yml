@@ -26,7 +26,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       xpnField: '%{hl7PIDField}-6(%{xpnIndex})'
-    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml
+    schema: classpath:/metadata/hl7_mapping/v251-elr/datatypes/HumanName/XPN_ELR.yml
     resourceIndex: xpnIndex
 
   - name: patient-dob

@@ -14,9 +14,7 @@ elements:
 
   - name: pv1-bad-debt-agency-code
     resource: '%resource.extension.where(url = "PV1.31").value'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
-    constants:
-      cweField: '%{hl7PV1Field}-31'
+    hl7Spec: [ '%{hl7PV1Field}-31' ]
 
   - name: pv1-bad-debt-transfer-amount
     value: [ '%resource.extension.where(url = "PV1.32").value' ]

@@ -58,12 +58,12 @@ elements:
 
   - name: pl-comprehensive-location-identifier
     resource: '%resource.identifier.where(extension(%`rsext-ei-assigner-organization-type`).exists())'
-    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/EI.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/identifier/EI.yml
     constants:
       hl7EIField: '%{hl7PLField}-10'
 
   - name: pl-assigning-authority-for-location
     resource: '%resource.identifier.where(extension(%`rsext-ei-assigner-organization-type`).value = "organization").assigner.resolve()'
-    schema: classpath:/metadata/hl7_mapping/resources/Organization/HD.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Organization/HD.yml
     constants:
       hl7HDField: '%{hl7PLField}-11'

@@ -68,7 +68,7 @@ elements:
 
   - name: placer-supplemental-service-information
     resource: '%resource.orderDetail.where(extension(%`rsext-hl7v2Field`).value = "OBR.46")'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
     resourceIndex: cweIndex
     constants:
       cweField: '%{obrFieldPath}-46(%{cweIndex})'

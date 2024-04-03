@@ -54,14 +54,14 @@ elements:
 
   - name: specimen-handling-code
     resource: '%resource.extension.where(url = "SPM.15").value'
-    schema: classpath:/metadata/v251/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7SpecimenFieldPath}-15(%{cweIndex})'
 
   - name: specimen-risk-code
     resource: '%resource.extension.where(url = "SPM.16").value'
-    schema: classpath:/metadata/v251/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7SpecimenFieldPath}-16(%{cweIndex})'
@@ -76,19 +76,19 @@ elements:
 
   - name: specimen-quality
     resource: '%resource.extension.where(url = "SPM.22").value'
-    schema: classpath:/metadata/v251/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7SpecimenFieldPath}-22'
 
   - name: specimen-appropriateness
     resource: '%resource.extension.where(url = "SPM.23").value'
-    schema: classpath:/metadata/v251/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7SpecimenFieldPath}-23'
 
   - name: specimen-current-quantity
     resource: '%resource.extension.where(url = "SPM.25").value'
-    schema: classpath:/metadata/v251/hl7_mapping/datatypes/Quantity/CQ.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/Quantity/CQ.yml
     constants:
       cqFieldPath: '%{hl7SpecimenFieldPath}-25'
 
@@ -98,12 +98,12 @@ elements:
 
   - name: container-condition
     resource: '%resource.extension.where(url = "SPM.28").value'
-    schema: classpath:/metadata/v251/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7SpecimenFieldPath}-28'
 
   - name: specimen-child-role
     resource: '%resource.extension.where(url = "SPM.29").value'
-    schema: classpath:/metadata/v251/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7SpecimenFieldPath}-29'

@@ -117,7 +117,7 @@ elements:
 
   - name: pv1-alternate-visit-id
     resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "PV1.50")'
-    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/identifier/CX.yml
     resourceIndex: cxIndex
     constants:
       cxField: '%{hl7PV1Field}-50(%{cxIndex})'
