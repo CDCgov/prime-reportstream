@@ -97,8 +97,9 @@ class SubmissionFunctionTests : Logging {
             sendingOrg = organizationName,
             sendingOrgClient = organizationClient,
             httpStatus = 201,
+            bodyUrl= "http://anyblob.com",
             schemaName = "None",
-            bodyFormat = Sender.Format.CSV.toString(),
+            bodyFormat = "",
         ),
         SubmissionHistory(
             actionId = 7,
@@ -110,6 +111,7 @@ class SubmissionFunctionTests : Logging {
             sendingOrg = organizationName,
             sendingOrgClient = organizationClient,
             httpStatus = 400,
+            bodyUrl= "",
             schemaName = "",
             bodyFormat = "",
         )
@@ -148,8 +150,8 @@ class SubmissionFunctionTests : Logging {
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
                             topic = "covid-19",
                             reportItemCount = 3,
-                            fileName = "None-a2cf1c46-7689-4819-98de-520b5007e45f-20211130163654.csv",
-                            fileType = "CSV"
+                            fileName = "",
+                            fileType = ""
                         ),
                         ExpectedSubmissionList(
                             submissionId = 7,
@@ -257,7 +259,6 @@ class SubmissionFunctionTests : Logging {
 
         every {
             mockDatabaseAccess.fetchActionsForSubmissions<SubmissionHistory>(
-                any(),
                 any(),
                 any(),
                 any(),
