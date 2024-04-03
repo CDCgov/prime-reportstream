@@ -15,86 +15,86 @@ function MockComponent({ children }: any) {
     return <>{children}</>;
 }
 
-jest.mock("rest-hooks", () => {
+vi.mock("rest-hooks", () => {
     return {
         __esModule: true,
         NetworkErrorBoundary: MockComponent,
         CacheProvider: MockComponent,
     };
 });
-jest.mock("react-router-dom", () => {
+vi.mock("react-router-dom", () => {
     return {
         __esModule: true,
-        useNavigate: jest.fn(),
-        useLocation: jest.fn(),
+        useNavigate: vi.fn(),
+        useLocation: vi.fn(),
     };
 });
-jest.mock("@tanstack/react-query", () => {
+vi.mock("@tanstack/react-query", () => {
     return {
         __esModule: true,
         QueryClientProvider: MockComponent,
     };
 });
-jest.mock("@tanstack/react-query-devtools");
-jest.mock("react-helmet-async", () => {
+vi.mock("@tanstack/react-query-devtools");
+vi.mock("react-helmet-async", () => {
     return {
         __esModule: true,
         HelmetProvider: MockComponent,
     };
 });
-jest.mock("@okta/okta-auth-js");
-jest.mock("./components/ScrollRestoration", () => {
+vi.mock("@okta/okta-auth-js");
+vi.mock("./components/ScrollRestoration", () => {
     return {
         __esModule: true,
         default: MockComponent,
     };
 });
-jest.mock("./hooks/UseScrollToTop");
-jest.mock("./utils/PermissionsUtils");
-jest.mock("./pages/error/ErrorPage");
-jest.mock("./contexts/AuthorizedFetch", () => {
+vi.mock("./hooks/UseScrollToTop");
+vi.mock("./utils/PermissionsUtils");
+vi.mock("./pages/error/ErrorPage");
+vi.mock("./contexts/AuthorizedFetch", () => {
     return {
         __esModule: true,
         default: MockComponent,
     };
 });
-jest.mock("./contexts/FeatureFlag", () => {
+vi.mock("./contexts/FeatureFlag", () => {
     return {
         __esModule: true,
         default: MockComponent,
     };
 });
-jest.mock("./contexts/Session", () => {
+vi.mock("./contexts/Session", () => {
     return {
         __esModule: true,
         default: MockComponent,
-        useSessionContext: jest.fn(),
+        useSessionContext: vi.fn(),
     };
 });
-jest.mock("./network/QueryClients", () => {
+vi.mock("./network/QueryClients", () => {
     return {
         __esModule: true,
         appQueryClient: {},
     };
 });
-jest.mock("./contexts/AppInsights", () => {
+vi.mock("./contexts/AppInsights", () => {
     return {
         __esModule: true,
-        useAppInsightsContext: jest.fn(),
+        useAppInsightsContext: vi.fn(),
     };
 });
-jest.mock("./shared/DAPScript/DAPScript");
-jest.mock("./config");
-jest.mock("./contexts/Toast", () => {
+vi.mock("./shared/DAPScript/DAPScript");
+vi.mock("./config");
+vi.mock("./contexts/Toast", () => {
     return {
         __esModule: true,
         default: MockComponent,
     };
 });
-jest.mock("./utils/BrowserUtils", () => {
+vi.mock("./utils/BrowserUtils", () => {
     return {
         __esModule: true,
-        isUseragentPreferred: jest.fn(),
+        isUseragentPreferred: vi.fn(),
     };
 });
 
@@ -110,19 +110,31 @@ const config = {
     IDLE_TIMERS: {
         timeout: 1000 * 60 * 15,
         debounce: 500,
-        onIdle: jest.fn(),
+        onIdle: vi.fn(),
     },
     MODE: "test",
+    PAGE_META: {
+        defaults: {
+            title: "test title",
+            description: "test description",
+            openGraph: {
+                image: {
+                    src: "",
+                    altText: "",
+                },
+            },
+        },
+    },
 } as const satisfies AppConfig;
 
-const mockUseSessionContext = jest.mocked(useSessionContext);
-const mockUseLocation = jest.mocked(useLocation);
-const mockUseAppInsightsContext = jest.mocked(useAppInsightsContext);
-const mockLogout = jest.fn();
-const mockIsAuthenticated = jest.fn().mockReturnValue(true);
+const mockUseSessionContext = vi.mocked(useSessionContext);
+const mockUseLocation = vi.mocked(useLocation);
+const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
+const mockLogout = vi.fn();
+const mockIsAuthenticated = vi.fn().mockReturnValue(true);
 const mockOnIdle = config.IDLE_TIMERS.onIdle;
-const mockSetTelemetryCustomProperty = jest.fn();
-const mockIsUseragentPreferred = jest.mocked(isUseragentPreferred);
+const mockSetTelemetryCustomProperty = vi.fn();
+const mockIsUseragentPreferred = vi.mocked(isUseragentPreferred);
 
 const sessionCtx = {
     oktaAuth: {
@@ -184,10 +196,10 @@ describe("App component", () => {
 
     describe("idle timer", () => {
         beforeEach(() => {
-            jest.useFakeTimers();
+            vi.useFakeTimers();
         });
         afterEach(() => {
-            jest.useRealTimers();
+            vi.useRealTimers();
         });
         test("Idle timer does not trigger before configured time", () => {
             const testPeriods = [
@@ -201,7 +213,7 @@ describe("App component", () => {
             expect(mockOnIdle).not.toHaveBeenCalled();
 
             for (const timePeriod of testPeriods) {
-                jest.setSystemTime(start + timePeriod);
+                vi.setSystemTime(start + timePeriod);
                 fireEvent.focus(document);
                 expect(mockOnIdle).not.toHaveBeenCalled();
             }
@@ -212,7 +224,7 @@ describe("App component", () => {
             setup();
 
             expect(mockOnIdle).not.toHaveBeenCalled();
-            jest.setSystemTime(start + config.IDLE_TIMERS.timeout);
+            vi.setSystemTime(start + config.IDLE_TIMERS.timeout);
             fireEvent.focus(document);
             expect(mockOnIdle).toHaveBeenCalled();
         });

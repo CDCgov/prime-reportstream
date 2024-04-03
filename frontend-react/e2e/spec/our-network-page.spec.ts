@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 
+import * as sideNav from "../pages/about-side-navigation";
 import * as ourNetwork from "../pages/our-network";
 test.describe("Our network page", () => {
     test.beforeEach(async ({ page }) => {
@@ -12,47 +13,32 @@ test.describe("Our network page", () => {
 
     test.describe("Side navigation", () => {
         test("has Our network link", async ({ page }) => {
-            await page
-                .getByTestId("sidenav")
-                .getByRole("link", { name: "Our network" })
-                .click();
-
+            await sideNav.clickNetwork(page);
             await expect(page).toHaveURL(/.*about\/our-network/);
         });
 
-        test("has News link", async ({ page }) => {
-            await page
-                .getByTestId("sidenav")
-                .getByRole("link", { name: /News/ })
-                .click();
+        test("has Product roadmap link", async ({ page }) => {
+            await sideNav.clickRoadmap(page);
+            await expect(page).toHaveURL(/.*about\/roadmap/);
+        });
 
+        test("has News link", async ({ page }) => {
+            await sideNav.clickNews(page);
             await expect(page).toHaveURL(/.*about\/news/);
         });
 
         test("has Case studies link", async ({ page }) => {
-            await page
-                .getByTestId("sidenav")
-                .getByRole("link", { name: /Case studies/ })
-                .click();
-
+            await sideNav.clickCaseStudies(page);
             await expect(page).toHaveURL(/.*about\/case-studies/);
         });
 
         test("has Security link", async ({ page }) => {
-            await page
-                .getByTestId("sidenav")
-                .getByRole("link", { name: /Security/ })
-                .click();
-
+            await sideNav.clickSecurity(page);
             await expect(page).toHaveURL(/.*about\/security/);
         });
 
         test("has Release notes link", async ({ page }) => {
-            await page
-                .getByTestId("sidenav")
-                .getByRole("link", { name: /Release notes/ })
-                .click();
-
+            await sideNav.clickReleaseNotes(page);
             await expect(page).toHaveURL(/.*about\/release-notes/);
         });
     });

@@ -1,6 +1,7 @@
-import { expect, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import fs from "node:fs";
 
+export const TEST_ORG_IGNORE = "ignore";
 export async function scrollToFooter(page: Page) {
     // Scrolling to the bottom of the page
     await page.locator("footer").scrollIntoViewIfNeeded();
@@ -11,17 +12,11 @@ export async function scrollToTop(page: Page) {
     await page.evaluate(() => window.scrollTo(0, 0));
 }
 
-export async function waitForAPIResponse(
-    page: Page,
-    requestUrl: string,
-    responseStatus = 200,
-) {
+export async function waitForAPIResponse(page: Page, requestUrl: string) {
     const response = await page.waitForResponse((response) =>
         response.url().includes(requestUrl),
     );
-
-    // Assert the response status
-    expect(response.status()).toBe(responseStatus);
+    return response.status();
 }
 
 export async function selectTestOrg(page: Page) {
@@ -32,7 +27,7 @@ export async function selectTestOrg(page: Page) {
     await waitForAPIResponse(page, "/api/settings/organizations");
 
     await page.getByTestId("gridContainer").waitFor({ state: "visible" });
-    await page.getByTestId("textInput").fill("ignore");
+    await page.getByTestId("textInput").fill(TEST_ORG_IGNORE);
     await page.getByTestId("ignore_set").click();
 }
 

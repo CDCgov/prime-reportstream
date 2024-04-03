@@ -33,15 +33,11 @@ object ConfigSchemaReader : Logging {
         SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
         > fromFile(
         schemaName: String,
-        folder: String? = null,
         schemaClass: Class<out Schema>,
         blobConnectionInfo: BlobAccess.BlobContainerMetadata,
     ): Schema {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
-        val schemaList = when (URI(schemaName).scheme) {
-            null -> fromRelative(schemaName, folder, schemaClass)
-            else -> fromUri(URI(schemaName), schemaClass, blobConnectionInfo)
-        }
+        val schemaList = fromUri(URI(schemaName), schemaClass, blobConnectionInfo)
 
         // Now merge the parent with all the child schemas
         val mergedSchema = mergeSchemas(schemaList)
@@ -50,41 +46,6 @@ object ConfigSchemaReader : Logging {
             throw SchemaException("Invalid schema $schemaName: \n${mergedSchema.errors.joinToString("\n")}")
         }
         return mergedSchema
-    }
-
-    /**
-     * Reads a schema from the file directory via relative pathing.  This is the deprecated way of reading schemas
-     * and continues to exist while the transition is executed
-     *
-     * @property Original The type that this schema expects as input
-     * @property Converted The type that this schema will produce as output
-     * @property Schema Reference to this schema's type
-     * @property SchemaElement The type of the schema elements that make up the schema
-     */
-    private fun <
-        Original,
-        Converted,
-        Schema : ConfigSchema<Original, Converted, Schema, SchemaElement>,
-        SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
-        > fromRelative(
-        schemaName: String,
-        folder: String? = null,
-        schemaClass: Class<out Schema>,
-    ): List<Schema> {
-        val schemaList = mutableListOf(readSchemaTreeRelative(schemaName, folder, schemaClass = schemaClass))
-        while (!schemaList.last().extends.isNullOrBlank()) {
-            // Make sure there are no circular dependencies
-            if (schemaList.any {
-                    FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends)
-                }
-            ) {
-                throw SchemaException("Schema circular dependency found while loading schema $schemaName")
-            }
-            val depSchemaFolder = "$folder/${FilenameUtils.getPath(schemaList.last().extends)}"
-            val depSchemaName = FilenameUtils.getName(schemaList.last().extends)
-            schemaList.add(readSchemaTreeRelative(depSchemaName, depSchemaFolder, schemaClass = schemaClass))
-        }
-        return schemaList
     }
 
     /**
@@ -102,7 +63,7 @@ object ConfigSchemaReader : Logging {
         > fromUri(
         schemaUri: URI,
         schemaClass: Class<out Schema>,
-        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
     ): List<Schema> {
         val schemaList = mutableListOf(
             readSchemaTreeUri(
@@ -186,10 +147,13 @@ object ConfigSchemaReader : Logging {
                     ?: throw SchemaException("Cannot read $schemaUri")
                 readOneYamlSchema(input, schemaClass)
             }
-            // Only valid networked option for reading schemas is azure which does not have a dedicated schema
-            // and instead has URLs starting with HTTP or HTTPS
-            "http", "https" -> {
-                val blob = BlobAccess.downloadBlobAsByteArray(schemaUri.toString(), blobConnectionInfo)
+            "azure" -> {
+                // Note: the schema URIs will not include the container name i.e.
+                // azure:/hl7_mapping/receivers/STLTs/CA/CA.yml
+                val blob = BlobAccess.downloadBlobAsByteArray(
+                    "${blobConnectionInfo.getBlobEndpoint()}${schemaUri.path}",
+                    blobConnectionInfo
+                )
                 readOneYamlSchema(blob.inputStream(), schemaClass)
             }
             else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")

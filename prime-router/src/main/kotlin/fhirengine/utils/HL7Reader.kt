@@ -18,6 +18,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
 import java.util.Date
+import ca.uhn.hl7v2.model.v251.message.OML_O21 as v251_OML_O21
 import ca.uhn.hl7v2.model.v251.message.ORU_R01 as v251_ORU_R01
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
 import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
@@ -126,7 +127,9 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                         v27_ORU_R01::class.java,
                         v251_ORU_R01::class.java
                     )
-
+                    "OML" -> listOf(
+                        v251_OML_O21::class.java
+                    )
                     else -> {
                         logger.warn(
                             "$messageType did not have any mapped message model classes, using default behavior"
@@ -196,6 +199,12 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     }
 
     companion object {
+        // map of HL7 message profiles: maps profile to configuration directory path
+        val profileDirectoryMap: Map<MessageProfile, String> = emptyMap()
+
+        // data class to uniquely identify a message profile
+        data class MessageProfile(val typeID: String, val profileID: String)
+
         /**
          * Get the [message] timestamp from MSH-7.
          * @return the timestamp or null if not specified
@@ -221,6 +230,21 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         }
 
         /**
+         * Get the profile of the [rawmessage]
+         * If there are multiple HL7 messages the first message's data will be returned
+         * @param rawmessage string representative of hl7 messages
+         * @return the message profile, or null if there is no message
+         */
+        fun getMessageProfile(rawmessage: String): MessageProfile? {
+            val iterator = Hl7InputStreamMessageIterator(rawmessage.byteInputStream())
+            if (!iterator.hasNext()) return null
+            val hl7message = iterator.next()
+            val msh9 = Terser(hl7message).get("MSH-9")
+            val msh21 = Terser(hl7message).get("MSH-21")
+            return MessageProfile(msh9 ?: "", msh21 ?: "")
+        }
+
+        /**
          * Get the birthTime from the [message]
          * @return the birthTime, if available or blank if not
          */
@@ -241,6 +265,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         fun getPatientPath(hl7Message: Message): String? {
             return when (getMessageType(hl7Message)) {
                 "ORM" -> "PATIENT"
+                "OML" -> "PATIENT"
                 "ORU" -> "PATIENT_RESULT/PATIENT"
                 else -> null
             }

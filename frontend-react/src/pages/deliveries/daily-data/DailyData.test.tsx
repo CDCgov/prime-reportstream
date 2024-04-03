@@ -12,7 +12,8 @@ import {
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
@@ -23,13 +24,22 @@ const mockUsePagination = {
     currentPageResults: makeDeliveryFixtureArray(10),
     paginationProps: { currentPageNum: 1, slots: [1, 2, 3, 4] },
     isLoading: false,
+    setSearchTerm: () => {
+        return;
+    },
+    searchTerm: "",
 };
 
 const mockReceivers = receiversGenerator(5);
 const mockActiveReceiver = mockReceivers[0];
 
-jest.mock("../../../hooks/UsePagination", () => ({
-    ...jest.requireActual("../../../hooks/UsePagination"),
+const mockFilterManager: FilterManager = {
+    ...filterManagerFixture,
+    rangeSettings: { from: "2024-03-01", to: "2024-03-30" },
+};
+
+vi.mock("../../../hooks/UsePagination", async (importActual) => ({
+    ...(await importActual<typeof import("../../../hooks/UsePagination")>()),
     default: () => {
         return {
             ...mockUsePagination,
@@ -176,8 +186,8 @@ describe("DeliveriesTableWithNumbered", () => {
                         name: "Daily Data | Table Filter",
                         properties: {
                             tableFilter: {
-                                endRange: "2024-02-23T00:00:00.000Z",
-                                startRange: "2024-02-20T00:00:00.000Z",
+                                endRange: "2024-03-23T23:59:00.000Z",
+                                startRange: "2024-03-20T00:00:00.000Z",
                             },
                         },
                     });

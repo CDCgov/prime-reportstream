@@ -5,9 +5,9 @@ $column-gutter: 2rem;
 .TableFilters {
     :global {
         .filter-container {
-            display: flex;
-            align-items: flex-end;
-            margin-bottom: 1em;
+            padding: 2rem;
+            background-color: color(blue-5);
+            margin-bottom: 64px;
         }
 
         .button-container {
@@ -66,6 +66,18 @@ $column-gutter: 2rem;
                 border-left: 1px solid color(gray-20);
                 border-right: 1px solid color(gray-20);
                 padding: 0 calc($column-gutter - 14px) 0 $column-gutter;
+            }
+        }
+
+        .file-search-container {
+            // Overrides for search field
+            & .usa-button {
+                height: 40px;
+            }
+
+            & #search-field {
+                height: 40px;
+                width: 600px;
             }
         }
     }

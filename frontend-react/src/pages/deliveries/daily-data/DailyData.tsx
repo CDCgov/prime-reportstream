@@ -105,7 +105,6 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     };
 
     if (isLoading) return <Spinner />;
-
     return (
         <>
             <Table
@@ -147,6 +146,8 @@ const DeliveriesFilterAndTable = ({
         currentPageResults: serviceReportsList,
         paginationProps,
         isLoading,
+        setSearchTerm,
+        searchTerm,
     } = usePagination<RSDelivery>({
         startCursor,
         isCursorInclusive,
@@ -169,46 +170,45 @@ const DeliveriesFilterAndTable = ({
     ].map((receiver) => {
         return { value: receiver, label: receiver };
     });
+
     return (
         <>
-            <section className="bg-blue-5 padding-4">
-                <p className="text-bold margin-top-0">
-                    View data from a specific receiver or date and time range
-                </p>
-
-                <TableFilters
-                    receivers={receiverDropdown}
-                    startDateLabel={TableFilterDateLabel.START_DATE}
-                    endDateLabel={TableFilterDateLabel.END_DATE}
-                    showDateHints={true}
-                    filterManager={filterManager}
-                    setService={setService}
-                    onFilterClick={({
-                        from,
-                        to,
-                    }: {
-                        from: string;
-                        to: string;
-                    }) =>
-                        appInsights?.trackEvent({
-                            name: featureEvent,
-                            properties: {
-                                tableFilter: {
-                                    startRange: from,
-                                    endRange: to,
-                                },
-                            },
-                        })
-                    }
-                    initialService={initialService}
-                />
-            </section>
-            <DeliveriesTable
+            <TableFilters
+                receivers={receiverDropdown}
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
+                showDateHints={true}
                 filterManager={filterManager}
-                paginationProps={paginationProps}
-                isLoading={isLoading}
-                serviceReportsList={serviceReportsList}
+                setSearchTerm={setSearchTerm}
+                searchTerm={searchTerm}
+                setService={setService}
+                onFilterClick={({ from, to }: { from: string; to: string }) =>
+                    appInsights?.trackEvent({
+                        name: featureEvent,
+                        properties: {
+                            tableFilter: {
+                                startRange: from,
+                                endRange: to,
+                            },
+                        },
+                    })
+                }
+                initialService={initialService}
+                resultLength={paginationProps?.resultLength}
+                isPaginationLoading={paginationProps?.isPaginationLoading}
             />
+            {services.length === 0 ? (
+                <div className="usa-section margin-bottom-5">
+                    <NoServicesBanner />
+                </div>
+            ) : (
+                <DeliveriesTable
+                    filterManager={filterManager}
+                    paginationProps={paginationProps}
+                    isLoading={isLoading}
+                    serviceReportsList={serviceReportsList}
+                />
+            )}
         </>
     );
 };
@@ -226,13 +226,6 @@ export const DailyData = () => {
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
-
-    if (activeReceivers.length === 0)
-        return (
-            <div className="usa-section margin-bottom-5">
-                <NoServicesBanner />
-            </div>
-        );
     return (
         <DeliveriesFilterAndTable
             fetchResults={fetchResults}

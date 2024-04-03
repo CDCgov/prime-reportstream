@@ -35,7 +35,7 @@
       topic: "etor-ti"
       customerStatus: "active"
       format: "FHIR"
-      schemaName: "metadata/fhir_transforms/senders/Flexion/TILabOrder"
+      schemaName: "classpath:/metadata/fhir_transforms/senders/Flexion/TILabOrder.yml"
     # Results Senders
     # PHL => RS
     - name: "simulated-lab"
@@ -48,12 +48,12 @@
     # Orders Receivers
     # RS => TI: translates ORM_O01 from HL7 to FHIR and sends the message to the TI service orders API
     - name: "etor-service-receiver-orders"
-      externalName: "ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 FHIR orders"
+      externalName: "ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 and OML_O21 FHIR orders"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
       jurisdictionalFilter:
-        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01'" # ORM_O01
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01') or (Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')" # ORM_O01 or OML_O21
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
       qualityFilter:
         - true
@@ -63,7 +63,7 @@
         initialTime: "00:00"
       translation: !<FHIR>
         type: "FHIR"
-        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        schemaName: "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
         useBatching: false
       transport: !<REST>
         type: "REST"
@@ -103,7 +103,7 @@
         initialTime: "00:00"
       translation: !<HL7>
         type: "HL7"
-        schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/TILabOrder.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
       transport:
@@ -130,7 +130,7 @@
         initialTime: "00:00"
       translation: !<FHIR>
         type: "FHIR"
-        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        schemaName: "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
         useBatching: false
       transport: !<REST>
         type: "REST"
@@ -168,7 +168,7 @@
         initialTime: "00:00"
       translation: !<HL7>
         type: "HL7"
-        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
       transport:

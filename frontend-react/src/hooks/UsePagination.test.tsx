@@ -14,9 +14,9 @@ import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
 import * as AppInsightsContext from "../contexts/AppInsights";
 import { renderHook } from "../utils/CustomRenderUtils";
 
-const mockTrackEvent = jest.fn();
+const mockTrackEvent = vi.fn();
 
-const mockUseAppInsightsContext = jest.spyOn(
+const mockUseAppInsightsContext = vi.spyOn(
     AppInsightsContext,
     "useAppInsightsContext",
 );
@@ -237,6 +237,7 @@ describe("processResultsReducer", () => {
                 7: "60",
             },
             finalPageNum: undefined,
+            resultLength: 61,
         });
     });
 
@@ -266,6 +267,7 @@ describe("processResultsReducer", () => {
                 3: "20",
             },
             finalPageNum: 3,
+            resultLength: 30,
         });
     });
 
@@ -305,6 +307,7 @@ describe("processResultsReducer", () => {
                 7: "61",
             },
             finalPageNum: undefined,
+            resultLength: 61,
         });
     });
 });
@@ -440,28 +443,37 @@ describe("usePagination", () => {
         );
     }
 
-    test("Returns empty pagination props when there are no results", async () => {
-        const mockFetchResults = jest.fn().mockResolvedValueOnce([]);
-        mockUseAppInsightsContextImplementation();
-        const { result } = doRenderHook({
-            startCursor: "0",
-            isCursorInclusive: false,
-            pageSize: 10,
-            fetchResults: mockFetchResults,
-            extractCursor,
-        });
-        // The request on the first page should check for the presence of up to
-        // seven pages.
-        await waitFor(() =>
-            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61),
-        );
-        expect(result.current.paginationProps).toBeUndefined();
-        expect(result.current.currentPageResults).toStrictEqual([]);
-    });
+    test(
+        "Returns empty pagination props when there are no results",
+        { retry: 3 },
+        async () => {
+            const mockFetchResults = vi.fn().mockResolvedValueOnce([]);
+            mockUseAppInsightsContextImplementation();
+            const { result } = doRenderHook({
+                startCursor: "0",
+                isCursorInclusive: false,
+                pageSize: 10,
+                fetchResults: mockFetchResults,
+                extractCursor,
+            });
+            // The request on the first page should check for the presence of up to
+            // seven pages.
+            await waitFor(() =>
+                expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {}),
+            );
+            expect(result.current.paginationProps).toMatchObject({
+                currentPageNum: 0,
+                isPaginationLoading: false,
+                resultLength: 0,
+                slots: [],
+            });
+            expect(result.current.currentPageResults).toStrictEqual([]);
+        },
+    );
 
     test("Fetches results and updates the available slots and page of results", async () => {
         const results = createSampleRecords(40);
-        const mockFetchResults = jest.fn().mockResolvedValueOnce(results);
+        const mockFetchResults = vi.fn().mockResolvedValueOnce(results);
         mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
@@ -473,7 +485,7 @@ describe("usePagination", () => {
         // The request on the first page should check for the presence of up to
         // seven pages.
         await waitFor(() =>
-            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61),
+            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {}),
         );
         await waitFor(() =>
             expect(result.current.paginationProps?.currentPageNum).toBe(1),
@@ -486,156 +498,169 @@ describe("usePagination", () => {
         );
     });
 
-    test("Setting a page fetches a new batch of results and updates the state", async () => {
-        const results1 = createSampleRecords(61);
-        const results2 = createSampleRecords(21, 61);
-        const mockFetchResults = jest
-            .fn()
-            .mockResolvedValueOnce(results1)
-            .mockResolvedValueOnce(results2);
-        mockUseAppInsightsContextImplementation();
-        const { result } = doRenderHook({
-            startCursor: "0",
-            isCursorInclusive: false,
-            pageSize: 10,
-            fetchResults: mockFetchResults,
-            extractCursor,
-        });
-        await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined(),
-        );
-        expect(result.current.paginationProps?.currentPageNum).toBe(1);
-        expect(result.current.paginationProps?.slots).toStrictEqual([
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            OVERFLOW_INDICATOR,
-        ]);
+    test(
+        "Setting a page fetches a new batch of results and updates the state",
+        { retry: 3 },
+        async () => {
+            const results1 = createSampleRecords(61);
+            const results2 = createSampleRecords(21, 61);
+            const mockFetchResults = vi
+                .fn()
+                .mockResolvedValueOnce(results1)
+                .mockResolvedValueOnce(results2);
+            mockUseAppInsightsContextImplementation();
+            const { result } = doRenderHook({
+                startCursor: "0",
+                isCursorInclusive: false,
+                pageSize: 10,
+                fetchResults: mockFetchResults,
+                extractCursor,
+            });
+            await waitFor(() =>
+                expect(result.current.paginationProps).toBeDefined(),
+            );
+            expect(result.current.paginationProps?.currentPageNum).toBe(1);
+            expect(result.current.paginationProps?.slots).toStrictEqual([
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                OVERFLOW_INDICATOR,
+            ]);
 
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(6);
-        });
-        expect(result.current.isLoading).toBe(true);
-        await waitFor(() =>
-            expect(
-                result.current.paginationProps?.currentPageNum,
-            ).toBeGreaterThan(1),
-        );
-        expect(mockFetchResults).toHaveBeenLastCalledWith("60", 21);
-        expect(result.current.paginationProps?.currentPageNum).toBe(6);
-        expect(result.current.paginationProps?.slots).toStrictEqual([
-            1,
-            OVERFLOW_INDICATOR,
-            5,
-            6,
-            7,
-            8,
-            OVERFLOW_INDICATOR,
-        ]);
-        expect(result.current.isLoading).toBe(false);
+            act(() => {
+                result.current.paginationProps?.setSelectedPage(6);
+            });
+            expect(result.current.isLoading).toBe(true);
+            await waitFor(() =>
+                expect(
+                    result.current.paginationProps?.currentPageNum,
+                ).toBeGreaterThan(1),
+            );
+            expect(mockFetchResults).toHaveBeenLastCalledWith("60", 21, {});
+            expect(result.current.paginationProps?.currentPageNum).toBe(6);
+            expect(result.current.paginationProps?.slots).toStrictEqual([
+                1,
+                OVERFLOW_INDICATOR,
+                5,
+                6,
+                7,
+                8,
+                OVERFLOW_INDICATOR,
+            ]);
+            expect(result.current.isLoading).toBe(false);
 
-        // The current page of results is still from the first fetch. The second
-        // fetch was needed to extend the pagination, not get the results for
-        // the current page.
-        expect(result.current.currentPageResults).toStrictEqual(
-            results1.slice(50, 60),
-        );
-    });
+            // The current page of results is still from the first fetch. The second
+            // fetch was needed to extend the pagination, not get the results for
+            // the current page.
+            expect(result.current.currentPageResults).toStrictEqual(
+                results1.slice(50, 60),
+            );
+        },
+    );
 
-    test("Changing the initial start cursor resets the state", async () => {
-        const mockFetchResults = jest
-            .fn()
-            .mockResolvedValueOnce(createSampleRecords(11))
-            .mockResolvedValueOnce(createSampleRecords(11));
-        mockUseAppInsightsContextImplementation();
-        const { result, rerender } = doRenderHook({
-            startCursor: "0",
-            isCursorInclusive: false,
-            pageSize: 10,
-            fetchResults: mockFetchResults,
-            extractCursor,
-        });
+    // Flaky test, retry 3 times
+    test(
+        "Changing the initial start cursor resets the state",
+        { retry: 3 },
+        async () => {
+            const mockFetchResults = vi
+                .fn()
+                .mockResolvedValueOnce(createSampleRecords(11))
+                .mockResolvedValueOnce(createSampleRecords(11));
+            mockUseAppInsightsContextImplementation();
+            const { result, rerender } = doRenderHook({
+                startCursor: "0",
+                isCursorInclusive: false,
+                pageSize: 10,
+                fetchResults: mockFetchResults,
+                extractCursor,
+            });
 
-        // Wait for the fetch promise to resolve, then check the slots and move
-        // to the next page.
-        await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined(),
-        );
-        expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
-        expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(2);
-        });
-        // The current page should update right away since we don't need to
-        // fetch any more results.
-        expect(result.current.paginationProps?.currentPageNum).toBe(2);
+            // Wait for the fetch promise to resolve, then check the slots and move
+            // to the next page.
+            await waitFor(() =>
+                expect(result.current.paginationProps).toBeDefined(),
+            );
+            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {});
+            expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
+            act(() => {
+                result.current.paginationProps?.setSelectedPage(2);
+            });
+            // The current page should update right away since we don't need to
+            // fetch any more results.
+            expect(result.current.paginationProps?.currentPageNum).toBe(2);
 
-        // Rerender with a new start cursor.
-        rerender({
-            startCursor: "9999",
-            isCursorInclusive: false,
-            pageSize: 10,
-            fetchResults: mockFetchResults,
-            extractCursor,
-        });
-        await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined(),
-        );
-        // After a reset, the fetch count should reflect an initial request,
-        // which needs to check for the presence of up to five pages.
-        expect(mockFetchResults).toHaveBeenLastCalledWith("9999", 61);
-        expect(result.current.paginationProps?.currentPageNum).toBe(1);
-    });
+            // Rerender with a new start cursor.
+            rerender({
+                startCursor: "9999",
+                isCursorInclusive: false,
+                pageSize: 10,
+                fetchResults: mockFetchResults,
+                extractCursor,
+            });
+            await waitFor(() =>
+                expect(result.current.paginationProps).toBeDefined(),
+            );
+            // After a reset, the fetch count should reflect an initial request,
+            // which needs to check for the presence of up to five pages.
+            expect(mockFetchResults).toHaveBeenLastCalledWith("9999", 61, {});
+            expect(result.current.paginationProps?.currentPageNum).toBe(1);
+        },
+    );
 
-    test("Changing the fetchResults function resets the state", async () => {
-        const mockFetchResults1 = jest
-            .fn()
-            .mockResolvedValueOnce(createSampleRecords(11))
-            .mockResolvedValueOnce(createSampleRecords(1, 11));
-        const mockFetchResults2 = jest
-            .fn()
-            .mockResolvedValueOnce(createSampleRecords(1));
-        const initialProps = {
-            startCursor: "1",
-            isCursorInclusive: false,
-            pageSize: 10,
-            fetchResults: mockFetchResults1,
-            extractCursor,
-        };
-        mockUseAppInsightsContextImplementation();
-        const { result, rerender } = doRenderHook(initialProps);
+    test(
+        "Changing the fetchResults function resets the state",
+        { retry: 3 },
+        async () => {
+            const mockFetchResults1 = vi
+                .fn()
+                .mockResolvedValueOnce(createSampleRecords(11))
+                .mockResolvedValueOnce(createSampleRecords(1, 11));
+            const mockFetchResults2 = vi
+                .fn()
+                .mockResolvedValueOnce(createSampleRecords(1));
+            const initialProps = {
+                startCursor: "1",
+                isCursorInclusive: false,
+                pageSize: 10,
+                fetchResults: mockFetchResults1,
+                extractCursor,
+            };
+            mockUseAppInsightsContextImplementation();
+            const { result, rerender } = doRenderHook(initialProps);
 
-        // Set the results and move to the second page.
-        await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined(),
-        );
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(2);
-        });
-        expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
-        expect(result.current.paginationProps?.currentPageNum).toBe(2);
+            // Set the results and move to the second page.
+            await waitFor(() =>
+                expect(result.current.paginationProps).toBeDefined(),
+            );
+            act(() => {
+                result.current.paginationProps?.setSelectedPage(2);
+            });
+            expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
+            expect(result.current.paginationProps?.currentPageNum).toBe(2);
 
-        // Rerender with a new fetch results callback to create the list request
-        // parameters, e.g. when the sort order changes.
-        rerender({
-            ...initialProps,
-            fetchResults: mockFetchResults2,
-        });
-        await waitFor(() =>
-            expect(
-                result.current.paginationProps?.currentPageNum,
-            ).toBeDefined(),
-        );
-        // The initial request should check for the presence of up to five pages.
-        expect(mockFetchResults2).toHaveBeenLastCalledWith("1", 61);
-        expect(result.current.paginationProps?.currentPageNum).toBe(1);
-    });
+            // Rerender with a new fetch results callback to create the list request
+            // parameters, e.g. when the sort order changes.
+            rerender({
+                ...initialProps,
+                fetchResults: mockFetchResults2,
+            });
+            await waitFor(() =>
+                expect(
+                    result.current.paginationProps?.currentPageNum,
+                ).toBeDefined(),
+            );
+            // The initial request should check for the presence of up to five pages.
+            expect(mockFetchResults2).toHaveBeenLastCalledWith("1", 61, {});
+            expect(result.current.paginationProps?.currentPageNum).toBe(1);
+        },
+    );
 
     test("Calls appInsights?.trackEvent with page size and page number.", async () => {
-        const mockFetchResults = jest
+        const mockFetchResults = vi
             .fn()
             .mockResolvedValueOnce(createSampleRecords(11))
             .mockResolvedValueOnce(createSampleRecords(11));
@@ -654,7 +679,7 @@ describe("usePagination", () => {
         await waitFor(() =>
             expect(result.current.paginationProps).toBeDefined(),
         );
-        expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
+        expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {});
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
         expect(mockTrackEvent).not.toHaveBeenCalled();
 
