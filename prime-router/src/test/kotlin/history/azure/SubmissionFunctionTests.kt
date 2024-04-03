@@ -97,7 +97,7 @@ class SubmissionFunctionTests : Logging {
             sendingOrg = organizationName,
             sendingOrgClient = organizationClient,
             httpStatus = 201,
-            bodyUrl= "http://anyblob.com",
+            bodyUrl = "http://anyblob.com",
             schemaName = "None",
             bodyFormat = "",
         ),
@@ -111,7 +111,7 @@ class SubmissionFunctionTests : Logging {
             sendingOrg = organizationName,
             sendingOrgClient = organizationClient,
             httpStatus = 400,
-            bodyUrl= "",
+            bodyUrl = "",
             schemaName = "",
             bodyFormat = "",
         )

@@ -61,7 +61,7 @@ open class SubmissionHistory(
     @JsonIgnore
     val sendingOrgClient: String? = "",
     @JsonIgnore
-    val bodyUrl: String? = null,
+    val bodyUrl: String? = "",
     @JsonIgnore
     val schemaName: String,
     @JsonProperty("fileType")
