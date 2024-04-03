@@ -274,6 +274,9 @@ class FhirConverterTests {
 
     @Test
     fun `test getContentFromHL7 alternate profile`() {
+        @Suppress("ktlint:standard:max-line-length")
+        val expectedFHIR =
+            "{\"resourceType\":\"Bundle\",\"id\":\"1712180231381087000.70dfa23a-879a-436b-9e05-c7776e01131b\",\"meta\":{\"lastUpdated\":\"2024-04-03T17:37:11.389-04:00\"},\"identifier\":{\"system\":\"https://reportstream.cdc.gov/prime-router\",\"value\":\"1234d1d1-95fe-462c-8ac6-46728dba581c\"},\"type\":\"message\",\"timestamp\":\"2021-08-03T09:15:11.015-04:00\",\"entry\":[{\"fullUrl\":\"MessageHeader/c03f1b6b-cfc3-3477-89c0-d38316cd1a38\",\"resource\":{\"resourceType\":\"MessageHeader\",\"id\":\"c03f1b6b-cfc3-3477-89c0-d38316cd1a38\",\"meta\":{\"extension\":[{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/process-timestamp\",\"valueDateTime\":\"2024-04-03T17:37:11Z\"},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/source-event-trigger\",\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0003\",\"code\":\"R01\"}]}},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/source-record-type\",\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0076\",\"code\":\"ORU\"}]}},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/source-event-timestamp\",\"valueDateTime\":\"2021-08-03T13:15:11.0147Z\"},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/source-record-id\",\"valueString\":\"1234d1d1-95fe-462c-8ac6-46728dba581c\"},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version\",\"valueString\":\"2.5.1\"},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/process-client-id\",\"valueString\":\"CDC PRIME - Atlanta,\"}]}}}]}"
         val testProfile = HL7Reader.Companion.MessageProfile("ORU", "TestProfile")
 
         val actionLogger = spyk(ActionLogger())
@@ -290,22 +293,20 @@ class FhirConverterTests {
 
         every { message.downloadContent() }
             .returns(validHl7)
-
-        val bundles = engine.getContentFromHL7(message, actionLogger)
-
         mockkClass(HL7Reader::class)
         mockkObject(HL7Reader.Companion)
         every { HL7Reader.Companion.getMessageProfile(any()) } returns testProfile
         every { HL7Reader.Companion.profileDirectoryMap[testProfile] } returns "./metadata/test_fhir_mapping"
 
-        val bundles2 = engine.getContentFromHL7(message, actionLogger)
+        val bundles = engine.getContentFromHL7(message, actionLogger)
 
-        // the test fhir mappings produce far fewer entries than the production ones
-        assertThat(bundles2).isNotEmpty()
+        // the test fhir mappings produce a small subset of what the input HL7 contains
+        assertThat(bundles).isNotEmpty()
+        // assertThat(bundles[0].equalsDeep(FhirTranscoder.decode(expectedFHIR))).isTrue()
         val result = CompareData.Result()
         CompareFhirData().compare(
             FhirTranscoder.encode(bundles[0]).byteInputStream(),
-            FhirTranscoder.encode(bundles2[0]).byteInputStream(),
+            expectedFHIR.byteInputStream(),
             result
         )
         assertThat(result.passed).isFalse()
