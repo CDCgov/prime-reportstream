@@ -59,6 +59,7 @@ elements:
 
   - name: obx-equipment-instance-identifier
     resource: '%resource.device.resolve().identifier.union(%resource.extension(%`rsext-obx-observation`).extension.where(url = "OBX.18").tail().value.resolve().identifier)'
+    condition: '%resource.value.exists() or %resource.extension(%`rsext-assigning-authority`).exists()'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier-extension/EI.yml
     resourceIndex: equipmentInstanceIdentifierIndex
     constants:
