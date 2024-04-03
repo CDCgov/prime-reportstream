@@ -9,5 +9,5 @@ export enum Organizations {
 export const useAdminSafeOrganizationName = (orgName: string | undefined) => {
     return orgName === Organizations.PRIMEADMINS
         ? Organizations.IGNORE
-        : orgName;
+        : orgName ?? "";
 };
