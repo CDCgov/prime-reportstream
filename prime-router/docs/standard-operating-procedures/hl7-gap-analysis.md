@@ -14,7 +14,7 @@ As HL7 messages pass through the Universal Pipeline, they get converted into FHI
 2. De-identify message if message contains sensitive data
    * List of fields that require de-identification https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7-message-de-identification-for-sending-to-hhs-protect
 3. Create a new folder for the sender here https://cdc.sharepoint.com/:f:/r/teams/ReportStream/Shared%20Documents/Engagement/Gap%20Analysis?csf=1&web=1&e=DKrFrk
-4. Save sample messages on newly created folder
+4. Save sample messages in newly created folder
 5. Send HL7 message through the UP and make sure it gets routed to an HL7 receiver
    * Sender/Receiver combo should have base transforms, nothing custom, no receiver settings
 6. Save output on previously created Gap Analysis folder
