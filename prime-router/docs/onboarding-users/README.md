@@ -13,6 +13,6 @@ The first step to onboarding a new organization to ReportStream is to set up the
 After setting up an Okta account for the receiver/sender  the next step is to configure them to start
 sending or receiving data:
 
-- [Configuring a new sender](./senders.md)
+- [Configuring a new sender](sender-onboarding/senders.md)
 - [Configuring a new receiver](./receivers.md)
 - [Migrating from the legacy pipeline](./migration.md)

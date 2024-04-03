@@ -27,8 +27,10 @@ import {
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import {
-    DEFAULT_FROM_TIME,
-    DEFAULT_TO_TIME,
+    DEFAULT_FROM_TIME_STRING,
+    DEFAULT_TO_TIME_STRING,
+    FALLBACK_FROM_STRING,
+    FALLBACK_TO_STRING,
     getEndOfDay,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
@@ -93,13 +95,23 @@ function TableFilters({
     resultLength,
     isPaginationLoading,
 }: TableFilterProps) {
+    // Don't autofill the 2000-3000 date range.
+    const fromStr =
+        filterManager.rangeSettings.from === FALLBACK_FROM_STRING
+            ? undefined
+            : new Date(filterManager.rangeSettings.from);
+    const toStr =
+        filterManager.rangeSettings.to === FALLBACK_TO_STRING
+            ? undefined
+            : new Date(filterManager.rangeSettings.to);
+
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
-    const [rangeFrom, setRangeFrom] = useState<Date | undefined>(undefined);
-    const [rangeTo, setRangeTo] = useState<Date | undefined>(undefined);
+    const [rangeFrom, setRangeFrom] = useState<Date | undefined>(fromStr);
+    const [rangeTo, setRangeTo] = useState<Date | undefined>(toStr);
     const formRef = useRef<HTMLFormElement>(null);
-    const [startTime, setStartTime] = useState(DEFAULT_FROM_TIME);
-    const [endTime, setEndTime] = useState(DEFAULT_TO_TIME);
+    const [startTime, setStartTime] = useState(DEFAULT_FROM_TIME_STRING);
+    const [endTime, setEndTime] = useState(DEFAULT_TO_TIME_STRING);
     const [currentServiceSelect, setCurrentServiceSelect] = useState<string>(
         initialService?.name,
     );
@@ -130,8 +142,8 @@ function TableFilters({
             currentServiceSelect &&
             !rangeFrom &&
             !rangeTo &&
-            startTime === DEFAULT_FROM_TIME &&
-            endTime === DEFAULT_TO_TIME
+            startTime === DEFAULT_FROM_TIME_STRING &&
+            endTime === DEFAULT_TO_TIME_STRING
         ) {
             return {
                 isFilterDisabled: false,
@@ -255,8 +267,8 @@ function TableFilters({
             setSearchReset(searchReset + 1);
             setRangeFrom(undefined);
             setRangeTo(undefined);
-            setStartTime(DEFAULT_FROM_TIME);
-            setEndTime(DEFAULT_TO_TIME);
+            setStartTime(DEFAULT_FROM_TIME_STRING);
+            setEndTime(DEFAULT_TO_TIME_STRING);
             setCurrentServiceSelect(initialService.name);
             setSearchTerm("");
             setService?.(initialService.name);
@@ -377,6 +389,7 @@ function TableFilters({
                                 startDatePickerProps={{
                                     id: "start-date",
                                     name: "start-date-picker",
+                                    defaultValue: rangeFrom?.toISOString(),
                                     onChange: (val?: string) => {
                                         if (isValidDateString(val)) {
                                             setRangeFrom(new Date(val!));
@@ -390,6 +403,7 @@ function TableFilters({
                                 endDatePickerProps={{
                                     id: "end-date",
                                     name: "end-date-picker",
+                                    defaultValue: rangeTo?.toISOString(),
                                     onChange: (val?: string) => {
                                         if (isValidDateString(val)) {
                                             setRangeTo(
@@ -413,7 +427,9 @@ function TableFilters({
                                             if (input) {
                                                 setStartTime(input);
                                             } else {
-                                                setStartTime(DEFAULT_FROM_TIME);
+                                                setStartTime(
+                                                    DEFAULT_FROM_TIME_STRING,
+                                                );
                                             }
                                         }}
                                     />
@@ -432,7 +448,9 @@ function TableFilters({
                                             if (input) {
                                                 setEndTime(input);
                                             } else {
-                                                setEndTime(DEFAULT_TO_TIME);
+                                                setEndTime(
+                                                    DEFAULT_TO_TIME_STRING,
+                                                );
                                             }
                                         }}
                                     />
