@@ -120,9 +120,9 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
      * This function assumes all the message types will be the same if this is a HL7 batch.
      */
     private fun getMessageModelClasses(rawMessage: String): List<Class<out AbstractMessage>> {
-        val messageProfile = getMessageProfile(rawMessage)
-        if (messageProfile != null) {
-            try {
+        try {
+            val messageProfile = getMessageProfile(rawMessage)
+            if (messageProfile != null) {
                 when (messageProfile.typeID) {
                     "ORU" -> {
                         return when (messageProfile.profileID) {
@@ -148,10 +148,10 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                         return emptyList()
                     }
                 }
-            } catch (ex: Hl7InputStreamMessageStringIterator.ParseFailureError) {
-                logHL7ParseFailure(ex)
-                return emptyList()
             }
+        } catch (ex: Hl7InputStreamMessageStringIterator.ParseFailureError) {
+            logHL7ParseFailure(ex)
+            return emptyList()
         }
         actionLogger.error(InvalidReportMessage("String did not contain any HL7 messages"))
         return emptyList()
