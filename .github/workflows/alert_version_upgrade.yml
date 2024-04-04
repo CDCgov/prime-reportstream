@@ -2,6 +2,9 @@ name: Alert if upgrade is necessary
 
 on:
   workflow_dispatch:
+  push: 
+    branches:
+      - feature/5763-Keep-prod-Metabase-updated
   schedule:
     - cron: "7 13 * * Mon" 
 
@@ -29,7 +32,7 @@ jobs:
             echo  "${env:Versionupdates}" >> Versionupdates.json
       
       - name: JSON to variables
-        uses: antifree/json-to-variables@fceea3105eb6687f377bf24fc8e6e8e0e4d2945a
+        uses: supriyaaddagada/json-to-variables@010e1a56d71dc460a7f3cbe7e0c9be27fb84f1ed
         with:
             filename: 'Versionupdates.json'
             prefix: Schedules  
