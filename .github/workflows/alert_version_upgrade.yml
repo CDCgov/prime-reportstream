@@ -32,7 +32,7 @@ jobs:
             echo  "${env:Versionupdates}" >> Versionupdates.json
       
       - name: JSON to variables
-        uses: supriyaaddagada/json-to-variables@010e1a56d71dc460a7f3cbe7e0c9be27fb84f1ed
+        uses: supriyaaddagada/json-to-variables@00f6ff3a5f15f4bc0ed261ea4c8c23147a717a36
         with:
             filename: 'Versionupdates.json'
             prefix: Schedules  
