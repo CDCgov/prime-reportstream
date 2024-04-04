@@ -30,9 +30,9 @@ elements:
   # MSH 5
   - name: co-receiving-application
     value: [ '"CO-ELR"' ]
-    hl7Spec: [ MSH-4-2 ]
+    hl7Spec: [ MSH-5-1 ]
 
   # MSH 6
-  - name: co-reporting-facility-id
+  - name: co-receiving-facility-name
     value: [ '"CO"' ]
-    hl7Spec: [ MSH-4-2 ]
+    hl7Spec: [ MSH-6-1 ]

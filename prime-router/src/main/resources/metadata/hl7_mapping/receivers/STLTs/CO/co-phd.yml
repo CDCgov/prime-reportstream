@@ -22,13 +22,7 @@
       receivingFacilityOID: null
       messageProfileId: null
       replaceValue: {}
-      replaceValueAwithB:
-        MSH-6:
-        - '*': "CO"
-        MSH-5:
-        - '*': "CO-ELR"
-        MSH-3:
-        - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+      replaceValueAwithB: {}
       reportingFacilityName: "CDC PRIME"
       reportingFacilityId: "11D2030855"
       reportingFacilityIdType: null
@@ -129,13 +123,7 @@
       receivingFacilityOID: null
       messageProfileId: null
       replaceValue: {}
-      replaceValueAwithB:
-        MSH-6:
-        - '*': "CO"
-        MSH-5:
-        - '*': "CO-ELR"
-        MSH-3:
-        - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+      replaceValueAwithB: {}
       reportingFacilityName: "CDC PRIME"
       reportingFacilityId: "11D2030855"
       reportingFacilityIdType: null
