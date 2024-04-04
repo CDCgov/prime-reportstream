@@ -42,7 +42,7 @@ elements:
     resource: '%resource.resultsInterpreter.resolve()'
     constants:
       hl7NDLField: '%{obrFieldPath}-32'
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/PractitionerRole/NDL_ELR.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/PractitionerRole/NDL.yml
 
   - name: technician
     resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "SPRF")'

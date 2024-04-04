@@ -154,7 +154,7 @@ class TranslationTests {
         val receiver: String? = null,
         val conditionFiler: String? = null,
         val enrichmentSchemas: String? = null,
-        val additionalProfiles: List<String> = emptyList(),
+        val profile: String? = null,
     )
 
     /**
@@ -298,10 +298,7 @@ class TranslationTests {
                         config.expectedFormat == Report.Format.FHIR -> {
                             val rawHL7 = inputStream.bufferedReader().readText()
                             val expectedRawFhir = expectedStream.bufferedReader().readText()
-                            verifyHL7toFhir(rawHL7, result, expectedRawFhir)
-                            config.additionalProfiles.forEach { profile ->
-                                verifyHL7toFhir(rawHL7, result, expectedRawFhir, profile)
-                            }
+                            verifyHL7toFhir(rawHL7, result, expectedRawFhir, config.profile)
                         }
 
                         // Compare the output of an HL7 to FHIR to HL7 conversion
@@ -431,7 +428,7 @@ class TranslationTests {
             rawHL7: String,
             result: CompareData.Result,
             expectedRawFhir: String,
-            profile: String? = null,
+            profile: String?,
         ) {
             // Currently only supporting one HL7 message
             check(config.inputFormat == Report.Format.HL7)
