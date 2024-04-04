@@ -695,4 +695,30 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         assertThat(retryItems).isNull()
     }
+
+    // Epic localhost end-to-end testing
+    private val epicRestTransportTypeLive = RESTTransportType(
+        "https://hd1314496.epic.com/Interconnect-collabNov/api/epic/2015/EDI/HTTP/HL7v2/334301",
+        headers = mapOf(
+            "Content-Length" to "<calculated when request is sent>",
+            "Content-Type" to "application/hl7-v2",
+            "Host" to "hd1314496.epic.com"
+        )
+    )
+
+    @Test
+    fun `test transport postReport with valid message to epic-etor-nbs-results`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+
+        // When:
+        //      RESTTransport is called WITH transport.parameters empty
+        val retryItems = mockRestTransport.send(
+            epicRestTransportTypeLive, header, reportId, null, context, actionHistory
+        )
+
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
+        assertThat(retryItems).isNull()
+    }
 }
