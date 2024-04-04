@@ -3,7 +3,7 @@
 FILE="$(dirname -- "$0")/_/husky.sh"
 
 if [ ! -f "$FILE" ]; then
-    echo "$FILE does not exist. Please make sure you run yarn first."
+    echo "$FILE does not exist. Please make sure you run yarn first (remove node_modules if it exists beforehand)."
     exit 1
 fi
 
@@ -12,6 +12,14 @@ fi
 # won't be needed when frontend is its own repo.
 cd frontend-react
 
+# check if app routes changed
 ./scripts/approuter-check.sh
 
+# lint staged files
 yarn lint-staged
+
+# keep browser.json up to date (but after linting as we don't 
+# want to cause testing on whole project from yarn.lock changes)
+yarn cli browserslist generate
+git add yarn.lock
+git add ./src/browsers.json

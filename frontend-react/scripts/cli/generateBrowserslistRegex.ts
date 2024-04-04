@@ -1,8 +1,6 @@
 /* eslint-disable camelcase */
-import { writeFileSync } from "node:fs";
 import path from "node:path";
 import * as url from "node:url";
-import process from "node:process";
 
 import {
     getBrowsersList,
@@ -15,7 +13,7 @@ import {
 } from "browserslist-useragent-regexp";
 
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
-const OUTPUT_PATH = path.join(__dirname, "../src/browsers.json");
+export const OUTPUT_PATH = path.join(__dirname, "../../src/browsers.json");
 
 /**
  * Desktop browser names:
@@ -91,7 +89,7 @@ function getAzureBrowserRegex(
  * Perform from-scratch building up to getRegexesForBrowsers so that we can then
  * create an azure-form copy to then create single regexes for both.
  */
-function getRegexes(
+export function getRegexes(
     options: UserAgentRegexOptions = {},
 ): [useragent: RegExp, azure: RegExp] {
     const browsersList = getBrowsersList(options);
@@ -113,44 +111,3 @@ function getRegexes(
 
     return [versionedRegex, azureVersionedRegex];
 }
-
-/**
- * bare-bones implemenation of run args. output regex strings as well as chrome
- * start in ranges for testing.
- */
-function run(...[arg]: string[]) {
-    const isDryRun = arg === "dryRun";
-    const defaultOptions = {
-        ignorePatch: true,
-        allowHigherVersions: true,
-    };
-    const [prefUseragent, prefAzure] = getRegexes(defaultOptions);
-    const [minUseragent, minAzure] = getRegexes({
-        ...defaultOptions,
-        env: "vite",
-    });
-
-    const output = {
-        preferred: {
-            useragent: prefUseragent.source,
-            azure: prefAzure.source,
-        },
-        minimum: {
-            useragent: minUseragent.source,
-            azure: minAzure.source,
-        },
-    };
-    const fileStr = JSON.stringify(output, undefined, 2);
-
-    if (!isDryRun) {
-        writeFileSync(OUTPUT_PATH, fileStr);
-
-        console.log(`Browser regexes saved to: ${OUTPUT_PATH}\n`);
-    } else {
-        console.log("dry run");
-        console.log(`${OUTPUT_PATH} =>`);
-        console.log(fileStr);
-    }
-}
-
-run(...process.argv.slice(2));
