@@ -66,7 +66,10 @@ e2eCmd.option("-q, --skip-build", "skip building app", false);
 e2eCmd.option("-o, --open", "open preview in browser", false);
 e2eCmd.action(async (_, cmd: Command) => {
     const opts = cmd.optsWithGlobals();
-    const env = loadRedirectedEnv(opts);
+    const env = loadRedirectedEnv({
+        ...opts,
+        env: process.env.CI ? "ci" : opts.env,
+    });
     const childArgs = getChildArgs(process.argv);
 
     // go straight to playwright if using help command
