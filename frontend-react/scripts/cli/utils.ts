@@ -59,6 +59,7 @@ export function loadRedirectedEnv(
         VITE_BACKEND_URL: createBackendUrl(mode),
         VITE_PROXY_URL: createProxyUrl(mode),
         VITE_CSP: csp ? createContentSecurityPolicy(port) : undefined,
+        TZ: redirectedMode === "test" ? "UTC" : "",
         ...process.env,
         ...loadedEnv,
     };

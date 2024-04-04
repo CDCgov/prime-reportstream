@@ -49,10 +49,7 @@ testCmd.action(async (_, cmd: Command) => {
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
     const child = spawn("vitest", [...getChildArgs(process.argv)], {
-        env: {
-            ...env,
-            TZ: "UTC",
-        },
+        env,
         stdio: "inherit",
     });
 });
@@ -78,7 +75,7 @@ e2eCmd.action(async (_, cmd: Command) => {
             "playwright",
             ["test", ...getChildArgs(process.argv)],
             {
-                env: { ...env, TZ: "UTC" },
+                env,
                 stdio: "inherit",
             },
         );
