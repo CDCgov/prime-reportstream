@@ -80,7 +80,7 @@ runs:
           set -e pipefail
           cd frontend-react
           echo "::group::Unit tests"
-          yarn test:ci
+          yarn test
           echo "::endgroup::"
         shell: bash
 

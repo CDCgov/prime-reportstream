@@ -11,10 +11,10 @@ program.option(
 );
 program.option(
     "-e, --env [ENVIRONMENT]",
-    "which environment to configure for (ex: dev, production, staging)",
-    "production",
+    "which special environment to configure for (ex: demo, trialfrontend, etc.)",
 );
 program.option("-d, --debug", "debug mode");
+program.option("--ci", "run in CI mode");
 
 const devCmd = program
     .command("dev")
@@ -22,33 +22,50 @@ const devCmd = program
         "run local dev server (pass vite-specific commands after '--')",
     );
 devCmd.action(async (_, cmd: Command) => {
+    process.env.NODE_ENV = "development";
     const opts = cmd.optsWithGlobals();
-    const env = loadRedirectedEnv({ ...opts, env: "development" });
-    const child = spawn("vite", ["dev", ...getChildArgs(process.argv)], {
-        env,
-        stdio: "inherit",
-    });
+    const env = loadRedirectedEnv(opts);
+    const child = spawn(
+        "vite",
+        ["dev", `--mode ${env.VITE_MODE}`, ...getChildArgs(process.argv)],
+        {
+            env,
+            stdio: "inherit",
+        },
+    );
 });
 
 const buildCmd = program
     .command("build")
     .description("build app (pass vite-specific commands after '--')");
 buildCmd.action(async (_, cmd: Command) => {
+    process.env.NODE_ENV = "production";
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
-    const child = spawn("vite", ["build", ...getChildArgs(process.argv)], {
-        env,
-        stdio: "inherit",
-    });
+    const child = spawn(
+        "vite",
+        ["build", `--mode ${env.VITE_MODE}`, ...getChildArgs(process.argv)],
+        {
+            env,
+            stdio: "inherit",
+        },
+    );
 });
 
 const testCmd = program
     .command("test")
     .description("run unit tests (pass vitest-specific commands after '--')");
 testCmd.action(async (_, cmd: Command) => {
+    process.env.NODE_ENV = "test";
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
-    const child = spawn("vitest", [...getChildArgs(process.argv)], {
+    const args = [
+        `--mode ${env.VITE_MODE}`,
+        ...(env.CI ? ["--coverage"] : []),
+        ...(opts.debug ? ["--run", "--no-file-parallelism"] : []),
+        ...getChildArgs(process.argv),
+    ];
+    const child = spawn("vitest", args, {
         env,
         stdio: "inherit",
     });
@@ -62,11 +79,9 @@ const e2eCmd = program
 e2eCmd.option("-q, --skip-build", "skip building app", false);
 e2eCmd.option("-o, --open", "open preview in browser", false);
 e2eCmd.action(async (_, cmd: Command) => {
+    process.env.NODE_ENV = "test";
     const opts = cmd.optsWithGlobals();
-    const env = loadRedirectedEnv({
-        ...opts,
-        env: process.env.CI ? "ci" : opts.env,
-    });
+    const env = loadRedirectedEnv(opts);
     const childArgs = getChildArgs(process.argv);
 
     // go straight to playwright if using help command
@@ -82,7 +97,10 @@ e2eCmd.action(async (_, cmd: Command) => {
         return;
     }
 
-    if (!opts.skipBuild) await build();
+    // set any VITE vars returned
+    process.env = env;
+
+    if (!opts.skipBuild) await build({ mode: env.VITE_MODE });
     const server = await preview({ preview: { open: opts.open } });
     const child = spawn("playwright", ["test", ...getChildArgs(process.argv)], {
         env,
