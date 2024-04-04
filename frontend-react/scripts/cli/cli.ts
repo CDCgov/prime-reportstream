@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { preview, build } from "vite";
 import { getChildArgs, loadRedirectedEnv } from "./utils";
 import { spawn } from "node:child_process";
+import { exit } from "node:process";
 
 const program = new Command("reportstream-frontend-cli");
 program.option(
@@ -25,14 +26,14 @@ devCmd.action(async (_, cmd: Command) => {
     process.env.NODE_ENV = "development";
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
-    const child = spawn(
-        "vite",
-        ["dev", `--mode ${env.VITE_MODE}`, ...getChildArgs(process.argv)],
-        {
-            env,
-            stdio: "inherit",
-        },
-    );
+    const promise = new Promise<void>(() => void 0);
+    const child = spawn("vite", ["dev", ...getChildArgs(process.argv)], {
+        env,
+        stdio: "inherit",
+    });
+
+    child.on("exit", (code) => exit(code ?? undefined));
+    return promise;
 });
 
 const buildCmd = program
@@ -42,6 +43,7 @@ buildCmd.action(async (_, cmd: Command) => {
     process.env.NODE_ENV = "production";
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
+    const promise = new Promise<void>(() => void 0);
     const child = spawn(
         "vite",
         ["build", `--mode ${env.VITE_MODE}`, ...getChildArgs(process.argv)],
@@ -50,6 +52,9 @@ buildCmd.action(async (_, cmd: Command) => {
             stdio: "inherit",
         },
     );
+
+    child.on("exit", (code) => exit(code ?? undefined));
+    return promise;
 });
 
 const testCmd = program
@@ -65,10 +70,14 @@ testCmd.action(async (_, cmd: Command) => {
         ...(opts.debug ? ["--run", "--no-file-parallelism"] : []),
         ...getChildArgs(process.argv),
     ];
+    const promise = new Promise<void>(() => void 0);
     const child = spawn("vitest", args, {
         env,
         stdio: "inherit",
     });
+
+    child.on("exit", (code) => exit(code ?? undefined));
+    return promise;
 });
 
 const e2eCmd = program
@@ -83,29 +92,29 @@ e2eCmd.action(async (_, cmd: Command) => {
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
     const childArgs = getChildArgs(process.argv);
+    const promise = new Promise<void>(() => void 0);
+    let child, _server;
 
     // go straight to playwright if using help command
     if (childArgs.includes("--help")) {
-        const child = spawn(
-            "playwright",
-            ["test", ...getChildArgs(process.argv)],
-            {
-                env,
-                stdio: "inherit",
-            },
-        );
-        return;
+        child = spawn("playwright", ["test", ...getChildArgs(process.argv)], {
+            env,
+            stdio: "inherit",
+        });
+    } else {
+        // set any VITE vars returned
+        process.env = env;
+
+        if (!opts.skipBuild) await build({ mode: env.VITE_MODE });
+        _server = await preview({ preview: { open: opts.open } });
+        child = spawn("playwright", ["test", ...getChildArgs(process.argv)], {
+            env,
+            stdio: "inherit",
+        });
     }
 
-    // set any VITE vars returned
-    process.env = env;
-
-    if (!opts.skipBuild) await build({ mode: env.VITE_MODE });
-    const server = await preview({ preview: { open: opts.open } });
-    const child = spawn("playwright", ["test", ...getChildArgs(process.argv)], {
-        env,
-        stdio: "inherit",
-    });
+    child.on("exit", (code) => exit(code ?? undefined));
+    return promise;
 });
 
 program.parse();
