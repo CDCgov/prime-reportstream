@@ -12020,7 +12020,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright@npm:1.42.1, playwright@npm:^1.42.1":
+"playwright@npm:1.42.1":
   version: 1.42.1
   resolution: "playwright@npm:1.42.1"
   dependencies:
@@ -12500,7 +12500,6 @@ __metadata:
     msw-storybook-addon: beta
     otpauth: ^9.2.2
     patch-package: ^8.0.0
-    playwright: ^1.42.1
     postcss: ^8.4.38
     prettier: ^3.2.5
     react: ^18.2.0
