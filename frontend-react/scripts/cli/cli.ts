@@ -2,9 +2,9 @@ import { Command } from "commander";
 import { preview, build } from "vite";
 import { getChildArgs, loadRedirectedEnv } from "./utils";
 import { spawnSync } from "node:child_process";
-import { exit } from "node:process";
 import { OUTPUT_PATH, getRegexes } from "./generateBrowserslistRegex";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
 
 const program = new Command("reportstream-frontend-cli");
 program.option(
@@ -28,10 +28,14 @@ devCmd.action((_, cmd: Command) => {
     process.env.NODE_ENV = "development";
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
-    spawnSync("vite", ["dev", ...getChildArgs(process.argv)], {
-        env,
-        stdio: "inherit",
-    });
+    spawnSync(
+        "vite",
+        ["dev", "--port", "3000", ...getChildArgs(process.argv)],
+        {
+            env,
+            stdio: "inherit",
+        },
+    );
 });
 
 const buildCmd = program
@@ -43,7 +47,7 @@ buildCmd.action((_, cmd: Command) => {
     const env = loadRedirectedEnv(opts);
     spawnSync(
         "vite",
-        ["build", `--mode ${env.VITE_MODE}`, ...getChildArgs(process.argv)],
+        ["build", "--mode", env.VITE_MODE, ...getChildArgs(process.argv)],
         {
             env,
             stdio: "inherit",
