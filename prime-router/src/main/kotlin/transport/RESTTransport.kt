@@ -102,7 +102,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         }
 
         // get the username/password to authenticate with OAuth
-        val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
+        val (credential, jksCredential) = if (restTransportInfo.authTokenUrl.isEmpty()) {
+            Pair(null, null)
+        } else {
+            getCredential(restTransportInfo, receiver)
+        }
 
         return try {
             // run our call to the endpoint in a blocking fashion
@@ -111,12 +115,12 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     try {
                         // parse headers for any dynamic values, OK needs the report ID
                         var (httpHeaders, bearerTokens: BearerTokens?) = getOAuthToken(
-                            restTransportInfo,
-                            reportId,
-                            jksCredential,
-                            credential,
-                            logger
-                        )
+                                restTransportInfo,
+                                reportId,
+                                jksCredential,
+                                credential,
+                                logger
+                            )
                         logger.info("Token successfully added!")
 
                         // post the report
@@ -281,7 +285,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         restTransportInfo: RESTTransportType,
         reportId: String,
         jksCredential: UserJksCredential?,
-        credential: RestCredential,
+        credential: RestCredential?,
         logger: Logger,
     ): Pair<Map<String, String>, BearerTokens?> {
         var httpHeaders = restTransportInfo.headers.mapValues {
@@ -297,6 +301,12 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         // if not, try as UserPass with pass field (OK)
         val tokenInfo: TokenInfo
         var bearerTokens: BearerTokens? = null
+
+        // Check to see is there URL for authentication or not
+        if (restTransportInfo.authTokenUrl.isEmpty()) {
+            return Pair(httpHeaders, bearerTokens)
+        }
+
         when (credential) {
             is UserApiKeyCredential -> {
                 tokenInfo = getAuthTokenWithUserApiKey(
@@ -532,6 +542,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             contentType(ContentType.Application.Json)
                             // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
                             JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
+                        }
+                        "application/hl7-v2" -> {
+                            // The following line doesn't work. It shows one seg on their server
+                            val filteredMsg = message.toString(Charsets.UTF_8).replace("\n", "\r").dropLast(1) + "\r"
+                            TextContent(filteredMsg, ContentType("application", "hl7-v2"))
                         }
                         // NY Content-Type: multipart/form-data
                         "multipart/form-data" -> {
