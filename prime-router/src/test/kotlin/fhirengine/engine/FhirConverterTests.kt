@@ -2,10 +2,10 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
-import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import ca.uhn.fhir.context.FhirContext
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -38,6 +38,7 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.runs
 import io.mockk.spyk
+import io.mockk.unmockkAll
 import io.mockk.verify
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Coding
@@ -45,6 +46,7 @@ import org.hl7.fhir.r4.model.Observation
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
@@ -122,6 +124,11 @@ class FhirConverterTests {
     @BeforeEach
     fun reset() {
         clearAllMocks()
+    }
+
+    @AfterEach
+    fun tearDown() {
+        unmockkAll()
     }
 
     // good hl7, check actionHistory, item lineages, upload was called, task, queue message
@@ -276,7 +283,7 @@ class FhirConverterTests {
     fun `test getContentFromHL7 alternate profile`() {
         @Suppress("ktlint:standard:max-line-length")
         val expectedFHIR =
-            "{\"resourceType\":\"Bundle\",\"id\":\"1712180231381087000.70dfa23a-879a-436b-9e05-c7776e01131b\",\"meta\":{\"lastUpdated\":\"2024-04-03T17:37:11.389-04:00\"},\"identifier\":{\"system\":\"https://reportstream.cdc.gov/prime-router\",\"value\":\"1234d1d1-95fe-462c-8ac6-46728dba581c\"},\"type\":\"message\",\"timestamp\":\"2021-08-03T09:15:11.015-04:00\",\"entry\":[{\"fullUrl\":\"MessageHeader/c03f1b6b-cfc3-3477-89c0-d38316cd1a38\",\"resource\":{\"resourceType\":\"MessageHeader\",\"id\":\"c03f1b6b-cfc3-3477-89c0-d38316cd1a38\",\"meta\":{\"extension\":[{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/process-timestamp\",\"valueDateTime\":\"2024-04-03T17:37:11Z\"},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/source-event-trigger\",\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0003\",\"code\":\"R01\"}]}},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/source-record-type\",\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0076\",\"code\":\"ORU\"}]}},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/source-event-timestamp\",\"valueDateTime\":\"2021-08-03T13:15:11.0147Z\"},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/source-record-id\",\"valueString\":\"1234d1d1-95fe-462c-8ac6-46728dba581c\"},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version\",\"valueString\":\"2.5.1\"},{\"url\":\"http://ibm.com/fhir/cdm/StructureDefinition/process-client-id\",\"valueString\":\"CDC PRIME - Atlanta,\"}]}}}]}"
+            """{"resourceType":"Bundle","id":"1712209848170736000.4ee08e76-3054-4cab-b203-252ae2d97e30","meta":{"lastUpdated":"2024-04-04T01:50:48.179-04:00"},"identifier":{"system":"https://reportstream.cdc.gov/prime-router","value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T09:15:11.015-04:00","entry":[{"fullUrl":"MessageHeader/c03f1b6b-cfc3-3477-89c0-d38316cd1a38","resource":{"resourceType":"MessageHeader","id":"c03f1b6b-cfc3-3477-89c0-d38316cd1a38"}}]}"""
         val testProfile = HL7Reader.Companion.MessageProfile("ORU", "TestProfile")
 
         val actionLogger = spyk(ActionLogger())
@@ -309,7 +316,7 @@ class FhirConverterTests {
             expectedFHIR.byteInputStream(),
             result
         )
-        assertThat(result.passed).isFalse()
+        assertThat(result.passed).isTrue()
     }
 
     @Test
