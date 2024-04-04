@@ -78,7 +78,7 @@ e2eCmd.action(async (_, cmd: Command) => {
             "playwright",
             ["test", ...getChildArgs(process.argv)],
             {
-                env,
+                env: { ...env, TZ: "UTC" },
                 stdio: "inherit",
             },
         );
