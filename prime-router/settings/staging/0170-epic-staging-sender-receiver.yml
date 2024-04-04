@@ -38,7 +38,7 @@
       translation: !<HL7>
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useTestProcessingMode: false
-        useBatchHeaders: true
+        useBatchHeaders: false
         receivingApplicationName: "EPIC"
         receivingApplicationOID: null
         receivingFacilityName: "LA"
