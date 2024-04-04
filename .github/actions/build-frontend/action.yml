@@ -147,7 +147,7 @@ runs:
           echo "" >> .env.$ENV
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
           echo "::group::Build"
-          yarn build -e :$ENV
+          yarn build -e $ENV
           echo "::endgroup::"
         shell: bash
 
