@@ -21,7 +21,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 class SyncSchemaE2ETests {
 
     @Container
-    val azuriteContainer1 = TestcontainersUtils.createAzuriteContainer(
+    private val azuriteContainer1 = TestcontainersUtils.createAzuriteContainer(
         customImageName = "azurite_syncschemae2e1",
         customEnv = mapOf(
             "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
@@ -29,7 +29,7 @@ class SyncSchemaE2ETests {
     )
 
     @Container
-    val azuriteContainer2 = TestcontainersUtils.createAzuriteContainer(
+    private val azuriteContainer2 = TestcontainersUtils.createAzuriteContainer(
         customImageName = "azurite_syncschemae2e2",
         customEnv = mapOf(
             "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
