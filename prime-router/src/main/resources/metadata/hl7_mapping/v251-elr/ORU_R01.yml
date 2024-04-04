@@ -9,7 +9,6 @@ elements:
       Bundle.entry.resource.ofType(MessageHeader).event is Coding and
       Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    required: true
     schema: classpath:/metadata/hl7_mapping/v251/resources/MessageHeader/MSH.yml
 
   - name: software-segment
@@ -19,5 +18,4 @@ elements:
   - name: patient-result
     resource: 'Bundle.entry.resource.ofType(Patient)'
     resourceIndex: patientIndex
-    required: true
     schema: classpath:/metadata/hl7_mapping/v251/base/patient-result/patient-result.yml

@@ -1,5 +1,6 @@
-package gov.cdc.prime.router.datatests.mappinginventory
+package gov.cdc.prime.router.datatests.mappinginventory.catchall.obx
 
+import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
 import org.junit.jupiter.api.Test
 
 class OBXToObservationTests {
