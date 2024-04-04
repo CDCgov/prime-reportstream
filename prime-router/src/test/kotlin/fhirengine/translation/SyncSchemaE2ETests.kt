@@ -8,30 +8,33 @@ import com.github.ajalt.clikt.testing.test
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ValidateSchemasFunctions
 import gov.cdc.prime.router.cli.SyncTranslationSchemaCommand
+import gov.cdc.prime.router.common.TestcontainersUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkObject
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import org.testcontainers.utility.DockerImageName
 
 @Testcontainers
 class SyncSchemaE2ETests {
 
     @Container
-    private val azuriteContainer1 =
-        GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
-            .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
-            .withExposedPorts(10000, 10001, 10002)
+    val azuriteContainer1 = TestcontainersUtils.createAzuriteContainer(
+        customImageName = "azurite_syncschemae2e1",
+        customEnv = mapOf(
+            "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
+        )
+    )
 
     @Container
-    private val azuriteContainer2 =
-        GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
-            .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
-            .withExposedPorts(10000, 10001, 10002)
+    val azuriteContainer2 = TestcontainersUtils.createAzuriteContainer(
+        customImageName = "azurite_syncschemae2e2",
+        customEnv = mapOf(
+            "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
+        )
+    )
 
     @AfterEach
     fun afterEach() {

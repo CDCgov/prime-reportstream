@@ -18,6 +18,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
+import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -26,8 +27,6 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import org.junit.jupiter.api.AfterEach
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.utility.DockerImageName
 import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -42,10 +41,11 @@ class ReportTests {
 
     val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
 
-    val azuriteContainer =
-        GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
-            .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
-            .withExposedPorts(10000, 10001, 10002)
+    val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
+        customEnv = mapOf(
+        "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
+        )
+    )
 
     /**
      * Create table's header
