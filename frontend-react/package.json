@@ -48,7 +48,7 @@
         "cli": "./scripts/cli-entrypoint.js"
     },
     "scripts": {
-        "postinstall": "scripts/postinstall.sh",
+        "postinstall": "cli prepare",
         "dev": "cli dev",
         "preview": "cli preview",
         "build": "cli build",
@@ -147,7 +147,6 @@
         "msw": "^2.2.11",
         "msw-storybook-addon": "beta",
         "otpauth": "^9.2.2",
-        "patch-package": "^8.0.0",
         "postcss": "^8.4.38",
         "prettier": "^3.2.5",
         "react-error-boundary": "^4.0.13",

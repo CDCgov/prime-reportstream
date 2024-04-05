@@ -1,10 +1,19 @@
 import { Command } from "commander";
 import { preview, build } from "vite";
-import { getChildArgs, loadRedirectedEnv } from "./utils";
-import { spawnSync } from "node:child_process";
-import { OUTPUT_PATH, getRegexes } from "./generateBrowserslistRegex";
+import {
+    getChildArgs,
+    loadRedirectedEnv,
+    frontendSpawnSync,
+    getFrontendAbsolutePath,
+} from "./utils";
+import { getRegexes } from "./generateBrowserslistRegex";
 import { writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { exit } from "node:process";
+
+const FRONTEND_ABS_PATH = getFrontendAbsolutePath();
+const REPO_ABS_PATH = join(FRONTEND_ABS_PATH, "../");
+const BROWSERS_OUTPUT_PATH = join(FRONTEND_ABS_PATH, "./src/browsers.json");
 
 const program = new Command("reportstream-frontend-cli");
 program.option(
@@ -28,12 +37,11 @@ devCmd.action((_, cmd: Command) => {
     process.env.NODE_ENV = "development";
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
-    spawnSync(
+    frontendSpawnSync(
         "vite",
         ["dev", "--port", "3000", ...getChildArgs(process.argv)],
         {
             env,
-            stdio: "inherit",
         },
     );
 });
@@ -45,12 +53,11 @@ buildCmd.action((_, cmd: Command) => {
     process.env.NODE_ENV = "production";
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
-    spawnSync(
+    frontendSpawnSync(
         "vite",
         ["build", "--mode", env.VITE_MODE, ...getChildArgs(process.argv)],
         {
             env,
-            stdio: "inherit",
         },
     );
 });
@@ -68,9 +75,8 @@ testCmd.action((_, cmd: Command) => {
         ...(opts.debug ? ["--run", "--no-file-parallelism"] : []),
         ...getChildArgs(process.argv),
     ];
-    spawnSync("vitest", args, {
+    frontendSpawnSync("vitest", args, {
         env,
-        stdio: "inherit",
     });
 });
 
@@ -97,9 +103,8 @@ e2eCmd.action(async (_, cmd: Command) => {
         _server = await preview({ preview: { open: opts.open } });
     }
 
-    spawnSync("playwright", ["test", ...childArgs], {
+    frontendSpawnSync("playwright", ["test", ...childArgs], {
         env,
-        stdio: "inherit",
     });
 });
 
@@ -128,7 +133,7 @@ lintCmd.action((_, cmd: Command) => {
         ["prettier", prettierArgs],
         ["tsc", tscArgs],
     ] as [cmd: string, args: string[]][]) {
-        spawnSync(cmd, args, { stdio: "inherit" });
+        frontendSpawnSync(cmd, args);
     }
 });
 
@@ -139,18 +144,14 @@ const browserslistUpdateCmd = browserslistCmd
     .command("update")
     .description("update browser db");
 browserslistUpdateCmd.action((_, cmd: Command) => {
-    spawnSync(
-        "yarn",
-        [
-            "dlx",
-            "-p",
-            "browserslist",
-            "-p",
-            "update-browserslist-db",
-            "update-browserslist-db",
-        ],
-        { stdio: "inherit" },
-    );
+    frontendSpawnSync("yarn", [
+        "dlx",
+        "-p",
+        "browserslist",
+        "-p",
+        "update-browserslist-db",
+        "update-browserslist-db",
+    ]);
 });
 const browserslistGenerateCmd = browserslistCmd
     .command("generate")
@@ -165,18 +166,14 @@ browserslistGenerateCmd.action((_, cmd: Command) => {
 
     // update browser db first
     if (!opts.skipUpdate) {
-        spawnSync(
-            "yarn",
-            [
-                "dlx",
-                "-p",
-                "browserslist",
-                "-p",
-                "update-browserslist-db",
-                "update-browserslist-db",
-            ],
-            { stdio: "inherit" },
-        );
+        frontendSpawnSync("yarn", [
+            "dlx",
+            "-p",
+            "browserslist",
+            "-p",
+            "update-browserslist-db",
+            "update-browserslist-db",
+        ]);
     }
 
     const defaultOptions = {
@@ -202,14 +199,59 @@ browserslistGenerateCmd.action((_, cmd: Command) => {
     const fileStr = JSON.stringify(output, undefined, 2);
 
     if (!opts.dryRun) {
-        writeFileSync(OUTPUT_PATH, fileStr);
+        writeFileSync(BROWSERS_OUTPUT_PATH, fileStr);
 
-        console.log(`Browser regexes saved to: ${OUTPUT_PATH}\n`);
+        console.log(`Browser regexes saved to: ${BROWSERS_OUTPUT_PATH}\n`);
     } else {
         console.log("dry run");
-        console.log(`${OUTPUT_PATH} =>`);
+        console.log(`${BROWSERS_OUTPUT_PATH} =>`);
         console.log(fileStr);
     }
+});
+
+const gitCmd = program.command("git").description("git tasks");
+const gitHooksCmd = gitCmd
+    .command("hooks")
+    .description("performs tasks for particular git lifecycle steps");
+const gitPrecommitHookCmd = gitHooksCmd.command("pre-commit");
+gitPrecommitHookCmd.action(() => {
+    frontendSpawnSync("./scripts/approuter-check.sh");
+
+    frontendSpawnSync("lint-staged");
+
+    browserslistGenerateCmd.parse();
+
+    frontendSpawnSync("git", ["add", "yarn.lock", "./src/browsers.json"]);
+});
+
+const prepareCmd = program
+    .command("prepare")
+    .description("prepare the frontend environment");
+prepareCmd.action((_, cmd: Command) => {
+    const opts = cmd.optsWithGlobals();
+
+    // Don't install husky on github runners
+    if (!process.env.CI && !opts.ci) {
+        // run husky at repo root (needs .git folder)
+        console.log("Installing husky...");
+        frontendSpawnSync("husky", ["frontend-react/.husky"], {
+            cwd: REPO_ABS_PATH,
+        });
+        if (!existsSync(join(FRONTEND_ABS_PATH, ".husky/_"))) {
+            // husky error output possibly doesn't have newline
+            console.error("\nHusky install failed");
+            exit(1);
+        }
+
+        console.log("Fixing git hooks...");
+        frontendSpawnSync("git", ["config", "core.hooksPath", ".git/hooks"], {
+            cwd: REPO_ABS_PATH,
+        });
+    } else {
+        console.log("CI mode detected. Skipping husky install...");
+    }
+
+    console.log("Frontend prepare complete");
 });
 
 program.parse();

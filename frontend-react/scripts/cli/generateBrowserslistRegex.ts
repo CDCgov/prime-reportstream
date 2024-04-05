@@ -1,7 +1,4 @@
 /* eslint-disable camelcase */
-import path from "node:path";
-import * as url from "node:url";
-
 import {
     getBrowsersList,
     compileRegex,
@@ -11,9 +8,6 @@ import {
     mergeBrowserVersions,
     BrowserRegex,
 } from "browserslist-useragent-regexp";
-
-const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
-export const OUTPUT_PATH = path.join(__dirname, "../../src/browsers.json");
 
 /**
  * Desktop browser names:
