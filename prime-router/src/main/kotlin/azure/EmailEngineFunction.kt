@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.json.responseJson
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -31,10 +29,12 @@ import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.secrets.SecretHelper
 import gov.cdc.prime.router.tokens.oktaMembershipClaim
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import gov.cdc.prime.router.tokens.subjectClaim
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
@@ -304,26 +304,32 @@ class EmailScheduleEngine {
         var emails: MutableList<String> = mutableListOf()
 
         try {
-            var ssws: String? = SecretHelper.getSecretService().fetchSecret("SSWS_OKTA")
+            val ssws: String? = SecretHelper.getSecretService().fetchSecret("SSWS_OKTA")
 
             if (ssws !== null) {
-                var grp = encodeOrg(org)
+                val grp = encodeOrg(org)
 
                 // get the OKTA Group Id
-                var (_, _, response1) = Fuel.get("$OKTA_GROUPS_API?q=$grp")
-                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
-                var grpId = ((response1.get().array()).get(0) as JSONObject).getString("id")
+                val (_, respStrJson1) = HttpClientUtils.getWithStringResponse(
+                    url = "$OKTA_GROUPS_API?q=$grp",
+                    headers = mapOf("Authorization" to "SSWS $ssws")
+                )
+
+                val grpId = JSONObject(respStrJson1).getString("id")
 
                 // get the users within that OKTA group
-                var (_, _, response) = Fuel.get("$OKTA_GROUPS_API/$grpId/users")
-                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
+                val (_, respStrJson) = HttpClientUtils.getWithStringResponse(
+                    url = "$OKTA_GROUPS_API/$grpId/users",
+                    headers = mapOf("Authorization" to "SSWS $ssws")
+                )
 
-                for (user in response.get().array()) emails.add(
+                val users = JSONArray(respStrJson)
+                for (user in users) emails.add(
                     (user as JSONObject).getJSONObject("profile").getString("email")
                 )
             }
         } catch (ex: Throwable) {
-            logger.warning("Error in fetching emails")
+            logger.warning("Error in fetching emails, exception: ${ex.message}")
             emails = mutableListOf()
         }
 
