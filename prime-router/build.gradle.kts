@@ -458,7 +458,7 @@ tasks.register("testEnd2EndUP") {
 
 tasks.register("testS2S") {
     group = rootProject.description ?: ""
-    description = "Run the s2s auth tests.  Requires running a Docker instance"
+    description = "Run the server to server auth tests.  Requires running a Docker instance"
     project.extra["cliArgs"] = listOf("test", "--run", "server2serverauth")
     finalizedBy("primeCLI")
 }
@@ -768,12 +768,6 @@ task<RunSQL>("clearDB") {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://jitpack.io")
-        content {
-            includeModule("com.github.KennethWussmann", "mock-fuel")
-        }
-    }
 }
 
 buildscript {
@@ -869,10 +863,6 @@ dependencies {
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.2")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
-    implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
-        exclude(group = "org.json", module = "json")
-    }
-    implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20240205")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.38.0")
@@ -902,7 +892,6 @@ dependencies {
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    implementation("io.ktor:ktor-client-auth:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("io.ktor:ktor-client-encoding:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
@@ -931,22 +920,15 @@ dependencies {
     // TODO: move this to a test dependency when CompareFhirData lives under src/test
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.16")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     // pin com.squareup.okio:okio@3.4.0
     runtimeOnly("com.squareup.okio:okio:3.8.0")
-    runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0") {
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
-        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
-        exclude(group = "com.github.kittinunf.fuel", module = "fuel")
-    }
-    // kotlinx-coroutines-core is needed by mock-fuel
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-    testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.0")
