@@ -17,7 +17,7 @@ gradle quickrun
 
 ### Start and stop dependent services
 
-Instead of using a `docker-compose up sftp azurite vault` to bring up dependent services, you can use a script.
+Instead of using a `docker compose up sftp azurite vault` to bring up dependent services, you can use a script.
 
 ```bash
 ./devenv-infrastructure.sh up
