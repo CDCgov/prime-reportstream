@@ -4,10 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.Headers
-import com.github.kittinunf.fuel.core.extensions.jsonBody
-import com.github.kittinunf.result.Result
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.GAENTransportType
@@ -19,9 +15,13 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
+import io.ktor.client.HttpClient
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import org.apache.commons.codec.digest.HmacAlgorithms
 import org.apache.commons.codec.digest.HmacUtils
 import org.apache.commons.lang3.RandomStringUtils
@@ -41,7 +41,7 @@ import java.io.ByteArrayInputStream
  * See [Google API for Exposure Notification](https://https://developers.google.com/android/exposure-notifications/exposure-notifications-api) for details on GAEN.
  * See [Issue API](https://https://github.com/google/exposure-notifications-verification-server/blob/main/docs/api.md#apiissue) for the details on the issue API ReportStream calls.
  */
-class GAENTransport : ITransport, Logging {
+class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
     /**
      * Information helpful for the sending, logging and recording history all bundled together
      * to avoid long parameter lists in functions
@@ -169,8 +169,8 @@ class GAENTransport : ITransport, Logging {
         gaenTransportInfo: GAENTransportType,
     ) {
         val msg = "FAILED GAEN notification of inputReportId $reportId to $gaenTransportInfo " +
-            "(receiver = $receiverFullName);" +
-            "No retry; Exception: ${ex.javaClass.canonicalName} ${ex.localizedMessage}"
+                "(receiver = $receiverFullName);" +
+                "No retry; Exception: ${ex.javaClass.canonicalName} ${ex.localizedMessage}"
         // Dev note: Expecting severe level to trigger monitoring alerts
         context.logger.severe(msg)
         actionHistory.setActionType(TaskAction.send_error)
@@ -213,7 +213,7 @@ class GAENTransport : ITransport, Logging {
      * Do the work of sending a notification for each item in the report.
      * Return a list of retry items and the number of items sent.
      */
-    internal fun processReport(params: SendParams): PostResult {
+    private fun processReport(params: SendParams): PostResult {
         // For unit tests, we do nothing when the apiURL is blank
         if (params.gaenTransportInfo.apiUrl.isBlank()) return PostResult.SUCCESS
 
@@ -225,28 +225,30 @@ class GAENTransport : ITransport, Logging {
         val notification = Notification(
             table, params.reportId, params.gaenTransportInfo.uuidFormat, params.gaenTransportInfo.uuidIV
         )
-        val payload = mapper.writeValueAsString(notification)
-        val (_, response, result) = Fuel
-            .post(params.gaenTransportInfo.apiUrl)
-            .header(API_KEY, params.credential.apiKey)
-            .header(Headers.ACCEPT, "application/json")
-            .timeout(GAEN_TIMEOUT)
-            .jsonBody(payload)
-            .responseString()
 
-        // Handle the result
-        return if (result is Result.Success) {
-            PostResult.SUCCESS
+        val payload = mapper.writeValueAsString(notification)
+
+        val (response, respStr) = HttpClientUtils.postWithStringResponse(
+            url = params.gaenTransportInfo.apiUrl.toString(),
+            headers = mapOf(Pair(API_KEY, params.credential.apiKey.toString())),
+            jsonPayload = payload,
+            acceptedContent = ContentType.Application.Json,
+            httpClient = httpClient
+        )
+
+        if (response.status == HttpStatusCode.OK) {
+            return PostResult.SUCCESS
         } else {
             // The follow error table is based on ENCV server docs.
-            val postResult = when (response.statusCode) {
+            val postResult = when (response.status.value) {
                 // Note: GAEN errors (Bad parameters, Unsupported test type, and UUID already present)
                 // can not be rectified by resubmission via the Last Mile Failures page. We have decided
                 // to ignore the 400 error code for GAEN messages as we are not taking action on
                 // these errors. This does not affect ELR messages sent to STLTs.
                 // STLTs will handle the content error and request for resubmission.
                 // Then, the new GAEN message from regenerate and resend accordingly.
-                400, 409, 412 -> PostResult.SUCCESS // Bad parameters, Unsupported test type, and UUID already present
+                400, 409, 412 -> PostResult.SUCCESS
+                // Bad parameters, Unsupported test type, and UUID already present
                 // can not be rectified by re (consider this a success)
                 429 -> PostResult.RETRY // Maintenance mode or quota limit
                 in 500..599 -> PostResult.RETRY // Server error
@@ -254,11 +256,11 @@ class GAENTransport : ITransport, Logging {
             }
             if (postResult != PostResult.SUCCESS) {
                 val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
-                    " ${response.statusCode} ${response.responseMessage}, \n${String(response.data)}"
+                        ", response status: ${response.status.value} body: $respStr"
                 params.context.logger.warning(warning)
                 params.actionHistory.trackActionResult(warning)
             }
-            postResult
+            return postResult
         }
     }
 
@@ -301,9 +303,11 @@ class GAENTransport : ITransport, Logging {
                 GAENUUIDFormat.PHONE_DATE -> {
                     hmacGenerator.hmacHex("$phone$testDate")
                 }
+
                 GAENUUIDFormat.REPORT_ID -> {
                     "$reportId"
                 }
+
                 GAENUUIDFormat.WA_NOTIFY -> {
                     // WA Notify doesn't want the country code in the UUID calculation
                     val phoneNumber = PhoneNumberUtil.getInstance().parse(phone, "US")
