@@ -215,6 +215,13 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             Pair(MessageProfile("ORU", "NIST_ELR"), "./metadata/HL7/v251-elr"),
         )
 
+        // map of HL7 OIDs to supported conformance profiles
+        // list of OIDs for NIST ELR retrieved from https://oidref.com/2.16.840.1.113883.9
+        val oidProfileMap: Map<String, String> = mapOf(
+            Pair("2.16.840.1.113883.9.10", "NIST_ELR"),
+            Pair("2.16.840.1.113883.9.11", "NIST_ELR")
+        )
+
         // data class to uniquely identify a message profile
         data class MessageProfile(val typeID: String, val profileID: String)
 
@@ -255,12 +262,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             if (!iterator.hasNext()) return null
             val hl7message = iterator.next()
             val msh9 = Terser(hl7message).get("MSH-9")
-            // list of OIDs for NIST ELR retrieved from https://oidref.com/2.16.840.1.113883.9
-            val profileID = when (Terser(hl7message).get("MSH-21-3")) {
-                "2.16.840.1.113883.9.10" -> "NIST_ELR"
-                "2.16.840.1.113883.9.11" -> "NIST_ELR"
-                else -> ""
-            }
+            val profileID = oidProfileMap[Terser(hl7message).get("MSH-21-3")] ?: ""
             return MessageProfile(msh9 ?: "", profileID)
         }
 
