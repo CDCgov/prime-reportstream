@@ -5,6 +5,8 @@ import {
     loadRedirectedEnv,
     frontendSpawnSync,
     getFrontendAbsolutePath,
+    createPromiseResolvers,
+    frontendSpawn,
 } from "./utils";
 import { getRegexes } from "./generateBrowserslistRegex";
 import { writeFileSync, existsSync } from "node:fs";
@@ -27,6 +29,10 @@ program.option(
 );
 program.option("-d, --debug", "debug mode");
 program.option("--ci", "run in CI mode");
+program.option(
+    "-p, --passthrough-options [OPTIONS]",
+    "use if aliasing a command so as not to prevent users from passing internal options (will be passed on first before user-supplied ones)",
+);
 
 const devCmd = program
     .command("dev")
@@ -37,13 +43,63 @@ devCmd.action((_, cmd: Command) => {
     process.env.NODE_ENV = "development";
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
+
+    // set any VITE vars returned
+    process.env = env;
+
     frontendSpawnSync(
         "vite",
-        ["dev", "--port", "3000", ...getChildArgs(process.argv)],
+        [
+            "dev",
+            "--port",
+            "3000",
+            ...getChildArgs(process.argv, opts.passthroughOptions),
+        ],
         {
             env,
         },
     );
+});
+
+const previewCmd = program
+    .command("preview")
+    .description(
+        "run local preview server (pass vite-specific commands after '--')",
+    );
+previewCmd.option("-b, --build", "build app before preview");
+previewCmd.option("-s, --staging-api", "use the staging api", false);
+previewCmd.action(async (_, cmd: Command) => {
+    const opts = cmd.optsWithGlobals();
+    const env = loadRedirectedEnv(opts);
+    const { promise } = createPromiseResolvers<void>();
+
+    // set any VITE vars returned
+    process.env = env;
+
+    if (opts.build) {
+        await build({ mode: env.VITE_MODE });
+    }
+
+    const proc = frontendSpawn(
+        "vite",
+        [
+            "preview",
+            "--mode",
+            env.VITE_MODE,
+            ...getChildArgs(process.argv, opts.passthroughOptions),
+        ],
+        {
+            env,
+        },
+    );
+
+    proc.on("exit", (code) => exit(code ?? 0));
+    proc.on("error", (err) => {
+        console.error(err.message);
+        exit(1);
+    });
+
+    return promise;
 });
 
 const buildCmd = program
@@ -53,9 +109,18 @@ buildCmd.action((_, cmd: Command) => {
     process.env.NODE_ENV = "production";
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
+
+    // set any VITE vars returned
+    process.env = env;
+
     frontendSpawnSync(
         "vite",
-        ["build", "--mode", env.VITE_MODE, ...getChildArgs(process.argv)],
+        [
+            "build",
+            "--mode",
+            env.VITE_MODE,
+            ...getChildArgs(process.argv, opts.passthroughOptions),
+        ],
         {
             env,
         },
@@ -70,11 +135,16 @@ testCmd.action((_, cmd: Command) => {
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
     const args = [
-        `--mode ${env.VITE_MODE}`,
+        "--mode",
+        env.VITE_MODE,
         ...(env.CI ? ["--coverage"] : []),
         ...(opts.debug ? ["--run", "--no-file-parallelism"] : []),
-        ...getChildArgs(process.argv),
+        ...getChildArgs(process.argv, opts.passthroughOptions),
     ];
+
+    // set any VITE vars returned
+    process.env = env;
+
     frontendSpawnSync("vitest", args, {
         env,
     });
@@ -87,11 +157,13 @@ const e2eCmd = program
     );
 e2eCmd.option("-q, --skip-build", "skip building app", false);
 e2eCmd.option("-o, --open", "open preview in browser", false);
+e2eCmd.option("-s, --staging-api", "use the staging api", false);
 e2eCmd.action(async (_, cmd: Command) => {
     process.env.NODE_ENV = "test";
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
-    const childArgs = getChildArgs(process.argv);
+    const childArgs = getChildArgs(process.argv, opts.passthroughOptions);
+    const { promise } = createPromiseResolvers<void>();
     let _server;
 
     // set any VITE vars returned
@@ -103,9 +175,20 @@ e2eCmd.action(async (_, cmd: Command) => {
         _server = await preview({ preview: { open: opts.open } });
     }
 
-    frontendSpawnSync("playwright", ["test", ...childArgs], {
+    const proc = frontendSpawn("playwright", ["test", ...childArgs], {
         env,
     });
+
+    proc.on("exit", (code) => {
+        exit(code ?? 0);
+    });
+
+    proc.on("error", (err) => {
+        console.error(err.message);
+        exit(1);
+    });
+
+    return promise;
 });
 
 const lintCmd = program
