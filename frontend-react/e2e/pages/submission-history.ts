@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { MOCK_GET_REPORT_HISTORY } from "../mocks/history";
 import { MOCK_GET_SUBMISSIONS } from "../mocks/submissions";
 
@@ -34,11 +34,4 @@ export async function mockGetReportHistoryResponse(
         const json = MOCK_GET_REPORT_HISTORY;
         await route.fulfill({ json, status: responseStatus });
     });
-}
-
-export async function openReportIdDetailPage(page: Page, id: string) {
-    const reportDetailsPage = page;
-    await reportDetailsPage.waitForLoadState();
-    await expect(reportDetailsPage).toHaveURL(`/submissions/${id}`);
-    expect(reportDetailsPage.getByText(`Report ID:${id}`)).toBeTruthy();
 }
