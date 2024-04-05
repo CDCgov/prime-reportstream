@@ -42,6 +42,7 @@ class ReportTests {
     val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
 
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
+        customImageName = "azurite_report",
         customEnv = mapOf(
         "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
         )

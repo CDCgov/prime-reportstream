@@ -7,13 +7,12 @@ import java.io.File
 import java.nio.file.Path
 
 object TestcontainersUtils {
-    private const val DEFAULT_AZURITE_IMAGE_NAME = "azurite"
     private val AZURITE_DOCKERFILE: Path = File("../.environment/docker/docker-compose/Dockerfile.azurite").toPath()
 
     private val azuriteContainers: MutableMap<Pair<String, Map<String, String>>, GenericContainer<*>> = mutableMapOf()
 
     fun createAzuriteContainer(
-        customImageName: String = DEFAULT_AZURITE_IMAGE_NAME,
+        customImageName: String,
         customEnv: Map<String, String> = emptyMap(),
     ): GenericContainer<*> {
         val containerKey = Pair(customImageName, customEnv)

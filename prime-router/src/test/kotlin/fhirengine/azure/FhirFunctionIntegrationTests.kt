@@ -116,6 +116,7 @@ class FhirFunctionIntegrationTests() {
 
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
+        customImageName = "azurite_fhirfunctionintegration1",
         customEnv = mapOf(
         "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
         )
