@@ -179,15 +179,24 @@ e2eCmd.action(async (_, cmd: Command) => {
 
     // go straight to playwright if using help command
     if (!childArgs.includes("--help")) {
+        console.log(`Using proxy url: ${env.VITE_PROXY_URL}`);
+        console.log(`Using backend url: ${env.VITE_BACKEND_URL}`);
+        console.log(`Using timezone: ${env.TZ}`);
         if (!opts.skipBuild) await build({ mode: env.VITE_MODE });
-        _server = await preview({ preview: { open: opts.open } });
+        _server = await preview({
+            mode: env.VITE_MODE,
+            preview: { open: opts.open },
+        });
     }
 
-    const proc = frontendSpawnSync("playwright", ["test", ...childArgs], {
-        env,
-    });
-
-    if (checkProcsError([proc])) {
+    try {
+        // Run playwright process async so it plays nicely with preview server
+        await onExit(
+            frontendSpawn("playwright", ["test", ...childArgs], {
+                env,
+            }),
+        );
+    } catch (e: any) {
         exit(1);
     }
 });
